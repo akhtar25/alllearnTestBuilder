@@ -1,0 +1,331 @@
+from flask import Flask, render_template, request, flash, redirect, url_for
+#from flask.ext.sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy
+#import SQLAlchemy
+from send_email import newsletterEmail, send_password_reset_email
+from applicationDB import *
+from config import Config
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
+from flask_migrate import Migrate
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from werkzeug.urls import url_parse
+from logging.handlers import RotatingFileHandler
+import os
+import logging
+import datetime as dt
+from flask_moment import Moment
+from elasticsearch import Elasticsearch
+from flask import g
+from forms import SearchForm
+from forms import PostForm
+from applicationDB import Post
+#from flask_babel import _, get_locale
+
+
+app=Flask(__name__)
+
+#app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:pass123@localhost/myelomaSurvival'
+app.config.from_object(Config)
+db.init_app(app)
+migrate = Migrate(app, db)
+login_manager.init_app(app)
+moment = Moment(app)
+app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
+
+import errors
+
+if not app.debug and not app.testing:
+    if app.config['LOG_TO_STDOUT']:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        app.logger.addHandler(stream_handler)
+    else:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler(
+            'logs/MyelomaSurvivor.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(
+            logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('MS startup')
+
+
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+    g.search_form = SearchForm()
+    #g.locale = str(get_locale())
+
+
+
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html', title='Reset Password', form=form)
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password_page.html', form=form)
+
+
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template(
+        'edit_profile.html', title='Edit Profile', form=form)
+
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template('dashboard.html',title='Home Page')
+
+
+@app.route('/submitPost', methods=['GET', 'POST'])
+@login_required
+def submitPost():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('submitPost'))
+    posts = [{
+        'author': {
+            'username': 'John'
+        },
+        'body': 'Beautiful day in Portland!'
+    }, {
+        'author': {
+            'username': 'Susan'
+        },
+        'body': 'The Avengers movie was so cool!'
+    }]
+    return render_template(
+        "submitPost.html", title='Submit Post', form=form, posts=posts)
+
+
+@app.route('/explore')
+def explore():
+    #page=request.args.get('page',1, type=int)
+    #posts = Post.query.order_by(Post.timestamp.desc()).paginate(page,app.config['POSTS_PER_PAGE'],False)
+     #next_url = url_for('explore', page=posts.next_num) \
+        #if posts.has_next else None
+    #prev_url = url_for('explore', page=posts.prev_num) \
+        #if posts.has_prev else None
+        #return render_template("index.html", title='Explore', posts=posts.items,
+         #                 next_url=next_url, prev_url=prev_url)
+    posts = [{
+        'author': {
+            'username': 'John'
+        },
+        'body': 'Beautiful day in Portland!'
+    }, {
+        'author': {
+            'username': 'Susan'
+        },
+        'body': 'The Avengers movie was so cool!'
+    }]
+
+    return render_template('explore.html', title='Explore', posts=posts)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    #page = request.args.get('page', 1, type=int)
+    #posts = user.posts.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    #next_url = url_for('user', username=user.username, page=posts.next_num) \
+    #    if posts.has_next else None
+    #prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+    #    if posts.has_prev else None
+    #return render_template('user.html', user=user, posts=posts.items,
+    #                       next_url=next_url, prev_url=prev_url)
+    posts = [{
+        'author':
+        user,
+        'body':
+        'Test post #1',
+        'timestamp':
+        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+    }, {
+        'author':
+        user,
+        'body':
+        'Test post #2',
+        'timestamp':
+        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+    }]
+    return render_template('user.html', user=user, posts=posts)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user=User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash("Invalid username or password")
+            return redirect(url_for('login'))
+        login_user(user,remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page)
+        #return redirect(url_for('index'))
+    return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/success',methods=['POST'])
+def success():
+    if request.method=='POST':
+        email=request.form["email"]
+        name=request.form["name"]
+        if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
+            survivor = Survivor(email, name)
+            db.session.add(survivor)
+            db.session.commit()
+            print(email,name)
+            newsletterEmail(email, name)
+            return render_template('newsletterSuccess.html')
+        else:
+            return render_template('index.html',text='Error: Email already used.')
+
+@app.route('/feeManagement')
+def feeManagement():
+    return render_template('feeManagement.html')
+
+@app.route('/tests')
+def tests():
+    return render_template('tests.html')
+
+@app.route('/calendar')
+def calendar():
+    return render_template('calendar.html')
+
+@app.route('/schoolPerformanceRanking')
+def schoolPerformanceRanking():
+    return render_template('schoolPerformanceRanking.html')
+
+@app.route('/recommendations')
+def recommendations():
+    return render_template('recommendations.html')
+
+@app.route('/hospitals')
+def hospitals():
+    return render_template('hospitals.html')
+
+@app.route('/attendance')
+def attendance():
+    return render_template('attendance.html')
+
+@app.route('/content')
+def content():
+    return render_template('content.html')
+
+@app.route('/performance')
+def performance():
+    return render_template('performance.html')
+
+@app.route('/testAudit')
+def testAudit():
+    return render_template('testAudit.html')
+
+@app.route('/studentProfile')
+def studentProfile():
+    return render_template('studentProfile.html')
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
+
+@app.route('/search')
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for('explore'))
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(g.search_form.q.data, page,
+                               app.config['POSTS_PER_PAGE'])
+    next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * app.config['POSTS_PER_PAGE'] else None
+    prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template(
+        'search.html',
+        title='Search',
+        posts=posts,
+        next_url=next_url,
+        prev_url=prev_url)
+
+
+
+
+if __name__=='__main__':
+    app.debug=True
+    app.run()

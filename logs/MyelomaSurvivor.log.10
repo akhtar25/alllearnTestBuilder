@@ -1,0 +1,111 @@
+2018-06-25 20:59:37,781 ERROR: Exception on /explore [GET] [in c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py:1761]
+Traceback (most recent call last):
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\Projects\myelomaSurvivor\app.py", line 160, in explore
+    return render_template('explore.html', title='Explore', posts=posts)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 135, in render_template
+    context, ctx.app)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 117, in _render
+    rv = template.render(context)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\asyncsupport.py", line 76, in render
+    return original_render(self, *args, **kwargs)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 1008, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 780, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\_compat.py", line 37, in reraise
+    raise value.with_traceback(tb)
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 1, in top-level template code
+    {% extends "layout.html" %} {% block content %}
+  File "D:\Projects\myelomaSurvivor\templates\layout.html", line 150, in top-level template code
+    {%block content%} {%endblock%}
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 4, in block "content"
+    <hr> {% for post in posts %} {% include '_post.html' %} {% endfor %}
+  File "D:\Projects\myelomaSurvivor\templates\_post.html", line 4, in top-level template code
+    <img src="{{ post.author.avatar(36) }}">
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'avatar'
+2018-06-25 20:59:37,952 ERROR: Exception on /explore [GET] [in c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py:1761]
+Traceback (most recent call last):
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\Projects\myelomaSurvivor\app.py", line 160, in explore
+    return render_template('explore.html', title='Explore', posts=posts)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 135, in render_template
+    context, ctx.app)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 117, in _render
+    rv = template.render(context)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\asyncsupport.py", line 76, in render
+    return original_render(self, *args, **kwargs)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 1008, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 780, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\_compat.py", line 37, in reraise
+    raise value.with_traceback(tb)
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 1, in top-level template code
+    {% extends "layout.html" %} {% block content %}
+  File "D:\Projects\myelomaSurvivor\templates\layout.html", line 150, in top-level template code
+    {%block content%} {%endblock%}
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 4, in block "content"
+    <hr> {% for post in posts %} {% include '_post.html' %} {% endfor %}
+  File "D:\Projects\myelomaSurvivor\templates\_post.html", line 4, in top-level template code
+    <img src="{{ post.author.avatar(36) }}">
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'avatar'
+2018-06-25 20:59:38,133 ERROR: Exception on /explore [GET] [in c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py:1761]
+Traceback (most recent call last):
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\Projects\myelomaSurvivor\app.py", line 160, in explore
+    return render_template('explore.html', title='Explore', posts=posts)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 135, in render_template
+    context, ctx.app)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\flask\templating.py", line 117, in _render
+    rv = template.render(context)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\asyncsupport.py", line 76, in render
+    return original_render(self, *args, **kwargs)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 1008, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\environment.py", line 780, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "c:\users\parag\appdata\local\programs\python\python36-32\lib\site-packages\jinja2\_compat.py", line 37, in reraise
+    raise value.with_traceback(tb)
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 1, in top-level template code
+    {% extends "layout.html" %} {% block content %}
+  File "D:\Projects\myelomaSurvivor\templates\layout.html", line 150, in top-level template code
+    {%block content%} {%endblock%}
+  File "D:\Projects\myelomaSurvivor\templates\explore.html", line 4, in block "content"
+    <hr> {% for post in posts %} {% include '_post.html' %} {% endfor %}
+  File "D:\Projects\myelomaSurvivor\templates\_post.html", line 4, in top-level template code
+    <img src="{{ post.author.avatar(36) }}">
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'avatar'

@@ -1,0 +1,18 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+<h4> Reached Explore page</h4>
+<hr> {% for post in posts %}
+<p>
+    {{ post.author.username }} says:
+    <b>{{ post.body }}</b>
+</p>
+{% endfor %}
+
+     {% if prev_url %}
+    <a href="{{ prev_url }}">Newer posts</a>
+    {% endif %} {% if next_url %}
+    <a href="{{ next_url }}">Older posts</a>
+    {% endif %}
+</div>
+
+{% endblock%}

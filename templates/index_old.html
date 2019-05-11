@@ -1,0 +1,160 @@
+{%extends "layout.html"%} {%block content%}
+
+<!---->
+<div class="container">
+
+  <div class="section">
+    <div class="slider">
+      <ul class="slides">
+        <li>
+          <img src="../static/images/slider1.jpg" >
+          <!-- random image -->
+          <div class="caption center-align">
+            <h3>You are not alone!</h3>
+            <h5 class="light grey-text text-lighten-3">We're here with you every step of the way.</h5>
+          </div>
+        </li>
+        <li>
+          <img src="../static/images/slider2.jpg">
+          <!-- random image -->
+          <div class="caption left-align">
+            <h3>Join Hands</h3>
+            <h5 class="light grey-text text-lighten-3">See how we can help you.</h5>
+          </div>
+        </li>
+        <li>
+          <img src="../static/images/slider3.jpg">
+          <!-- random image -->
+          <div class="caption right-align">
+            <h3>Latest teaching methodologies</h3>
+            <h5 class="light grey-text text-lighten-3">Quality education for all</h5>
+          </div>
+        </li>
+        <li>
+          <img src="../static/images/slider4.jpg">
+          <!-- random image -->
+          <div class="caption center-align">
+            <h3>High quality content for everyone</h3>
+            <h5 class="light grey-text text-lighten-3">High quality content and assesments throughout</h5>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h5><a style="color: green;" href="{{url_for('studentProfile')}}">Student Profile</a></h5>
+    <div class="row">
+
+      <div class="col s3">
+        <img src="../static/images/diet.jpg" width="150px" height="150px" class="responsive-img"><br>
+        Featured Article 1
+      </div>
+      <div class="col s3">
+        <img src="../static/images/gym.jpg" width="150px" height="150px" class="responsive-img"><br>
+        Featured Article 2
+      </div>
+      <div class="col s3">
+        <img src="../static/images/runing.jpg" width="150px" height="150px" class="responsive-img"><br>
+        Featured Article 3
+      </div>
+    <div class="col s3">
+      <img src="../static/images/meditation.jpg" width="150px" height="150px" class="responsive-img"><br>
+      Featured Article 4
+    </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h5>
+      <a style="color: green;" href="{{url_for('survivalStories')}}">Survival Stories</a>
+    </h5>
+    <div class="row">
+    
+      <div class="col s3">
+        <img src="../static/images/person1.jpg" width="150px" height="150px" class="responsive-img"> <br>Featured Article 1
+      </div>
+      <div class="col s3">
+        <img src="../static/images/person2.jpg" width="150px" height="150px" class="responsive-img"> <br>Featured Article 2
+      </div>
+      <div class="col s3">
+        <img src="../static/images/person3.jpg" width="150px" height="150px" class="responsive-img"> <br>Featured Article 3
+      </div>
+      <div class="col s3">
+        <img src="../static/images/person4.jpg" width="150px" height="150px" class="responsive-img"> <br>Featured Article 4
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+
+
+    <div class="row">
+      <div class="col s12 m4">
+        <div class="icon-block">
+          <h5 class="left-align">Surviving with Myeloma</h5>
+
+          <p class="light">It's disheartening to find out when you or your loved one is diagnosed with cancer. We cannot take away from the
+            seriousness of the situation. But it's very important to understand that this is a challenge that life has presented
+            in front of you. There's only one way to get on the other side, and that's through it. Every day there are new
+            developements in the field of myeloma medication that improve the longevity and the quality of life of the patients.
+            Most of these treatments are available in India soon after they've been approved and tested thoroughly. All of
+            the major hospitals in our country boast of the latest treament methodologies. However, it's important to understand
+            that since every person's age, health and stage is different the treatment is chosen accordingly by the doctors.
+            It's also important to know that our country has one of the best hospitals and doctors in this field. Hospitals
+            like AIIMS, Delhi have one of the best teams of oncologists and experts of Multiple Myeloma so you need not worry
+            about looking for too many places.
+          </p>
+
+        </div>
+      </div>
+
+
+
+      <div class="col s12 m4">
+        <div class="icon-block">
+
+          <h5 class="left-align">What is Myeloma?</h5>
+
+          <p class="light">Cancer starts when cells begin to grow out of control. Cells in nearly any part of the body can become cancer,
+            and can spread to other areas. Multiple myeloma is a cancer of plasma cells. Normal plasma cells are found in
+            the bone marrow and are an important part of the immune system.The immune system is made up of several types
+            of cells that work together to fight infections and other diseases. Lymphocytes are one of the main types of
+            white blood cells in the immune system and include T cells and B cells. When B cells respond to an infection,
+            they mature and change into plasma cells. Plasma cells make the antibodies (also called immunoglobulins) that
+            help the body attack and kill germs. Plasma cells, are found mainly in the bone marrow. In general, when plasma
+            cells become cancerous and grow out of control, this is called multiple myeloma.</p>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="icon-block">
+
+          <h5 class="left-align">Sign up for newsletter</h5>
+          <p>We send weekly newsletters on survival stories and new treatments</p>
+          <div class="error_message red-text">
+            {{text | safe}}
+          </div>
+          <form class="form" action="{{url_for('success')}}" method="POST">
+            <div class="input-field">
+              <input class="input-field" style="width:300px;" title="Your data will be safe with us" placeholder="Enter your Name" type="text"
+                name="name" required>
+              <br>
+              <input class="input-field" style="width:300px;" title="Your email will be safe with us" placeholder="Enter your Email address"
+                type="email" name="email" required>
+            </div>
+            <button type="submit" class="btn-large waves-effect waves-light green lighten-1">Submit</button>
+          </form>
+
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!---->
+
+{%endblock%}

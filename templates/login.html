@@ -1,0 +1,38 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container" >
+    <div class='row ' style="display: inline-block; padding-left: 300px;">
+        
+        <div class='input-field col s12'>
+<h3>Sign In</h3>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.username.label }}
+        <br> {{ form.username(size=32) }} {% for error in form.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.password.label }}
+        <br> {{ form.password(size=32) }} {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+        <p>
+            <label>
+                <input id="remember_me" name="remember_me" type="checkbox">
+                <span>Remember Me</span>
+            </label>
+        </p>    
+    
+    <p> <button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Sign In</button></p>
+</form>
+<p>New User?
+    <a  href="{{ url_for('register') }}">Click to Register!</a>
+</p>
+<p>    
+    <a href="{{ url_for('reset_password_request') }}">Forgot Your Password?</a>
+</p>
+</div>
+</div></div>
+{% endblock %}

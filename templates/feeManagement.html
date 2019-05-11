@@ -1,0 +1,70 @@
+ {%extends "layout.html"%} {%block content%}
+<div class="container">
+    <h3> Fee Management</h3>
+    <!-- Editable table -->
+<div class="card">
+    <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Unpaid this month</h3>
+    <div class="card-body">
+      <div id="table" class="table-editable">
+        <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
+            <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
+        </a>
+    </span>-->
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <tr>
+            <th class="text-center">Student Name</th>
+            <th class="text-center">Class</th>
+            <th class="text-center">Section</th>
+            <th class="text-center">Unpaid Months</th>
+            <th class="text-center">Paid</th>
+          </tr>
+          <tr>
+            <td class="pt-3-half" contenteditable="false">Daniele Caldarini</td>
+            <td class="pt-3-half" contenteditable="false">1</td>
+            <td class="pt-3-half" contenteditable="false">A</td>
+            <td class="pt-3-half" contenteditable="false">1</td>                        
+            <td>
+              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+            </td>
+          </tr>
+          <!-- This is our clonable table line -->
+          <tr>
+            <td class="pt-3-half" contenteditable="false">Susanna Bootle</td>
+            <td class="pt-3-half" contenteditable="false">2</td>
+            <td class="pt-3-half" contenteditable="false">B</td>
+            <td class="pt-3-half" contenteditable="false">1</td>
+            <td>
+              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+            </td>
+          </tr>
+          <!-- This is our clonable table line -->
+          <tr>
+            <td class="pt-3-half" contenteditable="false">Eva Gronroos</td>
+            <td class="pt-3-half" contenteditable="false">4</td>
+            <td class="pt-3-half" contenteditable="false">A</td>
+            <td class="pt-3-half" contenteditable="false">2</td>
+            <td>
+              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+            </td>
+          </tr>
+          <!-- This is our clonable table line -->
+          <!--<tr class="hide">-->
+            <tr>
+            <td class="pt-3-half" contenteditable="false">Neil Harper</td>
+            <td class="pt-3-half" contenteditable="false">6</td>
+            <td class="pt-3-half" contenteditable="false">A</td>
+            <td class="pt-3-half" contenteditable="false">1</td>
+            <td>
+              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div>
+      <h4><a href="#">See complete list</a></h4>
+  </div>
+  <!-- Editable table -->
+</div>
+{%endblock%}
