@@ -23,6 +23,11 @@
     </section>
 
     <!-- Main content -->
+
+    
+
+
+
     <section class="content">
       <!-- Small boxes (Stat box) -->
       <div class="row">
@@ -90,8 +95,108 @@
       <!-- /.row -->
       <!-- Main row -->
       <div class="row">
+
+          <section class="col-lg-7 connectedSortable">
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Content to Cover Today</h3>
+      
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                  </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <div class="table-responsive">
+                    <table class="table no-margin">
+                      <thead>
+                      <tr>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Subject</th>
+                        <th>Topic</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">1</a></td>
+                        <td><span class="label label-success">A</span></td>
+                        <td>English</td>                    
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">2</a></td>
+                        <td><span class="label label-warning">B</span></td>
+                        <td>Hindi</td>
+                        
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">3</a></td>
+                        <td><span class="label label-danger">C</span></td>
+                        <td>Math</td>
+                        
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">4</a></td>
+                        <td><span class="label label-info">A</span></td>
+                        <td>Science</td>
+                        
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">5</a></td>
+                        <td><span class="label label-warning">B</span></td>
+                        <td>Social Science</td>
+                        
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">6</a></td>
+                        <td><span class="label label-danger">C</span></td>
+                        <td>English</td>
+                        
+                        <td>
+                          Something Random
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><a href="pages/examples/invoice.html">7</a></td>
+                        <td><span class="label label-success">D</span></td>
+                        <td>Hindi</td>
+                        
+                        <td>
+                          Something Random
+                        </td> 
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- /.table-responsive -->
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix">
+                  <!--<a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left">Place New Order</a>-->
+                  <a href="{{url_for('content')}}" class="btn btn-sm btn-default btn-flat pull-right">See details</a>
+                </div>
+                <!-- /.box-footer -->
+              </div>
+      </section>
         <!-- Left col -->
-        <section class="col-lg-7 connectedSortable">
+        <section class="col-lg-5 connectedSortable">
           <!-- Custom tabs (Charts with tabs)-->
           <div class="nav-tabs-custom">
             <!-- Tabs within a box -->
@@ -106,9 +211,58 @@
               <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
             </div>
           </div>
+          <div>
+            <h6 style="color:#3c8dbc">Average Alllearn school performance.</h6>
+            <h6 style="color:#a0d0e0">Shivalik Public school's performance.</h6>
+          </div>
+        </section>
           <!-- /.nav-tabs-custom -->
+          <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
+          <div class="row-md-8">
+            <p class="text-center">
+              <h4 class="box-title">Content Completion</h4>
+            </p>
 
+            <div class="progress-group">
+              <span class="progress-text">English</span>
+              <span class="progress-number"><b>160</b>/200</span>
+
+              <div class="progress sm">
+                <div class="progress-bar progress-bar-aqua" style="width: 80%"></div>
+              </div>
+            </div>
+            <!-- /.progress-group -->
+            <div class="progress-group">
+              <span class="progress-text">Hindi</span>
+              <span class="progress-number"><b>310</b>/400</span>
+
+              <div class="progress sm">
+                <div class="progress-bar progress-bar-red" style="width: 80%"></div>
+              </div>
+            </div>
+            <!-- /.progress-group -->
+            <div class="progress-group">
+              <span class="progress-text">Math</span>
+              <span class="progress-number"><b>480</b>/800</span>
+
+              <div class="progress sm">
+                <div class="progress-bar progress-bar-green" style="width: 80%"></div>
+              </div>
+            </div>
+            <!-- /.progress-group -->
+            <div class="progress-group">
+              <span class="progress-text">Science</span>
+              <span class="progress-number"><b>250</b>/500</span>
+
+              <div class="progress sm">
+                <div class="progress-bar progress-bar-yellow" style="width: 80%"></div>
+              </div>
+            </div>
+            <!-- /.progress-group -->
+          </div>
+        </section>
           <!-- Chat box -->
+          <section class="col-lg-5 connectedSortable">
           <div class="box box-success">
             <div class="box-header">
               <i class="fa fa-comments-o"></i>
@@ -199,18 +353,8 @@
         </section>
         <!-- /.Left col -->
         <!-- right col (We are only adding the ID to make the widgets sortable)-->
-        <section class="col-lg-5 connectedSortable">
-
-          <!-- Map box -->
-          
-          <!-- /.box -->
-
-          <!-- solid sales graph -->
-          
-          <!-- /.box -->
-
-          <!-- Calendar -->
-          <div class="box box-solid bg-green-gradient">
+        <section class="col-lg-7 connectedSortable" style="padding-top:30px;">
+          <div class="box box-solid bg-green-gradient" >
             <div class="box-header">
               <i class="fa fa-calendar"></i>
 
@@ -239,12 +383,13 @@
             <div class="box-body no-padding">
               <!--The calendar -->
               <div id="calendar" style="width: 100%"></div>
-            </div>
-            
-            <!-- /.box-body -->
-            
+            </div>            
+            <!-- /.box-body -->            
           </div>
           <h$><a href="{{url_for('calendar')}}">See School Calendar</a></h4>
+        </section>
+        <section class="col-lg-5 connectedSortable">
+          
           <div class="box box-danger" style="Top:30px">
                 <div class="box-header with-border" >
                   <h3 class="box-title">Top students this week</h3>
@@ -314,149 +459,7 @@
         </section>
         
 
-        <section class="col-lg-7 connectedSortable">
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Content to Cover Today</h3>
 
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-              </div>
-            </div>
-            <!-- /.box-header -->
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table no-margin">
-                  <thead>
-                  <tr>
-                    <th>Class</th>
-                    <th>Section</th>
-                    <th>Subject</th>
-                    <th>Topic</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">1</a></td>
-                    <td><span class="label label-success">A</span></td>
-                    <td>English</td>                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">2</a></td>
-                    <td><span class="label label-warning">B</span></td>
-                    <td>Hindi</td>
-                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">3</a></td>
-                    <td><span class="label label-danger">C</span></td>
-                    <td>Math</td>
-                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">4</a></td>
-                    <td><span class="label label-info">A</span></td>
-                    <td>Science</td>
-                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">5</a></td>
-                    <td><span class="label label-warning">B</span></td>
-                    <td>Social Science</td>
-                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">6</a></td>
-                    <td><span class="label label-danger">C</span></td>
-                    <td>English</td>
-                    
-                    <td>
-                      Something Random
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="pages/examples/invoice.html">7</a></td>
-                    <td><span class="label label-success">D</span></td>
-                    <td>Hindi</td>
-                    
-                    <td>
-                      Something Random
-                    </td> 
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!-- /.table-responsive -->
-            </div>
-            <!-- /.box-body -->
-            <div class="box-footer clearfix">
-              <!--<a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left">Place New Order</a>-->
-              <a href="{{url_for('content')}}" class="btn btn-sm btn-default btn-flat pull-right">See details</a>
-            </div>
-            <!-- /.box-footer -->
-          </div>
-</section>
-<section class="col-lg-5 connectedSortable" style="padding-top:5px;">
-          <div class="row-md-8">
-            <p class="text-center">
-              <h4 class="box-title">Content Completion</h4>
-            </p>
-
-            <div class="progress-group">
-              <span class="progress-text">English</span>
-              <span class="progress-number"><b>160</b>/200</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-aqua" style="width: 80%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Hindi</span>
-              <span class="progress-number"><b>310</b>/400</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-red" style="width: 80%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Math</span>
-              <span class="progress-number"><b>480</b>/800</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 80%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Science</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-yellow" style="width: 80%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-          </div>
-        </section>
         <!-- right col -->
       </div>
       <!-- /.row (main row) -->
