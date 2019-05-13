@@ -100,7 +100,7 @@ body {
 .fixed .main-header,
 .fixed .main-sidebar,
 .fixed .left-side {
-  position: fixed;
+  position: absolute;
 }
 .fixed .main-header {
   top: 0;
@@ -409,7 +409,7 @@ a:focus {
  * ------------------
  */
 .main-sidebar {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   padding-top: 50px;
