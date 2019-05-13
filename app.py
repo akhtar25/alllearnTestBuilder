@@ -276,9 +276,9 @@ def schoolPerformanceRanking():
 def recommendations():
     return render_template('recommendations.html')
 
-@app.route('/hospitals')
-def hospitals():
-    return render_template('hospitals.html')
+@app.route('/contentDelivery')
+def contentDelivery():
+    return render_template('contentDelivery.html')
 
 @app.route('/attendance')
 def attendance():
