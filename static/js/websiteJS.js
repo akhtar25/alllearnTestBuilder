@@ -1,7 +1,3 @@
-function readMore(){
-    $("#readMoreDiv").show();
-    $("#readMoreBtn").hide();
-}
 
 $('#hiddenSearch').click(function(){
     console.log("we're here");
@@ -86,4 +82,12 @@ data.push(h);
 $EXPORT.text(JSON.stringify(data));
 });
 
+$("#startQuizButton").click(
+    function () {
+        document.getElementById('bg').src='{{ url_for('video_feed')}}';
+    });
 
+$("#stopQuizButton").click(
+    function () {
+        document.getElementById('bg').src='';
+    });

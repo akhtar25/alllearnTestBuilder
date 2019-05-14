@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, Response
 #from flask.ext.sqlalchemy import SQLAlchemy
 #from flask_sqlalchemy import SQLAlchemy
 #import SQLAlchemy
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
+from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
 from flask_migrate import Migrate
@@ -23,7 +24,7 @@ from applicationDB import Post
 
 
 app=Flask(__name__)
-
+cam=VideoCamera()
 #app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:pass123@localhost/myelomaSurvival'
 app.config.from_object(Config)
 db.init_app(app)
@@ -96,7 +97,13 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password_page.html', form=form)
 
+'''camera section'''
+@app.route('/video_feed')
+def video_feed(): 
+    #cam.is_record=True
+    return Response(cam.gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+'''camera section ends'''
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -184,7 +191,6 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
-
 
 @app.route('/logout')
 def logout():

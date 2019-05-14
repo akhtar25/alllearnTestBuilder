@@ -202,7 +202,9 @@
                     <!-- /.box-header -->
                     <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
                     <!-- /.box-body -->
-                    <button class="btn btn-default pull-right">Start Quiz</button>
+                    <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
+                    
+                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='../static/images/cam.png'" class="btn pull-right">Stop Quiz</button>
                   </div>
                 </div>
                   <div class="col-md-3" style="margin-top:20px;">
@@ -219,8 +221,9 @@
                         ------------------<br>
                        
                 </div>
-                <div style="background-color:grey; height: 250px;"></style>
-                Camera View
+                <div style="background-color:whitesmoke; height: 200px; width:280px;">
+                
+                <img id="bg" src="../static/images/cam.png" style="height:200px; width: 280px;" alt="Camera View for Quiz">
 
                   </div>
                   <!-- /.box -->
@@ -234,8 +237,6 @@
      
         
     </div>
-        </div>
-        
-        
+        </div>    
 
 {%endblock%}
