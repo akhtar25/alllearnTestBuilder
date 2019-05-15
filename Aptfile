@@ -4,3 +4,4 @@ libxext6
 libice6
 libxrender1
 libfontconfig1
+libzbar-dev
