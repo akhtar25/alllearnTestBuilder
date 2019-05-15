@@ -2,5 +2,3 @@ libpq-dev
 libsm6
 libxext6
 libICE.so.6
-http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb
-:repo:deb http://cz.archive.ubuntu.com/ubuntu artful main universe
