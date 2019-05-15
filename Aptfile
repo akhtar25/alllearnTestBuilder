@@ -1,4 +1,6 @@
 libpq-dev
 libsm6
 libxext6
-libICE.so.6
+libice6
+libxrender1
+libfontconfig1
