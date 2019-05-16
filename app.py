@@ -24,7 +24,6 @@ from applicationDB import Post
 
 
 app=Flask(__name__)
-cam=VideoCamera()
 #app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:pass123@localhost/myelomaSurvival'
 app.config.from_object(Config)
 db.init_app(app)
@@ -100,8 +99,16 @@ def reset_password(token):
 '''camera section'''
 @app.route('/video_feed')
 def video_feed(): 
+    cam=VideoCamera()
     #cam.is_record=True
     return Response(cam.gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/video_feed_stop')
+def video_feed_stop(): 
+    #cam.is_record=False
+    cam=VideoCamera()
+    return Response(cam.closeCam())
 
 '''camera section ends'''
 

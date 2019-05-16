@@ -202,9 +202,13 @@
                     <!-- /.box-header -->
                     <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
                     <!-- /.box-body -->
-                    <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
+                   <!-- <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
                     
-                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='../static/images/cameraPlaceholder.jpg'" class="btn pull-right">Stop Quiz</button>
+                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed_stop')}}'" class="btn pull-right">Stop Quiz</button>-->
+
+
+                    <button id="startQuizButton" class="btn" onclick="startQuizButton()">Start Quiz</button>
+                    <button id="stopQuizButton" class="btn pull-right" onclick="stopQuizButton()">Stop Quiz</button>
                   </div>
                 </div>
                   <div class="col-md-3" style="margin-top:20px;">
@@ -232,11 +236,21 @@
         </div>
     </section>
 </div>
-
-
-     
-        
     </div>
         </div>    
+        <script>
+      function startQuizButton() {
+        document.getElementById('bg').src="{{ url_for('video_feed')}}";
+
+}
+        
+   
+function stopQuizButton() {
+  document.getElementById('bg').alt="{{ url_for('video_feed_stop')}}";
+  document.getElementById('bg').src='../static/images/cam.png';
+
+}
+
+        </script>
 
 {%endblock%}

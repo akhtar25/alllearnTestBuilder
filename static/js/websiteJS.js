@@ -82,12 +82,7 @@ data.push(h);
 $EXPORT.text(JSON.stringify(data));
 });
 
-$("#startQuizButton").click(
-    function () {
-        document.getElementById('bg').src='{{ url_for('video_feed')}}';
-    });
-
-$("#stopQuizButton").click(
-    function () {
-        document.getElementById('bg').src='';
-    });
+//$("#startQuizButton").click(
+ //   function () {
+  //      document.getElementById('bg').src='{{ url_for('video_feed')}}';
+   // });
