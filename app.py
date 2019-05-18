@@ -1,7 +1,4 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response
-#from flask.ext.sqlalchemy import SQLAlchemy
-#from flask_sqlalchemy import SQLAlchemy
-#import SQLAlchemy
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
@@ -20,11 +17,9 @@ from flask import g
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post
-#from flask_babel import _, get_locale
 
 
 app=Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:pass123@localhost/myelomaSurvival'
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -62,7 +57,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
     g.search_form = SearchForm()
-    #g.locale = str(get_locale())
+    
 
 
 
