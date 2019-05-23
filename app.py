@@ -300,9 +300,9 @@ def content():
 def performance():
     return render_template('performance.html')
 
-@app.route('/testAudit')
-def testAudit():
-    return render_template('testAudit.html')
+@app.route('/resultUpload')
+def resultUpload():
+    return render_template('resultUpload.html')
 
 @app.route('/studentProfile')
 def studentProfile():
