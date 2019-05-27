@@ -125,7 +125,7 @@ def edit_profile():
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/INDEX')
 def index():
     return render_template('dashboard.html',title='Home Page')
 
@@ -204,8 +204,9 @@ def logout():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    print(user)
     #page = request.args.get('page', 1, type=int)
-    #posts = user.posts.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    #posts = user.posts.order_by(Post.timestamp.desc())
     #next_url = url_for('user', username=user.username, page=posts.next_num) \
     #    if posts.has_next else None
     #prev_url = url_for('user', username=user.username, page=posts.prev_num) \
@@ -227,6 +228,7 @@ def user(username):
         'timestamp':
         dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
     }]
+
     return render_template('user.html', user=user, posts=posts)
 
 
