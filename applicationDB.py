@@ -140,11 +140,11 @@ class Survivor(db.Model):
         self.sur_newsletter=newsletter
 
 
-class classSection(db.Model):
+class ClassSection(db.Model):
     __tablename__ = "class_section"
     class_sec_id = db.Column(db.Integer, primary_key=True)
     class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
-    section_id=db.Column(db.String(1),nullable=False)
+    section_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)    
     student_count= db.Column(db.Integer,nullable=False)
     class_teacher=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
@@ -157,7 +157,7 @@ class Attendance(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)        
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)        
-    subject_id = db.Column(db.Integer, nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     attendance_date = db.Column(db.DateTime)
     is_present=db.Column(db.Integer)
     last_modified_date=db.Column(db.DateTime)    
@@ -166,15 +166,15 @@ class Attendance(db.Model):
 class Content(db.Model):
     __tablename__ = "content"
     content_id = db.Column(db.Integer, primary_key=True)
-    topic_id = db.Column(db.String(100),nullable=False)
+    topic_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     topic_name = db.Column(db.String(100),nullable=False)
-    class_id=db.Column(db.Integer)
-    chapter_id = db.Column(db.String(120), nullable=False)
+    class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    chapter_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     chapter_name= db.Column(db.String(120), nullable=False)
     start_date= db.Column(db.DateTime, nullable=True)
     end_date= db.Column(db.DateTime, nullable=True)
-    subject_id=db.Column(db.String(120),nullable=False)
-    board_name=db.Column(db.String(120),nullable=False)
+    subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
 
 
 class ContentTracker(db.Model):
@@ -183,36 +183,36 @@ class ContentTracker(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)        
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)        
-    subject_id = db.Column(db.ForeignKey('question_details.subject_id'))
-    topic_id = db.Column(db.ForeignKey('content.topic_id'), nullable=False)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    topic_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     is_completed = db.Column(db.Integer,nullable=False)
     last_modified_Date=db.Column(db.DateTime)
 
 
-class bookDetails(db.Model):
+class BookDetails(db.Model):
     __tablename__ = "book_details"
     book_id = db.Column(db.Integer, primary_key=True)
-    class_id = db.Column(db.Integer, nullable=False)
-    subject_id= db.Column(db.String(120))
+    class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     book_name= db.Column(db.String(120))
     last_modified_date=db.Column(db.DateTime)
 
 
-class slideTracker(db.Model):
+class SlideTracker(db.Model):
     __tablename__ = "slide_tracker"
     slideshow_id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.ForeignKey('book_details.subject_id'), nullable=False)
-    chapter_id = db.Column(db.ForeignKey('content.chapter_id'), nullable=False)
-    topic_id = db.Column(db.ForeignKey('content.topic_id'), nullable=False)    
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    chapter_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    topic_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     last_modified_date=db.Column(db.DateTime)
  
 
-class questionDetails(db.Model):
+class QuestionDetails(db.Model):
     __tablename__ = "question_details"
     question_id = db.Column(db.Integer, primary_key=True)
-    class_id=db.Column(db.ForeignKey('content.class_id'),nullable=False)
-    subject_id=db.Column(db.ForeignKey('content.subject_id'),nullable=False)
-    board_name=db.Column(db.ForeignKey('content.board_name'),nullable=False)
+    class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     question_description=db.Column(db.String(500),nullable=False)
     slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=False)
     question_type=db.Column(db.String(120),nullable=False)
@@ -220,10 +220,10 @@ class questionDetails(db.Model):
 
 
 
-class questionOptions(db.Model):
+class QuestionOptions(db.Model):
     __tablename__ = "question_options"
     option_id=db.Column(db.Integer, primary_key=True)
-    #option_desc=db.Column(db.LargeBinary(length=None),nullable=False)
+    option_desc=db.Column(db.LargeBinary(length=None),nullable=False)
     option_desc=db.Column(db.String(500),nullable=False)
     option_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     question_id = db.Column(db.ForeignKey('question_details.question_id'), nullable=False)
@@ -238,11 +238,11 @@ class testQuestions(db.Model):
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=False)    
     last_modified_date=db.Column(db.DateTime)
 
-class testDetails(db.Model):
+class TestDetails(db.Model):
     __tablename__ = "test_details"
     test_id = db.Column(db.Integer, primary_key=True)
-    board_name = db.Column(db.ForeignKey('content.board_name'), nullable=False)
-    class_id = db.Column(db.ForeignKey('content.class_id'), nullable=False)
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     test_type=db.Column(db.String(120),nullable=False)
     region_id=db.Column(db.ForeignKey('message_detail.msg_id'))
     state_id=db.Column(db.ForeignKey('message_detail.msg_id'))
@@ -253,7 +253,7 @@ class testDetails(db.Model):
     month=db.Column(db.String(3))
     last_modified_date=db.Column(db.DateTime)
 
-class resultUpload(db.Model):
+class ResultUpload(db.Model):
     __tablename__ = "result_upload"
     res_upload_id=db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=False)
@@ -269,14 +269,14 @@ class resultUpload(db.Model):
     version_number=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     last_modified_date=db.Column(db.DateTime)    
 
-class messageDetails(db.Model):
+class MessageDetails(db.Model):
     __tablename__ = "message_detail"
     msg_id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(120), nullable=True)
     description = db.Column(db.String(500), nullable=False)
 
 
-class responseCapture(db.Model):
+class ResponseCapture(db.Model):
     __tablename__ = "response_capture"
     response_id = db.Column(db.Integer, primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=False)
@@ -291,7 +291,7 @@ class responseCapture(db.Model):
     last_modified_date=db.Column(db.DateTime)
 
 
-class studentProfile(db.Model):
+class StudentProfile(db.Model):
     __tablename__ = "student_profile"
     student_id=db.Column(db.Integer,primary_key=True)
     student_name=db.Column(db.String(200),nullable=False)
@@ -310,7 +310,7 @@ class studentProfile(db.Model):
 
 
 
-class schoolProfile(db.Model):
+class SchoolProfile(db.Model):
     __tablename__ = "school_profile"
     school_id = db.Column(db.Integer, primary_key=True)
     school_name=db.Column(db.String(500),nullable=False)
@@ -321,7 +321,7 @@ class schoolProfile(db.Model):
     city=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
-class teacherProfile(db.Model):
+class TeacherProfile(db.Model):
     __tablename__ = "teacher_profile"
     teacher_id = db.Column(db.Integer, primary_key=True)
     teacher_name=db.Column(db.String(500),nullable=False)
@@ -339,7 +339,7 @@ class teacherProfile(db.Model):
     last_modified_date=db.Column(db.DateTime)
 
 
-class feeManagement(db.Model):
+class FeeManagement(db.Model):
     __tablename__ = "school_fee_mgt"
     fee_trans_id=db.Column(db.Integer, primary_key=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
@@ -356,12 +356,12 @@ class feeManagement(db.Model):
 
 
 
-class performanceDetail(db.Model):
+class PerformanceDetail(db.Model):
     __tablename__ = "performance_detail"
     perf_id= db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
     class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
-    section_id = db.Column(db.ForeignKey('class_section.section_id'),nullable=False)
+    section_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
     year = db.Column(db.Integer,nullable=False)
     semi_annual = db.Column(db.Integer,nullable=False)
@@ -384,7 +384,7 @@ class performanceDetail(db.Model):
 
 
 
-class alllearnSchoolPerf(db.Model):
+class AlllearnSchoolPerf(db.Model):
     __tablename__ = "alllearn_school_perf"
     all_perf_id= db.Column(db.Integer,primary_key=True)
     avg_perf_alllearn = db.Column(db.Integer,nullable=False)
@@ -393,7 +393,7 @@ class alllearnSchoolPerf(db.Model):
     last_modified_date=db.Column(db.DateTime,nullable=False)
 
 
-class eventDetail(db.Model):
+class EventDetail(db.Model):
     __tablename__ = "event_detail"
     event_id = db.Column(db.Integer,primary_key=True)
     event_name =  db.Column(db.String(120),nullable=False)
@@ -403,7 +403,7 @@ class eventDetail(db.Model):
     last_modified_date=db.Column(db.DateTime,nullable=False)
 
 
-class calendar(db.Model):
+class Calendar(db.Model):
     __tablename__ = "calendar"
     calendar_id=db.Column(db.Integer,primary_key=True)
     date = db.Column(db.DateTime,nullable=False)
@@ -420,7 +420,7 @@ class calendar(db.Model):
     last_modified_date=db.Column(db.DateTime,nullable=False)
 
 
-class recommendation(db.Model):
+class Recommendation(db.Model):
     __tablename__ = "recomm_detail"    
     recomm_id=db.Column(db.Integer,primary_key=True)
     subject = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
@@ -428,7 +428,7 @@ class recommendation(db.Model):
     then_this = db.Column(db.String(500), nullable=False)
 
 
-class search(db.Model):
+class Search(db.Model):
     __tablename__ = "search"
     search_id=db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
@@ -438,7 +438,7 @@ class search(db.Model):
     redirect_url = db.Column(db.String(500),nullable=False)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
-class financialDetails(db.Model):
+class FinancialDetails(db.Model):
     __tablename__ = "financial_details"
     fin_det_id=db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
