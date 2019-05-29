@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import time
 from pyzbar.pyzbar import decode
-from PIL import Image, ImageDraw
+#from PIL import Image, ImageDraw
 
 class VideoCamera(object):
     def __init__(self):
