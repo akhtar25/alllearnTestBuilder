@@ -13,13 +13,18 @@ import logging
 import datetime as dt
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
-from flask import g
+from flask import g, jsonify
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post
+import barCode
+import json
+from flask_wtf.csrf import CSRFProtect
 
 
 app=Flask(__name__)
+csrf = CSRFProtect()
+csrf.init_app(app)
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -107,6 +112,28 @@ def video_feed_stop():
 
 '''camera section ends'''
 
+'''new cam section'''
+
+@app.route('/decodeAjax',methods=['GET', 'POST'])
+def decodeAjax():
+
+    if request.POST:
+        decodedData = barCode.decode(request.POST['imgBase64'])
+        if decodedData:
+
+            json_data = json.dumps(decodedData)
+            print(json_data)
+            return jsonify(json_data,safe=False)
+
+        return jsonify({"code" : 'NO BarCode Found'})
+
+
+@app.route('/ScanBooks',methods=['GET', 'POST'])
+def ScanBooks():
+    return render_template('ScanBook.html',title='Scan Page')
+
+'''
+'''
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -342,5 +369,6 @@ def search():
 
 if __name__=="__main__":
     app.debug=True
-    app.run(host=os.getenv('IP', '0.0.0.0'), 
-            port=int(os.getenv('PORT', 4444)))
+    app.run(host=os.getenv('IP', '127.0.0.1'), 
+            port=int(os.getenv('PORT', 8000)))
+    #app.run()
