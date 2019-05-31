@@ -16,7 +16,10 @@
     
     cursor: auto;
  }
+ .drawingBuffer{
+  display:none !important;
 
+}
  #search-2 input[type=search]:focus {
     width: 650px;
     color: #000;    

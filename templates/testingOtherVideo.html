@@ -1,112 +1,287 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Video Capture Example</title>
-<link href="js_example_style.css" rel="stylesheet" type="text/css" />
-</head>
-<body>
-<h2>Video Capture Example</h2>
-<p>
-    Click <b>Start/Stop</b> button to start or stop the camera capture.<br>
-    The <b>videoInput</b> is a &lt;video&gt; element used as OpenCV.js input.
-    The <b>canvasOutput</b> is a &lt;canvas&gt; element used as OpenCv.js output.<br>
-    The code of &lt;textarea&gt; will be executed when video is started.
-    You can modify the code to investigate more.
-</p>
-<div>
-<div class="control"><button id="startAndStop" disabled>Start</button></div>
-<textarea class="code" rows="29" cols="100" id="codeEditor" spellcheck="false">
-</textarea>
+{%extends "layout.html"%} {%block content%}
+<div class="container" height=100% >
+        
+    
+    <div class="skin-blue sidebar-mini">
+        
+    
+        <aside class="main-sidebar" style="margin-top:15px;">
+            <!-- sidebar: style can be found in sidebar.less -->
+            
+            <section class="sidebar">              
+                  <!-- /.search form -->
+                  <!-- sidebar menu: : style can be found in sidebar.less -->
+                  <ul class="sidebar-menu" data-widget="tree">
+                    <li class="treeview">
+                      <a href="#">
+                        <i class="glyphicon glyphicon-education"></i>
+                        <span>Class 1</span>
+                        <span class="pull-right-container">
+                          <span class="label label-primary pull-right">4</span>
+                        </span>
+                      </a>
+                      <ul class="treeview-menu">
+                        
+                        <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                        <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                        <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section C</a></li>
+                        <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                      </ul>
+                    </li>
+                    
+                    <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 2</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 3</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 4</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 5</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 6</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 7</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 8</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 9</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+        
+                      <li class="treeview">
+                        <a href="#">
+                          <i class="glyphicon glyphicon-education"></i>
+                          <span>Class 10</span>
+                          <span class="pull-right-container">
+                            <span class="label label-primary pull-right">4</span>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section A</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section B</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i>Section C</a></li>
+                          <li><a href="{{url_for('classCon')}}"><i class="fa fa-circle-o"></i> Section D</a></li>
+                        </ul>
+                      </li>
+                  </ul>
+                </section>
+                <!-- /.sidebar -->
+            </aside>
+        
+        
+            <!--------------------------------------------------------------------------------------------->
+            <div class="content-wrapper" style="background-color: white;">
+    <section class="content">
+        <div class="row">
+                <div class="row">
+                <div class="col-xs-8">
+                  <div class="box">
+                    <div class="box-header">
+                      <h3 class="box-title">Content Tracker</h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
+        
+
+                    </div>
+                    <!-- /.box-header -->
+                    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+                    <!-- /.box-body -->
+                   <!-- <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
+                    
+                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed_stop')}}'" class="btn pull-right">Stop Quiz</button>-->
+
+
+                    <button id="startQuizButton" class="btn" onclick="startQuizButton()">Start Quiz</button>
+                    <button id="stopQuizButton" class="btn pull-right" onclick="stopQuizButton()">Stop Quiz</button>
+                  </div>
+                </div>
+                  <div class="col-md-3" style="margin-top:20px;">
+                    <div id="answerCounter">
+
+                    <h4>Response Summary</h4> 
+                    <div id="result_strip">
+                        <ul class="thumbnails"></ul>
+                    </div>
+
+                    
+                </div>
+                
+                <div >
+                    <br><br><br><br><br>
+                        ------------------<br>
+                       
+                </div>
+                <div style="background-color:whitesmoke; height: 200px; width:270px;">
+                
+               <!-- <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">-->
+               <div class="video-field">
+                
+
+                <div class="select">
+                    <label for="videoSource"><i class='material-icons'>camera_rear</i></label><select id="videoSource"></select>
+                </div>
+                <video id="video" muted autoplay></video>
+                <button id="startbutton" class="btn">Start Recording New</button>
+             
+            </div>
+
+                  </div>
+                  <!-- /.box -->
+                </div>
+              </div>
+        </div>
+        
+    </section>
 </div>
-<p class="err" id="errorMessage"></p>
-<div>
-    <table cellpadding="0" cellspacing="0" width="0" border="0">
-    <tr>
-        <td>
-            <video id="videoInput" width=320 height=240></video>
-        </td>
-        <td>
-            <canvas id="canvasOutput" width=320 height=240></canvas>
-        </td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <div class="caption">videoInput</div>
-        </td>
-        <td>
-            <div class="caption">canvasOutput</div>
-        </td>
-        <td></td>
-        <td></td>
-    </tr>
-    </table>
-</div>
-<script src="https://webrtc.github.io/adapter/adapter-5.0.4.js" type="text/javascript"></script>
-<script src="utils.js" type="text/javascript"></script>
-<script id="codeSnippet" type="text/code-snippet">
-let video = document.getElementById('videoInput');
-let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-let dst = new cv.Mat(video.height, video.width, cv.CV_8UC1);
-let cap = new cv.VideoCapture(video);
-const FPS = 30;
-function processVideo() {
-    try {
-        if (!streaming) {
-            // clean and stop.
-            src.delete();
-            dst.delete();
-            return;
-        }
-        let begin = Date.now();
-        // start processing.
-        cap.read(src);
-        cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
-        cv.imshow('canvasOutput', dst);
-        // schedule the next one.
-        let delay = 1000/FPS - (Date.now() - begin);
-        setTimeout(processVideo, delay);
-    } catch (err) {
-        utils.printError(err);
-    }
-};
-// schedule the first one.
-setTimeout(processVideo, 0);
-</script>
-<script type="text/javascript">
-let utils = new Utils('errorMessage');
-utils.loadCode('codeSnippet', 'codeEditor');
-let streaming = false;
-let videoInput = document.getElementById('videoInput');
-let startAndStop = document.getElementById('startAndStop');
-let canvasOutput = document.getElementById('canvasOutput');
-let canvasContext = canvasOutput.getContext('2d');
-startAndStop.addEventListener('click', () => {
-    if (!streaming) {
-        utils.clearError();
-        utils.startCamera('qvga', onVideoStarted, 'videoInput');
-    } else {
-        utils.stopCamera();
-        onVideoStopped();
-    }
-});
-function onVideoStarted() {
-    streaming = true;
-    startAndStop.innerText = 'Stop';
-    videoInput.width = videoInput.videoWidth;
-    videoInput.height = videoInput.videoHeight;
-    utils.executeCode('codeEditor');
+    </div>
+        </div>    
+        <!--New Div for the updated camera mechanism-->
+        <div id="container">            
+            <div class="">
+                <label for="audioSource"></label><select id="audioSource"></select>
+            </div>
+            
+
+<!--            <ul id="decoded"></ul>-->
+
+            <canvas id="canvas" class="drawingBuffer"></canvas><br clear="all">
+        </div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+            <script src="../static/js/main.js"></script>
+            
+        </div>
+
+        <script>
+      function startQuizButton() {
+        document.getElementById('bg').src="{{ url_for('video_feed')}}";
+
 }
-function onVideoStopped() {
-    streaming = false;
-    canvasContext.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
-    startAndStop.innerText = 'Start';
+        
+   
+function stopQuizButton() {
+  document.getElementById('bg').alt="{{ url_for('video_feed_stop')}}";
+  document.getElementById('bg').src='../static/images/cam.png';
+
 }
-utils.loadOpenCv(() => {
-    startAndStop.removeAttribute('disabled');
-});
-</script>
-</body>
-</html>
+
+        </script>
+
+{%endblock%}
+        

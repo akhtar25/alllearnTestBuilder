@@ -48,7 +48,7 @@ function getStream() {
       return window.innerWidth;
     }
     else{
-      return 500;
+      return 300;
     }
   };
    var heightVideo = function(){
@@ -56,7 +56,7 @@ function getStream() {
       return window.innerHeight;
     }
     else{
-      return 600;
+      return 250;
     }
   };
   var constraints = {
@@ -86,13 +86,12 @@ function handleError(error) {
 
 
  function takepicture() {
-
   var widthVideo = function(){
     if (window.innerWidth < 600){
       return window.innerWidth;
     }
     else{
-      return 500;
+      return 300;
     }
   };
    var heightVideo = function(){
@@ -100,7 +99,7 @@ function handleError(error) {
       return window.innerHeight;
     }
     else{
-      return 600;
+      return 250;
     }
   };
    var width = widthVideo();
@@ -109,16 +108,17 @@ function handleError(error) {
     canvas.height = height;
     canvas.getContext('2d').drawImage(video, 0, 0, width, height);
     var dataUrl = canvas.toDataURL('image/jpg');
-    // console.log(dataUrl);
     $.ajax({
     type: "POST",
-    url: "/decode/",
+    url: "/decodes",
     data: {
     imgBase64: dataUrl
     }
     }).done(function(data) {
-
-        if(data.code =='NO BarCode Found'){
+        if(data =='NO BarCode Found'){
+          //new section
+          
+          //end of new section
 
 
             console.log("Trying..")
@@ -136,7 +136,7 @@ function handleError(error) {
                 $('#startbutton').click();
 
 
-            },2000);
+            },500);
 
 
         }
@@ -144,13 +144,13 @@ function handleError(error) {
             // console.log(data.code);
             var obj = JSON.parse(data);
             var i;
-            Result.html('<b>Detected</b> :)<ol>');
+            Result.html('<b>Response Recorded: </b><h3>'+ obj.length +'</h3> <ol>');
             for(i=0; i<obj.length;i++){
-                Result.append("<li><ul><li>Code: <b>"+obj[i].code+"</b></li><li>Type: <b>"+obj[i].type+"</b></li></ul></li>");
+                Result.append("<li><b>"+obj[i].code+"</b></li>");
             }
             Result.append("</ol>")
             window.navigator.vibrate(200);
-            clearTimeout(interval);
+            //clearTimeout(interval);
         }
 
         // Do Any thing you want
@@ -160,9 +160,9 @@ function handleError(error) {
         });
 
   }
-  startbutton.addEventListener('click', function(ev){
+  startbutton.addEventListener('click', function(ev){      
       takepicture();
-      Result.html("Searching..");
+      Result.html("Recording response...");
       ev.preventDefault();
       }, false);
 

@@ -23,8 +23,8 @@ from flask_wtf.csrf import CSRFProtect
 
 
 app=Flask(__name__)
-csrf = CSRFProtect()
-csrf.init_app(app)
+#csrf = CSRFProtect()
+#csrf.init_app(app)
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -114,23 +114,27 @@ def video_feed_stop():
 
 '''new cam section'''
 
-@app.route('/decodeAjax',methods=['GET', 'POST'])
+@app.route('/decodes', methods=['GET', 'POST'])
 def decodeAjax():
-
-    if request.POST:
-        decodedData = barCode.decode(request.POST['imgBase64'])
+    if request.method == 'POST':
+        decodedData = barCode.decode(request.form['imgBase64'])
         if decodedData:
-
             json_data = json.dumps(decodedData)
             print(json_data)
-            return jsonify(json_data,safe=False)
-
-        return jsonify({"code" : 'NO BarCode Found'})
+            return jsonify(json_data)
+        return jsonify(['NO BarCode Found'])
 
 
 @app.route('/ScanBooks',methods=['GET', 'POST'])
 def ScanBooks():
+    print ("We're here!")
     return render_template('ScanBook.html',title='Scan Page')
+
+
+@app.route('/testingOtherVideo',methods=['GET', 'POST'])
+def testingOtherVideo():
+    print ("We're here!")
+    return render_template('testingOtherVideo.html',title='Test Page')
 
 '''
 '''
@@ -152,7 +156,7 @@ def edit_profile():
 
 
 @app.route('/')
-@app.route('/INDEX')
+@app.route('/index')
 def index():
     return render_template('dashboard.html',title='Home Page')
 
@@ -315,7 +319,7 @@ def recommendations():
 
 @app.route('/classDelivery')
 def classDelivery():
-    return render_template('classDelivery.html')
+    return render_template('testingOtherVideo.html')
 
 @app.route('/attendance')
 def attendance():
