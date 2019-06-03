@@ -288,6 +288,8 @@ def success():
         email=request.form["email"]
         name=request.form["name"]
         if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
+            #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
+            # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
             survivor = Survivor(email, name)
             db.session.add(survivor)
             db.session.commit()
@@ -319,7 +321,13 @@ def recommendations():
 
 @app.route('/classDelivery')
 def classDelivery():
-    return render_template('testingOtherVideo.html')
+    return render_template('classDelivery.html')
+
+
+@app.route('/feedbackCollection')
+def feedbackCollection():
+    return render_template('feedbackCollection.html')
+
 
 @app.route('/attendance')
 def attendance():

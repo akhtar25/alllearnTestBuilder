@@ -195,43 +195,167 @@
                 <div class="col-xs-8">
                   <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Content Tracker</h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
+                      <h3 class="box-title">Book: English </h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
         
-
                     </div>
-                    <!-- /.box-header -->
-                    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-                    <!-- /.box-body -->
-                   <!-- <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
+                    <!-- /.box-header -->                    
+
+                    <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>                    
+
                     
-                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed_stop')}}'" class="btn pull-right">Stop Quiz</button>-->
 
+                    <canvas id="the-canvas"></canvas>
 
-                    <button id="startQuizButton" class="btn" onclick="startQuizButton()">Start Quiz</button>
-                    <button id="stopQuizButton" class="btn pull-right" onclick="stopQuizButton()">Stop Quiz</button>
+                    <div style="padding-right:20px;">
+                      <button id="prev" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Previous</button>
+                      <span class="right" >Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+                      <button id="next" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Next</button>
+                      &nbsp; &nbsp;
+                      
+                    </div>
+
+                    <br>
+                    <br>
+
+                    
+                    
                   </div>
                 </div>
                   <div class="col-md-3" style="margin-top:20px;">
                     <div id="answerCounter">
 
-                    <h3>Answers Recorded</h3> 
-                    <span style="font-size: 48px;" class="center">20</span>
+                    <h3>Topics</h3> 
+                      <table>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" checked="checked">
+                              <span>Topic 1</span>
+                            </label>
+                          </p>
+                          </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 2</span>
+                            </label>
+                          </p>
+                        </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 3</span>
+                            </label>
+                          </p>
+                        </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 4</span>
+                            </label>
+                          </p>
+                        </tr>
 
-                    
-                </div>
-                
-                <div >
-                    <br><br><br><br><br>
-                        ------------------<br>
-                       
-                </div>
-                <div style="background-color:whitesmoke; height: 200px; width:270px;">
-                
-                <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 5</span>
+                            </label>
+                          </p>
+                        </tr>
 
-                  </div>
-                  <!-- /.box -->
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 6</span>
+                            </label>
+                          </p>
+                        </tr>
+
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 7</span>
+                            </label>
+                          </p>
+                        </tr>
+
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 8</span>
+                            </label>
+                          </p>
+                        </tr>
+
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 9</span>
+                            </label>
+                          </p>
+                        </tr>
+
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 10</span>
+                            </label>
+                          </p>
+                        </tr>
+
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 11</span>
+                            </label>
+                          </p>
+                        </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 12</span>
+                            </label>
+                          </p>
+                        </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 13</span>
+                            </label>
+                          </p>
+                        </tr>
+                        <tr>
+                          <p>
+                            <label>
+                              <input type="checkbox" />
+                              <span>Topic 14</span>
+                            </label>
+                          </p>
+                        </tr>
+                        
+
+                      </table>
+
+                      <div style="padding-top: 40px;">
+                        
+                      <a style="border-color: green;padding-top: 4px;font-size: 20px;color:#232f34; background-color: whitesmoke;font-family: Arial;" id="startQuizButton" class="btn pull-right" href="{{url_for('feedbackCollection')}}">Collect Feedback</a>
+                      <span class="pull-right" style="padding-top:10px;"><a href="#"> See Older Topics</a></span>
+                    </div>
                 </div>
+               </div>
               </div>
         </div>
         
@@ -239,7 +363,11 @@
 </div>
     </div>
         </div>    
-        <script>
+
+        <script src="../static/js/pdfLoader.js"></script>
+
+
+       <!-- <script>
       function startQuizButton() {
         document.getElementById('bg').src="{{ url_for('video_feed')}}";
 
@@ -252,6 +380,6 @@ function stopQuizButton() {
 
 }
 
-        </script>
+        </script>-->
 
 {%endblock%}

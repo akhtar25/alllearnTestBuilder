@@ -71,6 +71,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    #reminder to add user type here
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
