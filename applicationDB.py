@@ -175,7 +175,7 @@ class Content(db.Model):
     start_date= db.Column(db.DateTime, nullable=True)
     end_date= db.Column(db.DateTime, nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
-    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)
+    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
 
 
 class ContentTracker(db.Model):
