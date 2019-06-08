@@ -195,32 +195,54 @@
                 <div class="col-xs-8">
                   <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Questions for Feedback</h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
+                      <h3 class="box-title">Feedback Report</h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
         
 
                     </div>
-                    <!-- /.box-header -->
-                    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-                    <!-- /.box-body -->
-                   <!-- <button id="startQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed')}}'" class="btn">Start Quiz</button>
                     
-                    <button id="stopQuizButton" onclick="document.getElementById('bg').src='{{ url_for('video_feed_stop')}}'" class="btn pull-right">Stop Quiz</button>-->
+                    <table class="table table-bordered table-responsive-md table-striped text-center">
+                      <!--<tr>
+                        <th class="text-center">Student Name</th>
+                        <th class="text-center">Class</th>
+                        <th class="text-center">Section</th>
+                        <th class="text-center">Unpaid Months</th>
+                        <th class="text-center">Paid</th>
+                      </tr>-->
+                      <tr>
+                        <td class="pt-3-half" contenteditable="false">Total Responses Received</td>
+                        <td class="pt-3-half" contenteditable="false">30</td>
+                        
+                      </tr>
+                      <!-- This is our clonable table line -->
+                      <tr>
+                        <td class="pt-3-half" contenteditable="false">Correct Percentage</td>
+                        <td class="pt-3-half" contenteditable="false">70%</td>
 
-
-                    <!--<button id="startQuizButton" class="btn" onclick="startQuizButton()">Start Quiz</button>
-                    <button id="stopQuizButton" class="btn pull-right" onclick="stopQuizButton()">Stop Quiz</button>-->
+                      </tr>
+                      <!-- This is our clonable table line -->
+              
+                      <!-- This is our clonable table line -->
+                      <!--<tr class="hide">-->
+                        
+                    </table>
+                    
                   </div>
-                  <a id="startbutton" class='right' href="#"><h4>Next</h4></a><br>
-                  <a href="{{url_for('feedbackReport')}}"><button id="submitFeedbackBtn" class="btn right" style="margin-top: 60px;margin-right: -40px; border-color: green;font-size: 12px;color:black;font-weight: bold; background-color: whitesmoke;font-family: Arial;">Submit Feedback</button></a>
+                  
+                 
                 </div>
                 
                   <div class="col-md-3" style="margin-top:20px;">
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
 
-                    <h4>Response Summary</h4> 
+                    <h4>Top Students</h4> 
                     <div id="result_strip">
                         <ul class="thumbnails"></ul>
                     </div>
+                    <ul>
+                      <li>Ashish Singh</li>
+                      <li>Anchal Jelta</li>
+                      <li>Ayushi Rautela</li>
+                    </ul>
 
                     
                 </div>
@@ -228,16 +250,7 @@
                 <div style="background-color:whitesmoke; height: 250; width:300px;">
                 
                <!-- <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">-->
-               <div class="video-field">
-                
-
-                <div class="select">
-                    <label for="videoSource"><i class='material-icons'>camera_rear</i></label><select id="videoSource"></select>
-                </div>
-                <video id="video" muted autoplay></video>
-             
-             
-            </div>
+           
             
                   </div>
                   <!-- /.box -->

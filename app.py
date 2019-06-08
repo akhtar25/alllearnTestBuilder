@@ -131,6 +131,10 @@ def ScanBooks():
     return render_template('ScanBook.html',title='Scan Page')
 
 
+@app.route('/feedbackReport')
+def feedbackReport():
+    return render_template('feedbackReport.html',title='Feedback Report')
+
 @app.route('/testingOtherVideo',methods=['GET', 'POST'])
 def testingOtherVideo():
     print ("We're here!")
