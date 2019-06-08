@@ -1,0 +1,38 @@
+{
+  "addons": [
+    "papertrail",
+    "heroku-postgresql",
+    "searchbox"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku-community/apt.tgz"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "ELASTICSEARCH_URL": {
+      "required": true
+    },
+    "PAPERTRAIL_API_TOKEN": {
+      "required": true
+    },
+    "SEARCHBOX_SSL_URL": {
+      "required": true
+    },
+    "SEARCHBOX_URL": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "alllearnMain",
+  "scripts": {
+  },
+  "stack": "heroku-18"
+}
