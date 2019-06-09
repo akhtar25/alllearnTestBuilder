@@ -330,6 +330,17 @@ def classDelivery():
 
 @app.route('/feedbackCollection')
 def feedbackCollection():
+    #if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
+    #        #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
+    #        # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+    #        survivor = Survivor(email, name)
+    #        db.session.add(survivor)
+    #        db.session.commit()
+    #        print(email,name)
+    #        newsletterEmail(email, name)
+    #        return render_template('newsletterSuccess.html')
+    #    else:
+    #        return render_template('index.html',text='Error: Email already used.')
     return render_template('feedbackCollection.html')
 
 
