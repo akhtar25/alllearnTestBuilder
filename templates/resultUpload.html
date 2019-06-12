@@ -1,9 +1,98 @@
 {%extends "layout.html"%} {%block content%}
+
 <div class="container">
-    <h3>Result Upload</h3>
-    <h4>Please enter the test details in the form below</h4>
-    <div style="width: 1200px; height: 800px; overflow: hidden">
-    <iframe height="1200px" width="1200px"  style="justify-items: center; position: relative; left: 0px; top: -380px" src="https://docs.google.com/forms/d/e/1FAIpQLSepx8vRz4hnIAQLwpiWKUd9hYNuHUQ0YnmnlnnnM378OEx6vQ/viewform?usp=pp_url"></iframe>
+    <h2>Result Upload</h2>
+   
+    <form action="" method="POST">
+
+    <div class="form-group " style="padding-top:5px;">
+            <div class="row">
+                    <div class="col-sm-3">
+                            <div style="width:150px;">
+                                    <label for="class_name" class="labelsize">Select Class</label>
+                                    <select class="form-control" id="sel1">
+                                        <option>Select class</option>
+                                        <option>Class 1</option>
+                                        <option>Class 2</option>
+                                        <option>Class 3</option>
+                                        <option>Class 4</option>
+                                        <option>Class 5</option>
+                                        <option>Class 6</option>
+                                        <option>Class 7</option>
+                                        <option>Class 8</option>
+                                        <option>Class 9</option>
+                                        <option>Class 10</option>
+                                    </select>
+                            </div>
+                    </div>
+                    <div class="col-sm-3">
+                            <div style="width:150px;" >
+                                    <label for="class_section" class="labelsize">Select Section</label>
+                                    <select class="form-control" id="sel1">
+                                        <option>Select Section</option>
+                                        <option>A</option>
+                                        <option>B</option>
+                                        <option>C</option>
+                                        <option>D</option>
+                                    </select>
+                                </div>
+                    </div>
+                    <div class="col-sm-3">
+                                <label for="date" class="labelsize">Choose Date</label>
+                                <input type="date"
+                                min="2000-01-01">
+                        </div>
+                  </div>
+        <div>
+        
+        <div class="row">
+                <div class="col-sm-3" style="padding-top:5px;"> 
+                        <label for="test_id" class="labelsize">Test Id</label>  <br>
+                        <input type="text"style="width: 150px;" placeholder="Enter the test id">   
+                </div>
+
+            <div class="col-sm-3" style="padding-top:25px;"> 
+                    <input type="submit" style="background-color:snow; width: 150px; height: 30px;text-align: center;border-radius: 2cm;" value="submit"> 
+            </div>
+        </div>
+    
+    </form>
+      </div>
 </div>
-</div>
+{% if contents %}
+
+<div class="card id" id="result_table">
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ subject }}</h3>
+        <div class="card-body">
+          <div id="table" class="table-editable">
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+                    <thead>
+                            <tr>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Total Marks</th>
+                                <th scope="col">Marks Scored</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                        <form action="">
+                            {% for content in contents %}
+                                <tr>
+                                    <td> {{content.student_name }} </td>
+                                    <td> {{ totalmarks }} </td>
+                                    <td><input name="{{ content.student_id }}"type="text" id="" style="width:75px;"></td>
+                                </tr>
+                            {% endfor %}
+                    </tbody>
+
+            </table>
+        
+        </div>
+        </div>
+      </div>
+      
+      <input type="submit" style="width: 150px; height: 35px;text-align: center;border-radius: 2cm; float: right;" value="Upload">
+
+      </form>
+      {% endif %}
+
 {%endblock%}

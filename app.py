@@ -345,9 +345,44 @@ def classCon():
 def performance():
     return render_template('performance.html')
 
-@app.route('/resultUpload')
+@app.route('/resultUpload',methods=['POST','GET'])
 def resultUpload():
-    return render_template('resultUpload.html')
+    subject='Maths'
+    totalmarks=100
+    content=[{
+        'student_id':'1',
+        'student_name':'Aashish',
+        'marks':'75'
+    },
+    {   'student_id':'2',
+        'student_name':'Vinay',
+        'marks':'60'
+    },
+    {   'student_id':'3',
+        'student_name':'Priya',
+        'marks':'89'
+    },
+    {   'student_id':'4',
+        'student_name':'Anushka',
+        'marks':'50'
+    }
+    ,{   'student_id':'5',
+        'student_name':'Samiksha',
+        'marks':'83'
+    },
+    {   'student_id':'6',
+        'student_name':'Vishal',
+        'marks':'43'
+    }]
+    #if request.method=='POST':
+      #  class_name=request.form.get('class_name')
+       # class_section=request.form.get('class_section')
+        #test_id=request.form.get('test_id')
+
+        #test=TestDetails(test_id)
+
+    #return render_template('result_table.html')    
+    return render_template('resultUpload.html',content=content,subject=subject,totalmarks=totalmarks)
 
 @app.route('/studentProfile')
 def studentProfile():
