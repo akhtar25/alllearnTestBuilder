@@ -143,7 +143,7 @@ class Survivor(db.Model):
 
 class ClassSection(db.Model):
     __tablename__ = "class_section"
-    class_sec_id = db.Column(db.Integer, primary_key=True)
+    class_sec_id = db.Column(db.Integer, primary_key=True, autoincrement=False)
     class_val=db.Column(db.Integer,nullable=True)
     section=db.Column(db.String(1),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)    
@@ -169,8 +169,9 @@ class Topic(db.Model):
     #content_id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, primary_key=True)
     topic_name = db.Column(db.String(100),nullable=True)
-    class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    chapter_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    class_val=db.Column(db.Integer,nullable=True)
+    unit_num=db.Column(db.Integer, nullable=True)
+    chapter_num = db.Column(db.Integer,nullable=True)
     chapter_name= db.Column(db.String(120), nullable=True)
     start_date= db.Column(db.DateTime, nullable=True)
     end_date= db.Column(db.DateTime, nullable=True)
@@ -181,12 +182,13 @@ class Topic(db.Model):
 class TopicTracker(db.Model):
     __tablename__ = "topic_tracker"    
     topic_track_id = db.Column(db.Integer, primary_key=True)
-    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    #school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
-    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)        
+    #teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)        
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
-    is_completed = db.Column(db.Integer,nullable=True)
+    last_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
+    next_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
+    #is_completed = db.Column(db.Integer,nullable=True)
     last_modified_Date=db.Column(db.DateTime)
 
 
@@ -199,13 +201,13 @@ class BookDetails(db.Model):
     last_modified_date=db.Column(db.DateTime)
 
 
-class SlideTracker(db.Model):
-    __tablename__ = "slide_tracker"
-    slideshow_id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    chapter_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
-    last_modified_date=db.Column(db.DateTime)
+#class SlideTracker(db.Model):
+#    __tablename__ = "slide_tracker"
+#    slideshow_id = db.Column(db.Integer, primary_key=True)
+#    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+#    #chapter_num = db.Column(db.ForeignKey('topic_detail.chapter_num'),nullable=True)
+#    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
+#    last_modified_date=db.Column(db.DateTime)
  
 
 class QuestionDetails(db.Model):
@@ -215,7 +217,7 @@ class QuestionDetails(db.Model):
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_description=db.Column(db.String(500),nullable=True)
-    slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
+    #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
     references=db.Column(db.String(120),nullable=True)
 
@@ -284,7 +286,7 @@ class ResponseCapture(db.Model):
     class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     student_id=db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
+    #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     response_option=db.Column(db.ForeignKey('question_options.option_id'),nullable=True)
     is_correct=db.Column(db.Integer)
