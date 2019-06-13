@@ -20,7 +20,7 @@
                              </span>
                            </a>
                            <ul class="treeview-menu">                    
-                             <li><a href="{{ url_for('classCon', username=current_user.username, class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
                            </ul>
                          </li>
                          {% endfor %}                

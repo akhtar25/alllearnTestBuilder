@@ -353,19 +353,22 @@ def feedbackCollection():
 def attendance():
     return render_template('attendance.html')
 
-@app.route('/class/<username>')
+@app.route('/class')
 @login_required
-def classCon(username):
-    user = User.query.filter_by(username=username).first_or_404()        
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()
-    print(user.id)
-    #print(teacher.teacher_name)
-    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-    #print(classSections)
-    #classsections=ClassSection.query.filter_by(school_id=)
-    qclass_val = request.args.get('class_val',1)
-    qsection=request.args.get('section','A')    
-    return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection)
+def classCon():
+    if current_user.is_authenticated:        
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()
+        print(user.id)
+        #print(teacher.teacher_name)
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        #print(classSections)
+        #classsections=ClassSection.query.filter_by(school_id=)
+        qclass_val = request.args.get('class_val',1)
+        qsection=request.args.get('section','A')    
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection)
+    else:
+        return redirect(url_for('login'))
     #return render_template('class.html', user=user)
 
 @app.route('/performance')
