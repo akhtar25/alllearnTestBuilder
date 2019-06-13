@@ -190,7 +190,7 @@
                 <!-- /.box-body -->
                 <div class="box-footer clearfix">
                   <!--<a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left">Place New Order</a>-->
-                  <a href="{{url_for('classCon')}}" class="btn btn-sm btn-default btn-flat pull-right">See details</a>
+                  <a href="{{url_for('classCon', username=current_user.username)}}" class="btn btn-sm btn-default btn-flat pull-right">See details</a>
                 </div>
                 <!-- /.box-footer -->
               </div>

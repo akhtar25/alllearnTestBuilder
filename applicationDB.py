@@ -339,6 +339,7 @@ class TeacherProfile(db.Model):
     profile_picture= db.Column(db.String(500),nullable=True)
     email=db.Column(db.String,nullable=True)
     phone=db.Column(db.Integer,nullable=True)
+    user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 

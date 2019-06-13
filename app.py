@@ -53,7 +53,7 @@ if not app.debug and not app.testing:
         app.logger.addHandler(file_handler)
 
     app.logger.setLevel(logging.INFO)
-    app.logger.info('MS startup')
+    app.logger.info('Alllearn startup')
 
 
 @app.before_request
@@ -97,6 +97,7 @@ def reset_password(token):
     return render_template('reset_password_page.html', form=form)
 
 '''camera section'''
+
 @app.route('/video_feed')
 def video_feed(): 
     cam=VideoCamera()
@@ -238,31 +239,35 @@ def logout():
 @app.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    print(user)
+    user = User.query.filter_by(username=username).first_or_404()    
+    print(user.id)
     #page = request.args.get('page', 1, type=int)
-    #posts = user.posts.order_by(Post.timestamp.desc())
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
+    #print(posts)
+
     #next_url = url_for('user', username=user.username, page=posts.next_num) \
     #    if posts.has_next else None
     #prev_url = url_for('user', username=user.username, page=posts.prev_num) \
     #    if posts.has_prev else None
     #return render_template('user.html', user=user, posts=posts.items,
     #                       next_url=next_url, prev_url=prev_url)
-    posts = [{
-        'author':
-        user,
-        'body':
-        'Test post #1',
-        'timestamp':
-        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-    }, {
-        'author':
-        user,
-        'body':
-        'Test post #2',
-        'timestamp':
-        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-    }]
+    
+
+    #posts = [{
+    #    'author':
+    #    user,
+    #    'body':
+    #    'Test post #1',
+    #    'timestamp':
+    #    dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+    #}, {
+    #    'author':
+    #    user,
+    #    'body':
+    #    'Test post #2',
+    #    'timestamp':
+    #    dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+    #}]
 
     return render_template('user.html', user=user, posts=posts)
 
@@ -348,9 +353,20 @@ def feedbackCollection():
 def attendance():
     return render_template('attendance.html')
 
-@app.route('/class')
-def classCon():
-    return render_template('class.html')
+@app.route('/class/<username>')
+@login_required
+def classCon(username):
+    user = User.query.filter_by(username=username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()
+    print(user.id)
+    #print(teacher.teacher_name)
+    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+    #print(classSections)
+    #classsections=ClassSection.query.filter_by(school_id=)
+    qclass_val = request.args.get('class_val',1)
+    qsection=request.args.get('section','A')    
+    return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection)
+    #return render_template('class.html', user=user)
 
 @app.route('/performance')
 def performance():
