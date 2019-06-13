@@ -1,68 +1,99 @@
 {%extends "layout.html"%} {%block content%}
 
+
 <div class="container">
-    <h2>Result Upload</h2>
-   
-    <form action="" method="POST">
-
-    <div class="form-group " style="padding-top:5px;">
-            <div class="row">
-                    <div class="col-sm-3">
-                            <div style="width:150px;">
-                                    <label for="class_name" class="labelsize">Select Class</label>
-                                    <select class="form-control" id="sel1">
-                                        <option>Select class</option>
-                                        <option>Class 1</option>
-                                        <option>Class 2</option>
-                                        <option>Class 3</option>
-                                        <option>Class 4</option>
-                                        <option>Class 5</option>
-                                        <option>Class 6</option>
-                                        <option>Class 7</option>
-                                        <option>Class 8</option>
-                                        <option>Class 9</option>
-                                        <option>Class 10</option>
-                                    </select>
-                            </div>
-                    </div>
-                    <div class="col-sm-3">
-                            <div style="width:150px;" >
-                                    <label for="class_section" class="labelsize">Select Section</label>
-                                    <select class="form-control" id="sel1">
-                                        <option>Select Section</option>
-                                        <option>A</option>
-                                        <option>B</option>
-                                        <option>C</option>
-                                        <option>D</option>
-                                    </select>
+        <h2>Result Upload</h2>
+       
+        <form action="" method="POST">
+        {{ form.hidden_tag() }}
+      
+        <div class="form-group " style="padding-top:5px;">
+                <div class="row">
+                        <div class="col-sm-3">
+                                <div style="width:250px;">
+                                        {{ form.class_name.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.class_name.errors %}
+                                        {{ form.class_name(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.class_name.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.class_name(class='form-control') }}
+                                        {% endif %}
                                 </div>
-                    </div>
-                    <div class="col-sm-3">
-                                <label for="date" class="labelsize">Choose Date</label>
-                                <input type="date"
-                                min="2000-01-01">
                         </div>
-                  </div>
-        <div>
-        
-        <div class="row">
-                <div class="col-sm-3" style="padding-top:5px;"> 
-                        <label for="test_id" class="labelsize">Test Id</label>  <br>
-                        <input type="text"style="width: 150px;" placeholder="Enter the test id">   
-                </div>
+                        <div class="col-sm-2">
+                                <div style="width:150px;" >
+                                                {{ form.class_section.label(class='labelsize') }}
+                                        <br>
+                                                {% if form.class_section.errors %}
+                                                {{ form.class_section(class="form-control form-control-lg is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                {% for error in form.class_section.errors %}
+                                                 <span>{{ error }}</span>
+                                                {% endfor %}
+                                        </div>
+                                                {% else %}
+                                                {{ form.class_section(class='form-control') }}
+                                                {% endif %}
+                                </div>
+                        </div>
+                        <div class="col-sm-2">
+                        <label class='labelsize' for='Date'>Date</label>
+                        <input type="date" name='testdate'>
 
-            <div class="col-sm-3" style="padding-top:25px;"> 
-                    <input type="submit" style="background-color:snow; width: 150px; height: 30px;text-align: center;border-radius: 2cm;" value="submit"> 
+                
+
+                        </div>
+                        
+      
+
+                        <div class="col-sm-3" style="padding-top:5px;"> 
+                                        {{ form.subject_name.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.subject_name.errors %}
+                                        {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.subject_name.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                </div>
+                                        {% else %}
+                                        {{ form.subject_name(class='form-control') }}
+                                        {% endif %}
+                        </div>  
+      
+                        <div class="col-sm-2" style="padding-top:5px;"> 
+
+                                        {{ form.test_type.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.test_type.errors %}
+                                        {{ form.test_type(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.test_type.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.test_type(class='form-control') }}
+                                        {% endif %}
+                        </div>  
+                </div>
+      
+              
+                <p><button class="btn waves-light green lighten-1 white-text" type="submit">Submit</button></p>
+                    
             </div>
-        </div>
-    
-    </form>
+            
+        </form>
       </div>
-</div>
-{% if contents %}
+{% if student_list %}
 
 <div class="card id" id="result_table">
-        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ subject }}</h3>
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ sub_name }} {{ test_type }} [{{ test_date }}] </h3>
         <div class="card-body">
           <div id="table" class="table-editable">
             <table class="table table-bordered table-responsive-md table-striped text-center">
@@ -74,12 +105,12 @@
                             </tr>
                     </thead>
                     <tbody>
-                        <form action="">
-                            {% for content in contents %}
+                        <form action="" method="POST">
+                            {% for student in student_list %}
                                 <tr>
-                                    <td> {{content.student_name }} </td>
+                                    <td> {{student.student_name }} </td>
                                     <td> {{ totalmarks }} </td>
-                                    <td><input name="{{ content.student_id }}"type="text" id="" style="width:75px;"></td>
+                                    <td><input name=""  type="text" style="width:75px;"></td>
                                 </tr>
                             {% endfor %}
                     </tbody>
@@ -88,11 +119,11 @@
         
         </div>
         </div>
+        
       </div>
       
-      <input type="submit" style="width: 150px; height: 35px;text-align: center;border-radius: 2cm; float: right;" value="Upload">
+      <p><button class="btn waves-effect waves-light green lighten-1 white-text" style="margin-left:575px;" type="submit">Submit</button></p>
 
       </form>
       {% endif %}
-
 {%endblock%}

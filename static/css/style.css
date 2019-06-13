@@ -48,6 +48,7 @@
    display: none;
 
  }
+ 
 .container input{
   width:350px;
   height: 15px;
@@ -124,4 +125,11 @@ footer.page-footer {
   bottom: 60px;
   z-index: 100;
   /* text-align: left; */
+}
+
+
+#submitbutton{
+
+  border-radius: 2cm;
+  height: 400px;
 }

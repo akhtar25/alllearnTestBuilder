@@ -1,4 +1,6 @@
 
+
+
 $('#hiddenSearch').click(function(){
     console.log("we're here");
     $('#search-2').show();  
@@ -82,7 +84,7 @@ data.push(h);
 $EXPORT.text(JSON.stringify(data));
 });
 
-//$("#startQuizButton").click(
- //   function () {
-  //      document.getElementById('bg').src='{{ url_for('video_feed')}}';
-   // });
+$('#uploadDateInput').pickadate({
+    selectMonths: true, // Creates a dropdown to control month
+    selectYears: 15 // Creates a dropdown of 15 years to control year
+  });

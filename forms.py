@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from applicationDB import User
+from applicationDB import User,TestDetails
 from flask import request
 #from flask_babel import _, lazy_gettext as _l
 
@@ -73,3 +73,26 @@ class ResetPasswordForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField('Say something', validators=[DataRequired(), Length(min=1, max=140)])
     submit = SubmitField('Submit')
+
+class ResultQueryForm(FlaskForm):
+    class_name=SelectField('Select Class',choices=[('default','Select class'),('1','Class 1'),('2','Class 2'),('3','Class 3'),
+    ('4','Class 4'),('5','Class 5'),('6','Class 6'),('7','Class 7'),('8','Class 8'),('9','Class 9'),
+    ('10','Class 10')
+    ])
+    class_section=SelectField('Select Section',choices=[(c, c) for c in ['Select','A', 'B', 'C', 'D']])
+    test_type=SelectField('Test Type',choices=[(c, c) for c in ['Select','Class test', 'Unit test', 'SA', 'Practice test']])
+    subject_name=SelectField('Subject',choices=[(c, c) for c in ['Select','English', 'Hindi', 'Maths', 'EVS','Social Science','Computer']])
+    #submit=SubmitField('Submit')
+
+    def validate_class_name(self,class_name):
+        if class_name.data=='default':
+            raise ValidationError('* Please Select a Class')
+    def validate_class_section(self,class_section):
+        if class_section.data=='Select':
+            raise ValidationError('* Please Select a Section')
+    def validate_test_type(self,test_type):
+        if test_type.data=='Select':
+            raise ValidationError('* Please Select a Test type')
+    def validate_subject_name(self,subject_name):
+        if subject_name.data=='Select':
+            raise ValidationError('* Please Select a Subject')

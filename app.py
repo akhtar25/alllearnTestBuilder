@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -347,42 +347,22 @@ def performance():
 
 @app.route('/resultUpload',methods=['POST','GET'])
 def resultUpload():
-    subject='Maths'
-    totalmarks=100
-    content=[{
-        'student_id':'1',
-        'student_name':'Aashish',
-        'marks':'75'
-    },
-    {   'student_id':'2',
-        'student_name':'Vinay',
-        'marks':'60'
-    },
-    {   'student_id':'3',
-        'student_name':'Priya',
-        'marks':'89'
-    },
-    {   'student_id':'4',
-        'student_name':'Anushka',
-        'marks':'50'
-    }
-    ,{   'student_id':'5',
-        'student_name':'Samiksha',
-        'marks':'83'
-    },
-    {   'student_id':'6',
-        'student_name':'Vishal',
-        'marks':'43'
-    }]
-    #if request.method=='POST':
-      #  class_name=request.form.get('class_name')
-       # class_section=request.form.get('class_section')
-        #test_id=request.form.get('test_id')
-
-        #test=TestDetails(test_id)
-
-    #return render_template('result_table.html')    
-    return render_template('resultUpload.html',content=content,subject=subject,totalmarks=totalmarks)
+    form = ResultQueryForm()
+    if form.validate_on_submit():
+        test_type=form.test_type.data
+        sub_name=form.subject_name.data
+        #test_class_id=MessageDetails.query.filter_by(description=form.class_name.data).first()
+        #ss=test_class_id 
+        class_val=int(form.class_name.data)
+        date=request.form['testdate']
+        #sub_id=MessageDetails.query.filter_by(description=form.subject_name.data).first()
+        #ssub_id=sub_id.msg_id
+        #test_detail_id=TestDetails.query.filter_by(test_type=test_type,subject_id=ssub_id).first()
+        #print(test_detail_id)
+        #class_detail=ClassSection.query.filter_by(class_id=class_val,section_id=form.class_section.data).first()
+        student_list=StudentProfile.query.filter_by(class_sec_id=form.class_name.data).all()
+        return render_template('resultUpload.html',form=form,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+    return render_template('resultUpload.html', form=form)
 
 @app.route('/studentProfile')
 def studentProfile():
@@ -410,8 +390,6 @@ def search():
         posts=posts,
         next_url=next_url,
         prev_url=prev_url)
-
-
 
 
 #if __name__=='__main__':
