@@ -40,9 +40,9 @@
 <div class="content-wrapper" style="background-color: white;">
     <section class="content">
         <div class="row">
-                <div class="row">
+                
                 <div class="col-xs-12">
-                  <div class="box">
+                  <div class="box" id="classTrackerDiv">
                     <div class="box-header">
                       <h3 class="box-title">Class Tracker</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>
         
@@ -64,16 +64,54 @@
                           <td>{{ topicrow.chapter_name }}</td>
                           <td>{{ topicrow.topic }}</td>                          
                           <td  ><a class="btn btn-default"  href="{{url_for('classDelivery',class_val=qclass_val, section=qsection)}}"><span class=" label label-success ">Start Class</span></a></td>
-                          <td><a href="#">Complete course details</a></td>
+                          <td><a id="courseDetailsButton" href="#">Complete course details</a></td>
                         </tr>
                         {% endfor %}                        
                       </table>
                     </div>
                     <!-- /.box-body -->
                   </div>
-                  <!-- /.box -->
                 </div>
-              </div>
+                  <div id="completeCourseDetailsDiv">
+
+                      <div class="box-header">
+                          <h3 class="box-title">Curriculum details for Class: {{ qclass_val }}</h3>
+            
+                          
+                        </div>
+                  <div class="box-body  no-padding table-responsive">
+                    <table class="table table-hover">
+                      <tr>
+                        <th>Subject</th>
+                        <th>Book</th>
+                        <th>Unit</th>
+                        <th>Chapter</th>
+                        <th>Topic</th>
+                        <th>Expected Start Date</th>
+                        <th>Expected End Date</th>
+                      </tr>
+                      {% if courseDetails!="" %}
+                      {% for row in courseDetails %}
+                      <tr>
+                        <td>{{row.subject}}</td>
+                        <td>{{row.subject}} book</td>
+                        <td>{{row.unit_num}}</td>
+                        <td>{{row.chapter_num}}</td>
+                        <td>{{row.topic_name}}</td>
+                        <td>{{row.start_date}}</td>
+                        <td>{{row.end_date}}</td>
+                      </tr>
+                      {% endfor %}
+                      {% else %}
+                      <p>No data found in DB</p>
+                      {% endif %}
+                    </table>
+                  </div>
+                    <button class="btn pull-right" id="closeCourseDetailsButton" style="background-color:green; margin-top: 10px;">Back</button>
+                  </div>
+                  <!-- /.box -->
+                
+              
         </div>
     </section>
 </div>

@@ -363,6 +363,7 @@ def classCon():
         qsection=request.args.get('section','A') 
 
         #db query
+
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
 
@@ -372,10 +373,18 @@ def classCon():
         classTrackerQuery =classTrackerQuery + "and t4.class_val= " + str(qclass_val) + " and t4.section = '" + str(qsection) + "' and t4.school_id =" + str(teacher.school_id)
         classTrackerDetails = db.session.execute(text(classTrackerQuery)).fetchall()
 
+        #courseDetail = Topic.query.join(Topic,subject_id==MessageDetails.msg_id).filter_by(class_val=ClassSection.class_val).all()
+        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
+        courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
+        courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
+
+        print(courseDetails)
+
         #endOfQueries
 
-        print(classTrackerDetails)
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails)
+        #print(classTrackerDetails)
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails)
     else:
         return redirect(url_for('login'))    
 
