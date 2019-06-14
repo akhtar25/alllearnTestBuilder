@@ -330,9 +330,6 @@ def schoolPerformanceRanking():
 def recommendations():
     return render_template('recommendations.html')
 
-@app.route('/classDelivery')
-def classDelivery():
-    return render_template('classDelivery.html')
 
 
 @app.route('/feedbackCollection')
@@ -360,23 +357,43 @@ def attendance():
 def classCon():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
-        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()
-        #print(user.id)
-        #print(teacher.teacher_name)        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+        
+        qclass_val = request.args.get('class_val',1)
+        qsection=request.args.get('section','A') 
+
+        #db query
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
-        #distinctClasses = db.session.query(ClassSection).count()
-        # school_id=teacher.school_id
-        #distinctClasses = ClassSection.query(func.count(distinct(ClassSection.class_val))).filter_by(school_id=teacher.school_id)
 
-        #print("There are " +str(distinctClasses)+ "distinct classes")
-        #classsections=ClassSection.query.filter_by(school_id=)
-        qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A')    
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses)
+        classTrackerQuery = "select t1.subject_id as sid, t3.description as subject, t1.next_topic as tid, t2.topic_name as topic, t2.chapter_name, t1.class_sec_id, t4.section, t4.class_val, t4.school_id "
+        classTrackerQuery =classTrackerQuery + "from topic_tracker t1, topic_detail t2, message_detail t3, class_section t4   "
+        classTrackerQuery =classTrackerQuery + "where t1.next_topic=t2.topic_id and  t2.subject_id=t3.msg_id and  t1.class_sec_id=t4.class_sec_id   "
+        classTrackerQuery =classTrackerQuery + "and t4.class_val= " + str(qclass_val) + " and t4.section = '" + str(qsection) + "' and t4.school_id =" + str(teacher.school_id)
+        classTrackerDetails = db.session.execute(text(classTrackerQuery)).fetchall()
+
+        #endOfQueries
+
+        print(classTrackerDetails)
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails)
     else:
-        return redirect(url_for('login'))
-    #return render_template('class.html', user=user)
+        return redirect(url_for('login'))    
+
+@app.route('/classDelivery')
+def classDelivery():
+    if current_user.is_authenticated:        
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+        
+        qclass_val = request.args.get('class_val',1)
+        qsection=request.args.get('section','A') 
+
+        #db query
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses)
+
 
 @app.route('/performance')
 def performance():
