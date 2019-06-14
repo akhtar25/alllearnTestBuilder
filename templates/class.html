@@ -10,18 +10,23 @@
         
         <section class="sidebar">                     
               <ul class="sidebar-menu" data-widget="tree">
-                  {% for classsection in classsections %}
+                  {% for singleClass in distinctClasses %}
                          <li class="treeview">
                            <a href="#">
                              <i class="glyphicon glyphicon-education"></i>
-                             <span>Class {{classsection.class_val}}</span>
+                             <span>Class {{singleClass[0]}}</span>
                              <span class="pull-right-container">
-                               <span class="label label-primary pull-right">4</span>
+                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
                              </span>
-                           </a>
-                           <ul class="treeview-menu">                    
-                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                           </a>                                                      
+                           <ul class="treeview-menu">                            
+                              {% for classsection in classsections %}
+                                 {% if classsection.class_val==singleClass[0] %}
+                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                              {% endif %}
+                             {% endfor %}
                            </ul>
+                                                      
                          </li>
                          {% endfor %}                
          <ul>
