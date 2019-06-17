@@ -72,6 +72,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     user_type= db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    user_avatar = db.Column(db.String(500), nullable=True)
    
 
     def __repr__(self):
