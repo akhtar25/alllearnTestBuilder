@@ -82,6 +82,12 @@ data.push(h);
 $EXPORT.text(JSON.stringify(data));
 });
 
+
+$('#uploadDateInput').pickadate({
+    selectMonths: true, // Creates a dropdown to control month
+    selectYears: 15 // Creates a dropdown of 15 years to control year
+  });
+
 $('#courseDetailsButton').click(function(){    
     $('#classTrackerDiv').hide();
     $('#completeCourseDetailsDiv').show();
@@ -91,7 +97,6 @@ $('#closeCourseDetailsButton').click(function(){
     $('#classTrackerDiv').show();
     $('#completeCourseDetailsDiv').hide();
 })
-
 
 //$("#startQuizButton").click(
  //   function () {
