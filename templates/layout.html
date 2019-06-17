@@ -148,7 +148,7 @@
       <div id="searchDiv">
         <form method="get" action="{{ url_for('search') }}" id="search-2">
           <div class="input-field">
-            {{g.search_form.q(size=36, type='search', placeholder='Search Articles or Features', style='color:dark grey; font-size:30px;')}}
+            {{g.search_form.q(size=36, type='search', placeholder='Search Articles', style='color:dark grey; font-size:30px;')}}
           </div>
         </form>
       </div>
@@ -242,7 +242,7 @@
                 <a class="white-text" font-size:15px;" href="{{url_for('attendance')}}">Attendance</a>
               </li>
               <li>
-                <a class="white-text" font-size:15px;" href="{{url_for('classCon')}}">Class</a>
+                <a class="white-text" font-size:15px;" href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
               </li>
               <li>
                 <a class="white-text" font-size:15px;" href="{{url_for('performance')}}">Performance</a>

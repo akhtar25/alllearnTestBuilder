@@ -16,6 +16,7 @@ class SearchForm(FlaskForm):
             kwargs['csrf_enabled'] = False
         super(SearchForm, self).__init__(*args, **kwargs)
 
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])

@@ -48,6 +48,11 @@
    display: none;
 
  }
+
+ #completeCourseDetailsDiv{
+   display: none;
+ }
+
 .container input{
   width:350px;
   height: 15px;
