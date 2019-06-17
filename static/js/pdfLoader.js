@@ -1,6 +1,8 @@
 // If absolute URL from the remote server is provided, configure the CORS
 // header on that server.
-var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf';
+//var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf';
+var url = document.getElementById('bookLinkIDSpan').textContent;
+
 //var url = 'https://drive.google.com/open?id=1RQP-Ksz-sfDYrcdNXvwIslQpTT3U4Pzd';
 
 // Loaded via <script> tag, create shortcut to access PDF.js exports.
@@ -91,6 +93,7 @@ document.getElementById('next').addEventListener('click', onNextPage);
  * Asynchronously downloads PDF.
  */
 pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+  
   pdfDoc = pdfDoc_;
   document.getElementById('page_count').textContent = pdfDoc.numPages;
 

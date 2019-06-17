@@ -45,11 +45,11 @@
                 <div class="col-xs-8">
                   <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Book: English </h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
+                      <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;">    Class: {{ qclass_val }} | Section: {{ qsection }}</span>
         
                     </div>
                     <!-- /.box-header -->                    
-
+                    <span id="bookLinkIDSpan" style="display: None;">{{bookDet.book_link}}</span>
                     <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>                    
 
                     

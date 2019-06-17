@@ -410,11 +410,22 @@ def classDelivery():
         qclass_val = request.args.get('class_val',1)
         qsection=request.args.get('section','A') 
 
-        #db query
+        #db query 
+            #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+            # end of sidebar
+        currClass = ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section = qsection).order_by(ClassSection.class_val).first()
+        #for curr in currClass:
+        print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
+        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id).first()
+        #print ("this is topic Track: " + topicTrack)
+        topicDet = Topic.query.filter_by(topic_id=topicTrack.next_topic).first()
+        bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+        
 
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses)
+
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet)
 
 
 @app.route('/performance')
