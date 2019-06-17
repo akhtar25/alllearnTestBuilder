@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response
+from flask import Flask, render_template, request, flash, redirect, url_for, Response,session
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
@@ -362,21 +362,36 @@ def resultUpload():
                 class_val=MessageDetails.query.filter_by(description=form.class_name.data).first_or_404()
                 sec_val=MessageDetails.query.filter_by(description=form.class_section.data).first_or_404()
                 sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first_or_404()
-        
+                test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first_or_404()
+
                 class_room_id=ClassSection.query.filter_by(class_val=int(class_val.description),section=sec_val.description).first_or_404()
 
                 schl_id=TeacherProfile.query.filter_by(user_id=current_user.id).first_or_404()
 
                 student_list=StudentProfile.query.filter_by(class_sec_id=class_room_id.class_sec_id,school_id=schl_id.school_id).all()
 
-            #return render_template('resultUpload.html',form=form,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+           
 
                 if student_list:
-                    form.class_name.data=form.class_name.data
-                    return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+                    session['class_sec_id']=class_room_id.class_sec_id
+                    session['school_id']=schl_id.school_id
+                    session['date']=date
+                    session['sub_val']=sub_val.msg_id
+                    session['test_type_val']=test_type_val.msg_id
+                
+                    result_check=ResultUpload.query.filter_by(exam_date=session.get('date',None),
+                    class_sec_id=session.get('class_sec_id',None),subject_id=session.get('sub_val',None)).first()
+
+                    if result_check:
+                        flash('Result already uploaded !')
+                        return render_template('resultUpload.html', form=form)
+
+                    else:
+                        return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
 
                 else:
                     flash('No Records')
+                   
                     return render_template('resultUpload.html', form=form)
         
                 
@@ -388,12 +403,34 @@ def resultUpload():
             return render_template('resultUpload.html', form=form)
     else:
         if form1.validate_on_submit:
-            flash('validate')
-            print(form.class_name.data)
-            
-            print(request.form.getlist('marks'))
+            marks_list=request.form.getlist('marks')
+            i=0
+            flash('Marks Uploaded !')
+            student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
+            for student in student_list:
+
+                if marks_list[i]=='-1':
+                    marks=0
+                    is_present=MessageDetails.query.filter_by(description='Not Present').first_or_404()
+                else:
+                    marks=marks_list[i]
+                    is_present=MessageDetails.query.filter_by(description='Present').first_or_404()
+                
+
+                Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
+                exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
+                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id
+                )
+                db.session.add(Marks)
+
+                i+=1
+            db.session.commit()
+        
             
         return render_template('resultUpload.html',form=form)
+
+
+
 @app.route('/studentProfile')
 def studentProfile():
     return render_template('studentProfile.html')
@@ -434,35 +471,3 @@ if __name__=="__main__":
             port=int(os.getenv('PORT', 8000)))
     #app.run()
 
-
-
-
-
-#if request.method=='POST':
-                 #   form_name=request.form['upload_form']
-                  #  if form_name=='Upload':
-                   #     return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
-                        
-
-                    #for student in student_list:
-                     #   s_id=str(student.student_id)
-                      #  print(form1.marks.data)
-                        #result=ResultUpload(school_id=schl_id.school_id,class_sec_id=class_room_id.class_sec_id,
-                        #subject_id=sub_val.msg_id,student_id=student.student_id,exam_date=date,test_type=test_type,
-                        #marks_scored=request.form['s_id'])
-
-                        #db.session.add(result)
-                    #else:
-                     #   return render_template('resultUpload.html', form=form)
-
-
-                    #db.session.commit()
-                    #flash('result uploaded successfully')
-                    #return render_template('resultUpload.html', form=form)
-
-                #else:
-                 #   return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
-
-            #else:
-             #   flash('No such class !')
-              #  return render_template('resultUpload.html', form=form)

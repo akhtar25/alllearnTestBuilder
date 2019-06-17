@@ -114,7 +114,7 @@
                                     <td> {{student.student_name }} </td>
                                     <td> {{ totalmarks }} </td>
                                 
-                                    <td>{{ form1.marks }}</td>
+                                    <td><div class="container" style="width:100px;">{{ form1.marks }}</div></td>
                 
                                 </tr>
                             {% endfor %}
@@ -127,24 +127,10 @@
         
       </div>
       
-      <p>{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
+      <p style="padding-left:575px;">{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
 
       </form>
 
       {% endif %}
 
-      
-
-
-
-
-      <div id="modal1" class="modal">
-                <div class="modal-content">
-                  <h4>Modal Header</h4>
-                  <p>A bunch of text</p>
-                </div>
-                <div class="modal-footer">
-                  <a href="" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-                </div>
-              </div>
 {%endblock%}
