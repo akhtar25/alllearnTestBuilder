@@ -100,17 +100,10 @@ def sign_s3():
 
 @app.route("/submit_form/", methods = ["POST"])
 def submit_form():
-<<<<<<< HEAD
-    teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    teacherProfile.teacher_name = request.form["full-name"]
-    teacherProfile.profile_picture = request.form["avatar-url"]
-    db.session.commit()
-=======
     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #teacherProfile.teacher_name = request.form["full-name"]
     #teacherProfile.profile_picture = request.form["avatar-url"]
     #db.session.commit()
->>>>>>> master
     #flash('DB values updated')
     return redirect(url_for('account'))
 
