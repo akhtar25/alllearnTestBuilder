@@ -18,8 +18,10 @@ from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post
 import barCode
-import json
+import json, boto3
 from flask_wtf.csrf import CSRFProtect
+from sqlalchemy import func, distinct, text, update
+from sqlalchemy.sql import label
 
 
 app=Flask(__name__)
@@ -53,7 +55,7 @@ if not app.debug and not app.testing:
         app.logger.addHandler(file_handler)
 
     app.logger.setLevel(logging.INFO)
-    app.logger.info('MS startup')
+    app.logger.info('Alllearn startup')
 
 
 @app.before_request
@@ -64,6 +66,46 @@ def before_request():
     g.search_form = SearchForm()
     
 
+@app.route("/account/")
+def account():
+    return render_template('account.html')
+
+@app.route('/sign-s3')
+def sign_s3():
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    #S3_BUCKET = "alllearndatabucket"
+    file_name = request.args.get('file-name')
+    print(file_name)    
+    file_type = request.args.get('file-type')
+    print(file_type)
+    #s3 = boto3.client('s3')
+    s3 = boto3.client('s3', region_name='ap-south-1')
+
+    print(s3)
+    presigned_post = s3.generate_presigned_post(
+      Bucket = S3_BUCKET,
+      Key = file_name,
+      Fields = {"acl": "public-read", "Content-Type": file_type},
+      Conditions = [
+        {"acl": "public-read"},
+        {"Content-Type": file_type}
+      ],
+      ExpiresIn = 3600
+    )
+    return json.dumps({
+      'data': presigned_post,
+      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+    })
+
+
+@app.route("/submit_form/", methods = ["POST"])
+def submit_form():
+    teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacherProfile.teacher_name = request.form["full-name"]
+    teacherProfile.profile_picture = request.form["avatar-url"]
+    db.session.commit()
+    flash('DB values updated')
+    return redirect(url_for('account'))
 
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
@@ -97,6 +139,7 @@ def reset_password(token):
     return render_template('reset_password_page.html', form=form)
 
 '''camera section'''
+
 @app.route('/video_feed')
 def video_feed(): 
     cam=VideoCamera()
@@ -238,32 +281,9 @@ def logout():
 @app.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    print(user)
-    #page = request.args.get('page', 1, type=int)
-    #posts = user.posts.order_by(Post.timestamp.desc())
-    #next_url = url_for('user', username=user.username, page=posts.next_num) \
-    #    if posts.has_next else None
-    #prev_url = url_for('user', username=user.username, page=posts.prev_num) \
-    #    if posts.has_prev else None
-    #return render_template('user.html', user=user, posts=posts.items,
-    #                       next_url=next_url, prev_url=prev_url)
-    posts = [{
-        'author':
-        user,
-        'body':
-        'Test post #1',
-        'timestamp':
-        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-    }, {
-        'author':
-        user,
-        'body':
-        'Test post #2',
-        'timestamp':
-        dt.datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-    }]
-
+    user = User.query.filter_by(username=username).first_or_404()    
+    print(user.id)
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
     return render_template('user.html', user=user, posts=posts)
 
 
@@ -323,13 +343,21 @@ def schoolPerformanceRanking():
 def recommendations():
     return render_template('recommendations.html')
 
-@app.route('/classDelivery')
-def classDelivery():
-    return render_template('classDelivery.html')
 
 
 @app.route('/feedbackCollection')
 def feedbackCollection():
+    #if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
+    #        #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
+    #        # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+    #        survivor = Survivor(email, name)
+    #        db.session.add(survivor)
+    #        db.session.commit()
+    #        print(email,name)
+    #        newsletterEmail(email, name)
+    #        return render_template('newsletterSuccess.html')
+    #    else:
+    #        return render_template('index.html',text='Error: Email already used.')
     return render_template('feedbackCollection.html')
 
 
@@ -338,8 +366,56 @@ def attendance():
     return render_template('attendance.html')
 
 @app.route('/class')
+@login_required
 def classCon():
-    return render_template('class.html')
+    if current_user.is_authenticated:        
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+        
+        qclass_val = request.args.get('class_val',1)
+        qsection=request.args.get('section','A') 
+
+        #db query
+
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+
+        classTrackerQuery = "select t1.subject_id as sid, t3.description as subject, t1.next_topic as tid, t2.topic_name as topic, t2.chapter_name, t1.class_sec_id, t4.section, t4.class_val, t4.school_id "
+        classTrackerQuery =classTrackerQuery + "from topic_tracker t1, topic_detail t2, message_detail t3, class_section t4   "
+        classTrackerQuery =classTrackerQuery + "where t1.next_topic=t2.topic_id and  t2.subject_id=t3.msg_id and  t1.class_sec_id=t4.class_sec_id   "
+        classTrackerQuery =classTrackerQuery + "and t4.class_val= " + str(qclass_val) + " and t4.section = '" + str(qsection) + "' and t4.school_id =" + str(teacher.school_id)
+        classTrackerDetails = db.session.execute(text(classTrackerQuery)).fetchall()
+
+        #courseDetail = Topic.query.join(Topic,subject_id==MessageDetails.msg_id).filter_by(class_val=ClassSection.class_val).all()
+        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
+        courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
+        courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
+
+        print(courseDetails)
+
+        #endOfQueries
+
+        #print(classTrackerDetails)
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails)
+    else:
+        return redirect(url_for('login'))    
+
+@app.route('/classDelivery')
+def classDelivery():
+    if current_user.is_authenticated:        
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+        
+        qclass_val = request.args.get('class_val',1)
+        qsection=request.args.get('section','A') 
+
+        #db query
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses)
+
 
 @app.route('/performance')
 def performance():
