@@ -104,7 +104,7 @@ def submit_form():
     teacherProfile.teacher_name = request.form["full-name"]
     teacherProfile.profile_picture = request.form["avatar-url"]
     db.session.commit()
-    flash('DB values updated')
+    #flash('DB values updated')
     return redirect(url_for('account'))
 
 
