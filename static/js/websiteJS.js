@@ -84,12 +84,12 @@ data.push(h);
 $EXPORT.text(JSON.stringify(data));
 });
 
-<<<<<<< HEAD
+
 $('#uploadDateInput').pickadate({
     selectMonths: true, // Creates a dropdown to control month
     selectYears: 15 // Creates a dropdown of 15 years to control year
   });
-=======
+
 $('#courseDetailsButton').click(function(){    
     $('#classTrackerDiv').hide();
     $('#completeCourseDetailsDiv').show();
@@ -100,9 +100,7 @@ $('#closeCourseDetailsButton').click(function(){
     $('#completeCourseDetailsDiv').hide();
 })
 
-
 //$("#startQuizButton").click(
  //   function () {
   //      document.getElementById('bg').src='{{ url_for('video_feed')}}';
    // });
->>>>>>> 56aee7e27caf6cfc9d0ae8aa1354c909f83f7f0f
