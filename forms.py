@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange
 from applicationDB import User,TestDetails
 from flask import request
 #from flask_babel import _, lazy_gettext as _l
@@ -96,3 +96,7 @@ class ResultQueryForm(FlaskForm):
     def validate_subject_name(self,subject_name):
         if subject_name.data=='Select':
             raise ValidationError('* Please Select a Subject')
+
+class MarksForm(FlaskForm):
+    marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    upload=SubmitField('Upload')

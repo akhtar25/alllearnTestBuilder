@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -345,25 +345,55 @@ def classCon():
 def performance():
     return render_template('performance.html')
 
+
 @app.route('/resultUpload',methods=['POST','GET'])
 def resultUpload():
     form = ResultQueryForm()
-    if form.validate_on_submit():
-        test_type=form.test_type.data
-        sub_name=form.subject_name.data
-        #test_class_id=MessageDetails.query.filter_by(description=form.class_name.data).first()
-        #ss=test_class_id 
-        class_val=int(form.class_name.data)
-        date=request.form['testdate']
-        #sub_id=MessageDetails.query.filter_by(description=form.subject_name.data).first()
-        #ssub_id=sub_id.msg_id
-        #test_detail_id=TestDetails.query.filter_by(test_type=test_type,subject_id=ssub_id).first()
-        #print(test_detail_id)
-        #class_detail=ClassSection.query.filter_by(class_id=class_val,section_id=form.class_section.data).first()
-        student_list=StudentProfile.query.filter_by(class_sec_id=form.class_name.data).all()
-        return render_template('resultUpload.html',form=form,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
-    return render_template('resultUpload.html', form=form)
+    form1=MarksForm()
+    
 
+    if not form1.upload.data:
+        if form.validate_on_submit():
+            if current_user.is_authenticated:
+                date=request.form['testdate']
+                sub_name=form.subject_name.data
+                test_type=form.test_type.data
+        
+                class_val=MessageDetails.query.filter_by(description=form.class_name.data).first_or_404()
+                sec_val=MessageDetails.query.filter_by(description=form.class_section.data).first_or_404()
+                sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first_or_404()
+        
+                class_room_id=ClassSection.query.filter_by(class_val=int(class_val.description),section=sec_val.description).first_or_404()
+
+                schl_id=TeacherProfile.query.filter_by(user_id=current_user.id).first_or_404()
+
+                student_list=StudentProfile.query.filter_by(class_sec_id=class_room_id.class_sec_id,school_id=schl_id.school_id).all()
+
+            #return render_template('resultUpload.html',form=form,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+
+                if student_list:
+                    form.class_name.data=form.class_name.data
+                    return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+
+                else:
+                    flash('No Records')
+                    return render_template('resultUpload.html', form=form)
+        
+                
+            else:
+                flash('Login required !')
+                return render_template('resultUpload.html', form=form)
+
+        else:
+            return render_template('resultUpload.html', form=form)
+    else:
+        if form1.validate_on_submit:
+            flash('validate')
+            print(form.class_name.data)
+            
+            print(request.form.getlist('marks'))
+            
+        return render_template('resultUpload.html',form=form)
 @app.route('/studentProfile')
 def studentProfile():
     return render_template('studentProfile.html')
@@ -396,8 +426,43 @@ def search():
 #    app.debug=True
 #    app.run()
 
+
+
 if __name__=="__main__":
     app.debug=True
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
     #app.run()
+
+
+
+
+
+#if request.method=='POST':
+                 #   form_name=request.form['upload_form']
+                  #  if form_name=='Upload':
+                   #     return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+                        
+
+                    #for student in student_list:
+                     #   s_id=str(student.student_id)
+                      #  print(form1.marks.data)
+                        #result=ResultUpload(school_id=schl_id.school_id,class_sec_id=class_room_id.class_sec_id,
+                        #subject_id=sub_val.msg_id,student_id=student.student_id,exam_date=date,test_type=test_type,
+                        #marks_scored=request.form['s_id'])
+
+                        #db.session.add(result)
+                    #else:
+                     #   return render_template('resultUpload.html', form=form)
+
+
+                    #db.session.commit()
+                    #flash('result uploaded successfully')
+                    #return render_template('resultUpload.html', form=form)
+
+                #else:
+                 #   return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+
+            #else:
+             #   flash('No such class !')
+              #  return render_template('resultUpload.html', form=form)

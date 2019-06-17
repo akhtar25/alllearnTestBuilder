@@ -106,7 +106,7 @@
                     </thead>
                     <tbody>
                         <form action="" method="POST" name="form-upload">
-                                {{ form1.hidden_tag() }}
+                                {{ form.hidden_tag() }}
                                 <input type="hidden" name="upload_form" value="Upload">
                                 
                             {% for student in student_list %}
@@ -114,7 +114,8 @@
                                     <td> {{student.student_name }} </td>
                                     <td> {{ totalmarks }} </td>
                                 
-                                    <td>{{ form1.marks }}</td>
+                                    <td>
+                                           <input type="text" name="{{ student.student_id }}" style="width:100px; float: right"></td>
                 
                                 </tr>
                             {% endfor %}
@@ -127,7 +128,7 @@
         
       </div>
       
-      <p>{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
+      <p><button data-target="modal1" class="btnx modal-trigger waves-light green lighten-1 white-text" style="margin-left:575px;" type="submit">Upload</button></p>
 
       </form>
 
