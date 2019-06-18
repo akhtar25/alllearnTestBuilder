@@ -345,19 +345,16 @@ def recommendations():
 
 
 
-@app.route('/feedbackCollection')
+@app.route('/feedbackCollection', methods=['GET', 'POST'])
 def feedbackCollection():
-    #if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
-    #        #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-    #        # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
-    #        survivor = Survivor(email, name)
-    #        db.session.add(survivor)
-    #        db.session.commit()
-    #        print(email,name)
-    #        newsletterEmail(email, name)
-    #        return render_template('newsletterSuccess.html')
-    #    else:
-    #        return render_template('index.html',text='Error: Email already used.')
+    if request.method == 'POST':
+        currCoveredTopics = request.form.getlist('topicCheck')
+
+        print(currCoveredTopics)
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        teacherProfile.teacher_name = request.form["full-name"]
+        teacherProfile.profile_picture = request.form["avatar-url"]
+        db.session.commit()
     return render_template('feedbackCollection.html')
 
 
