@@ -179,7 +179,7 @@ class Topic(db.Model):
     end_date= db.Column(db.DateTime, nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    book_link = db.Column(db.String(500), nullable=True)
+    book_id= db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
 
 
 class TopicTracker(db.Model):
@@ -198,9 +198,10 @@ class TopicTracker(db.Model):
 class BookDetails(db.Model):
     __tablename__ = "book_details"
     book_id = db.Column(db.Integer, primary_key=True)
-    class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    class_val = db.Column(db.Integer,nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
+    book_link= db.Column(db.String(500))
     last_modified_date=db.Column(db.DateTime)
 
 
