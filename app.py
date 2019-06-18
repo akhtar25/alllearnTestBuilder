@@ -352,9 +352,16 @@ def feedbackCollection():
 
         print(currCoveredTopics)
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        teacherProfile.teacher_name = request.form["full-name"]
-        teacherProfile.profile_picture = request.form["avatar-url"]
-        db.session.commit()
+        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
+        for val in currCoveredTopics:
+            val_id=Topic.query.filter_by(topic_name=val).first()
+            for topicRows in topicTrackerDetails:
+                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+                if topicRows.topic_id==val_id.topic_id:
+                    topicRows.is_covered = 'Y'            
+                    db.session.commit()        
+        #
     return render_template('feedbackCollection.html')
 
 
