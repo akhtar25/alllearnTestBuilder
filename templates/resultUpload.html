@@ -39,11 +39,16 @@
                                                 {% else %}
                                                 {{ form.section(class='form-control') }}
                                                 {% endif %}
+
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='32px' height='32px'>
+                                                        </div>
                                 </div>
                         </div>
                         <div class="col-sm-2">
                         <label class='labelsize' for='Date'>Date</label>
                         <input type="date" name='testdate'>
+                       
 
                 
 
@@ -133,4 +138,35 @@
 
       {% endif %}
 
+
+
+      <script>
+        var class_select = document.getElementById("class_val");
+        var section_select = document.getElementById("section");
+        class_select.onchange = function()  {
+             
+            class_val = class_select.value;
+            $("#loader").show();
+            
+            fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loader").hide();    
+                        var optionHTML = '';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+                
+            });
+        }
+    </script>
+
+
+<!-- Image loader 
+<div id='loader' style='display: none;'>
+        <img src='../static/images/loader.gif' width='32px' height='32px'>
+</div>-->
+      <!-- Image loader -->
+      
 {%endblock%}

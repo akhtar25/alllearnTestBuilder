@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response,session
+from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
@@ -427,10 +427,12 @@ def performance():
 def resultUpload():
     #selectfield choices list
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
     available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
     available_subject=MessageDetails.query.filter_by(category='Subject').all()
+
 
     class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
     section_list=[(i.section,i.section) for i in available_section]
@@ -453,28 +455,33 @@ def resultUpload():
         if form.validate_on_submit() :
             if current_user.is_authenticated:
                 date=request.form['testdate']
+                if date=='':
+                    flash('Please select date !')
+                    return render_template('resultUpload.html',form=form)
+                
                 sub_name=form.subject_name.data
                 test_type=form.test_type.data
         
-                class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
-                sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
+                #class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
+                #sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
                 sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first()
                 test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first()
 
-                class_sec_id=ClassSection.query.filter_by(class_val=int(class_val.description),section=sec_val.description).first()
+                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
 
-                school_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=school_id.school_id).all()
+                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
 
            
 
                 if student_list:
                     session['class_sec_id']=class_sec_id.class_sec_id
-                    session['school_id']=school_id.school_id
+                    session['school_id']=teacher_id.school_id
                     session['date']=date
                     session['sub_val']=sub_val.msg_id
                     session['test_type_val']=test_type_val.msg_id
+                    session['teacher_id']=teacher_id.teacher_id
                 
                     result_check=ResultUpload.query.filter_by(exam_date=session.get('date',None),
                     class_sec_id=session.get('class_sec_id',None),subject_id=session.get('sub_val',None)).first()
@@ -487,7 +494,7 @@ def resultUpload():
                         return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
 
                 else:
-                    flash('No Records')
+                    flash('No Student list for the given class and section')
                    
                     return render_template('resultUpload.html', form=form)
         
@@ -515,7 +522,8 @@ def resultUpload():
 
                 Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
                 exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
-                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id
+                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
+                uploaded_by=session.get('teacher_id',None)
                 )
                 db.session.add(Marks)
 
@@ -525,6 +533,24 @@ def resultUpload():
         
             
         return render_template('resultUpload.html',form=form)
+
+
+
+@app.route('/resultUpload/<class_val>')
+def section(class_val):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+
+    sectionArray = []
+
+    for section in sections:
+        sectionObj = {}
+        sectionObj['section_id'] = section.class_sec_id
+        sectionObj['section_val'] = section.section
+        sectionArray.append(sectionObj)
+
+    return jsonify({'sections' : sectionArray})
 
 
 
