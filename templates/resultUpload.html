@@ -11,33 +11,33 @@
                 <div class="row">
                         <div class="col-sm-3">
                                 <div style="width:250px;">
-                                        {{ form.class_name.label(class='labelsize') }}
+                                        {{ form.class_val.label(class='labelsize') }}
                                         <br>
-                                        {% if form.class_name.errors %}
-                                        {{ form.class_name(class="form-control form-control-lg is-invalid") }}
+                                        {% if form.class_val.errors %}
+                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
                                         <div class="invalid-feedback">
-                                        {% for error in form.class_name.errors %}
+                                        {% for error in form.class_val.errors %}
                                          <span>{{ error }}</span>
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_name(class='form-control') }}
+                                        {{ form.class_val(class='form-control') }}
                                         {% endif %}
                                 </div>
                         </div>
                         <div class="col-sm-2">
                                 <div style="width:150px;" >
-                                                {{ form.class_section.label(class='labelsize') }}
+                                                {{ form.section.label(class='labelsize') }}
                                         <br>
-                                                {% if form.class_section.errors %}
-                                                {{ form.class_section(class="form-control form-control-lg is-invalid") }}
+                                                {% if form.section.errors %}
+                                                {{ form.section(class="form-control form-control-lg is-invalid") }}
                                                 <div class="invalid-feedback">
-                                                {% for error in form.class_section.errors %}
+                                                {% for error in form.section.errors %}
                                                  <span>{{ error }}</span>
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.class_section(class='form-control') }}
+                                                {{ form.section(class='form-control') }}
                                                 {% endif %}
                                 </div>
                         </div>

@@ -100,17 +100,10 @@ def sign_s3():
 
 @app.route("/submit_form/", methods = ["POST"])
 def submit_form():
-<<<<<<< HEAD
-    teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    teacherProfile.teacher_name = request.form["full-name"]
-    teacherProfile.profile_picture = request.form["avatar-url"]
-    db.session.commit()
-=======
     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #teacherProfile.teacher_name = request.form["full-name"]
     #teacherProfile.profile_picture = request.form["avatar-url"]
     #db.session.commit()
->>>>>>> master
     #flash('DB values updated')
     return redirect(url_for('account'))
 
@@ -430,34 +423,55 @@ def performance():
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
+@login_required
 def resultUpload():
+    #selectfield choices list
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_subject=MessageDetails.query.filter_by(category='Subject').all()
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]
+    test_type_list=[(i.description,i.description) for i in available_test_type]
+    subject_name_list=[(i.description,i.description) for i in available_subject]
+
+
     form = ResultQueryForm()
     form1=MarksForm()
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list
+    form.test_type.choices= test_type_list
+    form.subject_name.choices=subject_name_list
+
     
 
     if not form1.upload.data:
-        if form.validate_on_submit():
+        if form.validate_on_submit() :
             if current_user.is_authenticated:
                 date=request.form['testdate']
                 sub_name=form.subject_name.data
                 test_type=form.test_type.data
         
-                class_val=MessageDetails.query.filter_by(description=form.class_name.data).first_or_404()
-                sec_val=MessageDetails.query.filter_by(description=form.class_section.data).first_or_404()
-                sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first_or_404()
-                test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first_or_404()
+                class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
+                sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
+                sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first()
+                test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first()
 
-                class_room_id=ClassSection.query.filter_by(class_val=int(class_val.description),section=sec_val.description).first_or_404()
+                class_sec_id=ClassSection.query.filter_by(class_val=int(class_val.description),section=sec_val.description).first()
 
-                schl_id=TeacherProfile.query.filter_by(user_id=current_user.id).first_or_404()
+                school_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-                student_list=StudentProfile.query.filter_by(class_sec_id=class_room_id.class_sec_id,school_id=schl_id.school_id).all()
+                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=school_id.school_id).all()
 
            
 
                 if student_list:
-                    session['class_sec_id']=class_room_id.class_sec_id
-                    session['school_id']=schl_id.school_id
+                    session['class_sec_id']=class_sec_id.class_sec_id
+                    session['school_id']=school_id.school_id
                     session['date']=date
                     session['sub_val']=sub_val.msg_id
                     session['test_type_val']=test_type_val.msg_id
@@ -488,16 +502,15 @@ def resultUpload():
         if form1.validate_on_submit:
             marks_list=request.form.getlist('marks')
             i=0
-            flash('Marks Uploaded !')
             student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
             for student in student_list:
 
                 if marks_list[i]=='-1':
                     marks=0
-                    is_present=MessageDetails.query.filter_by(description='Not Present').first_or_404()
+                    is_present=MessageDetails.query.filter_by(description='Not Present').first()
                 else:
                     marks=marks_list[i]
-                    is_present=MessageDetails.query.filter_by(description='Present').first_or_404()
+                    is_present=MessageDetails.query.filter_by(description='Present').first()
                 
 
                 Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
@@ -508,6 +521,7 @@ def resultUpload():
 
                 i+=1
             db.session.commit()
+            flash('Marks Uploaded !')
         
             
         return render_template('resultUpload.html',form=form)
