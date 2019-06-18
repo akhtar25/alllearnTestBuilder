@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from applicationDB import User
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired
+from applicationDB import User,TestDetails
 from flask import request
 #from flask_babel import _, lazy_gettext as _l
 
@@ -74,3 +74,27 @@ class ResetPasswordForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField('Say something', validators=[DataRequired(), Length(min=1, max=140)])
     submit = SubmitField('Submit')
+
+class ResultQueryForm(FlaskForm):
+    class_val=SelectField('Select Class')
+    section=SelectField('Select Section')
+    test_type=SelectField('Test Type')
+    subject_name=SelectField('Subject',choices=[(c, c) for c in ['Select','English', 'Hindi', 'Maths', 'EVS','Social Science','Computer']])
+    #submit=SubmitField('Submit')
+
+    def validate_class_val(self,class_val):
+        if class_val.data=='Select':
+            raise ValidationError('* Please Select a Class')
+    def validate_section(self,section):
+        if section.data=='Select':
+            raise ValidationError('* Please Select a Section')
+    def validate_test_type(self,test_type):
+        if test_type.data=='Select':
+            raise ValidationError('* Please Select a Test type')
+    def validate_subject_name(self,subject_name):
+        if subject_name.data=='Select':
+            raise ValidationError('* Please Select a Subject')
+
+class MarksForm(FlaskForm):
+    marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    upload=SubmitField('Upload')

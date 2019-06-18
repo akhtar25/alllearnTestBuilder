@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response
+from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -446,9 +446,138 @@ def classDelivery():
 def performance():
     return render_template('performance.html')
 
-@app.route('/resultUpload')
+
+@app.route('/resultUpload',methods=['POST','GET'])
+@login_required
 def resultUpload():
-    return render_template('resultUpload.html')
+    #selectfield choices list
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_subject=MessageDetails.query.filter_by(category='Subject').all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]
+    test_type_list=[(i.description,i.description) for i in available_test_type]
+    subject_name_list=[(i.description,i.description) for i in available_subject]
+
+
+    form = ResultQueryForm()
+    form1=MarksForm()
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list
+    form.test_type.choices= test_type_list
+    form.subject_name.choices=subject_name_list
+
+    
+
+    if not form1.upload.data:
+        if form.validate_on_submit() :
+            if current_user.is_authenticated:
+                date=request.form['testdate']
+                if date=='':
+                    flash('Please select date !')
+                    return render_template('resultUpload.html',form=form)
+                
+                sub_name=form.subject_name.data
+                test_type=form.test_type.data
+        
+                #class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
+                #sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
+                sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first()
+                test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first()
+
+                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
+
+                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
+
+           
+
+                if student_list:
+                    session['class_sec_id']=class_sec_id.class_sec_id
+                    session['school_id']=teacher_id.school_id
+                    session['date']=date
+                    session['sub_val']=sub_val.msg_id
+                    session['test_type_val']=test_type_val.msg_id
+                    session['teacher_id']=teacher_id.teacher_id
+                
+                    result_check=ResultUpload.query.filter_by(exam_date=session.get('date',None),
+                    class_sec_id=session.get('class_sec_id',None),subject_id=session.get('sub_val',None)).first()
+
+                    if result_check:
+                        flash('Result already uploaded !')
+                        return render_template('resultUpload.html', form=form)
+
+                    else:
+                        return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+
+                else:
+                    flash('No Student list for the given class and section')
+                   
+                    return render_template('resultUpload.html', form=form)
+        
+                
+            else:
+                flash('Login required !')
+                return render_template('resultUpload.html', form=form)
+
+        else:
+            return render_template('resultUpload.html', form=form)
+    else:
+        if form1.validate_on_submit:
+            marks_list=request.form.getlist('marks')
+            i=0
+            student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
+            for student in student_list:
+
+                if marks_list[i]=='-1':
+                    marks=0
+                    is_present=MessageDetails.query.filter_by(description='Not Present').first()
+                else:
+                    marks=marks_list[i]
+                    is_present=MessageDetails.query.filter_by(description='Present').first()
+                
+
+                Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
+                exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
+                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
+                uploaded_by=session.get('teacher_id',None)
+                )
+                db.session.add(Marks)
+
+                i+=1
+            db.session.commit()
+            flash('Marks Uploaded !')
+        
+            
+        return render_template('resultUpload.html',form=form)
+
+
+
+@app.route('/resultUpload/<class_val>')
+def section(class_val):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+
+    sectionArray = []
+
+    for section in sections:
+        sectionObj = {}
+        sectionObj['section_id'] = section.class_sec_id
+        sectionObj['section_val'] = section.section
+        sectionArray.append(sectionObj)
+
+    return jsonify({'sections' : sectionArray})
+
+
 
 @app.route('/studentProfile')
 def studentProfile():
@@ -478,14 +607,15 @@ def search():
         prev_url=prev_url)
 
 
-
-
 #if __name__=='__main__':
 #    app.debug=True
 #    app.run()
+
+
 
 if __name__=="__main__":
     app.debug=True
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
     #app.run()
+
