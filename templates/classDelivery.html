@@ -74,137 +74,32 @@
                   </div>
                 </div>
                   <div class="col-md-3" style="margin-top:20px;">
-                    <div id="topicCounter">
+                    <form>
+                    <div id="answerCounter">
 
                     <h3>Topics</h3> 
                       <table>
+                        {% for topic in topicTrackerDetails %}
                         <tr>
                           <p>
                             <label>
-                              <input type="checkbox" checked="checked">
-                              <span>Topic 1</span>
+                              {% if topic.is_covered=='Y' %}
+                              <input type="checkbox" name= "topicCheck" checked="checked" value="{{ topic.topic_name }}">
+                              {% else %}
+                              <input type="checkbox" name= "topicCheck" value="{{ topic.topic_name }}">
+                              {% endif %}
+                              <span>{{ topic.topic_name }} </span>
                             </label>
                           </p>
-                          </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 2</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 3</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 4</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 5</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 6</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 7</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 8</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 9</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 10</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 11</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 12</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 13</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 14</span>
-                            </label>
-                          </p>
-                        </tr>
-                        
-
+                          </tr>                                                
+                          {% endfor %}
                       </table>
 
                       <div style="padding-top: 40px;">
                         
                       <a style="border-color: green;padding-top: 4px;font-size: 20px;color:#232f34; background-color: whitesmoke;font-family: Arial;" id="startQuizButton" class="btn pull-right" href="{{url_for('feedbackCollection')}}">Collect Feedback</a>
                       <span class="pull-right" style="padding-top:10px;"><a href="#"> See Older Topics</a></span>
+                    </form>
                     </div>
                 </div>
                </div>
@@ -217,6 +112,20 @@
         </div>    
 
         <script src="../static/js/pdfLoader.js"></script>
+        
+<script>
+    function myFunction() {
+      var topicCoverChecks = document.forms[0];
+      var txt = "";
+      var i;
+      for (i = 0; i < topicCoverChecks.length; i++) {
+        if (topicCoverChecks[i].checked) {
+          txt = txt + topicCoverChecks[i].value + " ";
+        }
+      }
+      document.getElementById("order").value = "You ordered a coffee with: " + txt;
+    }
+    </script>
 
 
 

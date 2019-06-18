@@ -409,6 +409,7 @@ def classDelivery():
         
         qclass_val = request.args.get('class_val',1)
         qsection=request.args.get('section','A') 
+        qsubject_id=request.args.get('subject_id','15')
 
         #db query 
             #sidebar
@@ -418,14 +419,23 @@ def classDelivery():
         currClass = ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section = qsection).order_by(ClassSection.class_val).first()
         #for curr in currClass:
         print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
-        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id).first()
+        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
         #print ("this is topic Track: " + topicTrack)
         topicDet = Topic.query.filter_by(topic_id=topicTrack.next_topic).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
         
-
-
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet)
+        topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
+        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id"
+        topicTrackerQuery = topicTrackerQuery + " from "
+        topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
+        topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
+        topicTrackerQuery = topicTrackerQuery + " where"
+        topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
+        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(currClass.class_sec_id) + "'"
+        topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
+        topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+        
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails)
 
 
 @app.route('/performance')
