@@ -345,19 +345,23 @@ def recommendations():
 
 
 
-@app.route('/feedbackCollection')
+@app.route('/feedbackCollection', methods=['GET', 'POST'])
 def feedbackCollection():
-    #if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
-    #        #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-    #        # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
-    #        survivor = Survivor(email, name)
-    #        db.session.add(survivor)
-    #        db.session.commit()
-    #        print(email,name)
-    #        newsletterEmail(email, name)
-    #        return render_template('newsletterSuccess.html')
-    #    else:
-    #        return render_template('index.html',text='Error: Email already used.')
+    if request.method == 'POST':
+        currCoveredTopics = request.form.getlist('topicCheck')
+
+        print(currCoveredTopics)
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
+        for val in currCoveredTopics:
+            val_id=Topic.query.filter_by(topic_name=val).first()
+            for topicRows in topicTrackerDetails:
+                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+                if topicRows.topic_id==val_id.topic_id:
+                    topicRows.is_covered = 'Y'            
+                    db.session.commit()        
+        #
     return render_template('feedbackCollection.html')
 
 
@@ -409,12 +413,33 @@ def classDelivery():
         
         qclass_val = request.args.get('class_val',1)
         qsection=request.args.get('section','A') 
+        qsubject_id=request.args.get('subject_id','15')
 
-        #db query
+        #db query 
+            #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
-
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses)
+            # end of sidebar
+        currClass = ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section = qsection).order_by(ClassSection.class_val).first()
+        #for curr in currClass:
+        print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
+        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
+        #print ("this is topic Track: " + topicTrack)
+        topicDet = Topic.query.filter_by(topic_id=topicTrack.next_topic).first()
+        bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+        
+        topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
+        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id"
+        topicTrackerQuery = topicTrackerQuery + " from "
+        topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
+        topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
+        topicTrackerQuery = topicTrackerQuery + " where"
+        topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
+        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(currClass.class_sec_id) + "'"
+        topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
+        topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+        
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails)
 
 
 @app.route('/performance')

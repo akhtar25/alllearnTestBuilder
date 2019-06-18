@@ -1,6 +1,13 @@
 // If absolute URL from the remote server is provided, configure the CORS
 // header on that server.
-var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf';
+//var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf';
+var url = document.getElementById('bookLinkIDSpan').textContent;
+
+
+
+/***************************************************************************************************** */
+
+
 //var url = 'https://drive.google.com/open?id=1RQP-Ksz-sfDYrcdNXvwIslQpTT3U4Pzd';
 
 // Loaded via <script> tag, create shortcut to access PDF.js exports.
@@ -21,7 +28,7 @@ var pdfDoc = null,
  * Get page info from document, resize canvas accordingly, and render page.
  * @param num Page number.
  */
-function renderPage(num) {
+function renderPage(num,scale) {
   pageRendering = true;
   // Using promise to fetch the page
   pdfDoc.getPage(num).then(function(page) {
@@ -41,7 +48,7 @@ function renderPage(num) {
       pageRendering = false;
       if (pageNumPending !== null) {
         // New page rendering is pending
-        renderPage(pageNumPending);
+        renderPage(pageNumPending,scale);
         pageNumPending = null;
       }
     });
@@ -55,11 +62,11 @@ function renderPage(num) {
  * If another page rendering in progress, waits until the rendering is
  * finised. Otherwise, executes rendering immediately.
  */
-function queueRenderPage(num) {
+function queueRenderPage(num, scale) {
   if (pageRendering) {
     pageNumPending = num;
   } else {
-    renderPage(num);
+    renderPage(num, scale);
   }
 }
 
@@ -71,7 +78,7 @@ function onPrevPage() {
     return;
   }
   pageNum--;
-  queueRenderPage(pageNum);
+  queueRenderPage(pageNum, scale);
 }
 document.getElementById('prev').addEventListener('click', onPrevPage);
 
@@ -83,7 +90,7 @@ function onNextPage() {
     return;
   }
   pageNum++;
-  queueRenderPage(pageNum);
+  queueRenderPage(pageNum, scale);
 }
 document.getElementById('next').addEventListener('click', onNextPage);
 
@@ -91,9 +98,32 @@ document.getElementById('next').addEventListener('click', onNextPage);
  * Asynchronously downloads PDF.
  */
 pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+  
   pdfDoc = pdfDoc_;
   document.getElementById('page_count').textContent = pdfDoc.numPages;
 
   // Initial/first page rendering
-  renderPage(pageNum);
+  renderPage(pageNum, scale);
 });
+
+
+
+var zoominbutton = document.getElementById("zoominbutton");
+zoominbutton.onclick = function() {
+  if (scale >= 1.40) {
+    return;
+ }
+   scale = scale + 0.20;
+   renderPage(pageNum, scale);
+
+}
+
+var zoomoutbutton = document.getElementById("zoomoutbutton");
+zoomoutbutton.onclick = function() {
+   if (scale <= 0.25) {
+      return;
+   }
+   scale = scale - 0.20;
+   renderPage(pageNum, scale);
+
+}

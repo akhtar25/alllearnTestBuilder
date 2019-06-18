@@ -45,23 +45,28 @@
                 <div class="col-xs-8">
                   <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Book: English </h3><span style="padding-left: 10px;">    Class: 1 | Section: A</span>
+                      <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;">    Class: {{ qclass_val }} | Section: {{ qsection }}</span>
         
                     </div>
                     <!-- /.box-header -->                    
-
+                    <span id="bookLinkIDSpan" style="display: None;">{{bookDet.book_link}}</span>
                     <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>                    
 
                     
+                    <div style="width: 600px; height: 800px; overflow: auto">
+                      <canvas id="the-canvas"></canvas>
+                    </div>
 
-                    <canvas id="the-canvas"></canvas>
-
-                    <div style="padding-right:20px;">
-                      <button id="prev" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Previous</button>
+                    <div id="controls" style="padding-right:20px;">
+                      
+                      <button id="prev" class="btn btn-primary">Previous</button>
                       <span class="right" >Page: <span id="page_num"></span> / <span id="page_count"></span></span>
-                      <button id="next" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Next</button>
+                      <button id="next" class="btn btn-primary">Next</button>
                       &nbsp; &nbsp;
                       
+                      <button id="zoomoutbutton" class="btn btn-primary">-</button>
+                    <button id="zoominbutton" class="btn btn-primary">+</button>
+                    <a href="{{bookDet.book_link}}" target="_blank"><button id="zoominbutton" class="btn btn-primary">Open in full screen</button></a>
                     </div>
 
                     <br>
@@ -69,137 +74,31 @@
                   </div>
                 </div>
                   <div class="col-md-3" style="margin-top:20px;">
-                    <div id="topicCounter">
+                    <form method="POST" action="/feedbackCollection">
+                    <div id="answerCounter">
 
                     <h3>Topics</h3> 
                       <table>
+                        {% for topic in topicTrackerDetails %}
                         <tr>
                           <p>
                             <label>
-                              <input type="checkbox" checked="checked">
-                              <span>Topic 1</span>
+                              {% if topic.is_covered=='Y' %}
+                              <input type="checkbox" name= "topicCheck" checked="checked" value="{{ topic.topic_name }}">
+                              {% else %}
+                              <input type="checkbox" name= "topicCheck" value="{{ topic.topic_name }}">
+                              {% endif %}
+                              <span>{{ topic.topic_name }} </span>
                             </label>
                           </p>
-                          </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 2</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 3</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 4</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 5</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 6</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 7</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 8</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 9</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 10</span>
-                            </label>
-                          </p>
-                        </tr>
-
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 11</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 12</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 13</span>
-                            </label>
-                          </p>
-                        </tr>
-                        <tr>
-                          <p>
-                            <label>
-                              <input type="checkbox" />
-                              <span>Topic 14</span>
-                            </label>
-                          </p>
-                        </tr>
-                        
-
+                          </tr>                                                
+                          {% endfor %}
                       </table>
 
-                      <div style="padding-top: 40px;">
-                        
-                      <a style="border-color: green;padding-top: 4px;font-size: 20px;color:#232f34; background-color: whitesmoke;font-family: Arial;" id="startQuizButton" class="btn pull-right" href="{{url_for('feedbackCollection')}}">Collect Feedback</a>
-                      <span class="pull-right" style="padding-top:10px;"><a href="#"> See Older Topics</a></span>
+                      <div>
+                          <input class="btn btn-primary" type="submit" value="Collect Feedback" style="height:40px;">
+                      <!--<span class="pull-right" ><a href="#"> See Older Topics</a></span>-->
+                    </form>
                     </div>
                 </div>
                </div>
@@ -212,6 +111,22 @@
         </div>    
 
         <script src="../static/js/pdfLoader.js"></script>
+        
+<!--<script>
+   var topicCoverSubmit = document.getElementById("section");
+
+    function myFunction() {
+      var topicCoverChecks = document.forms[0];
+      var txt = "";
+      var i;
+      for (i = 0; i < topicCoverChecks.length; i++) {
+        if (topicCoverChecks[i].checked) {
+          txt = txt + topicCoverChecks[i].value + " ";
+        }
+      }
+      document.getElementById("order").value = "You ordered a coffee with: " + txt;
+    }
+    </script>-->
 
 
 

@@ -187,7 +187,7 @@ class TopicTracker(db.Model):
     topic_track_id = db.Column(db.Integer, primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)      
-    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'))      
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'))
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #last_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     is_covered = db.Column(db.String(1), nullable=True) # this will only contain Y or N values

@@ -63,7 +63,7 @@
                           <td>{{ topicrow.subject }}</td>
                           <td>{{ topicrow.chapter_name }}</td>
                           <td>{{ topicrow.topic }}</td>                          
-                          <td  ><a class="btn btn-default"  href="{{url_for('classDelivery',class_val=qclass_val, section=qsection)}}"><span class=" label label-success ">Start Class</span></a></td>
+                          <td  ><a class="btn btn-default"  href="{{url_for('classDelivery',class_val=qclass_val, section=qsection, subject_id=topicrow.sid)}}"><span class=" label label-success ">Start Class</span></a></td>
                           <td><a id="courseDetailsButton" href="#">Complete course details</a></td>
                         </tr>
                         {% endfor %}                        
