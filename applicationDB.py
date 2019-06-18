@@ -185,7 +185,7 @@ class Topic(db.Model):
 class TopicTracker(db.Model):
     __tablename__ = "topic_tracker"    
     topic_track_id = db.Column(db.Integer, primary_key=True)
-    #school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)      
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'))      
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
