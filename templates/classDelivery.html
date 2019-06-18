@@ -53,15 +53,20 @@
                     <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>                    
 
                     
+                    <div style="width: 600px; height: 800px; overflow: auto">
+                      <canvas id="the-canvas"></canvas>
+                    </div>
 
-                    <canvas id="the-canvas"></canvas>
-
-                    <div style="padding-right:20px;">
-                      <button id="prev" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Previous</button>
+                    <div id="controls" style="padding-right:20px;">
+                      
+                      <button id="prev" class="btn btn-primary">Previous</button>
                       <span class="right" >Page: <span id="page_num"></span> / <span id="page_count"></span></span>
-                      <button id="next" class="btn" style="border-color: green;font-size: 10px;color:#232f34; background-color: whitesmoke;font-family: Arial;">Next</button>
+                      <button id="next" class="btn btn-primary">Next</button>
                       &nbsp; &nbsp;
                       
+                      <button id="zoomoutbutton" class="btn btn-primary">-</button>
+                    <button id="zoominbutton" class="btn btn-primary">+</button>
+                    <a href="{{bookDet.book_link}}" target="_blank"><button id="zoominbutton" class="btn btn-primary">Open in full screen</button></a>
                     </div>
 
                     <br>
