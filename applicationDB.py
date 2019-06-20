@@ -218,7 +218,7 @@ class BookDetails(db.Model):
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
     question_id = db.Column(db.Integer, primary_key=True)
-    class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    class_val=db.Column(db.Integer,nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_description=db.Column(db.String(500),nullable=True)
