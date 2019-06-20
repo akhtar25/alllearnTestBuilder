@@ -84,9 +84,9 @@
                           <p>
                             <label>
                               {% if topic.is_covered=='Y' %}
-                              <input type="checkbox" name= "topicCheck" checked="checked" value="{{ topic.topic_name }}">
+                              <input type="checkbox" name= "topicCheck" checked="checked" value="{{ topic.topic_id }}">
                               {% else %}
-                              <input type="checkbox" name= "topicCheck" value="{{ topic.topic_name }}">
+                              <input type="checkbox" name= "topicCheck" value="{{ topic.topic_id }}">
                               {% endif %}
                               <span>{{ topic.topic_name }} </span>
                             </label>
@@ -111,24 +111,5 @@
     </div>
         </div>    
 
-        <script src="../static/js/pdfLoader.js"></script>
-        
-<!--<script>
-   var topicCoverSubmit = document.getElementById("section");
-
-    function myFunction() {
-      var topicCoverChecks = document.forms[0];
-      var txt = "";
-      var i;
-      for (i = 0; i < topicCoverChecks.length; i++) {
-        if (topicCoverChecks[i].checked) {
-          txt = txt + topicCoverChecks[i].value + " ";
-        }
-      }
-      document.getElementById("order").value = "You ordered a coffee with: " + txt;
-    }
-    </script>-->
-
-
-
+        <script src="../static/js/pdfLoader.js"></script>      
 {%endblock%}

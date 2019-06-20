@@ -428,8 +428,8 @@ def classDelivery():
 def feedbackCollection():
     if request.method == 'POST':
         currCoveredTopics = request.form.getlist('topicCheck')
-        class_val = request.form.getlist('class_val')
-        section = request.form.getlist('section')
+        class_val = request.form.get('class_val')
+        section = request.form.get('section')
 
         print(currCoveredTopics)
 
@@ -441,7 +441,8 @@ def feedbackCollection():
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebar
 
-        #questionList = QuestionDetails.query.filter_by()
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()
+        print(questionList)
 
 
 
@@ -449,13 +450,13 @@ def feedbackCollection():
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
         
-        for val in currCoveredTopics:
-            val_id=Topic.query.filter_by(topic_name=val).first()
-            for topicRows in topicTrackerDetails:
-                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-                if topicRows.topic_id==val_id.topic_id:
-                    topicRows.is_covered = 'Y'            
-                    db.session.commit()        
+        #for val in currCoveredTopics:
+        #    val_id=Topic.query.filter_by(topic_name=val).first()
+        #    for topicRows in topicTrackerDetails:
+        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+        #        if topicRows.topic_id==val_id.topic_id:
+        #            topicRows.is_covered = 'Y'            
+        #            db.session.commit()        
         # end of  - update to mark the checked topics as completed
 
 
