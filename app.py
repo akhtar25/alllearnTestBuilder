@@ -441,6 +441,9 @@ def feedbackCollection():
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebar
 
+        #questionList = QuestionDetails.query.filter_by()
+
+
 
         #start of - db update to mark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
