@@ -98,3 +98,4 @@ class ResultQueryForm(FlaskForm):
 class MarksForm(FlaskForm):
     marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
     upload=SubmitField('Upload')
+
