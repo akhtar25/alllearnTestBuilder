@@ -448,8 +448,8 @@ def feedbackCollection():
 
 
         #start of - db update to ark the checked topics as completed
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
         
         #for val in currCoveredTopics:
         #    val_id=Topic.query.filter_by(topic_name=val).first()
@@ -461,9 +461,16 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-    return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+    else:
+        return redirect(url_for('classCon'))    
 
 
+@app.route('/loadQuestion')
+def loadQuestion():
+    question_id = request.args.get('question_id')
+    question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    return render_template('_question.html',question=question)
 
 @app.route('/performance')
 def performance():

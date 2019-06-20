@@ -42,27 +42,40 @@
     <section class="content">
         <div class="row">
                 <div class="row">
-                <div class="col-xs-8">
-                  <div class="box">
-                    <div class="box-header">
-                      <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>
-        
+                <div class="col-xs-8"  >
+                  <div class="box" id="feedbackQuestionDiv">
+                    <div class="box-header" >
+                      <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>        
 
                     </div>
+                    
                     <!-- /.box-header -->
                     <!--<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>-->
+                    <span id="questionList" style="display: none;">{{ questionList }}</span>
+                    <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
 
-                    <div id = "questionSection">
-                      
-                      <span>{{ questionList.question_id }}</span>
-                      <h3> {{ questionList.question_description}} </h3>
+                    <div id = "questionSection">                            
                     </div>
+
+                    <input type="button" value="Submit and Next" class="btn btn-primary" id="submitAndNextBTN" style="height: 40px; width: 200px;">
   
                   </div>
+
+                  <div  class="box" id="feedbackReportDiv" style="display: none;">
+                  
+                  </div>
+
                   <a id="startbutton" class='right' href="#"><h4>Next</h4></a><br>
                   <a href="{{url_for('feedbackReport')}}"><button id="submitFeedbackBtn" class="btn right" style="margin-top: 60px;margin-right: -40px; border-color: green;font-size: 12px;color:black;font-weight: bold; background-color: whitesmoke;font-family: Arial;">Submit Feedback</button></a>
                 </div>
                 
+
+
+
+
+
+
+
                   <div class="col-md-3" style="margin-top:20px;">
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
 
@@ -79,7 +92,6 @@
                <!-- <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">-->
                <div class="video-field">
                 
-
                 <div class="select">
                     <label for="videoSource"><i class='material-icons'>camera_rear</i></label><select id="videoSource"></select>
                 </div>
@@ -116,20 +128,46 @@
             
         </div>
 
-      <!--  <script>
-      function startQuizButton() {
-        document.getElementById('bg').src="{{ url_for('video_feed')}}";
 
-}
-        
-   
-function stopQuizButton() {
-  document.getElementById('bg').alt="{{ url_for('video_feed_stop')}}";
-  document.getElementById('bg').src='../static/images/cam.png';
+        <script>
+              var questionIDListJS = [];
+              {%  for question in questionList%}              
+              questionIDListJS.push({{question.question_id}});
+              {% endfor %}
 
-}
+              var questionListSize = {{ questionListSize }};
+              var tempCountVar = 0;
 
-        </script>-->
+            $("#submitAndNextBTN").click(function(){
+              
+              //window.alert("We're here for: " +tempCountVar );
+             // window.alert("The question list size is : " +questionListSize );
+                if(tempCountVar<questionListSize){
+                $.ajax({
+                  url: "/loadQuestion",
+                  type: "get",
+                  data: {question_id: questionIDListJS[tempCountVar]},
+                  success: function(response) {
+                    $("#questionSection").html(response);
+                    
+                    tempCountVar= tempCountVar+1; 
+                    //window.alert(questionListSize+1);
+                    if(tempCountVar==questionListSize){
+                      $("#submitAndNextBTN").attr('value','Submit and Finish');                     
+                    }
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });
+              }
+              else{
+                window.alert("Iteration greater than size");                
+                $("#feedbackQuestionDiv").hide();
+                $("#feedbackReportDiv").show();
+              }
+            });
+            </script>
 
 {%endblock%}
         
