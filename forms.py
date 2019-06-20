@@ -99,3 +99,20 @@ class MarksForm(FlaskForm):
     marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
     upload=SubmitField('Upload')
 
+class AttendenceQueryForm(FlaskForm):
+    class_val=SelectField('Select Class')
+    section=SelectField('Select Section')
+
+    def validate_class_val(self,class_val):
+        if class_val.data=='Select':
+            raise ValidationError('* Please Select a Class')
+    def validate_section(self,section):
+        if section.data=='Select':
+            raise ValidationError('* Please Select a Section')
+
+class AttendanceForm(FlaskForm):
+    absent_marker=BooleanField('Absent')
+    upload=SubmitField('Upload')
+
+
+
