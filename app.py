@@ -428,10 +428,11 @@ def classDelivery():
 def feedbackCollection():
     if request.method == 'POST':
         currCoveredTopics = request.form.getlist('topicCheck')
-        class_val = request.form.get('class_val')
-        section = request.form.get('section')
+        class_val = request.form['class_val']
+        section = request.form['section']
 
-        print(currCoveredTopics)
+        print("class val is = " + str(class_val))
+        print("section  is = " + str(section))
 
         #sidebar queries
         user = User.query.filter_by(username=current_user.username).first_or_404()        
@@ -439,14 +440,14 @@ def feedbackCollection():
 
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
-        # end of sidebar
+        # end of sidebarm
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()
-        print(questionList)
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
+        questionListSize = len(questionList)
 
 
 
-        #start of - db update to mark the checked topics as completed
+        #start of - db update to ark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
         
@@ -460,7 +461,7 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-    return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section)
+    return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
 
 
 
