@@ -345,26 +345,6 @@ def recommendations():
 
 
 
-@app.route('/feedbackCollection', methods=['GET', 'POST'])
-def feedbackCollection():
-    if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
-
-        print(currCoveredTopics)
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
-        for val in currCoveredTopics:
-            val_id=Topic.query.filter_by(topic_name=val).first()
-            for topicRows in topicTrackerDetails:
-                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-                if topicRows.topic_id==val_id.topic_id:
-                    topicRows.is_covered = 'Y'            
-                    db.session.commit()        
-        #
-    return render_template('feedbackCollection.html')
-
-
 @app.route('/attendance')
 def attendance():
     return render_template('attendance.html')
@@ -440,6 +420,44 @@ def classDelivery():
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
         
     return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails)
+
+
+
+
+@app.route('/feedbackCollection', methods=['GET', 'POST'])
+def feedbackCollection():
+    if request.method == 'POST':
+        currCoveredTopics = request.form.getlist('topicCheck')
+        class_val = request.form.getlist('class_val')
+        section = request.form.getlist('section')
+
+        print(currCoveredTopics)
+
+        #sidebar queries
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        # end of sidebar
+
+
+        #start of - db update to mark the checked topics as completed
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        
+        for val in currCoveredTopics:
+            val_id=Topic.query.filter_by(topic_name=val).first()
+            for topicRows in topicTrackerDetails:
+                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+                if topicRows.topic_id==val_id.topic_id:
+                    topicRows.is_covered = 'Y'            
+                    db.session.commit()        
+        # end of  - update to mark the checked topics as completed
+
+
+    return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section)
+
 
 
 @app.route('/performance')
