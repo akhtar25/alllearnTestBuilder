@@ -162,7 +162,7 @@ class Attendance(db.Model):
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     attendance_date = db.Column(db.DateTime)
-    is_present=db.Column(db.Integer)
+    is_present=db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)    
 
 
