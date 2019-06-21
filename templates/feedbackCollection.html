@@ -53,11 +53,24 @@
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
 
-                    <div id = "questionSection">                            
+                    <div id = "questionSection">        
+                      <div id="questionPlaceholder">
+                        <br>
+                        <br>
+                        <br>
+                        
+                      <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>
+                    </div>
                     </div>
 <br>
 <br>
-                    <input type="button" value="Click to Start" class="btn btn-primary pull-right" id="submitAndNextBTN" style="height: 40px; width: 200px;">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+                    <input type="button" value="Start" class="btn btn-primary pull-right" id="submitAndNextBTN" style="height: 40px; width: 200px;">
   
                   </div>
 
@@ -83,13 +96,13 @@
                     
                 </div>
                 
-                <div style="background-color:whitesmoke; height: 250; width:300px;">
+                <div style="background-color:white; height: 250; width:350px;">
                 
                <!-- <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">-->
                <div class="video-field" id="video-field">
                 
                 <div class="select">
-                    <label for="videoSource"><i class='material-icons'>camera_rear</i></label><select id="videoSource"></select>
+                    <label for="videoSource"></label><select id="videoSource"></select>
                 </div>
                 <video id="video" muted autoplay></video>
              
@@ -140,7 +153,7 @@
              // window.alert("The question list size is : " +questionListSize );
                 if(tempCountVar<questionListSize){
                 $.ajax({
-                  url: "/loadQuestion",
+                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {

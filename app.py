@@ -465,11 +465,13 @@ def feedbackCollection():
 @app.route('/loadQuestion')
 def loadQuestion():
     question_id = request.args.get('question_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
     for option in questionOp:
         print(option.option_desc)
-    return render_template('_question.html',question=question, questionOp=questionOp)
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )
 
 @app.route('/feedbackReport')
 def feedbackReport():

@@ -1,10 +1,13 @@
 <label id="currQuestionLabel">        
-            QID: {{ question.question_id }}<br>            
+    {% set qnum = qnum | int %}
+    {% set qnum = qnum + 1 %}
+            Q {{ qnum}} of {{ totalQCount }}<br>            
     </label>
     <h3>Q: {{ question.question_description }}</h3>
-<aside>
-    <img url="{{ question.reference_link }}">
+<aside class="right">
+    <img src="{{ question.reference_link }}" height="300px" width="300px">
 </aside>
+ 
  <br>
  <ol type="A">
     {% for optionVal in questionOp %}    
