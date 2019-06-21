@@ -174,10 +174,6 @@ def ScanBooks():
     return render_template('ScanBook.html',title='Scan Page')
 
 
-@app.route('/feedbackReport')
-def feedbackReport():
-    return render_template('feedbackReport.html',title='Feedback Report')
-
 @app.route('/testingOtherVideo',methods=['GET', 'POST'])
 def testingOtherVideo():
     print ("We're here!")
@@ -470,7 +466,12 @@ def feedbackCollection():
 def loadQuestion():
     question_id = request.args.get('question_id')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    
     return render_template('_question.html',question=question)
+
+@app.route('/feedbackReport')
+def feedbackReport():
+    return render_template('_feedbackReport.html')
 
 @app.route('/performance')
 def performance():
