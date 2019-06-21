@@ -162,7 +162,7 @@ class Attendance(db.Model):
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     attendance_date = db.Column(db.DateTime)
-    is_present=db.Column(db.Integer)
+    is_present=db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)    
 
 
@@ -225,6 +225,7 @@ class QuestionDetails(db.Model):
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
     references=db.Column(db.String(120),nullable=True)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
 
 
 

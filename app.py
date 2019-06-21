@@ -409,10 +409,11 @@ def attendance():
                     session['teacher_id']=teacher_id.teacher_id
 
                     dates_list=Attendance.query.with_entities(Attendance.attendance_date).filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id,teacher_id=current_user.id).all()
-                    print(dates_list)
-                
+                    attend_mark=Attendance.query.with_entities(Attendance.is_present).filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id,teacher_id=current_user.id).all()
                     
-                    return render_template('attendance.html',form=form,form1=form1,student_list=student_list)
+                    print(dates_list[0][0])
+                    
+                    return render_template('attendance.html',form=form,form1=form1,student_list=student_list,dates_list=dates_list)
 
                 else:
                     flash('No Student list for the given class and section')
