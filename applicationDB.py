@@ -236,7 +236,7 @@ class QuestionOptions(db.Model):
     option_desc=db.Column(db.String(500),nullable=True)
     option_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_id = db.Column(db.ForeignKey('question_details.question_id'), nullable=True)
-    is_correct=db.Column(db.Integer,nullable=True)
+    is_correct=db.Column(db.String(1),nullable=True)
     weightage=db.Column(db.Integer)
     last_modified_date=db.Column(db.DateTime)
 
