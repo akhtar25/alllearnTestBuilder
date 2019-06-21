@@ -213,8 +213,10 @@
           </div>
           <div>
             <!--<h6 style="color:#3c8dbc">Average Alllearn school performance.</h6>-->
-            <h6 style="color:#3c8dbc">Shivalik Public school's performance.</h6>
+            {%if School_Name%}
+            <h6 style="color:#3c8dbc">{{ School_Name }} performance.</h6>
             <h6 style="color:#a0d0e0">Average Alllearn school performance.</h6>
+            {%endif%}
           </div>
         </section>
           <!-- /.nav-tabs-custom -->

@@ -673,7 +673,7 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
-
+#helper methods
 def school_name():
     if current_user.is_authenticated:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
