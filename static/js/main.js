@@ -132,8 +132,12 @@ function handleError(error) {
                     clearTimeout(interval);
 
                 }
-
-                $('#startbutton').click();
+                //submitAndNextBTN
+                //$('#startbutton').click();
+                //$('#submitAndNextBTN').click();
+                takepicture();
+                Result.html("Recording response...");
+                ev.preventDefault();
 
 
             },500);
@@ -160,7 +164,7 @@ function handleError(error) {
         });
 
   }
-  startbutton.addEventListener('click', function(ev){      
+  submitAndNextBTN.addEventListener('click', function(ev){      
       takepicture();
       Result.html("Recording response...");
       ev.preventDefault();

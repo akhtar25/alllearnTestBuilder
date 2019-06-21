@@ -49,48 +49,44 @@
 
                     </div>
                     
-                    <!-- /.box-header -->
-                    <!--<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQCSpIG6jzLFyyrOekM5RPGuNlc22cWILFUH63VZ8t83GjBLoYZgCPcsu1o7Irz6g/embed?start=false&loop=false&delayms=60000" frameborder="0" width="600" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>-->
+                    <!-- /.box-header -->                   
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
 
                     <div id = "questionSection">                            
                     </div>
-
-                    <input type="button" value="Submit and Next" class="btn btn-primary" id="submitAndNextBTN" style="height: 40px; width: 200px;">
+<br>
+<br>
+                    <input type="button" value="Click to Start" class="btn btn-primary pull-right" id="submitAndNextBTN" style="height: 40px; width: 200px;">
   
                   </div>
 
                   <div  class="box" id="feedbackReportDiv" style="display: none;">
+
                   
                   </div>
 
-                  <a id="startbutton" class='right' href="#"><h4>Next</h4></a><br>
-                  <a href="{{url_for('feedbackReport')}}"><button id="submitFeedbackBtn" class="btn right" style="margin-top: 60px;margin-right: -40px; border-color: green;font-size: 12px;color:black;font-weight: bold; background-color: whitesmoke;font-family: Arial;">Submit Feedback</button></a>
+                  <!--<a id="startbutton" class='right' href="#"><h4>Next</h4></a><br>                 -->
                 </div>
                 
 
-
-
-
-
-
-
                   <div class="col-md-3" style="margin-top:20px;">
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
-
+                      
                     <h4>Response Summary</h4> 
+                    <div id="ResponseList">
                     <div id="result_strip">
                         <ul class="thumbnails"></ul>
                     </div>
-
+                    </div>
+                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>
                     
                 </div>
                 
                 <div style="background-color:whitesmoke; height: 250; width:300px;">
                 
                <!-- <img id="bg" src="../static/images/cam.png" style="height:200px; width: 270px;" alt="Camera View for Quiz">-->
-               <div class="video-field">
+               <div class="video-field" id="video-field">
                 
                 <div class="select">
                     <label for="videoSource"><i class='material-icons'>camera_rear</i></label><select id="videoSource"></select>
@@ -148,12 +144,18 @@
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {
+                    //window.alert(response);
                     $("#questionSection").html(response);
                     
                     tempCountVar= tempCountVar+1; 
                     //window.alert(questionListSize+1);
                     if(tempCountVar==questionListSize){
                       $("#submitAndNextBTN").attr('value','Submit and Finish');                     
+                    }
+                    else{
+                      $("#submitAndNextBTN").attr('value','Submit and Next');       
+                      //$("#submitAndNextBTN").attr('class','btn btn-primary pull-right');    
+
                     }
                   },
                   error: function(xhr) {
@@ -162,9 +164,28 @@
                 });
               }
               else{
-                window.alert("Iteration greater than size");                
-                $("#feedbackQuestionDiv").hide();
-                $("#feedbackReportDiv").show();
+                var done = 1;
+                $.ajax({
+                  url: "/feedbackReport",
+                  type: "get",
+                  data: done,
+                  success: function(response) {
+                    $("#feedbackReportDiv").show(); 
+                    $("#feedbackReportDiv").html(response);        
+                    $("#feedbackQuestionDiv").hide();
+                    $("#video-field").hide();                    
+                    $("#ResponseList").hide();                    
+                    $("#allResponsesSubmitted").show();
+                    
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });
+                //window.alert("Iteration greater than size");         
+                //video-field
+               
+
               }
             });
             </script>
