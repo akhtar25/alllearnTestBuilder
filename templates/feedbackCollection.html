@@ -70,16 +70,17 @@
 <br>
 <br>
 <br>
-                    <input type="button" value="Start" class="btn btn-primary pull-right" id="submitAndNextBTN" style="height: 40px; width: 200px;">
-                    <input type="button" value="Submit and Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
+                    <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">
+                    <input type="button" value="Take Response" class="btn btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">
+                    <input type="button" value="Stop" class="btn btn-primary red-text text-lighten-2" id="stopRecordingBTN" style="height: 40px; display: none; ">
+                    <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
 
                   <div  class="box" id="feedbackReportDiv" style="display: none;">
 
                   
                   </div>
-
-                  <!--<a id="startbutton" class='right' href="#"><h4>Next</h4></a><br>                 -->
+                
                 </div>
                 
 
@@ -133,7 +134,7 @@
         </div>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
-            <script src="../static/js/main.js"></script>
+           <!-- <script src="../static/js/main.js"></script>-->
             
         </div>
 
@@ -147,7 +148,7 @@
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
 
-            $("#submitAndNextBTN").click(function(){
+            $("#startAndNextBTN").click(function(){
               
               //window.alert("We're here for: " +tempCountVar );
              // window.alert("The question list size is : " +questionListSize );
@@ -157,18 +158,21 @@
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {
-                    //window.alert(response);
+       
                     $("#questionSection").html(response);
                     
                     tempCountVar= tempCountVar+1; 
-                    //window.alert(questionListSize+1);
+               
                     if(tempCountVar==questionListSize){
-                      $("#submitAndNextBTN").hide();
+                      $("#startAndNextBTN").hide();
                       $("#submitAndFinishBTN").show();
                     }
                     else{
-                      $("#submitAndNextBTN").attr('value','Submit and Next');       
-                      //$("#submitAndNextBTN").attr('class','btn btn-primary pull-right');    
+                      $("#startAndNextBTN").attr('value','Next');       
+                      $("#startAndNextBTN").hide();
+                      $("#recordResponsesBTN").show();
+                     
+                    
 
                     }
                   },
@@ -196,7 +200,7 @@
                     $("#video-field").hide();                    
                     $("#ResponseList").hide();                    
                     $("#allResponsesSubmitted").show();
-                    
+              
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");
@@ -206,6 +210,7 @@
                 //video-field               
             });
             </script>
+            <script src="../static/js/main.js"></script>
 
 {%endblock%}
         
