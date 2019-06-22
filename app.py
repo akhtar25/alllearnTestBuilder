@@ -478,7 +478,10 @@ def decodeAjax():
 @app.route('/responseDBUpdate', methods=['GET','POST'])
 def responseDBUpdate():
     #update db with response records for that specific question id
-    responseList=request.form.getlist('resultArray')
+    responseList=request.form.getlist('resultArray[]')
+    #form.getlist('resultArray[]')
+    for response in responseList:
+        print(response)
     return jsonify([str(len(responseList)) + ' records submitted to DB'])
 
 @app.route('/feedbackReport')

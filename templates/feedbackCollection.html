@@ -72,7 +72,7 @@
 <br>
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">
                     <input type="button" value="Take Response" class="btn btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">
-                    <input type="button" value="Stop" class="btn btn-primary red-text text-lighten-2" id="stopRecordingBTN" style="height: 40px; display: none; ">
+                    <input type="submit" value="Stop" class="btn btn-primary red-text text-lighten-2" id="stopRecordingBTN" style="height: 40px; display: none; ">
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
 
@@ -149,7 +149,7 @@
               var tempCountVar = 0;
 
             $("#startAndNextBTN").click(function(){
-              
+              keepRecording = true;   
               //window.alert("We're here for: " +tempCountVar );
              // window.alert("The question list size is : " +questionListSize );
                 if(tempCountVar<questionListSize){

@@ -131,20 +131,25 @@ function handleError(error) {
             var obj = JSON.parse(data);
             var i;
             //I'll have to make futher changes here to always load up unique count of codes recorded
-            Result.append('<b>Response Recorded: </b><h3>'+ obj.length +'</h3> <ol>');
-            for(i=0; i<obj.length;i++){
-                Result.append("<li><b>"+obj[i].code+"</b></li>");
-                Result.append("</ol>");
-
+            
+            for(i=0; i<obj.length;i++){               
                 if (resultArray.includes(obj[i].code)){
                     //do nothing
                 }
                 else{
                 resultArray.push(obj[i].code);
+                console.log("new value pushed to resultArray: " + obj[i].code);
+                Result.html('Responses Recorded: <h3>'+ resultArray.length +'</h3> <ol>');
+                for(var k=0;k<resultArray.length;k++)
+                {
+                  Result.append("<li><b>"+resultArray[k]+"</b></li>");
+                }                
+                Result.append("</ol>");
+                
               }
             }            
             window.navigator.vibrate(200);              
-                ev.preventDefault();
+                //ev.preventDefault();
         }
 
         //timeout section
@@ -166,12 +171,17 @@ function handleError(error) {
         });        
       }
       setTimeout(takepicture, 2000);
+      //Result.append("<b>Response Recorded: </b>");
  }
   }
 
 ///////////////////////////////function to submit recorded data to DB //////////////////////////////
 function submitResponseData(){
-  if(resultArray.length!=0){            
+  for(var j=0;j<resultArray.length;j++){
+    console.log("This is the result array: "+ resultArray[j]);
+  }
+  
+  if(resultArray.length!=0){
     $.ajax({
       url: "/responseDBUpdate",
       type: "POST",
@@ -193,7 +203,7 @@ function submitResponseData(){
   ///////////////////////////////function for start recording button //////////////////////////////
   recordResponsesBTN.addEventListener('click', function(ev){ 
     window.alert("We're here in recordResponses");
-    Result.html("Recording response...");
+    Result.html("Recording responses...");
     $("#stopRecordingBTN").show();
     $("#recordResponsesBTN").hide();
 
