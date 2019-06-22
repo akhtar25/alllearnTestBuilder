@@ -157,16 +157,6 @@ def video_feed_stop():
 
 '''new cam section'''
 
-@app.route('/decodes', methods=['GET', 'POST'])
-def decodeAjax():
-    if request.method == 'POST':
-        decodedData = barCode.decode(request.form['imgBase64'])
-        if decodedData:
-            json_data = json.dumps(decodedData)
-            print(json_data)
-            return jsonify(json_data)
-        return jsonify(['NO BarCode Found'])
-
 
 @app.route('/ScanBooks',methods=['GET', 'POST'])
 def ScanBooks():
@@ -472,6 +462,24 @@ def loadQuestion():
     for option in questionOp:
         print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )
+
+
+
+@app.route('/decodes', methods=['GET', 'POST'])
+def decodeAjax():
+    if request.method == 'POST':
+        decodedData = barCode.decode(request.form['imgBase64'])
+        if decodedData:
+            json_data = json.dumps(decodedData)
+            print(json_data)
+            return jsonify(json_data)
+        return jsonify(['NO BarCode Found'])
+
+@app.route('/responseDBUpdate', methods=['GET','POST'])
+def responseDBUpdate():
+    #update db with response records for that specific question id
+    responseList=request.form.getlist('resultArray')
+    return jsonify([str(len(responseList)) + ' records submitted to DB'])
 
 @app.route('/feedbackReport')
 def feedbackReport():

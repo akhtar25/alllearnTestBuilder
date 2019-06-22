@@ -10,7 +10,9 @@ var videoSelect = document.querySelector('select#videoSource');
 var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
-
+var resultArray = [];
+//set this to true from an event handler to stop the execution
+var cancelled = false;
 
 navigator.mediaDevices.enumerateDevices()
   .then(gotDevices).then(getStream).catch(handleError);
@@ -86,6 +88,9 @@ function handleError(error) {
 
 
  function takepicture() {
+  if (cancelled) {
+    return;
+  } 
   var widthVideo = function(){
     if (window.innerWidth < 600){
       return window.innerWidth;
@@ -136,9 +141,10 @@ function handleError(error) {
                 //$('#startbutton').click();
                 //$('#submitAndNextBTN').click();
                 takepicture();
-                Result.html("Recording response...");
-                ev.preventDefault();
-
+                if (resultArray.length==0){
+                Result.html("Recording response...");                
+              }
+              //ev.preventDefault();
 
             },500);
 
@@ -151,23 +157,84 @@ function handleError(error) {
             Result.html('<b>Response Recorded: </b><h3>'+ obj.length +'</h3> <ol>');
             for(i=0; i<obj.length;i++){
                 Result.append("<li><b>"+obj[i].code+"</b></li>");
+                resultArray.push(obj[i].code);
             }
             Result.append("</ol>")
             window.navigator.vibrate(200);
-            //clearTimeout(interval);
+                takepicture();
+                //Result.html("Recording response...");
+                ev.preventDefault();
+            //Call takepicture here too - done
+            //Update this function to only keep running if cancelled is false
+            //Create a separate click function associated with the same button to basically first stop the current 
+            //run and then send the data to db
+            //then it should start with the next run for the next question
         }
 
         // Do Any thing you want
+        //if (!done) {
+          // release control, so that handlers can be called, and continue in 10ms
+         
+        //}
     })
         .fail(function(){
             console.log('Failed')
         });
-
+        setTimeout(takepicture, 10);
   }
-  submitAndNextBTN.addEventListener('click', function(ev){      
+  submitAndNextBTN.addEventListener('click', function(ev){ 
+      cancelled = true;     
+      dataUrl = "";    
+      //if result has some value then send it to the db
+      if(resultArray.length!=0){
+        
+        //var done = 1;
+        $.ajax({
+          url: "/responseDBUpdate",
+          type: "POST",
+          data: resultArray,
+          success: function(response) {
+           //success actions list
+           window.alert(response+" from flask");
+            
+          },
+          error: function(xhr) {
+            window.alert("error occurred while updating db for last question");
+          }
+        });
+        resultArray=[];
+      }
+      cancelled = false;   
       takepicture();
       Result.html("Recording response...");
       ev.preventDefault();
       }, false);
 
-      
+
+
+      submitAndFinishBTN.addEventListener('click', function(ev1){
+
+        cancelled = true;       
+        dataUrl = "";  
+      //if result has some value then send it to the db
+      if(resultArray.length!=0){
+        
+        //var done = 1;
+        $.ajax({
+          url: "/responseDBUpdate",
+          type: "POST",
+          data: resultArray,
+          success: function(response) {
+           //success actions list
+           window.alert(response+" from flask");
+            
+          },
+          error: function(xhr) {
+            window.alert("error occurred while updating db for last question");
+          }
+        });
+        resultArray=[];
+      }
+
+        ev1.preventDefault();
+      }, false);

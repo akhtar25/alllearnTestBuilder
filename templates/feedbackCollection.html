@@ -71,7 +71,7 @@
 <br>
 <br>
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="submitAndNextBTN" style="height: 40px; width: 200px;">
-  
+                    <input type="button" value="Submit and Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
 
                   <div  class="box" id="feedbackReportDiv" style="display: none;">
@@ -163,7 +163,8 @@
                     tempCountVar= tempCountVar+1; 
                     //window.alert(questionListSize+1);
                     if(tempCountVar==questionListSize){
-                      $("#submitAndNextBTN").attr('value','Submit and Finish');                     
+                      $("#submitAndNextBTN").hide();
+                      $("#submitAndFinishBTN").show();
                     }
                     else{
                       $("#submitAndNextBTN").attr('value','Submit and Next');       
@@ -177,7 +178,13 @@
                 });
               }
               else{
-                var done = 1;
+
+              }
+            });
+
+            $('submitAndFinishBTN').click(function(){
+              
+              var done = 1;
                 $.ajax({
                   url: "/feedbackReport",
                   type: "get",
@@ -196,10 +203,7 @@
                   }
                 });
                 //window.alert("Iteration greater than size");         
-                //video-field
-               
-
-              }
+                //video-field               
             });
             </script>
 
