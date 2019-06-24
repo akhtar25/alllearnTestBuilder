@@ -218,13 +218,17 @@ class BookDetails(db.Model):
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
     question_id = db.Column(db.Integer, primary_key=True)
-    class_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    class_val=db.Column(db.Integer,nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_description=db.Column(db.String(500),nullable=True)
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
+<<<<<<< HEAD
     references=db.Column(db.String(120),nullable=True)
+=======
+    reference_link=db.Column(db.String(120),nullable=True)
+>>>>>>> babb006ce8e4394419492725e61c523d2d32e6ce
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
 
 
@@ -236,7 +240,7 @@ class QuestionOptions(db.Model):
     option_desc=db.Column(db.String(500),nullable=True)
     option_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_id = db.Column(db.ForeignKey('question_details.question_id'), nullable=True)
-    is_correct=db.Column(db.Integer,nullable=True)
+    is_correct=db.Column(db.String(1),nullable=True)
     weightage=db.Column(db.Integer)
     last_modified_date=db.Column(db.DateTime)
 

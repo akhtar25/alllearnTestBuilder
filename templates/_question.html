@@ -1,0 +1,13 @@
+<label id="currQuestionLabel">        
+            QID: {{ question.question_id }}<br>            
+    </label>
+    <h3>Q: {{ question.question_description }}</h3>
+<aside>
+    <img url="{{ question.reference_link }}">
+</aside>
+ <br>
+ <ol type="A">
+    {% for optionVal in questionOp %}    
+    <li><h4>&nbsp;&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
+    {% endfor %}
+</ol>
