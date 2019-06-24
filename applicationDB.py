@@ -224,11 +224,7 @@ class QuestionDetails(db.Model):
     question_description=db.Column(db.String(500),nullable=True)
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
-<<<<<<< HEAD
-    references=db.Column(db.String(120),nullable=True)
-=======
     reference_link=db.Column(db.String(120),nullable=True)
->>>>>>> babb006ce8e4394419492725e61c523d2d32e6ce
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
 
 
