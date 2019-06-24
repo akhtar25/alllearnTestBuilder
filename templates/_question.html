@@ -1,7 +1,8 @@
 <label id="currQuestionLabel">        
     {% set qnum = qnum | int %}
     {% set qnum = qnum + 1 %}
-            Q {{ qnum}} of {{ totalQCount }}<br>            
+            Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>     
+            <input id="qnum" type="text" style="display: none" value="{{ qnum}}">  <input id="totalQCount" type="text" style="display: none" value="{{ totalQCount }}">       
     </label>
     <h3>Q: {{ question.question_description }}</h3>
 <aside class="right">

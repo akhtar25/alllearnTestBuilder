@@ -11,10 +11,12 @@ var videoSelect = document.querySelector('select#videoSource');
 var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
+var hiddenInputList = $("#questionListSizeDiv");
 var resultArray = [];
 //set this to true from an event handler to stop the execution
 var cancelled = false;
 var keepRecording = true;
+var currQnum = 0;
 //var dataUrl = "";
 
 navigator.mediaDevices.enumerateDevices()
@@ -129,9 +131,7 @@ function handleError(error) {
         else{
        
             var obj = JSON.parse(data);
-            var i;
-            //I'll have to make futher changes here to always load up unique count of codes recorded
-            
+            var i;             
             for(i=0; i<obj.length;i++){               
                 if (resultArray.includes(obj[i].code)){
                     //do nothing
@@ -142,7 +142,8 @@ function handleError(error) {
                 Result.html('Responses Recorded: <h3>'+ resultArray.length +'</h3> <ol>');
                 for(var k=0;k<resultArray.length;k++)
                 {
-                  Result.append("<li><b>"+resultArray[k]+"</b></li>");
+                  Result.append("<li name='responseListItems'><b>"+resultArray[k]+"</b></li>");
+                  //hiddenInputList.append("<input type='text' name='resultInputListName' class='resultInputListClass'  value='"+ resultArray[k]+"'");
                 }                
                 Result.append("</ol>");
                 
@@ -153,16 +154,16 @@ function handleError(error) {
         }
 
         //timeout section
-        var interval = setTimeout(function(){
-
-          var date2 = new Date();
-          var diff = date2 - date1;
-          if(diff > 100000){
-
-              Result.html('Try Again : Time Out');
-              clearTimeout(interval);
-          }                       
-      },2000);
+        //var interval = setTimeout(function(){
+//
+        //  var date2 = new Date();
+        //  var diff = date2 - date1;
+        //  if(diff > 100000){
+//
+        //      Result.html('Try Again : Time Out');
+        //      clearTimeout(interval);
+        //  }                       
+        //},2000);
       // end of timeout section
         
     })
@@ -176,23 +177,37 @@ function handleError(error) {
   }
 
 ///////////////////////////////function to submit recorded data to DB //////////////////////////////
-function submitResponseData(){
-  for(var j=0;j<resultArray.length;j++){
-    console.log("This is the result array: "+ resultArray[j]);
+function submitResponseData(){ 
+
+  var formdataVal =  [];
+  for(var a=0;a<resultArray.length;a++){
+
+    formdataVal.push('tempVar'+[a]+':'+ resultArray[a]);
+    console.log("here is the new tempVar value: " + formdataVal);
+
   }
-  
+  var formData = {formdataVal};
+  formData  = JSON.stringify(formData);
+  console.log("This is the form Data: "+formData);
+ 
+
+  var responseForm = $("#responseForm").value;
+ 
+
   if(resultArray.length!=0){
     $.ajax({
       url: "/responseDBUpdate",
       type: "POST",
-      data: resultArray,
+      data: formData ,
+      contentType: 'application/json;charset=UTF-8',
+      cache:false,
       success: function(response) {
        //success actions list
-       window.alert(response+" from flask");
+       console.log(response+" from flask");
         
       },
       error: function(xhr) {
-        window.alert("error occurred while updating db for last question");
+        console.log("error occurred while updating db for last question");
       }
     });
     resultArray=[];
@@ -202,7 +217,7 @@ function submitResponseData(){
 
   ///////////////////////////////function for start recording button //////////////////////////////
   recordResponsesBTN.addEventListener('click', function(ev){ 
-    window.alert("We're here in recordResponses");
+    console.log("We're in recordResponses");
     Result.html("Recording responses...");
     $("#stopRecordingBTN").show();
     $("#recordResponsesBTN").hide();
@@ -217,11 +232,24 @@ function submitResponseData(){
 
 ///////////////////////////////function for stop recording button //////////////////////////////
       stopRecordingBTN.addEventListener('click', function(ev1){
-
+        currQnum = currQnum+1;
         keepRecording = false;      
-        Result.html(''); 
+        console.log("this is the result html"+Result);
         submitResponseData();   
+        //$("#responseForm").submit();
+        $("#stopRecordingBTN").hide();
+        
+        //var currQnum = $('#qnum').val();
+        console.log("this is the currqnum" + currQnum);
+        var totalQCount = $('#questionListSize').val();
+        console.log("this is the totalqount" + totalQCount);
+
+        if (currQnum == parseInt(totalQCount)){
+          $('#submitAndFinishBTN').show()
+        }
+        else{
         $("#startAndNextBTN").show();
-        $("#stopRecordingBTN").hide();     
+      }
+        Result.html('');      
         ev1.preventDefault();
-      }, false);
+      }, false);  

@@ -72,7 +72,12 @@
 <br>
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">
                     <input type="button" value="Take Response" class="btn btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">
-                    <input type="submit" value="Stop" class="btn btn-primary red-text text-lighten-2" id="stopRecordingBTN" style="height: 40px; display: none; ">
+                    <!--Testing with form -->
+                    <!--<form id="questionListSizeForm" action="/responseDBUpdate" method="POST">-->
+                      
+                      <input type="button" value="Stop" class="btn btn-primary red-text text-lighten-2" id="stopRecordingBTN" style="height: 40px; display: none; ">
+                  <!--</form>-->
+                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
 
@@ -89,9 +94,15 @@
                       
                     <h4>Response Summary</h4> 
                     <div id="ResponseList">
+                      <!--<form id="responseForm" action="/responseDBUpdate" method="POST">-->
+                        <form id="responseForm">
                     <div id="result_strip">
                         <ul class="thumbnails"></ul>
                     </div>
+                    <div id="questionListSizeDiv">
+                      
+                      </div>
+                    </form>
                     </div>
                     <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>
                     
@@ -165,7 +176,8 @@
                
                     if(tempCountVar==questionListSize){
                       $("#startAndNextBTN").hide();
-                      $("#submitAndFinishBTN").show();
+                      
+                      $("#recordResponsesBTN").show();
                     }
                     else{
                       $("#startAndNextBTN").attr('value','Next');       
@@ -186,7 +198,7 @@
               }
             });
 
-            $('submitAndFinishBTN').click(function(){
+            $('#submitAndFinishBTN').click(function(){
               
               var done = 1;
                 $.ajax({

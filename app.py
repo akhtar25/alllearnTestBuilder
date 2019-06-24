@@ -22,6 +22,7 @@ import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
+import re
 
 
 app=Flask(__name__)
@@ -419,7 +420,7 @@ def feedbackCollection():
 
         print("class val is = " + str(class_val))
         print("section  is = " + str(section))
-
+#
         #sidebar queries
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
@@ -475,15 +476,21 @@ def decodeAjax():
             return jsonify(json_data)
         return jsonify(['NO BarCode Found'])
 
-@app.route('/responseDBUpdate', methods=['GET','POST'])
-def responseDBUpdate():
-    #update db with response records for that specific question id
-    responseList=request.form.getlist('resultArray[]')
-    #form.getlist('resultArray[]')
-    for response in responseList:
-        print(response)
-    return jsonify([str(len(responseList)) + ' records submitted to DB'])
-
+@app.route('/responseDBUpdate', methods=['POST'])
+def responseDBUpdate():        
+    responseList=request.json
+    responseArray = {}
+    if responseList:
+        #print(responseList)        
+        for key, value in responseList.items():
+            if key =="formdataVal":
+                responseArray = value
+                for val in responseArray:
+                     splitVal= re.split('[:]', val)
+                     print(splitVal)
+        return jsonify(['Data ready for entry'])
+    return jsonify(['No records entered to DB'])
+  
 @app.route('/feedbackReport')
 def feedbackReport():
     return render_template('_feedbackReport.html')
