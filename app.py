@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,AttendenceQueryForm,AttendanceForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,AttendenceQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -368,72 +368,9 @@ def feedbackCollection():
 @app.route('/attendance',methods=['POST','GET'])
 @login_required
 def attendance():
+    return render_template('attendance.html')
 
-    #selectfield choices list
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-
-
-    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
-    section_list=[(i.section,i.section) for i in available_section]
     
-
-
-    form=AttendenceQueryForm()
-    form1=AttendanceForm()
-
-
-    #selectfield choices
-    form.class_val.choices = class_list
-    form.section.choices= section_list
-
-    if not form1.upload.data:
-        if form.validate_on_submit() :
-            if current_user.is_authenticated:
-        
-                #class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
-                #sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
-                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
-
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-
-           
-
-                if student_list:
-                    session['class_sec_id']=class_sec_id.class_sec_id
-                    session['school_id']=teacher_id.school_id
-                    session['teacher_id']=teacher_id.teacher_id
-
-                    dates_list=Attendance.query.with_entities(Attendance.attendance_date).filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id,teacher_id=current_user.id).all()
-                    attend_mark=Attendance.query.with_entities(Attendance.is_present).filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id,teacher_id=current_user.id).all()
-                    
-                    
-                    
-                    return render_template('attendance.html',form=form,form1=form1,student_list=student_list,dates_list=dates_list,School_Name=school_name())
-
-                else:
-                    flash('No Student list for the given class and section')
-                   
-                    return render_template('attendance.html', form=form,School_Name=school_name())
-        
-                
-            else:
-                flash('Login required !')
-                return render_template('resultUpload.html', form=form,School_Name=school_name())
-
-        else:
-           return render_template('attendance.html',form=form,School_Name=school_name())
-    else:
-        if form1.validate_on_submit:
-            pass
-        
-            
-    return render_template('attendence.html',form=form,School_Name=school_name())
-
 
 @app.route('/class')
 @login_required
