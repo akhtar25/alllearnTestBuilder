@@ -368,7 +368,7 @@ def feedbackCollection():
 @app.route('/attendance',methods=['POST','GET'])
 @login_required
 def attendance():
-    return render_template('attendance.html')
+    return render_template('attendance.html',School_Name=school_name())
 
     
 
