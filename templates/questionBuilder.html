@@ -1,92 +1,22 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h2>Question Builder</h2>
-   
-    <form action="" method="POST">
-    {{ form.hidden_tag() }}
-  
-    <div class="form-group " style="padding-top:5px;">
-            <div class="row">
-                    <div class="col-sm-3">
-                            <div style="width:250px;">
-                                    {{ form.class_val.label(class='labelsize') }}
-                                    <br>
-                                    {% if form.class_val.errors %}
-                                    {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                                    <div class="invalid-feedback">
-                                    {% for error in form.class_val.errors %}
-                                     <span>{{ error }}</span>
-                                    {% endfor %}
-                                    </div>
-                                    {% else %}
-                                    {{ form.class_val(class='form-control') }}
-                                    {% endif %}
-                            </div>
-                    </div>
-                    <div class="col-sm-2">
-                            <div style="width:150px;" >
-                                            {{ form.subject_name.label(class='labelsize') }}
-                                            <div id='loader'style='display: none; float: right;'>
-                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                            </div>
-                                    <br>
-                                            {% if form.subject_name.errors %}
-                                            {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedback">
-                                            {% for error in form.subject_name.errors %}
-                                             <span>{{ error }}</span>
-                                            {% endfor %}
-                                    </div>
-                                            {% else %}
-                                            {{ form.subject_name(class='form-control') }}
-                                            {% endif %}
-
-                                            
-                            </div>
-                    </div>
-
-                    <div class="col-sm-2">
-                        <div style="width:150px;" >
-                                        {{ form.topics.label(class='labelsize') }}
-                                        <div id='loader'style='display: none; float: right;'>
-                                                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                        </div>
-                                <br>
-                                        {% if form.topics.errors %}
-                                        {{ form.topics(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.topics.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                </div>
-                                        {% else %}
-                                        {{ form.topics(class='form-control') }}
-                                        {% endif %}
-
-                                        
-                        </div>
-                </div>
-                </div>
-               
+    <h2>Question Builder</h2> 
                 <div class="row">
                         <div class="col-sm-3">
-                <p></p><label><input type="radio" class="with-gap" name="newpage" id="upload_type"onchange="newpage()" value="bulk"><span>Upload File</span></label>
+                        <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type1"  value="single"><span>Question Builder</span></label></p>
+                        </div>
+                        <div class="col-sm-3">
+                        <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type2" value="bulk"><span>Upload File</span></label></p>
+                        </div>
+                
                 </div>
-                <div class="col-sm-3">
-                <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type" onchange="newpage()" value="single"><span>Question Builder</span></label></div>
-                </div></p>
-            
-               
-           
-                    <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->
-            <div id="new">
+                          <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->
+            <div id="new" style="display:None;">
+                
 
             </div>
             
-        </div>
-    
-            
-    </form>
+        
     </div>
 
 
@@ -94,63 +24,44 @@
 
 
 <script>
-    var class_select = document.getElementById("class_val");
-    var subject_select = document.getElementById("subject_name");
-    var topic_select = document.getElementById("topics");
-    class_select.onchange = function()  {
-         
-        class_val = class_select.value;
-        $("#loader").show();
-        
-        fetch('/questionBuilder/' + class_val).then(function(response) {
-            response.json().then(function(data) {
-                    $("#loader").hide();    
-                    var optionHTML = '';
-                    for (var subject of data.subjects) {
-                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-                }
-                subject_select.innerHTML = optionHTML;
-            })
-            
+    var upload_type1=document.getElementById('upload_type1')
+    var upload_type2=document.getElementById('upload_type2')
+    var new_form=document.getElementById('new')
+    upload_type1.onchange=function(){
+        $(function(){
+            $.ajax({
+                  url: "/questionUpload",
+                  type: "get",
+                  success: function(response) {
+                    $("#new").show(); 
+                    $("#new").html(response);        
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });        
+
         });
+        
     }
+    upload_type2.onchange=function(){
+       
+        $(function(){
+            $.ajax({
+                  url: "/questionFile",
+                  type: "get",
+                  success: function(response) {
+                    $("#new").show(); 
+                    $("#new").html(response);        
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });        
 
-    //for (i = 0; i < 20; i++) {
-    //$('#topiclist').append('<input type="radio" name="radio_name" />');
-//}     
-
-
-         subject_select.onclick=function()  {
-         
-         subject_id = subject_select.value;
-         $("#loader").show();
-         
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader").hide();    
-                     var optionHTML = '';
-                    
-                     for (var topic of data.topics) {
-                    
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
-             
-         });
+        });
+        
     }
-
-    function newpage(){
-
-        var upload_type=document.getElementById('upload_type')
-        if (upload_type.value=='single'){
-
-            $('#new').load('../templates/hello.html')
-        }
-    }
-
-    
-
     
 </script>
 

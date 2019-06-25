@@ -103,5 +103,8 @@ class QuestionBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
     topics=SelectField('Topics')
+    question_desc=TextAreaField('Question')
+    option=StringField('Options')
+    submit=SubmitField('Confirm')
 
 

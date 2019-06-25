@@ -621,8 +621,13 @@ def questionBuilder():
     form.topics.choices=[['','']]
 
     if form.validate_on_submit():
-        topic_list=Topic.query.filter_by(class_val=form.class_val.data,subject_id=int(form.subject_name.data)).all()
-        print(topic_list)
+
+        question=QuestionDetails(class_val=form.class_val.data,subject_id=form.subject_name.data,question_description=form.question_desc.data)
+        db.session.add(question)
+
+        print(db.query.all())
+        
+
 
         return  render_template('questionBuilder.html',form=form,School_Name=school_name())
 
@@ -630,6 +635,23 @@ def questionBuilder():
 
 
     return render_template('questionBuilder.html',form=form,School_Name=school_name())
+
+@app.route('/questionUpload',methods=['GET'])
+def questionUpload():
+
+    form=QuestionBuilderQueryForm()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [['','']]
+    form.topics.choices=[['','']]
+    return render_template('questionUpload.html',form=form)
+
+@app.route('/questionFile',methods=['GET'])
+def questionFile():
+    return render_template('questionFile.html')
+
 
 
 #Subject list generation dynamically
