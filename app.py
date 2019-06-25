@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,AttendenceQueryForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,QuestionBuilderQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -608,6 +608,72 @@ def search():
         posts=posts,
         next_url=next_url,
         prev_url=prev_url,School_Name=school_name())
+
+
+@app.route('/questionBuilder',methods=['POST','GET'])
+@login_required
+def questionBuilder():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [['','']]
+    form.topics.choices=[['','']]
+
+    if form.validate_on_submit():
+        topic_list=Topic.query.filter_by(class_val=form.class_val.data,subject_id=int(form.subject_name.data)).all()
+        print(topic_list)
+
+        return  render_template('questionBuilder.html',form=form,School_Name=school_name())
+
+
+
+
+    return render_template('questionBuilder.html',form=form,School_Name=school_name())
+
+
+#Subject list generation dynamically
+
+@app.route('/questionBuilder/<class_val>')
+def subject_list(class_val):
+    subject_id=Topic.query.with_entities(Topic.subject_id).filter_by(class_val=class_val).all()
+    subject_name_list=[]
+
+    for id in subject_id:
+
+        subject_name=MessageDetails.query.filter_by(msg_id=id).first()
+        if subject_name in subject_name_list:
+            continue
+        subject_name_list.append(subject_name)
+    subjectArray = []
+
+    for subject in subject_name_list:
+        subjectObj = {}
+        subjectObj['subject_id'] = subject.msg_id
+        subjectObj['subject_name'] = subject.description
+        subjectArray.append(subjectObj)
+
+    return jsonify({'subjects' : subjectArray})
+
+#topic list generation dynamically
+@app.route('/questionBuilder/<class_val>/<subject_id>')
+def topic_list(class_val,subject_id):
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+
+    topicArray=[]
+
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
+    
+    return jsonify({'topics':topicArray})
+
+
+
+
+
 
 
 #helper methods
