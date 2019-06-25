@@ -1,4 +1,5 @@
 
+///////////////////////////////////////////////////////////////////////
 
 'use strict';
 
@@ -10,7 +11,13 @@ var videoSelect = document.querySelector('select#videoSource');
 var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
-
+var hiddenInputList = $("#questionListSizeDiv");
+var resultArray = [];
+//set this to true from an event handler to stop the execution
+var cancelled = false;
+var keepRecording = true;
+var currQnum = 0;
+//var dataUrl = "";
 
 navigator.mediaDevices.enumerateDevices()
   .then(gotDevices).then(getStream).catch(handleError);
@@ -84,8 +91,10 @@ function handleError(error) {
 }
 
 
-
+///////////////////////////////function to analyse the codes captured from camera //////////////////////////////
  function takepicture() {
+   if (keepRecording) {
+
   var widthVideo = function(){
     if (window.innerWidth < 600){
       return window.innerWidth;
@@ -108,6 +117,7 @@ function handleError(error) {
     canvas.height = height;
     canvas.getContext('2d').drawImage(video, 0, 0, width, height);
     var dataUrl = canvas.toDataURL('image/jpg');
+    if (dataUrl!=""){
     $.ajax({
     type: "POST",
     url: "/decodes",
@@ -116,54 +126,130 @@ function handleError(error) {
     }
     }).done(function(data) {
         if(data =='NO BarCode Found'){
-          //new section
-          
-          //end of new section
-
-
             console.log("Trying..")
-            var interval = setTimeout(function(){
-
-                var date2 = new Date();
-                var diff = date2 - date1;
-                if(diff > 100000){
-
-                    Result.html('Try Again : Time Out');
-                    clearTimeout(interval);
-
-                }
-
-                $('#startbutton').click();
-
-
-            },500);
-
-
         }
         else{
-            // console.log(data.code);
+       
             var obj = JSON.parse(data);
-            var i;
-            Result.html('<b>Response Recorded: </b><h3>'+ obj.length +'</h3> <ol>');
-            for(i=0; i<obj.length;i++){
-                Result.append("<li><b>"+obj[i].code+"</b></li>");
-            }
-            Result.append("</ol>")
-            window.navigator.vibrate(200);
-            //clearTimeout(interval);
+            var i;             
+            for(i=0; i<obj.length;i++){               
+                if (resultArray.includes(obj[i].code)){
+                    //do nothing
+                }
+                else{
+                resultArray.push(obj[i].code);
+                console.log("new value pushed to resultArray: " + obj[i].code);
+                Result.html('Responses Recorded: <h3>'+ resultArray.length +'</h3> <ol>');
+                for(var k=0;k<resultArray.length;k++)
+                {
+                  Result.append("<li name='responseListItems'><b>"+resultArray[k]+"</b></li>");
+                  //hiddenInputList.append("<input type='text' name='resultInputListName' class='resultInputListClass'  value='"+ resultArray[k]+"'");
+                }                
+                Result.append("</ol>");
+                
+              }
+            }            
+            window.navigator.vibrate(200);              
+                //ev.preventDefault();
         }
 
-        // Do Any thing you want
+        //timeout section
+        //var interval = setTimeout(function(){
+//
+        //  var date2 = new Date();
+        //  var diff = date2 - date1;
+        //  if(diff > 100000){
+//
+        //      Result.html('Try Again : Time Out');
+        //      clearTimeout(interval);
+        //  }                       
+        //},2000);
+      // end of timeout section
+        
     })
         .fail(function(){
             console.log('Failed')
-        });
+        });        
+      }
+      setTimeout(takepicture, 2000);
+      //Result.append("<b>Response Recorded: </b>");
+ }
+  }
+
+///////////////////////////////function to submit recorded data to DB //////////////////////////////
+function submitResponseData(){ 
+
+  var formdataVal =  [];
+  for(var a=0;a<resultArray.length;a++){
+
+    formdataVal.push('tempVar'+[a]+':'+ resultArray[a]);
+    console.log("here is the new tempVar value: " + formdataVal);
 
   }
-  startbutton.addEventListener('click', function(ev){      
-      takepicture();
-      Result.html("Recording response...");
+  var formData = {formdataVal};
+  formData  = JSON.stringify(formData);
+  console.log("This is the form Data: "+formData);
+ 
+
+  var responseForm = $("#responseForm").value;
+ 
+
+  if(resultArray.length!=0){
+    $.ajax({
+      url: "/responseDBUpdate",
+      type: "POST",
+      data: formData ,
+      contentType: 'application/json;charset=UTF-8',
+      cache:false,
+      success: function(response) {
+       //success actions list
+       console.log(response+" from flask");
+        
+      },
+      error: function(xhr) {
+        console.log("error occurred while updating db for last question");
+      }
+    });
+    resultArray=[];
+  }
+}
+
+
+  ///////////////////////////////function for start recording button //////////////////////////////
+  recordResponsesBTN.addEventListener('click', function(ev){ 
+    console.log("We're in recordResponses");
+    Result.html("Recording responses...");
+    $("#stopRecordingBTN").show();
+    $("#recordResponsesBTN").hide();
+
+      takepicture();     
+
       ev.preventDefault();
       }, false);
 
-      
+
+
+
+///////////////////////////////function for stop recording button //////////////////////////////
+      stopRecordingBTN.addEventListener('click', function(ev1){
+        currQnum = currQnum+1;
+        keepRecording = false;      
+        console.log("this is the result html"+Result);
+        submitResponseData();   
+        //$("#responseForm").submit();
+        $("#stopRecordingBTN").hide();
+        
+        //var currQnum = $('#qnum').val();
+        console.log("this is the currqnum" + currQnum);
+        var totalQCount = $('#questionListSize').val();
+        console.log("this is the totalqount" + totalQCount);
+
+        if (currQnum == parseInt(totalQCount)){
+          $('#submitAndFinishBTN').show()
+        }
+        else{
+        $("#startAndNextBTN").show();
+      }
+        Result.html('');      
+        ev1.preventDefault();
+      }, false);  
