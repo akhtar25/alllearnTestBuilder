@@ -63,8 +63,8 @@
                             </div>
                     </div>
                     </div>
-                    </div>
-                </form>
+                    
+                
 
 <div class="row">
     <div class="col-sm-8">
@@ -79,7 +79,7 @@
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-    <input type="hidden" id="avatar-url" name="avatar-url" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/cam.png">
+    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/cam.png">
     <div style="margin-top: 30px; margin-left: 10px;">
             <img style="border:1px solid gray;width:300px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/cam.png">
         </div>
@@ -90,6 +90,7 @@
 
 </div>
 </div>
+</form>
 
 
 <script type="text/javascript">
@@ -164,7 +165,7 @@
           if(xhr.status === 200 || xhr.status === 204){
             
             document.getElementById('preview').src = url;
-            document.getElementById('avatar-url').value = url;
+            document.getElementById('reference').value = url;
           }
           else{
             window.alert("this is where the problem is");

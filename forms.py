@@ -105,6 +105,7 @@ class QuestionBuilderQueryForm(FlaskForm):
     topics=SelectField('Topics')
     question_desc=TextAreaField('Question')
     option=StringField('Options')
+    reference=StringField('Reference')
     submit=SubmitField('Confirm')
 
 
