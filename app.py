@@ -22,6 +22,7 @@ import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
+import re
 
 
 app=Flask(__name__)
@@ -157,26 +158,12 @@ def video_feed_stop():
 
 '''new cam section'''
 
-@app.route('/decodes', methods=['GET', 'POST'])
-def decodeAjax():
-    if request.method == 'POST':
-        decodedData = barCode.decode(request.form['imgBase64'])
-        if decodedData:
-            json_data = json.dumps(decodedData)
-            print(json_data)
-            return jsonify(json_data)
-        return jsonify(['NO BarCode Found'])
-
 
 @app.route('/ScanBooks',methods=['GET', 'POST'])
 def ScanBooks():
     print ("We're here!")
     return render_template('ScanBook.html',title='Scan Page')
 
-
-@app.route('/feedbackReport')
-def feedbackReport():
-    return render_template('feedbackReport.html',title='Feedback Report')
 
 @app.route('/testingOtherVideo',methods=['GET', 'POST'])
 def testingOtherVideo():
@@ -345,6 +332,7 @@ def recommendations():
 
 
 
+<<<<<<< HEAD
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 def feedbackCollection():
     if request.method == 'POST':
@@ -367,6 +355,9 @@ def feedbackCollection():
 
 @app.route('/attendance',methods=['POST','GET'])
 @login_required
+=======
+@app.route('/attendance')
+>>>>>>> 16b9d74eb68e7825d311ca76fed0cb102d59718c
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
 
@@ -444,6 +435,92 @@ def classDelivery():
         
     return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
 
+
+
+
+@app.route('/feedbackCollection', methods=['GET', 'POST'])
+def feedbackCollection():
+    if request.method == 'POST':
+        currCoveredTopics = request.form.getlist('topicCheck')
+        class_val = request.form['class_val']
+        section = request.form['section']
+
+        print("class val is = " + str(class_val))
+        print("section  is = " + str(section))
+#
+        #sidebar queries
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        # end of sidebarm
+
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
+        questionListSize = len(questionList)
+
+
+
+        #start of - db update to ark the checked topics as completed
+        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        
+        #for val in currCoveredTopics:
+        #    val_id=Topic.query.filter_by(topic_name=val).first()
+        #    for topicRows in topicTrackerDetails:
+        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+        #        if topicRows.topic_id==val_id.topic_id:
+        #            topicRows.is_covered = 'Y'            
+        #            db.session.commit()        
+        # end of  - update to mark the checked topics as completed
+
+
+        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+    else:
+        return redirect(url_for('classCon'))    
+
+
+@app.route('/loadQuestion')
+def loadQuestion():
+    question_id = request.args.get('question_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    for option in questionOp:
+        print(option.option_desc)
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )
+
+
+
+@app.route('/decodes', methods=['GET', 'POST'])
+def decodeAjax():
+    if request.method == 'POST':
+        decodedData = barCode.decode(request.form['imgBase64'])
+        if decodedData:
+            json_data = json.dumps(decodedData)
+            print(json_data)
+            return jsonify(json_data)
+        return jsonify(['NO BarCode Found'])
+
+@app.route('/responseDBUpdate', methods=['POST'])
+def responseDBUpdate():        
+    responseList=request.json
+    responseArray = {}
+    if responseList:
+        #print(responseList)        
+        for key, value in responseList.items():
+            if key =="formdataVal":
+                responseArray = value
+                for val in responseArray:
+                     splitVal= re.split('[:]', val)
+                     print(splitVal)
+        return jsonify(['Data ready for entry'])
+    return jsonify(['No records entered to DB'])
+  
+@app.route('/feedbackReport')
+def feedbackReport():
+    return render_template('_feedbackReport.html')
 
 @app.route('/performance')
 def performance():
