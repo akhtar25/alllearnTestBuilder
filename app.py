@@ -685,8 +685,12 @@ def questionBuilder():
 
             db.session.add(options)
             db.session.commit()
-            flash('Success')
-        return render_template('hello.html',School_Name=school_name())
+        flash('Success')
+           
+        return render_template('questionBuilder.html',School_Name=school_name())
+
+    
+        
     return render_template('questionBuilder.html',School_Name=school_name())
 
 @app.route('/questionUpload',methods=['GET'])
@@ -758,6 +762,16 @@ def topic_list(class_val,subject_id):
 
 
 
+@app.route('/tempCsv')
+def tempCsv():
+     file_name = request.args.get('file-name')
+     file_type = request.args.get('file-type')
+     print(file_name)
+     print(file_type)
+     return json.dumps({
+      'data': "hi",
+      'url': "../static/demo sheet  - Sheet1.csv"
+    })
 
 
 
@@ -774,6 +788,7 @@ def school_name():
         return name
     else:
         return None
+
 
 
 
