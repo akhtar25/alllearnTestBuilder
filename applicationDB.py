@@ -232,6 +232,7 @@ class QuestionDetails(db.Model):
 class QuestionOptions(db.Model):
     __tablename__ = "question_options"
     option_id=db.Column(db.Integer, primary_key=True)
+    option = db.Column(db.String(1), nullable = True)
     option_desc=db.Column(db.LargeBinary(length=None),nullable=True)
     option_desc=db.Column(db.String(500),nullable=True)
     option_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
@@ -311,6 +312,9 @@ class StudentProfile(db.Model):
     class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     gender=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     dob=db.Column(db.DateTime,nullable=True)
+    email = db.Column(db.String(200), nullable=True)
+    phone = db.Column(db.String(12), nullable=True)
+    address = db.Column(db.String(500), nullable=True)
     registration_date=db.Column(db.DateTime,nullable=True)
     leaving_date=db.Column(db.DateTime,nullable=True)
     leaving_reason=db.Column(db.String(500), nullable=True)
@@ -318,8 +322,27 @@ class StudentProfile(db.Model):
     school_adm_number=db.Column(db.String(120),nullable=True)
     profile_picture= db.Column(db.String(500),nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
+
+
+class studentQROptions(db.Model):
+    __tablename__="student_qr_options"
+    student_qr_id = db.Column(db.Integer,primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
+    option = db.Column(db.String(1), nullable=True)
+    qr_link = db.Column(db.String(200), nullable=True)
+
     
 
+class GuardianProfile(db.Model):
+    __tablename__="guardian_profile"
+    guardian_id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
+    full_name = db.Column(db.String(100), nullable=True)
+    relation = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    email = db.Column(db.String(150), nullable= True)
+    phone = db.Column(db.String(12), nullable=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
 
 
 class SchoolProfile(db.Model):
@@ -347,7 +370,7 @@ class TeacherProfile(db.Model):
     school_leaving_reason = db.Column(db.String(500),nullable=True)
     profile_picture= db.Column(db.String(500),nullable=True)
     email=db.Column(db.String,nullable=True)
-    phone=db.Column(db.Integer,nullable=True)
+    phone = db.Column(db.String(12), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
