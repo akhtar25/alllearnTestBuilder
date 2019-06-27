@@ -304,7 +304,9 @@ class ResponseCapture(db.Model):
 class StudentProfile(db.Model):
     __tablename__ = "student_profile"
     student_id=db.Column(db.Integer,primary_key=True)
-    student_name=db.Column(db.String(200),nullable=True)
+    first_name = db.Column(db.String(50), nullable = True)
+    last_name = db.Column(db.String(50), nullable=True)
+    full_name=db.Column(db.String(200),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     gender=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
