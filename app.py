@@ -332,32 +332,7 @@ def recommendations():
 
 
 
-<<<<<<< HEAD
-@app.route('/feedbackCollection', methods=['GET', 'POST'])
-def feedbackCollection():
-    if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
-
-        print(currCoveredTopics)
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
-        for val in currCoveredTopics:
-            val_id=Topic.query.filter_by(topic_name=val).first()
-            for topicRows in topicTrackerDetails:
-                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-                if topicRows.topic_id==val_id.topic_id:
-                    topicRows.is_covered = 'Y'            
-                    db.session.commit()        
-        #
-    return render_template('feedbackCollection.html',School_Name=school_name())
-
-
-@app.route('/attendance',methods=['POST','GET'])
-@login_required
-=======
 @app.route('/attendance')
->>>>>>> 16b9d74eb68e7825d311ca76fed0cb102d59718c
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
 
@@ -690,11 +665,43 @@ def search():
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():
+    if request.method=='POST':
+        print(request.form['question_desc'])
+        print(int(request.form['class_val']))
+
+        question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
+        reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type='MCQ')
+        db.session.add(question)
+        option_list=request.form.getlist('option_desc')
+        question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+
+        for i in range(len(option_list)):
+            if int(request.form['option'])==i+1:
+                correct='Y'
+            else:
+                correct='N'
+
+            options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct)
+
+            db.session.add(options)
+            db.session.commit()
+            flash('Success')
+        return render_template('hello.html',School_Name=school_name())
     return render_template('questionBuilder.html',School_Name=school_name())
 
 @app.route('/questionUpload',methods=['GET'])
 def questionUpload():
-    form=QuestionBuilderQueryForm()
+    #test
+    #question=QuestionDetails(class_val=11,topic_id=5)
+
+    #db.session.add(question)
+    #question_id=db.session.query(QuestionDetails).filter_by(class_val=11,topic_id=5).first()
+    #print(question_id.question_id)
+
+    #option=QuestionOptions(question_id=question_id.question_id,option_desc="thos examppe option",is_correct='Y')
+    #db.session.add(option)
+    #db.session.commit()
+
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
     form=QuestionBuilderQueryForm()
@@ -702,10 +709,7 @@ def questionUpload():
     form.subject_name.choices= [['','']]
     form.topics.choices=[['','']]
 
-    if form.validate_on_submit():
-        print(form.class_val.data)
-        
-        return render_template('hello.html',School_Name=school_name())
+    
     return render_template('questionUpload.html',form=form)
 
 @app.route('/questionFile',methods=['GET'])

@@ -1,5 +1,4 @@
-<form action="" method="POST">
-        {{ form.hidden_tag() }}
+{{ form.hidden_tag() }}
       
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
@@ -72,10 +71,10 @@
     <input type="text" name="question_desc" id="" placeholder="Enter question"><br><br>
     <div class="row">
     <div class="col-sm-6">
-    <label><input class="with-gap" id="option" name="option" type="radio" id="1"><span><input type="text" style="width:200px;" placeholder="Option 1"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" id="1"><span><input type="text" style="width:200px;" placeholder="Option 2"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" id="1"><span><input type="text" style="width:200px;" placeholder="Option 3"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" id="1"><span><input type="text" style="width:200px;" placeholder="Option 4"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="1"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="2"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="3"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="4"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br>
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
@@ -90,7 +89,7 @@
 
 </div>
 </div>
-</form>
+
 
 
 <script type="text/javascript">
