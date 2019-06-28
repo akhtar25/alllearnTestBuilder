@@ -1,0 +1,33 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+<div class="box-title">
+    <h3 class="box-title">Feedback Report - {{ student_name }} </h3>
+</div>
+<div class="box-body">
+<table class="table table-bordered table-responsive-md table-striped text-center">
+                      <tr>
+                        <th>Q No.</th>
+                        <th>Question</th>
+                        <th>Option Selected</th>
+                        <th>Correct Option</th>
+                        <th>Result</th>                        
+                      </tr>                      
+                             
+                      <tr> 
+                        <td> 1</td>
+                        <td> How are you?</td>
+                        <td> A - Great</td>
+                        <td> B - Awesome</td>
+                        <td>  <i class="large material-icons icon-green">check</i> </td>
+                      </tr>
+                      <tr> 
+                          <td> 2</td>
+                          <td> Where are you?</td>
+                          <td> A - Here</td>
+                          <td> A - Here</td>
+                          <td> <i class="large material-icons icon-orangered">clear</i></td>
+                        </tr>
+                    </table>                    
+                  </div>
+                </div>
+                  {%endblock%}

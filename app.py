@@ -498,8 +498,11 @@ def responseDBUpdate():
                     teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                     
                     studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
-
                     studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
+
+                    #studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0]).first()
+
                     #print('This is question_id: '+ splitVal[0])
                     #print('this is option selected: '+ responseSplit[3])
                     optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
@@ -516,7 +519,7 @@ def responseDBUpdate():
 
                     responsesForQuest=ResponseCapture(school_id=teacherIDRow.school_id,student_id=responseSplit[0],
                     question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id,
-                    class_sec_id=studentDetailRow.class_sec_id)
+                    class_sec_id=studentDetailRow.class_sec_id, subject_id = questionDetailRow.subject_id, last_modified_date= datetime.utcnow())
                     db.session.add(responsesForQuest)
                     db.session.commit()
                 #flash('Response Entered')
@@ -534,11 +537,28 @@ def feedbackReport():
     questionListJson=request.args.get('question_id')
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-
+    classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()
+    ###############This is to be updated######################
+    responseResultQuery = "select distinct sp.roll_number, sp.full_name "
+    responseResultQuery = responseResultQuery + "from "
+    responseResultQuery = responseResultQuery + "student_profile sp "
+    responseResultQuery = responseResultQuery + "inner join "
+    responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id "
+    responseResultQuery = responseResultQuery + "inner join "
+    responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id;"
+    
+    responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+    ###############################
 
     print('Here is the questionListJson: ' + str(questionListJson))
 
-    return render_template('_feedbackReport.html')
+    return render_template('_feedbackReport.html', responseResultRow= responseResultRow)
+
+
+@app.route('/studentFeedbackReport')
+def studentFeedbackReport():
+    student_name = request.args.get('student_name')
+    return render_template('studentFeedbackReport.html', student_name=student_name)
 
 @app.route('/performance')
 def performance():

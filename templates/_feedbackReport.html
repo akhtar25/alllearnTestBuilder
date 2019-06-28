@@ -4,13 +4,13 @@
 <div class="box-body">
   <table class="table table-bordered table-responsive-md table-striped text-center">
       <tr>
-          <td class="pt-3-half" contenteditable="false">Total Unique Received</td>
+          <td class="pt-3-half" contenteditable="false">Total Unique Responses Received</td>
           <td class="pt-3-half" contenteditable="false">30</td>
           
         </tr>
         <!-- This is our clonable table line -->
         <tr>
-          <td class="pt-3-half" contenteditable="false">Correct Percentage</td>
+          <td class="pt-3-half" contenteditable="false">Average Class Percentage</td>
           <td class="pt-3-half" contenteditable="false">70%</td>
 
         </tr>
@@ -24,15 +24,18 @@
                         <th>Percentage </th>
                         <th>Details </th>
                       </tr>                      
-                              
+                           {% for row in responseResultRow %}   
                       <tr> 
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
+                        <td>{{row.roll_number}} </td>
+                        <td> {{row.full_name}}</td>
+                        <td> :80</td>
+                        <td> :100</td>
+                        <td> :80%</td>
+                        <td> <a href="{{url_for('studentFeedbackReport',student_name=row.full_name) }}" target="_blank">Details</a> </td>
                       </tr>
+                      {% endfor %}
                     </table>
+                    <br>
+                    <br>
                     <a class="btn btn-primary"  href="{{url_for('classCon')}}">Complete Class</a>
                   </div>
