@@ -487,19 +487,25 @@ def responseDBUpdate():
                 responseArray = value
                 for val in responseArray:
 
-                    print('this is val: ' + str(val))
+                    #print('this is val: ' + str(val))
                     splitVal= re.split('[:]', val)
-                    print('this is splitVal'+ str(splitVal))
+                    #print('this is splitVal'+ str(splitVal))
                     response = splitVal[1]
-                    print('this is response from SplitVal[1]' + response)
+                    #print('this is response from SplitVal[1]' + response)
                     responseSplit = re.split('-|@',response)
-                    print('Response split is: '+ str(responseSplit ))
+                    #print('Response split is: '+ str(responseSplit ))
                     
                     teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                    print('This is question_id: '+ splitVal[0])
-                    print('this is option selected: '+ responseSplit[3])
+                    
+                    studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+
+                    studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
+                    #print('This is question_id: '+ splitVal[0])
+                    #print('this is option selected: '+ responseSplit[3])
                     optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
-                    print('this is optionCheckRow'+ str(optionCheckRow))
+                    
+
+                    #print('this is optionCheckRow'+ str(optionCheckRow))
                     ansCheck = ''
                     if (optionCheckRow==None):
                         ansCheck='N'
@@ -509,15 +515,29 @@ def responseDBUpdate():
                         ansCheck='N'
 
                     responsesForQuest=ResponseCapture(school_id=teacherIDRow.school_id,student_id=responseSplit[0],
-                    question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id)
+                    question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id,
+                    class_sec_id=studentDetailRow.class_sec_id)
                     db.session.add(responsesForQuest)
                     db.session.commit()
-                    flash('Response Entered')
-                    return jsonify(['Data ready for entry'])
+                #flash('Response Entered')
+                return jsonify(['Data ready for entry'])
     return jsonify(['No records entered to DB'])
   
 @app.route('/feedbackReport')
 def feedbackReport():
+    #<th>Roll Number </th>
+    #                    <th>Student Name</th>
+    #                    <th>Points Scored</th>
+    #                    <th>Total Points </th>
+    #                    <th>Percentage </th>
+    #                    <th>Details </th>
+    questionListJson=request.args.get('question_id')
+    class_val=request.args.get('class_val')
+    section=request.args.get('section')
+
+
+    print('Here is the questionListJson: ' + str(questionListJson))
+
     return render_template('_feedbackReport.html')
 
 @app.route('/performance')

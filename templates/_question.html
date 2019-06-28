@@ -10,8 +10,8 @@
 </aside>
  
  <br>
- <ol type="A">
+ <ul>
     {% for optionVal in questionOp %}    
-    <li><h4>&nbsp;&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
+    <li><h5>{{ optionVal.option }}</h5><h4>&nbsp;&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
     {% endfor %}
-</ol>
+ </ul>

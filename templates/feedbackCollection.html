@@ -46,12 +46,14 @@
                   <div class="box" id="feedbackQuestionDiv">
                     <div class="box-header" >
                       <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>        
-
+                      
                     </div>
                     
                        
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
                     <input id="current_question_id" style="display: none;">
+                    <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
+                    <input id="section_ip" style="display: none;"type="text" value="{{section}}">
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
 
                     <div id = "questionSection">        
@@ -191,21 +193,25 @@
               }
             });
 
-            $('#submitAndFinishBTN').click(function(){
-              
-              var done = 1;
+            $('#submitAndFinishBTN').click(function(){     
+              var class_val = $('#class_val_ip').val();
+              console.log('This is the class_val in js: ' + class_val);
+              var section = $('#section_ip').val();
+              console.log('This is the section: ' + section);
+              questionIDListStr  = JSON.stringify(questionIDListJS);                       
                 $.ajax({
                   url: "/feedbackReport",
                   type: "get",
-                  data: done,
+                  data: {question_id: questionIDListStr,
+                        class_val: class_val,
+                        section: section},                  
                   success: function(response) {
                     $("#feedbackReportDiv").show(); 
                     $("#feedbackReportDiv").html(response);        
                     $("#feedbackQuestionDiv").hide();
                     $("#video-field").hide();                    
                     $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show();
-              
+                    $("#allResponsesSubmitted").show();              
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");
