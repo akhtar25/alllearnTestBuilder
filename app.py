@@ -486,9 +486,34 @@ def responseDBUpdate():
             if key =="formdataVal":
                 responseArray = value
                 for val in responseArray:
-                     splitVal= re.split('[:]', val)
-                     print(splitVal)
-        return jsonify(['Data ready for entry'])
+
+                    print('this is val: ' + str(val))
+                    splitVal= re.split('[:]', val)
+                    print('this is splitVal'+ str(splitVal))
+                    response = splitVal[1]
+                    print('this is response from SplitVal[1]' + response)
+                    responseSplit = re.split('-|@',response)
+                    print('Response split is: '+ str(responseSplit ))
+                    
+                    teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                    print('This is question_id: '+ splitVal[0])
+                    print('this is option selected: '+ responseSplit[3])
+                    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
+                    print('this is optionCheckRow'+ str(optionCheckRow))
+                    ansCheck = ''
+                    if (optionCheckRow==None):
+                        ansCheck='N'
+                    elif (optionCheckRow.is_correct=='Y'):
+                        ansCheck='Y'
+                    else:
+                        ansCheck='N'
+
+                    responsesForQuest=ResponseCapture(school_id=teacherIDRow.school_id,student_id=responseSplit[0],
+                    question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id)
+                    db.session.add(responsesForQuest)
+                    db.session.commit()
+                    flash('Response Entered')
+                    return jsonify(['Data ready for entry'])
     return jsonify(['No records entered to DB'])
   
 @app.route('/feedbackReport')

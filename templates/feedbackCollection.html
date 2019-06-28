@@ -51,6 +51,7 @@
                     
                        
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
+                    <input id="current_question_id" style="display: none;">
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
 
                     <div id = "questionSection">        
@@ -162,28 +163,22 @@
               keepRecording = true;   
 
                 if(tempCountVar<questionListSize){
+                  $('#current_question_id').val(questionIDListJS[tempCountVar]); 
                 $.ajax({
                   url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
-                  success: function(response) {
-       
-                    $("#questionSection").html(response);
-                    
-                    tempCountVar= tempCountVar+1; 
-               
+                  success: function(response) {       
+                    $("#questionSection").html(response);                    
+                    tempCountVar= tempCountVar+1;                
                     if(tempCountVar==questionListSize){
-                      $("#startAndNextBTN").hide();
-                      
+                      $("#startAndNextBTN").hide();                      
                       $("#recordResponsesBTN").show();
                     }
                     else{
                       $("#startAndNextBTN").attr('value','Next');       
                       $("#startAndNextBTN").hide();
-                      $("#recordResponsesBTN").show();
-                     
-                    
-
+                      $("#recordResponsesBTN").show();                                         
                     }
                   },
                   error: function(xhr) {
