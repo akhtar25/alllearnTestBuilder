@@ -1,8 +1,4 @@
-
-///////////////////////////////////////////////////////////////////////
-
 'use strict';
-
 //initiate the time
 var date1 = new Date();
 var videoElement = document.querySelector('video');
@@ -17,7 +13,6 @@ var resultArray = [];
 var cancelled = false;
 var keepRecording = true;
 var currQnum = 0;
-//var dataUrl = "";
 
 navigator.mediaDevices.enumerateDevices()
   .then(gotDevices).then(getStream).catch(handleError);
@@ -152,27 +147,12 @@ function handleError(error) {
             window.navigator.vibrate(200);              
                 //ev.preventDefault();
         }
-
-        //timeout section
-        //var interval = setTimeout(function(){
-//
-        //  var date2 = new Date();
-        //  var diff = date2 - date1;
-        //  if(diff > 100000){
-//
-        //      Result.html('Try Again : Time Out');
-        //      clearTimeout(interval);
-        //  }                       
-        //},2000);
-      // end of timeout section
-        
     })
         .fail(function(){
             console.log('Failed')
         });        
       }
-      setTimeout(takepicture, 2000);
-      //Result.append("<b>Response Recorded: </b>");
+      setTimeout(takepicture, 5000);
  }
   }
 
@@ -190,10 +170,8 @@ function submitResponseData(){
   formData  = JSON.stringify(formData);
   console.log("This is the form Data: "+formData);
  
-
   var responseForm = $("#responseForm").value;
  
-
   if(resultArray.length!=0){
     $.ajax({
       url: "/responseDBUpdate",
@@ -213,8 +191,6 @@ function submitResponseData(){
     resultArray=[];
   }
 }
-
-
   ///////////////////////////////function for start recording button //////////////////////////////
   recordResponsesBTN.addEventListener('click', function(ev){ 
     console.log("We're in recordResponses");
@@ -226,9 +202,6 @@ function submitResponseData(){
 
       ev.preventDefault();
       }, false);
-
-
-
 
 ///////////////////////////////function for stop recording button //////////////////////////////
       stopRecordingBTN.addEventListener('click', function(ev1){
@@ -252,4 +225,4 @@ function submitResponseData(){
       }
         Result.html('');      
         ev1.preventDefault();
-      }, false);  
+      }, false);
