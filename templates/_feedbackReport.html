@@ -31,7 +31,7 @@
                         <td> :80</td>
                         <td> :100</td>
                         <td> :80%</td>
-                        <td> <a href="{{url_for('studentFeedbackReport',student_name=row.full_name) }}" target="_blank">Details</a> </td>
+                        <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}
                     </table>

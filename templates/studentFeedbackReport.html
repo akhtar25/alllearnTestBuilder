@@ -6,27 +6,30 @@
 <div class="box-body">
 <table class="table table-bordered table-responsive-md table-striped text-center">
                       <tr>
-                        <th>Q No.</th>
+                        <th>Q No</th>
+                        <th>Question Id</th>
                         <th>Question</th>
                         <th>Option Selected</th>
                         <th>Correct Option</th>
                         <th>Result</th>                        
                       </tr>                      
-                             
+                      {% set qnum = 0  %}
+                      {% for respRow in responseCaptureRow %}
+                      
+                      {% set qnum = qnum + 1 %}
                       <tr> 
-                        <td> 1</td>
-                        <td> How are you?</td>
-                        <td> A - Great</td>
-                        <td> B - Awesome</td>
+                        <td> {{ qnum }}</td>
+                        <td> {{ respRow.question_id }}</td>
+                        <td>{{ respRow.question_description}}</td>
+                        <td> {{respRow.response_option }} : {{ respRow.option_desc}}</td>
+                        <td>  {{ respRow.correct_option}} :   {{ respRow.corr_option_desc}}</td>
+                        {% if respRow.result=='Correct' %}
                         <td>  <i class="large material-icons icon-green">check</i> </td>
+                        {% else %}
+                        <td>  <i class="large material-icons icon-orangered">clear</i> </td>
+                        {% endif %}
                       </tr>
-                      <tr> 
-                          <td> 2</td>
-                          <td> Where are you?</td>
-                          <td> A - Here</td>
-                          <td> A - Here</td>
-                          <td> <i class="large material-icons icon-orangered">clear</i></td>
-                        </tr>
+                      {% endfor %}
                     </table>                    
                   </div>
                 </div>
