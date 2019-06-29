@@ -557,24 +557,48 @@ def feedbackReport():
 
         responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
-        ###############This is to be updated######################
-        responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id "
-        responseResultQuery = responseResultQuery + "from "
-        responseResultQuery = responseResultQuery + "student_profile sp "
-        responseResultQuery = responseResultQuery + "inner join "
-        responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id "
-        responseResultQuery = responseResultQuery + "inner join "
-        responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id "
-        responseResultQuery = responseResultQuery + "where resp_session_id = '" + responseSessionID + "'"
-        
+        responseResultQuery = "WITH sum_cte AS ( "
+        responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
+        responseResultQuery = responseResultQuery + "question_options where question_id in  "
+        responseResultQuery = responseResultQuery + "(select distinct question_id from response_capture where resp_session_id='" + responseSessionID + "')) "
+        responseResultQuery = responseResultQuery + "select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        responseResultQuery = responseResultQuery + "SUM(qo.weightage) as points_scored, "
+        responseResultQuery = responseResultQuery + "sum_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "from  "
+        responseResultQuery = responseResultQuery + "student_profile sp  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id  "
+        responseResultQuery = responseResultQuery + "and rc.response_option = qo.option "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo2 on  "
+        responseResultQuery = responseResultQuery + "rc.question_id=qo2.question_id "
+        responseResultQuery = responseResultQuery + "and qo2.is_correct='Y', "        
+        responseResultQuery = responseResultQuery + "sum_cte "
+        responseResultQuery = responseResultQuery + "where resp_session_id = '" + responseSessionID + "' "
+        responseResultQuery = responseResultQuery + "group by  sp.roll_number, sp.full_name, sp.student_id, rc.response_option, qo2.weightage, sum_cte.total_weightage"
+
+
         responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+
+        if responseResultRow != None:
+            totalPointsScored =  0
+            totalPointsLimit = 0            
+            for row in responseResultRow:
+                totalPointsScored = totalPointsScored + row.points_scored
+                totalPointsLimit = totalPointsLimit + row.total_weightage
+
+            classAverage = (totalPointsScored/totalPointsLimit) *100
+
+            responseResultRowCount = len(responseResultRow)
         ###############################
 
         print('Here is the questionListJson: ' + str(questionListJson))
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
-    return render_template('_feedbackReport.html', responseResultRow= responseResultRow, resp_session_id = responseSessionID)
+    return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
 
 
 @app.route('/studentFeedbackReport')
