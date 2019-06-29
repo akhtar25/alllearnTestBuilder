@@ -589,7 +589,11 @@ def feedbackReport():
                 totalPointsScored = totalPointsScored + row.points_scored
                 totalPointsLimit = totalPointsLimit + row.total_weightage
 
-            classAverage = (totalPointsScored/totalPointsLimit) *100
+            if totalPointsLimit !=0 and totalPointsLimit != None:
+                classAverage = (totalPointsScored/totalPointsLimit) *100
+            else:
+                classAverage = 0
+                print("total Points limit is zero")
 
             responseResultRowCount = len(responseResultRow)
         ###############################
