@@ -297,7 +297,8 @@ class ResponseCapture(db.Model):
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     response_option=db.Column(db.String(1),nullable=True)
-    is_correct=db.Column(db.Integer)
+    is_correct=db.Column(db.String(1), nullable=True)
+    resp_session_id = db.Column(db.Integer, nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
