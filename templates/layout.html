@@ -67,15 +67,11 @@
       <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo" style="font-style:Normal; font-family:Calibri; color: #209860; font-size:40px;">
           <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px">
-          <!--<span class="logo-lg" ><b>All</b></span><span style="color: #9cbe61;">learn</span>-->
-
-           | <small style="color:darkslategray; font-size:20px;font-family: Calibri; font-weight: normal;">Shivalik PS</small>
+           | <small style="color:darkslategray; font-size:20px;font-family: Calibri; font-weight: normal;">Shivalik Public School</small>
         </a>
       </div>
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
-
-
           {% if current_user.is_anonymous %}
           <li style="color: green;">
             <a style="color: green;" href="{{ url_for('login') }}">Login</a>
@@ -93,16 +89,34 @@
           {% endif %}
         </ul>
 
-        <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">
-          <li>
-            <a style="color: green;" href="{{url_for('resultUpload')}}">Result Upload</a>
-          </li>
+        <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">          
           <li>
             <a style="color: green;" href="{{url_for('studentProfile')}}">Student Profile</a>
           </li>
  
           <li>
             <a style="color: green;" href="{{url_for('help')}}">Help</a>
+          </li>
+        </ul>
+
+        <ul id="dropdown4" class="dropdown-content green-text" style="color: green;">
+          <li>
+            <a style="color: green;font-size: 15px;" href="{{url_for('testBuilder')}}">Test Builder</a>
+          </li>
+          <li>
+            <a style="color: green; font-size: 15px;" href="{{url_for('testPapers')}}">Test Papers</a>
+          </li>
+          <li>
+            <a style="color: green;" href="{{url_for('resultUpload')}}">Result Upload</a>
+          </li>
+        </ul>
+
+        <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
+          <li>
+            <a style="color: green;font-size: 15px;" href="{{url_for('feedbackPerformance')}}">Feedback Performance</a>
+          </li>
+          <li>
+            <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Test Performance</a>
           </li>
         </ul>
 
@@ -116,10 +130,10 @@
             <a style="color: green; font-size:15px;" href="{{url_for('classCon')}}">Class</a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('performance')}}">Performance</a>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown5">Performance</a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('tests')}}">Tests</a>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown4">Tests</a>
           </li>
           <li item-width="100px">
             <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown1">More
@@ -150,9 +164,6 @@
     </div>
 
   </nav>
-
-
-
   <div class="body" style="padding-top: 100px; padding-right: 20px;">
     <!--This is a temp section -->
     <hr> {% with messages = get_flashed_messages() %} {% if messages %}
@@ -176,7 +187,7 @@
     <!---->
   </div>
 
-
+<!--Footer Links-->
   <footer class="page-footer black ">
     <div class="container">
       <div class="row">
@@ -236,10 +247,13 @@
                 <a class="white-text" font-size:15px;" href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
               </li>
               <li>
-                <a class="white-text" font-size:15px;" href="{{url_for('performance')}}">Performance</a>
+                <a class="white-text" font-size:15px;" href="{{url_for('testPerformance')}}">Test Performance</a>
               </li>
               <li>
-                <a class="white-text" font-size:15px;" href="{{url_for('tests')}}">Tests</a>
+                <a class="white-text" font-size:15px;" href="{{url_for('testBuilder')}}">Test Builder</a>
+              </li>              
+              <li>
+                <a class="white-text" font-size:15px;" href="{{url_for('testPapers')}}">Test Papers</a>
               </li>              
           </ul>
         </div>

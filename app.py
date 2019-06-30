@@ -192,6 +192,19 @@ def edit_profile():
 @app.route('/')
 @app.route('/index')
 def index():
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+    #####Fetch school perf information##########
+
+    #####Fetch Top Students infor##########
+
+    #####Fetch Event data##########
+
+    #####Fetch Course Completion infor##########
+
+    #####Fetch Content to Cover today info##########
+
     return render_template('dashboard.html',title='Home Page')
 
 
@@ -314,9 +327,13 @@ def success():
 def feeManagement():
     return render_template('feeManagement.html')
 
-@app.route('/tests')
-def tests():
-    return render_template('tests.html')
+@app.route('/testBuilder')
+def testBuilder():
+    return render_template('testBuilder.html')
+
+@app.route('/testPapers')
+def testPapers():
+    return render_template('testPapers.html')
 
 @app.route('/calendar')
 def calendar():
@@ -587,8 +604,6 @@ def feedbackReport():
                 print("total Points limit is zero")
 
             responseResultRowCount = len(responseResultRow)
-        ###############################
-
         print('Here is the questionListJson: ' + str(questionListJson))
     else:
         print("Error collecting data from ajax request. Some values could be null")
@@ -616,9 +631,14 @@ def studentFeedbackReport():
 
     return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
 
-@app.route('/performance')
-def performance():
-    return render_template('performance.html')
+@app.route('/testPerformance')
+def testPerformance():
+    return render_template('testPerformance.html')
+
+
+@app.route('/feedbackPerformance')
+def feedbackPerformance():
+    return render_template('feedbackPerformance.html')
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
