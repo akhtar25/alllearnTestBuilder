@@ -531,22 +531,13 @@ def responseDBUpdate():
     return jsonify(['No records entered to DB'])
   
 @app.route('/feedbackReport')
-def feedbackReport():
-    #<th>Roll Number </th>
-    #                    <th>Student Name</th>
-    #                    <th>Points Scored</th>
-    #                    <th>Total Points </th>
-    #                    <th>Percentage </th>
-    #                    <th>Details </th>
+def feedbackReport():    
     questionListJson=request.args.get('question_id')
-    firstQuestionVal = questionListJson[1]
-    #print('Here is the complete questinoJson: '+ str(questionListJson))
-    #print('here is the first question value: ' + str(questionListJson[1]))
     class_val=request.args.get('class_val')
-    print('here is the class_val '+ str(class_val))
+    #print('here is the class_val '+ str(class_val))
     section=request.args.get('section')
     section = section.strip()
-    print('here is the section '+ str(section))
+    #print('here is the section '+ str(section))
     if (questionListJson != None) and (class_val != None) and (section != None):
 
         classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
