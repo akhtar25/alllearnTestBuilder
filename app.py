@@ -71,12 +71,15 @@ def before_request():
 def school_name():
     if current_user.is_authenticated:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-
-        name=school_name.school_name
-
-        return name
+        if teacher_id != None:
+            school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        else:
+            return None
+            if school_name!=None:
+                name=school_name_row.school_name            
+                return name
+            else:
+                return None
     else:
         return None
 
@@ -215,7 +218,8 @@ def index():
     school_name_val = school_name()
     
     if school_name_val ==None:
-        redirect(url_for('disconnectedAccount'))
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
     else:
 
     #####Fetch school perf information##########
@@ -233,8 +237,8 @@ def index():
 
 @app.route('/disconnectedAccount')
 @login_required
-def disconnectedAccount():
-    return render_template('disconnectedAccount.html', title='Disconnected Account')
+def disconnectedAccount():    
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1)
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -314,7 +318,13 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     print(user.id)
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
-    return render_template('user.html', user=user, posts=posts,School_Name=school_name())
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+        return render_template('user.html', user=user, posts=posts,School_Name=school_name())
 
 
 @app.route('/login', methods=['GET', 'POST'])

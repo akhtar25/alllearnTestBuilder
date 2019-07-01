@@ -23,7 +23,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %} {%if School_name= None %} Account not connected to school {%else %}| {{ School_Name }} {%endif%}{% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %} {%if School_name== None %} Account not connected to school {%else %}| {{ School_Name }} {%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -110,11 +110,18 @@
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous %}
+
             <li>
                 <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
                   <i class="material-icons right" style="font-size: 40px">account_circle </i>
                 </a>
               </li>
+             {% elif disconn == 1 %} 
+             <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
+                <i class="material-icons right" style="font-size: 40px">account_circle </i>
+              </a>
+            </li>
             {% else %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
@@ -205,7 +212,7 @@
                     </li>
           </ul>
               </div>
-
+              {%if (disconn != 1) and (current_user.username) %} 
               <div class="col l2 s12">
                   <ul>    
               <li>
@@ -244,6 +251,8 @@
           </li>
           </ul>
           </div>
+      
+          {% endif %}
       </div>
     </div>
     <div class="footer-copyright">
