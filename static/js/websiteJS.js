@@ -6,6 +6,7 @@ $('#hiddenSearch').click(function(){
     $('#hiddenSearch').hide();
     $('#nonSearchDiv').hide();
     $('#logoDiv').show();
+    $('#logo-container').hide();
 })
 
 $(document).ready(function(){
@@ -21,8 +22,7 @@ $(document).ready(function(){
         $('#search-2').hide();
         $('#hiddenSearch').show();
         $('#nonSearchDiv').show();
-        //handle other nav elements visibility here
-        //$('.search-hide').removeClass('hide');
+        $('#logo-container').show();
     });
 
 

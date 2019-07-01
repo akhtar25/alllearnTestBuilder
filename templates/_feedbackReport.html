@@ -1,21 +1,45 @@
 <div class="box-title">
     <h3 class="box-title">Feedback Report </h3>
 </div>
-<div class="box-body">
-<table class="table table-bordered table-responsive-md table-striped text-center">
-
+<div class="box-body table-responsive">
+  <table class="table table-bordered table-responsive-md table-striped table-centered">
+      <tr>
+          <td class="pt-3-half" contenteditable="false"><h4>Total Unique Responses</h4></td>
+          <td class="pt-3-half" contenteditable="false"><h3 >{{responseResultRowCount}}</h3></td>
+          
+        </tr>
+        <!-- This is our clonable table line -->
+        <tr>
+          <td class="pt-3-half" contenteditable="false"><h4>Average Class Percentage</h4></td>
+          {% if classAverage > 50 %}
+          <td class="pt-3-half" contenteditable="false"><h3 class="green-text">{{ classAverage }} %</h3></td>
+          {% else %}
+          <td class="pt-3-half" contenteditable="false"><h3 class="red-text">{{ classAverage }} %</h3></td>
+          {% endif %}
+        </tr>
+  </table>
+<table class="table table-bordered table-hover table-striped text-center">
                       <tr>
-                        <td class="pt-3-half" contenteditable="false">Total Responses Received</td>
-                        <td class="pt-3-half" contenteditable="false">30</td>
-                        
+                        <th>Roll Number </th>
+                        <th>Student Name</th>
+                        <th>Points Scored</th>
+                        <th>Total Points </th>
+                        <th>Percentage </th>
+                        <th>Details </th>
+                      </tr>                                                                    
+                           {% for row in responseResultRow %}   
+                           {% set percentage = (row.points_scored/ row.total_weightage) * 100  %}                                              
+                      <tr> 
+                        <td>{{row.roll_number}} </td>
+                        <td> {{row.full_name}}</td>
+                        <td> {{row.points_scored}}</td>
+                        <td> {{row.total_weightage}}</td>
+                        <td> {{ percentage }}%</td>
+                        <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
-                      <!-- This is our clonable table line -->
-                      <tr>
-                        <td class="pt-3-half" contenteditable="false">Correct Percentage</td>
-                        <td class="pt-3-half" contenteditable="false">70%</td>
-
-                      </tr>
-                              
-                    </table>
+                      {% endfor %}
+                    </table>                                                                       
+                    <br>
+                    <br>
                     <a class="btn btn-primary"  href="{{url_for('classCon')}}">Complete Class</a>
                   </div>

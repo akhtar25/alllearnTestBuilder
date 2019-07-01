@@ -1,0 +1,36 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+<div class="box-title">
+    <h3 class="box-title">Feedback Report - {{ student_name }} </h3>
+</div>
+<div class="box-body table-responsive">
+<table class="table table-bordered table-hover table-striped text-center">
+                      <tr>
+                        <th>Q No</th>
+                        <th>Question Id</th>
+                        <th>Question</th>
+                        <th>Option Selected</th>
+                        <th>Correct Option</th>
+                        <th>Result</th>                        
+                      </tr>                      
+                      {% set qnum = 0  %}
+                      {% for respRow in responseCaptureRow %}
+                      
+                      {% set qnum = qnum + 1 %}
+                      <tr> 
+                        <td> {{ qnum }}</td>
+                        <td> {{ respRow.question_id }}</td>
+                        <td>{{ respRow.question_description}}</td>
+                        <td> {{respRow.response_option }} : {{ respRow.option_desc}}</td>
+                        <td>  {{ respRow.correct_option}} :   {{ respRow.corr_option_desc}}</td>
+                        {% if respRow.result=='Correct' %}
+                        <td>  <i class="large material-icons icon-green">check</i> </td>
+                        {% else %}
+                        <td>  <i class="large material-icons icon-orangered">clear</i> </td>
+                        {% endif %}
+                      </tr>
+                      {% endfor %}
+                    </table>                    
+                  </div>
+                </div>
+                  {%endblock%}
