@@ -73,13 +73,14 @@ def school_name():
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         if teacher_id != None:
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        else:
-            return None
             if school_name!=None:
                 name=school_name_row.school_name            
                 return name
             else:
                 return None
+            
+        else:
+            return None
     else:
         return None
 
