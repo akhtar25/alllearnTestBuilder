@@ -331,37 +331,9 @@ def recommendations():
     return render_template('recommendations.html',School_Name=school_name())
 
 
-
-<<<<<<< HEAD
-@app.route('/feedbackCollection', methods=['GET', 'POST'])
-def feedbackCollection():
-    if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
-
-        print(currCoveredTopics)
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
-        for val in currCoveredTopics:
-            val_id=Topic.query.filter_by(topic_name=val).first()
-            for topicRows in topicTrackerDetails:
-                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-                if topicRows.topic_id==val_id.topic_id:
-                    topicRows.is_covered = 'Y'            
-                    db.session.commit()        
-        #
-    return render_template('feedbackCollection.html',School_Name=school_name())
-
-
-@app.route('/attendance',methods=['POST','GET'])
-@login_required
-=======
 @app.route('/attendance')
->>>>>>> master
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
-
-    
 
 @app.route('/class')
 @login_required
@@ -475,7 +447,7 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
 
