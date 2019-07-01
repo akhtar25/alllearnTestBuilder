@@ -68,8 +68,11 @@
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo" style="font-style:Normal; font-family:Calibri; color: #209860; font-size:40px;">
           <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px">
           <!--<span class="logo-lg" ><b>All</b></span><span style="color: #9cbe61;">learn</span>-->
+          {% if School_Name %}
 
-           | <small style="color:darkslategray; font-size:20px;font-family: Calibri; font-weight: normal;">Shivalik Public School</small>
+           | <small id="school_name" style="color:darkslategray; font-size:20px;font-family: Calibri; font-weight: normal;">{{ School_Name }}</small>
+
+          {% endif %}
         </a>
       </div>
       <div id="nonSearchDiv">
@@ -256,8 +259,12 @@
   </footer>
 
   <!--<script type="text/javascript" src="../static/js/jquery.min.js"></script>-->
-  
-  
+
+
+
+
+
+
 
 
 <!-- jQuery 3 -->
