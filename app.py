@@ -69,7 +69,7 @@ def before_request():
 
 @app.route("/account/")
 def account():
-    return render_template('account.html')
+    return render_template('account.html',School_Name=school_name())
 
 @app.route('/sign-s3')
 def sign_s3():
@@ -186,13 +186,13 @@ def edit_profile():
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form)
+        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name())
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('dashboard.html',title='Home Page')
+    return render_template('dashboard.html',title='Home Page',School_Name=school_name())
 
 
 @app.route('/submitPost', methods=['GET', 'POST'])
@@ -217,7 +217,7 @@ def submitPost():
         'body': 'The Avengers movie was so cool!'
     }]
     return render_template(
-        "submitPost.html", title='Submit Post', form=form, posts=posts)
+        "submitPost.html", title='Submit Post', form=form, posts=posts,School_Name=school_name())
 
 
 @app.route('/explore')
@@ -242,7 +242,7 @@ def explore():
         'body': 'The Avengers movie was so cool!'
     }]
 
-    return render_template('explore.html', title='Explore', posts=posts)
+    return render_template('explore.html', title='Explore', posts=posts,School_Name=school_name())
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -271,7 +271,7 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     print(user.id)
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
-    return render_template('user.html', user=user, posts=posts)
+    return render_template('user.html', user=user, posts=posts,School_Name=school_name())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -312,11 +312,11 @@ def success():
 
 @app.route('/feeManagement')
 def feeManagement():
-    return render_template('feeManagement.html')
+    return render_template('feeManagement.html',School_Name=school_name())
 
 @app.route('/tests')
 def tests():
-    return render_template('tests.html')
+    return render_template('tests.html',School_Name=school_name())
 
 @app.route('/calendar')
 def calendar():
@@ -324,17 +324,16 @@ def calendar():
 
 @app.route('/schoolPerformanceRanking')
 def schoolPerformanceRanking():
-    return render_template('schoolPerformanceRanking.html')
+    return render_template('schoolPerformanceRanking.html',School_Name=school_name())
 
 @app.route('/recommendations')
 def recommendations():
-    return render_template('recommendations.html')
-
+    return render_template('recommendations.html',School_Name=school_name())
 
 
 @app.route('/attendance')
 def attendance():
-    return render_template('attendance.html')
+    return render_template('attendance.html',School_Name=school_name())
 
 @app.route('/class')
 @login_required
@@ -368,7 +367,7 @@ def classCon():
         #endOfQueries
 
         #print(classTrackerDetails)
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails)
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
 
@@ -406,7 +405,7 @@ def classDelivery():
         topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
         
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails)
+    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
 
 
 
@@ -448,7 +447,7 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
 
@@ -497,7 +496,7 @@ def feedbackReport():
 
 @app.route('/performance')
 def performance():
-    return render_template('performance.html')
+    return render_template('performance.html',School_Name=school_name())
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -535,7 +534,7 @@ def resultUpload():
                 date=request.form['testdate']
                 if date=='':
                     flash('Please select date !')
-                    return render_template('resultUpload.html',form=form)
+                    return render_template('resultUpload.html',form=form,School_Name=school_name())
                 
                 sub_name=form.subject_name.data
                 test_type=form.test_type.data
@@ -566,23 +565,23 @@ def resultUpload():
 
                     if result_check:
                         flash('Result already uploaded !')
-                        return render_template('resultUpload.html', form=form)
+                        return render_template('resultUpload.html', form=form,School_Name=school_name())
 
                     else:
-                        return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name)
+                        return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name,School_Name=school_name())
 
                 else:
                     flash('No Student list for the given class and section')
                    
-                    return render_template('resultUpload.html', form=form)
+                    return render_template('resultUpload.html', form=form,School_Name=school_name())
         
                 
             else:
                 flash('Login required !')
-                return render_template('resultUpload.html', form=form)
+                return render_template('resultUpload.html', form=form,School_Name=school_name())
 
         else:
-            return render_template('resultUpload.html', form=form)
+            return render_template('resultUpload.html', form=form,School_Name=school_name())
     else:
         if form1.validate_on_submit:
             marks_list=request.form.getlist('marks')
@@ -610,7 +609,7 @@ def resultUpload():
             flash('Marks Uploaded !')
         
             
-        return render_template('resultUpload.html',form=form)
+        return render_template('resultUpload.html',form=form,School_Name=school_name())
 
 
 
@@ -634,11 +633,11 @@ def section(class_val):
 
 @app.route('/studentProfile')
 def studentProfile():
-    return render_template('studentProfile.html')
+    return render_template('studentProfile.html',School_Name=school_name())
 
 @app.route('/help')
 def help():
-    return render_template('help.html')
+    return render_template('help.html',School_Name=school_name())
 
 
 @app.route('/search')
@@ -657,7 +656,24 @@ def search():
         title='Search',
         posts=posts,
         next_url=next_url,
-        prev_url=prev_url)
+        prev_url=prev_url,School_Name=school_name())
+
+
+#helper methods
+def school_name():
+    if current_user.is_authenticated:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+
+        name=school_name.school_name
+
+        return name
+    else:
+        return None
+
+
+
 
 
 #if __name__=='__main__':
