@@ -67,6 +67,19 @@ def before_request():
     g.search_form = SearchForm()
     
 
+#helper methods
+def school_name():
+    if current_user.is_authenticated:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+
+        name=school_name.school_name
+
+        return name
+    else:
+        return None
+
 @app.route("/account/")
 @login_required
 def account():
@@ -199,9 +212,10 @@ def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
 
-    school_name = school_name()
-    if school_name ==None:
-        return render_template('disconnectedAccount.html', title='Account Not connected')
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        redirect(url_for('disconnectedAccount'))
     else:
 
     #####Fetch school perf information##########
@@ -216,6 +230,11 @@ def index():
 
         return render_template('dashboard.html',title='Home Page',School_Name=school_name())
 
+
+@app.route('/disconnectedAccount')
+@login_required
+def disconnectedAccount():
+    return render_template('disconnectedAccount.html', title='Disconnected Account')
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -826,18 +845,7 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
-#helper methods
-def school_name():
-    if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-
-        name=school_name.school_name
-
-        return name
-    else:
-        return None
 
 
 
