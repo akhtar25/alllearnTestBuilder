@@ -23,7 +23,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %}| Shivalik Public School {% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %}| {{ School_Name }} {% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>

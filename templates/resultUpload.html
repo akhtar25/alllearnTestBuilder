@@ -28,6 +28,9 @@
                         <div class="col-sm-2">
                                 <div style="width:150px;" >
                                                 {{ form.section.label(class='labelsize') }}
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                </div>
                                         <br>
                                                 {% if form.section.errors %}
                                                 {{ form.section(class="form-control form-control-lg is-invalid") }}
@@ -40,14 +43,12 @@
                                                 {{ form.section(class='form-control') }}
                                                 {% endif %}
 
-                                                <div id='loader'style='display: none; float: right;'>
-                                                                <img src='../static/images/spinner.gif' width='32px' height='32px'>
-                                                        </div>
+                                                
                                 </div>
                         </div>
                         <div class="col-sm-2">
                         <label class='labelsize' for='Date'>Date</label>
-                        <input type="date" name='testdate'>
+                        <input type="date" name='testdate' min="2018-01-01" max="2019-06-30">
                        
 
                 
