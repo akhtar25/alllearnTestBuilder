@@ -216,19 +216,51 @@ function getTable(file,file_url){
        Function called when file input updated. If there is a file selected, then
        start upload procedure by asking for a signed request from the app.
     */
-    function initUpload(){
+    function fileUpload(){
       const files = document.getElementById('file-input').files;
       const file = files[0];
       const file_value=document.getElementById('file-input').value;
       if(!file){
         return alert('No file selected.');
       }
-      getSignedRequest(file);
+      obj=csvJSON(file);
+      getSignedRequest(obj);
     }
     /*
        Bind listeners when the page loads.
     */
     (() => {
-      document.getElementById('file-input').onchange = initUpload;
+      document.getElementById('file-input').onchange = fileUpload;
     })();
+
+
+
+
+
+  function csvJSON(csv){
+
+  var lines=csv.split("\n");
+
+  var result = [];
+
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+    var obj = {};
+    var currentline=lines[i].split(",");
+
+    for(var j=0;j<headers.length;j++){
+      obj[headers[j]] = currentline[j];
+    }
+
+    result.push(obj);
+
+  }
+
+  object=JSON.stringify(result);
+
+  //return result; //JavaScript object
+  return object //JSON
+  }
  </script>
