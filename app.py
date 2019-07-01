@@ -667,27 +667,23 @@ def questionBuilder():
     form=QuestionBuilderQueryForm()
     if request.method=='POST':
         if form.submit.data:
-
             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type='MCQ')
             db.session.add(question)
             option_list=request.form.getlist('option_desc')
             question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
-
             for i in range(len(option_list)):
                 if int(request.form['option'])==i+1:
                     correct='Y'
+                    weightage=int(request.form['weightage'])
                 else:
+                    weightage=0
                     correct='N'
-
-                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct)
-
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage)
                 db.session.add(options)
                 db.session.commit()
             flash('Success')
-           
             return render_template('questionBuilder.html',School_Name=school_name())
-        
         else:
             class_val=request.form['class_val']
             subject_id=request.form['subject_name']
@@ -695,7 +691,6 @@ def questionBuilder():
             csv_file=request.files['file-input']
             references=request.files.getlist('attached[]')
             df1=pd.read_csv(csv_file)
-
             for index ,row in df1.iterrows():
                 question=QuestionDetails(class_val=int(class_val),subject_id=int(subject_id),question_description=row['Question Description'],
                 topic_id=int(topic_id),question_type='MCQ1')
@@ -704,21 +699,25 @@ def questionBuilder():
                 for i in range(1,5):
                     option_no=str(i)
                     option_name='Option'+option_no
+                    weightage_name='Weightage'+option_no
                     if row['CorrectAnswer']=='option '+option_no:
                         correct='Y'
                     else:
                         correct='N'
-                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct)
+                    if i==1:
+                            option_val='A'
+                    elif i==2:
+                            option_val='B'
+                    elif i==3:
+                            option_val='C'
+                    else:
+                        option_val='D'
+
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(row[weightage_name]))
                     db.session.add(option)
             db.session.commit()
-
-
-           
+            flash('Successfullly Uploaded !')
             return render_template('questionBuilder.html',School_Name=school_name())
-
-
-    
-        
     return render_template('questionBuilder.html',School_Name=school_name())
 
 @app.route('/questionUpload',methods=['GET'])
