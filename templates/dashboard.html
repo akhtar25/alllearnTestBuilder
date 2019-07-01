@@ -1,6 +1,18 @@
 {%extends "layout.html"%} {%block content%}
 
 <div class="container">
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" name="viewport">
+  <!-- Morris chart -->
+  <link rel="stylesheet" href="../static/bower_components/morris.js/morris.css">
+  <!-- jvectormap -->
+  <link rel="stylesheet" href="../static/bower_components/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="../static/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="../static/bower_components/bootstrap-daterangepicker/daterangepicker.css">  
+    <!-- bootstrap wysihtml5 - text editor -->
+    <link rel="stylesheet" href="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    
 <body class="white">
 <div class="wrapper">
   <div>
@@ -384,5 +396,13 @@
 </div>
 </body>
 </div>
+<script src="../static/bower_components/morris.js/morris.min.js"></script>
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+</script>
+<script src="../static/bower_components/raphael/raphael.min.js"></script>
+<script src="../static/bower_components/morris.js/morris.min.js"></script>
+
+
 
 {%endblock%}

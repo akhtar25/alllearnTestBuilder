@@ -68,6 +68,7 @@ def before_request():
     
 
 @app.route("/account/")
+@login_required
 def account():
     return render_template('account.html')
 
@@ -100,6 +101,7 @@ def sign_s3():
 
 
 @app.route("/submit_form/", methods = ["POST"])
+@login_required
 def submit_form():
     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #teacherProfile.teacher_name = request.form["full-name"]
@@ -191,6 +193,7 @@ def edit_profile():
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
@@ -234,6 +237,7 @@ def submitPost():
 
 
 @app.route('/explore')
+@login_required
 def explore():
     #page=request.args.get('page',1, type=int)
     #posts = Post.query.order_by(Post.timestamp.desc()).paginate(page,app.config['POSTS_PER_PAGE'],False)
@@ -273,6 +277,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -324,32 +329,37 @@ def success():
             return render_template('index.html',text='Error: Email already used.')
 
 @app.route('/feeManagement')
+@login_required
 def feeManagement():
     return render_template('feeManagement.html')
 
 @app.route('/testBuilder')
+@login_required
 def testBuilder():
     return render_template('testBuilder.html')
 
 @app.route('/testPapers')
+@login_required
 def testPapers():
     return render_template('testPapers.html')
 
 @app.route('/calendar')
+@login_required
 def calendar():
     return render_template('calendar.html')
 
 @app.route('/schoolPerformanceRanking')
+@login_required
 def schoolPerformanceRanking():
     return render_template('schoolPerformanceRanking.html')
 
 @app.route('/recommendations')
+@login_required
 def recommendations():
     return render_template('recommendations.html')
 
-
-
 @app.route('/attendance')
+@login_required
 def attendance():
     return render_template('attendance.html')
 
@@ -390,6 +400,7 @@ def classCon():
         return redirect(url_for('login'))    
 
 @app.route('/classDelivery')
+@login_required
 def classDelivery():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
@@ -429,6 +440,7 @@ def classDelivery():
 
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
+@login_required
 def feedbackCollection():
     if request.method == 'POST':
         currCoveredTopics = request.form.getlist('topicCheck')
@@ -471,6 +483,7 @@ def feedbackCollection():
 
 
 @app.route('/loadQuestion')
+@login_required
 def loadQuestion():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
@@ -612,6 +625,7 @@ def feedbackReport():
 
 
 @app.route('/studentFeedbackReport')
+@login_required
 def studentFeedbackReport():
     student_id = request.args.get('student_id')  
     student_name = request.args.get('student_name') 
@@ -632,13 +646,15 @@ def studentFeedbackReport():
     return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
 
 @app.route('/testPerformance')
+@login_required
 def testPerformance():
     return render_template('testPerformance.html')
 
 
-@app.route('/feedbackPerformance')
-def feedbackPerformance():
-    return render_template('feedbackPerformance.html')
+@app.route('/classPerformance')
+@login_required
+def classPerformance():
+    return render_template('classPerformance.html')
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -774,10 +790,12 @@ def section(class_val):
 
 
 @app.route('/studentProfile')
+@login_required
 def studentProfile():
     return render_template('studentProfile.html')
 
 @app.route('/help')
+@login_required
 def help():
     return render_template('help.html')
 
