@@ -3,7 +3,11 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
+<<<<<<< HEAD
 from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,QuestionBuilderQueryForm
+=======
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm
+>>>>>>> d571803a76078354fff1493833633ed4f82dd837
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -333,12 +337,13 @@ def recommendations():
     return render_template('recommendations.html',School_Name=school_name())
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d571803a76078354fff1493833633ed4f82dd837
 @app.route('/attendance')
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
-
-    
 
 @app.route('/class')
 @login_required
@@ -452,7 +457,7 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
 
