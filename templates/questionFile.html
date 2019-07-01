@@ -1,4 +1,70 @@
 <h4>Upload a file </h4>
+{{ form.hidden_tag() }}
+      
+        <div class="form-group " style="padding-top:5px;">
+                <div class="row">
+                        <div class="col-sm-3">
+                                <div style="width:250px;">
+                                        {{ form.class_val.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.class_val.errors %}
+                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.class_val.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.class_val(class='form-control') }}
+                                        {% endif %}
+                                </div>
+                        </div>
+                        <div class="col-sm-2">
+                                <div style="width:150px;" >
+                                                {{ form.subject_name.label(class='labelsize') }}
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                </div>
+                                        <br>
+                                                {% if form.subject_name.errors %}
+                                                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                {% for error in form.subject_name.errors %}
+                                                 <span>{{ error }}</span>
+                                                {% endfor %}
+                                        </div>
+                                                {% else %}
+                                                {{ form.subject_name(class='form-control') }}
+                                                {% endif %}
+    
+                                                
+                                </div>
+                        </div>
+    
+                        <div class="col-sm-2">
+                            <div style="width:150px;" >
+                                            {{ form.topics.label(class='labelsize') }}
+                                            <div id='loader'style='display: none; float: right;'>
+                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                            </div>
+                                    <br>
+                                            {% if form.topics.errors %}
+                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                            {% for error in form.topics.errors %}
+                                             <span>{{ error }}</span>
+                                            {% endfor %}
+                                    </div>
+                                            {% else %}
+                                            {{ form.topics(class='form-control') }}
+                                            {% endif %}
+    
+                                            
+                            </div>
+                    </div>
+                    </div>
+
+
 <input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input"><br>
 
 <!--<div class="container">
@@ -18,6 +84,62 @@
   
  
  <script>
+   var class_select = document.getElementById("class_val");
+    var subject_select = document.getElementById("subject_name");
+    var topic_select = document.getElementById("topics");
+    class_select.onchange = function()  {
+         
+        class_val = class_select.value;
+        $("#loader").show();
+        
+        fetch('/questionBuilder/' + class_val).then(function(response) {
+            response.json().then(function(data) {
+                    $("#loader").hide();    
+                    var optionHTML = '';
+                    for (var subject of data.subjects) {
+                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                }
+                subject_select.innerHTML = optionHTML;
+            })
+            
+        });
+    }
+
+    //for (i = 0; i < 20; i++) {
+    //$('#topiclist').append('<input type="radio" name="radio_name" />');
+//}     
+
+
+         subject_select.onclick=function()  {
+         
+         subject_id = subject_select.value;
+         $("#loader").show();
+         
+         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }
+
+
+
+
+
+
+
+
+
+
+
 function getTable(file,file_url){
 //$(document).ready(function(){
   //$('#file-input').click(function(){

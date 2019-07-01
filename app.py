@@ -718,7 +718,12 @@ def questionUpload():
 
 @app.route('/questionFile',methods=['GET'])
 def questionFile():
-    return render_template('questionFile.html')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [['','']]
+    form.topics.choices=[['','']]
+    return render_template('questionFile.html',form=form)
 
 
 
