@@ -333,7 +333,7 @@ def success():
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
-<<<<<<< HEAD
+
 @app.route('/testBuilder')
 @login_required
 def testBuilder():
@@ -343,11 +343,6 @@ def testBuilder():
 @login_required
 def testPapers():
     return render_template('testPapers.html')
-=======
-@app.route('/tests')
-def tests():
-    return render_template('tests.html',School_Name=school_name())
->>>>>>> master
 
 @app.route('/calendar')
 @login_required
@@ -362,12 +357,7 @@ def schoolPerformanceRanking():
 @app.route('/recommendations')
 @login_required
 def recommendations():
-<<<<<<< HEAD
-    return render_template('recommendations.html')
-=======
     return render_template('recommendations.html',School_Name=school_name())
-
->>>>>>> master
 
 @app.route('/attendance')
 @login_required
@@ -632,7 +622,6 @@ def feedbackReport():
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
-<<<<<<< HEAD
     return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
 
 
@@ -667,11 +656,10 @@ def testPerformance():
 @login_required
 def classPerformance():
     return render_template('classPerformance.html')
-=======
+
 @app.route('/performance')
 def performance():
     return render_template('performance.html',School_Name=school_name())
->>>>>>> master
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
