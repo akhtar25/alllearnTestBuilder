@@ -193,10 +193,16 @@ def edit_profile():
 
 @app.route('/')
 @app.route('/index')
+@app.route('/dashboard')
 @login_required
 def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+    school_name = school_name()
+    if school_name ==None:
+        return render_template('disconnectedAccount.html', title='Account Not connected')
+    else:
 
     #####Fetch school perf information##########
 
@@ -208,7 +214,7 @@ def index():
 
     #####Fetch Content to Cover today info##########
 
-    return render_template('dashboard.html',title='Home Page',School_Name=school_name())
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name())
 
 
 @app.route('/submitPost', methods=['GET', 'POST'])
@@ -333,7 +339,6 @@ def success():
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
-
 @app.route('/testBuilder')
 @login_required
 def testBuilder():
@@ -358,6 +363,7 @@ def schoolPerformanceRanking():
 @login_required
 def recommendations():
     return render_template('recommendations.html',School_Name=school_name())
+
 
 @app.route('/attendance')
 @login_required
@@ -656,10 +662,6 @@ def testPerformance():
 @login_required
 def classPerformance():
     return render_template('classPerformance.html')
-
-@app.route('/performance')
-def performance():
-    return render_template('performance.html',School_Name=school_name())
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
