@@ -685,21 +685,17 @@ def questionBuilder():
             flash('Success')
             return render_template('questionBuilder.html',School_Name=school_name())
         else:
-            class_val=request.form['class_val']
-            subject_id=request.form['subject_name']
-            topic_id=request.form['topics']
             csv_file=request.files['file-input']
-            references=request.files.getlist('attached[]')
             df1=pd.read_csv(csv_file)
             for index ,row in df1.iterrows():
-                question=QuestionDetails(class_val=int(class_val),subject_id=int(subject_id),question_description=row['Question Description'],
-                topic_id=int(topic_id),question_type='MCQ1')
+                question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
                 db.session.add(question)
-                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(class_val),topic_id=int(topic_id),question_description=row['Question Description']).first()
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
                 for i in range(1,5):
                     option_no=str(i)
                     option_name='Option'+option_no
-                    weightage_name='Weightage'+option_no
+                    #weightage_name='Weightage'+option_no
                     if row['CorrectAnswer']=='option '+option_no:
                         correct='Y'
                     else:
@@ -713,7 +709,7 @@ def questionBuilder():
                     else:
                         option_val='D'
 
-                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(row[weightage_name]))
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val)
                     db.session.add(option)
             db.session.commit()
             flash('Successfullly Uploaded !')
@@ -722,25 +718,11 @@ def questionBuilder():
 
 @app.route('/questionUpload',methods=['GET'])
 def questionUpload():
-    #test
-    #question=QuestionDetails(class_val=11,topic_id=5)
-
-    #db.session.add(question)
-    #question_id=db.session.query(QuestionDetails).filter_by(class_val=11,topic_id=5).first()
-    #print(question_id.question_id)
-
-    #option=QuestionOptions(question_id=question_id.question_id,option_desc="thos examppe option",is_correct='Y')
-    #db.session.add(option)
-    #db.session.commit()
-
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= [['','']]
     form.topics.choices=[['','']]
-
-    
     return render_template('questionUpload.html',form=form)
 
 @app.route('/questionFile',methods=['GET'])
@@ -791,33 +773,6 @@ def topic_list(class_val,subject_id):
         topicArray.append(topicObj)
     
     return jsonify({'topics':topicArray})
-
-
-
-@app.route('/tempCsv')
-def tempCsv():
-    data=request.files['file']
-    print(data)
-
-
-
-
-    #with open('demo.json') as json_data:
-     #   data = json.load(json_data)
-      #  json_data.close()
-    #df=pd.DataFrame(data)
-    #df1=df[['Class','SubjectID','Topic','Question Description','References']].copy()
-    #df1 = df1.rename({'Class': 'class_val', 'SubjectID': 'subject_id','Topic':'topic_id','Question Description':'question_description','References':'reference_link'}, axis='columns')
-    #df2=df[['Option1','Option2','Option3','Option4','CorrectAnswer']]
-    #pprint.pprint(df2)
-    #pprint.pprint(df1)
-    #return json.dumps({
-     # 'data': "hi",
-      #'url': "../static/demo sheet  - Sheet1.csv"
-   # })
-
-
-
 
 #helper methods
 def school_name():

@@ -67,9 +67,6 @@
 
 <input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
 
-
-<input type="hidden" id="reference-url" name="reference-url" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/cam.png">
-
 <!--<div class="container">
     <div class="table-responsive">
      <h1 align="center">CSV File to HTML Table Using AJAX jQuery</h1>
@@ -165,7 +162,9 @@
       }
       }
       if( count!=0){
-      table_data+='<td><input type="file" id="attached[]" multiple="" name="attached[]" style="height: 30px;"></td> <input type="hidden" id="reference-url" name="reference-url">';}
+        count1=count.toString();
+      table_data+='<td><input type="file"'+'id="'+count1+'"'+ 'name="'+count1+'"'+ 'onchange="initUpload(this);" style="height: 30px;"></td> <input type="hidden" value=""'+'id= "reference-url'+count1+'"'+'name="reference-url'+count1+'">';}
+      //<input type="hidden"'+'id= "reference-url'+count+'"'+'name="reference-url'+count+'">'
       else {
          table_data+='<th>Attach references</th>';
      }
@@ -181,7 +180,7 @@
 });
 });
 
-
+  var button_id=0
 /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
@@ -201,8 +200,10 @@
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            
-            document.getElementById('reference-url').value = url;
+            alert('Uploaded')
+            reference_name='reference-url'+button_id
+            document.getElementById(reference_name).value = url;
+            alert( document.getElementById(reference_name).value)
           }
           else{
             window.alert("this is where the problem is");
@@ -218,16 +219,17 @@
       request.
     */
     function getSignedRequest(file){
-      $("#loader").show();
+     
       const xhr = new XMLHttpRequest();
       xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
-            $("#loader").hide();  
+           
             //alert("this is reponse data"+ response.data);
             //alert("this is reponse url"+ response.url);
+            //document.getElementsByName('reference-url').value = response.url;
             uploadFile(file, response.data, response.url);
           }
           else{
@@ -237,12 +239,16 @@
       };
       xhr.send();
     }
+    
     /*
        Function called when file input updated. If there is a file selected, then
        start upload procedure by asking for a signed request from the app.
     */
-    function initUpload(){
-      const files = document.getElementById('file-input').files;
+    
+    function initUpload(element){
+      button_id=element.id
+      alert(button_id)
+      const files = document.getElementById(button_id).files;
       const file = files[0];
       if(!file){
         return alert('No file selected.');
@@ -251,9 +257,10 @@
     }
     /*
        Bind listeners when the page loads.
-    */
+   
     (() => {
       document.getElementById('attached').onchange = initUpload;
     })();
+     */
 
  </script>
