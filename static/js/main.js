@@ -88,6 +88,7 @@ function handleError(error) {
 
 
 ///////////////////////////////function to analyse the codes captured from camera //////////////////////////////
+
  function takepicture() {
    if (keepRecording) {
 
@@ -119,7 +120,7 @@ function handleError(error) {
     url: "/decodes",
     data: {
     imgBase64: dataUrl
-    }
+    }    
     }).done(function(data) {
         if(data =='NO BarCode Found'){
             console.log("Trying..")
@@ -158,7 +159,7 @@ function handleError(error) {
       setTimeout(takepicture, 5000);
  }
   }
-
+  var request = "";
 ///////////////////////////////function to submit recorded data to DB //////////////////////////////
 function submitResponseData(){ 
   current_question_id = $('#current_question_id').val();
@@ -176,7 +177,7 @@ function submitResponseData(){
   var responseForm = $("#responseForm").value;
  
   if(resultArray.length!=0){
-    $.ajax({
+    request = $.ajax({
       url: "/responseDBUpdate",
       type: "POST",
       data: formData ,
@@ -223,7 +224,8 @@ function submitResponseData(){
         }
         else{
         $("#startAndNextBTN").show();
-      }
-        Result.html('');      
+      }  
+        request.abort();
+        Result.html('');
         ev1.preventDefault();
       }, false);
