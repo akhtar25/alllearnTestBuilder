@@ -201,9 +201,7 @@ function submitResponseData(){
     Result.html("Recording responses...");
     $("#stopRecordingBTN").show();
     $("#recordResponsesBTN").hide();
-
       takepicture();     
-
       ev.preventDefault();
       }, false);
 
