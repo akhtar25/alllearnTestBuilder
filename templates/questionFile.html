@@ -22,7 +22,7 @@
                         <div class="col-sm-2">
                                 <div style="width:150px;">
                                                 {{ form.subject_name.label(class='labelsize') }}
-                                                <div id='loader'style='display: none; float: right;'>
+                                                <div id='loader1'style='display: none; float: right;'>
                                                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                                 </div>
                                         <br>
@@ -44,7 +44,7 @@
                         <div class="col-sm-2">
                             <div style="width:150px;" >
                                             {{ form.topics.label(class='labelsize') }}
-                                            <div id='loader'style='display: none; float: right;'>
+                                            <div id='loader2'style='display: none; float: right;'>
                                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                             </div>
                                     <br>
@@ -87,6 +87,8 @@
    var class_select = document.getElementById("class_val");
     var subject_select = document.getElementById("subject_name");
     var topic_select = document.getElementById("topics");
+    
+
     class_select.onchange = function()  {
          
         class_val = class_select.value;
@@ -94,7 +96,7 @@
         
         fetch('/questionBuilder/' + class_val).then(function(response) {
             response.json().then(function(data) {
-                    $("#loader").hide();    
+                    $("#loader1").hide();    
                     var optionHTML = '';
                     for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
@@ -108,11 +110,11 @@
          subject_select.onclick=function()  {
          
          subject_id = subject_select.value;
-         $("#loader").show();
+         $("#loader2").show();
          
          fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
-                     $("#loader").hide();    
+                     $("#loader2").hide();    
                      var optionHTML = '';
                     
                      for (var topic of data.topics) {
