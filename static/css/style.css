@@ -10,9 +10,9 @@
    display: none;
     position: relative;
     width: 650px;
-    padding-left: 400px;
-    padding-top:18px;
-    color: #000;
+    padding-left: 200px;
+    padding-top:10px;
+    color: rgb(43, 43, 43);
     
     cursor: auto;
  }

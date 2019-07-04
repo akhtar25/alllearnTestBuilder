@@ -13,6 +13,7 @@ var resultArray = [];
 var cancelled = false;
 var keepRecording = true;
 var currQnum = 0;
+var answerReceived = [];
 
 navigator.mediaDevices.enumerateDevices()
   .then(gotDevices).then(getStream).catch(handleError);
@@ -95,7 +96,7 @@ function handleError(error) {
       return window.innerWidth;
     }
     else{
-      return 300;
+      return 600;
     }
   };
    var heightVideo = function(){
@@ -103,7 +104,7 @@ function handleError(error) {
       return window.innerHeight;
     }
     else{
-      return 250;
+      return 500;
     }
   };
    var width = widthVideo();
@@ -125,24 +126,26 @@ function handleError(error) {
         }
         else{
        
-            var obj = JSON.parse(data);
+            var obj = JSON.parse(data);       
             var i;             
-            for(i=0; i<obj.length;i++){               
-                if (resultArray.includes(obj[i].code)){
-                    //do nothing
+            for(i=0; i<obj.length;i++){
+                var splitInput = obj[i].code.toString().split('@');
+                if (answerReceived.includes(splitInput[0]))
+                {
+                  //do nothing
                 }
                 else{
-                resultArray.push(obj[i].code);
+                  answerReceived.push(splitInput[0]);
+                  resultArray.push(obj[i].code);                                            
                 console.log("new value pushed to resultArray: " + obj[i].code);
-                Result.html('Responses Recorded: <h3>'+ resultArray.length +'</h3> <ol>');
-                for(var k=0;k<resultArray.length;k++)
+                Result.html('Responses recorded for: <h3>'+ resultArray.length +'</h3> <ol>');
+                for(var k=0;k<answerReceived.length;k++)
                 {
-                  Result.append("<li name='responseListItems'><b>"+resultArray[k]+"</b></li>");
+                  Result.append("<li name='responseListItems'><b>"+answerReceived[k]+"</b></li>");
                   //hiddenInputList.append("<input type='text' name='resultInputListName' class='resultInputListClass'  value='"+ resultArray[k]+"'");
                 }                
                 Result.append("</ol>");
-                
-              }
+                }
             }            
             window.navigator.vibrate(200);              
                 //ev.preventDefault();
@@ -158,11 +161,11 @@ function handleError(error) {
 
 ///////////////////////////////function to submit recorded data to DB //////////////////////////////
 function submitResponseData(){ 
-
+  current_question_id = $('#current_question_id').val();
   var formdataVal =  [];
   for(var a=0;a<resultArray.length;a++){
 
-    formdataVal.push('tempVar'+[a]+':'+ resultArray[a]);
+    formdataVal.push(current_question_id+':'+ resultArray[a]);
     console.log("here is the new tempVar value: " + formdataVal);
 
   }
@@ -209,12 +212,10 @@ function submitResponseData(){
         keepRecording = false;      
         console.log("this is the result html"+Result);
         submitResponseData();   
-        //$("#responseForm").submit();
         $("#stopRecordingBTN").hide();
-        
-        //var currQnum = $('#qnum').val();
         console.log("this is the currqnum" + currQnum);
         var totalQCount = $('#questionListSize').val();
+        
         console.log("this is the totalqount" + totalQCount);
 
         if (currQnum == parseInt(totalQCount)){

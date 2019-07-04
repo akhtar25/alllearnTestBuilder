@@ -69,7 +69,25 @@ def before_request():
     g.search_form = SearchForm()
     
 
+#helper methods
+def school_name():
+    if current_user.is_authenticated:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        if teacher_id != None:
+            school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+            if school_name!=None:
+                name=school_name_row.school_name            
+                return name
+            else:
+                return None
+            
+        else:
+            return None
+    else:
+        return None
+
 @app.route("/account/")
+@login_required
 def account():
     return render_template('account.html',School_Name=school_name())
 
@@ -102,6 +120,7 @@ def sign_s3():
 
 
 @app.route("/submit_form/", methods = ["POST"])
+@login_required
 def submit_form():
     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #teacherProfile.teacher_name = request.form["full-name"]
@@ -193,9 +212,36 @@ def edit_profile():
 
 @app.route('/')
 @app.route('/index')
+@app.route('/dashboard')
+@login_required
 def index():
-    return render_template('dashboard.html',title='Home Page',School_Name=school_name())
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
 
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+
+    #####Fetch school perf information##########
+
+    #####Fetch Top Students infor##########
+
+    #####Fetch Event data##########
+
+    #####Fetch Course Completion infor##########
+
+    #####Fetch Content to Cover today info##########
+
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name())
+
+
+@app.route('/disconnectedAccount')
+@login_required
+def disconnectedAccount():    
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1)
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -223,6 +269,7 @@ def submitPost():
 
 
 @app.route('/explore')
+@login_required
 def explore():
     #page=request.args.get('page',1, type=int)
     #posts = Post.query.order_by(Post.timestamp.desc()).paginate(page,app.config['POSTS_PER_PAGE'],False)
@@ -262,6 +309,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -273,7 +321,13 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     print(user.id)
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
-    return render_template('user.html', user=user, posts=posts,School_Name=school_name())
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+        return render_template('user.html', user=user, posts=posts,School_Name=school_name())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -313,27 +367,38 @@ def success():
             return render_template('index.html',text='Error: Email already used.')
 
 @app.route('/feeManagement')
+@login_required
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
-@app.route('/tests')
-def tests():
-    return render_template('tests.html',School_Name=school_name())
+@app.route('/testBuilder')
+@login_required
+def testBuilder():
+    return render_template('testBuilder.html')
+
+@app.route('/testPapers')
+@login_required
+def testPapers():
+    return render_template('testPapers.html')
 
 @app.route('/calendar')
+@login_required
 def calendar():
     return render_template('calendar.html')
 
 @app.route('/schoolPerformanceRanking')
+@login_required
 def schoolPerformanceRanking():
     return render_template('schoolPerformanceRanking.html',School_Name=school_name())
 
 @app.route('/recommendations')
+@login_required
 def recommendations():
     return render_template('recommendations.html',School_Name=school_name())
 
 
 @app.route('/attendance')
+@login_required
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
 
@@ -374,6 +439,7 @@ def classCon():
         return redirect(url_for('login'))    
 
 @app.route('/classDelivery')
+@login_required
 def classDelivery():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
@@ -413,6 +479,7 @@ def classDelivery():
 
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
+@login_required
 def feedbackCollection():
     if request.method == 'POST':
         currCoveredTopics = request.form.getlist('topicCheck')
@@ -455,6 +522,7 @@ def feedbackCollection():
 
 
 @app.route('/loadQuestion')
+@login_required
 def loadQuestion():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
@@ -487,18 +555,145 @@ def responseDBUpdate():
             if key =="formdataVal":
                 responseArray = value
                 for val in responseArray:
-                     splitVal= re.split('[:]', val)
-                     print(splitVal)
-        return jsonify(['Data ready for entry'])
+
+                    #print('this is val: ' + str(val))
+                    splitVal= re.split('[:]', val)
+                    #print('this is splitVal'+ str(splitVal))
+                    response = splitVal[1]
+                    #print('this is response from SplitVal[1]' + response)
+                    responseSplit = re.split('-|@',response)
+                    #print('Response split is: '+ str(responseSplit ))
+                    
+                    teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                    
+                    studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+                    studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
+
+                    #studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0]).first()
+                    
+                    dateVal= datetime.today().strftime("%d%m%Y")
+
+                    responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(studentDetailRow.class_sec_id)
+                    print('this is the response session id: ' + responseSessionID)
+                    #the response session id is a combination of today's date, subject id and the class section id
+
+                    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
+                    
+
+                    #print('this is optionCheckRow'+ str(optionCheckRow))
+                    ansCheck = ''
+                    if (optionCheckRow==None):
+                        ansCheck='N'
+                    elif (optionCheckRow.is_correct=='Y'):
+                        ansCheck='Y'
+                    else:
+                        ansCheck='N'
+
+                    responsesForQuest=ResponseCapture(school_id=teacherIDRow.school_id,student_id=responseSplit[0],
+                    question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id,
+                    class_sec_id=studentDetailRow.class_sec_id, subject_id = questionDetailRow.subject_id, resp_session_id = responseSessionID,last_modified_date= datetime.utcnow())
+                    db.session.add(responsesForQuest)
+                    db.session.commit()
+                #flash('Response Entered')
+                return jsonify(['Data ready for entry'])
     return jsonify(['No records entered to DB'])
   
 @app.route('/feedbackReport')
-def feedbackReport():
-    return render_template('_feedbackReport.html')
+def feedbackReport():    
+    questionListJson=request.args.get('question_id')
+    class_val=request.args.get('class_val')
+    #print('here is the class_val '+ str(class_val))
+    section=request.args.get('section')
+    section = section.strip()
+    #print('here is the section '+ str(section))
+    if (questionListJson != None) and (class_val != None) and (section != None):
 
-@app.route('/performance')
-def performance():
-    return render_template('performance.html',School_Name=school_name())
+        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
+        print('here is the classSecRow.class_Sec_id: '+ str(classSecRow))
+        questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
+                    
+        dateVal= datetime.today().strftime("%d%m%Y")
+
+        responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(classSecRow.class_sec_id)
+        print('Here is response session id in feedback report: ' + responseSessionID)
+        responseResultQuery = "WITH sum_cte AS ( "
+        responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
+        responseResultQuery = responseResultQuery + "question_options where question_id in  "
+        responseResultQuery = responseResultQuery + "(select distinct question_id from response_capture where resp_session_id='" + responseSessionID + "')) "
+        responseResultQuery = responseResultQuery + "select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        responseResultQuery = responseResultQuery + "SUM(qo.weightage) as points_scored, "
+        responseResultQuery = responseResultQuery + "sum_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "from  "
+        responseResultQuery = responseResultQuery + "student_profile sp  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id  "
+        responseResultQuery = responseResultQuery + "and rc.response_option = qo.option "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo2 on  "
+        responseResultQuery = responseResultQuery + "rc.question_id=qo2.question_id "
+        responseResultQuery = responseResultQuery + "and qo2.is_correct='Y', "        
+        responseResultQuery = responseResultQuery + "sum_cte "
+        responseResultQuery = responseResultQuery + "where resp_session_id = '" + responseSessionID + "' "
+        responseResultQuery = responseResultQuery + "group by  sp.roll_number, sp.full_name, sp.student_id, rc.response_option, qo2.weightage, sum_cte.total_weightage"
+
+
+        responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+
+        if responseResultRow != None:
+            totalPointsScored =  0
+            totalPointsLimit = 0            
+            for row in responseResultRow:
+                totalPointsScored = totalPointsScored + row.points_scored
+                totalPointsLimit = totalPointsLimit + row.total_weightage
+
+            if totalPointsLimit !=0 and totalPointsLimit != None:
+                classAverage = (totalPointsScored/totalPointsLimit) *100
+            else:
+                classAverage = 0
+                print("total Points limit is zero")
+
+            responseResultRowCount = len(responseResultRow)
+        print('Here is the questionListJson: ' + str(questionListJson))
+    else:
+        print("Error collecting data from ajax request. Some values could be null")
+
+    return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+
+
+@app.route('/studentFeedbackReport')
+@login_required
+def studentFeedbackReport():
+    student_id = request.args.get('student_id')  
+    student_name = request.args.get('student_name') 
+    student_id=student_id.strip()  
+    resp_session_id = request.args.get('resp_session_id')
+    #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
+    responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+    responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, "
+    responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
+    responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
+    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
+    responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
+    responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
+
+    responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
+
+    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
+
+@app.route('/testPerformance')
+@login_required
+def testPerformance():
+    return render_template('testPerformance.html')
+
+
+@app.route('/classPerformance')
+@login_required
+def classPerformance():
+    return render_template('classPerformance.html')
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -634,10 +829,12 @@ def section(class_val):
 
 
 @app.route('/studentProfile')
+@login_required
 def studentProfile():
     return render_template('studentProfile.html',School_Name=school_name())
 
 @app.route('/help')
+@login_required
 def help():
     return render_template('help.html',School_Name=school_name())
 
@@ -661,6 +858,7 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
+<<<<<<< HEAD
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():
@@ -780,12 +978,9 @@ def school_name():
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
         school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+=======
+>>>>>>> fb500013ee7b9570e040f49cb28ddc7b6ef53280
 
-        name=school_name.school_name
-
-        return name
-    else:
-        return None
 
 
 
