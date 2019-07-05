@@ -201,7 +201,6 @@ class BookDetails(db.Model):
     book_id = db.Column(db.Integer, primary_key=True)
     class_val = db.Column(db.Integer,nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    chapter_id = db.Column(db.String(200), nullable=True)
     book_name= db.Column(db.String(120))
     book_link= db.Column(db.String(500))
     last_modified_date=db.Column(db.DateTime)
