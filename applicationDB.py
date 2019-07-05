@@ -201,19 +201,10 @@ class BookDetails(db.Model):
     book_id = db.Column(db.Integer, primary_key=True)
     class_val = db.Column(db.Integer,nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    chapter_id = db.Column(db.String(200), nullable=True)
     book_name= db.Column(db.String(120))
     book_link= db.Column(db.String(500))
     last_modified_date=db.Column(db.DateTime)
-
-
-#class SlideTracker(db.Model):
-#    __tablename__ = "slide_tracker"
-#    slideshow_id = db.Column(db.Integer, primary_key=True)
-#    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-#    #chapter_num = db.Column(db.ForeignKey('topic_detail.chapter_num'),nullable=True)
-#    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
-#    last_modified_date=db.Column(db.DateTime)
- 
 
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
@@ -252,13 +243,16 @@ class TestDetails(db.Model):
     __tablename__ = "test_details"
     test_id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
+    class_val = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)    
     test_type=db.Column(db.String(120),nullable=True)
-    region_id=db.Column(db.ForeignKey('message_detail.msg_id'))
-    state_id=db.Column(db.ForeignKey('message_detail.msg_id'))
-    city=db.Column(db.ForeignKey('message_detail.msg_id'))
+    region_id=db.Column(db.ForeignKey('message_detail.msg_id'))    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'))
     total_marks=db.Column(db.Integer)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    test_paper_link = db.Column(db.String(200), nullable=True)
+    date_of_creation = db.Column(db.DateTime)
+    date_of_test = db.Column(db.DateTime)
     year=db.Column(db.Integer)
     month=db.Column(db.String(3))
     last_modified_date=db.Column(db.DateTime)
@@ -302,6 +296,17 @@ class ResponseCapture(db.Model):
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
+class Address(db.Model):
+    __tablename__ = "address_detail"
+    address_id = db.Column(db.Integer,primary_key=True)
+    address_1 = db.Column(db.String(100), nullable=True)
+    address_2 = db.Column(db.String(100), nullable=True)
+    locality = db.Column(db.String(100), nullable=True)
+    city = db.Column(db.String(30), nullable=True)
+    state = db.Column(db.String(30), nullable=True)
+    country = db.Column(db.String(20),nullable=True)
+    pin = db.Column(db.String(10), nullable=True)
+
 
 class StudentProfile(db.Model):
     __tablename__ = "student_profile"
@@ -315,7 +320,7 @@ class StudentProfile(db.Model):
     dob=db.Column(db.DateTime,nullable=True)
     email = db.Column(db.String(200), nullable=True)
     phone = db.Column(db.String(12), nullable=True)
-    address = db.Column(db.String(500), nullable=True)
+    address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     registration_date=db.Column(db.DateTime,nullable=True)
     leaving_date=db.Column(db.DateTime,nullable=True)
     leaving_reason=db.Column(db.String(500), nullable=True)
@@ -352,9 +357,8 @@ class SchoolProfile(db.Model):
     school_name=db.Column(db.String(500),nullable=True)
     registered_date=db.Column(db.DateTime,nullable=True)
     org_leaving_Date=db.Column(db.DateTime,nullable=True)
-    org_leaving_reason=db.Column(db.String(500),nullable=True)
-    state=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    city=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    org_leaving_reason=db.Column(db.String(500),nullable=True)    
+    address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
@@ -372,6 +376,7 @@ class TeacherProfile(db.Model):
     profile_picture= db.Column(db.String(500),nullable=True)
     email=db.Column(db.String,nullable=True)
     phone = db.Column(db.String(12), nullable=True)
+    address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
@@ -397,8 +402,8 @@ class PerformanceDetail(db.Model):
     __tablename__ = "performance_detail"
     perf_id= db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
-    class_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    section_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    test_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
     year = db.Column(db.Integer,nullable=True)
     semi_annual = db.Column(db.Integer,nullable=True)
