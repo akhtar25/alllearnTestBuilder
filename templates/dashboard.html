@@ -17,7 +17,7 @@
       <div class= "row">
         <section class="col-lg-12 connectedSortable">
           <div class="box-header with-border">
-          <h3 class="box-title">School Performance Graph</h3>   </div>
+          <h3 class="box-title">Average School Performance</h3>   </div>
           <div id='graphDiv' style="overflow-y:auto;"></div>         
         </section>
       </div>
@@ -25,7 +25,7 @@
           <section class="col-lg-7 connectedSortable">
               <div class="box box-info">
                 <div class="box-header with-border">
-                  <h3 class="box-title">Content to Cover Today</h3>                        
+                  <h3 class="box-title">Topic to Cover Today</h3>                        
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
@@ -40,7 +40,7 @@
                         <th>Book</th>
                       </tr>
                       </thead>
-                      <tbody>
+                      <tbody>                   
                       <tr>
                         <td><a href="#">1</a></td>
                         <td><span class="label label-success">A</span></td>
@@ -79,8 +79,7 @@
                       <tr>
                         <td><a href="#">4</a></td>
                         <td><span class="label label-info">A</span></td>
-                        <td>Science</td>
-                        
+                        <td>Science</td>                        
                         <td>
                           Chapter 4: Solar System
                         </td>
@@ -91,8 +90,7 @@
                       <tr>
                         <td><a href="#">5</a></td>
                         <td><span class="label label-warning">B</span></td>
-                        <td>Social Science</td>
-                        
+                        <td>Social Science</td>                        
                         <td>
                           Chapter 3: Soil
                         </td>
@@ -151,8 +149,7 @@
                     </li>
                     <li>
                       <img src="../static/images/user3-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Shailesh</a>
-                      
+                      <a class="users-list-name" href="#">Shailesh</a>                      
                     </li>
                     <li>
                       <img src="../static/images/user4-128x128.jpg" alt="User Image">
@@ -197,82 +194,16 @@
           <div class="row-md-8" style="overflow-y:auto; height:400px;">            
             <p class="text-center">
               <h4 class="box-title">Course Completion</h4>
-            </p>            
+            </p>
+            {% for topicCountRow in topicToCoverDetails %}         
             <div class="progress-group">
-              <span class="progress-text">Class 1 - A</span>
-              <span class="progress-number"><b>160</b>/200</span>
-
-              <div class="progress sm">
+              <span class="progress-text">Class: {{topicCountRow.CLASS}} - {{topicCountRow.SECTION}}</span>
+              <span class="progress-number"><b>{{topicCountRow.TOTALTOPICS}}</b>/200</span>
+              <div class="progress sm">               
                 <div class="progress-bar progress-bar-green" style="width: 50%"></div>
               </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Class 2 - A</span>
-              <span class="progress-number"><b>310</b>/400</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 60%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Class 3 - A</span>
-              <span class="progress-number"><b>480</b>/800</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 80%"></div>
-              </div>
-            </div>
-            <!-- /.progress-group -->
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
-            <div class="progress-group">
-              <span class="progress-text">Class 4 - A</span>
-              <span class="progress-number"><b>250</b>/500</span>
-
-              <div class="progress sm">
-                <div class="progress-bar progress-bar-green" style="width: 70%"></div>
-              </div>
-            </div>
+            </div>  
+            {% endfor %}                  
             <!-- /.progress-group -->
           </div>
         </section>  
@@ -440,6 +371,4 @@
     };
 draw(graphData);
 </script>
-
 {%endblock%}
-

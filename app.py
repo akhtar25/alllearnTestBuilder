@@ -233,9 +233,11 @@ def index():
 
     #####Fetch Course Completion infor##########
 
-    #####Fetch Content to Cover today info##########
-
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data)
+    #####Fetch Topic to Cover today info##########
+        topicToCoverQuery = "select *from vw_topic_tracker_overall"
+        topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
+        print(topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails)
 
 
 @app.route('/disconnectedAccount')
