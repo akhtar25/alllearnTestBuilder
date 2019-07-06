@@ -23,6 +23,7 @@ from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
+import pandas as pd
 
 
 app=Flask(__name__)
@@ -77,8 +78,7 @@ def school_name():
                 name=school_name_row.school_name            
                 return name
             else:
-                return None
-            
+                return None            
         else:
             return None
     else:
@@ -222,9 +222,11 @@ def index():
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
     else:
-
-    #####Fetch school perf information##########
-
+    #####Fetch school perf graph information##########
+        df = pd.read_csv('data.csv').drop('Open', axis=1)
+        chart_data = df.to_dict(orient='records')
+        chart_data = json.dumps(chart_data, indent=2)
+        data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########
 
     #####Fetch Event data##########
@@ -233,7 +235,7 @@ def index():
 
     #####Fetch Content to Cover today info##########
 
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name())
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data)
 
 
 @app.route('/disconnectedAccount')
@@ -830,6 +832,14 @@ def section(class_val):
 @login_required
 def studentProfile():
     return render_template('studentProfile.html',School_Name=school_name())
+
+@app.route('/performance')
+def performance():
+    df = pd.read_csv('data.csv').drop('Open', axis=1)
+    chart_data = df.to_dict(orient='records')
+    chart_data = json.dumps(chart_data, indent=2)
+    data = {'chart_data': chart_data}
+    return render_template("_performance.html", data=data)
 
 @app.route('/help')
 @login_required

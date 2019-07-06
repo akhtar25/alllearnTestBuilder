@@ -1,16 +1,8 @@
 {%extends "layout.html"%} {%block content%}
 
 <div class="container">
-  <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" name="viewport">
-  <!-- Morris chart -->
-  <link rel="stylesheet" href="../static/bower_components/morris.js/morris.css">
-  <!-- jvectormap -->
   <link rel="stylesheet" href="../static/bower_components/jvectormap/jquery-jvectormap.css">
-    <link rel="stylesheet" href="../static/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="../static/bower_components/bootstrap-daterangepicker/daterangepicker.css">  
-    <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     
 <body class="white">
@@ -22,35 +14,11 @@
       </h1>
     </section>
     <section class="content">      
-      <!-- Main row -->
       <div class= "row">
         <section class="col-lg-12 connectedSortable">
-          <!-- Custom tabs (Charts with tabs)-->
-          <div class="nav-tabs-custom">
-            <!-- Tabs within a box -->
-            <ul class="nav nav-tabs pull-right">
-              <li class="active"><a href="#revenue-chart" data-toggle="tab">Overall School Performance</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">1</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">2</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">3</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">4</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">5</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">6</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">7</a></li>
-              <li ><a href="#revenue-chart" data-toggle="tab">8</a></li>
-              
-              <li class="pull-left header"><i class="fa fa-inbox"></i> Performance graph</li>              
-            </ul>
-            <div class="tab-content no-padding">
-              <!-- Morris chart - Sales -->
-              <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"></div>
-              <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
-            </div>
-          </div>
-          <div>            
-            <h6 style="color:#3c8dbc">Shivalik Public school's performance.</h6>
-            <h6 style="color:#a0d0e0">Average Alllearn school performance.</h6>
-          </div>
+          <div class="box-header with-border">
+          <h3 class="box-title">School Performance Graph</h3>   </div>
+          <div id='graphDiv' style="overflow-y:auto;"></div>         
         </section>
       </div>
       <div class="row">
@@ -396,14 +364,82 @@
 </div>
 </body>
 </div>
-<script src="../static/bower_components/morris.js/morris.min.js"></script>
 <script>
   $.widget.bridge('uibutton', $.ui.button);
 </script>
-<script src="../static/bower_components/raphael/raphael.min.js"></script>
-<script src="../static/bower_components/morris.js/morris.min.js"></script>
-
-
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+    var graphData = {{ data.chart_data | safe }}
+    // Set the dimensions of the svg
+    var margin = {top: 30, right: 50, bottom: 30, left: 50};
+    var svgWidth = 1200;
+    var svgHeight = 270;
+    var graphWidth = svgWidth - margin.left - margin.right;
+    var graphHeight = svgHeight - margin.top - margin.bottom;
+    // Parse the date / time
+    var parseDate = d3.time.format("%Y-%m-%d").parse;
+    // Set the ranges
+    var x = d3.time.scale().range([0, graphWidth]);
+    var y = d3.scale.linear().range([graphHeight, 0]);
+    // Define the axes
+    var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom").ticks(5);
+    var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(5);
+    var highLine = d3.svg.line()
+        .x(function(d) { return x(d.Date); })
+        .y(function(d) { return y(d.High); });
+    var area = d3.svg.area()
+      .x(function(d) { return x(d.Date); })
+    // Adds the svg canvas
+    var svg = d3.select("#graphDiv")
+      .append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+      .append("g")
+        .attr("transform", 
+        "translate(" + margin.left + "," + margin.top + ")")
+    // define function
+    function draw(data) {
+      data.forEach(function(d) {
+        d.Date = parseDate(d.Date);
+        d.High = +d.High;
+      });
+      // Scale the range of the data
+      x.domain(d3.extent(data, function(d) { return d.Date; }));
+      y.domain([d3.min(data, function(d) {
+          return Math.min(d.High) }),
+          d3.max(data, function(d) {
+          return Math.max(d.High) })]);
+      // Add the area path.
+      svg.append("path")
+        .datum(data)
+        .attr("class", "area")
+        .attr("d", area)
+      // Add the 2 valueline paths.
+      svg.append("path")
+        .style("stroke", "green")
+        .style("fill", "none")
+        .attr("class", "line")
+        .attr("d", highLine(data));
+      // Add the X Axis
+      svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + graphHeight + ")")
+          .call(xAxis);
+      // Add the Y Axis
+      svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+      svg.append("text")
+        .attr("transform", "translate("+(graphWidth+3)+","+y(graphData[0].High)+")")
+        .attr("dy", ".35em")
+        .attr("text-anchor", "start")
+        .style("fill", "green")
+        .text("Shivalik");
+    };
+draw(graphData);
+</script>
 
 {%endblock%}
 
