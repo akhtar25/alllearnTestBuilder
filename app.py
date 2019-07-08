@@ -412,7 +412,7 @@ def classCon():
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
         
         qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A') 
+        qsection=request.args.get('section','A')
 
         #db query
 
@@ -866,18 +866,6 @@ def search():
         posts=posts,
         next_url=next_url,
         prev_url=prev_url,School_Name=school_name())
-
-
-
-
-
-
-
-
-#if __name__=='__main__':
-#    app.debug=True
-#    app.run()
-
 
 
 if __name__=="__main__":
