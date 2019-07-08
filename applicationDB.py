@@ -443,6 +443,7 @@ class EventDetail(db.Model):
     event_start =  db.Column(db.DateTime,nullable=True)
     event_end = db.Column(db.DateTime,nullable=True)
     event_category = db.Column(db.String(20), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
