@@ -230,6 +230,8 @@ def index():
     #####Fetch Top Students infor##########
 
     #####Fetch Event data##########
+        EventDetailRows = EventDetail.query.filter_by(school_id=school_name_val).all()
+    
 
     #####Fetch Course Completion infor##########
 
