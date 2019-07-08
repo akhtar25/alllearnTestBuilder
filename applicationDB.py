@@ -438,9 +438,11 @@ class EventDetail(db.Model):
     __tablename__ = "event_detail"
     event_id = db.Column(db.Integer,primary_key=True)
     event_name =  db.Column(db.String(120),nullable=True)
-    event_duration_hours =  db.Column(db.Integer,nullable=True)
-    date =  db.Column(db.DateTime,nullable=True)
-    event_color =  db.Column(db.DateTime,nullable=True)
+    event_duration =  db.Column(db.String(10),nullable=True)
+    event_date =  db.Column(db.DateTime,nullable=True)
+    event_start =  db.Column(db.DateTime,nullable=True)
+    event_end = db.Column(db.DateTime,nullable=True)
+    event_category = db.Column(db.String(20), nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
