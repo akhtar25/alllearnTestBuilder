@@ -149,3 +149,17 @@ class addEventForm(FlaskForm):
     startDate = DateField('Start Date', format='%d/%m/%Y')
     endDate = DateField('End Date', format='%d/%m/%Y')
     category = StringField('Category', validators=[Length(max=100)])
+
+class SingleStudentRegistration(FlaskForm):
+    roll_number = StringField('Roll Number', validators=[Length(max=100)])
+    fist_name = StringField('First Name', validators=[Length(max=100)])
+    last_name = StringField('Last Name', validators=[Length(max=100)])
+    class_val = StringField('Class', validators=[Length(max=100)])
+    birthdate = DateField('Birth Date', format='%d/%m/%Y')
+    address = StringField('Addess', validators=[Length(max=100)])
+    section = StringField('Section', validators=[Length(max=100)])
+    profilePicture = StringField('Profile Picture', validators=[Length(max=100)])
+    guardian_name = StringField('Guardian Name', validators=[Length(max=100)])
+    guardian_email = StringField('Guardian Email ', validators=[Length(max=100)])
+    guardian_phone = StringField('Guardian Phone', validators=[Length(max=100)])
+    relation = StringField('Relation',choices=[(c, c) for c in ['Father', 'Mother', 'Other']])    

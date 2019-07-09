@@ -1,0 +1,266 @@
+<h4>Upload a file </h4>
+<!--{{ form.hidden_tag() }}-->
+      
+        <div class="form-group " style="padding-top:5px;">
+                <div class="row">
+                        <div class="col-sm-3">
+                                <div style="width:250px;">
+                                        {{ form.class_val.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.class_val.errors %}
+                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.class_val.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.class_val(class='form-control') }}
+                                        {% endif %}
+                                </div>
+                        </div>
+                        <div class="col-sm-2">
+                                <div style="width:150px;" >
+                                                {{ form.subject_name.label(class='labelsize') }}
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                </div>
+                                        <br>
+                                                {% if form.subject_name.errors %}
+                                                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                {% for error in form.subject_name.errors %}
+                                                 <span>{{ error }}</span>
+                                                {% endfor %}
+                                        </div>
+                                                {% else %}
+                                                {{ form.subject_name(class='form-control') }}
+                                                {% endif %}
+    
+                                                
+                                </div>
+                        </div>
+    
+                        <div class="col-sm-2">
+                            <div style="width:150px;" >
+                                            {{ form.topics.label(class='labelsize') }}
+                                            <div id='loader'style='display: none; float: right;'>
+                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                            </div>
+                                    <br>
+                                            {% if form.topics.errors %}
+                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                            {% for error in form.topics.errors %}
+                                             <span>{{ error }}</span>
+                                            {% endfor %}
+                                    </div>
+                                            {% else %}
+                                            {{ form.topics(class='form-control') }}
+                                            {% endif %}
+    
+                                            
+                            </div>
+                    </div>
+                    </div>
+
+
+<input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
+
+<!--<div class="container">
+    <div class="table-responsive">
+     <h1 align="center">CSV File to HTML Table Using AJAX jQuery</h1>
+     <br />
+     <div align="center">
+      <button type="button" name="load_data" id="load_data" class="btn btn-info">Load Data</button>
+     </div>
+     <br />-->
+     <div class="container" style="overflow-y: auto; height:500px;">
+     <div id="employee_table">
+     </div>
+    </div>
+    <!--</div>
+   </div>-->
+  
+ 
+ <script>
+   var class_select = document.getElementById("class_val");
+    var subject_select = document.getElementById("subject_name");
+    var topic_select = document.getElementById("topics");
+    class_select.onchange = function()  {
+         
+        class_val = class_select.value;
+        $("#loader").show();
+        
+        fetch('/questionBuilder/' + class_val).then(function(response) {
+            response.json().then(function(data) {
+                    $("#loader").hide();    
+                    var optionHTML = '';
+                    for (var subject of data.subjects) {
+                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                }
+                subject_select.innerHTML = optionHTML;
+            })
+            
+        });
+    }
+
+         subject_select.onclick=function()  {
+         
+         subject_id = subject_select.value;
+         $("#loader").show();
+         
+         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }
+
+
+//$(document).ready(function(){
+  //$('#file-input').click(function(){
+    $( document ).ready(function() {
+      $('#file-input').change(function () {
+
+    var rdr = new FileReader();
+    rdr.onload = function (e) {
+      //get the rows into an array
+      var employee_data = e.target.result.split(/\r?\n|\r/);
+
+
+   
+     //var employee_data = data.split(/\r?\n|\r/);
+     var table_data = '<table class="table table-bordered table-striped">';
+     for(var count = 0; count<employee_data.length; count++)
+     {
+      var cell_data = employee_data[count].split(",");
+      table_data += '<tr>';
+      for(var cell_count=0; cell_count<cell_data.length; cell_count++)
+      { if(cell_count==0 || cell_count==1 || cell_count==2 || cell_count==6 || cell_count==9 || cell_count==4)
+      {
+        continue
+      }
+      else{
+       if(count === 0)
+       {
+        table_data += '<th>'+cell_data[cell_count]+'</th>';
+       }
+       else
+       {
+        table_data += '<td>'+cell_data[cell_count]+'</td>';
+        
+       }
+      }
+      }
+      if( count!=0){
+        count1=count.toString();
+      table_data+='<td><input type="file"'+'id="'+count1+'"'+ 'name="'+count1+'"'+ 'onchange="initUpload(this);" style="height: 30px;"></td> <input type="hidden" value=""'+'id= "reference-url'+count1+'"'+'name="reference-url'+count1+'">';}
+      //<input type="hidden"'+'id= "reference-url'+count+'"'+'name="reference-url'+count+'">'
+      else {
+         table_data+='<th>Attach references</th>';
+     }
+      table_data += '</tr>';
+     }
+     
+     table_data += '</table>';
+
+     table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
+     $('#employee_table').html(table_data);
+  }
+  rdr.readAsText($("#file-input")[0].files[0]);
+});
+});
+
+  var button_id=0
+/*
+      Function to carry out the actual POST request to S3 using the signed request from the Python app.
+    */
+    function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      //alert("the url being posted" + s3Data.url);
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            alert('Uploaded')
+            reference_name='reference-url'+button_id
+            document.getElementById(reference_name).value = url;
+            alert( document.getElementById(reference_name).value)
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+     
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+           
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            //document.getElementsByName('reference-url').value = response.url;
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    
+    function initUpload(element){
+      button_id=element.id
+      alert(button_id)
+      const files = document.getElementById(button_id).files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
+    /*
+       Bind listeners when the page loads.
+   
+    (() => {
+      document.getElementById('attached').onchange = initUpload;
+    })();
+     */
+
+ </script>

@@ -166,6 +166,12 @@ def schoolRegistration():
     return render_template('schoolRegistration.html', form=form, form1=form1)
 
 
+@app.route('/studentRegistration', methods=['GET','POST'])
+def studentRegistration():
+    form = SchoolRegistrationForm()
+    form1 = PaymentDetailsForm()
+    return render_template('studentRegistration.html', form=form, form1=form1)
+
 
 '''camera section'''
 
