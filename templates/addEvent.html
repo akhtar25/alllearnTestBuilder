@@ -1,0 +1,57 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container">
+    <div class="row">
+    <div class='col s12 m6 offset-m3 z-depth-3 grey lighten-5'>
+<h3 style="color:Green">Add Event</h3>
+<form action="" method="post">
+         
+    {{ form.hidden_tag() }}
+    <p>
+       {{ form.eventName.label }}
+        <br> {{ form.eventName(size=32) }}
+        <br> {% for error in form.eventName.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.eventDate.label }}
+        <br> {{ form.eventDate(size=64) }}
+        <br> {% for error in form.eventDate.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.duration.label }}
+        <br> {{ form.duration(size=32) }}
+        <br> {% for error in form.duration.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.startDate.label }}
+        <br> {{ form.startDate }}
+        <br> {% for error in form.startDate.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.endDate.label }}
+        <br> {{ form.endDate }}
+        <br> {% for error in form.endDate.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.category.label }}
+        <br> {{ form.category }}
+        <br> {% for error in form.category.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        </p>
+        <p><button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Submit</button></p>  
+</form>
+</div>
+</div>
+</div>
+{% endblock %}

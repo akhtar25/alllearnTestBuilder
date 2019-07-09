@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, SchoolRegistrationForm, PaymentDetailsForm, addEventForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -158,6 +158,15 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password_page.html', form=form)
 
+
+@app.route('/schoolRegistration', methods=['GET','POST'])
+def schoolRegistration():
+    form = SchoolRegistrationForm()
+    form1 = PaymentDetailsForm()
+    return render_template('schoolRegistration.html', form=form, form1=form1)
+
+
+
 '''camera section'''
 
 @app.route('/video_feed')
@@ -227,10 +236,12 @@ def index():
         chart_data = df.to_dict(orient='records')
         chart_data = json.dumps(chart_data, indent=2)
         data = {'chart_data': chart_data}
-    #####Fetch Top Students infor##########
+    #####Fetch Top Students infor##########        
+        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",10)"
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
 
     #####Fetch Event data##########
-        EventDetailRows = EventDetail.query.filter_by(school_id=school_name_val).all()
+        EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
 
     #####Fetch Course Completion infor##########
@@ -239,7 +250,7 @@ def index():
         topicToCoverQuery = "select *from vw_topic_tracker_overall"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')
@@ -831,6 +842,11 @@ def section(class_val):
     return jsonify({'sections' : sectionArray})
 
 
+@app.route('/addEvent')
+@login_required
+def addEvent():
+    form = addEventForm()
+    return render_template('addEvent.html', form=form)
 
 @app.route('/studentProfile')
 @login_required
