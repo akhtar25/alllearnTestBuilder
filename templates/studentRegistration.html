@@ -34,7 +34,7 @@
     upload_type1.onchange=function(){
         $(function(){
             $.ajax({
-                  url: "/_singleStudReg",
+                  url: "/singleStudReg",
                   type: "get",
                   success: function(response) {
                     $("#new").show(); 
@@ -52,7 +52,7 @@
        
         $(function(){
             $.ajax({
-                  url: "/_bulkStudReg",
+                  url: "/bulkStudReg",
                   type: "get",
                   success: function(response) {
                     $("#new").show(); 

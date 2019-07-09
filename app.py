@@ -160,10 +160,17 @@ def reset_password(token):
 
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
-def schoolRegistration():
-    form = SchoolRegistrationForm()
-    form1 = PaymentDetailsForm()
-    return render_template('schoolRegistration.html', form=form, form1=form1)
+def schoolRegistration():   
+    return render_template('schoolRegistration.html')
+
+@app.route('/bulkStudReg')
+def bulkStudReg():
+    return render_template('_bulkStudReg.html')
+
+
+@app.route('/singleStudReg')
+def singleStudReg():
+    return render_template('_singleStudReg.html')
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
