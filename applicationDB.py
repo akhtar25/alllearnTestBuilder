@@ -191,9 +191,9 @@ class TopicTracker(db.Model):
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #last_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     is_covered = db.Column(db.String(1), nullable=True) # this will only contain Y or N values
-    cover_Date = db.Column(db.DateTime, nullable=True)
+    #cover_Date = db.Column(db.DateTime, nullable=True)
     next_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)        
-    last_modified_Date=db.Column(db.DateTime)
+    last_modified_date=db.Column(db.DateTime)
 
 
 class BookDetails(db.Model):
