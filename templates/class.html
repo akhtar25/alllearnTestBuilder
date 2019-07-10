@@ -72,7 +72,7 @@
                 $('#classTrackerDiv').hide(); 
                 var data="";
                 $.ajax({
-                  url: "/topicList?class_sec_id="+ {{selectedClassSection.class_sec_id}} +"&subject_id="+ $('#courseDetailsButton').attr('name'),
+                  url: "/topicList?class_sec_id="+ {{class_sec_id}} +"&subject_id="+ $('#courseDetailsButton').attr('name'),
                   type: "get",
                   data: data,
                   success: function(response) {

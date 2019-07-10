@@ -458,7 +458,7 @@ def classCon():
         topicTrackerQuery = topicTrackerQuery +"group by t1.subject_id, t2.description, c1.total_topics" 
         topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
 
-        courseDetailQuery = "select t1.*,  t2.description as subject from topic_ t1, message_detail t2 "
+        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
