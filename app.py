@@ -376,6 +376,9 @@ def feeManagement():
 @app.route('/testBuilder')
 @login_required
 def testBuilder():
+    
+
+
     return render_template('testBuilder.html')
 
 @app.route('/testPapers')
@@ -431,7 +434,7 @@ def classCon():
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
 
-        print(courseDetails)
+       # print(courseDetails)
 
         #endOfQueries
 
