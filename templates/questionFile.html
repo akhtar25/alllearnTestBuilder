@@ -92,7 +92,7 @@
     class_select.onchange = function()  {
          
         class_val = class_select.value;
-        $("#loader").show();
+        $("#loader1").show();
         
         fetch('/questionBuilder/' + class_val).then(function(response) {
             response.json().then(function(data) {
@@ -107,7 +107,7 @@
         });
     }
 
-         subject_select.onclick=function()  {
+         subject_select.onchange=function()  {
          
          subject_id = subject_select.value;
          $("#loader2").show();
