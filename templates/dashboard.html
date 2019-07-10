@@ -23,19 +23,25 @@
       </div>
       <div class="row">
           <section class="col-lg-7 connectedSortable" style="padding-top:5px;" >
-              <div class="row-md-8" style="overflow-y:auto; height:400px;">            
+              <div class="row-md-8" style="overflow-y:auto;">            
                 <p class="text-center">
                   <h4 class="box-title">Course Completion</h4>
                 </p>
+                {% if topicToCoverDetails|length >0  %}    
                 {% for topicCountRow in topicToCoverDetails %}         
                 <div class="progress-group">
-                  <span class="progress-text">Class: {{topicCountRow.CLASS}} - {{topicCountRow.SECTION}}</span>
-                  <span class="progress-number"><b>{{topicCountRow.TOTALTOPICS}}</b>/200</span>
+                  <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
+                  <span class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
                   <div class="progress sm">               
-                    <div class="progress-bar progress-bar-green" style="width: 50%"></div>
+                    {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
+                    <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
                   </div>
                 </div>  
-                {% endfor %}                  
+                {% endfor %}                
+                {% else %}
+                <h2 class="grey-text lighten-3">No Data yet </h2>
+                {% endif %}
+
                 <!-- /.progress-group -->
               </div>
             </section>  
@@ -47,6 +53,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body no-padding">
+                  {% if topStudentsRows|length >0  %}                  
                   <ul class="users-list clearfix">
                     {% for topRow in topStudentsRows %}
                     <li>
@@ -55,6 +62,9 @@
                     </li>
                     {%  endfor %}
                   </ul>
+                  {% else %}
+                  <h2 class="grey-text lighten-3">No Data yet </h2>
+                  {% endif %}
                   <!-- /.users-list -->
                 </div>
                 <!-- /.box-body -->
@@ -64,14 +74,14 @@
                 <!-- /.box-footer -->
               </div>              
           <!-- /.box -->          
-
         </section> 
       </div>
       <div class="row" >          
         <!-- right col -->
       </div>
-      <div class="row" style="overflow-y: auto;">
+      <div class="row">
         <section class="col-lg-12 connectedSortable" >
+                  
         <div class="box box-info">
           <div class="box-header with-border">
             <h3 class="box-title">Upcoming Tests and Events</h3>
@@ -79,7 +89,7 @@
           <!-- /.box-header -->
           <div class="box-body">
             <div>
-            <div class="table-responsive">
+            <div class="table-responsive"  style="overflow: auto;height:300px;">
               <table class="table no-margin">
                 <thead>
                 <tr>
@@ -102,17 +112,24 @@
                   <td>
                       {{eventRow.event_category}}
                   </td>                  
-                </tr>                   
-                {% endfor %}          
+                </tr>               
+                {% endfor %}   
+                       
                 </tbody>
               </table>
-              <div class="box-footer text-right">
-                  <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
-                </div>
+              
             </div>
+         
           </div>
-          </div>          
+         
+          </div> 
+               
         </div>
+        
+      
+      <div class="box-footer text-right">
+          <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
+        </div> 
 </section>
       </div>
     </section>

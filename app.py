@@ -252,15 +252,13 @@ def index():
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",10)"
         topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-
+        print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
 
-    #####Fetch Course Completion infor##########
-
-    #####Fetch Topic to Cover today info##########
-        topicToCoverQuery = "select *from vw_topic_tracker_overall"
+    #####Fetch Course Completion infor##########    
+        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         print(topicToCoverDetails)
         return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
@@ -445,14 +443,22 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
 
-        classTrackerQuery = "select t1.subject_id as sid, t3.description as subject, t1.next_topic as tid, t2.topic_name as topic, t2.chapter_name, t1.class_sec_id, t4.section, t4.class_val, t4.school_id "
-        classTrackerQuery =classTrackerQuery + "from topic_tracker t1, topic_detail t2, message_detail t3, class_section t4   "
-        classTrackerQuery =classTrackerQuery + "where t1.next_topic=t2.topic_id and  t2.subject_id=t3.msg_id and  t1.class_sec_id=t4.class_sec_id   "
-        classTrackerQuery =classTrackerQuery + "and t4.class_val= " + str(qclass_val) + " and t4.section = '" + str(qsection) + "' and t4.school_id =" + str(teacher.school_id)
-        classTrackerDetails = db.session.execute(text(classTrackerQuery)).fetchall()
+        selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
-        #courseDetail = Topic.query.join(Topic,subject_id==MessageDetails.msg_id).filter_by(class_val=ClassSection.class_val).all()
-        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
+        topicTrackerQuery = "with cte_total_topics as "
+        topicTrackerQuery = topicTrackerQuery +" (select subject_id, count(subject_id) as total_topics from topic_tracker where class_sec_id = '"+ str(selectedClassSection.class_sec_id)+"' group by subject_id) "
+        topicTrackerQuery = topicTrackerQuery +"select t1.subject_id, t2.description, count(t1.subject_id) as topics_covered, c1.total_topics, max(t1.last_modified_Date) as last_updated_date "
+        topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1 "
+        topicTrackerQuery = topicTrackerQuery +"inner join  "
+        topicTrackerQuery = topicTrackerQuery +"message_detail t2 on  "
+        topicTrackerQuery = topicTrackerQuery +"t1.subject_id=t2.msg_id "
+        topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y' "
+        topicTrackerQuery = topicTrackerQuery +"inner join cte_total_topics c1 "
+        topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id where class_sec_id= '"+ str(selectedClassSection.class_sec_id)+"' "
+        topicTrackerQuery = topicTrackerQuery +"group by t1.subject_id, t2.description, c1.total_topics" 
+        topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
+
+        courseDetailQuery = "select t1.*,  t2.description as subject from topic_ t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
@@ -462,9 +468,24 @@ def classCon():
         #endOfQueries
 
         #print(classTrackerDetails)
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails,School_Name=school_name())
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
+
+@app.route('/topicList')
+def topicList():
+    class_sec_id = request.args.get('class_sec_id','A')
+    subject_id = request.args.get('subject_id','15')
+    #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
+    topicListQuery = "select t1.subject_id, t3.description as subject_name,  t2.topic_name, "
+    topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
+    topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+    topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
+    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
+    topicListQuery = topicListQuery + "where subject_id = '" + subject_id+"' and class_sec_id='" +class_sec_id+"'"
+    topicList= db.session.execute(text(topicListQuery)).fetchall()
+
+    return render_template('_topicList.html', topicList=topicList)
 
 @app.route('/classDelivery')
 @login_required
@@ -475,7 +496,8 @@ def classDelivery():
         
         qclass_val = request.args.get('class_val',1)
         qsection=request.args.get('section','A') 
-        qsubject_id=request.args.get('subject_id','15')
+        qtopic_id=request.args.get('topic_id')
+        qsubject_id=request.args.get('subject_id')
 
         #db query 
             #sidebar
@@ -487,7 +509,7 @@ def classDelivery():
         print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
         topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
         #print ("this is topic Track: " + topicTrack)
-        topicDet = Topic.query.filter_by(topic_id=topicTrack.next_topic).first()
+        topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
@@ -559,8 +581,7 @@ def loadQuestion():
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
     for option in questionOp:
         print(option.option_desc)
-    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )
-
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
@@ -855,10 +876,16 @@ def section(class_val):
     return jsonify({'sections' : sectionArray})
 
 
-@app.route('/addEvent')
+@app.route('/addEvent', methods = ["GET","POST"])
 @login_required
-def addEvent():
+def addEvent():        
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form = addEventForm()
+    if form.validate_on_submit():
+        dataForEntry = EventDetail(event_name=form.eventName.data, event_duration=form.duration.data,event_date=form.eventDate.data,event_start=form.startDate.data,event_end=form.endDate.data,event_category=form.category.data,school_id=teacher_id.school_id, last_modified_date=datetime.today())                
+        db.session.add(dataForEntry)
+        db.session.commit()
+        flash('Event Added!')
     return render_template('addEvent.html', form=form)
 
 @app.route('/studentProfile')

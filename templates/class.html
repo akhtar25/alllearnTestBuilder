@@ -43,80 +43,51 @@
                         <tr>
                           <th>Subject</th>
                           <th>Topic Coverage</th>
-                          <th>Last Updated </th>                          
-                          <th> &nbsp; &nbsp; &nbsp; See All Topics</th>                         
+                          <th>Last Updated </th>
+                          <th> &nbsp; &nbsp; &nbsp; See Topics</th>                         
                         </tr>
                         {% for topicrow in classTrackerDetails %}
                         <tr style="margin-top:5px;">
                           <td>{{ topicrow.subject }}</td>
                           <td>10%</td>     
                           <td>10/12/2019</td>                                       
-                          <td><a class="btn green lighten-1" id="courseDetailsButton" href="#">See All Topics</a></td>                          
+                          <td><button class="btn green lighten-1" id="courseDetailsButton" name="{{subject_id}}">See Topics</button><span style="display: none;" name="subjectIdSpan"></span></td>
                         </tr>
                         {% endfor %}                        
                       </table>
                     </div>
                     <!-- /.box-body -->
                   </div>
-                </div>
-                  <div id="completeCourseDetailsDiv">
-
-                      <div class="box-header">
-                          <h3 class="box-title">Curriculum details for Class: {{ qclass_val }}</h3>                                      
-                        </div>
-
-                  <div class="box-body  no-padding table-responsive">
-                
-                      <div class="switch pull-right">
-                          <label>
-                            Show Covered
-                            <input type="checkbox">
-                            <span class="lever"></span>
-                            Hide Covered
-                          </label>
-                          </div>
-                    <table class="table table-hover">
-                      <tr>
-                        <th>Subject</th>
-                        <th>Book</th>
-                        <th>Unit</th>
-                        <th>Chapter</th>
-                        <th>Topic</th>
-                        <th>Covered</th>
-                        <th>Class Average</th>
-                        <th> &nbsp; &nbsp; &nbsp; Start Class</th>
-                       
-                      </tr>
-                      {% if courseDetails!="" %}
-                      {% for row in courseDetails %}
-                      <tr>
-                        <td>{{row.subject}}</td>
-                        <td>{{row.subject}} book</td>
-                        <td>{{row.unit_num}}</td>
-                        <td>{{row.chapter_num}}</td>
-                        <td>{{row.topic_name}}</td>
-                        <td>N</td>
-                        <td>-</td>
-                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_val=qclass_val, section=qsection, subject_id=1)}}"><span class=" label label-success ">Start Class</span></a></td>                                               
-                      </tr>
-                      {% endfor %}
-                      {% else %}
-                      <p>No data found in DB</p>
-                      {% endif %}
-                    </table>
-                  </div>
-                    <button class="btn pull-right green lighten-1" id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button>
-                  </div>
+                  <div id="completeCourseDetailsDiv"></div>
+                </div>                  
                   <!-- /.box -->                              
         </div>
     </section>
 </div>
-
-
-
 </div>
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
-
+<script>
+ $("#courseDetailsButton").click(function(){    
+                $('#classTrackerDiv').hide(); 
+                var data="";
+                $.ajax({
+                  url: "/topicList?class_sec_id="+ {{selectedClassSection.class_sec_id}} +"&subject_id="+ $('#courseDetailsButton').attr('name'),
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                    $("#completeCourseDetailsDiv").html(response);                     
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });             
+            });</script>
+            <script>
+            $('#closeCourseDetailsButton').click(function(){    
+    $('#classTrackerDiv').show();
+    $('#completeCourseDetailsDiv').hide();
+})
+            </script>
 
 {%endblock%}

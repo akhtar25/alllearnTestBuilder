@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired
 from applicationDB import User,TestDetails
 from flask import request
+from wtforms.fields.html5 import DateField
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -144,10 +145,10 @@ class PaymentDetailsForm(FlaskForm):
 
 class addEventForm(FlaskForm):
     eventName  = StringField('Event Name', validators=[Length(max=100)])
-    eventDate  = DateField('Event Date', format='%d/%m/%Y')
+    eventDate  = DateField('Event Date')
     duration = StringField('Duration', validators=[Length(max=50)])
-    startDate = DateField('Start Date', format='%d/%m/%Y')
-    endDate = DateField('End Date', format='%d/%m/%Y')
+    startDate = DateField('Start Date')
+    endDate = DateField('End Date')
     category = StringField('Category', validators=[Length(max=100)])
 
 class SingleStudentRegistration(FlaskForm):

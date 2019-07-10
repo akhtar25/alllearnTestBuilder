@@ -16,7 +16,7 @@
     </p>
     <p>
         {{ form.eventDate.label }}
-        <br> {{ form.eventDate(size=64) }}
+        <br> {{ form.eventDate(class=datepicker) }}
         <br> {% for error in form.eventDate.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -30,14 +30,14 @@
     </p>
     <p>
         {{ form.startDate.label }}
-        <br> {{ form.startDate }}
+        <br> {{ form.startDate(class=datepicker) }}
         <br> {% for error in form.startDate.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
     <p>
         {{ form.endDate.label }}
-        <br> {{ form.endDate }}
+        <br> {{ form.endDate(class=datepicker) }}
         <br> {% for error in form.endDate.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -54,4 +54,9 @@
 </div>
 </div>
 </div>
+<script>
+  $(document).ready(function(){
+    $('.datepicker').datepicker();
+  });
+         </script>
 {% endblock %}
