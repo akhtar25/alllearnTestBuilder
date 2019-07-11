@@ -5,9 +5,11 @@
             Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>             
     </label>
     <h3>Q: {{ question.question_description }}</h3>
-<aside class="right">
+    {%if question.reference_link !=None %}
+<aside class="right">    
     <img src="{{ question.reference_link }}" height="300px" width="300px">
 </aside>
+{% endif %}
  
  <br>
  <ul>

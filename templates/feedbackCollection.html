@@ -153,6 +153,7 @@
 
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
         <script>
+          var subject_id = {{subject_id}};
               var questionIDListJS = [];
               {%  for question in questionList%}              
               questionIDListJS.push({{question.question_id}});
@@ -204,7 +205,8 @@
                   type: "get",
                   data: {question_id: questionIDListStr,
                         class_val: class_val,
-                        section: section},                  
+                        section: section,
+                         subject_id:subject_id},
                   success: function(response) {
                     $("#feedbackReportDiv").show(); 
                     $("#feedbackReportDiv").html(response);        

@@ -43,23 +43,29 @@
                         <tr>
                           <th>Subject</th>
                           <th>Topic Coverage</th>
+                          <th>Total Topics</th>
                           <th>Last Updated </th>
                           <th> &nbsp; &nbsp; &nbsp; See Topics</th>                         
                         </tr>
-                        {% for topicrow in classTrackerDetails %}
+                        {% for eachRow in topicRows%}
                         <tr style="margin-top:5px;">
-                          <td>{{ topicrow.subject }}</td>
-                          <td>10%</td>     
-                          <td>10/12/2019</td>                                       
-                          <td><button class="btn green lighten-1" id="courseDetailsButton" name="{{subject_id}}">See Topics</button><span style="display: none;" name="subjectIdSpan"></span></td>
+                          <td>{{eachRow.subject_name}}</td>
+                          <td>{{eachRow.topics_covered}}</td>     
+                          <td>{{eachRow.total_topics}}</td>     
+                          <td>{{eachRow.last_updated_date}}</td>                                       
+                          <td><button class="courseDetailsButton btn green lighten-1" id="courseDetailsButton" name="{{eachRow.subject_id}}">See Topics</button><span style="display: none;" name="subjectIdSpan"></span></td>
                         </tr>
-                        {% endfor %}                        
+                             {% endfor %}
                       </table>
                     </div>
                     <!-- /.box-body -->
                   </div>
+                  
                   <div id="completeCourseDetailsDiv"></div>
-                </div>                  
+                  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+                </div>               
+                
+                <div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>   
                   <!-- /.box -->                              
         </div>
     </section>
@@ -68,26 +74,44 @@
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
- $("#courseDetailsButton").click(function(){    
-                $('#classTrackerDiv').hide(); 
+  $('.courseDetailsButton').click(function(){
+                $('#loaderDiv').show();
+                $('#classTrackerDiv').hide();                 
+                
+                var subject_id_val = $(this).attr('name');
+                console.log(subject_id_val);
                 var data="";
                 $.ajax({
-                  url: "/topicList?class_sec_id="+ {{class_sec_id}} +"&subject_id="+ $('#courseDetailsButton').attr('name'),
+                  url: "/topicList?class_sec_id="+ {{class_sec_id}} +"&subject_id="+ subject_id_val,
                   type: "get",
                   data: data,
                   success: function(response) {
-                    $("#completeCourseDetailsDiv").html(response);                     
+                    $("#completeCourseDetailsDiv").html(response);    
+                    $('#completeCourseDetailsDiv').show();   
+                    $('#backButton').show();   
+                    $('#loaderDiv').hide();                   
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");
                   }
-                });             
-            });</script>
+                });      
+                       
+            });
+            
+            </script>
             <script>
             $('#closeCourseDetailsButton').click(function(){    
     $('#classTrackerDiv').show();
     $('#completeCourseDetailsDiv').hide();
 })
+            </script>
+            <script>
+              $('#backButton').click(function(){
+                $('#backButton').hide();
+                $('#classTrackerDiv').show(); 
+                $('#completeCourseDetailsDiv').html('');
+                $('#completeCourseDetailsDiv').hide();
+              })
             </script>
 
 {%endblock%}
