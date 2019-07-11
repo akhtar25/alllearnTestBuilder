@@ -1,0 +1,16 @@
+{% if questions %}
+<h3>Select questions</h3>
+<div class="container "style="overflow-y: auto; height:300px;">
+{% for q in questions %}
+{% for question in q %}
+<label  for="{{ question.question_id }}">
+<input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox" value="{{ question.question_id }}"><span style="font-size:14px;">{{ question.question_description }}</span>
+</label>
+<br>
+{% endfor %}
+{% endfor %}
+</div>
+<p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text" onclick="questionFile(); ">Submit</button></p>
+
+
+{% endif %}
