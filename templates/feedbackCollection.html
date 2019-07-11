@@ -2,12 +2,9 @@
 <div class="container" height=100% >
         
     
-    <div class="skin-blue sidebar-mini">
-        
-    
+    <div class="skin-blue sidebar-mini">            
         <aside class="main-sidebar" style="margin-top:15px;">
-            <!-- sidebar: style can be found in sidebar.less -->
-            
+            <!-- sidebar: style can be found in sidebar.less -->            
             <section class="sidebar">                     
               <ul class="sidebar-menu" data-widget="tree">
                   {% for singleClass in distinctClasses %}
@@ -25,18 +22,12 @@
                              <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
                               {% endif %}
                              {% endfor %}
-                           </ul>
-                                                      
+                           </ul>                                                      
                          </li>
                          {% endfor %}                
-         <ul>
-         
-         
-        </section>
-                
-            </aside>
-        
-        
+         <ul>                  
+        </section>                
+            </aside>                
             <!--------------------------------------------------------------------------------------------->
             <div class="content-wrapper" style="background-color: white;">
     <section class="content">
@@ -45,90 +36,59 @@
                 <div class="col-xs-8"  >
                   <div class="box" id="feedbackQuestionDiv">
                     <div class="box-header" >
-                      <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>        
-                      
-                    </div>
-                    
-                       
+                      <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>                              
+                    </div>                                           
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
                     <input id="current_question_id" style="display: none;">
                     <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
                     <input id="section_ip" style="display: none;"type="text" value="{{section}}">
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
-
                     <div id = "questionSection">        
                       <div id="questionPlaceholder">
                         <br>
                         <br>
                         <br>
-                        
+                        {% if questionList|length > 0 %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>
-                    </div>
-                    </div>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+                      <br><br><br><br><br><br><br><br>
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">
-                    <input type="button" value="Take Response" class="btn green btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">
-                  
-                      
-                      <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">
-                
-                 
+                      {%else %}
+                      <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
+                      {% endif %}
+                    </div>
+                    </div>                    
+                    <input type="button" value="Take Response" class="btn green btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">                                        
+                      <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
-
-                  <div  class="box" id="feedbackReportDiv" style="display: none;">
-
-                  
-                  </div>
-                
-                </div>
-                
-
+                  <div  class="box" id="feedbackReportDiv" style="display: none;">                  
+                  </div>                
+                </div>              
                   <div class="col-md-3" style="margin-top:20px;">
-                    <div id="answerCounter" style="overflow-y: auto; height:200px;">
-                      
+                    <div id="answerCounter" style="overflow-y: auto; height:200px;">                      
                     <h4>Response Summary</h4> 
-                    <div id="ResponseList">
-                
+                    <div id="ResponseList">                
                         <form id="responseForm">
                     <div id="result_strip">
                         <ul class="thumbnails"></ul>
                     </div>
-                    <div id="questionListSizeDiv">
-                      
+                    <div id="questionListSizeDiv">                      
                       </div>
                     </form>
                     </div>
-                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>
-                    
-                </div>
-                
-                <div style="background-color:white; height: 250; width:350px;">
-                
-        
-               <div class="video-field" id="video-field">
-                
+                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
+                </div>                
+                <div style="background-color:white; height: 250; width:350px;">                        
+               <div class="video-field" id="video-field">                
                 <div class="select">
                     <label for="videoSource"></label><select id="videoSource"></select>
                 </div>
-                <video id="video" muted autoplay></video>
-             
-             
-            </div>
-            
-                  </div>
-              
+                <video id="video" muted autoplay></video>                         
+            </div>            
+                  </div>            
                 </div>
               </div>
-        </div>
-        
+        </div>        
     </section>
 </div>
     </div>
@@ -137,20 +97,11 @@
         <div id="container">            
             <div class="">
                 <label for="audioSource"></label><select id="audioSource"></select>
-            </div>
-            
-
-
-
+            </div>            
             <canvas id="canvas" class="drawingBuffer" style="display:none !important"></canvas><br clear="all">
-
         </div>
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-
-         
-            
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>                     
         </div>
-
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
         <script>
           var subject_id = {{subject_id}};
@@ -158,13 +109,10 @@
               {%  for question in questionList%}              
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
-
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
-
             $("#startAndNextBTN").click(function(){
               keepRecording = true;   
-
                 if(tempCountVar<questionListSize){
                   $('#current_question_id').val(questionIDListJS[tempCountVar]); 
                 $.ajax({
@@ -190,10 +138,8 @@
                 });
               }
               else{
-
               }
             });
-
             $('#submitAndFinishBTN').click(function(){     
               var class_val = $('#class_val_ip').val();
               console.log('This is the class_val in js: ' + class_val);
@@ -222,6 +168,5 @@
             });
             </script>
             <script src="../static/js/main.js"></script>
-
 {%endblock%}
         
