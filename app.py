@@ -446,17 +446,22 @@ def classCon():
         selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
         topicTrackerQuery = "with cte_total_topics as "
-        topicTrackerQuery = topicTrackerQuery +" (select subject_id, count(subject_id) as total_topics from topic_tracker where class_sec_id = '"+ str(selectedClassSection.class_sec_id)+"' group by subject_id) "
-        topicTrackerQuery = topicTrackerQuery +"select t1.subject_id, t2.description, count(t1.subject_id) as topics_covered, c1.total_topics, max(t1.last_modified_Date) as last_updated_date "
-        topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1 "
-        topicTrackerQuery = topicTrackerQuery +"inner join  "
-        topicTrackerQuery = topicTrackerQuery +"message_detail t2 on  "
-        topicTrackerQuery = topicTrackerQuery +"t1.subject_id=t2.msg_id "
-        topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y' "
-        topicTrackerQuery = topicTrackerQuery +"inner join cte_total_topics c1 "
-        topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id where class_sec_id= '"+ str(selectedClassSection.class_sec_id)+"' "
-        topicTrackerQuery = topicTrackerQuery +"group by t1.subject_id, t2.description, c1.total_topics" 
+        topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
+        topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
+        topicTrackerQuery = topicTrackerQuery +"  from topic_tracker where class_sec_id = '"+ str(selectedClassSection.class_sec_id)+"' group by subject_id)  "
+        topicTrackerQuery = topicTrackerQuery +"select c1.subject_id,  t2.description as subject_name, c1.last_updated_date, "
+        topicTrackerQuery = topicTrackerQuery +"CASE WHEN COUNT(t1.subject_id) <> 0 THEN COUNT(c1.subject_id) ELSE 0 END "
+        topicTrackerQuery = topicTrackerQuery +"topics_covered, c1.total_topics  "
+        topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1  "
+        topicTrackerQuery = topicTrackerQuery +"right outer join cte_total_topics c1  "
+        topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id and class_sec_id= '"+ str(selectedClassSection.class_sec_id)+"'  "
+        topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y'  "
+        topicTrackerQuery = topicTrackerQuery +"inner join   "
+        topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
+        topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
+        topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
         topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
+        print('this is the number of topicRows' + str(len(topicRows)))
 
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
@@ -474,18 +479,18 @@ def classCon():
 
 @app.route('/topicList')
 def topicList():
-    class_sec_id = request.args.get('class_sec_id','A')
+    class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
-    topicListQuery = "select t1.subject_id, t3.description as subject_name,  t2.topic_name, "
+    topicListQuery = "select t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
     topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
     topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
-    topicListQuery = topicListQuery + "where subject_id = '" + subject_id+"' and class_sec_id='" +class_sec_id+"'"
+    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"'"
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
-    return render_template('_topicList.html', topicList=topicList)
+    return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
 
 @app.route('/classDelivery')
 @login_required
@@ -493,37 +498,37 @@ def classDelivery():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-        
-        qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A') 
+
         qtopic_id=request.args.get('topic_id')
         qsubject_id=request.args.get('subject_id')
+        qclass_sec_id = request.args.get('class_sec_id')
 
         #db query 
             #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
-            # end of sidebar
-        currClass = ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section = qsection).order_by(ClassSection.class_val).first()
-        #for curr in currClass:
-        print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
-        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
+        currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()        
+            # end of sidebar        
+        #for curr in currClass:        
+        #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
         #print ("this is topic Track: " + topicTrack)
         topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
-        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id"
+        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
         topicTrackerQuery = topicTrackerQuery + " from "
         topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
         topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
         topicTrackerQuery = topicTrackerQuery + " where"
         topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
-        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(currClass.class_sec_id) + "'"
+        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
         topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+
+
         
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
+    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
 
 
 
@@ -535,6 +540,7 @@ def feedbackCollection():
         currCoveredTopics = request.form.getlist('topicCheck')
         class_val = request.form['class_val']
         section = request.form['section']
+        subject_id = request.form['subject_id']
 
         print("class val is = " + str(class_val))
         print("section  is = " + str(section))
@@ -566,7 +572,7 @@ def feedbackCollection():
         # end of  - update to mark the checked topics as completed
 
 
-        return render_template('feedbackCollection.html', classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+        return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
 
@@ -652,6 +658,7 @@ def responseDBUpdate():
 def feedbackReport():    
     questionListJson=request.args.get('question_id')
     class_val=request.args.get('class_val')
+    subject_id=request.args.get('subject_id')
     #print('here is the class_val '+ str(class_val))
     section=request.args.get('section')
     section = section.strip()
@@ -659,12 +666,12 @@ def feedbackReport():
     if (questionListJson != None) and (class_val != None) and (section != None):
 
         classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
-        print('here is the classSecRow.class_Sec_id: '+ str(classSecRow))
-        questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
+        print('here is the subject_id: '+ str(subject_id))
+        #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
                     
         dateVal= datetime.today().strftime("%d%m%Y")
 
-        responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(classSecRow.class_sec_id)
+        responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
         responseResultQuery = "WITH sum_cte AS ( "
         responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
