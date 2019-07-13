@@ -32,6 +32,7 @@ from urllib.request import urlopen,Request
 from io import StringIO
 
 
+
 app=Flask(__name__)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
@@ -406,75 +407,45 @@ def testBuilder():
 @app.route('/testBuilderQuestions',methods=['GET','POST'])
 def testBuilderQuestions():
     questions=[]
+    weightages=[]
     topicList=request.get_json()
     for topic in topicList:
         question=QuestionDetails.query.filter_by(topic_id=int(topic)).all()
         questions.append(question)
-
-    print(questions)
-
-    return render_template('testBuilderQuestions.html',questions=questions)
+    return render_template('testBuilderQuestions.html',questions=questions,weightage=weightages)
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
     question_list=request.get_json()
     print(question_list)
     document = Document()
-
-    document.add_heading(session.get('test_type_val',None), 0)
-
+    document.add_heading(school_name(), 0)
+    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
+    document.add_heading(session.get('sub_name',None),2)
     p = document.add_paragraph()
     #p.add_run('bold').bold = True
     #p.add_run(' and some ')
     #p.add_run('italic.').italic = True
-
-    document.add_heading('Class'+session.get('class_val',None), level=1)
-    document.add_heading(session.get('sub_name',None), level=2)
-
     for question in question_list:
         data=QuestionDetails.query.filter_by(question_id=int(question)).first()
-
-
         document.add_paragraph(
             data.question_description, style='List Number'
-        )      
-        if data.reference_link is not None:
-            url_value=data.reference_link
-            req = Request(url_value, headers={'User-Agent': 'Mozilla/5.0'})
-            image_from_url = urlopen(req)
-            io_url = StringIO()
-            io_url.write(string(image_from_url.read()))
-            io_url.seek(0)
-            try:
-                document.add_picture(io_url ,width=Px(150))
-            except:
-                raise('error')
+        )    
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        for option in options:
+            if option.option !='':
+                document.add_paragraph(
+                    option.option+". "+option.option_desc)     
 
+    #document.add_page_break()
+    file_name='S'+'1'+'C'+session.get('class_val',None)+session.get('sub_name',None)+session.get('test_type_val',None)+str(dt.datetime.utcnow())+'.docx'
+    document.save('tempdocx/'+file_name)
 
-    document.add_paragraph(
-        'first item in ordered list', style='List Number'
-    )
-    records = (
-        (3, '101', 'Spam'),
-        (7, '422', 'Eggs'),
-        (4, '631', 'Spam, spam, eggs, and spam')
-    )
+    client = boto3.client('s3', region_name='ap-south-1')
 
-    table = document.add_table(rows=1, cols=3)
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Qty'
-    hdr_cells[1].text = 'Id'
-    hdr_cells[2].text = 'Desc'
-    for qty, id, desc in records:
-        row_cells = table.add_row().cells
-        row_cells[0].text = str(qty)
-        row_cells[1].text = id
-        row_cells[2].text = desc
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
 
-    document.add_page_break()
-
-    document.save('demo.docx')
-    return render_template('demotest.html')
+    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
 @app.route('/testPapers')
 @login_required
