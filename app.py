@@ -410,9 +410,9 @@ def testBuilderQuestions():
     weightages=[]
     topicList=request.get_json()
     for topic in topicList:
-        question=QuestionDetails.query.filter_by(topic_id=int(topic)).all()
-        questions.append(question)
-    return render_template('testBuilderQuestions.html',questions=questions,weightage=weightages)
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questions.append(questionList)
+    return render_template('testBuilderQuestions.html',questions=questions)
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
@@ -433,7 +433,7 @@ def testBuilderFileUpload():
         )    
         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
         for option in options:
-            if option.option !='':
+            if option.description !='':
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
 
@@ -1081,6 +1081,7 @@ def school_name():
 
 if __name__=="__main__":
     app.debug=True
+    app.jinja_env.filters['zip'] = zip
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
     #app.run()

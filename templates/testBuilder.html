@@ -183,10 +183,18 @@
                   }
                 });   
 
+    }
+    var m=0
 
-
-
-
+    function calculate_marks(){
+        var select=document.getElementsByName('questionsCheckbox')
+        console.log(select)
+        var marks=document.getElementsByName(select.value+'select')
+        console.log(marks.value)
+        var box=document.getElementById('marks')
+        m=m+parseInt(marks.value)
+        m=m.toString()
+        box.innerHTML=m
     }
 
 

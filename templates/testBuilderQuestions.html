@@ -19,10 +19,10 @@
                                     <td>{{ question.question_description }}</td>
                                     <td> {{ question.question_type }} </td>
                                     <td><label  for="{{ question.question_id }}">
-                                    <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox" value="{{ question.question_id }}"><span></span>
+                                    <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox" value="{{ question.question_id }}" onchange="calculate_marks();"><span></span>
                                         </label></td>
                                     
-                                    <td>5</td>
+                                    <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}" id="{{ question.question_id }}select"></td>
                                 </tr>
                             {% endfor %}
                             {% endfor %}
@@ -30,6 +30,9 @@
             </table>
         </div>
         </div>
+
+        <div id='marks'></div>
+
 
 </div>
 <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text" onclick="questionFile(); ">Submit</button></p>
