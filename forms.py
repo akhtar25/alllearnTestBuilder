@@ -112,11 +112,8 @@ class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
     test_type=SelectField('Test Type')
+    test_date=DateField('Test Date')
     submit=SubmitField('Load Topics')
-
-    def validate_subject_name(self,subject_name):
-        if subject_name.data=='Select':
-            raise ValidationError('* Please Select a Subject')
 
 
 

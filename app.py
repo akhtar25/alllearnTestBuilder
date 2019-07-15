@@ -385,29 +385,32 @@ def feeManagement():
 def testBuilder():
     topic_list=None
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    
     form=TestBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-
+    #form.subject_name.choices=[['','']]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+   
     
     if form.validate_on_submit():
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         #return render_template('demotest.html',topics=topic_list)
         session['class_val']=form.class_val.data
-        session['date']=request.form['testdate']
+        session['date']=form.test_date.data
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
         
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
+    else:
+        if request.method=='POST':
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('testBuilder.html',form=form,School_Name=school_name())
     return render_template('testBuilder.html',form=form,School_Name=school_name())
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])
 def testBuilderQuestions():
     questions=[]
-    weightages=[]
     topicList=request.get_json()
     for topic in topicList:
         questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
@@ -417,15 +420,11 @@ def testBuilderQuestions():
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
     question_list=request.get_json()
-    print(question_list)
     document = Document()
     document.add_heading(school_name(), 0)
     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
     document.add_heading(session.get('sub_name',None),2)
     p = document.add_paragraph()
-    #p.add_run('bold').bold = True
-    #p.add_run(' and some ')
-    #p.add_run('italic.').italic = True
     for question in question_list:
         data=QuestionDetails.query.filter_by(question_id=int(question)).first()
         document.add_paragraph(
@@ -433,18 +432,14 @@ def testBuilderFileUpload():
         )    
         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
         for option in options:
-            if option.description !='':
+            if option.option_desc is not None:
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
-
     #document.add_page_break()
     file_name='S'+'1'+'C'+session.get('class_val',None)+session.get('sub_name',None)+session.get('test_type_val',None)+str(dt.datetime.utcnow())+'.docx'
     document.save('tempdocx/'+file_name)
-
     client = boto3.client('s3', region_name='ap-south-1')
-
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-
     return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
 @app.route('/testPapers')
@@ -1013,7 +1008,6 @@ def questionFile():
 
 
 #Subject list generation dynamically
-
 @app.route('/questionBuilder/<class_val>')
 def subject_list(class_val):
     subject_id=Topic.query.with_entities(Topic.subject_id).filter_by(class_val=class_val).all()
