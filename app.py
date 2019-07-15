@@ -267,16 +267,16 @@ def index():
         #print(dateRange)
         ##Class 1
         graphData = [dict(
-            data1=[dict(y=class1Data,x=dateRange,type='scatter')],
-            data2=[dict(y=class2Data,x=dateRange,type='scatter')],
-            data3=[dict(y=class3Data,x=dateRange,type='scatter')],
-            data4=[dict(y=class4Data,x=dateRange,type='scatter')],
-            data5=[dict(y=class5Data,x=dateRange,type='scatter')],
-            data6=[dict(y=class6Data,x=dateRange,type='scatter')],
-            data7=[dict(y=class7Data,x=dateRange,type='scatter')],
-            data8=[dict(y=class8Data,x=dateRange,type='scatter')],
-            data9=[dict(y=class9Data,x=dateRange,type='scatter')],
-            data10=[dict(y=class10Data,x=dateRange,type='scatter')]
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
             )]        
         #print(graphData)
 
