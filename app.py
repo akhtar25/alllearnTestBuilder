@@ -24,6 +24,7 @@ from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
 import pandas as pd
+import plotly
 
 
 app=Flask(__name__)
@@ -251,8 +252,36 @@ def index():
         df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
             5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
         print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter')]
+            )]
         
 
+        print(graphData)
+
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
 
 
         #dateRange = performanceRows.date
@@ -273,7 +302,8 @@ def index():
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         #print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
+            graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')

@@ -155,7 +155,29 @@ var trace2 = {
   type: 'scatter'
 };
 
-var data = [trace1, trace2];
+var graphData = {{graphJSON | safe}};
+console.log(graphData);
+
+for(key in graphData) {
+  //value = graphData[key].data
+  value1 = graphData[key].data1[0];
+  value2 = graphData[key].data2[0];
+  value3 = graphData[key].data3[0];
+  value4 = graphData[key].data4[0];
+  value5 = graphData[key].data5[0];
+  value6 = graphData[key].data6[0];
+  value7 = graphData[key].data7[0];
+  value8 = graphData[key].data8[0];
+  value9 = graphData[key].data9[0];
+  value10 = graphData[key].data10[0];
+  console.log('lol');
+  console.log(value1);
+  console.log(value2);
+}
+//
+//var trace3=value[0];
+
+var data = [value1, value2,value3, value4, value5, value6, value7, value8, value9, value10];
 
 Plotly.newPlot('graphDiv', data, {}, {showSendToCloud: true});
 </script>
