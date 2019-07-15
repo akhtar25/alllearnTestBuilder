@@ -80,25 +80,46 @@ class ResultQueryForm(FlaskForm):
     class_val=SelectField('Select Class')
     section=SelectField('Select Section')
     test_type=SelectField('Test Type')
-    subject_name=SelectField('Subject',choices=[(c, c) for c in ['Select','English', 'Hindi', 'Maths', 'EVS','Social Science','Computer']])
+    subject_name=SelectField('Subject')
     #submit=SubmitField('Submit')
 
-    def validate_class_val(self,class_val):
-        if class_val.data=='Select':
-            raise ValidationError('* Please Select a Class')
-    def validate_section(self,section):
-        if section.data=='Select':
-            raise ValidationError('* Please Select a Section')
-    def validate_test_type(self,test_type):
-        if test_type.data=='Select':
-            raise ValidationError('* Please Select a Test type')
-    def validate_subject_name(self,subject_name):
-        if subject_name.data=='Select':
-            raise ValidationError('* Please Select a Subject')
+    #def validate_class_val(self,class_val):
+     #   if class_val.data=='Select':
+      #      raise ValidationError('* Please Select a Class')
+    #def validate_section(self,section):
+     #   if section.data=='Select':
+      #      raise ValidationError('* Please Select a Section')
+   # def validate_test_type(self,test_type):
+    #    if test_type.data=='Select':
+     #       raise ValidationError('* Please Select a Test type')
+    #def validate_subject_name(self,subject_name):
+     #   if subject_name.data=='Select':
+      #      raise ValidationError('* Please Select a Subject')
 
 class MarksForm(FlaskForm):
     marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
     upload=SubmitField('Upload')
+
+class QuestionBuilderQueryForm(FlaskForm):
+    class_val=SelectField('Class')
+    subject_name=SelectField('Subject')
+    topics=SelectField('Topics')
+    question_desc=TextAreaField('Question')
+    option=StringField('Options')
+    reference=StringField('Reference')
+    submit=SubmitField('Confirm')
+
+class TestBuilderQueryForm(FlaskForm):
+    class_val=SelectField('Class')
+    subject_name=SelectField('Subject')
+    test_type=SelectField('Test Type')
+    submit=SubmitField('Load Topics')
+
+    def validate_subject_name(self,subject_name):
+        if subject_name.data=='Select':
+            raise ValidationError('* Please Select a Subject')
+
+
 
 
 class SchoolRegistrationForm(FlaskForm):
