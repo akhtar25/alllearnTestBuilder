@@ -355,6 +355,7 @@ class GuardianProfile(db.Model):
 class SchoolProfile(db.Model):
     __tablename__ = "school_profile"
     school_id = db.Column(db.Integer, primary_key=True)
+    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_name=db.Column(db.String(500),nullable=True)
     registered_date=db.Column(db.DateTime,nullable=True)
     org_leaving_Date=db.Column(db.DateTime,nullable=True)
