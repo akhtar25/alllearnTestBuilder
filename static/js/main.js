@@ -162,13 +162,13 @@ function handleError(error) {
   var request = "";
 ///////////////////////////////function to submit recorded data to DB //////////////////////////////
 function submitResponseData(){ 
-  current_question_id = $('#current_question_id').val();
+  var question_id = $('#questionID').val();
+  console.log('This is the current question_id');
+  console.log(question_id);
   var formdataVal =  [];
   for(var a=0;a<resultArray.length;a++){
-
-    formdataVal.push(current_question_id+':'+ resultArray[a]);
+    formdataVal.push(question_id+':'+ resultArray[a]);
     console.log("here is the new tempVar value: " + formdataVal);
-
   }
   var formData = {formdataVal};
   formData  = JSON.stringify(formData);
@@ -217,9 +217,10 @@ function submitResponseData(){
         console.log("this is the totalqount" + totalQCount);
 
         if (currQnum == parseInt(totalQCount)){
-          $('#submitAndFinishBTN').show()
+          $('#submitAndFinishBTN').show();
         }
         else{
+          console.log('Showing Start and Next button');
         $("#startAndNextBTN").show();
       }          
         Result.html('');

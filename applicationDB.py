@@ -369,7 +369,7 @@ class TeacherProfile(db.Model):
     teacher_name=db.Column(db.String(500),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     designation=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)    
+    subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     subject_name=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     registration_date=db.Column(db.DateTime,nullable=True)
