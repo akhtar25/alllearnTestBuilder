@@ -19,11 +19,14 @@
           <div class="box-header with-border">
           <h3 class="box-title">Average School Performance</h3>   </div>
           <div id='graphDiv' style="overflow-y:auto;"></div>
+          <div class="box-footer text-right">
+              <a href="{{url_for('classPerformance')}}" class="uppercase">See Class Performance</a>
+            </div> 
         </section>
       </div>
       <div class="row">
           <section class="col-lg-7 connectedSortable" style="padding-top:5px;" >
-              <div class="row-md-8" style="overflow-y:auto;">            
+              <div class="row-md-8" style="overflow-y:auto;height:300px">            
                 <p class="text-center">
                   <h4 class="box-title">Course Completion</h4>
                 </p>
@@ -41,18 +44,20 @@
                 {% else %}
                 <h2 class="grey-text lighten-3">No Data yet </h2>
                 {% endif %}
-
                 <!-- /.progress-group -->
               </div>
+              <div class="box-footer text-right">
+                  <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
+                </div>
             </section>  
       <section class="col-lg-5 connectedSortable">
           
-          <div class="box box-danger">
+          <div class="box box-danger" style="overflow-y:auto;height:300px">
                 <div class="box-header with-border" >
                   <h3 class="box-title">Top Students This Month</h3>                  
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body no-padding">
+                <div class="box-body no-padding"style="overflow-y:auto;height:200px">
                   {% if topStudentsRows|length >0  %}                  
                   <ul class="users-list clearfix">
                     {% for topRow in topStudentsRows %}

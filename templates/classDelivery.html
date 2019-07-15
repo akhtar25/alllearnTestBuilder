@@ -26,12 +26,9 @@
                                 {% endif %}
                                {% endfor %}
                              </ul>
-                                                        
                            </li>
                            {% endfor %}                
            <ul>
-           
-           
           </section>
                 <!-- /.sidebar -->
             </aside>
@@ -45,7 +42,7 @@
                 <div class="col-xs-8">
                   <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;">    Class: {{ qclass_val }} | Section: {{ qsection }}</span>
+                      <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;">   Class: {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
         
                     </div>
                     <!-- /.box-header -->                    
@@ -73,11 +70,12 @@
                     <br>                                        
                   </div>
                 </div>
-                  <div class="col-md-3" style="margin-top:20px;">
+                  <div class="col-md-4" >
                     <form method="POST" action="/feedbackCollection">
                     <div id="answerCounter">
 
                     <h3>Topics</h3> 
+                    <div id="tableData" style="overflow-y:auto;height:800px; width: 100%;">
                       <table>
                         {% for topic in topicTrackerDetails %}
                         <tr>
@@ -88,14 +86,17 @@
                               {% else %}
                               <input type="checkbox" name= "topicCheck" value="{{ topic.topic_id }}">
                               {% endif %}
-                              <span>{{ topic.topic_name }} </span>
+                              <span style="font-size: 12px;font-family: Arial" class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
                             </label>
                           </p>
-                          </tr>                                                
+                          </tr>            
+                          <input type = "text" name="subject_id" value = "{{ topic.subject_id }} " style="display: none;">                                    
                           {% endfor %}
                       </table>
-                        <input type = "text" name="class_val" value = "{{ qclass_val }}" style="display: none;">
-                        <input type = "text" name="section" value = "{{ qsection }} " style="display: none;">
+                    </div>
+                        <input type = "text" name="class_val" value = "{{ currClassSecDet.class_val }}" style="display: none;">
+                        <input type = "text" name="section" value = "{{ currClassSecDet.section }} " style="display: none;">
+                        
                       <div>
                           <input class="btn btn-primary" type="submit" value="Collect Feedback" style="height:40px;">
                       <!--<span class="pull-right" ><a href="#"> See Older Topics</a></span>-->

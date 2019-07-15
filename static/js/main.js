@@ -185,8 +185,7 @@ function submitResponseData(){
       cache:false,
       success: function(response) {
        //success actions list
-       console.log(response+" from flask");
-        
+       console.log(response+" from flask");        
       },
       error: function(xhr) {
         console.log("error occurred while updating db for last question");
@@ -222,8 +221,7 @@ function submitResponseData(){
         }
         else{
         $("#startAndNextBTN").show();
-      }  
-        request.abort();
+      }          
         Result.html('');
         ev1.preventDefault();
       }, false);
