@@ -144,12 +144,12 @@ class PaymentDetailsForm(FlaskForm):
     payButton=SubmitField('Pay')
 
 class addEventForm(FlaskForm):
-    eventName  = StringField('Event Name', validators=[Length(max=100)])
-    eventDate  = DateField('Event Date')
-    duration = StringField('Duration', validators=[Length(max=50)])
-    startDate = DateField('Start Date')
-    endDate = DateField('End Date')
-    category = StringField('Category', validators=[Length(max=100)])
+    eventName  = StringField('Event Name', validators=[DataRequired(),Length(max=100)])
+    eventDate  = DateField('Event Date', validators=[DataRequired()])
+    duration = StringField('Duration', validators=[DataRequired(),Length(min=0,max=50)])
+    startDate = DateField('Start Date', validators=[DataRequired()])
+    endDate = DateField('End Date', validators=[DataRequired()])
+    category = StringField('Category',validators=[DataRequired(),Length(max=100)])
 
 class SingleStudentRegistration(FlaskForm):
     roll_number = StringField('Roll Number', validators=[Length(max=100)])

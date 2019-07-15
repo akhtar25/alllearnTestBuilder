@@ -250,7 +250,7 @@ def index():
         chart_data = json.dumps(chart_data, indent=2)
         data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",10)"
+        topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
         topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
         print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
