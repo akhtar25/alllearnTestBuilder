@@ -44,12 +44,13 @@ if not app.debug and not app.testing:
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+        app.logger.addHandler(stream_handler)        
     else:
+        dateVal= datetime.today().strftime("%d%m%Y")
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler(
-            'logs/alllearn.log', maxBytes=10240, backupCount=10)
+            'logs/alllearn.log'+str(dateVal), maxBytes=10240, backupCount=10)
         file_handler.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
