@@ -390,8 +390,7 @@ def testBuilder():
     #form.subject_name.choices=[['','']]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
-   
-    
+    print(form.subject_name.data)
     if form.validate_on_submit():
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()

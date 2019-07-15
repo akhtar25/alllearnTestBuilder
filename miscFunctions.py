@@ -29,7 +29,8 @@ import pprint
 
 def subjects(class_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subject_id=Topic.query.with_entities(Topic.subject_id).filter_by(class_val=class_val).all()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    subject_id=Topic.query.with_entities(Topic.subject_id).filter_by(class_val=class_val,board_id=board_id).all()
     subject_name_list=[]
 
     for id in subject_id:
