@@ -1,187 +1,146 @@
-<h4>Upload a file </h4>
-<!--{{ form.hidden_tag() }}-->
-      
-        <div class="form-group " style="padding-top:5px;">
-                <div class="row">
-                        <div class="col-sm-3">
-                                <div style="width:250px;">
-                                        {{ form.class_val.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.class_val.errors %}
-                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.class_val.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.class_val(class='form-control') }}
-                                        {% endif %}
-                                </div>
-                        </div>
-                        <div class="col-sm-2">
-                                <div style="width:150px;" >
-                                                {{ form.subject_name.label(class='labelsize') }}
-                                                <div id='loader'style='display: none; float: right;'>
-                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                                </div>
-                                        <br>
-                                                {% if form.subject_name.errors %}
-                                                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                                                <div class="invalid-feedback">
-                                                {% for error in form.subject_name.errors %}
-                                                 <span>{{ error }}</span>
-                                                {% endfor %}
-                                        </div>
-                                                {% else %}
-                                                {{ form.subject_name(class='form-control') }}
-                                                {% endif %}
-    
-                                                
-                                </div>
-                        </div>
-    
-                        <div class="col-sm-2">
-                            <div style="width:150px;" >
-                                            {{ form.topics.label(class='labelsize') }}
-                                            <div id='loader'style='display: none; float: right;'>
-                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                            </div>
-                                    <br>
-                                            {% if form.topics.errors %}
-                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedback">
-                                            {% for error in form.topics.errors %}
-                                             <span>{{ error }}</span>
-                                            {% endfor %}
-                                    </div>
-                                            {% else %}
-                                            {{ form.topics(class='form-control') }}
-                                            {% endif %}
-    
-                                            
-                            </div>
-                    </div>
-                    </div>
-
-
-<input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
-
-<!--<div class="container">
-    <div class="table-responsive">
-     <h1 align="center">CSV File to HTML Table Using AJAX jQuery</h1>
-     <br />
-     <div align="center">
-      <button type="button" name="load_data" id="load_data" class="btn btn-info">Load Data</button>
-     </div>
-     <br />-->
-     <div class="container" style="overflow-y: auto; height:500px;">
-     <div id="employee_table">
-     </div>
+{{ form.hidden_tag() }}
+<h4>Student Registration</h4>
+<div class="form-group " style="padding-top:5px;">
+  <div class="row">
+    <div class="col-sm-9">
+    <div class="row">
+        <div class="col-sm-4">
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" name="first_name" placeholder="First Name">
+        </div>
+        <div class="col-sm-4">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Last Name">
+          </div>
+          <div class="col-sm-3">
+            <label for="birthdate">Date of Birth</label>
+            <input type="date" id="birthdate" name="birthdate">
+          </div>
+        </div>
+    <div class="row">
+        <div class="col-sm-11">
+            <label for="address">Address</label>
+          <input type="text" id="address" name="address" placeholder="Enter Address">
+        </div>
     </div>
-    <!--</div>
-   </div>-->
-  
- 
- <script>
-   var class_select = document.getElementById("class_val");
-    var subject_select = document.getElementById("subject_name");
-    var topic_select = document.getElementById("topics");
-    class_select.onchange = function()  {
-         
-        class_val = class_select.value;
-        $("#loader").show();
-        
-        fetch('/questionBuilder/' + class_val).then(function(response) {
-            response.json().then(function(data) {
-                    $("#loader").hide();    
-                    var optionHTML = '';
-                    for (var subject of data.subjects) {
-                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-                }
-                subject_select.innerHTML = optionHTML;
-            })
-            
-        });
-    }
+    <div class="row">
+        <div class="col-sm-4">
+            <div style="width:250px;">
+                    {{ form.class_val.label(class='labelsize') }}
+                    <br>
+                    {% if form.class_val.errors %}
+                    {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.class_val.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_val(class='form-control') }}
+                    {% endif %}
+            </div>
+    </div>
+    <div class="col-sm-3">
+            <div style="width:150px;" >
+                            {{ form.section.label(class='labelsize') }}
+                            <div id='loader'style='display: none; float: right;'>
+                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                            </div>
+                    <br>
+                            {% if form.section.errors %}
+                            {{ form.section(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                            {% for error in form.section.errors %}
+                             <span>{{ error }}</span>
+                            {% endfor %}
+                    </div>
+                            {% else %}
+                            {{ form.section(class='form-control') }}
+                            {% endif %}                                                
+            </div>
+    </div>
+      <div class="col-sm-3">
+        <label for="roll_number">Roll Number</label>
+        <input type="number" id="roll_number" name="roll_number" min=1 placeholder="Roll No.">
+      </div>
+    </div>
 
-         subject_select.onclick=function()  {
-         
-         subject_id = subject_select.value;
-         $("#loader").show();
-         
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader").hide();    
-                     var optionHTML = '';
-                    
-                     for (var topic of data.topics) {
-                    
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
+    <div class="row">
+        <div class="col-sm-3">
+            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+            <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+        </div>
+      </div>
+        <div id="guardianbox" name="guardianbox">
+        </div>
+        <div class="row">
+        <div class="col-sm-8">
+        <p><input type='button' style=" float:right;width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
+      </div>
+    </div>
+      
+</div>
+<div class="col-sm-3">
+        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+</div>
+
+</div>
+</div>
+
+
+
+<script>
+var class_select = document.getElementById("class_val");
+        var section_select = document.getElementById("section");
+        class_select.onchange = function()  {
              
-         });
-    }
+            class_val = class_select.value;
+            $("#loader").show();
+            
+            fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loader").hide();    
+                        var optionHTML = '';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+            });
+        }
+  var guardianbox_data='';
+  var count=0;
+  function addGuardian(){
+  var row_id=document.getElementById('guardianbox');
+  count+=1;
+  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+  guardianbox_data+=`<div class='row'>
+  <h4 style="text-weight:Bold;">Guardian`+count+`</h4>
+  <div class='col-sm-6'>
+  <label for='guardian_name'>Guardian Name</label><input type='text' name='guardian_name' id='guardian_name' placeholder='guardian_name'></div>
+  <div class='col-sm-5'><label for='guardian_phone'>Guardian Phone No.</label><input type='text' name='guardian_phone' id='guardian_phone' placeholder='guardian_phone'></div></div>
+  <div class='row'><div class='col-sm-8'><label for='guardian_email'>Guardian Email</label><input type='email' id='guardian_email' name='guardian_email' placeholder='Email Address'></div></div>
+  <div class='row'><div class='col-sm-6'>
+    <div style="width:250px;">
+        {{ form.relation.label(class='labelsize') }}
+            <br>
+        {% if form.relation.errors %}
+        {{ form.relation(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+        {% for error in form.relation.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+        {% else %}
+        {{ form.relation(class='form-control') }}
+        {% endif %}
+    </div>
+  </div></div>`;
+  row_id.innerHTML=guardianbox_data+submitButton;
 
+}
 
-//$(document).ready(function(){
-  //$('#file-input').click(function(){
-    $( document ).ready(function() {
-      $('#file-input').change(function () {
-
-    var rdr = new FileReader();
-    rdr.onload = function (e) {
-      //get the rows into an array
-      var employee_data = e.target.result.split(/\r?\n|\r/);
-
-
-   
-     //var employee_data = data.split(/\r?\n|\r/);
-     var table_data = '<table class="table table-bordered table-striped">';
-     for(var count = 0; count<employee_data.length; count++)
-     {
-      var cell_data = employee_data[count].split(",");
-      table_data += '<tr>';
-      for(var cell_count=0; cell_count<cell_data.length; cell_count++)
-      { if(cell_count==0 || cell_count==1 || cell_count==2 || cell_count==6 || cell_count==9 || cell_count==4)
-      {
-        continue
-      }
-      else{
-       if(count === 0)
-       {
-        table_data += '<th>'+cell_data[cell_count]+'</th>';
-       }
-       else
-       {
-        table_data += '<td>'+cell_data[cell_count]+'</td>';
-        
-       }
-      }
-      }
-      if( count!=0){
-        count1=count.toString();
-      table_data+='<td><input type="file"'+'id="'+count1+'"'+ 'name="'+count1+'"'+ 'onchange="initUpload(this);" style="height: 30px;"></td> <input type="hidden" value=""'+'id= "reference-url'+count1+'"'+'name="reference-url'+count1+'">';}
-      //<input type="hidden"'+'id= "reference-url'+count+'"'+'name="reference-url'+count+'">'
-      else {
-         table_data+='<th>Attach references</th>';
-     }
-      table_data += '</tr>';
-     }
-     
-     table_data += '</table>';
-
-     table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
-     $('#employee_table').html(table_data);
-  }
-  rdr.readAsText($("#file-input")[0].files[0]);
-});
-});
-
-  var button_id=0
-/*
+ /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
     function uploadFile(file, s3Data, url){
@@ -200,10 +159,9 @@
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            alert('Uploaded')
-            reference_name='reference-url'+button_id
-            document.getElementById(reference_name).value = url;
-            alert( document.getElementById(reference_name).value)
+            
+            document.getElementById('preview').src = url;
+            document.getElementById('reference').value = url;
           }
           else{
             window.alert("this is where the problem is");
@@ -219,17 +177,15 @@
       request.
     */
     function getSignedRequest(file){
-     
       const xhr = new XMLHttpRequest();
+
       xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
-           
             //alert("this is reponse data"+ response.data);
             //alert("this is reponse url"+ response.url);
-            //document.getElementsByName('reference-url').value = response.url;
             uploadFile(file, response.data, response.url);
           }
           else{
@@ -239,16 +195,12 @@
       };
       xhr.send();
     }
-    
     /*
        Function called when file input updated. If there is a file selected, then
        start upload procedure by asking for a signed request from the app.
     */
-    
-    function initUpload(element){
-      button_id=element.id
-      alert(button_id)
-      const files = document.getElementById(button_id).files;
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
       const file = files[0];
       if(!file){
         return alert('No file selected.');
@@ -257,10 +209,9 @@
     }
     /*
        Bind listeners when the page loads.
-   
+    */
     (() => {
-      document.getElementById('attached').onchange = initUpload;
+      document.getElementById('file-input').onchange = initUpload;
     })();
-     */
 
- </script>
+</script>

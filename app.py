@@ -177,7 +177,13 @@ def bulkStudReg():
 
 @app.route('/singleStudReg')
 def singleStudReg():
-    form=QuestionBuilderQueryForm()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+
+    section_list=[(i.section,i.section) for i in available_section]
+    form=SingleStudentRegistration()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.section.choices= section_list
     return render_template('_singleStudReg.html',form=form)
 
 

@@ -16,18 +16,16 @@
             <form action="{{ url_for('studentRegistration') }}" method="POST" enctype="multipart/form-data">
                    
             <div id="new" style="display:None;">
-                
-
                
             </div>
             
 
             </form>
-            
         
     </div>
 
 <script>
+    
     var upload_type1=document.getElementById('upload_type1')
     var upload_type2=document.getElementById('upload_type2')
     var new_form=document.getElementById('new')
@@ -38,6 +36,7 @@
                   type: "get",
                   success: function(response) {
                     $("#new").show(); 
+                    $("#add_guardian").show();
                     $("#new").html(response);        
                     },
                   error: function(xhr) {
