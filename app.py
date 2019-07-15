@@ -184,6 +184,9 @@ def singleStudReg():
     form=SingleStudentRegistration()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.section.choices= section_list
+
+    if form.validate_on_submit():
+        
     return render_template('_singleStudReg.html',form=form)
 
 
