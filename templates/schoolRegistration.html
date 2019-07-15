@@ -1,0 +1,86 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container">
+
+<div class="row">
+        
+    <div class="col s12 m6 offset-m3 z-depth-3">
+            <h3 class="text-green" >School Registration</h3>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+    <p>
+       {{ form.schoolName.label }}<br> {{ form.schoolName(size=100) }}
+       <br> {% for error in form.schoolName.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+       {{ form.board.label }}<br> {{ form.board }} <!--This needs some changes-->
+       <br> {% for error in form.board.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+       {{ form.address1.label }} <br>{{ form.address1(cols=50, rows=4) }}
+       <br> {% for error in form.address1.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.address2.label }}<br> {{ form.address2(cols=50, rows=4) }}
+       <br> {% for error in form.address2.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.locality.label }} <br>{{ form.locality(size=100) }}
+       <br> {% for error in form.locality.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.city.label }} <br>{{ form.city(size=100) }}
+       <br> {% for error in form.city.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.country.label }} <br>{{ form.country(size=100) }}
+       <br> {% for error in form.country.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.pinCode.label }} <br>{{ form.pinCode(size=10) }}
+       <br> {% for error in form.pinCode.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form.paymentPlan.label }}<br> {{ form.paymentPlan }}
+       <br> {% for error in form.paymentPlan.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>        
+       {{ form1.cardNumber.label }}<br> {{ form1.cardNumber }}
+       <br> {% for error in form1.cardNumber.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       {{ form1.cardHolder.label }}<br> {{ form1.cardHolder }}
+       <br> {% for error in form1.cardHolder.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p><p>
+       Expiry: 
+       {{ form1.expiry_month.label }}<br> {{ form1.expiry_month }}
+       {{ form1.expiry_year.label }}<br> {{ form1.expiry_year }}
+        <br> {% for error in form1.expiry_month.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        <br> {% for error in form1.expiry_year.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>    
+    <p><button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Register and Pay</button></p>    
+    </div>
+</form>
+</div>
+</div>
+</div>
+{% endblock %}

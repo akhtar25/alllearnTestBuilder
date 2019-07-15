@@ -191,9 +191,9 @@ class TopicTracker(db.Model):
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #last_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     is_covered = db.Column(db.String(1), nullable=True) # this will only contain Y or N values
-    cover_Date = db.Column(db.DateTime, nullable=True)
+    #cover_Date = db.Column(db.DateTime, nullable=True)
     next_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)        
-    last_modified_Date=db.Column(db.DateTime)
+    last_modified_date=db.Column(db.DateTime)
 
 
 class BookDetails(db.Model):
@@ -215,6 +215,7 @@ class QuestionDetails(db.Model):
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
     reference_link=db.Column(db.String(120),nullable=True)
+    suggested_weightage = db.Column(db.Integer,nullable=True)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
 
 
@@ -268,6 +269,7 @@ class ResultUpload(db.Model):
     reason=db.Column(db.String(120),nullable=True)
     test_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     marks_scored=db.Column(db.Integer)
+    total_marks=db.Column(db.Integer)
     test_id=db.Column(db.ForeignKey('test_details.test_id'),nullable=True)
     version_number=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
@@ -353,6 +355,7 @@ class GuardianProfile(db.Model):
 class SchoolProfile(db.Model):
     __tablename__ = "school_profile"
     school_id = db.Column(db.Integer, primary_key=True)
+    board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_name=db.Column(db.String(500),nullable=True)
     registered_date=db.Column(db.DateTime,nullable=True)
     org_leaving_Date=db.Column(db.DateTime,nullable=True)
@@ -412,15 +415,15 @@ class PerformanceDetail(db.Model):
     class_avg_score = db.Column(db.Integer,nullable=True)
     section_avg_score = db.Column(db.Integer,nullable=True)
     student_score = db.Column(db.Integer,nullable=True)
-    school_year_rank = db.Column(db.Integer,nullable=True)
-    school_semi_annual_rank = db.Column(db.Integer,nullable=True)
-    school_month_rank = db.Column(db.Integer,nullable=True)
-    class_year_rank = db.Column(db.Integer,nullable=True)
-    section_year_rank = db.Column(db.Integer,nullable=True)
-    section_semi_annual_rank = db.Column(db.Integer,nullable=True)
-    student_year_rank = db.Column(db.Integer,nullable=True)
-    student_semi_annual_rank = db.Column(db.Integer,nullable=True)
-    student_month_rank = db.Column(db.Integer,nullable=True)
+    #school_year_rank = db.Column(db.Integer,nullable=True)
+    #school_semi_annual_rank = db.Column(db.Integer,nullable=True)
+    #school_month_rank = db.Column(db.Integer,nullable=True)
+    #class_year_rank = db.Column(db.Integer,nullable=True)
+    #section_year_rank = db.Column(db.Integer,nullable=True)
+    #section_semi_annual_rank = db.Column(db.Integer,nullable=True)
+    #student_year_rank = db.Column(db.Integer,nullable=True)
+    #student_semi_annual_rank = db.Column(db.Integer,nullable=True)
+    #student_month_rank = db.Column(db.Integer,nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
 
@@ -438,9 +441,12 @@ class EventDetail(db.Model):
     __tablename__ = "event_detail"
     event_id = db.Column(db.Integer,primary_key=True)
     event_name =  db.Column(db.String(120),nullable=True)
-    event_duration_hours =  db.Column(db.Integer,nullable=True)
-    date =  db.Column(db.DateTime,nullable=True)
-    event_color =  db.Column(db.DateTime,nullable=True)
+    event_duration =  db.Column(db.String(10),nullable=True)
+    event_date =  db.Column(db.DateTime,nullable=True)
+    event_start =  db.Column(db.DateTime,nullable=True)
+    event_end = db.Column(db.DateTime,nullable=True)
+    event_category = db.Column(db.String(20), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 

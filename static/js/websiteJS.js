@@ -81,19 +81,3 @@ data.push(h);
 // Output the result
 $EXPORT.text(JSON.stringify(data));
 });
-
-$('#courseDetailsButton').click(function(){    
-    $('#classTrackerDiv').hide();
-    $('#completeCourseDetailsDiv').show();
-})
-
-$('#closeCourseDetailsButton').click(function(){    
-    $('#classTrackerDiv').show();
-    $('#completeCourseDetailsDiv').hide();
-})
-
-
-//$("#startQuizButton").click(
- //   function () {
-  //      document.getElementById('bg').src='{{ url_for('video_feed')}}';
-   // });

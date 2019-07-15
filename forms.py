@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired
 from applicationDB import User,TestDetails
 from flask import request
+from wtforms.fields.html5 import DateField
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -118,3 +119,66 @@ class TestBuilderQueryForm(FlaskForm):
 
 
 
+class SchoolRegistrationForm(FlaskForm):
+    schoolName =StringField('School Name', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    board = SelectField('Board',choices=[(c, c) for c in ['CBSE','ICSE']])
+    address1 = TextAreaField('Address Line 1', validators=[DataRequired(),Length(min=0, max=200)])
+    address2 = TextAreaField('Address Line 2', validators=[Length(min=0, max=200)])
+    locality = StringField('Locality', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    city = StringField('City', validators=[DataRequired(),NumberRange(min=0,max=50)])
+    state = StringField('State', validators=[DataRequired(),NumberRange(min=0,max=50)])
+    country = StringField('Country', validators=[DataRequired(),NumberRange(min=0,max=50)])
+    pinCode = StringField('Pin Code', validators=[DataRequired(),NumberRange(min=0,max=10)])
+    teacher_name = StringField('Teacher\'s Name', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    teacher_subject = StringField('Subject (optional)', validators=[NumberRange(min=0,max=100)])
+    classTeacherFor = StringField('Class Teacher For(optional) ', validators=[NumberRange(min=0,max=10)])
+    teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    paymentPlan = SelectField('Payment Plan',choices=[(c, c) for c in ['Free', 'Fixed', 'Dynamic']])
+
+    def validate_class_val(self,schoolName):
+        if schoolName.data=='Select':
+            raise ValidationError('* Please enter the school name')
+    def validate_section(self,board):
+        if board.data=='Select':
+            raise ValidationError('Please select a curriculum board')
+    def validate_test_type(self,address1):
+        if address1.data=='Select':
+            raise ValidationError('Please enter the address')
+    def validate_city(self,city):
+        if city.data=='Select':
+            raise ValidationError('Please enter the city')
+    def validate_pinCode(self,pinCode):
+        if pinCode.data=='Select':
+            raise ValidationError('Please enter the pinCode')
+    def validate_state(self,state):
+        if state.data=='Select':
+            raise ValidationError('Please enter the state')
+
+class PaymentDetailsForm(FlaskForm):
+    cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])
+    cardHolder = StringField('Card Holder\'s Name', validators=[Length(min=0,max=100)])
+    expiry_month = StringField('MM', validators=[NumberRange(min=0,max=12)])
+    expiry_year = StringField('YY', validators=[NumberRange(min=2018,max=2099)])
+    payButton=SubmitField('Pay')
+
+class addEventForm(FlaskForm):
+    eventName  = StringField('Event Name', validators=[DataRequired(),Length(max=100)])
+    eventDate  = DateField('Event Date', validators=[DataRequired()])
+    duration = StringField('Duration', validators=[DataRequired(),Length(min=0,max=50)])
+    startDate = DateField('Start Date', validators=[DataRequired()])
+    endDate = DateField('End Date', validators=[DataRequired()])
+    category = StringField('Category',validators=[DataRequired(),Length(max=100)])
+
+class SingleStudentRegistration(FlaskForm):
+    roll_number = StringField('Roll Number', validators=[Length(max=100)])
+    fist_name = StringField('First Name', validators=[Length(max=100)])
+    last_name = StringField('Last Name', validators=[Length(max=100)])
+    class_val = StringField('Class', validators=[Length(max=100)])
+    birthdate = DateField('Birth Date', format='%d/%m/%Y')
+    address = StringField('Addess', validators=[Length(max=100)])
+    section = StringField('Section', validators=[Length(max=100)])
+    profilePicture = StringField('Profile Picture', validators=[Length(max=100)])
+    guardian_name = StringField('Guardian Name', validators=[Length(max=100)])
+    guardian_email = StringField('Guardian Email ', validators=[Length(max=100)])
+    guardian_phone = StringField('Guardian Phone', validators=[Length(max=100)])
+    relation = StringField('Relation',choices=[(c, c) for c in ['Father', 'Mother', 'Other']])    
