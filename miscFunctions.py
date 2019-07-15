@@ -50,4 +50,20 @@ def subjects(class_val):
     return subjectArray
 
 
+def topics(class_val,subject_id):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+
+    topicArray=[]
+
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
+    
+    return topicArray
+
+
     

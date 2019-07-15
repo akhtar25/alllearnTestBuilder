@@ -76,9 +76,7 @@
     {% if topics %}
     <div class="col-sm-3" >
         <h3>Topics</h3>
-    <div id="topic_box" style="overflow-y: auto; height:300px;">
-
-   
+    <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
     {% for topic in topics %}
     <label for="{{ topic.topic_id }}">
     <input type="checkbox" id="{{ topic.topic_id }}"  name="topicCheckbox" value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
@@ -105,6 +103,7 @@
 
 
 <script type="text/javascript">
+ var count_marks=0;
     var class_select = document.getElementById("class_val");
     var subject_select = document.getElementById("subject_name");
     class_select.onchange = function()  {
@@ -167,12 +166,18 @@
             checkboxesChecked.push(questions_list[i].value);
             }
         }
-        checkboxesChecked  = JSON.stringify(checkboxesChecked);   
+        //checkboxesChecked  = JSON.stringify(checkboxesChecked);   
+        var data_list=[]
+        data_list.push(checkboxesChecked);
+        console.log(data_list);
+        data_list.push(count_marks);
+        console.log(data_list);
+        data_list=JSON.stringify(data_list);
         $.ajax({
                   url: "/testBuilderFileUpload",
                   type: "POST",
                   contentType: "application/json",
-                  data: checkboxesChecked,                  
+                  data: data_list,                  
                   success: function(response) {
                     $("#filebox").show(); 
                     $("#filebox").html(response);                      
@@ -183,18 +188,12 @@
                 });   
 
     }
-    var m=0
-
-    /*function calculate_marks(){
-        var select=document.getElementsByName('questionsCheckbox')
-        console.log(select)
-        var marks=document.getElementsByName(select.value+'select')
-        console.log(marks.value)
-        var box=document.getElementById('marks')
-        m=m+parseInt(marks.value)
-        m=m.toString()
-        box.innerHTML=m
-    }*/
+   
+    function calculate_marks(){
+        count_marks+=10;
+        var box=document.getElementById('marks');
+        box.innerHTML=count_marks;
+    }
 
 
 

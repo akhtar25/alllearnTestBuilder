@@ -113,7 +113,7 @@ class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
     test_type=SelectField('Test Type')
-    test_date=DateField('Test Date')
+    test_date=DateField('Test Date',format='%d/%m/%Y')
     submit=SubmitField('Load Topics')
 
 

@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -25,7 +25,7 @@ from sqlalchemy.sql import label
 import re
 import pandas as pd
 import pprint
-from miscFunctions import subjects
+from miscFunctions import subjects,topics
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
@@ -104,13 +104,16 @@ def sign_s3():
     print(file_name)    
     file_type = request.args.get('file-type')
     print(file_type)
+    if file_type=='image/png' or file_type=='image/jpeg':
+        file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
+    folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_name+'/images/'+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -120,7 +123,7 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s/%s/%s' % (S3_BUCKET, folder_name, file_type_folder,file_name)
     })
 
 
@@ -411,26 +414,21 @@ def testBuilder():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=TestBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    #form.subject_name.choices=[['','']]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
-        print("Some value"+form.subject_name.data)
+        if request.form['test_date']=='':
+            flash('Select Date')
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('testBuilder.html',form=form,School_Name=school_name())
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
-        #return render_template('demotest.html',topics=topic_list)
         session['class_val']=form.class_val.data
-        session['date']=form.test_date.data
+        session['date']=request.form['test_date']
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
-        
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
-    else:
-
-        pass
-        #if request.method=='POST':
-         #   form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-          #  return render_template('testBuilder.html',form=form,School_Name=school_name())
     return render_template('testBuilder.html',form=form,School_Name=school_name())
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])
@@ -444,11 +442,15 @@ def testBuilderQuestions():
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
-    question_list=request.get_json()
+    #question_list=request.get_json()
+    data=request.get_json()
+    question_list=data[0]
+    count_marks=data[1]
     document = Document()
     document.add_heading(school_name(), 0)
     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
-    document.add_heading(session.get('sub_name',None),2)
+    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     for question in question_list:
         data=QuestionDetails.query.filter_by(question_id=int(question)).first()
@@ -981,11 +983,13 @@ def questionBuilder():
                 for i in range(1,5):
                     option_no=str(i)
                     option_name='Option'+option_no
-                    #weightage_name='Weightage'+option_no
+                    weightage_name='Weightage'+option_no
                     if row['CorrectAnswer']=='option '+option_no:
                         correct='Y'
+                        weightage=row[weightage_name]
                     else:
                         correct='N'
+                        weightage='0'
                     if i==1:
                             option_val='A'
                     elif i==2:
@@ -995,7 +999,7 @@ def questionBuilder():
                     else:
                         option_val='D'
 
-                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val)
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
                     db.session.add(option)
             db.session.commit()
             flash('Successfullly Uploaded !')
@@ -1007,8 +1011,8 @@ def questionUpload():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [['','']]
-    form.topics.choices=[['','']]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionUpload.html',form=form)
 
 @app.route('/questionFile',methods=['GET'])
@@ -1016,8 +1020,8 @@ def questionFile():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [['','']]
-    form.topics.choices=[['','']]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
 
 

@@ -75,7 +75,7 @@
       <button type="button" name="load_data" id="load_data" class="btn btn-info">Load Data</button>
      </div>
      <br />-->
-     <div class="container" style="overflow-y: auto; height:500px;">
+     <div class="container" style="overflow-y: auto; height:500px; position: relative;">
      <div id="employee_table">
      </div>
     </div>
@@ -105,6 +105,20 @@
             })
             
         });
+        subject_id='54'
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
     }
 
          subject_select.onchange=function()  {
