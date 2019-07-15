@@ -251,7 +251,7 @@ def index():
         df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
         df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
             5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-        print(df)
+        #print(df)
         dateRange = list(df['Date'])
         class1Data= list(df['Class_1'])
         class2Data= list(df['Class_2'])
@@ -263,7 +263,7 @@ def index():
         class8Data= list(df['Class_8'])
         class9Data= list(df['Class_9'])
         class10Data= list(df['Class_10'])
-        print(dateRange)
+        #print(dateRange)
         ##Class 1
         graphData = [dict(
             data1=[dict(y=class1Data,x=dateRange,type='scatter')],
@@ -276,10 +276,8 @@ def index():
             data8=[dict(y=class8Data,x=dateRange,type='scatter')],
             data9=[dict(y=class9Data,x=dateRange,type='scatter')],
             data10=[dict(y=class10Data,x=dateRange,type='scatter')]
-            )]
-        
-
-        print(graphData)
+            )]        
+        #print(graphData)
 
         graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
 
