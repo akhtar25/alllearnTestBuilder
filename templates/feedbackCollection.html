@@ -39,7 +39,7 @@
                       <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>                              
                     </div>                                           
                     <span id="questionList" style="display: none;">{{ questionList }}</span>
-                    <input id="current_question_id" style="display: none;">
+                    <input id="currrent_question_id" style="display: none;">
                     <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
                     <input id="section_ip" style="display: none;"type="text" value="{{section}}">
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
@@ -51,15 +51,18 @@
                         {% if questionList|length > 0 %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>
                       <br><br><br><br><br><br><br><br>
-                    <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">
+                    
                       {%else %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
                       {% endif %}
                     </div>
-                    </div>                    
+                    </div>  
+                    <div id="questionButtons">
+                    <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
                     <input type="button" value="Take Response" class="btn green btn-primary" id="recordResponsesBTN" style="height: 40px; display: none; ">                                        
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
+                  </div>
                   </div>
                   <div  class="box" id="feedbackReportDiv" style="display: none;">                  
                   </div>                
@@ -114,7 +117,9 @@
             $("#startAndNextBTN").click(function(){
               keepRecording = true;   
                 if(tempCountVar<questionListSize){
-                  $('#current_question_id').val(questionIDListJS[tempCountVar]); 
+                 // $('#current_question_id').val(questionIDListJS[tempCountVar]); 
+                 // console.log('This is the current_question_id');
+                 // console.log($('#current_question_id').val());
                 $.ajax({
                   url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
