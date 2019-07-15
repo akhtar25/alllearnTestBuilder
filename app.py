@@ -245,14 +245,26 @@ def index():
         return redirect(url_for('disconnectedAccount'))
     else:
     #####Fetch school perf graph information##########
-        df = pd.read_csv('data.csv').drop('Open', axis=1)
-        chart_data = df.to_dict(orient='records')
-        chart_data = json.dumps(chart_data, indent=2)
-        data = {'chart_data': chart_data}
+        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        print(df)
+        
+
+
+
+        #dateRange = performanceRows.date
+        #below code needs to be rejected. Only being kept for reference right now
+        #df = pd.read_csv('data.csv').drop('Open', axis=1)
+        #chart_data = df.to_dict(orient='records')
+        #chart_data = json.dumps(chart_data, indent=2)
+        #data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-        print("this is topStudentRows"+str(topStudentsRows))
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
@@ -260,8 +272,8 @@ def index():
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
-        print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+        #print(topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')
@@ -382,7 +394,7 @@ def success():
         name=request.form["name"]
         if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
             #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-            # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+            # possibly db.session.execute (text("<sql here>")).execution_options(autocommit=True))
             survivor = Survivor(email, name)
             db.session.add(survivor)
             db.session.commit()
