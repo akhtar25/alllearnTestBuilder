@@ -101,11 +101,12 @@ def sign_s3():
     print(file_type)
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
+    folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_name+'/images/'+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -115,7 +116,7 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s/%s/%s' % (S3_BUCKET, folder_name, 'images',file_name)
     })
 
 
