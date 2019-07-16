@@ -16,17 +16,15 @@ var currQnum = 0;
 var answerReceived = [];
 
 //This section is for the creating the listener
-var result_strip = document.getElementById("result_strip");
+//var result_strip = document.getElementById("result_strip");
 var resultListHTML = "";
-var answerReceived = [];
 let scanner = new Instascan.Scanner({ video: document.getElementById('video') });
 
 scanner.addListener('scan', function (obj) {
-    resultListHTML += "<li>"+obj+"</li>";
-    result_strip.innerHTML=resultListHTML;
-    answerReceived.push(obj);
+    //resultListHTML += "<li>"+obj+"</li>";
+    //result_strip.innerHTML=resultListHTML;
+    //answerReceived.push(obj);
         //alert(content);///////////////////////
-
     var splitInput = obj.toString().split('@');
     if (answerReceived.includes(splitInput[0]))
     {
@@ -111,7 +109,7 @@ function submitResponseData(){
   var responseForm = $("#responseForm").value;
  
   if(resultArray.length!=0){
-    request = $.ajax({
+    $.ajax({
       url: "/responseDBUpdate",
       type: "POST",
       data: formData ,
@@ -127,4 +125,5 @@ function submitResponseData(){
     });
     resultArray=[];
   }
+  answerReceived = [];
 }

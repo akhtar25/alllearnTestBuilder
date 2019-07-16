@@ -58,7 +58,9 @@
                     </div>
                     </div>  
                     <div id="questionButtons">
+                     {% if questionList|length > 0 %}
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
+                     {% endif %}
                     <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
@@ -130,9 +132,8 @@
                     $("#questionSection").html(response);                    
                     tempCountVar= tempCountVar+1;                
                     if(tempCountVar==questionListSize){
-                      $("#startAndNextBTN").hide();                      
-                      $("#startrecordResponsesBTN").show();
-                      
+                      $("#startAndNextBTN").hide();                                            
+                      $("#startrecordResponsesBTN").show();                      
                     }
                     else{
                       $("#startAndNextBTN").attr('value','Next');       

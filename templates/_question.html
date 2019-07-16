@@ -6,7 +6,7 @@
     {% set qnum = qnum + 1 %}
             Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>             
     </label>
-    <label><span id="questionID">{{ question.question_id}}</span></label>
+    <label><span id="questionID" style="display:none;">{{ question.question_id}}</span></label>
 
     <h3>Q: {{ question.question_description }}</h3>
     {%if question.reference_link !=None %}
