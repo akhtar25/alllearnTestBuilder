@@ -42,6 +42,8 @@
    padding-top: 60px;
    z-index: 40;
    min-height: 535px;
+   display: flex;
+   flex-direction: column;
  }
 
  #readMoreDiv{
@@ -138,22 +140,6 @@ footer.page-footer {
   height: 400px;
 }
 
-
-/*This is for the performance graph */
-<style> /* set the CSS */
-    body { font: 12px Arial;}
-    path {
-      stroke-width: 2;
-      fill: none;
-    }
-    .axis path, .axis line {
-      fill: none;
-      stroke: grey;
-      stroke-width: 1;
-      shape-rendering: crispEdges;
-    }
-    .area {
-      fill: #F0F8FF;
-      stroke-width: 0;
-    }
-  </style>
+.scrollableDiv{
+  overflow-y: auto;
+}

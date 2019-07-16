@@ -3,7 +3,11 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
+<<<<<<< HEAD
 from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,QuestionBuilderQueryForm,TestBuilderQueryForm,SingleStudentRegistration
+=======
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm
+>>>>>>> AT-103
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -24,13 +28,13 @@ from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
 import pandas as pd
+import plotly
 import pprint
-from miscFunctions import subjects
+from miscFunctions import subjects,topics
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
 from io import StringIO
-
 
 
 app=Flask(__name__)
@@ -50,12 +54,13 @@ if not app.debug and not app.testing:
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+        app.logger.addHandler(stream_handler)        
     else:
+        dateVal= datetime.today().strftime("%d%m%Y")
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler(
-            'logs/alllearn.log', maxBytes=10240, backupCount=10)
+            'logs/alllearn.log'+str(dateVal), maxBytes=10240, backupCount=10)
         file_handler.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -104,13 +109,16 @@ def sign_s3():
     print(file_name)    
     file_type = request.args.get('file-type')
     print(file_type)
+    if file_type=='image/png' or file_type=='image/jpeg':
+        file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
+    folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_name+'/images/'+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -120,7 +128,7 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s/%s/%s' % (S3_BUCKET, folder_name, file_type_folder,file_name)
     })
 
 
@@ -260,14 +268,52 @@ def index():
         return redirect(url_for('disconnectedAccount'))
     else:
     #####Fetch school perf graph information##########
-        df = pd.read_csv('data.csv').drop('Open', axis=1)
-        chart_data = df.to_dict(orient='records')
-        chart_data = json.dumps(chart_data, indent=2)
-        data = {'chart_data': chart_data}
+        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        #print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        #print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+            )]        
+        #print(graphData)
+
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+        #dateRange = performanceRows.date
+        #below code needs to be rejected. Only being kept for reference right now
+        #df = pd.read_csv('data.csv').drop('Open', axis=1)
+        #chart_data = df.to_dict(orient='records')
+        #chart_data = json.dumps(chart_data, indent=2)
+        #data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",10)"
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-        print("this is topStudentRows"+str(topStudentsRows))
+        topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
@@ -275,8 +321,9 @@ def index():
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
-        print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+        #print(topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
+            graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')
@@ -397,7 +444,7 @@ def success():
         name=request.form["name"]
         if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
             #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-            # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+            # possibly db.session.execute (text("<sql here>")).execution_options(autocommit=True))
             survivor = Survivor(email, name)
             db.session.add(survivor)
             db.session.commit()
@@ -417,29 +464,28 @@ def feeManagement():
 def testBuilder():
     topic_list=None
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    
     form=TestBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
-    
-    if form.validate_on_submit():
+    if request.method=='POST':
+        if request.form['test_date']=='':
+            flash('Select Date')
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('testBuilder.html',form=form,School_Name=school_name())
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
-        #return render_template('demotest.html',topics=topic_list)
         session['class_val']=form.class_val.data
-        session['date']=request.form['testdate']
+        session['date']=request.form['test_date']
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
-        
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
     return render_template('testBuilder.html',form=form,School_Name=school_name())
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])
 def testBuilderQuestions():
     questions=[]
-    weightages=[]
     topicList=request.get_json()
     for topic in topicList:
         questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
@@ -448,16 +494,16 @@ def testBuilderQuestions():
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
-    question_list=request.get_json()
-    print(question_list)
+    #question_list=request.get_json()
+    data=request.get_json()
+    question_list=data[0]
+    count_marks=data[1]
     document = Document()
     document.add_heading(school_name(), 0)
     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
-    document.add_heading(session.get('sub_name',None),2)
+    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
-    #p.add_run('bold').bold = True
-    #p.add_run(' and some ')
-    #p.add_run('italic.').italic = True
     for question in question_list:
         data=QuestionDetails.query.filter_by(question_id=int(question)).first()
         document.add_paragraph(
@@ -465,18 +511,16 @@ def testBuilderFileUpload():
         )    
         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
         for option in options:
-            if option.description !='':
+            if option.option_desc is not None:
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
-
     #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',None)+session.get('sub_name',None)+session.get('test_type_val',None)+str(dt.datetime.utcnow())+'.docx'
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
     document.save('tempdocx/'+file_name)
-
     client = boto3.client('s3', region_name='ap-south-1')
-
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-
     return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
 @app.route('/testPapers')
@@ -543,13 +587,8 @@ def classCon():
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
-
-        print(classTrackerDetails)
-
-        #endOfQueries
-
-        #print(classTrackerDetails)
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #endOfQueries        
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
@@ -959,6 +998,7 @@ def section(class_val):
 
     return jsonify({'sections' : sectionArray})
 
+<<<<<<< HEAD
 
 @app.route('/addEvent', methods = ["GET","POST"])
 @login_required
@@ -1010,6 +1050,8 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
+=======
+>>>>>>> AT-103
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():
@@ -1028,7 +1070,15 @@ def questionBuilder():
                 else:
                     weightage=0
                     correct='N'
-                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage)
+                if i+1==1:
+                    option='A'
+                elif i+1==2:
+                    option='B'
+                elif i+1==3:
+                    option='C'
+                else:
+                    option='D'
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
                 db.session.add(options)
                 db.session.commit()
             flash('Success')
@@ -1044,11 +1094,13 @@ def questionBuilder():
                 for i in range(1,5):
                     option_no=str(i)
                     option_name='Option'+option_no
-                    #weightage_name='Weightage'+option_no
+                    weightage_name='Weightage'+option_no
                     if row['CorrectAnswer']=='option '+option_no:
                         correct='Y'
+                        weightage=row[weightage_name]
                     else:
                         correct='N'
+                        weightage='0'
                     if i==1:
                             option_val='A'
                     elif i==2:
@@ -1058,7 +1110,7 @@ def questionBuilder():
                     else:
                         option_val='D'
 
-                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val)
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
                     db.session.add(option)
             db.session.commit()
             flash('Successfullly Uploaded !')
@@ -1070,8 +1122,8 @@ def questionUpload():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [['','']]
-    form.topics.choices=[['','']]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionUpload.html',form=form)
 
 @app.route('/questionFile',methods=['GET'])
@@ -1079,8 +1131,8 @@ def questionFile():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [['','']]
-    form.topics.choices=[['','']]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
 
 
@@ -1089,7 +1141,9 @@ def questionFile():
 
 @app.route('/questionBuilder/<class_val>')
 def subject_list(class_val):
-    subject_id=Topic.query.with_entities(Topic.subject_id).filter_by(class_val=class_val).all()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
     subject_name_list=[]
 
     for id in subject_id:
@@ -1123,33 +1177,55 @@ def topic_list(class_val,subject_id):
     
     return jsonify({'topics':topicArray})
 
-#helper methods
-def school_name():
-    if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+@app.route('/addEvent', methods = ["GET","POST"])
+@login_required
+def addEvent():        
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form = addEventForm()
+    if form.validate_on_submit():
+        dataForEntry = EventDetail(event_name=form.eventName.data, event_duration=form.duration.data,event_date=form.eventDate.data,event_start=form.startDate.data,event_end=form.endDate.data,event_category=form.category.data,school_id=teacher_id.school_id, last_modified_date=datetime.today())                
+        db.session.add(dataForEntry)
+        db.session.commit()
+        flash('Event Added!')
+    return render_template('addEvent.html', form=form)
 
-        name=school_name.school_name
+@app.route('/studentProfile')
+@login_required
+def studentProfile():
+    return render_template('studentProfile.html',School_Name=school_name())
 
-        return name
-    else:
-        return None
+@app.route('/performance')
+def performance():
+    df = pd.read_csv('data.csv').drop('Open', axis=1)
+    chart_data = df.to_dict(orient='records')
+    chart_data = json.dumps(chart_data, indent=2)
+    data = {'chart_data': chart_data}
+    return render_template("_performance.html", data=data)
+
+@app.route('/help')
+@login_required
+def help():
+    return render_template('help.html',School_Name=school_name())
 
 
-
-
-
-
-
-
-
-
-
-#if __name__=='__main__':
-#    app.debug=True
-#    app.run()
-
+@app.route('/search')
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for('explore'))
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(g.search_form.q.data, page,
+                               app.config['POSTS_PER_PAGE'])
+    next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * app.config['POSTS_PER_PAGE'] else None
+    prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template(
+        'search.html',
+        title='Search',
+        posts=posts,
+        next_url=next_url,
+        prev_url=prev_url,School_Name=school_name())
 
 
 if __name__=="__main__":

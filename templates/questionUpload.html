@@ -75,13 +75,14 @@
     <label><input class="with-gap" id="option" name="option" type="radio" value="2"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc" name="option_desc"></span></label><br><br>
     <label><input class="with-gap" id="option" name="option" type="radio" value="3"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
     <label><input class="with-gap" id="option" name="option" type="radio" value="4"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br><br>
+    <label for="weightage">Weightage</label>
     <input type="text" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
     <div style="margin-top: 30px; margin-left: 10px;">
-            <img style="border:1px solid gray;width:300px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+            <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
         </div>
     </div>
     </div>
@@ -113,6 +114,25 @@
             })
             
         });
+        if (class_val>5){
+          subject_id='58';
+        }
+        else{
+        subject_id='54';
+        }
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
     }
 
     //for (i = 0; i < 20; i++) {
@@ -120,7 +140,7 @@
 //}     
 
 
-         subject_select.onclick=function()  {
+         subject_select.onchange=function()  {
          
          subject_id = subject_select.value;
          $("#loader").show();
@@ -183,7 +203,7 @@
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
 
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
