@@ -575,13 +575,8 @@ def classCon():
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
-
-        print(classTrackerDetails)
-
-        #endOfQueries
-
-        #print(classTrackerDetails)
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #endOfQueries        
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
