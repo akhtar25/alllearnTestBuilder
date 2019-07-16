@@ -145,21 +145,7 @@
   $.widget.bridge('uibutton', $.ui.button);
 </script>-->
 <script>
-var trace1 = {
-  x: [1, 2, 3, 4],
-  y: [10, 15, 13, 17],
-  type: 'scatter',
-};
-
-var trace2 = {
-  x: [1, 2, 3, 4],
-  y: [16, 5, 11, 9],
-  type: 'scatter'
-};
-
 var graphData = {{graphJSON | safe}};
-console.log(graphData);
-
 for(key in graphData) {
   //value = graphData[key].data
   value1 = graphData[key].data1[0];
@@ -176,11 +162,7 @@ for(key in graphData) {
   console.log(value1);
   console.log(value2);
 }
-//
-//var trace3=value[0];
-
 var data = [value1, value2,value3, value4, value5, value6, value7, value8, value9, value10];
-
 Plotly.newPlot('graphDiv', data, {}, {showlegend: true, displayModeBar: false});
 </script>
 {%endblock%}
