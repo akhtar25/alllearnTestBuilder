@@ -10,6 +10,7 @@ Click==7.0
 decorator==4.4.0
 docutils==0.14
 docutils-python3==0.13
+docx==0.2.4
 elasticsearch==7.0.1
 Flask==1.0.2
 Flask-Elasticsearch==0.2.5
@@ -27,6 +28,7 @@ Jinja2==2.10.1
 jmespath==0.9.4
 jsonschema==3.0.1
 jupyter-core==4.5.0
+lxml==4.3.4
 Mako==1.0.10
 MarkupSafe==1.1.1
 nbformat==4.4.0
@@ -39,6 +41,7 @@ psycopg2==2.8.2
 PyJWT==1.4.2
 pyrsistent==0.15.3
 python-dateutil==2.8.0
+python-docx==0.8.10
 python-editor==1.0.4
 pytz==2019.1
 pyzbar==0.1.8

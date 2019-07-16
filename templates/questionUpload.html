@@ -1,0 +1,238 @@
+{{ form.hidden_tag() }}
+      
+        <div class="form-group " style="padding-top:5px;">
+                <div class="row">
+                        <div class="col-sm-3">
+                                <div style="width:250px;">
+                                        {{ form.class_val.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.class_val.errors %}
+                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.class_val.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.class_val(class='form-control') }}
+                                        {% endif %}
+                                </div>
+                        </div>
+                        <div class="col-sm-2">
+                                <div style="width:150px;" >
+                                                {{ form.subject_name.label(class='labelsize') }}
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                </div>
+                                        <br>
+                                                {% if form.subject_name.errors %}
+                                                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                {% for error in form.subject_name.errors %}
+                                                 <span>{{ error }}</span>
+                                                {% endfor %}
+                                        </div>
+                                                {% else %}
+                                                {{ form.subject_name(class='form-control') }}
+                                                {% endif %}
+    
+                                                
+                                </div>
+                        </div>
+    
+                        <div class="col-sm-2">
+                            <div style="width:150px;" >
+                                            {{ form.topics.label(class='labelsize') }}
+                                            <div id='loader'style='display: none; float: right;'>
+                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                            </div>
+                                    <br>
+                                            {% if form.topics.errors %}
+                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                            {% for error in form.topics.errors %}
+                                             <span>{{ error }}</span>
+                                            {% endfor %}
+                                    </div>
+                                            {% else %}
+                                            {{ form.topics(class='form-control') }}
+                                            {% endif %}
+    
+                                            
+                            </div>
+                    </div>
+                    </div>
+                    
+                
+
+<div class="row">
+    <div class="col-sm-8">
+    <h4>Questions</h4>
+    <input type="text" name="question_desc" id="" placeholder="Enter question"><br><br>
+    <div class="row">
+    <div class="col-sm-6">
+    <label><input class="with-gap" id="option" name="option" type="radio" value="1"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="2"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="3"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option" name="option" type="radio" value="4"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br><br>
+    <label for="weightage">Weightage</label>
+    <input type="text" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
+    </div>
+    <div class="col-sm-2">
+    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
+    <div style="margin-top: 30px; margin-left: 10px;">
+            <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
+        </div>
+    </div>
+    </div>
+    <p><button class="btn waves-light green lighten-1 white-text" style="float: right; margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+</div>
+
+</div>
+</div>
+
+
+
+<script type="text/javascript">
+    var class_select = document.getElementById("class_val");
+    var subject_select = document.getElementById("subject_name");
+    var topic_select = document.getElementById("topics");
+    class_select.onchange = function()  {
+         
+        class_val = class_select.value;
+        $("#loader").show();
+        
+        fetch('/questionBuilder/' + class_val).then(function(response) {
+            response.json().then(function(data) {
+                    $("#loader").hide();    
+                    var optionHTML = '';
+                    for (var subject of data.subjects) {
+                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                }
+                subject_select.innerHTML = optionHTML;
+            })
+            
+        });
+        subject_id='54'
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }
+
+    //for (i = 0; i < 20; i++) {
+    //$('#topiclist').append('<input type="radio" name="radio_name" />');
+//}     
+
+
+         subject_select.onchange=function()  {
+         
+         subject_id = subject_select.value;
+         $("#loader").show();
+         
+         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }
+
+
+
+
+
+    /*
+      Function to carry out the actual POST request to S3 using the signed request from the Python app.
+    */
+    function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      //alert("the url being posted" + s3Data.url);
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            
+            document.getElementById('preview').src = url;
+            document.getElementById('reference').value = url;
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
+    /*
+       Bind listeners when the page loads.
+    */
+    (() => {
+      document.getElementById('file-input').onchange = initUpload;
+    })();
+    </script>
+
+
+
