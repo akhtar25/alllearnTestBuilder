@@ -24,13 +24,13 @@ from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
 import pandas as pd
+import plotly
 import pprint
 from miscFunctions import subjects,topics
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
 from io import StringIO
-
 
 
 app=Flask(__name__)
@@ -50,12 +50,13 @@ if not app.debug and not app.testing:
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+        app.logger.addHandler(stream_handler)        
     else:
+        dateVal= datetime.today().strftime("%d%m%Y")
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler(
-            'logs/alllearn.log', maxBytes=10240, backupCount=10)
+            'logs/alllearn.log'+str(dateVal), maxBytes=10240, backupCount=10)
         file_handler.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -255,14 +256,52 @@ def index():
         return redirect(url_for('disconnectedAccount'))
     else:
     #####Fetch school perf graph information##########
-        df = pd.read_csv('data.csv').drop('Open', axis=1)
-        chart_data = df.to_dict(orient='records')
-        chart_data = json.dumps(chart_data, indent=2)
-        data = {'chart_data': chart_data}
+        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        #print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        #print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+            )]        
+        #print(graphData)
+
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+        #dateRange = performanceRows.date
+        #below code needs to be rejected. Only being kept for reference right now
+        #df = pd.read_csv('data.csv').drop('Open', axis=1)
+        #chart_data = df.to_dict(orient='records')
+        #chart_data = json.dumps(chart_data, indent=2)
+        #data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-        print("this is topStudentRows"+str(topStudentsRows))
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
@@ -270,8 +309,9 @@ def index():
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
-        print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),data=data, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+        #print(topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
+            graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')
@@ -392,7 +432,7 @@ def success():
         name=request.form["name"]
         if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
             #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-            # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+            # possibly db.session.execute (text("<sql here>")).execution_options(autocommit=True))
             survivor = Survivor(email, name)
             db.session.add(survivor)
             db.session.commit()
@@ -463,7 +503,9 @@ def testBuilderFileUpload():
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',None)+session.get('sub_name',None)+session.get('test_type_val',None)+str(dt.datetime.utcnow())+'.docx'
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
     document.save('tempdocx/'+file_name)
     client = boto3.client('s3', region_name='ap-south-1')
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
@@ -533,13 +575,8 @@ def classCon():
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
-
-        print(classTrackerDetails)
-
-        #endOfQueries
-
-        #print(classTrackerDetails)
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #endOfQueries        
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
@@ -967,7 +1004,15 @@ def questionBuilder():
                 else:
                     weightage=0
                     correct='N'
-                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage)
+                if i+1==1:
+                    option='A'
+                elif i+1==2:
+                    option='B'
+                elif i+1==3:
+                    option='C'
+                else:
+                    option='D'
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
                 db.session.add(options)
                 db.session.commit()
             flash('Success')

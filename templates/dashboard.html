@@ -4,7 +4,7 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" name="viewport">
   <link rel="stylesheet" href="../static/bower_components/jvectormap/jquery-jvectormap.css">
     <link rel="stylesheet" href="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
-    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>    
 <body class="white">
 <div class="wrapper">
   <div>
@@ -15,10 +15,11 @@
     </section>
     <section class="content">      
       <div class= "row">
-        <section class="col-lg-12 connectedSortable">
+        <section class="col-lg-12 connectedSortable" >
           <div class="box-header with-border">
           <h3 class="box-title">Average School Performance</h3>   </div>
-          <div id='graphDiv' style="overflow-y:auto;"></div>
+          
+          <div id='graphDiv' style="overflow: auto;top:-30px;"></div>        
           <div class="box-footer text-right">
               <a href="{{url_for('classPerformance')}}" class="uppercase">See Class Performance</a>
             </div> 
@@ -26,10 +27,13 @@
       </div>
       <div class="row">
           <section class="col-lg-7 connectedSortable" style="padding-top:5px;" >
-              <div class="row-md-8" style="overflow-y:auto;height:300px">            
+            <div class="box box-danger">
+              <div style="overflow-y:auto;height:300px">
+                <div class="box-header with-border">
                 <p class="text-center">
                   <h4 class="box-title">Course Completion</h4>
                 </p>
+                </div>
                 {% if topicToCoverDetails|length >0  %}    
                 {% for topicCountRow in topicToCoverDetails %}         
                 <div class="progress-group">
@@ -49,6 +53,7 @@
               <div class="box-footer text-right">
                   <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
                 </div>
+              </div>
             </section>  
       <section class="col-lg-5 connectedSortable">
           
@@ -118,19 +123,13 @@
                       {{eventRow.event_category}}
                   </td>                  
                 </tr>               
-                {% endfor %}   
-                       
+                {% endfor %}                          
                 </tbody>
-              </table>
-              
-            </div>
-         
-          </div>
-         
-          </div> 
-               
-        </div>
-        
+              </table>              
+            </div>        
+          </div>         
+          </div>                
+        </div>        
       
       <div class="box-footer text-right">
           <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
@@ -145,77 +144,22 @@
 <!--<script>
   $.widget.bridge('uibutton', $.ui.button);
 </script>-->
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-    var graphData = {{ data.chart_data | safe }}
-    // Set the dimensions of the svg
-    var margin = {top: 30, right: 50, bottom: 30, left: 50};
-    var svgWidth = 1200;
-    var svgHeight = 270;
-    var graphWidth = svgWidth - margin.left - margin.right;
-    var graphHeight = svgHeight - margin.top - margin.bottom;
-    // Parse the date / time
-    var parseDate = d3.time.format("%Y-%m-%d").parse;
-    // Set the ranges
-    var x = d3.time.scale().range([0, graphWidth]);
-    var y = d3.scale.linear().range([graphHeight, 0]);
-    // Define the axes
-    var xAxis = d3.svg.axis().scale(x)
-        .orient("bottom").ticks(5);
-    var yAxis = d3.svg.axis().scale(y)
-        .orient("left").ticks(5);
-    var highLine = d3.svg.line()
-        .x(function(d) { return x(d.Date); })
-        .y(function(d) { return y(d.High); });
-    var area = d3.svg.area()
-      .x(function(d) { return x(d.Date); })
-    // Adds the svg canvas
-    var svg = d3.select("#graphDiv")
-      .append("svg")
-        .attr("width", svgWidth)
-        .attr("height", svgHeight)
-      .append("g")
-        .attr("transform", 
-        "translate(" + margin.left + "," + margin.top + ")")
-    // define function
-    function draw(data) {
-      data.forEach(function(d) {
-        d.Date = parseDate(d.Date);
-        d.High = +d.High;
-      });
-      // Scale the range of the data
-      x.domain(d3.extent(data, function(d) { return d.Date; }));
-      y.domain([d3.min(data, function(d) {
-          return Math.min(d.High) }),
-          d3.max(data, function(d) {
-          return Math.max(d.High) })]);
-      // Add the area path.
-      svg.append("path")
-        .datum(data)
-        .attr("class", "area")
-        .attr("d", area)
-      // Add the 2 valueline paths.
-      svg.append("path")
-        .style("stroke", "green")
-        .style("fill", "none")
-        .attr("class", "line")
-        .attr("d", highLine(data));
-      // Add the X Axis
-      svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + graphHeight + ")")
-          .call(xAxis);
-      // Add the Y Axis
-      svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-      svg.append("text")
-        .attr("transform", "translate("+(graphWidth+3)+","+y(graphData[0].High)+")")
-        .attr("dy", ".35em")
-        .attr("text-anchor", "start")
-        .style("fill", "green")
-        .text("Shivalik");
-    };
-draw(graphData);
+var graphData = {{graphJSON | safe}};
+for(key in graphData) {
+  //value = graphData[key].data
+  value1 = graphData[key].data1[0];
+  value2 = graphData[key].data2[0];
+  value3 = graphData[key].data3[0];
+  value4 = graphData[key].data4[0];
+  value5 = graphData[key].data5[0];
+  value6 = graphData[key].data6[0];
+  value7 = graphData[key].data7[0];
+  value8 = graphData[key].data8[0];
+  value9 = graphData[key].data9[0];
+  value10 = graphData[key].data10[0];
+}
+var data = [value1, value2,value3, value4, value5, value6, value7, value8, value9, value10];
+Plotly.newPlot('graphDiv', data, {}, {showlegend: true, displayModeBar: false});
 </script>
 {%endblock%}
