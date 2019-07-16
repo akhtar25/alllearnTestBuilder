@@ -15,7 +15,7 @@ var keepRecording = true;
 var currQnum = 0;
 var answerReceived = [];
 
-navigator.mediaDevices.enumerateDevices()
+window.navigator.mediaDevices.enumerateDevices()
   .then(gotDevices).then(getStream).catch(handleError);
 
 audioSelect.onchange = getStream;
