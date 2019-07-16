@@ -463,7 +463,7 @@ def testBuilderFileUpload():
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',None)+session.get('sub_name',None)+session.get('test_type_val',None)+str(dt.datetime.utcnow())+'.docx'
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
     document.save('tempdocx/'+file_name)
     client = boto3.client('s3', region_name='ap-south-1')
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
