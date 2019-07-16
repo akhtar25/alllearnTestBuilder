@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, SchoolRegistrationForm, PaymentDetailsForm, addEventForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -24,6 +24,13 @@ from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
 import pandas as pd
+import pprint
+from miscFunctions import subjects,topics
+from docx import Document
+from docx.shared import Inches
+from urllib.request import urlopen,Request
+from io import StringIO
+
 
 
 app=Flask(__name__)
@@ -97,13 +104,16 @@ def sign_s3():
     print(file_name)    
     file_type = request.args.get('file-type')
     print(file_type)
+    if file_type=='image/png' or file_type=='image/jpeg':
+        file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
+    folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_name+'/images/'+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -113,7 +123,7 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s/%s/%s' % (S3_BUCKET, folder_name, file_type_folder,file_name)
     })
 
 
@@ -397,10 +407,69 @@ def success():
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
-@app.route('/testBuilder')
+@app.route('/testBuilder',methods=['POST','GET'])
 @login_required
 def testBuilder():
-    return render_template('testBuilder.html')
+    topic_list=None
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=TestBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    if request.method=='POST':
+        if request.form['test_date']=='':
+            flash('Select Date')
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('testBuilder.html',form=form,School_Name=school_name())
+        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
+        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+        session['class_val']=form.class_val.data
+        session['date']=request.form['test_date']
+        session['sub_name']=subject.description
+        session['test_type_val']=form.test_type.data
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
+    return render_template('testBuilder.html',form=form,School_Name=school_name())
+
+@app.route('/testBuilderQuestions',methods=['GET','POST'])
+def testBuilderQuestions():
+    questions=[]
+    topicList=request.get_json()
+    for topic in topicList:
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questions.append(questionList)
+    return render_template('testBuilderQuestions.html',questions=questions)
+
+@app.route('/testBuilderFileUpload',methods=['GET','POST'])
+def testBuilderFileUpload():
+    #question_list=request.get_json()
+    data=request.get_json()
+    question_list=data[0]
+    count_marks=data[1]
+    document = Document()
+    document.add_heading(school_name(), 0)
+    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
+    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
+    p = document.add_paragraph()
+    for question in question_list:
+        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        document.add_paragraph(
+            data.question_description, style='List Number'
+        )    
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        for option in options:
+            if option.option_desc is not None:
+                document.add_paragraph(
+                    option.option+". "+option.option_desc)     
+    #document.add_page_break()
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
+    document.save('tempdocx/'+file_name)
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
 @app.route('/testPapers')
 @login_required
@@ -468,7 +537,7 @@ def classCon():
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
 
-        print(courseDetails)
+        print(classTrackerDetails)
 
         #endOfQueries
 
@@ -882,6 +951,123 @@ def section(class_val):
 
     return jsonify({'sections' : sectionArray})
 
+@app.route('/questionBuilder',methods=['POST','GET'])
+@login_required
+def questionBuilder():
+    form=QuestionBuilderQueryForm()
+    if request.method=='POST':
+        if form.submit.data:
+            question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
+            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type='MCQ')
+            db.session.add(question)
+            option_list=request.form.getlist('option_desc')
+            question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+            for i in range(len(option_list)):
+                if int(request.form['option'])==i+1:
+                    correct='Y'
+                    weightage=int(request.form['weightage'])
+                else:
+                    weightage=0
+                    correct='N'
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage)
+                db.session.add(options)
+                db.session.commit()
+            flash('Success')
+            return render_template('questionBuilder.html',School_Name=school_name())
+        else:
+            csv_file=request.files['file-input']
+            df1=pd.read_csv(csv_file)
+            for index ,row in df1.iterrows():
+                question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
+                db.session.add(question)
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
+                for i in range(1,5):
+                    option_no=str(i)
+                    option_name='Option'+option_no
+                    weightage_name='Weightage'+option_no
+                    if row['CorrectAnswer']=='option '+option_no:
+                        correct='Y'
+                        weightage=row[weightage_name]
+                    else:
+                        correct='N'
+                        weightage='0'
+                    if i==1:
+                            option_val='A'
+                    elif i==2:
+                            option_val='B'
+                    elif i==3:
+                            option_val='C'
+                    else:
+                        option_val='D'
+
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                    db.session.add(option)
+            db.session.commit()
+            flash('Successfullly Uploaded !')
+            return render_template('questionBuilder.html',School_Name=school_name())
+    return render_template('questionBuilder.html',School_Name=school_name())
+
+@app.route('/questionUpload',methods=['GET'])
+def questionUpload():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    return render_template('questionUpload.html',form=form)
+
+@app.route('/questionFile',methods=['GET'])
+def questionFile():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    return render_template('questionFile.html',form=form)
+
+
+
+#Subject list generation dynamically
+
+@app.route('/questionBuilder/<class_val>')
+def subject_list(class_val):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
+    subject_name_list=[]
+
+    for id in subject_id:
+
+        subject_name=MessageDetails.query.filter_by(msg_id=id).first()
+        if subject_name in subject_name_list:
+            continue
+        subject_name_list.append(subject_name)
+    subjectArray = []
+
+    for subject in subject_name_list:
+        subjectObj = {}
+        subjectObj['subject_id'] = subject.msg_id
+        subjectObj['subject_name'] = subject.description
+        subjectArray.append(subjectObj)
+
+    return jsonify({'subjects' : subjectArray})
+
+#topic list generation dynamically
+@app.route('/questionBuilder/<class_val>/<subject_id>')
+def topic_list(class_val,subject_id):
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+
+    topicArray=[]
+
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
+    
+    return jsonify({'topics':topicArray})
+
 
 @app.route('/addEvent', methods = ["GET","POST"])
 @login_required
@@ -935,6 +1121,7 @@ def search():
 
 if __name__=="__main__":
     app.debug=True
+    app.jinja_env.filters['zip'] = zip
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
     #app.run()

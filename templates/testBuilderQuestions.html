@@ -1,0 +1,44 @@
+{% if questions %}
+<h3>Select questions</h3>
+<div class="card id">
+    <div class="card-body">
+        <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+                <thead>
+                    <tr>
+                        <th scope="col">Question</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Select</th>
+                        <th scope="col">Weightage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    {% for question in q %}
+                    <tr>
+                        <td>{{ question.question_description }}</td>
+                        <td> {{ question.question_type }} </td>
+                        <td><label for="{{ question.question_id }}">
+                                <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
+                                    value="{{ question.question_id }}" onclick="calculate_marks();"><span></span>
+                            </label></td>
+
+                        <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}"
+                                id="{{ question.question_id }}select"></td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div style="float:right; width:130px; border:1px solid;">
+    <p style="font-weight:bold;">Total Marks : <span id='marks'></span></p>
+</div>
+<p><button id="questionSubmitBtn" style="margin-top:22px; margin-left:5px;"
+        class="btn waves-light green lighten-1 white-text" onclick="questionFile(); ">Submit</button></p>
+<div id='questionSubmitLoader' style='display: none;'>
+    <img src='../static/images/spinner.gif' width='50px' height='50px'>
+</div>
+{% endif %}
