@@ -117,9 +117,6 @@
             $("#startAndNextBTN").click(function(){
               keepRecording = true;   
                 if(tempCountVar<questionListSize){
-                 // $('#current_question_id').val(questionIDListJS[tempCountVar]); 
-                 // console.log('This is the current_question_id');
-                 // console.log($('#current_question_id').val());
                 $.ajax({
                   url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
@@ -167,7 +164,7 @@
                     $("#allResponsesSubmitted").show();              
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while loading question");
+                    window.alert("error occurred while submittig data");
                   }
                 });              
             });

@@ -93,11 +93,11 @@ function handleError(error) {
    if (keepRecording) {
 
   var widthVideo = function(){
-    if (window.innerWidth < 600){
+    if (window.innerWidth < 800){
       return window.innerWidth;
     }
     else{
-      return 600;
+      return 800;
     }
   };
    var heightVideo = function(){
@@ -108,8 +108,10 @@ function handleError(error) {
       return 500;
     }
   };
-   var width = widthVideo();
-   var height = heightVideo();
+   //var width = widthVideo();
+   //var height  = heightVideo();
+    var width  = 800;
+    var height = 600;
     canvas.width = width;
     canvas.height = height;
     canvas.getContext('2d').drawImage(video, 0, 0, width, height);
