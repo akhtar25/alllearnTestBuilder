@@ -1,9 +1,9 @@
 {{ form.hidden_tag() }}
-<h4>Student Registration</h4>
 <div class="form-group " style="padding-top:5px;">
   <div class="row">
     <div class="col-sm-9">
     <div class="row">
+        <h4>Student Details</h4>
         <div class="col-sm-4">
           <label for="first_name">First Name</label>
           <input type="text" id="first_name" name="first_name" placeholder="First Name">
@@ -12,20 +12,85 @@
             <label for="last_name">Last Name</label>
             <input type="text" id="last_name" name="last_name" placeholder="Last Name">
           </div>
-          <div class="col-sm-3">
-            <label for="birthdate">Date of Birth</label>
-            <input type="date" id="birthdate" name="birthdate">
-          </div>
+          <div class="col-sm-2">
+          {{ form.gender.label(class='labelsize') }}
+                    <br>
+                    {% if form.gender.errors %}
+                    {{ form.gender(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.gender.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.gender(class='form-control') }}
+                    {% endif %}
+            </div>
+          
         </div>
     <div class="row">
-        <div class="col-sm-11">
-            <label for="address">Address</label>
-          <input type="text" id="address" name="address" placeholder="Enter Address">
+            <div class="col-sm-3">
+                <label for="birthdate">Date of Birth</label>
+                <input type="date" id="birthdate" name="birthdate">
+              </div>
+
+        <div class="col-sm-4">
+            {{ form.phone.label(class='labelsize') }}
+                    <br>
+                    {% if form.phone.errors %}
+                    {{ form.phone(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.phone.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.phone(class='form-control') }}
+                    {% endif %}
         </div>
+
+        
     </div>
     <div class="row">
+      <h4>Address Details</h4>
         <div class="col-sm-4">
-            <div style="width:250px;">
+            <label for="address1">Address Line 1</label>
+          <input type="text" id="address1" name="address1" placeholder="Address Line 1">
+        </div>
+        <div class="col-sm-4">
+            <label for="address2">Address Line 2</label>
+          <input type="text" id="address2" name="address2" placeholder="Addresss Line 2">
+        </div>
+        <div class="col-sm-3">
+            <label for="locality">Locality</label>
+          <input type="text" id="locality" name="locality" placeholder="Enter Locality">
+        </div> 
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <label for="city">City</label>
+          <input type="text" id="city" name="city" placeholder="Enter City">
+        </div> 
+
+        <div class="col-sm-3">
+            <label for="state">State</label>
+          <input type="text" id="state" name="state" placeholder="Enter State">
+        </div>
+        <div class="col-sm-3">
+            <label for="country">Country</label>
+          <input type="text" id="country" name="country" placeholder="Country">
+        </div>
+        <div class="col-sm-3">
+            <label for="pincode">Pin Code</label>
+          <input type="text" id="pincode" name="pincode" placeholder="Enter Pincode">
+        </div>
+
+    </div>
+
+    <div class="row">
+      <h4>Class Details</h4>
+        <div class="col-sm-3">
+            <div style="width:200px;">
                     {{ form.class_val.label(class='labelsize') }}
                     <br>
                     {% if form.class_val.errors %}
@@ -40,8 +105,8 @@
                     {% endif %}
             </div>
     </div>
-    <div class="col-sm-3">
-            <div style="width:150px;" >
+    <div class="col-sm-2">
+            <div style="width:100px;" >
                             {{ form.section.label(class='labelsize') }}
                             <div id='loader'style='display: none; float: right;'>
                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -59,30 +124,37 @@
                             {% endif %}                                                
             </div>
     </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
         <label for="roll_number">Roll Number</label>
         <input type="number" id="roll_number" name="roll_number" min=1 placeholder="Roll No.">
       </div>
+      <div class="col-sm-3">
+          <label for="school_admn_no">Admission No.</label>
+          <input type="number" id="school_admn_no" name="school_admn_no" min=1 placeholder="School Admission No.">
+        </div>
     </div>
 
     <div class="row">
         <div class="col-sm-3">
             <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-            <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+            <input type="hidden" id="profile_image" name="profile_image" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
         </div>
       </div>
-        <div id="guardianbox" name="guardianbox">
-        </div>
-        <div class="row">
-        <div class="col-sm-8">
-        <p><input type='button' style=" float:right;width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
-      </div>
-    </div>
-      
 </div>
 <div class="col-sm-3">
-        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/cam.png">
+        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png"><br>
+        <br>
+        <div class="col-sm-3">
+            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+            <input type="hidden" id="profile_image" name="profile_image" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
+        </div>
 </div>
+
+</div>
+<div id="guardianbox" name="guardianbox">
+  </div>
+
+  <p><input type='button' style=" margin-left:500px; width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
 
 </div>
 </div>
@@ -90,10 +162,23 @@
 
 
 <script>
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+ if(dd<10){
+        dd='0'+dd
+    } 
+    if(mm<10){
+        mm='0'+mm
+    } 
+
+today = yyyy+'-'+mm+'-'+dd;
+document.getElementById("birthdate").setAttribute("max", today);
+
 var class_select = document.getElementById("class_val");
         var section_select = document.getElementById("section");
         class_select.onchange = function()  {
-             
             class_val = class_select.value;
             $("#loader").show();
             
@@ -109,18 +194,27 @@ var class_select = document.getElementById("class_val");
             });
         }
   var guardianbox_data='';
+  var prevguardianbox_data='';
   var count=0;
   function addGuardian(){
   var row_id=document.getElementById('guardianbox');
   count+=1;
-  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
-  guardianbox_data+=`<div class='row'>
-  <h4 style="text-weight:Bold;">Guardian`+count+`</h4>
-  <div class='col-sm-6'>
-  <label for='guardian_name'>Guardian Name</label><input type='text' name='guardian_name' id='guardian_name' placeholder='guardian_name'></div>
-  <div class='col-sm-5'><label for='guardian_phone'>Guardian Phone No.</label><input type='text' name='guardian_phone' id='guardian_phone' placeholder='guardian_phone'></div></div>
-  <div class='row'><div class='col-sm-8'><label for='guardian_email'>Guardian Email</label><input type='email' id='guardian_email' name='guardian_email' placeholder='Email Address'></div></div>
-  <div class='row'><div class='col-sm-6'>
+  if (count>2)
+  {alert('Students can have atmost 2 Guaridians');
+  return;}
+  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-bottom: 5px; margin-top:5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+  guardianbox_data+=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+  <div style='border:1px solid; padding-left:10px; padding-top:5px;'>
+  <div class='row'>
+  <div class='col-sm-3'>
+  <label for='guardian_first_name'>First Name</label><input type='text' name='guardian_first_name' id='guardian_first_name' placeholder='First Name'></div>
+  <div class='col-sm-3'>
+  <label for='guardian_last_name'>Last Name</label><input type='text' name='guardian_last_name' id='guardian_last_name' placeholder='Last Name'></div>
+  <div class='col-sm-4'><label for='guardian_email'>Guardian Email</label><input type='email' id='guardian_email' name='guardian_email' placeholder='Email Address'></div>
+  </div>
+  <div class='row'>
+      <div class='col-sm-3'><label for='guardian_phone'>Guardian Phone No.</label><input type='text' name='guardian_phone' id='guardian_phone' placeholder='Guardian Phone No.'></div>
+<div class='col-sm-2'>
     <div style="width:250px;">
         {{ form.relation.label(class='labelsize') }}
             <br>
@@ -135,7 +229,7 @@ var class_select = document.getElementById("class_val");
         {{ form.relation(class='form-control') }}
         {% endif %}
     </div>
-  </div></div>`;
+  </div></div></div>`;
   row_id.innerHTML=guardianbox_data+submitButton;
 
 }
@@ -161,7 +255,7 @@ var class_select = document.getElementById("class_val");
           if(xhr.status === 200 || xhr.status === 204){
             
             document.getElementById('preview').src = url;
-            document.getElementById('reference').value = url;
+            document.getElementById('profile_image').value = url;
           }
           else{
             window.alert("this is where the problem is");

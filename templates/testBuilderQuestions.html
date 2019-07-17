@@ -4,31 +4,6 @@
     <div class="card-body">
         <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
             <table class="table table-bordered table-responsive-md table-striped text-center">
-<<<<<<< HEAD
-                    <thead>
-                            <tr>
-                                <th scope="col">Question</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Select</th>
-                                <th scope="col">Weightage</th>
-                            </tr>
-                    </thead>
-                    <tbody>     
-                        {% for q in questions %}
-                        {% for question in q %}
-                                <tr>
-                                    <td>{{ question.question_description }}</td>
-                                    <td> {{ question.question_type }} </td>
-                                    <td><label  for="{{ question.question_id }}">
-                                    <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox" value="{{ question.question_id }}" onchange="calculate_marks(this);"><span></span>
-                                        </label></td>
-                                    
-                                    <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}" id="{{ question.question_id }}select"></td>
-                                </tr>
-                            {% endfor %}
-                            {% endfor %}
-                    </tbody>
-=======
                 <thead>
                     <tr>
                         <th scope="col">Question</th>
@@ -54,7 +29,6 @@
                     {% endfor %}
                     {% endfor %}
                 </tbody>
->>>>>>> AT-103
             </table>
         </div>
     </div>
