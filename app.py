@@ -162,8 +162,7 @@ def reset_password(token):
         return redirect(url_for('index'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        user.set_password(form.password.data)
-        
+        user.set_password(form.password.data)        
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
@@ -171,8 +170,10 @@ def reset_password(token):
 
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
-def schoolRegistration():   
-    return render_template('schoolRegistration.html')
+def schoolRegistration():  
+    form = SchoolRegistrationForm()
+    form1 = PaymentDetailsForm() 
+    return render_template('schoolRegistration.html',form=form, form1=form1)
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -185,10 +186,8 @@ def singleStudReg():
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
-def studentRegistration():
-    form = SchoolRegistrationForm()
-    form1 = PaymentDetailsForm()
-    return render_template('studentRegistration.html', form=form, form1=form1)
+def studentRegistration():    
+    return render_template('studentRegistration.html')
 
 
 '''camera section'''
@@ -575,13 +574,8 @@ def classCon():
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
-
-        print(classTrackerDetails)
-
-        #endOfQueries
-
-        #print(classTrackerDetails)
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #endOfQueries        
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
