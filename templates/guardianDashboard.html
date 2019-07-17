@@ -1,0 +1,38 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <div style="width:100%; height: 100%;" class="container">
+    {% if students %}
+    {% for student in students %}
+        
+        <div style="width:600px;height:225px; border:1px solid; padding: 10px;margin: auto;">
+                <h4>Ward {{ student }}</h4>
+        <div class="col-sm-9">
+            <div class="row">
+        <label>Name : </label><span>{{ student }}</span>
+        <label>Class : </label><span>{{ student }}+class</span>
+        </div>
+        <div class="row">
+                <label>Name : </label><span>{{ student }}</span>
+                <label>Class : </label><span>{{ student }}+class</span>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <a href="{{url_for('studentProfile')}}"><input type="button" style="width:100px; height: 40px" value="Profile Detials"></a>
+                    </div>
+                    <div class="col-sm-5">
+                            <a href="{{url_for('questionBuilder')}}"><input type="button" style="width:150px; height: 40px" value="Performance Detials"></a>
+                        </div>
+                </div>
+        </div>
+        <div class="col-sm-3">
+            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/avatar.png" width="100px;" height="100px;"> 
+        </div>
+        </div>
+        <br><br>
+    {% endfor %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

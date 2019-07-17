@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField,IntegerField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired
 from applicationDB import User,TestDetails
 from flask import request
 from wtforms.fields.html5 import DateField
+from datetime import datetime
+from wtforms.widgets import html5
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -80,6 +82,7 @@ class ResultQueryForm(FlaskForm):
     class_val=SelectField('Select Class')
     section=SelectField('Select Section')
     test_type=SelectField('Test Type')
+    testdate=DateField('Test Date')
     subject_name=SelectField('Subject')
     #submit=SubmitField('Submit')
 
@@ -97,8 +100,12 @@ class ResultQueryForm(FlaskForm):
       #      raise ValidationError('* Please Select a Subject')
 
 class MarksForm(FlaskForm):
-    marks=StringField('Marks', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    marks=IntegerField('Marks',validators=[DataRequired()])
     upload=SubmitField('Upload')
+    def validate_marks(self,marks):
+        if marks.data=='':
+            raise ValidationError('* Please fill the field ')
+
 
 class QuestionBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
@@ -171,14 +178,24 @@ class addEventForm(FlaskForm):
 
 class SingleStudentRegistration(FlaskForm):
     roll_number = StringField('Roll Number', validators=[Length(max=100)])
-    fist_name = StringField('First Name', validators=[Length(max=100)])
-    last_name = StringField('Last Name', validators=[Length(max=100)])
-    class_val = StringField('Class', validators=[Length(max=100)])
-    birthdate = DateField('Birth Date', format='%d/%m/%Y')
-    address = StringField('Addess', validators=[Length(max=100)])
-    section = StringField('Section', validators=[Length(max=100)])
-    profilePicture = StringField('Profile Picture', validators=[Length(max=100)])
-    guardian_name = StringField('Guardian Name', validators=[Length(max=100)])
+    first_name = StringField('First Name', validators=[Length(max=100),DataRequired()])
+    last_name = StringField('Last Name', validators=[Length(max=100),DataRequired()])
+    class_val = SelectField('Class')
+    school_admn_no=StringField('School Admission No.', validators=[Length(max=10),DataRequired()])
+    gender=SelectField('Gender',choices=[(c, c) for c in ['Male', 'Female', 'Other']])
+    birthdate = DateField('Birth Date')
+    phone=StringField('Phone No.',validators=[Length(max=10),DataRequired()])
+    address1 = StringField('Address 1', validators=[Length(max=100),DataRequired()])
+    address2 = StringField('Addess 2', validators=[Length(max=100)])
+    locality = StringField('locality', validators=[Length(max=100)])
+    city = StringField('city', validators=[Length(max=100),DataRequired()])
+    state = StringField('state', validators=[Length(max=100),DataRequired()])
+    pincode = StringField('Pin code', validators=[Length(max=100),DataRequired()])
+    country = StringField('Addess', validators=[Length(max=100),DataRequired()])
+    section = SelectField('Section')
+    guardian_first_name = StringField('Guardian Name', validators=[Length(max=100)])
+    guardian_last_name = StringField('Guardian Name', validators=[Length(max=100)])
     guardian_email = StringField('Guardian Email ', validators=[Length(max=100)])
     guardian_phone = StringField('Guardian Phone', validators=[Length(max=100)])
-    relation = StringField('Relation',choices=[(c, c) for c in ['Father', 'Mother', 'Other']])    
+    relation = SelectField('Relation',choices=[(c, c) for c in ['Father', 'Mother', 'Other']])   
+    submit=SubmitField('Confirm') 

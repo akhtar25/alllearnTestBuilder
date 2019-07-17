@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -105,11 +105,11 @@ def sign_s3():
     print(file_name)    
     file_type = request.args.get('file-type')
     print(file_type)
-    if file_type=='image/png' or file_type=='image/jpeg':
-        file_type_folder='images'
+    #if file_type=='image/png' or file_type=='image/jpeg':
+     #   file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
-    folder_name=request.args.get('folder')
+    #folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
@@ -124,7 +124,7 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s/%s/%s' % (S3_BUCKET, folder_name, file_type_folder,file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,file_name)
     })
 
 
@@ -182,12 +182,102 @@ def bulkStudReg():
 
 @app.route('/singleStudReg')
 def singleStudReg():
-    return render_template('_singleStudReg.html')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+    section_list=[(i.section,i.section) for i in available_section]
+    form=SingleStudentRegistration()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.section.choices= section_list
+    return render_template('_singleStudReg.html',form=form)
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
-def studentRegistration():    
-    return render_template('studentRegistration.html')
+@login_required
+def studentRegistration():
+    form=SingleStudentRegistration()
+    if request.method=='POST':
+        if form.submit.data:
+            address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+            db.session.add(address_data)
+            address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address1.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+            teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
+            gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+            student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+            school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+            dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+            roll_number=int(form.roll_number.data))
+            db.session.add(student)
+            student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
+            for i in range(4):
+                if i==0:
+                    option='A'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                elif i==1:
+                    option='B'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                elif i==2:
+                    option='C'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                else:
+                    option='D'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+                db.session.add(student_qr_data)
+            first_name=request.form.getlist('guardian_first_name')
+            last_name=request.form.getlist('guardian_last_name')
+            phone=request.form.getlist('guardian_phone')
+            email=request.form.getlist('guardian_email')
+            relation=request.form.getlist('relation')
+            for i in range(len(first_name)):
+                relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                email=email[i],phone=phone[i],student_id=student_data.student_id)
+                db.session.add(guardian_data)
+            db.session.commit()
+            flash('Successful upload !')
+            return render_template('studentRegistration.html',School_Name=school_name())
+        else:
+            csv_file=request.files['file-input']
+            df1=pd.read_csv(csv_file)
+            for index ,row in df1.iterrows():
+                address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=row['pin'],country=row['country'])
+                db.session.add(address_data)
+                address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=row['pin'],country=row['country']).first()
+                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section']).first()
+                gender=MessageDetails.query.filter_by(description=row['gender']).first()
+                date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
+                student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
+                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+                dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=row['school_adm_number'],
+                roll_number=int(row['roll_number']))
+                db.session.add(student_data)
+                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=row['school_adm_number']).first()
+                for i in range(4):
+                    if i==0:
+                        option='A'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + row['class_val'] + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    elif i==1:
+                        option='B'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + row['class_val'] + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    elif i==2:
+                        option='C'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + row['class_val'] + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    else:
+                        option='D'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + row['class_val'] + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+                        db.session.add(student_qr_data)
+                for i in range(2):
+                    relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                    guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + lrow['guardian1_last_name'],relation=relation_id.msg_id,
+                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                    db.session.add(guardian_data)
+            db.session.commit()
+            flash('Successful upload !')
+            return render_template('studentRegistration.html',School_Name=school_name())
+    return render_template('studentRegistration.html',School_Name=school_name())
 
 
 '''camera section'''
@@ -508,6 +598,8 @@ def testBuilderFileUpload():
     document.save('tempdocx/'+file_name)
     client = boto3.client('s3', region_name='ap-south-1')
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    os.remove('tempdocx/'+file_name)
+
     return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
 @app.route('/testPapers')
@@ -535,6 +627,12 @@ def recommendations():
 @login_required
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
+
+@app.route('/guardianDashboard')
+@login_required
+def guardianDashboard():
+    student=[1,2]
+    return render_template('guardianDashboard.html',School_Name=school_name(),students=student)
 
 @app.route('/class')
 @login_required
@@ -939,32 +1037,26 @@ def resultUpload():
         else:
             return render_template('resultUpload.html', form=form,School_Name=school_name())
     else:
-        if form1.validate_on_submit:
+        if form1.validate_on_submit():
             marks_list=request.form.getlist('marks')
             i=0
             student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
             for student in student_list:
-
                 if marks_list[i]=='-1':
                     marks=0
                     is_present=MessageDetails.query.filter_by(description='Not Present').first()
                 else:
                     marks=marks_list[i]
                     is_present=MessageDetails.query.filter_by(description='Present').first()
-                
-
                 Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
                 exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
                 test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
                 uploaded_by=session.get('teacher_id',None)
                 )
                 db.session.add(Marks)
-
                 i+=1
             db.session.commit()
             flash('Marks Uploaded !')
-        
-            
         return render_template('resultUpload.html',form=form,School_Name=school_name())
 
 
@@ -972,9 +1064,7 @@ def resultUpload():
 @app.route('/resultUpload/<class_val>')
 def section(class_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
-
+    sections = ClassSection.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     sectionArray = []
 
     for section in sections:
@@ -1003,7 +1093,15 @@ def questionBuilder():
                 else:
                     weightage=0
                     correct='N'
-                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage)
+                if i+1==1:
+                    option='A'
+                elif i+1==2:
+                    option='B'
+                elif i+1==3:
+                    option='C'
+                else:
+                    option='D'
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
                 db.session.add(options)
                 db.session.commit()
             flash('Success')
