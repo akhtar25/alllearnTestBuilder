@@ -115,6 +115,9 @@ class QuestionBuilderQueryForm(FlaskForm):
     option=StringField('Options')
     reference=StringField('Reference')
     submit=SubmitField('Confirm')
+    def validate_option(self,option):
+        if option.data=='':
+            raise ValidationError('Select the correct option')
 
 class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')

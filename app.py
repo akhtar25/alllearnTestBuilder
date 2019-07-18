@@ -115,7 +115,7 @@ def sign_s3():
     print(s3)
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = folder_name+'/images/'+file_name,
+      Key = file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -300,7 +300,7 @@ def studentRegistration():
                         guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
                         email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
                     db.session.add(guardian_data)
-                    
+
             db.session.commit()
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
