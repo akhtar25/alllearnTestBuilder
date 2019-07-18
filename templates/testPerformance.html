@@ -1,158 +1,206 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
 
-        <h3>Test Performance</h3>
+  <h3>Test Performance</h3>
 
-<div class="row">
-            <section class="col-lg-12 connectedSortable">
-              <div class="box-header with-border">
-                <h3 class="box-title">Average School Performance</h3>
-              </div>
-
-              <div id='graphDiv' style="overflow: auto;top:-30px;"></div>              
-            </section>
-          </div>
-
-<div class="row">
-  <section class="col-lg-12 connectedSortable">
-    <div id="testWisePerformanceDiv">
+  <div class="row">
+    <section class="col-lg-12 connectedSortable">
       <div class="box-header with-border">
-     <h3 class="box-title">Test Wise Performance</h3>
-     </div>
-    <div id="twpControls" class="center"> 
-    <form>
- <div class="input-field col s2">
-    <select>      
-    <option value="" disabled selected>Select Class</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-    </select>
-    
-  </div>
-<div class="input-field col s2">
-    <select>      
-    <option value="" disabled selected>Select Section</option>
-      <option value="1">A</option>
-      <option value="2">B</option>
-      <option value="3">C</option>
-    </select>    
-  </div>
-<div class="input-field col s2">
-    <select> 
-    <option value="" disabled selected>Select Test Type</option>     
-      <option value="1">Weekly</option>
-      <option value="2">Mid Term</option>
-      <option value="3">End Term</option>
-    </select>
-    
+        <h3 class="box-title">Average School Performance</h3>
+      </div>
+
+      <div id='graphDiv' style="overflow: auto;top:-30px;"></div>
+    </section>
   </div>
 
-  <div class="input-field col s2">
-    <select>      
-    <option value="" disabled selected>Select Test Date</option>
-      <option value="1">12/2/19</option>
-      <option value="2">17/2/19</option>
-      <option value="3">25/2/19</option>
-    </select>
-    
-  </div>  
-  <input type="button" value="Load Data" class="btn" id="loadDataBTN" style="height: 40px; width: 100px;">              
-    </form>
+  <div class="row">
+    <section class="col-lg-12 connectedSortable">
+      <div id="testWisePerformanceDiv">
+        <div class="box-header with-border">
+          <h3 class="box-title">Test Wise Performance</h3>
+        </div>
+        <div id="twpControls" class="center">
+          <form>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Class</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+
+            </div>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Section</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">C</option>
+              </select>
+            </div>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Test Type</option>
+                <option value="1">Weekly</option>
+                <option value="2">Mid Term</option>
+                <option value="3">End Term</option>
+              </select>
+
+            </div>
+
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Test Date</option>
+                <option value="1">12/2/19</option>
+                <option value="2">17/2/19</option>
+                <option value="3">25/2/19</option>
+              </select>
+
+            </div>
+            <input type="button" value="Load Data" class="btn" id="loadDataBTN" style="height: 40px; width: 100px;">
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="row">
+    <div id="stackedStudentPerformance">
+      <!-- Plotly chart will be drawn inside this DIV -->
     </div>
+  </div>
+
+
+  <div class="row">
+    <section class="col-lg-12 connectedSortable">
+      <div id="indivStudentPerfDiv">
+        <div class="box-header with-border">
+          <h3 class="box-title">Student Level Details - Ayushi Rautela</h3>
+        </div>
+        <div id="indSTudControls" class="center">
+          <form>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Class</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+
+            </div>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Section</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">C</option>
+              </select>
+            </div>
+            <div class="input-field col s2">
+              <select>
+                <option value="" disabled selected>Select Student</option>
+                <option value="1">Ayushi</option>
+                <option value="2">Ankit</option>
+                <option value="3">Sonam</option>
+              </select>
+
+            </div>
+            <input type="button" value="Load Student Data" class="btn" id="loadStudentDataBTN"
+              style="height: 40px; width: 200px;">
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="row">    
+      <div id="indivStudentPerformance">        
+      </div>    
+  </div>
 </div>
-  </section>
-</div>
-<div class="row">
-   <div id="stackedStudentPerformance"><!-- Plotly chart will be drawn inside this DIV --></div>
-   </div>
-   </div>
 
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  var ssptrace1 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'English',
+    orientation: 'h',
+    marker: {
+      color: 'rgb(1, 0, 130)',
+      width: 2
+    },
+    type: 'bar'
+  };
 
-</div>
- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
- <script>
- var ssptrace1 = {
-  x: [60, 50, 70,70,70,70,70,70,70,70],
-  y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha','Deepak','Naveen','Shailesh','Sheyas'],
-  name: 'English',
-  orientation: 'h',
-  marker: {
-    color: 'rgb(1, 0, 130)',
-    width: 2
-  },
-  type: 'bar'
-};
+  var ssptrace2 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 50, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Hindi',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 56, 130)',
+      width: 1
+    }
+  };
 
-var ssptrace2 = {
-  x: [60, 50, 70,70,70,70,70,50,70,70],
-  y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha','Deepak','Naveen','Shailesh','Sheyas'],
-  name: 'Hindi',
-  orientation: 'h',
-  type: 'bar',
-  marker: {
-    color: 'rgb(1, 56, 130)',
-    width: 1
-  }
-};
+  var ssptrace3 = {
+    x: [60, 50, 70, 70, 70, 70, 50, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Math',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 101, 130)',
+      width: 1
+    }
+  };
 
-var ssptrace3 = {
-  x: [60, 50, 70,70,70,70,50,70,70,70],
-  y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha','Deepak','Naveen','Shailesh','Sheyas'],
-  name: 'Math',
-  orientation: 'h',
-  type: 'bar',
-  marker: {
-    color: 'rgb(1, 101, 130)',
-    width: 1
-  }
-};
+  var ssptrace4 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 70, 70, 50],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Science',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 162, 130)',
+      width: 1
+    }
+  };
 
-var ssptrace4 = {
-  x: [60, 50, 70,70,70,70,70,70,70,50],
-  y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha','Deepak','Naveen','Shailesh','Sheyas'],
-  name: 'Science',
-  orientation: 'h',
-  type: 'bar',
-  marker: {
-    color: 'rgb(1, 162, 130)',
-    width: 1
-  }
-};
-
-var ssptrace5 = {
-  x: [60, 50, 70,70,50,70,70,70,70,70],
-  y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha','Deepak','Naveen','Shailesh','Sheyas'],
-  name: 'Social Science',
-  orientation: 'h',
-  type: 'bar',
-  marker: {
-    color: 'rgb(1, 204, 130)',
-    width: 1
-  }
-};
+  var ssptrace5 = {
+    x: [60, 50, 70, 70, 50, 70, 70, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Social Science',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 204, 130)',
+      width: 1
+    }
+  };
 
 
 
-var data = [ssptrace1, ssptrace2,ssptrace3,ssptrace4,ssptrace5];
+  var data = [ssptrace1, ssptrace2, ssptrace3, ssptrace4, ssptrace5];
 
-var layout = {
-  title: '',
-  barmode: 'stack'
-};
+  var layout = {
+    title: '',
+    barmode: 'stack'
+  };
 
-Plotly.newPlot('stackedStudentPerformance', data, layout, { showlegend: true, displayModeBar: false });
-
+  Plotly.newPlot('stackedStudentPerformance', data, layout, {
+    showlegend: true,
+    displayModeBar: false
+  });
 </script>
 <script>
-$(document).ready(function(){
+  $(document).ready(function () {
     $('select').formSelect();
   });
-        
 </script>
 
 <script>
-  var graphData = {{ graphJSON | safe}};
+  var graphData = {{graphJSON | safe}};
   for (key in graphData) {
     value1 = graphData[key].data1[0];
     value2 = graphData[key].data2[0];
@@ -166,6 +214,84 @@ $(document).ready(function(){
     value10 = graphData[key].data10[0];
   }
   var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
-  Plotly.newPlot('graphDiv', data, {}, { showlegend: true, displayModeBar: false });
+  Plotly.newPlot('graphDiv', data, {}, {
+    showlegend: true,
+    displayModeBar: false
+  });
+</script>
+
+<script>
+  var trace1 = {
+    x: ["07/2012", "08/2012", "09/2012", "10/2012", "11/2012"],
+    y: [60, 80, 70, 80, 60],
+    mode: 'lines+markers',
+    name: 'English',
+    line: {
+      shape: 'spline'
+    },
+    type: 'scatter'
+  };
+
+  var trace2 = {
+    x: ["07/2012", "08/2012", "09/2012", "10/2012", "11/2012"],
+    y: [60, 90, 80, 70, 50],
+    mode: 'lines+markers',
+    name: 'Hindi',
+    line: {
+      shape: 'spline'
+    },
+    type: 'scatter'
+  };
+
+  var trace3 = {
+    x: ["07/2012", "08/2012", "09/2012", "10/2012", "11/2012"],
+    y: [60, 100, 40, 80, 60],
+    mode: 'lines+markers',
+    name: 'Math',
+    line: {
+      shape: 'spline'
+    },
+    type: 'scatter'
+  };
+
+  var trace4 = {
+    x: ["07/2012", "08/2012", "09/2012", "10/2012", "11/2012"],
+    y: [70, 80, 60, 50, 20],
+    mode: 'lines+markers',
+    name: 'Science',  
+    line: {
+      shape: 'spline'
+    },
+    type: 'scatter'
+  };
+
+  var trace5 = {
+    x: ["07/2012", "08/2012", "09/2012", "10/2012", "11/2012"],
+    y: [60, 45, 65, 25, 60],
+    mode: 'lines+markers',
+    name: 'SSc',
+    line: {
+      shape: 'spline'
+    },
+    type: 'scatter'
+  };
+
+  var data = [trace1, trace2, trace3, trace4, trace5];
+
+  var layout = {
+    legend: {
+      y: 0.5,
+      traceorder: 'reversed',
+      font: {
+        size: 16
+      },
+      yref: 'paper'
+    }
+  };
+
+  Plotly.newPlot('indivStudentPerformance', data, layout, {
+    showlegend: true,
+    displayModeBar: false
+  });
 </script>
 {%endblock%}
