@@ -82,6 +82,9 @@
             {% endif %}
         </div>
         <div class="col-sm-9" id="questions" style="display: none;">
+                <div id="questionloader" style="display: none;">
+                        <img src='../static/images/spinner.gif' width='150px' height='150px' style="margin:auto;">
+                        </div>
         </div>
     </div>
     <div id="filebox" style="display: none;">
@@ -122,8 +125,12 @@
             type: "POST",
             contentType: "application/json",
             data: checkboxesChecked,
+            beforeSend: function() {
+                $("#questions").show();  
+              $("#questionloader").show();
+           },
             success: function (response) {
-                $("#questions").show();
+                $("#questionloader").hide();
                 $("#questions").html(response);
             },
             error: function (xhr) {
@@ -165,8 +172,15 @@
             }
         });
     }
-    function calculate_marks() {
-        count_marks += 10;
+    function calculate_marks(element) {
+        if($(element).is(':checked'))
+        {
+            count_marks-=10
+        }
+    else{
+        count_marks-=10
+    }
+       
         var box = document.getElementById('marks');
         box.innerHTML = count_marks;
     }
