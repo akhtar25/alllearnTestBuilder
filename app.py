@@ -687,10 +687,10 @@ def loadQuestion():
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
-    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
     for option in questionOp:
         print(option.option_desc)
-    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)    
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
@@ -837,7 +837,7 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "' and resp_session_id='" +resp_session_id+ "'"
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
@@ -846,7 +846,52 @@ def studentFeedbackReport():
 @app.route('/testPerformance')
 @login_required
 def testPerformance():
-    return render_template('testPerformance.html')
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+    #####Fetch school perf graph information##########
+        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        #print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        #print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+            )]        
+        #print(graphData)
+
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('testPerformance.html', graphJSON = graphJSON )
 
 
 @app.route('/classPerformance')
