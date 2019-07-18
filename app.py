@@ -272,7 +272,6 @@ def studentRegistration():
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
                 if row['guardian1_email']!='' and row['guardian2_email']!='':
-
                     for i in range(2):
                         relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
                         if relation_id is not None:
@@ -300,7 +299,6 @@ def studentRegistration():
                         guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
                         email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
                     db.session.add(guardian_data)
-
             db.session.commit()
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())

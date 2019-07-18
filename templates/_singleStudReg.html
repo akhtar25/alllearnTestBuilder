@@ -234,7 +234,7 @@ var class_select = document.getElementById("class_val");
 
 }
 
- /*
+  /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
     function uploadFile(file, s3Data, url){
@@ -273,7 +273,7 @@ var class_select = document.getElementById("class_val");
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
 
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
