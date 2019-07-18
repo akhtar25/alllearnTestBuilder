@@ -687,10 +687,10 @@ def loadQuestion():
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
-    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
     for option in questionOp:
         print(option.option_desc)
-    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)    
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
