@@ -349,6 +349,7 @@ class GuardianProfile(db.Model):
     relation = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     email = db.Column(db.String(150), nullable= True)
     phone = db.Column(db.String(12), nullable=True)
+    user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
 
 
