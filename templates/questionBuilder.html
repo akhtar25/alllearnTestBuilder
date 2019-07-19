@@ -31,7 +31,7 @@
     var upload_type1=document.getElementById('upload_type1')
     var upload_type2=document.getElementById('upload_type2')
     var new_form=document.getElementById('new')
-    upload_type1.onchange=function(){
+    upload_type1.onclick=function(){
         $(function(){
             $.ajax({
                   url: "/questionUpload",
@@ -48,7 +48,7 @@
         });
         
     }
-    upload_type2.onchange=function(){
+    upload_type2.onclick=function(){
        
         $(function(){
             $.ajax({
