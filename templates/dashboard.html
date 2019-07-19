@@ -3,72 +3,75 @@
 <div class="container">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" name="viewport">
   <link rel="stylesheet" href="../static/bower_components/jvectormap/jquery-jvectormap.css">
-    <link rel="stylesheet" href="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>    
-<body class="white">
-<div class="wrapper">
-  <div>
-    <section class="content-header">
-      <h1>
-        Dashboard
-      </h1>
-    </section>
-    <section class="content">      
-      <div class= "row">
-        <section class="col-lg-12 connectedSortable" >
-          <div class="box-header with-border">
-          <h3 class="box-title">Average School Performance</h3>   </div>
-          
-          <div id='graphDiv' style="overflow: auto;top:-30px;"></div>        
-          <div class="box-footer text-right">
-              <a href="{{url_for('classPerformance')}}" class="uppercase">See Class Performance</a>
-            </div> 
+  <link rel="stylesheet" href="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <body class="white">
+    <div class="wrapper">
+      <div>
+        <section class="content-header">
+          <h1>
+            Dashboard
+          </h1>
         </section>
-      </div>
-      <div class="row">
-          <section class="col-lg-7 connectedSortable" style="padding-top:5px;" >
-            <div class="box box-danger">
-              <div style="overflow-y:auto;height:300px">
-                <div class="box-header with-border">
-                <p class="text-center">
-                  <h4 class="box-title">Course Completion</h4>
-                </p>
-                </div>
-                {% if topicToCoverDetails|length >0  %}    
-                {% for topicCountRow in topicToCoverDetails %}         
-                <div class="progress-group">
-                  <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
-                  <span class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
-                  <div class="progress sm">               
-                    {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
-                    <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
-                  </div>
-                </div>  
-                {% endfor %}                
-                {% else %}
-                <h2 class="grey-text lighten-3">No Data yet </h2>
-                {% endif %}
-                <!-- /.progress-group -->
+        <section class="content">
+          <div class="row">
+            <section class="col-lg-12 connectedSortable">
+              <div class="box-header with-border">
+                <h3 class="box-title">Average School Performance</h3>
               </div>
+
+              <div id='graphDiv' style="overflow: auto;top:-30px;"></div>
               <div class="box-footer text-right">
+                <a href="{{url_for('classPerformance')}}" class="uppercase">See Class Performance</a>
+              </div>
+            </section>
+          </div>
+          <div class="row">
+            <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
+              <div class="box box-danger">
+                <div style="overflow-y:auto;height:300px">
+                  <div class="box-header with-border">
+                    <p class="text-center">
+                      <h4 class="box-title">Course Completion</h4>
+                    </p>
+                  </div>
+                  {% if topicToCoverDetails|length >0  %}
+                  {% for topicCountRow in topicToCoverDetails %}
+                  <div class="progress-group">
+                    <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
+                    <span
+                      class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
+                    <div class="progress sm">
+                      {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
+                      <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% else %}
+                  <h2 class="grey-text lighten-3">No Data yet </h2>
+                  {% endif %}
+                  <!-- /.progress-group -->
+                </div>
+                <div class="box-footer text-right">
                   <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
                 </div>
               </div>
-            </section>  
-      <section class="col-lg-5 connectedSortable">
-          
-          <div class="box box-danger" style="overflow-y:auto;height:300px">
-                <div class="box-header with-border" >
-                  <h3 class="box-title">Top Students This Month</h3>                  
+            </section>
+            <section class="col-lg-5 connectedSortable">
+
+              <div class="box box-danger" style="overflow-y:auto;height:300px">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Top Students This Month</h3>
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body no-padding"style="overflow-y:auto;height:200px">
-                  {% if topStudentsRows|length >0  %}                  
+                <div class="box-body no-padding" style="overflow-y:auto;height:200px">
+                  {% if topStudentsRows|length >0  %}
                   <ul class="users-list clearfix">
                     {% for topRow in topStudentsRows %}
                     <li>
                       <img src="../static/images/avatar5.jpg" alt="Student Image">
-                      <a class="users-list-name" href="#">{{topRow.student_name}}</a>                      
+                      <a class="users-list-name" href="#">{{topRow.student_name}}</a>
                     </li>
                     {%  endfor %}
                   </ul>
@@ -82,84 +85,80 @@
                   <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
                 </div>
                 <!-- /.box-footer -->
-              </div>              
-          <!-- /.box -->          
-        </section> 
-      </div>
-      <div class="row" >          
-        <!-- right col -->
-      </div>
-      <div class="row">
-        <section class="col-lg-12 connectedSortable" >
-                  
-        <div class="box box-info">
-          <div class="box-header with-border">
-            <h3 class="box-title">Upcoming Tests and Events</h3>
+              </div>
+              <!-- /.box -->
+            </section>
           </div>
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div>
-            <div class="table-responsive"  style="overflow: auto;height:300px;">
-              <table class="table no-margin">
-                <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Test</th>
-                  <th>Duration</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                  <th>Category</th>                  
-                </tr>
-                </thead>
-                <tbody>
-                  {% for eventRow in EventDetailRows %}
-                <tr>
-                  <td>{{eventRow.event_date}}</td>
-                  <td><span class="label label-success">{{eventRow.event_name}}</span></td>
-                  <td>{{eventRow.event_duration}}</td>
-                  <td>{{eventRow.event_start}}</td>
-                  <td>{{eventRow.event_end}}</td>
-                  <td>
-                      {{eventRow.event_category}}
-                  </td>                  
-                </tr>               
-                {% endfor %}                          
-                </tbody>
-              </table>              
-            </div>        
-          </div>         
-          </div>                
-        </div>        
-      
-      <div class="box-footer text-right">
-          <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
-        </div> 
-</section>
+          <div class="row">
+            <!-- right col -->
+          </div>
+          <div class="row">
+            <section class="col-lg-12 connectedSortable">
+
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Upcoming Tests and Events</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <div>
+                    <div class="table-responsive" style="overflow: auto;height:300px;">
+                      <table class="table no-margin">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Test</th>
+                            <th>Duration</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Category</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for eventRow in EventDetailRows %}
+                          <tr>
+                            <td>{{eventRow.event_date}}</td>
+                            <td><span class="label label-success">{{eventRow.event_name}}</span></td>
+                            <td>{{eventRow.event_duration}}</td>
+                            <td>{{eventRow.event_start}}</td>
+                            <td>{{eventRow.event_end}}</td>
+                            <td>
+                              {{eventRow.event_category}}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="box-footer text-right">
+                <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
+              </div>
+            </section>
+          </div>
+        </section>
       </div>
-    </section>
-  </div>
+    </div>
+  </body>
 </div>
-</body>
-</div>
-<!--<script>
-  $.widget.bridge('uibutton', $.ui.button);
-</script>-->
 <script>
-var graphData = {{graphJSON | safe}};
-for(key in graphData) {
-  //value = graphData[key].data
-  value1 = graphData[key].data1[0];
-  value2 = graphData[key].data2[0];
-  value3 = graphData[key].data3[0];
-  value4 = graphData[key].data4[0];
-  value5 = graphData[key].data5[0];
-  value6 = graphData[key].data6[0];
-  value7 = graphData[key].data7[0];
-  value8 = graphData[key].data8[0];
-  value9 = graphData[key].data9[0];
-  value10 = graphData[key].data10[0];
-}
-var data = [value1, value2,value3, value4, value5, value6, value7, value8, value9, value10];
-Plotly.newPlot('graphDiv', data, {}, {showlegend: true, displayModeBar: false});
+  var graphData = {{ graphJSON | safe}};
+  for (key in graphData) {
+    value1 = graphData[key].data1[0];
+    value2 = graphData[key].data2[0];
+    value3 = graphData[key].data3[0];
+    value4 = graphData[key].data4[0];
+    value5 = graphData[key].data5[0];
+    value6 = graphData[key].data6[0];
+    value7 = graphData[key].data7[0];
+    value8 = graphData[key].data8[0];
+    value9 = graphData[key].data9[0];
+    value10 = graphData[key].data10[0];
+  }
+  var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
+  Plotly.newPlot('graphDiv', data, {}, { showlegend: true, displayModeBar: false });
 </script>
 {%endblock%}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+	<title>JQuery HTML5 QR Code Scanner using Instascan JS Example - ItSolutionStuff.com</title>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+</head>
+
+<body>
+
+  
+
+    <h1>JQuery HTML5 QR Code Scanner using Instascan JS Example - ItSolutionStuff.com</h1>
+
+    
+
+    <video id="preview"></video>
+<aside>
+  <div class="col-md-3" style="margin-top:20px;">
+                    <div id="answerCounter" style="overflow-y: auto; height:200px;">
+                    <h4>Response Summary</h4> 
+                      <div id="ResponseList">                
+                        <form id="responseForm">
+                          <div id="result_strip">
+                        <ul class="thumbnails" id="resultUL"></ul>
+                          </div>
+                            <div id="questionListSizeDiv">                      
+                           </div>
+                        </form>
+                      </div>
+                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
+                </div>              
+                </div>  
+</aside>
+
+<input type="button" id="startScanner" value="Start Scanner">
+
+<input type="button" id="stopScanner" value="Stop Scanner">
+
+
+
+    <script type="text/javascript">
+    var result_strip = document.getElementById("result_strip");
+    var resultListHTML = "";
+    var answerReceived = [];
+      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+      scanner.addListener('scan', function (content) {
+          resultListHTML += "<li>"+content+"</li>";
+          result_strip.innerHTML=resultListHTML;
+          answerReceived.push(content);
+        //alert(content);
+      });
+      alert(answerReceived.length);
+$('#startScanner').click(function(){
+      Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner.start(cameras[0]);
+        } else {
+          console.error('No cameras found.');
+        }
+      }).catch(function (e) {
+        console.error(e);
+      });
+      });
+$('#stopScanner').click(function(){
+scanner.stop();
+result_strip.innerHTML="";
+     });
+    </script>
+
+   
+
+</body>
+
+</html>

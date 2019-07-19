@@ -163,8 +163,7 @@ def reset_password(token):
         return redirect(url_for('index'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        user.set_password(form.password.data)
-        
+        user.set_password(form.password.data)        
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
@@ -172,8 +171,10 @@ def reset_password(token):
 
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
-def schoolRegistration():   
-    return render_template('schoolRegistration.html')
+def schoolRegistration():  
+    form = SchoolRegistrationForm()
+    form1 = PaymentDetailsForm() 
+    return render_template('schoolRegistration.html',form=form, form1=form1)
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -192,6 +193,7 @@ def singleStudReg():
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
+<<<<<<< HEAD
 @login_required
 def studentRegistration():
     form=SingleStudentRegistration()
@@ -303,6 +305,10 @@ def studentRegistration():
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
     return render_template('studentRegistration.html',School_Name=school_name())
+=======
+def studentRegistration():    
+    return render_template('studentRegistration.html')
+>>>>>>> master
 
 
 '''camera section'''
