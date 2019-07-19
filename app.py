@@ -193,7 +193,6 @@ def singleStudReg():
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
-<<<<<<< HEAD
 @login_required
 def studentRegistration():
     form=SingleStudentRegistration()
@@ -305,12 +304,6 @@ def studentRegistration():
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
     return render_template('studentRegistration.html',School_Name=school_name())
-=======
-def studentRegistration():    
-    return render_template('studentRegistration.html')
->>>>>>> master
-
-
 '''camera section'''
 
 @app.route('/video_feed')
