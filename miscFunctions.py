@@ -24,6 +24,7 @@ from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
+import random
 import pandas as pd
 import pprint
 
@@ -32,9 +33,26 @@ def subjects(class_val):
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=class_val,board_id=board_id).all()
     subject_name_list=[]
-
     for id in subject_id:
+        subject_name=MessageDetails.query.filter_by(msg_id=id).first()
+        if subject_name in subject_name_list:
+            continue
+        subject_name_list.append(subject_name)
+    subjectArray = []
+    
+    for subject in subject_name_list:
+        subjectObj = {}
+        subjectObj['subject_id'] = subject.msg_id
+        subjectObj['subject_name'] = subject.description
+        subjectArray.append(subjectObj)
 
+    return subjectArray
+
+def subjectPerformance(class_val,school_id):
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=school_id).first()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=class_val,board_id=board_id).all()
+    subject_name_list=[]
+    for id in subject_id:
         subject_name=MessageDetails.query.filter_by(msg_id=id).first()
         if subject_name in subject_name_list:
             continue
@@ -45,9 +63,14 @@ def subjects(class_val):
         subjectObj = {}
         subjectObj['subject_id'] = subject.msg_id
         subjectObj['subject_name'] = subject.description
+        subjectObj['subject_marks'] = random.randint(0,100)
+        subjectObj['subject_total_marks'] = 100
+        subjectObj['subject_avg_marks'] = subjectObj['subject_marks']
+        subjectObj['subject_class_avg'] = random.randint(70,100)
         subjectArray.append(subjectObj)
 
     return subjectArray
+
 
 
 def topics(class_val,subject_id):
