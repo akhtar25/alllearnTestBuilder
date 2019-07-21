@@ -1,0 +1,73 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+<div class="box-title">
+    <h3 class="box-title">Feedback Report - {{student_name}} </h3>
+</div>
+<div class="box-body table-responsive">
+<table class="table table-bordered table-hover table-striped text-center">
+                      <tr>
+                        <th>Q No</th>
+                        <th>Question Id</th>
+                        <th>Question</th>
+                        <th>Option Selected</th>
+                        <th>Correct Option</th>
+                        <th>Result</th>                        
+                      </tr>                                                                                 
+                      <tr> 
+                        <td> 1</td>
+                        <td> 1001</td>
+                        <td>What is the colour of the happy child’s house?</td>
+                        <td> A : Red</td>
+                       <td> A : Red</td>
+                       
+                        <td>  <i class="large material-icons icon-green">check</i> </td>
+                                     
+                       
+                      </tr>
+                       <tr> 
+                        <td> 2</td>
+                        <td> 1002</td>
+                        <td>What is the colour of the tree?</td>
+                        <td> C : Green</td>
+                        <td> C : Green</td>
+                          <td>  <i class="large material-icons icon-green">check</i> </td>                      
+                      </tr>
+                       <tr> 
+                        <td>3</td>
+                        <td> 1003</td>
+                        <td>What is the colour of the sun?</td>
+                        <td> A : Yellow</td>
+                       <td> A : Yellow</td>
+                       
+                        <td>  <i class="large material-icons icon-green">check</i> </td>
+                       
+                   
+                       
+                      </tr>
+                       <tr> 
+                        <td>4</td>
+                        <td> 1004</td>
+                        <td>Which of the following is a picture of an igloo?</td>
+                        <td> B </td>
+                       <td> A </td>
+                       
+            
+                       
+                        <td>  <i class="large material-icons icon-orangered">clear</i> </td>
+                       
+                      </tr>
+                       <tr> 
+                        <td> 5</td>
+                        <td> 1005</td>
+                        <td>What did the big wolf say to the pigs?</td>
+                        <td> C : I will huff and puff and I will blow your house down</td>
+                      <td> C : I will huff and puff and I will blow your house down</td>
+                       
+                        <td>  <i class="large material-icons icon-green">check</i> </td>
+                       
+                      </tr>
+          
+                    </table>                    
+                  </div>
+                </div>
+                  {%endblock%}

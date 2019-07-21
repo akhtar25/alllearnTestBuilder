@@ -5,7 +5,11 @@
     {% for student in students %}
         
         <div class="container z-depth-1">
-                <h4>Ward Details</h4>
+              <div class="row">
+            <div class="col-sm-5">
+                <h4>School Name : Shivalik Public School</h4>
+            </div>
+        </div>
         <div class="col-sm-9">
         <div class="row">
         <div class="col-sm-4">
@@ -18,25 +22,27 @@
                 <h4>Section : <span>A</span></h4>
                 </div>
         <div class="col-sm-4">
-                <h4>Avg score : <span>75.00%</span></h4>
+               <h4>Last Week's Average :  </h4><h3><span>75.00%</span></h3>
                 </div>
         </div>
-        <div class="row">
-            <div class="col-sm-5">
-                <h4>School Name : Shivalik Public School</h4>
-            </div>
-        </div>
+        
         </div>
         <div class="col-sm-3">
-            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/avatar.png"  class="circle responsive-img" style="width:130px; height:130px;"> 
+            <img src="{{student.profile_picture}}"  class="circle responsive-img" style="width:130px; height:130px;"> 
         </div>
 
         <div class="row">
+         <div class="col-sm-4">
+        <h4 class="text-green">Strengths: English, Social Science</h4>
+        </div>
+        
+        </div>
+        <div class="row">
                 <div class="col-sm-4">
-                    <a href="{{url_for('studentProfile')}}"><p><button class="btn waves-light green lighten-1 white-text">Profile Details</button></p></a>
+                    <a href="{{url_for('studentProfile')}}"><button class="btn waves-light green lighten-1 white-text">Profile Details</button></a>
                     </div>
                     <div class="col-sm-5">
-                        <a href="{{ url_for('performanceDetails',student_id=student.student_id) }}"><p><button class="btn waves-light green lighten-1 white-text">Performance Details</button></p></a>
+                        <a href="{{ url_for('performanceDetails',student_id=student.student_id) }}"><button class="btn waves-light green lighten-1 white-text">Performance Details</button></a>
                     </div>
                     </div>
         </div>

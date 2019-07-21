@@ -41,7 +41,7 @@
                         <td>{{row.topic_name}}</td>
                         <td>{{row.is_covered}}</td>                        
                         {% if row.is_covered == 'Y'%}
-                        <td>10%</td>
+                        <td>80%</td>
                         <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id)}}"><span class=" label label-success ">Retake Class</span></a></td>
                         {% else %}
                         <td>-</td>

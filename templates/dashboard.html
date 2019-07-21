@@ -65,27 +65,57 @@
                   <h3 class="box-title">Top Students This Month</h3>
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body no-padding" style="overflow-y:auto;height:200px">
-                  {% if topStudentsRows|length >0  %}
-                  <ul class="users-list clearfix">
-                    {% for topRow in topStudentsRows %}
+                <div class="box-body no-padding" style="overflow-y:auto;height:300px">
+         <ul class="users-list clearfix">
                     <li>
-                      <img src="../static/images/avatar5.jpg" alt="Student Image">
-                      <a class="users-list-name" href="#">{{topRow.student_name}}</a>
+                      <img src="../static/images/user1-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl1-Anurag</a>
+                      
                     </li>
-                    {%  endfor %}
+                    <li>
+                      <img src="../static/images/user2-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl2-Ayush</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user3-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl3-Shailesh</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user4-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl4-Ayushi</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user5-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl5-Ashish</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user6-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl6-Abhishek</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user7-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl7-Anuj</a>
+                      
+                    </li>
+                    <li>
+                      <img src="../static/images/user8-128x128.jpg" alt="User Image">
+                      <a class="users-list-name" href="#">Cl8-Sumit</a>
+                      
+                    </li>
                   </ul>
-                  {% else %}
-                  <h2 class="grey-text lighten-3">No Data yet </h2>
-                  {% endif %}
-                  <!-- /.users-list -->
                 </div>
                 <!-- /.box-body -->
-                <div class="box-footer text-right">
-                  <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
-                </div>
+               
                 <!-- /.box-footer -->
               </div>
+               <div class="box-footer text-right">
+                  <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
+                </div>
               <!-- /.box -->
             </section>
           </div>
