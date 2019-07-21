@@ -68,7 +68,19 @@
 <div class="row">
     <div class="col-sm-8">
     <h4>Questions</h4>
-    <input type="text" name="question_desc" id="" placeholder="Enter question"><br><br>
+    {{ form.question_desc.label(class='labelsize') }}
+    <br>
+    {% if form.question_desc.errors %}
+    {{ form.question_desc(class="form-control form-control-lg is-invalid") }}
+    <div class="invalid-feedback">
+    {% for error in form.question_descl.errors %}
+     <span>{{ error }}</span>
+    {% endfor %}
+    </div>
+    {% else %}
+    {{ form.question_desc(class='form-control') }}
+    {% endif %}
+    <br>
     <div class="row">
     <div class="col-sm-6">
     <label><input class="with-gap" id="option" name="option" type="radio" value="1"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc" name="option_desc"></span></label><br><br>
@@ -76,13 +88,13 @@
     <label><input class="with-gap" id="option" name="option" type="radio" value="3"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
     <label><input class="with-gap" id="option" name="option" type="radio" value="4"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br><br>
     <label for="weightage">Weightage</label>
-    <input type="text" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
+    <input type="number" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
+    <input type="hidden" id="reference" name="reference" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
     <div style="margin-top: 30px; margin-left: 10px;">
-            <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/default_reference.png">
+            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
         </div>
     </div>
     </div>
@@ -114,7 +126,12 @@
             })
             
         });
-        subject_id='54'
+        if (class_val>5){
+          subject_id='58';
+        }
+        else{
+        subject_id='54';
+        }
         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
@@ -133,7 +150,7 @@
     //for (i = 0; i < 20; i++) {
     //$('#topiclist').append('<input type="radio" name="radio_name" />');
 //}     
-
+      
 
          subject_select.onchange=function()  {
          
