@@ -983,6 +983,13 @@ def studentFeedbackReport():
 
     return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
 
+
+@app.route('/studentFeedbackReport_dummy')
+@login_required
+def studentFeedbackReport_dummy():
+    student_name = request.args.get('student_name')
+    return render_template('studentFeedbackReport_dummy.html',School_Name=school_name(),student_name=student_name)
+
 @app.route('/testPerformance')
 @login_required
 def testPerformance():
@@ -1031,13 +1038,13 @@ def testPerformance():
 
         graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template('testPerformance.html', graphJSON = graphJSON )
+    return render_template('testPerformance.html', graphJSON = graphJSON,School_Name=school_name() )
 
 
 @app.route('/classPerformance')
 @login_required
 def classPerformance():
-    return render_template('classPerformance.html')
+    return render_template('classPerformance.html',School_Name=school_name())
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
