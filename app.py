@@ -27,7 +27,7 @@ import pandas as pd
 import numpy as np
 import plotly
 import pprint
-from miscFunctions import subjects,topics
+from miscFunctions import subjects,topics,subjectPerformance
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
@@ -198,9 +198,11 @@ def studentRegistration():
     form=SingleStudentRegistration()
     if request.method=='POST':
         if form.submit.data:
-            address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-            db.session.add(address_data)
-            address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address1.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+            address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+            if address_id is None:
+                address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+                db.session.add(address_data)
+                address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
             class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
             gender=MessageDetails.query.filter_by(description=form.gender.data).first()
@@ -213,16 +215,16 @@ def studentRegistration():
             for i in range(4):
                 if i==0:
                     option='A'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 elif i==1:
                     option='B'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 elif i==2:
                     option='C'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 else:
                     option='D'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                 db.session.add(student_qr_data)
             first_name=request.form.getlist('guardian_first_name')
@@ -260,16 +262,16 @@ def studentRegistration():
                 for i in range(4):
                     if i==0:
                         option='A'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     elif i==1:
                         option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     elif i==2:
                         option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     else:
                         option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
                 if row['guardian1_email']!='' and row['guardian2_email']!='':
@@ -304,7 +306,8 @@ def studentRegistration():
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
     return render_template('studentRegistration.html',School_Name=school_name())
-    
+
+
 '''camera section'''
 
 @app.route('/video_feed')
@@ -653,13 +656,35 @@ def recommendations():
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
 
+@app.route('/guardianDashboard')
+@login_required
+def guardianDashboard():
+    guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
+    student=[]
+    for g in guardian:
+        student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        student.append(student_data)
+    return render_template('guardianDashboard.html',students=student)
+
+@app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
+@login_required
+def performanceDetails(student_id):
+    student=StudentProfile.query.filter_by(student_id=student_id).first()
+    if request.method=='POST':
+        student=StudentProfile.query.filter_by(student_id=student_id).first()
+        class_sec=ClassSection.query.filter_by(class_sec_id=student.class_sec_id).first()
+        subject=subjectPerformance(class_sec.class_val,class_sec.school_id)
+        print(subject)
+        date=request.form['performace_date']
+        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student)
+    return render_template('performanceDetails.html',students=student)
+
 @app.route('/class')
 @login_required
 def classCon():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-        
         qclass_val = request.args.get('class_val',1)
         qsection=request.args.get('section','A')
 
