@@ -127,10 +127,13 @@
             
         });
         if (class_val>5){
-          subject_id='58';
+          subject_id='56';
+        }
+        else if(class_val>2 && class_val<=5){
+        subject_id='55';
         }
         else{
-        subject_id='54';
+          subject_id='54';
         }
         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
