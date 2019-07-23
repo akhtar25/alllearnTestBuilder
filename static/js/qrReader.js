@@ -71,7 +71,9 @@ stopRecordingBTN.addEventListener('click', function(ev1){
     currQnum = currQnum+1;
     
     scanner.stop();
-    //Result.html('');  
+    if (Result.html()=='Recording responses...'){
+    Result.html('');  
+    }
 
     submitResponseData();  
 
