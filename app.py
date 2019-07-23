@@ -304,6 +304,7 @@ def studentRegistration():
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
     return render_template('studentRegistration.html',School_Name=school_name())
+    
 '''camera section'''
 
 @app.route('/video_feed')
