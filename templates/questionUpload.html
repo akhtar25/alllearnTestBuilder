@@ -184,7 +184,6 @@
     */
     function uploadFile(file, s3Data, url){
       const xhr = new XMLHttpRequest();
-      //alert("the url being posted" + s3Data.url);
       xhr.open('POST', s3Data.url);
       xhr.setRequestHeader('x-amz-acl', 'public-read');
       const postData = new FormData();

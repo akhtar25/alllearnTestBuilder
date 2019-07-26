@@ -373,7 +373,6 @@ var class_select = document.getElementById("class_val");
     */
     function uploadFile(file, s3Data, url){
       const xhr = new XMLHttpRequest();
-      //alert("the url being posted" + s3Data.url);
       xhr.open('POST', s3Data.url);
       xhr.setRequestHeader('x-amz-acl', 'public-read');
       const postData = new FormData();
@@ -414,7 +413,6 @@ var class_select = document.getElementById("class_val");
             const response = JSON.parse(xhr.responseText);
             //alert("this is reponse data"+ response.data);
             //alert("this is reponse url"+ response.url);
-            alert('sending2');
             uploadFile(file, response.data, response.url);
           }
           else{
@@ -434,7 +432,6 @@ var class_select = document.getElementById("class_val");
       if(!file){
         return alert('No file selected.');
       }
-      alert('sending1')
       getSignedRequest(file);
     }
     /*

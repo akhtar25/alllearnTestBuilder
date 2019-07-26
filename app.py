@@ -107,16 +107,17 @@ def sign_s3():
     file_type = request.args.get('file-type')
     print(file_type)
     #if file_type=='image/png' or file_type=='image/jpeg':
-     #   file_type_folder='images'
+    #   file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
     folder_name=request.args.get('folder')
-    folder_url=signs3Folder(folder,file_type)
-
+    folder_url=signs3Folder(folder_name,file_type)
+    print(folder_url)
     print(s3)
+
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_url+"/"+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -124,6 +125,8 @@ def sign_s3():
       ],
       ExpiresIn = 3600
     )
+    print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
+    
     return json.dumps({
       'data': presigned_post,
       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
