@@ -88,5 +88,16 @@ def topics(class_val,subject_id):
     
     return topicArray
 
+def signs3Folder(folder,filetype):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id=teacher_id.school_id
+    if folder == 'student_profile':
+        return "school_data/school_id_"+str(school_id)+"/folder"
+    elif folder == 'question_references':
+        if filetype == 'image/jpg' or filetype == 'image/png':
+            return folder+"/images"
+        
+
+
 
     

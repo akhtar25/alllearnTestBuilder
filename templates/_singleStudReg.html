@@ -225,11 +225,11 @@
     </div>
 </div>
 <div class="col-sm-3">
-        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfile.png"><br>
+        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
         <br>
         <div class="col-sm-3">
             <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-            <input type="hidden" id="profile_image" name="profile_image" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfile.png">
+            <input type="hidden" id="profile_image" name="profile_image" value="">
         </div>
 </div>
 </div>
@@ -237,7 +237,7 @@
 <div id="guardianbox" name="guardianbox">
   </div>
 
-  <p><input type='button' style=" margin-left:500px; width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
+  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
 
 </div>
 </div>
@@ -282,12 +282,9 @@ var class_select = document.getElementById("class_val");
   function addGuardian(){
   var row_id=document.getElementById('guardianbox');
   count+=1;
-  if (count>2)
-  {alert('Students can have atmost 2 Guaridians');
-  return;}
-  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-bottom: 5px; margin-top:5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
   guardianbox_data+=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
-  <div style='border:1px solid; padding-left:10px; padding-top:5px;'>
+  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
   <div class='row'>
   <div class='col-sm-3'>
       {{ form.guardian_first_name.label(class='labelsize') }}
@@ -364,6 +361,11 @@ var class_select = document.getElementById("class_val");
   </div></div></div>`;
   row_id.innerHTML=guardianbox_data+submitButton;
 
+  if (count==2)
+  {
+    $("#addGuardianbtn").hide();
+      }
+
 }
 
   /*
@@ -405,7 +407,7 @@ var class_select = document.getElementById("class_val");
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
 
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=student_profile`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
