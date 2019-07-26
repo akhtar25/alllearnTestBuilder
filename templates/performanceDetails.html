@@ -1,6 +1,10 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
 {% if students %}
+<h3>Ward Name : {{ students.full_name }}</h3>
+<div>
+    <!--performace graph-->
+____________________________________________________________________________________
 <h3>Performance Details : {{ students.full_name }}</h3>
 <div>
     <!--performace graph-->
@@ -8,13 +12,19 @@
       <div id="indivStudentPerformance">        
       </div>    
   </div>
+
 <br><br>
 </div>
 <form method="POST" class="form-group ">
     <div class="row">
     <div class="col-sm-3">
+
+    <p>See day specific Performace Details :</p>
+    <label for="date">Date : </label>
+
     <h4>Day Specfic Performace Details:</h4>
     <label for="date">Select Date : </label>
+
     <input type="date" id="performace_date" name="performace_date">
     </div>
     </div>

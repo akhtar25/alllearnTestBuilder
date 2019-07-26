@@ -215,16 +215,16 @@ def studentRegistration():
             for i in range(4):
                 if i==0:
                     option='A'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 elif i==1:
                     option='B'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 elif i==2:
                     option='C'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 else:
                     option='D'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                 student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                 db.session.add(student_qr_data)
             first_name=request.form.getlist('guardian_first_name')
@@ -246,13 +246,16 @@ def studentRegistration():
             df1=df1.replace(np.nan, '', regex=True)
             print(df1)
             for index ,row in df1.iterrows():
-                address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=row['pin'],country=row['country'])
+                address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
                 db.session.add(address_data)
-                address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=row['pin'],country=row['country']).first()
+                address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section']).first()
                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
-                date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
+                if row['dob']!='':
+                    date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
+                else:
+                    date=''
                 student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
                 school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
                 dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
@@ -262,50 +265,63 @@ def studentRegistration():
                 for i in range(4):
                     if i==0:
                         option='A'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     elif i==1:
                         option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     elif i==2:
                         option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     else:
                         option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '-' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
-                if row['guardian1_email']!='' and row['guardian2_email']!='':
-                    for i in range(2):
-                        relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
-                        if relation_id is not None:
-                            guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
-                            email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                        else:
-                            guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
-                            email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                        db.session.add(guardian_data)
-                elif row['guardian1_email']!='':
-                    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                    if relation_id is not None:
-                        guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],relation=relation_id.msg_id,
-                        email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                    else:
-                        guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],
-                        email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                    db.session.add(guardian_data)
-                elif row['guardian2_email']!='':
-                    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                    if relation_id is not None:
-                        guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],relation=relation_id.msg_id,
-                        email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                    else:
-                        guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
-                        email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                    db.session.add(guardian_data)
+                #if row['guardian1_email']!='' and row['guardian2_email']!='':
+                 #   for i in range(2):
+                  #      relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                   #     if relation_id is not None:
+                    #        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+                     #       email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                      #  else:
+                       #     guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
+                        #    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                        #db.session.add(guardian_data)
+               # elif row['guardian1_email']!='':
+                #    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
+                 #   if relation_id is not None:
+                  #      guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],relation=relation_id.msg_id,
+                   #     email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
+                   # else:
+                    #    guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],
+                     #   email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
+                    #db.session.add(guardian_data)
+               # elif row['guardian2_email']!='':
+                  #  relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
+                  #  if relation_id is not None:
+                   #     guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],relation=relation_id.msg_id,
+                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
+                   # else:
+                    #    guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
+                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
+                   # db.session.add(guardian_data)
+            for i in range(2):
+                relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                if relation_id is not None:
+                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                else:
+                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
+                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                
+                db.session.add(guardian_data)
+            
             db.session.commit()
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
     return render_template('studentRegistration.html',School_Name=school_name())
+
+
 '''camera section'''
 
 @app.route('/video_feed')
@@ -827,10 +843,10 @@ def loadQuestion():
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
-    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
     for option in questionOp:
         print(option.option_desc)
-    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)    
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
@@ -977,74 +993,22 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "' and resp_session_id='" +resp_session_id+ "'"
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
     return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
 
-
-@app.route('/studentFeedbackReport_dummy')
-@login_required
-def studentFeedbackReport_dummy():
-    student_name = request.args.get('student_name')
-    return render_template('studentFeedbackReport_dummy.html',School_Name=school_name(),student_name=student_name)
-
 @app.route('/testPerformance')
 @login_required
 def testPerformance():
-    user = User.query.filter_by(username=current_user.username).first_or_404()        
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-
-    school_name_val = school_name()
-    
-    if school_name_val ==None:
-        print('did we reach here')
-        return redirect(url_for('disconnectedAccount'))
-    else:
-    #####Fetch school perf graph information##########
-        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
-        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-        #print(df)
-        dateRange = list(df['Date'])
-        class1Data= list(df['Class_1'])
-        class2Data= list(df['Class_2'])
-        class3Data= list(df['Class_3'])
-        class4Data= list(df['Class_4'])
-        class5Data= list(df['Class_5'])
-        class6Data= list(df['Class_6'])
-        class7Data= list(df['Class_7'])
-        class8Data= list(df['Class_8'])
-        class9Data= list(df['Class_9'])
-        class10Data= list(df['Class_10'])
-        #print(dateRange)
-        ##Class 1
-        graphData = [dict(
-            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-            )]        
-        #print(graphData)
-
-        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template('testPerformance.html', graphJSON = graphJSON,School_Name=school_name() )
+    return render_template('testPerformance.html')
 
 
 @app.route('/classPerformance')
 @login_required
 def classPerformance():
-    return render_template('classPerformance.html',School_Name=school_name())
+    return render_template('classPerformance.html')
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -1064,7 +1028,6 @@ def resultUpload():
     test_type_list=[(i.description,i.description) for i in available_test_type]
     subject_name_list=[(i.description,i.description) for i in available_subject]
 
-
     form = ResultQueryForm()
     form1=MarksForm()
 
@@ -1073,13 +1036,11 @@ def resultUpload():
     form.section.choices= section_list
     form.test_type.choices= test_type_list
     form.subject_name.choices=subject_name_list
-
-    
-
     if not form1.upload.data:
         if form.validate_on_submit() :
             if current_user.is_authenticated:
                 date=request.form['testdate']
+                print(date)
                 if date=='':
                     flash('Please select date !')
                     return render_template('resultUpload.html',form=form,School_Name=school_name())
@@ -1097,8 +1058,6 @@ def resultUpload():
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
                 student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-
-           
 
                 if student_list:
                     session['class_sec_id']=class_sec_id.class_sec_id
@@ -1123,7 +1082,6 @@ def resultUpload():
                    
                     return render_template('resultUpload.html', form=form,School_Name=school_name())
         
-                
             else:
                 flash('Login required !')
                 return render_template('resultUpload.html', form=form,School_Name=school_name())
