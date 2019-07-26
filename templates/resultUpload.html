@@ -1,12 +1,8 @@
 {%extends "layout.html"%} {%block content%}
-
-
 <div class="container">
         <h2>Result Upload</h2>
-       
         <form action="" method="POST">
         {{ form.hidden_tag() }}
-      
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
                         <div class="col-sm-3">
@@ -41,22 +37,13 @@
                                         </div>
                                                 {% else %}
                                                 {{ form.section(class='form-control') }}
-                                                {% endif %}
-
-                                                
+                                                {% endif %}                                                
                                 </div>
                         </div>
                         <div class="col-sm-2">
                         <label class='labelsize' for='Date'>Date</label>
-                        <input type="date" name='testdate' min="2018-01-01" max="2019-06-30">
-                       
-
-                
-
+                        <input type="date" name='testdate' id='testdate'>
                         </div>
-                        
-      
-
                         <div class="col-sm-3" style="padding-top:5px;"> 
                                         {{ form.subject_name.label(class='labelsize') }}
                                         <br>
@@ -71,7 +58,6 @@
                                         {{ form.subject_name(class='form-control') }}
                                         {% endif %}
                         </div>  
-      
                         <div class="col-sm-2" style="padding-top:5px;"> 
 
                                         {{ form.test_type.label(class='labelsize') }}
@@ -88,16 +74,15 @@
                                         {% endif %}
                         </div>  
                 </div>
-      
-              
                 <p><button class="btn waves-light green lighten-1 white-text" type="submit">Submit</button></p>
-                    
             </div>
-            
         </form>
       </div>
+      
 {% if student_list %}
-
+<div style="float:right;">
+<p class="right">* Please enter -1 for absent students</p>
+</div>
 <div class="card id" id="result_table">
         <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ sub_name }} {{ test_type }} [{{ test_date }}] </h3>
         <div class="card-body">
@@ -117,31 +102,35 @@
                                 
                             {% for student in student_list %}
                                 <tr>
-                                    <td> {{student.student_name }} </td>
+                                    <td> {{student.full_name }} </td>
                                     <td> {{ totalmarks }} </td>
                                 
                                     <td><div class="container" style="width:100px;">{{ form1.marks }}</div></td>
-                
                                 </tr>
                             {% endfor %}
                     </tbody>
-
             </table>
-        
         </div>
         </div>
-        
       </div>
-      
       <p style="padding-left:575px;">{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
-
       </form>
-
       {% endif %}
-
-
-
       <script>
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+                dd='0'+dd
+        } 
+        if(mm<10){
+                mm='0'+mm
+        } 
+
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById("testdate").setAttribute("max", today);
+
         var class_select = document.getElementById("class_val");
         var section_select = document.getElementById("section");
         class_select.onchange = function()  {
@@ -158,16 +147,7 @@
                     }
                     section_select.innerHTML = optionHTML;
                 })
-                
             });
         }
     </script>
-
-
-<!-- Image loader 
-<div id='loader' style='display: none;'>
-        <img src='../static/images/loader.gif' width='32px' height='32px'>
-</div>-->
-      <!-- Image loader -->
-      
 {%endblock%}

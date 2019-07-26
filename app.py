@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,AttendenceQueryForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -22,6 +22,16 @@ import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
+import re
+import pandas as pd
+import numpy as np
+import plotly
+import pprint
+from miscFunctions import subjects,topics,subjectPerformance
+from docx import Document
+from docx.shared import Inches
+from urllib.request import urlopen,Request
+from io import StringIO
 
 
 app=Flask(__name__)
@@ -41,12 +51,13 @@ if not app.debug and not app.testing:
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+        app.logger.addHandler(stream_handler)        
     else:
+        dateVal= datetime.today().strftime("%d%m%Y")
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler(
-            'logs/alllearn.log', maxBytes=10240, backupCount=10)
+            'logs/alllearn.log'+str(dateVal), maxBytes=10240, backupCount=10)
         file_handler.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -66,7 +77,24 @@ def before_request():
     g.search_form = SearchForm()
     
 
+#helper methods
+def school_name():
+    if current_user.is_authenticated:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        if teacher_id != None:
+            school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+            if school_name!=None:
+                name=school_name_row.school_name            
+                return name
+            else:
+                return None            
+        else:
+            return None
+    else:
+        return None
+
 @app.route("/account/")
+@login_required
 def account():
     return render_template('account.html',School_Name=school_name())
 
@@ -78,8 +106,11 @@ def sign_s3():
     print(file_name)    
     file_type = request.args.get('file-type')
     print(file_type)
+    #if file_type=='image/png' or file_type=='image/jpeg':
+     #   file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
+    #folder_name=request.args.get('folder')
 
     print(s3)
     presigned_post = s3.generate_presigned_post(
@@ -94,11 +125,12 @@ def sign_s3():
     )
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,file_name)
     })
 
 
 @app.route("/submit_form/", methods = ["POST"])
+@login_required
 def submit_form():
     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #teacherProfile.teacher_name = request.form["full-name"]
@@ -131,12 +163,164 @@ def reset_password(token):
         return redirect(url_for('index'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        user.set_password(form.password.data)
-        
+        user.set_password(form.password.data)        
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
     return render_template('reset_password_page.html', form=form)
+
+
+@app.route('/schoolRegistration', methods=['GET','POST'])
+def schoolRegistration():  
+    form = SchoolRegistrationForm()
+    form1 = PaymentDetailsForm() 
+    return render_template('schoolRegistration.html',form=form, form1=form1)
+
+@app.route('/bulkStudReg')
+def bulkStudReg():
+    return render_template('_bulkStudReg.html')
+
+
+@app.route('/singleStudReg')
+def singleStudReg():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+    section_list=[(i.section,i.section) for i in available_section]
+    form=SingleStudentRegistration()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.section.choices= section_list
+    return render_template('_singleStudReg.html',form=form)
+
+
+@app.route('/studentRegistration', methods=['GET','POST'])
+@login_required
+def studentRegistration():
+    form=SingleStudentRegistration()
+    if request.method=='POST':
+        if form.submit.data:
+            address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+            if address_id is None:
+                address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+                db.session.add(address_data)
+                address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+            teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
+            gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+            student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+            school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+            dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+            roll_number=int(form.roll_number.data))
+            db.session.add(student)
+            student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
+            for i in range(4):
+                if i==0:
+                    option='A'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                elif i==1:
+                    option='B'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                elif i==2:
+                    option='C'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                else:
+                    option='D'
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+                db.session.add(student_qr_data)
+            first_name=request.form.getlist('guardian_first_name')
+            last_name=request.form.getlist('guardian_last_name')
+            phone=request.form.getlist('guardian_phone')
+            email=request.form.getlist('guardian_email')
+            relation=request.form.getlist('relation')
+            for i in range(len(first_name)):
+                relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                email=email[i],phone=phone[i],student_id=student_data.student_id)
+                db.session.add(guardian_data)
+            db.session.commit()
+            flash('Successful upload !')
+            return render_template('studentRegistration.html',School_Name=school_name())
+        else:
+            csv_file=request.files['file-input']
+            df1=pd.read_csv(csv_file)
+            df1=df1.replace(np.nan, '', regex=True)
+            print(df1)
+            for index ,row in df1.iterrows():
+                address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
+                db.session.add(address_data)
+                address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
+                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section']).first()
+                gender=MessageDetails.query.filter_by(description=row['gender']).first()
+                if row['dob']!='':
+                    date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
+                else:
+                    date=''
+                student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
+                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+                dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
+                roll_number=int(row['roll_number']))
+                db.session.add(student)
+                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
+                for i in range(4):
+                    if i==0:
+                        option='A'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    elif i==1:
+                        option='B'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    elif i==2:
+                        option='C'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    else:
+                        option='D'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+                    db.session.add(student_qr_data)
+                #if row['guardian1_email']!='' and row['guardian2_email']!='':
+                 #   for i in range(2):
+                  #      relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                   #     if relation_id is not None:
+                    #        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+                     #       email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                      #  else:
+                       #     guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
+                        #    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                        #db.session.add(guardian_data)
+               # elif row['guardian1_email']!='':
+                #    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
+                 #   if relation_id is not None:
+                  #      guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],relation=relation_id.msg_id,
+                   #     email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
+                   # else:
+                    #    guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],
+                     #   email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
+                    #db.session.add(guardian_data)
+               # elif row['guardian2_email']!='':
+                  #  relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
+                  #  if relation_id is not None:
+                   #     guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],relation=relation_id.msg_id,
+                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
+                   # else:
+                    #    guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
+                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
+                   # db.session.add(guardian_data)
+            for i in range(2):
+                relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                if relation_id is not None:
+                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                else:
+                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
+                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                
+                db.session.add(guardian_data)
+            
+            db.session.commit()
+            flash('Successful upload !')
+            return render_template('studentRegistration.html',School_Name=school_name())
+    return render_template('studentRegistration.html',School_Name=school_name())
+
 
 '''camera section'''
 
@@ -157,26 +341,12 @@ def video_feed_stop():
 
 '''new cam section'''
 
-@app.route('/decodes', methods=['GET', 'POST'])
-def decodeAjax():
-    if request.method == 'POST':
-        decodedData = barCode.decode(request.form['imgBase64'])
-        if decodedData:
-            json_data = json.dumps(decodedData)
-            print(json_data)
-            return jsonify(json_data)
-        return jsonify(['NO BarCode Found'])
-
 
 @app.route('/ScanBooks',methods=['GET', 'POST'])
 def ScanBooks():
     print ("We're here!")
     return render_template('ScanBook.html',title='Scan Page')
 
-
-@app.route('/feedbackReport')
-def feedbackReport():
-    return render_template('feedbackReport.html',title='Feedback Report')
 
 @app.route('/testingOtherVideo',methods=['GET', 'POST'])
 def testingOtherVideo():
@@ -204,9 +374,81 @@ def edit_profile():
 
 @app.route('/')
 @app.route('/index')
+@app.route('/dashboard')
+@login_required
 def index():
-    return render_template('dashboard.html',title='Home Page',School_Name=school_name())
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
 
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+    #####Fetch school perf graph information##########
+        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        #print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        #print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+            )]        
+        #print(graphData)
+
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+        #dateRange = performanceRows.date
+        #below code needs to be rejected. Only being kept for reference right now
+        #df = pd.read_csv('data.csv').drop('Open', axis=1)
+        #chart_data = df.to_dict(orient='records')
+        #chart_data = json.dumps(chart_data, indent=2)
+        #data = {'chart_data': chart_data}
+    #####Fetch Top Students infor##########        
+        topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        #print("this is topStudentRows"+str(topStudentsRows))
+    #####Fetch Event data##########
+        EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
+    
+
+    #####Fetch Course Completion infor##########    
+        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
+        topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
+        #print(topicToCoverDetails)
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
+            graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+
+
+@app.route('/disconnectedAccount')
+@login_required
+def disconnectedAccount():    
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1)
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -234,6 +476,7 @@ def submitPost():
 
 
 @app.route('/explore')
+@login_required
 def explore():
     #page=request.args.get('page',1, type=int)
     #posts = Post.query.order_by(Post.timestamp.desc()).paginate(page,app.config['POSTS_PER_PAGE'],False)
@@ -273,6 +516,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -284,7 +528,13 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     print(user.id)
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
-    return render_template('user.html', user=user, posts=posts,School_Name=school_name())
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+        return render_template('user.html', user=user, posts=posts,School_Name=school_name())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -313,7 +563,7 @@ def success():
         name=request.form["name"]
         if db.session.query(Survivor).filter(Survivor.sur_email == email).count() == 0:
             #Raw sql example  - db.engine.execute(text("<sql here>")).execution_options(autocommit=True))
-            # possibly db.session.execute(text("<sql here>")).execution_options(autocommit=True))
+            # possibly db.session.execute (text("<sql here>")).execution_options(autocommit=True))
             survivor = Survivor(email, name)
             db.session.add(survivor)
             db.session.commit()
@@ -324,53 +574,124 @@ def success():
             return render_template('index.html',text='Error: Email already used.')
 
 @app.route('/feeManagement')
+@login_required
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
-@app.route('/tests')
-def tests():
-    return render_template('tests.html',School_Name=school_name())
+@app.route('/testBuilder',methods=['POST','GET'])
+@login_required
+def testBuilder():
+    topic_list=None
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=TestBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    if request.method=='POST':
+        if request.form['test_date']=='':
+            flash('Select Date')
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('testBuilder.html',form=form,School_Name=school_name())
+        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
+        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+        session['class_val']=form.class_val.data
+        session['date']=request.form['test_date']
+        session['sub_name']=subject.description
+        session['test_type_val']=form.test_type.data
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
+    return render_template('testBuilder.html',form=form,School_Name=school_name())
+
+@app.route('/testBuilderQuestions',methods=['GET','POST'])
+def testBuilderQuestions():
+    questions=[]
+    topicList=request.get_json()
+    for topic in topicList:
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questions.append(questionList)
+    return render_template('testBuilderQuestions.html',questions=questions)
+
+@app.route('/testBuilderFileUpload',methods=['GET','POST'])
+def testBuilderFileUpload():
+    #question_list=request.get_json()
+    data=request.get_json()
+    question_list=data[0]
+    count_marks=data[1]
+    document = Document()
+    document.add_heading(school_name(), 0)
+    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
+    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
+    p = document.add_paragraph()
+    for question in question_list:
+        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        document.add_paragraph(
+            data.question_description, style='List Number'
+        )    
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        for option in options:
+            if option.option_desc is not None:
+                document.add_paragraph(
+                    option.option+". "+option.option_desc)     
+    #document.add_page_break()
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
+    document.save('tempdocx/'+file_name)
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    os.remove('tempdocx/'+file_name)
+
+    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
+
+@app.route('/testPapers')
+@login_required
+def testPapers():
+    return render_template('testPapers.html')
 
 @app.route('/calendar')
+@login_required
 def calendar():
     return render_template('calendar.html')
 
 @app.route('/schoolPerformanceRanking')
+@login_required
 def schoolPerformanceRanking():
     return render_template('schoolPerformanceRanking.html',School_Name=school_name())
 
 @app.route('/recommendations')
+@login_required
 def recommendations():
     return render_template('recommendations.html',School_Name=school_name())
 
 
-
-@app.route('/feedbackCollection', methods=['GET', 'POST'])
-def feedbackCollection():
-    if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
-
-        print(currCoveredTopics)
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        #print("This is topicTrackerDetails :-----" + str(topicTrackerDetails.is_covered))
-        for val in currCoveredTopics:
-            val_id=Topic.query.filter_by(topic_name=val).first()
-            for topicRows in topicTrackerDetails:
-                print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-                if topicRows.topic_id==val_id.topic_id:
-                    topicRows.is_covered = 'Y'            
-                    db.session.commit()        
-        #
-    return render_template('feedbackCollection.html',School_Name=school_name())
-
-
-@app.route('/attendance',methods=['POST','GET'])
+@app.route('/attendance')
 @login_required
 def attendance():
     return render_template('attendance.html',School_Name=school_name())
 
-    
+@app.route('/guardianDashboard')
+@login_required
+def guardianDashboard():
+    guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
+    student=[]
+    for g in guardian:
+        student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        student.append(student_data)
+    return render_template('guardianDashboard.html',students=student)
+
+@app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
+@login_required
+def performanceDetails(student_id):
+    student=StudentProfile.query.filter_by(student_id=student_id).first()
+    if request.method=='POST':
+        student=StudentProfile.query.filter_by(student_id=student_id).first()
+        class_sec=ClassSection.query.filter_by(class_sec_id=student.class_sec_id).first()
+        subject=subjectPerformance(class_sec.class_val,class_sec.school_id)
+        print(subject)
+        date=request.form['performace_date']
+        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student)
+    return render_template('performanceDetails.html',students=student)
 
 @app.route('/class')
 @login_required
@@ -378,76 +699,316 @@ def classCon():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-        
         qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A') 
+        qsection=request.args.get('section','A')
 
         #db query
 
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
 
-        classTrackerQuery = "select t1.subject_id as sid, t3.description as subject, t1.next_topic as tid, t2.topic_name as topic, t2.chapter_name, t1.class_sec_id, t4.section, t4.class_val, t4.school_id "
-        classTrackerQuery =classTrackerQuery + "from topic_tracker t1, topic_detail t2, message_detail t3, class_section t4   "
-        classTrackerQuery =classTrackerQuery + "where t1.next_topic=t2.topic_id and  t2.subject_id=t3.msg_id and  t1.class_sec_id=t4.class_sec_id   "
-        classTrackerQuery =classTrackerQuery + "and t4.class_val= " + str(qclass_val) + " and t4.section = '" + str(qsection) + "' and t4.school_id =" + str(teacher.school_id)
-        classTrackerDetails = db.session.execute(text(classTrackerQuery)).fetchall()
+        selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
-        #courseDetail = Topic.query.join(Topic,subject_id==MessageDetails.msg_id).filter_by(class_val=ClassSection.class_val).all()
+        topicTrackerQuery = "with cte_total_topics as "
+        topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
+        topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
+        topicTrackerQuery = topicTrackerQuery +"  from topic_tracker where class_sec_id = '"+ str(selectedClassSection.class_sec_id)+"' group by subject_id)  "
+        topicTrackerQuery = topicTrackerQuery +"select c1.subject_id,  t2.description as subject_name, c1.last_updated_date, "
+        topicTrackerQuery = topicTrackerQuery +"CASE WHEN COUNT(t1.subject_id) <> 0 THEN COUNT(c1.subject_id) ELSE 0 END "
+        topicTrackerQuery = topicTrackerQuery +"topics_covered, c1.total_topics  "
+        topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1  "
+        topicTrackerQuery = topicTrackerQuery +"right outer join cte_total_topics c1  "
+        topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id and class_sec_id= '"+ str(selectedClassSection.class_sec_id)+"'  "
+        topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y'  "
+        topicTrackerQuery = topicTrackerQuery +"inner join   "
+        topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
+        topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
+        topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
+        topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
+        print('this is the number of topicRows' + str(len(topicRows)))
+
         courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()
-
-        print(courseDetails)
-
-        #endOfQueries
-
-        #print(classTrackerDetails)
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses,classTrackerDetails=classTrackerDetails, courseDetails=courseDetails,School_Name=school_name())
+        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #endOfQueries        
+        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
 
+@app.route('/topicList')
+def topicList():
+    class_sec_id = request.args.get('class_sec_id','1')
+    subject_id = request.args.get('subject_id','15')
+    #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
+    topicListQuery = "select t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
+    topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
+    topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+    topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
+    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
+    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"'"
+    topicList= db.session.execute(text(topicListQuery)).fetchall()
+
+    return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
+
 @app.route('/classDelivery')
+@login_required
 def classDelivery():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-        
-        qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A') 
-        qsubject_id=request.args.get('subject_id','15')
+
+        qtopic_id=request.args.get('topic_id')
+        qsubject_id=request.args.get('subject_id')
+        qclass_sec_id = request.args.get('class_sec_id')
 
         #db query 
             #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
-            # end of sidebar
-        currClass = ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section = qsection).order_by(ClassSection.class_val).first()
-        #for curr in currClass:
-        print("This is currClass.class_sec_id: " + str(currClass.class_sec_id))
-        topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
+        currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()        
+            # end of sidebar        
+        #for curr in currClass:        
+        #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
         #print ("this is topic Track: " + topicTrack)
-        topicDet = Topic.query.filter_by(topic_id=topicTrack.next_topic).first()
+        topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
-        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id"
+        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
         topicTrackerQuery = topicTrackerQuery + " from "
         topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
         topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
         topicTrackerQuery = topicTrackerQuery + " where"
         topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
-        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(currClass.class_sec_id) + "'"
+        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
         topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+
+
         
-    return render_template('classDelivery.html', classsections=classSections,qclass_val=qclass_val, qsection=qsection, distinctClasses=distinctClasses, bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
+    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
 
 
-@app.route('/performance')
-def performance():
-    return render_template('performance.html',School_Name=school_name())
+
+
+@app.route('/feedbackCollection', methods=['GET', 'POST'])
+@login_required
+def feedbackCollection():
+    if request.method == 'POST':
+        currCoveredTopics = request.form.getlist('topicCheck')
+        class_val = request.form['class_val']
+        section = request.form['section']
+        subject_id = request.form['subject_id']
+
+        print("class val is = " + str(class_val))
+        print("section  is = " + str(section))
+#
+        #sidebar queries
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        # end of sidebarm
+
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
+        questionListSize = len(questionList)
+
+
+
+        #start of - db update to ark the checked topics as completed
+        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        
+        #for val in currCoveredTopics:
+        #    val_id=Topic.query.filter_by(topic_name=val).first()
+        #    for topicRows in topicTrackerDetails:
+        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
+        #        if topicRows.topic_id==val_id.topic_id:
+        #            topicRows.is_covered = 'Y'            
+        #            db.session.commit()        
+        # end of  - update to mark the checked topics as completed
+
+
+        return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+    else:
+        return redirect(url_for('classCon'))    
+
+
+@app.route('/loadQuestion')
+@login_required
+def loadQuestion():
+    question_id = request.args.get('question_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    for option in questionOp:
+        print(option.option_desc)
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+@app.route('/decodes', methods=['GET', 'POST'])
+def decodeAjax():
+    if request.method == 'POST':
+        decodedData = barCode.decode(request.form['imgBase64'])
+        if decodedData:
+            json_data = json.dumps(decodedData)
+            print(json_data)
+            return jsonify(json_data)
+        return jsonify(['NO BarCode Found'])
+
+@app.route('/responseDBUpdate', methods=['POST'])
+def responseDBUpdate():        
+    responseList=request.json
+    responseArray = {}
+    if responseList:
+        #print(responseList)        
+        for key, value in responseList.items():
+            if key =="formdataVal":
+                responseArray = value
+                for val in responseArray:
+
+                    #print('this is val: ' + str(val))
+                    splitVal= re.split('[:]', val)
+                    #print('this is splitVal'+ str(splitVal))
+                    response = splitVal[1]
+                    #print('this is response from SplitVal[1]' + response)
+                    responseSplit = re.split('-|@',response)
+                    #print('Response split is: '+ str(responseSplit ))
+                    
+                    teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                    
+                    studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+                    studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
+
+                    #studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
+                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0]).first()
+                    
+                    dateVal= datetime.today().strftime("%d%m%Y")
+
+                    responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(studentDetailRow.class_sec_id)
+                    print('this is the response session id: ' + responseSessionID)
+                    #the response session id is a combination of today's date, subject id and the class section id
+
+                    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
+                    
+
+                    #print('this is optionCheckRow'+ str(optionCheckRow))
+                    ansCheck = ''
+                    if (optionCheckRow==None):
+                        ansCheck='N'
+                    elif (optionCheckRow.is_correct=='Y'):
+                        ansCheck='Y'
+                    else:
+                        ansCheck='N'
+
+                    responsesForQuest=ResponseCapture(school_id=teacherIDRow.school_id,student_id=responseSplit[0],
+                    question_id= splitVal[0], response_option= responseSplit[3], is_correct = ansCheck, teacher_id= teacherIDRow.teacher_id,
+                    class_sec_id=studentDetailRow.class_sec_id, subject_id = questionDetailRow.subject_id, resp_session_id = responseSessionID,last_modified_date= datetime.utcnow())
+                    db.session.add(responsesForQuest)
+                    db.session.commit()
+                #flash('Response Entered')
+                return jsonify(['Data ready for entry'])
+    return jsonify(['No records entered to DB'])
+  
+@app.route('/feedbackReport')
+def feedbackReport():    
+    questionListJson=request.args.get('question_id')
+    class_val=request.args.get('class_val')
+    subject_id=request.args.get('subject_id')
+    #print('here is the class_val '+ str(class_val))
+    section=request.args.get('section')
+    section = section.strip()
+    #print('here is the section '+ str(section))
+    if (questionListJson != None) and (class_val != None) and (section != None):
+
+        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
+        print('here is the subject_id: '+ str(subject_id))
+        #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
+                    
+        dateVal= datetime.today().strftime("%d%m%Y")
+
+        responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
+        print('Here is response session id in feedback report: ' + responseSessionID)
+        responseResultQuery = "WITH sum_cte AS ( "
+        responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
+        responseResultQuery = responseResultQuery + "question_options where question_id in  "
+        responseResultQuery = responseResultQuery + "(select distinct question_id from response_capture where resp_session_id='" + responseSessionID + "')) "
+        responseResultQuery = responseResultQuery + "select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        responseResultQuery = responseResultQuery + "SUM(qo.weightage) as points_scored, "
+        responseResultQuery = responseResultQuery + "sum_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "from  "
+        responseResultQuery = responseResultQuery + "student_profile sp  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id  "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id  "
+        responseResultQuery = responseResultQuery + "and rc.response_option = qo.option "
+        responseResultQuery = responseResultQuery + "inner join  "
+        responseResultQuery = responseResultQuery + "question_options qo2 on  "
+        responseResultQuery = responseResultQuery + "rc.question_id=qo2.question_id "
+        responseResultQuery = responseResultQuery + "and qo2.is_correct='Y', "        
+        responseResultQuery = responseResultQuery + "sum_cte "
+        responseResultQuery = responseResultQuery + "where resp_session_id = '" + responseSessionID + "' "
+        responseResultQuery = responseResultQuery + "group by  sp.roll_number, sp.full_name, sp.student_id, rc.response_option, qo2.weightage, sum_cte.total_weightage"
+
+
+        responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+
+        if responseResultRow != None:
+            totalPointsScored =  0
+            totalPointsLimit = 0            
+            for row in responseResultRow:
+                totalPointsScored = totalPointsScored + row.points_scored
+                totalPointsLimit = totalPointsLimit + row.total_weightage
+
+            if totalPointsLimit !=0 and totalPointsLimit != None:
+                classAverage = (totalPointsScored/totalPointsLimit) *100
+            else:
+                classAverage = 0
+                print("total Points limit is zero")
+
+            responseResultRowCount = len(responseResultRow)
+        print('Here is the questionListJson: ' + str(questionListJson))
+    else:
+        print("Error collecting data from ajax request. Some values could be null")
+
+    return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+
+
+@app.route('/studentFeedbackReport')
+@login_required
+def studentFeedbackReport():
+    student_id = request.args.get('student_id')  
+    student_name = request.args.get('student_name') 
+    student_id=student_id.strip()  
+    resp_session_id = request.args.get('resp_session_id')
+    #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
+    responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+    responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, "
+    responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
+    responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
+    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
+    responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
+    responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
+
+    responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
+
+    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
+
+@app.route('/testPerformance')
+@login_required
+def testPerformance():
+    return render_template('testPerformance.html')
+
+
+@app.route('/classPerformance')
+@login_required
+def classPerformance():
+    return render_template('classPerformance.html')
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -467,7 +1028,6 @@ def resultUpload():
     test_type_list=[(i.description,i.description) for i in available_test_type]
     subject_name_list=[(i.description,i.description) for i in available_subject]
 
-
     form = ResultQueryForm()
     form1=MarksForm()
 
@@ -476,13 +1036,11 @@ def resultUpload():
     form.section.choices= section_list
     form.test_type.choices= test_type_list
     form.subject_name.choices=subject_name_list
-
-    
-
     if not form1.upload.data:
         if form.validate_on_submit() :
             if current_user.is_authenticated:
                 date=request.form['testdate']
+                print(date)
                 if date=='':
                     flash('Please select date !')
                     return render_template('resultUpload.html',form=form,School_Name=school_name())
@@ -500,8 +1058,6 @@ def resultUpload():
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
                 student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-
-           
 
                 if student_list:
                     session['class_sec_id']=class_sec_id.class_sec_id
@@ -526,7 +1082,6 @@ def resultUpload():
                    
                     return render_template('resultUpload.html', form=form,School_Name=school_name())
         
-                
             else:
                 flash('Login required !')
                 return render_template('resultUpload.html', form=form,School_Name=school_name())
@@ -534,32 +1089,26 @@ def resultUpload():
         else:
             return render_template('resultUpload.html', form=form,School_Name=school_name())
     else:
-        if form1.validate_on_submit:
+        if form1.validate_on_submit():
             marks_list=request.form.getlist('marks')
             i=0
             student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
             for student in student_list:
-
                 if marks_list[i]=='-1':
                     marks=0
                     is_present=MessageDetails.query.filter_by(description='Not Present').first()
                 else:
                     marks=marks_list[i]
                     is_present=MessageDetails.query.filter_by(description='Present').first()
-                
-
                 Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
                 exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
                 test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
                 uploaded_by=session.get('teacher_id',None)
                 )
                 db.session.add(Marks)
-
                 i+=1
             db.session.commit()
             flash('Marks Uploaded !')
-        
-            
         return render_template('resultUpload.html',form=form,School_Name=school_name())
 
 
@@ -567,9 +1116,7 @@ def resultUpload():
 @app.route('/resultUpload/<class_val>')
 def section(class_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
-
+    sections = ClassSection.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     sectionArray = []
 
     for section in sections:
@@ -580,13 +1127,159 @@ def section(class_val):
 
     return jsonify({'sections' : sectionArray})
 
+@app.route('/questionBuilder',methods=['POST','GET'])
+@login_required
+def questionBuilder():
+    form=QuestionBuilderQueryForm()
+    if request.method=='POST':
+        if form.submit.data:
+            question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
+            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type='MCQ')
+            db.session.add(question)
+            option_list=request.form.getlist('option_desc')
+            question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+            for i in range(len(option_list)):
+                if int(request.form['option'])==i+1:
+                    correct='Y'
+                    weightage=int(request.form['weightage'])
+                else:
+                    weightage=0
+                    correct='N'
+                if i+1==1:
+                    option='A'
+                elif i+1==2:
+                    option='B'
+                elif i+1==3:
+                    option='C'
+                else:
+                    option='D'
+                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+                db.session.add(options)
+                db.session.commit()
+            flash('Success')
+            return render_template('questionBuilder.html',School_Name=school_name())
+        else:
+            csv_file=request.files['file-input']
+            df1=pd.read_csv(csv_file)
+            for index ,row in df1.iterrows():
+                question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
+                db.session.add(question)
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
+                for i in range(1,5):
+                    option_no=str(i)
+                    option_name='Option'+option_no
+                    weightage_name='Weightage'+option_no
+                    if row['CorrectAnswer']=='option '+option_no:
+                        correct='Y'
+                        weightage=row[weightage_name]
+                    else:
+                        correct='N'
+                        weightage='0'
+                    if i==1:
+                            option_val='A'
+                    elif i==2:
+                            option_val='B'
+                    elif i==3:
+                            option_val='C'
+                    else:
+                        option_val='D'
 
+                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                    db.session.add(option)
+            db.session.commit()
+            flash('Successfullly Uploaded !')
+            return render_template('questionBuilder.html',School_Name=school_name())
+    return render_template('questionBuilder.html',School_Name=school_name())
+
+@app.route('/questionUpload',methods=['GET'])
+def questionUpload():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    return render_template('questionUpload.html',form=form)
+
+@app.route('/questionFile',methods=['GET'])
+def questionFile():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBuilderQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    return render_template('questionFile.html',form=form)
+
+
+
+#Subject list generation dynamically
+
+@app.route('/questionBuilder/<class_val>')
+def subject_list(class_val):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
+    subject_name_list=[]
+
+    for id in subject_id:
+
+        subject_name=MessageDetails.query.filter_by(msg_id=id).first()
+        if subject_name in subject_name_list:
+            continue
+        subject_name_list.append(subject_name)
+    subjectArray = []
+
+    for subject in subject_name_list:
+        subjectObj = {}
+        subjectObj['subject_id'] = subject.msg_id
+        subjectObj['subject_name'] = subject.description
+        subjectArray.append(subjectObj)
+
+    return jsonify({'subjects' : subjectArray})
+
+#topic list generation dynamically
+@app.route('/questionBuilder/<class_val>/<subject_id>')
+def topic_list(class_val,subject_id):
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+
+    topicArray=[]
+
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
+    
+    return jsonify({'topics':topicArray})
+
+
+@app.route('/addEvent', methods = ["GET","POST"])
+@login_required
+def addEvent():        
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form = addEventForm()
+    if form.validate_on_submit():
+        dataForEntry = EventDetail(event_name=form.eventName.data, event_duration=form.duration.data,event_date=form.eventDate.data,event_start=form.startDate.data,event_end=form.endDate.data,event_category=form.category.data,school_id=teacher_id.school_id, last_modified_date=datetime.today())                
+        db.session.add(dataForEntry)
+        db.session.commit()
+        flash('Event Added!')
+    return render_template('addEvent.html', form=form)
 
 @app.route('/studentProfile')
+@login_required
 def studentProfile():
     return render_template('studentProfile.html',School_Name=school_name())
 
+@app.route('/performance')
+def performance():
+    df = pd.read_csv('data.csv').drop('Open', axis=1)
+    chart_data = df.to_dict(orient='records')
+    chart_data = json.dumps(chart_data, indent=2)
+    data = {'chart_data': chart_data}
+    return render_template("_performance.html", data=data)
+
 @app.route('/help')
+@login_required
 def help():
     return render_template('help.html',School_Name=school_name())
 
@@ -610,31 +1303,9 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
-#helper methods
-def school_name():
-    if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-        school_name=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-
-        name=school_name.school_name
-
-        return name
-    else:
-        return None
-
-
-
-
-
-#if __name__=='__main__':
-#    app.debug=True
-#    app.run()
-
-
-
 if __name__=="__main__":
     app.debug=True
+    app.jinja_env.filters['zip'] = zip
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
     #app.run()

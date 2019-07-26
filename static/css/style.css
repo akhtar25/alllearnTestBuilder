@@ -10,9 +10,9 @@
    display: none;
     position: relative;
     width: 650px;
-    padding-left: 400px;
-    padding-top:18px;
-    color: #000;
+    padding-left: 200px;
+    padding-top:10px;
+    color: rgb(43, 43, 43);
     
     cursor: auto;
  }
@@ -42,6 +42,8 @@
    padding-top: 60px;
    z-index: 40;
    min-height: 535px;
+   display: flex;
+   flex-direction: column;
  }
 
  #readMoreDiv{
@@ -136,4 +138,8 @@ footer.page-footer {
 
   border-radius: 2cm;
   height: 400px;
+}
+
+.scrollableDiv{
+  overflow-y: auto;
 }

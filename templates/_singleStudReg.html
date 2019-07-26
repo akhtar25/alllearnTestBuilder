@@ -1,0 +1,445 @@
+{{ form.hidden_tag() }}
+<div class="form-group " style="padding-top:5px;">
+  <div class="row">
+    <div class="col-sm-9">
+    <div class="row">
+        <h4>Student Details</h4>
+        <div class="col-sm-4">
+            {{ form.first_name.label(class='labelsize') }}
+            <br>
+            {% if form.first_name.errors %}
+            {{ form.first_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.first_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.first_name(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-4">
+            {{ form.last_name.label(class='labelsize') }}
+            <br>
+            {% if form.last_name.errors %}
+            {{ form.last_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.last_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.last_name(class='form-control') }}
+            {% endif %}
+          </div>
+          <div class="col-sm-2">
+          {{ form.gender.label(class='labelsize') }}
+                    <br>
+                    {% if form.gender.errors %}
+                    {{ form.gender(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.gender.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.gender(class='form-control') }}
+                    {% endif %}
+            </div>
+          
+        </div>
+    <div class="row">
+            <div class="col-sm-3">
+                <label for="birthdate">Date of Birth</label>
+                <input type="date" id="birthdate" name="birthdate">
+              </div>
+
+        <div class="col-sm-4">
+            {{ form.phone.label(class='labelsize') }}
+                    <br>
+                    {% if form.phone.errors %}
+                    {{ form.phone(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.phone.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.phone(class='form-control') }}
+                    {% endif %}
+        </div>
+
+        
+    </div>
+    <div class="row">
+      <h4>Address Details</h4>
+        <div class="col-sm-4">
+            {{ form.address1.label(class='labelsize') }}
+            <br>
+            {% if form.address1.errors %}
+            {{ form.address1(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.address1.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.address1(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-4">
+            {{ form.address2.label(class='labelsize') }}
+            <br>
+            {% if form.address2.errors %}
+            {{ form.address2(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.address2.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.address2(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-3">
+            {{ form.locality.label(class='labelsize') }}
+            <br>
+            {% if form.locality.errors %}
+            {{ form.locality(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.locality.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.locality(class='form-control') }}
+            {% endif %}
+        </div> 
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            {{ form.city.label(class='labelsize') }}
+            <br>
+            {% if form.city.errors %}
+            {{ form.city(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.city.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.city(class='form-control') }}
+            {% endif %}
+        </div> 
+
+        <div class="col-sm-3">
+            {{ form.state.label(class='labelsize') }}
+            <br>
+            {% if form.state.errors %}
+            {{ form.state(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.state.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.state(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-3">
+            {{ form.country.label(class='labelsize') }}
+            <br>
+            {% if form.country.errors %}
+            {{ form.country(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.country.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.country(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-3">
+            {{ form.pincode.label(class='labelsize') }}
+            <br>
+            {% if form.pincode.errors %}
+            {{ form.pincode(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.pincode.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.pincode(class='form-control') }}
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div class="row">
+      <h4>Class Details</h4>
+        <div class="col-sm-3">
+            <div style="width:200px;">
+                    {{ form.class_val.label(class='labelsize') }}
+                    <br>
+                    {% if form.class_val.errors %}
+                    {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.class_val.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_val(class='form-control') }}
+                    {% endif %}
+            </div>
+    </div>
+    <div class="col-sm-2">
+            <div style="width:100px;" >
+                            {{ form.section.label(class='labelsize') }}
+                            <div id='loader'style='display: none; float: right;'>
+                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                            </div>
+                    <br>
+                            {% if form.section.errors %}
+                            {{ form.section(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                            {% for error in form.section.errors %}
+                             <span>{{ error }}</span>
+                            {% endfor %}
+                    </div>
+                            {% else %}
+                            {{ form.section(class='form-control') }}
+                            {% endif %}                                                
+            </div>
+    </div>
+      <div class="col-sm-2">
+        <label for="roll_number">Roll Number</label>
+        <input type="number" id="roll_number" name="roll_number" min=1 placeholder="Roll No.">
+      </div>
+      <div class="col-sm-3">
+          <label for="school_admn_no">Admission No.</label>
+          <input type="number" id="school_admn_no" name="school_admn_no" min=1 placeholder="School Admission No.">
+        </div>
+    </div>
+</div>
+<div class="col-sm-3">
+        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfile.png"><br>
+        <br>
+        <div class="col-sm-3">
+            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+            <input type="hidden" id="profile_image" name="profile_image" value="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfile.png">
+        </div>
+</div>
+</div>
+ 
+<div id="guardianbox" name="guardianbox">
+  </div>
+
+  <p><input type='button' style=" margin-left:500px; width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
+
+</div>
+</div>
+
+
+
+<script>
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+ if(dd<10){
+        dd='0'+dd
+    } 
+    if(mm<10){
+        mm='0'+mm
+    } 
+
+today = yyyy+'-'+mm+'-'+dd;
+document.getElementById("birthdate").setAttribute("max", today);
+
+var class_select = document.getElementById("class_val");
+        var section_select = document.getElementById("section");
+        class_select.onchange = function()  {
+            class_val = class_select.value;
+            $("#loader").show();
+            
+            fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loader").hide();    
+                        var optionHTML = '';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+            });
+        }
+  var guardianbox_data='';
+  var prevguardianbox_data='';
+  var count=0;
+  function addGuardian(){
+  var row_id=document.getElementById('guardianbox');
+  count+=1;
+  if (count>2)
+  {alert('Students can have atmost 2 Guaridians');
+  return;}
+  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-bottom: 5px; margin-top:5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+  guardianbox_data+=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+  <div style='border:1px solid; padding-left:10px; padding-top:5px;'>
+  <div class='row'>
+  <div class='col-sm-3'>
+      {{ form.guardian_first_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_first_name.errors %}
+            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_first_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_first_name(class='form-control') }}
+            {% endif %}
+  </div>
+  <div class='col-sm-3'>
+      {{ form.guardian_last_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_last_name.errors %}
+            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_last_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_last_name(class='form-control') }}
+            {% endif %}
+      </div>
+      <div class='col-sm-3'>
+      {{ form.guardian_email.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_email.errors %}
+            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_email.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_email(class='form-control') }}
+            {% endif %}
+            </div>
+  </div>
+  <div class='row'>
+      <div class='col-sm-3'>
+      {{ form.guardian_phone.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_phone.errors %}
+            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_phone.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_phone(class='form-control') }}
+            {% endif %}</div>
+<div class='col-sm-2'>
+    <div style="width:250px;">
+        {{ form.relation.label(class='labelsize') }}
+            <br>
+        {% if form.relation.errors %}
+        {{ form.relation(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+        {% for error in form.relation.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+        {% else %}
+        {{ form.relation(class='form-control') }}
+        {% endif %}
+    </div>
+  </div></div></div>`;
+  row_id.innerHTML=guardianbox_data+submitButton;
+
+}
+
+  /*
+      Function to carry out the actual POST request to S3 using the signed request from the Python app.
+    */
+    function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      //alert("the url being posted" + s3Data.url);
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+
+            document.getElementById('preview').src = url;
+            document.getElementById('profile_image').value = url;
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            alert('sending2');
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      alert('sending1')
+      getSignedRequest(file);
+    }
+    /*
+       Bind listeners when the page loads.
+    */
+    (() => {
+      document.getElementById('file-input').onchange = initUpload;
+    })();
+
+</script>
