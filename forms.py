@@ -1,11 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField,IntegerField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired,NumberRange
 from applicationDB import User,TestDetails
 from flask import request
 from wtforms.fields.html5 import DateField
 from datetime import datetime
 from wtforms.widgets import html5
+from wtforms.widgets.html5 import NumberInput
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -82,7 +83,6 @@ class ResultQueryForm(FlaskForm):
     class_val=SelectField('Select Class')
     section=SelectField('Select Section')
     test_type=SelectField('Test Type')
-    testdate=DateField('Test Date')
     subject_name=SelectField('Subject')
     #submit=SubmitField('Submit')
 
@@ -100,7 +100,7 @@ class ResultQueryForm(FlaskForm):
       #      raise ValidationError('* Please Select a Subject')
 
 class MarksForm(FlaskForm):
-    marks=IntegerField('Marks',validators=[DataRequired()])
+    marks=IntegerField('Marks',validators=[DataRequired()],widget=NumberInput(min=-1,max=100,step=1))
     upload=SubmitField('Upload')
     def validate_marks(self,marks):
         if marks.data=='':
