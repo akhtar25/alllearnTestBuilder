@@ -42,10 +42,10 @@
                         <td>{{row.is_covered}}</td>                        
                         {% if row.is_covered == 'Y'%}
                         <td>80%</td>
-                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id)}}"><span class=" label label-success ">Retake Class</span></a></td>
+                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span class=" label label-success ">Retake Class</span></a></td>
                         {% else %}
                         <td>-</td>
-                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id)}}"><span class=" label label-success ">Start Class</span></a></td>
+                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span class=" label label-success ">Start Class</span></a></td>
                         {% endif %}
                       </tr>                    
                       {% endfor %}

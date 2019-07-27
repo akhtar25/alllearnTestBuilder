@@ -761,6 +761,9 @@ def classDelivery():
         qtopic_id=request.args.get('topic_id')
         qsubject_id=request.args.get('subject_id')
         qclass_sec_id = request.args.get('class_sec_id')
+        retake = request.args.get('retake')
+        print('this is retake val: '+str(retake))
+
 
         #db query 
             #sidebar
@@ -773,6 +776,14 @@ def classDelivery():
         #print ("this is topic Track: " + topicTrack)
         topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+
+        #if retake is true then set is_covered to No
+        if retake == 'Y':
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
+            topicFromTracker.is_covered='N'
+            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+            db.session.commit()
+
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
         topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
@@ -823,7 +834,7 @@ def feedbackCollection():
                 if topicFromTracker.is_covered!='Y':
                     topicFromTracker.is_covered='Y'
                     currCoveredTopics.append(val)
-                db.session.commit()
+                    db.session.commit()
         # end of  - update to mark the checked topics as completed
 
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
