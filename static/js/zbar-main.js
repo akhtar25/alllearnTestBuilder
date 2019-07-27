@@ -191,7 +191,7 @@ var canvas = document.getElementById('piccanvas');
     window.alert('processing');
 
     if (codes.length === 0) {
-      //codeType.textContent = 'N/A';
+      codeType.textContent = 'N/A';
       window.alert('not detected');
       //return;
     }

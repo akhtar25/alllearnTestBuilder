@@ -801,7 +801,7 @@ def feedbackCollection():
         section = request.form['section']
         subject_id = request.form['subject_id']
 
-        print("class val is = " + str(class_val))
+        print("topic List "+str(currCoveredTopics))
         print("section  is = " + str(section))
 #
         #sidebar queries
@@ -818,19 +818,15 @@ def feedbackCollection():
 
 
         #start of - db update to ark the checked topics as completed
-        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
         
-        #for val in currCoveredTopics:
-        #    val_id=Topic.query.filter_by(topic_name=val).first()
-        #    for topicRows in topicTrackerDetails:
-        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-        #        if topicRows.topic_id==val_id.topic_id:
-        #            topicRows.is_covered = 'Y'            
-        #            db.session.commit()        
+        for val in currCoveredTopics:
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+            if topicFromTracker != None:
+                topicFromTracker.is_covered='Y'
+                db.session.commit()
         # end of  - update to mark the checked topics as completed
-
-
         return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
