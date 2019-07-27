@@ -746,7 +746,7 @@ def topicList():
     topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
     topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
-    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"'"
+    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
@@ -761,6 +761,9 @@ def classDelivery():
         qtopic_id=request.args.get('topic_id')
         qsubject_id=request.args.get('subject_id')
         qclass_sec_id = request.args.get('class_sec_id')
+        retake = request.args.get('retake')
+        print('this is retake val: '+str(retake))
+
 
         #db query 
             #sidebar
@@ -773,6 +776,14 @@ def classDelivery():
         #print ("this is topic Track: " + topicTrack)
         topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+
+        #if retake is true then set is_covered to No
+        if retake == 'Y':
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
+            topicFromTracker.is_covered='N'
+            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+            db.session.commit()
+
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
         topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
@@ -796,12 +807,12 @@ def classDelivery():
 @login_required
 def feedbackCollection():
     if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
+        allCoveredTopics = request.form.getlist('topicCheck')
         class_val = request.form['class_val']
         section = request.form['section']
         subject_id = request.form['subject_id']
 
-        print("class val is = " + str(class_val))
+        print("topic List "+str(allCoveredTopics))
         print("section  is = " + str(section))
 #
         #sidebar queries
@@ -811,25 +822,23 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
+    
+        #start of - db update to ark the checked topics as completed
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        currCoveredTopics=[]
+
+        for val in allCoveredTopics:
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+            if topicFromTracker != None:
+                if topicFromTracker.is_covered!='Y':
+                    topicFromTracker.is_covered='Y'
+                    currCoveredTopics.append(val)
+                    db.session.commit()
+        # end of  - update to mark the checked topics as completed
 
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
         questionListSize = len(questionList)
-
-
-
-        #start of - db update to ark the checked topics as completed
-        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        
-        #for val in currCoveredTopics:
-        #    val_id=Topic.query.filter_by(topic_name=val).first()
-        #    for topicRows in topicTrackerDetails:
-        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-        #        if topicRows.topic_id==val_id.topic_id:
-        #            topicRows.is_covered = 'Y'            
-        #            db.session.commit()        
-        # end of  - update to mark the checked topics as completed
-
 
         return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
