@@ -796,12 +796,12 @@ def classDelivery():
 @login_required
 def feedbackCollection():
     if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
+        allCoveredTopics = request.form.getlist('topicCheck')
         class_val = request.form['class_val']
         section = request.form['section']
         subject_id = request.form['subject_id']
 
-        print("topic List "+str(currCoveredTopics))
+        print("topic List "+str(allCoveredTopics))
         print("section  is = " + str(section))
 #
         #sidebar queries
@@ -811,22 +811,24 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
+    
+        #start of - db update to ark the checked topics as completed
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        currCoveredTopics=[]
+
+        for val in allCoveredTopics:
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+            if topicFromTracker != None:
+                if topicFromTracker.is_covered!='Y':
+                    topicFromTracker.is_covered='Y'
+                    currCoveredTopics.append(val)
+                db.session.commit()
+        # end of  - update to mark the checked topics as completed
 
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
         questionListSize = len(questionList)
 
-
-
-        #start of - db update to ark the checked topics as completed
-        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        
-        for val in currCoveredTopics:
-            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
-            if topicFromTracker != None:
-                topicFromTracker.is_covered='Y'
-                db.session.commit()
-        # end of  - update to mark the checked topics as completed
         return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))    
