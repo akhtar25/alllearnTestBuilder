@@ -65,7 +65,8 @@
                     </div>
 
 
-<input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
+<input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
+<div style="display:None;"></div>
 
 <!--<div class="container">
     <div class="table-responsive">
@@ -146,20 +147,24 @@
              
          });
     }
-
-
 //$(document).ready(function(){
   //$('#file-input').click(function(){
+    /*function hasExtension(inputID, exts) {
+    var fileName = document.getElementById(inputID).value;
+    return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
+    }*/
     $( document ).ready(function() {
-      $('#file-input').change(function () {
-
-    var rdr = new FileReader();
-    rdr.onload = function (e) {
+      $('#file-input').change(function (){
+        //if (!hasExtension('file-input', ['.csv']))
+        //{
+        //  alert('Invaild file type !');
+        //  document.getElementById("file-input").value="";
+        //  return;
+       // }
+        var rdr = new FileReader();
+        rdr.onload = function (e) {
       //get the rows into an array
       var data = e.target.result.split(/\r?\n|\r/);
-
-
-   
      //var employee_data = data.split(/\r?\n|\r/);
      var table_data = '<table class="table table-bordered table-striped">';
      for(var count = 0; count<data.length; count++)
@@ -239,7 +244,7 @@
     function getSignedRequest(file){
      
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){

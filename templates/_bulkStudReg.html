@@ -1,6 +1,6 @@
 <h4>Upload a file </h4>
 <div class="col-sm-4">
-<input type="file" class="load_data" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input">
+<input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input">
 </div>
 <div class="col-sm-8">
 <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_student_registration_template.csv"><input class="btn waves-light green lighten-1 white-text" type="button" value="Sample template" style="height:30px; width:160px;"></a><span>  *Dowload the sample template and edit the data .</span>
@@ -113,7 +113,7 @@
     function getSignedRequest(file){
      
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=student_profile`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
