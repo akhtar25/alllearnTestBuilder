@@ -34,9 +34,6 @@
 
                                     <td> {{ subject.subject_class_avg }} </td>
                                     <td> <a href="{{ url_for('classPerformance') }}"><p><button class="btn waves-light green lighten-1 white-text">Details</button></p></a></td>
-
-                                    <td> <a href="{{ url_for('studentFeedbackReport_dummy',student_name=students.full_name ) }}"><p><button class="btn waves-light green lighten-1 white-text">Details</button></p></a></td>
-
                                 </tr>
                             {% endfor %}
                     </tbody>
