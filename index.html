@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Barcode Scanner</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+  <video autoplay></video>
+   <label id="code-type"></label>
+      <input id="code-content">
+    <div id="info" hidden>
+      <button id="search-code" class="smallButton" onclick='searchCode()' hidden><span>Search</span></button>
+      <button id="open-url" class="smallButton" onclick='openUrl()' hidden><span>Go to</span></button>
+    </div>
+
+    <div id="toolbar">
+      <button id="scan" onclick='processCapture()'><span>Scan</span></button>          
+    </div>
+
+    <div id="splash"></div>
+    <input type="file" id="take-picture" accept="image/*" style="z-index: -30; visibility: hidden; position: absolute; right: 0; top: 0;" capture>
+<button onclick="start()">Try it</button>
+
+<div id="result_strip">
+</div>
+
+<!-- Stream video via webcam -->
+<div class="video-wrap">
+    <video id="video" playsinline autoplay></video>
+</div>
+
+<!-- Trigger canvas web API -->
+<div class="controller">
+    <button id="snap">Capture</button>
+    <button id="stopCam">Stop Camera</button>
+</div>
+
+
+<!-- Webcam video snapshot -->
+<canvas id="piccanvas" width="640" height="480"></canvas>
+  </body>
+</html>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script type="text/javascript" src="static/js/zbar-main.js"></script>
+    <script type="text/javascript" src="static/js/zbar-processor.js"></script>
+

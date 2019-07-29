@@ -111,6 +111,7 @@ class QuestionBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
     topics=SelectField('Topics')
+    question_type=SelectField('Question Type',choices=[(c, c) for c in ['Subjective','MCQ1']])
     question_desc=TextAreaField('Question',validators=[DataRequired(),Length(min=0, max=200)])
     option=StringField('Options',validators=[DataRequired()])
     weightage=IntegerField('Weightage',validators=[DataRequired()],widget=NumberInput(min=0,max=100,step=1))

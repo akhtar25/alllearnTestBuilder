@@ -697,6 +697,12 @@ def performanceDetails(student_id):
         return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student)
     return render_template('performanceDetails.html',students=student)
 
+
+@app.route('/studentfeedbackreport_dummy')
+def studentfeedbackreport_dummy():
+    student_name=request.args.get('student_name')
+    return render_template('studentfeedbackreport_dummy.html',student_name=student_name)
+
 @app.route('/class')
 @login_required
 def classCon():
@@ -750,7 +756,7 @@ def topicList():
     topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
     topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
-    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"'"
+    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
@@ -765,6 +771,9 @@ def classDelivery():
         qtopic_id=request.args.get('topic_id')
         qsubject_id=request.args.get('subject_id')
         qclass_sec_id = request.args.get('class_sec_id')
+        retake = request.args.get('retake')
+        print('this is retake val: '+str(retake))
+
 
         #db query 
             #sidebar
@@ -777,6 +786,14 @@ def classDelivery():
         #print ("this is topic Track: " + topicTrack)
         topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+
+        #if retake is true then set is_covered to No
+        if retake == 'Y':
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
+            topicFromTracker.is_covered='N'
+            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+            db.session.commit()
+
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
         topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
@@ -800,12 +817,12 @@ def classDelivery():
 @login_required
 def feedbackCollection():
     if request.method == 'POST':
-        currCoveredTopics = request.form.getlist('topicCheck')
+        allCoveredTopics = request.form.getlist('topicCheck')
         class_val = request.form['class_val']
         section = request.form['section']
         subject_id = request.form['subject_id']
 
-        print("class val is = " + str(class_val))
+        print("topic List "+str(allCoveredTopics))
         print("section  is = " + str(section))
 #
         #sidebar queries
@@ -815,25 +832,23 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
+    
+        #start of - db update to ark the checked topics as completed
+        teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+        currCoveredTopics=[]
+
+        for val in allCoveredTopics:
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+            if topicFromTracker != None:
+                if topicFromTracker.is_covered!='Y':
+                    topicFromTracker.is_covered='Y'
+                    currCoveredTopics.append(val)
+                    db.session.commit()
+        # end of  - update to mark the checked topics as completed
 
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
         questionListSize = len(questionList)
-
-
-
-        #start of - db update to ark the checked topics as completed
-        #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        
-        #for val in currCoveredTopics:
-        #    val_id=Topic.query.filter_by(topic_name=val).first()
-        #    for topicRows in topicTrackerDetails:
-        #        print(str(topicRows.topic_id) + " and " + str(val_id.topic_id))
-        #        if topicRows.topic_id==val_id.topic_id:
-        #            topicRows.is_covered = 'Y'            
-        #            db.session.commit()        
-        # end of  - update to mark the checked topics as completed
-
 
         return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
@@ -1006,7 +1021,43 @@ def studentFeedbackReport():
 @app.route('/testPerformance')
 @login_required
 def testPerformance():
-    return render_template('testPerformance.html')
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+     #####Fetch school perf graph information##########
+    performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+    performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+    df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+    df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+        5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+    #print(df)
+    dateRange = list(df['Date'])
+    class1Data= list(df['Class_1'])
+    class2Data= list(df['Class_2'])
+    class3Data= list(df['Class_3'])
+    class4Data= list(df['Class_4'])
+    class5Data= list(df['Class_5'])
+    class6Data= list(df['Class_6'])
+    class7Data= list(df['Class_7'])
+    class8Data= list(df['Class_8'])
+    class9Data= list(df['Class_9'])
+    class10Data= list(df['Class_10'])
+    #print(dateRange)
+    ##Class 1
+    graphData = [dict(
+        data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+        data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+        data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+        data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+        data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+        data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+        data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+        data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+        data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+        data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+        )]        
+    #print(graphData)
+    graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('testPerformance.html',graphJSON=graphJSON)
 
 
 @app.route('/classPerformance')
@@ -1138,33 +1189,38 @@ def questionBuilder():
     if request.method=='POST':
         if form.submit.data:
             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
-            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type='MCQ')
+            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data)
             db.session.add(question)
-            option_list=request.form.getlist('option_desc')
-            question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
-            if request.form['correct']=='':
-                flash('Error no correct option selected !')
-                return render_template('questionBuilder.html',School_Name=school_name())
-            for i in range(len(option_list)):
-                if int(request.form['option'])==i+1:
-                    correct='Y'
-                    weightage=int(request.form['weightage'])
-                else:
-                    weightage=0
-                    correct='N'
-                if i+1==1:
-                    option='A'
-                elif i+1==2:
-                    option='B'
-                elif i+1==3:
-                    option='C'
-                else:
-                    option='D'
-                options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+            if form.question_type.data=='Subjective':
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+                options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
                 db.session.add(options)
                 db.session.commit()
-            flash('Success')
-            return render_template('questionBuilder.html',School_Name=school_name())
+                flash('Success')
+                return render_template('questionBuilder.html',School_Name=school_name())
+            else:
+                option_list=request.form.getlist('option_desc')
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+                for i in range(len(option_list)):
+                    if int(request.form['option'])==i+1:
+                        correct='Y'
+                        weightage=int(request.form['weightage'])
+                    else:
+                        weightage=0
+                        correct='N'
+                    if i+1==1:
+                        option='A'
+                    elif i+1==2:
+                        option='B'
+                    elif i+1==3:
+                        option='C'
+                    else:
+                        option='D'
+                    options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+                    db.session.add(options)
+                db.session.commit()
+                flash('Success')
+                return render_template('questionBuilder.html',School_Name=school_name())
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
