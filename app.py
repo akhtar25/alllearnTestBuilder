@@ -177,7 +177,7 @@ def reset_password(token):
 @app.route('/schoolRegistration', methods=['GET','POST'])
 def schoolRegistration():  
     form = SchoolRegistrationForm()
-    form1 = PaymentDetailsForm() 
+    
     return render_template('schoolRegistration.html',form=form, form1=form1)
 
 @app.route('/bulkStudReg')
@@ -701,7 +701,7 @@ def performanceDetails(student_id):
 @app.route('/studentfeedbackreport_dummy')
 def studentfeedbackreport_dummy():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreport_dummy.html',student_name=student_name)
+    return render_template('studentfeedbackreportdummy.html',student_name=student_name)
 
 @app.route('/class')
 @login_required
