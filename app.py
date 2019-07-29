@@ -430,8 +430,9 @@ def index():
         #chart_data = json.dumps(chart_data, indent=2)
         #data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+        
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
@@ -1355,7 +1356,7 @@ def search():
 
 
 if __name__=="__main__":
-    app.debug=False
+    app.debug=True
     app.jinja_env.filters['zip'] = zip
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
