@@ -1355,7 +1355,7 @@ def search():
 
 
 if __name__=="__main__":
-    app.debug=True
+    app.debug=False
     app.jinja_env.filters['zip'] = zip
     app.run(host=os.getenv('IP', '127.0.0.1'), 
             port=int(os.getenv('PORT', 8000)))
