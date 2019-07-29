@@ -82,7 +82,7 @@
                 console.log(subject_id_val);
                 var data="";
                 $.ajax({
-                  url: "/topicList?class_sec_id="+ {{class_sec_id}} +"&subject_id="+ subject_id_val,
+                  url: "/topicList?class_sec_id="+ {{ class_sec_id }} +"&subject_id="+ subject_id_val,
                   type: "get",
                   data: data,
                   success: function(response) {

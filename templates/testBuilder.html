@@ -81,9 +81,9 @@
                     onclick="questions(); ">Load Questions</button></p>
             {% endif %}
         </div>
-        <div class="col-sm-9" id="questions" style="display: none;">
-                <div id="questionloader" style="display: none;">
-                        <img src='../static/images/spinner.gif' width='150px' height='150px' style="margin:auto;">
+        <div class="col-sm-9" id="questions">
+                <div id="questionloader" style="display: none;padding-left: 300px;">
+                        <img src="../static/images/loader.gif">
                         </div>
         </div>
     </div>
@@ -172,18 +172,19 @@
             }
         });
     }
-    function calculate_marks(element) {
-        if($(element).is(':checked'))
-        {
-            count_marks-=10
-        }
-    else{
-        count_marks-=10
+
+    function calculate_marks(e){
+    checkbox_id=e.id
+    weightage=document.getElementById(checkbox_id+"select").value
+    if($(e).is(':checked'))
+    {   count_marks=count_marks+parseInt(weightage)
+         $("#marks").text(count_marks);
     }
-       
-        var box = document.getElementById('marks');
-        box.innerHTML = count_marks;
+    else
+    {  count_marks=count_marks-parseInt(weightage)
+        $("#marks").text(count_marks);
     }
+}
     //for (i = 0; i < 20; i++) {
     //$('#topiclist').append('<input type="radio" name="radio_name" />');
 //}     

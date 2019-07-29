@@ -27,7 +27,7 @@ import pandas as pd
 import numpy as np
 import plotly
 import pprint
-from miscFunctions import subjects,topics,subjectPerformance
+from miscFunctions import subjects,topics,subjectPerformance,signs3Folder
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
@@ -107,15 +107,17 @@ def sign_s3():
     file_type = request.args.get('file-type')
     print(file_type)
     #if file_type=='image/png' or file_type=='image/jpeg':
-     #   file_type_folder='images'
+    #   file_type_folder='images'
     #s3 = boto3.client('s3')
     s3 = boto3.client('s3', region_name='ap-south-1')
-    #folder_name=request.args.get('folder')
-
+    folder_name=request.args.get('folder')
+    folder_url=signs3Folder(folder_name,file_type)
+    print(folder_url)
     print(s3)
+
     presigned_post = s3.generate_presigned_post(
       Bucket = S3_BUCKET,
-      Key = file_name,
+      Key = folder_url+"/"+file_name,
       Fields = {"acl": "public-read", "Content-Type": file_type},
       Conditions = [
         {"acl": "public-read"},
@@ -123,9 +125,11 @@ def sign_s3():
       ],
       ExpiresIn = 3600
     )
+    print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
+    
     return json.dumps({
       'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET,file_name)
+      'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
 
 
@@ -215,16 +219,16 @@ def studentRegistration():
             for i in range(4):
                 if i==0:
                     option='A'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 elif i==1:
                     option='B'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 elif i==2:
                     option='C'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 else:
                     option='D'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(form.class_val.data) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                 db.session.add(student_qr_data)
             first_name=request.form.getlist('guardian_first_name')
@@ -265,16 +269,16 @@ def studentRegistration():
                 for i in range(4):
                     if i==0:
                         option='A'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     elif i==1:
                         option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     elif i==2:
                         option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     else:
                         option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['class_val']) + '-' + student_data.first_name + '%20' +student_data.last_name + '@' + option
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
                 #if row['guardian1_email']!='' and row['guardian2_email']!='':
@@ -698,7 +702,7 @@ def performanceDetails(student_id):
 @app.route('/studentfeedbackreport_dummy')
 def studentfeedbackreport_dummy():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreport_dummy.html',student_name=student_name)
+    return render_template('studentfeedbackreportdummy.html',student_name=student_name)
 
 @app.route('/class')
 @login_required
