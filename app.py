@@ -1142,6 +1142,9 @@ def questionBuilder():
             db.session.add(question)
             option_list=request.form.getlist('option_desc')
             question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+            if request.form['correct']=='':
+                flash('Error no correct option selected !')
+                return render_template('questionBuilder.html',School_Name=school_name())
             for i in range(len(option_list)):
                 if int(request.form['option'])==i+1:
                     correct='Y'

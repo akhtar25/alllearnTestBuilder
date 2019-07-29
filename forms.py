@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField,IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField,IntegerField,RadioField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired,NumberRange
 from applicationDB import User,TestDetails
 from flask import request
@@ -112,7 +112,8 @@ class QuestionBuilderQueryForm(FlaskForm):
     subject_name=SelectField('Subject')
     topics=SelectField('Topics')
     question_desc=TextAreaField('Question',validators=[DataRequired(),Length(min=0, max=200)])
-    option=StringField('Options')
+    option=StringField('Options',validators=[DataRequired()])
+    weightage=IntegerField('Weightage',validators=[DataRequired()],widget=NumberInput(min=0,max=100,step=1))
     reference=StringField('Reference')
     submit=SubmitField('Confirm')
     def validate_option(self,option):

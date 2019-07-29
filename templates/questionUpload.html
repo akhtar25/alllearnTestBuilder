@@ -83,12 +83,13 @@
     <br>
     <div class="row">
     <div class="col-sm-6">
-    <label><input class="with-gap" id="option" name="option" type="radio" value="1"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc" name="option_desc"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" value="2"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc" name="option_desc"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" value="3"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
-    <label><input class="with-gap" id="option" name="option" type="radio" value="4"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br><br>
-    <label for="weightage">Weightage</label>
-    <input type="number" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
+    <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc" name="option_desc"></span></label><br><br>
+    <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc" name="option_desc"></span></label><br><br><br>
+    <input type="hidden" id="correct" name="correct" value="">
+    {{ form.weightage.label }}<br>
+    {{ form.weightage }}
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
@@ -98,13 +99,11 @@
         </div>
     </div>
     </div>
-    <p><button class="btn waves-light green lighten-1 white-text" style="float: right; margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+    <p style="display:none;" id="buttonbox"><button class="btn waves-light green lighten-1 white-text" style="float:right; margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
 </div>
 
 </div>
 </div>
-
-
 
 <script type="text/javascript">
     var class_select = document.getElementById("class_val");
@@ -174,11 +173,12 @@
              
          });
     }
-
-
-
-
-
+var radio=false;
+    function correctoption(this){
+      var option=document.getElementById(this.id).value;
+      document.getElementById('correct')=option;
+      radio=true;
+    }
     /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
