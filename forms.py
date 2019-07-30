@@ -132,43 +132,51 @@ class TestBuilderQueryForm(FlaskForm):
 
 
 class SchoolRegistrationForm(FlaskForm):
-    schoolName =StringField('School Name', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    schoolName =StringField('School Name', validators=[DataRequired()])
     board = SelectField('Board',choices=[(c, c) for c in ['CBSE','ICSE']])
     address1 = TextAreaField('Address Line 1', validators=[DataRequired(),Length(min=0, max=200)])
     address2 = TextAreaField('Address Line 2', validators=[Length(min=0, max=200)])
-    locality = StringField('Locality', validators=[DataRequired(),NumberRange(min=0,max=100)])
-    city = StringField('City', validators=[DataRequired(),NumberRange(min=0,max=50)])
-    state = StringField('State', validators=[DataRequired(),NumberRange(min=0,max=50)])
-    country = StringField('Country', validators=[DataRequired(),NumberRange(min=0,max=50)])
-    pincode = IntegerField('Pincode',validators=[DataRequired()],widget=NumberInput())
-    class_val=StringField('Class',validators=[DataRequired(),NumberRange(min=0,max=10)],widget=NumberInput(min=1,max=10))
+    locality = StringField('Locality', validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    state = StringField('State', validators=[DataRequired()])
+    country = StringField('Country', validators=[DataRequired()])
+    pincode = StringField('Pincode',validators=[DataRequired()],widget=NumberInput())
+    class_val=StringField('Class',validators=[DataRequired()],widget=NumberInput(min=1,max=10))
     section=StringField('Section',validators=[DataRequired()])
     student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))
-    teacher_name = StringField('Teacher\'s Name', validators=[DataRequired(),NumberRange(min=0,max=100)])  
-    teacher_subject = StringField('Subject (optional)', validators=[NumberRange(min=0,max=100)])
-    class_teacher = StringField('Teacher\'s Class(optional) ', validators=[NumberRange(min=0,max=10)],widget=NumberInput())
-    class_teacher_section=StringField('Teacher\'s Section')
-    teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
-    paymentPlan = SelectField('Payment Plan',choices=[(c, c) for c in ['Free', 'Fixed', 'Dynamic']])
+    #teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
+    #teacher_subject = StringField('Subject (optional)')
+    #class_teacher = StringField('Teacher\'s Class(optional) ', validators=[NumberRange(min=0,max=10)],widget=NumberInput())
+    #class_teacher_section=StringField('Teacher\'s Section')
+    #teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
+    #paymentPlan = SelectField('Payment Plan',choices=[(c, c) for c in ['Free', 'Fixed', 'Dynamic']])
 
-    def validate_class_val(self,schoolName):
-        if schoolName.data=='Select':
-            raise ValidationError('* Please enter the school name')
-    def validate_section(self,board):
-        if board.data=='Select':
-            raise ValidationError('Please select a curriculum board')
-    def validate_test_type(self,address1):
-        if address1.data=='Select':
-            raise ValidationError('Please enter the address')
-    def validate_city(self,city):
-        if city.data=='Select':
-            raise ValidationError('Please enter the city')
-    def validate_pinCode(self,pinCode):
-        if pinCode.data=='Select':
-            raise ValidationError('Please enter the pinCode')
-    def validate_state(self,state):
-        if state.data=='Select':
-            raise ValidationError('Please enter the state')
+   # def validate_class_val(self,schoolName):
+    #    if schoolName.data=='Select':
+     #       raise ValidationError('* Please enter the school name')
+    #def validate_section(self,board):
+     #   if board.data=='Select':
+      #      raise ValidationError('Please select a curriculum board')
+    #def validate_test_type(self,address1):
+     #   if address1.data=='Select':
+      #      raise ValidationError('Please enter the address')
+    #def validate_city(self,city):
+     #   if city.data=='Select':
+      #      raise ValidationError('Please enter the city')
+    #def validate_pincode(self,pincode):
+     #   if pincode.data=='Select':
+      #      raise ValidationError('Please enter the pinCode')
+    #def validate_state(self,state):
+     #   if state.data=='Select':
+      #      raise ValidationError('Please enter the state')
+
+class SchoolTeacherForm(FlaskForm):
+    teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
+    teacher_subject = SelectField('Subject')
+    class_teacher = SelectField('Class')
+    class_teacher_section=SelectField('Section')
+    teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
+
 
 class PaymentDetailsForm(FlaskForm):
     cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])

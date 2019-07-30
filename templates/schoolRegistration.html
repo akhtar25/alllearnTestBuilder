@@ -150,9 +150,6 @@
                 <div id="classbox" name="classbox"> 
                 </div>
                 <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addClass();" value="Add Class"></p>
-                <div id="teacherbox" name="teacherbox">
-                </div>
-                <p><input type='button' id="addTeacherbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addTeacher();" value="Add Teacher"></p>
                 <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
             </div>
         </div>
@@ -215,92 +212,6 @@
           </div>
    </div></div>`;
       row_id.innerHTML=header+classbox_data;
-    
-    }
-
-    var teacherbox_data='';
-    var count = 0;
-      function addTeacher(){
-      var row_id=document.getElementById('teacherbox');
-      count+=1  
-      header='<h4 style="text-weight:Bold;">Teacher Details</h4>'
-      //var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
-      teacherbox_data+=`
-      <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px;'>
-      <div class='row'>
-      <div class='col-sm-3'>
-          {{ form.teacher_name.label(class='labelsize') }}
-                <br>
-                {% if form.teacher_name.errors %}
-                {{ form.teacher_name(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                {% for error in form.teacher_name.errors %}
-                 <span>{{ error }}</span>
-                {% endfor %}
-                </div>
-                {% else %}
-                {{ form.teacher_name(class='form-control') }}
-                {% endif %}
-      </div>
-      <div class='col-sm-2'>
-          {{ form.teacher_subject.label(class='labelsize') }}
-                <br>
-                {% if form.teacher_subject.errors %}
-                {{ form.teacher_subject(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                {% for error in form.teacher_subject.errors %}
-                 <span>{{ error }}</span>
-                {% endfor %}
-                </div>
-                {% else %}
-                {{ form.teacher_subject(class='form-control') }}
-                {% endif %}
-          </div>
-          <div class='col-sm-2'>
-          {{ form.class_teacher.label(class='labelsize') }}
-                <br>
-                {% if form.class_teacher.errors %}
-                {{ form.class_teacher(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                {% for error in form.class_teacher.errors %}
-                 <span>{{ error }}</span>
-                {% endfor %}
-                </div>
-                {% else %}
-                {{ form.class_teacher(class='form-control') }}
-                {% endif %}
-                </div>
-
-                <div class='col-sm-2'>
-          {{ form.class_teacher_section.label(class='labelsize') }}
-                <br>
-                {% if form.class_teacher_section.errors %}
-                {{ form.class_teacher_section(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                {% for error in form.class_teacher_section.errors %}
-                 <span>{{ error }}</span>
-                {% endfor %}
-                </div>
-                {% else %}
-                {{ form.class_teacher_section(class='form-control') }}
-                {% endif %}
-                </div>
-      
-          <div class='col-sm-3'>
-          {{ form.teacher_email.label(class='labelsize') }}
-                <br>
-                {% if form.teacher_email.errors %}
-                {{ form.teacher_email(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                {% for error in form.teacher_email.errors %}
-                 <span>{{ error }}</span>
-                {% endfor %}
-                </div>
-                {% else %}
-                {{ form.teacher_email(class='form-control') }}
-                {% endif %}</div>
-   </div></div>`;
-      row_id.innerHTML=header+teacherbox_data;
     
     }
 
