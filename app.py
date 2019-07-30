@@ -177,8 +177,29 @@ def reset_password(token):
 @app.route('/schoolRegistration', methods=['GET','POST'])
 def schoolRegistration():  
     form = SchoolRegistrationForm()
-    
-    return render_template('schoolRegistration.html',form=form, form1=form1)
+    if form.validate_on_submit():
+        address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+        db.session.add(address_data)
+        address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+        board_id=MessageDetails.filter_by(description=form.board.data).first()
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id)
+        db.session.add(school)
+        school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
+        class_val=request.form.getlist('class_val')
+        class_section=request.form.getlist('section')
+        student_count=request.form.getist('student_count')
+        for i in range(len(class_val):
+            class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=student_count[i],school_id=school_id.school_id)
+            db.session.add(class_data)
+        teacher_name=request.form.getlist('teacher_name')
+        teacher_email=request.form.getlist('teacher_email')
+        teacher_subject=request.form.getlist('teacher_subject')
+        teacher_class=request.form.getlist('class_teacher')
+        teacher_class_section=request.form.getlist('class_teacher_section')
+        for i in range(len(teacher_name)):
+            pass
+            teacher=TeacherProfile(teacher_name=teacher_name[i],school_id=school_id.school_id,subject_id=)
+    return render_template('schoolRegistration.html',form=form)
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
