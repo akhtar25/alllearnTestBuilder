@@ -145,7 +145,7 @@ class Survivor(db.Model):
 
 class ClassSection(db.Model):
     __tablename__ = "class_section"
-    class_sec_id = db.Column(db.Integer, primary_key=True, autoincrement=False)
+    class_sec_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     class_val=db.Column(db.Integer,nullable=True)
     section=db.Column(db.String(1),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)    

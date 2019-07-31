@@ -1,9 +1,5 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-
-    <p><a href="{{ url_for('teacherRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Teacher Registration</button></a></p>
-    <p><a href="{{ url_for('studentRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Student Registration</button></a></p>
-
 <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Classes Registered Summary</h3>
 <div class="card-body">
   <div id="table" class="table-editable">
@@ -27,6 +23,14 @@
             </tbody>
     </table>
 </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <p><a href="{{ url_for('teacherRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Teacher Registration</button></a></p>
+    </div>
+    <div class="col-sm-3">
+        <p><a href="{{ url_for('studentRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Student Registration</button></a></p>
+    </div>
 </div>
 </div>
 

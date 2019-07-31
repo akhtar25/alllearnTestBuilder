@@ -183,7 +183,7 @@ def schoolRegistration():
         db.session.add(address_data)
         address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id)
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         class_val=request.form.getlist('class_val')
@@ -192,8 +192,10 @@ def schoolRegistration():
         for i in range(len(class_val)):
             class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=int(student_count[i]),school_id=school_id.school_id)
             db.session.add(class_data)
+        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id)
+        db.session.add(teacher)
         db.session.commit()
-        data=ClassSection(school_id=school_id.msg_id).all()
+        data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('succesfull Resgistration!')
         return render_template('schoolRegistrationSuccess.html',data=data)
     return render_template('schoolRegistration.html',form=form)
@@ -208,6 +210,7 @@ def teacherRegistration():
     form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
     form.class_teacher.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.class_teacher_section.choices = section_list
+    return render_template('teacherRegistration.html',form=form,Schoo_name=school_name())
 
 @app.route('/bulkStudReg')
 def bulkStudReg():

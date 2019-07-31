@@ -1,20 +1,21 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
     <div>
-            <div id="classbox" name="classbox"> 
+            <div id="teacherbox" name="teacherbox"> 
                 </div>
-                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addTeacher();" value="Add Class"></p>
+                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addTeacher();" value="Add Teacher"></p>
     </div>
 </div>
     <script>
         var teacherbox_data='';
         var count = 0;
           function addTeacher(){
+          const div = document.createElement('div');
           var row_id=document.getElementById('teacherbox');
           count+=1  
           header='<h4 style="text-weight:Bold;">Teacher Details</h4>'
           //var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
-          teacherbox_data+=`
+          teacherbox_data=`
           <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px;'>
           <div class='row'>
           <div class='col-sm-3'>
@@ -62,6 +63,9 @@
     
                     <div class='col-sm-2'>
               {{ form.class_teacher_section.label(class='labelsize') }}
+              <div id='loader'style='display: none; float: right;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                        </div>
                     <br>
                     {% if form.class_teacher_section.errors %}
                     {{ form.class_teacher_section(class="form-control form-control-lg is-invalid") }}
@@ -89,8 +93,32 @@
                     {{ form.teacher_email(class='form-control') }}
                     {% endif %}</div>
        </div></div>`;
-          row_id.innerHTML=header+teacherbox_data;
+       if (count==1){
+          div.innerHTML=header+teacherbox_data;
+       }
+        else {
+            div.innerHTML=teacherbox_data;
+        }
+        row_id.appendChild(div);
+          }
         
+        var class_select = document.getElementById("class_val");
+        var section_select = document.getElementById("section");
+        class_select.onchange = function()  {
+             
+            class_val = class_select.value;
+            $("#loader").show();
+            
+            fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loader").hide();    
+                        var optionHTML = '';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+            });
         }
     </script>
 {% endblock %}

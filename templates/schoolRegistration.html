@@ -5,10 +5,10 @@
         {{ form.hidden_tag() }}
         <div class="form-group " style="padding-top:5px;">
           <div class="row">
-                <div class="col-sm-9">
+                <div class="col-sm-8">
                         <div class="row">
                             <h4>School Details</h4>
-                            <div class="col-sm-8">
+                            <div class="col-sm-11">
                                     {{ form.schoolName.label(class='labelsize') }}
                                     <br>
                                     {% if form.schoolName.errors %}
@@ -146,6 +146,14 @@
                                 </div>
                         
                         </div>
+                        <div class="col-sm-4">
+                                <img style="border:1px solid gray; width:400px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
+                                <br>
+                                <div class="col-sm-3">
+                                    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+                                    <input type="hidden" id="profile_image" name="profile_image" value="">
+                                </div>
+                        </div>
                 </div>
                 <div id="classbox" name="classbox"> 
                 </div>
@@ -160,12 +168,13 @@
 
 <script>
  var classbox_data='';
-    var count1=0;
+    var count=0;
     function addClass(){
+        const div = document.createElement('div');
         var row_id=document.getElementById('classbox');
-      count1+=1  
+      count+=1  
       header='<h4 style="text-weight:Bold;">Class Details</h4>'
-      classbox_data+=`
+      classbox_data=`
       <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
       <div class='row'>
       <div class='col-sm-3'>
@@ -211,8 +220,14 @@
                 {% endif %}
           </div>
    </div></div>`;
-      row_id.innerHTML=header+classbox_data;
-    
+      if (count==1){
+          div.innerHTML=header+classbox_data;
+       }
+        else {
+            div.innerHTML=classbox_data;
+        }
+        row_id.appendChild(div);
+          
     }
 
     </script>
