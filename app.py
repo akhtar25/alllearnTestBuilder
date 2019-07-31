@@ -125,7 +125,7 @@ def sign_s3():
       ],
       ExpiresIn = 3600
     )
-    print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
+   
     
     return json.dumps({
       'data': presigned_post,
@@ -177,15 +177,25 @@ def reset_password(token):
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():  
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     form = SchoolRegistrationForm()
     if form.validate_on_submit():
-        address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-        db.session.add(address_data)
-        address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+        address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+        if address_id is None:
+            address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+            db.session.add(address_data)
+            address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
+        school_picture=request.files['school_image']
+        school_picture_name=request.form['file-input']       
         school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
+        if school_picture_name!='':
+            school = SchoolProfile.query.get(school_id.school_id)
+            school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
+            client = boto3.client('s3', region_name='ap-south-1')
+            client.upload_fileobj(school_picture , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/' + school_picture_name,ExtraArgs={'ACL':'public-read'})
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
@@ -197,7 +207,7 @@ def schoolRegistration():
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('succesfull Resgistration!')
-        return render_template('schoolRegistrationSuccess.html',data=data)
+        return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
     return render_template('schoolRegistration.html',form=form)
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
@@ -205,12 +215,35 @@ def schoolRegistration():
 def teacherRegistration():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-    section_list=[(i.section,i.section) for i in available_section]
+    class_list=[('select','Select')]
+    section_list=[]
+    for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all():
+        class_list.append((str(i.class_val), "Class "+str(i.class_val)))
+    for i in available_section:
+        section_list.append((i.section,i.section))
     form=SchoolTeacherForm()
     form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
-    form.class_teacher.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_teacher.choices = class_list
     form.class_teacher_section.choices = section_list
-    return render_template('teacherRegistration.html',form=form,Schoo_name=school_name())
+    if request.method=='POST':
+        teacher_name=request.form.getlist('teacher_name')
+        teacher_subject=request.form.getlist('teacher_subject')
+        teacher_class=request.form.getlist('class_teacher')
+        teacher_class_section=request.form.getlist('class_teacher_section')
+        teacher_email=request.form.getlist('teacher_email')
+        print(teacher_name)
+        for i in range(len(teacher_name)):
+            if teacher_class[i]!='select':
+                class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
+                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                db.session.add(teacher_data)
+            else:
+                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                db.session.add(teacher_data)
+        db.session.commit()
+        flash('Successful registration !')
+        return render_template('teacherRegistration.html',form=form,School_Name=school_name())
+    return render_template('teacherRegistration.html',form=form,School_Name=school_name())
 
 @app.route('/bulkStudReg')
 def bulkStudReg():

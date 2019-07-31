@@ -1,10 +1,15 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
+    <form action="" method="POST" enctype="multipart/form-data">
     <div>
             <div id="teacherbox" name="teacherbox"> 
                 </div>
-                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addTeacher();" value="Add Teacher"></p>
+                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addTeacher();" value="Add Teacher"><span><h5>* Click on the button to register teachers</h5></span></p>
     </div>
+    <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+    </div>
+</form>
 </div>
     <script>
         var teacherbox_data='';
@@ -16,7 +21,7 @@
           header='<h4 style="text-weight:Bold;">Teacher Details</h4>'
           //var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
           teacherbox_data=`
-          <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px;'>
+          <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom:5px;'>
           <div class='row'>
           <div class='col-sm-3'>
               {{ form.teacher_name.label(class='labelsize') }}
@@ -95,30 +100,12 @@
        </div></div>`;
        if (count==1){
           div.innerHTML=header+teacherbox_data;
+          $('#buttonbox').show();
        }
         else {
             div.innerHTML=teacherbox_data;
         }
         row_id.appendChild(div);
           }
-        
-        var class_select = document.getElementById("class_val");
-        var section_select = document.getElementById("section");
-        class_select.onchange = function()  {
-             
-            class_val = class_select.value;
-            $("#loader").show();
-            
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader").hide();    
-                        var optionHTML = '';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_select.innerHTML = optionHTML;
-                })
-            });
-        }
     </script>
 {% endblock %}

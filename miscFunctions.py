@@ -96,6 +96,8 @@ def signs3Folder(folder,filetype):
     elif folder == 'question_references':
         if filetype == 'image/jpeg' or filetype == 'image/png':
             return folder+"/images"
+    elif folder == 'school_profile':
+        return "school_data/school_id_"+str(school_id)+"/"+folder
         
 
 

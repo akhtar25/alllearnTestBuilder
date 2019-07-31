@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,SelectField,DateField,IntegerField,RadioField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length,NumberRange,InputRequired,NumberRange
-from applicationDB import User,TestDetails
+from applicationDB import User,TestDetails,ClassSection
 from flask import request
 from wtforms.fields.html5 import DateField
 from datetime import datetime
 from wtforms.widgets import html5
 from wtforms.widgets.html5 import NumberInput
+from validate_email import validate_email
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -175,8 +176,16 @@ class SchoolTeacherForm(FlaskForm):
     teacher_subject = SelectField('Subject')
     class_teacher = SelectField('Class')
     class_teacher_section=SelectField('Section')
-    teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
-
+    teacher_email = StringField('Email', validators=[DataRequired()])
+    
+    #def validate_class_teacher_section(self,class_teacher_section):
+     #   if class_teacher!='select':
+      #      if class_teacher_section!='select':
+       #         class_data=ClassSection.query.filter_by(class_val=int(class_teacher),section=class_teacher_section).first()
+        #        if class_data is None:
+         #           raise ValidationError('Class of this section doesn\'t exist')
+          #  else:
+           #     raise ValidationError('Select section')
 
 class PaymentDetailsForm(FlaskForm):
     cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])

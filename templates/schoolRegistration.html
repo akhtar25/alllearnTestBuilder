@@ -150,8 +150,9 @@
                                 <img style="border:1px solid gray; width:400px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
                                 <br>
                                 <div class="col-sm-3">
-                                    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
-                                    <input type="hidden" id="profile_image" name="profile_image" value="">
+                                    <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;"><br>
+                                    <input type="hidden" id="file-input" name="file-input" value="">
+                                    <input type="hidden" id="file-src" name="file-src" value="">
                                 </div>
                         </div>
                 </div>
@@ -226,9 +227,28 @@
         else {
             div.innerHTML=classbox_data;
         }
-        row_id.appendChild(div);
-          
+        row_id.appendChild(div);     
     }
+
+
+
+function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+        alert($("#school_image").val());
+      $('#preview').attr('src', e.target.result);
+      $('#file-src').val($("#school_image").val());
+      $('#file-input').val(input.files[0].name);
+    }
+    
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+$("#school_image").change(function() {
+  readURL(this);
+});
 
     </script>
     

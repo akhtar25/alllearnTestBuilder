@@ -159,7 +159,7 @@ class Attendance(db.Model):
     attendance_id=db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)        
-    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
+    #class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     attendance_date = db.Column(db.DateTime)
     is_present=db.Column(db.String(1), nullable=True)
@@ -363,6 +363,7 @@ class SchoolProfile(db.Model):
     org_leaving_Date=db.Column(db.DateTime,nullable=True)
     org_leaving_reason=db.Column(db.String(500),nullable=True)    
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
+    school_picture = db.Column(db.String(500), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
