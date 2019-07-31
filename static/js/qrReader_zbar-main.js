@@ -147,7 +147,7 @@ function processCapture(){
    setInterval(function(){ 
      if(flag){
 /////////////processing area
-	  context.drawImage(video, 0, 0, 640, 480);
+	  context.drawImage(video, 0, 0, 960, 720);
     var canvas = document.getElementById('piccanvas');
     var data = context.getImageData(0, 0, canvas.width, canvas.height);
 
