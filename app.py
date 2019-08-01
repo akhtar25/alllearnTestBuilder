@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, feedbackReportForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -941,14 +941,20 @@ def feedbackReport():
     #print('here is the class_val '+ str(class_val))
     section=request.args.get('section')
     section = section.strip()
+    dateVal = request.args.get('date')
     #print('here is the section '+ str(section))
-    if (questionListJson != None) and (class_val != None) and (section != None):
+    #if (questionListJson != None) and (class_val != None) and (section != None):
+    if (class_val != None) and (section != None):
 
         classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
         print('here is the subject_id: '+ str(subject_id))
         #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
-                    
-        dateVal= datetime.today().strftime("%d%m%Y")
+        
+        if dateVal == None or dateVal=="":
+            dateVal= datetime.today().strftime("%d%m%Y")
+        else:
+            tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
+            dateVal= tempDate.strftime("%d%m%Y")
 
         responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
@@ -995,7 +1001,10 @@ def feedbackReport():
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
-    return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+    if responseResultRowCount>0:
+        return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+    else:
+         return jsonify(['No Data for the selected Date'])
 
 
 @app.route('/studentFeedbackReport')
@@ -1064,7 +1073,25 @@ def testPerformance():
 @app.route('/classPerformance')
 @login_required
 def classPerformance():
-    return render_template('classPerformance.html')
+    form=feedbackReportForm()
+
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()    
+    available_subject=MessageDetails.query.filter_by(category='Subject').all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    subject_name_list=[(i.msg_id,i.description) for i in available_subject]
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list    
+    form.subject_name.choices=subject_name_list
+
+    return render_template('classPerformance.html',form=form)
 
 
 @app.route('/resultUpload',methods=['POST','GET'])

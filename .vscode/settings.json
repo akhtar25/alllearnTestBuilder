@@ -1,4 +1,9 @@
 {
-    "python.pythonPath": "virtual\\Scripts\\python.exe",
-    "python.formatting.provider": "yapf"
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "atomKeymap.promptV3Features": true,
+    "team.showWelcomeMessage": false,
+    "[html]": {
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "terminal.integrated.rendererType": "dom"
 }
