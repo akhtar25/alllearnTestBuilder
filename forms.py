@@ -8,6 +8,7 @@ from datetime import datetime
 from wtforms.widgets import html5
 from wtforms.widgets.html5 import NumberInput
 from validate_email import validate_email
+import re
 #from flask_babel import _, lazy_gettext as _l
 
 
@@ -134,7 +135,7 @@ class TestBuilderQueryForm(FlaskForm):
 
 class SchoolRegistrationForm(FlaskForm):
     schoolName =StringField('School Name', validators=[DataRequired()])
-    board = SelectField('Board',choices=[(c, c) for c in ['CBSE','ICSE']])
+    board = SelectField('Board')
     address1 = TextAreaField('Address Line 1', validators=[DataRequired(),Length(min=0, max=200)])
     address2 = TextAreaField('Address Line 2', validators=[Length(min=0, max=200)])
     locality = StringField('Locality', validators=[DataRequired()])
@@ -178,14 +179,9 @@ class SchoolTeacherForm(FlaskForm):
     class_teacher_section=SelectField('Section')
     teacher_email = StringField('Email', validators=[DataRequired()])
     
-    #def validate_class_teacher_section(self,class_teacher_section):
-     #   if class_teacher!='select':
-      #      if class_teacher_section!='select':
-       #         class_data=ClassSection.query.filter_by(class_val=int(class_teacher),section=class_teacher_section).first()
-        #        if class_data is None:
-         #           raise ValidationError('Class of this section doesn\'t exist')
-          #  else:
-           #     raise ValidationError('Select section')
+    def validate_teacher_email(self,teacher_email):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", teacher_email):
+            raise ValidationError('Error in email')
 
 class PaymentDetailsForm(FlaskForm):
     cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])

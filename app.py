@@ -179,6 +179,7 @@ def reset_password(token):
 def schoolRegistration():  
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     form = SchoolRegistrationForm()
+    form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
     if form.validate_on_submit():
         address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         if address_id is None:
@@ -206,7 +207,7 @@ def schoolRegistration():
         db.session.add(teacher)
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
-        flash('succesfull Resgistration!')
+        flash('Succesfull Resgistration !')
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
     return render_template('schoolRegistration.html',form=form)
 
@@ -678,7 +679,7 @@ def testBuilderQuestions():
     for topic in topicList:
         questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
-    return render_template('testBuilderQuestions.html',questions=questions)
+    return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
@@ -716,12 +717,12 @@ def testBuilderFileUpload():
 @app.route('/testPapers')
 @login_required
 def testPapers():
-    return render_template('testPapers.html')
+    return render_template('testPapers.html',School_Name=school_name())
 
 @app.route('/calendar')
 @login_required
 def calendar():
-    return render_template('calendar.html')
+    return render_template('calendar.html',School_Name=school_name())
 
 @app.route('/schoolPerformanceRanking')
 @login_required
@@ -759,14 +760,14 @@ def performanceDetails(student_id):
         subject=subjectPerformance(class_sec.class_val,class_sec.school_id)
         print(subject)
         date=request.form['performace_date']
-        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student)
-    return render_template('performanceDetails.html',students=student)
+        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student,School_Name=school_name())
+    return render_template('performanceDetails.html',students=student,School_Name=school_name())
 
 
 @app.route('/studentfeedbackreport_dummy')
 def studentfeedbackreport_dummy():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreportdummy.html',student_name=student_name)
+    return render_template('studentfeedbackreportdummy.html',student_name=student_name,School_Name=school_name())
 
 @app.route('/class')
 @login_required
@@ -1266,6 +1267,9 @@ def questionBuilder():
             else:
                 option_list=request.form.getlist('option_desc')
                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+                if request.form['correct']=='':
+                    flash('Correct option not seleted !')
+                    return render_template('questionBuilder.html',School_Name=school_name())
                 for i in range(len(option_list)):
                     if int(request.form['option'])==i+1:
                         correct='Y'

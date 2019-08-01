@@ -100,10 +100,10 @@
     <div class="row">
     <div class="col-sm-6">
             <div style="display:none;" id="MCQ1_type">
-            <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc2" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc3" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctoption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc4" name="option_desc"></span></label><br><br><br>
+            <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc2" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc3" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc4" name="option_desc"></span></label><br><br><br>
             <input type="hidden" id="correct" name="correct" value="">
             </div>
     <label for="weightage">Weightage</label>
@@ -206,6 +206,9 @@
         $("#MCQ1_type").hide();
        
       }
+    }
+    function correctOption(correct){
+      document.getElementById('correct').value=correct.value;
     }
 
     function Clear(){
