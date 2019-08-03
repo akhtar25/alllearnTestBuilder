@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, feedbackReportForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, feedbackReportForm, testPerformanceForm, studentPerformanceForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -944,9 +944,11 @@ def feedbackReport():
     dateVal = request.args.get('date')
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
     if (class_val != None) and (section != None):
 
-        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
+        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section, school_id=teacher.school_id).first()       
         print('here is the subject_id: '+ str(subject_id))
         #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
         
@@ -1033,6 +1035,46 @@ def studentFeedbackReport():
 def testPerformance():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    
+    #setting up testperformance form
+    form=testPerformanceForm()        
+
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list    
+    form.test_type.choices=test_type_list
+
+    #setting up studentperformance form
+    form1=studentPerformanceForm()
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form1.class_val1.choices = class_list
+    form1.section1.choices= section_list    
+    form1.test_type1.choices=test_type_list
+    form1.student_name1.choices = student_list
+
+    
+
      #####Fetch school perf graph information##########
     performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
     performanceRows = db.session.execute(text(performanceQuery)).fetchall()
@@ -1067,7 +1109,145 @@ def testPerformance():
         )]        
     #print(graphData)
     graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('testPerformance.html',graphJSON=graphJSON)
+    return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1)
+
+
+@app.route('/testPerformanceGraph')
+@login_required
+def testPerformanceGraph():    
+    class_val=request.args.get('class_val')
+    section=request.args.get('section')
+    section = section.strip()    
+    test_type=request.args.get('test_type')
+    #print('here is the class_val '+ str(class_val))
+    dateVal = request.args.get('date')
+    
+    if dateVal ==None or dateVal=="":
+        dateVal= datetime.today()
+
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+
+    
+    testPerformanceRecords = PerformanceDetail.query.filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
+    
+    #subject_name_list=[(i.msg_id,i.description) for i in available_subject]
+
+    df=pd.DataFrame(columns=['student_id', 'date','student_score','subject_id'])
+
+    
+    print (testPerformanceRecords)
+    
+    for i in testPerformanceRecords:
+        df.append(str(i.student_id), str(i.date),str(i.student_score),str(i.subject_id))
+
+    #df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
+    #df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+    #    5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+    #print(df)
+    #df="done"
+    #
+    #dateRange = list(df['Date'])
+    #class1Data= list(df['Class_1'])
+    #class2Data= list(df['Class_2'])
+    #class3Data= list(df['Class_3'])
+    #class4Data= list(df['Class_4'])
+    #class5Data= list(df['Class_5'])
+    #class6Data= list(df['Class_6'])
+    #class7Data= list(df['Class_7'])
+    #class8Data= list(df['Class_8'])
+    #class9Data= list(df['Class_9'])
+    #class10Data= list(df['Class_10'])
+    ##print(dateRange)
+    ###Class 1
+    #graphData = [dict(
+    #    data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+    #    data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+    #    data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+    #    data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+    #    data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+    #    data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+    #    data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+    #    data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+    #    data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+    #    data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+    #    )]        
+    ##print(graphData)
+    #graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+#
+#
+    #return str(df)
+    return render_template('_testPerformanceGraph.html')
+    
+
+@app.route('/studentPerformanceGraph')
+@login_required
+def studentPerformanceGraph():    
+    class_val=request.args.get('class_val')
+    section=request.args.get('section')
+    section = section.strip()    
+    test_type=request.args.get('test_type')
+    student_id=request.args.get('student_id')
+    #print('here is the class_val '+ str(class_val))
+    dateVal = request.args.get('date')
+    
+    if dateVal ==None or dateVal=="":
+        dateVal= datetime.today()
+
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+#
+    #
+    #studentPerformanceRecords = PerformanceDetail.query.filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=int(test_type),student_id=int(student_id)).all()
+    #
+    ##subject_name_list=[(i.msg_id,i.description) for i in available_subject]
+#
+    #df=pd.DataFrame(columns=['student_id', 'date','student_score','subject_id'])
+#
+    #
+    #print (studentPerformanceRecords)
+    #
+    #for i in studentPerformanceRecords:
+    #    df.append(str(i.student_id), str(i.date),str(i.student_score),str(i.subject_id))
+#
+    #df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
+    #df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+    #    5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+    #print(df)
+    #df="done"
+    #
+    #dateRange = list(df['Date'])
+    #class1Data= list(df['Class_1'])
+    #class2Data= list(df['Class_2'])
+    #class3Data= list(df['Class_3'])
+    #class4Data= list(df['Class_4'])
+    #class5Data= list(df['Class_5'])
+    #class6Data= list(df['Class_6'])
+    #class7Data= list(df['Class_7'])
+    #class8Data= list(df['Class_8'])
+    #class9Data= list(df['Class_9'])
+    #class10Data= list(df['Class_10'])
+    ##print(dateRange)
+    ###Class 1
+    #graphData = [dict(
+    #    data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+    #    data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+    #    data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+    #    data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+    #    data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+    #    data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+    #    data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+    #    data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+    #    data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+    #    data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+    #    )]        
+    ##print(graphData)
+    #graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+#
+#
+    #return str(df)
+    return render_template('_studentPerformanceGraph.html')
+
 
 
 @app.route('/classPerformance')
@@ -1209,6 +1389,23 @@ def section(class_val):
         sectionArray.append(sectionObj)
 
     return jsonify({'sections' : sectionArray})
+
+
+@app.route('/studentList/<class_val>/<section>/')
+def studentList(class_val,section):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section,school_id=teacher_id.school_id).first()
+    students = StudentProfile.query.distinct().filter_by(class_sec_id=classSecRow.class_sec_id).all()
+    studentArray = []
+
+    for student in students:
+        studentObj = {}
+        studentObj['student_id'] = student.student_id
+        studentObj['student_name'] = student.full_name
+        studentArray.append(studentObj)
+
+    print(str(studentArray))
+    return jsonify({'students' : studentArray})
 
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required

@@ -107,13 +107,12 @@
 
         <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
           <li>
-            <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Class Performance</a>
+            <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
           </li>
           <li>
-            <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Test Performance</a>
+            <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
           </li>
         </ul>
-
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous %}
 

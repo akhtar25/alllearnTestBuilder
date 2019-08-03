@@ -1,0 +1,93 @@
+<!--This is the end of the test performance input form -->
+  <div class="row">
+  <section class="col-lg-12 connectedSortable">
+    <div id="stackedStudentPerformance">
+      <!-- Plotly chart will be drawn inside this DIV -->
+    </div>
+    </section>
+  </div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  var ssptrace1 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'English',
+    orientation: 'h',
+    marker: {
+      color: 'rgb(1, 0, 130)',
+      width: 2
+    },
+    type: 'bar'
+  };
+
+  var ssptrace2 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 50, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Hindi',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 56, 130)',
+      width: 1
+    }
+  };
+
+  var ssptrace3 = {
+    x: [60, 50, 70, 70, 70, 70, 50, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Math',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 101, 130)',
+      width: 1
+    }
+  };
+
+  var ssptrace4 = {
+    x: [60, 50, 70, 70, 70, 70, 70, 70, 70, 50],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Science',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 162, 130)',
+      width: 1
+    }
+  };
+
+  var ssptrace5 = {
+    x: [60, 50, 70, 70, 50, 70, 70, 70, 70, 70],
+    y: ['Anurag', 'Ayushi', 'Ankit', 'Anshika', 'Ashish', 'Akansha', 'Deepak', 'Naveen', 'Shailesh', 'Sheyas'],
+    name: 'Social Science',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+      color: 'rgb(1, 204, 130)',
+      width: 1
+    }
+  };
+
+
+
+  var data = [ssptrace1, ssptrace2, ssptrace3, ssptrace4, ssptrace5];
+
+  var layout = {
+    title: '',
+    barmode: 'stack'
+  };
+
+  Plotly.newPlot('stackedStudentPerformance', data, layout, {
+    showlegend: true,
+    displayModeBar: false
+  });
+</script>
+
+
+<!--<script>
+  $(document).ready(function () {
+    $('select').formSelect();
+  });
+</script>-->
+
