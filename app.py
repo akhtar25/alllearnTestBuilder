@@ -767,7 +767,7 @@ def performanceDetails(student_id):
 
 
 @app.route('/studentfeedbackreporttemp')
-def studentfeedbackreport_dummy():
+def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
     return render_template('studentfeedbackreporttemp.html',student_name=student_name,School_Name=school_name())
 
