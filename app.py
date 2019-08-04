@@ -764,10 +764,10 @@ def performanceDetails(student_id):
     return render_template('performanceDetails.html',students=student,School_Name=school_name())
 
 
-@app.route('/studentfeedbackreport_dummy')
+@app.route('/studentfeedbackreporttemp')
 def studentfeedbackreport_dummy():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreportdummy.html',student_name=student_name,School_Name=school_name())
+    return render_template('studentfeedbackreporttemp.html',student_name=student_name,School_Name=school_name())
 
 @app.route('/class')
 @login_required
