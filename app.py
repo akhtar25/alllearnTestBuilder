@@ -32,7 +32,8 @@ from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
 from io import StringIO
-
+from collections import defaultdict
+from sqlalchemy.inspection import inspect
 
 app=Flask(__name__)
 #csrf = CSRFProtect()
@@ -1129,55 +1130,62 @@ def testPerformanceGraph():
     classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
 
     
-    testPerformanceRecords = PerformanceDetail.query.filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
+    #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
+    #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
     
-    #subject_name_list=[(i.msg_id,i.description) for i in available_subject]
+    testPerformanceQuery = "select sp.full_name, pd.student_score, md.description "
+    testPerformanceQuery = testPerformanceQuery + "from performance_detail pd "
+    testPerformanceQuery = testPerformanceQuery + "inner join student_profile sp on "
+    testPerformanceQuery = testPerformanceQuery + "sp.student_id=pd.student_id inner join "
+    testPerformanceQuery = testPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+    testPerformanceQuery = testPerformanceQuery + "where "
+    testPerformanceQuery = testPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
+    testPerformanceQuery = testPerformanceQuery + "and "
+    testPerformanceQuery = testPerformanceQuery + "pd.date='"+ str(dateVal) +"' "
+    testPerformanceQuery = testPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
 
-    df=pd.DataFrame(columns=['student_id', 'date','student_score','subject_id'])
 
-    
-    print (testPerformanceRecords)
-    
-    for i in testPerformanceRecords:
-        df.append(str(i.student_id), str(i.date),str(i.student_score),str(i.subject_id))
+    testPerformanceRecords = db.session.execute(text(testPerformanceQuery)).fetchall()
+        
+    if len(testPerformanceRecords) !=0:
 
-    #df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
-    #df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-    #    5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-    #print(df)
-    #df="done"
-    #
-    #dateRange = list(df['Date'])
-    #class1Data= list(df['Class_1'])
-    #class2Data= list(df['Class_2'])
-    #class3Data= list(df['Class_3'])
-    #class4Data= list(df['Class_4'])
-    #class5Data= list(df['Class_5'])
-    #class6Data= list(df['Class_6'])
-    #class7Data= list(df['Class_7'])
-    #class8Data= list(df['Class_8'])
-    #class9Data= list(df['Class_9'])
-    #class10Data= list(df['Class_10'])
-    ##print(dateRange)
-    ###Class 1
-    #graphData = [dict(
-    #    data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-    #    data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-    #    data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-    #    data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-    #    data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-    #    data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-    #    data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-    #    data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-    #    data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-    #    data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-    #    )]        
-    ##print(graphData)
-    #graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-#
-#
-    #return str(df)
-    return render_template('_testPerformanceGraph.html')
+        #result = defaultdict(list)
+        #for obj in testPerformanceRecords:
+        #    instance = inspect(obj)
+        #    for key, x in instance.attrs.items():
+        #        result[key].append(x.value)
+        #
+        #df = pd.DataFrame(result)
+
+        df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
+        df.rename(columns={0: 'full_name', 1: 'student_score', 2: 'subject'}, inplace=True)
+
+        student_names= list(df['full_name'])
+        student_scores= list(df['student_score'])
+        subject= list(df['subject'])    
+
+        distinct_subjects= df['subject'].unique()
+        ##print(dateRange)
+        ###Class 1
+        #print(distinct_subjects)
+        subLevelData=[]
+        i=0
+        for subVal in distinct_subjects:
+            filtered_df=df[df.subject==subVal]
+            filtered_df_student = list(filtered_df['full_name'])
+            filtered_df_student_scored = list(filtered_df['student_score'])
+            #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
+            tempDict = dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar',name=subVal,orientation='h')
+            subLevelData.append(tempDict)
+        print(str(subLevelData))
+
+        graphData=[dict()]
+
+        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)
+        #return str(graphJSON)
+        return render_template('_testPerformanceGraph.html',graphJSON=graphJSON)
+    else:
+        return jsonify(['No records found for the selected date'])
     
 
 @app.route('/studentPerformanceGraph')
@@ -1195,58 +1203,58 @@ def studentPerformanceGraph():
         dateVal= datetime.today()
 
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
-#
-    #
-    #studentPerformanceRecords = PerformanceDetail.query.filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=int(test_type),student_id=int(student_id)).all()
-    #
-    ##subject_name_list=[(i.msg_id,i.description) for i in available_subject]
-#
-    #df=pd.DataFrame(columns=['student_id', 'date','student_score','subject_id'])
-#
-    #
-    #print (studentPerformanceRecords)
-    #
-    #for i in studentPerformanceRecords:
-    #    df.append(str(i.student_id), str(i.date),str(i.student_score),str(i.subject_id))
-#
-    #df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
-    #df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-    #    5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-    #print(df)
-    #df="done"
-    #
-    #dateRange = list(df['Date'])
-    #class1Data= list(df['Class_1'])
-    #class2Data= list(df['Class_2'])
-    #class3Data= list(df['Class_3'])
-    #class4Data= list(df['Class_4'])
-    #class5Data= list(df['Class_5'])
-    #class6Data= list(df['Class_6'])
-    #class7Data= list(df['Class_7'])
-    #class8Data= list(df['Class_8'])
-    #class9Data= list(df['Class_9'])
-    #class10Data= list(df['Class_10'])
-    ##print(dateRange)
-    ###Class 1
-    #graphData = [dict(
-    #    data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-    #    data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-    #    data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-    #    data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-    #    data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-    #    data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-    #    data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-    #    data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-    #    data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-    #    data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-    #    )]        
-    ##print(graphData)
-    #graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-#
-#
-    #return str(df)
-    return render_template('_studentPerformanceGraph.html')
+    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+
+    
+    
+    #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
+    #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
+    
+    studPerformanceQuery = "select pd.date, pd.student_score,md.description "
+    studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
+    studPerformanceQuery = studPerformanceQuery + "inner join "
+    studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+    studPerformanceQuery = studPerformanceQuery + "and "
+    studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
+    studPerformanceQuery = studPerformanceQuery + "and "
+    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' "
+    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
+
+
+    studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
+        
+    if len(studPerformanceRecords) !=0:
+        df = pd.DataFrame( [[ij for ij in i] for i in studPerformanceRecords])
+        df.rename(columns={0: 'date', 1: 'student_score', 2: 'subject'}, inplace=True)
+
+        dateRange= list(df['date'])
+        student_scores= list(df['student_score'])
+        subject= list(df['subject'])
+
+        distinct_subjects= df['subject'].unique()
+        ##print(dateRange)
+        ###Class 1
+        #print(distinct_subjects)
+        subLevelData=[]
+        i=0
+        for subVal in distinct_subjects:
+            filtered_df=df[df.subject==subVal]
+            filtered_df_date = list(filtered_df['date'])
+            filtered_df_student_scored = list(filtered_df['student_score'])
+            #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
+            tempDict = dict(y=filtered_df_student_scored,x=filtered_df_date,mode= 'lines+markers',type='scatter',name=subVal,line_shape='spline')
+            subLevelData.append(tempDict)
+        print(str(subLevelData))
+
+        graphData=[dict()]
+
+        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)
+        #return str(graphJSON)
+        return render_template('_studentPerformanceGraph.html',graphJSON=graphJSON)
+    else:
+        return jsonify(['No records found for the selected values'])
+  
+    
 
 
 

@@ -75,7 +75,12 @@
                 </div>              
 						</div>
 
-
+<div class="row">       
+        <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivTest">    
+        <div id="feedbackReportDiv" style="display:none;">
+        </div>
+		</div>   
+  
 <!--This is the end of the test performance input form -->
   <div class="row">
   <section class="col-lg-12 connectedSortable">
@@ -165,10 +170,15 @@
                         </div>    
 
                         <div class="col-sm-2" style="margin-top:25px;">						
-                <input type="button"  class="btn"  style="height:35px; width:100px;" id="loadStudentPerfBTN" value="Load Student Data">                
+                <input type="button"  class="btn"  style="height:35px; width:180px;" id="loadStudentPerfBTN" value="Load Student Data">                
                 </div>              
 						</div>
 
+<div class="row">       
+        <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivStud">    
+        <div id="feedbackReportDiv" style="display:none;">
+        </div>
+		</div>   
   <div class="row">
   <section class="col-lg-12 connectedSortable">
     <!--<div id="stackedStudentPerformance" style="display:none;">-->
@@ -178,7 +188,11 @@
     </section>
   </div>
 
-
+<!--<script>
+  $(document).ready(function () {
+    $('select').formSelect();
+  });
+</script>-->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>  
@@ -188,14 +202,14 @@
               var section = $('#section').val();                            
               var test_type = $('#test_type').val();   
               var selected_date=$('#testdate').val();
-              $('#loaderDiv').show();
+              $('#loaderDivTest').show();
               var data="";
                 $.ajax({
                   url: "/testPerformanceGraph?class_val="+ class_val+"&section="+section+"&test_type="+test_type+"&date="+selected_date ,
                   type: "get",
                   data: data,
                   success: function(response) {
-                      $('#loaderDiv').hide();
+                      $('#loaderDivTest').hide();
                     $("#testPerformanceGraphDiv").show(); 
                     $("#testPerformanceGraphDiv").html(response);                            
                   },
@@ -212,16 +226,16 @@
             $("#studentPerformanceGraphDiv").html('');     
               var class_val = $('#class_val1').val();              
               var section = $('#section1').val();                            
-              var student = $('#student1').val();   
+              var student = $('#student_name1').val();   
               var test_type=$('#test_type1').val();
-              $('#loaderDiv').show();
+              $('#loaderDivStud').show();
               var data="";
                 $.ajax({
                   url: "/studentPerformanceGraph?class_val="+ class_val+"&section="+section+"&student_id="+student+"&test_type="+test_type ,
                   type: "get",
                   data: data,
                   success: function(response) {
-                      $('#loaderDiv').hide();
+                      $('#loaderDivStud').hide();
                     $("#studentPerformanceGraphDiv").show(); 
                     $("#studentPerformanceGraphDiv").html(response);                            
                   },
@@ -232,11 +246,7 @@
             });
 </script>
 
-<!--<script>
-  $(document).ready(function () {
-    $('select').formSelect();
-  });
-</script>-->
+
 <script>
   var graphData = {{graphJSON | safe}};
   for (key in graphData) {
@@ -251,6 +261,7 @@
     value9 = graphData[key].data9[0];
     value10 = graphData[key].data10[0];
   }
+  console.log(value1);
   var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
   Plotly.newPlot('graphDiv', data, {}, {
     showlegend: true,
