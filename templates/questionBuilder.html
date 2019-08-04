@@ -13,15 +13,14 @@
              
                 <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->
       
-            <form action="{{ url_for('questionBuilder') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ url_for('questionBuilder') }}" name="form1" method="POST" enctype="multipart/form-data">
                    
             <div id="new" style="display:None;">
                 
 
-               
+                
             </div>
             
-
             </form>
             
         
@@ -37,8 +36,9 @@
                   url: "/questionUpload",
                   type: "get",
                   success: function(response) {
-                    $("#new").show(); 
-                    $("#new").html(response);        
+                    $("#new").show();
+                    $("#new").html(response);
+                    $("#buttonbox").show();        
                     },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");
@@ -63,10 +63,26 @@
                   }
                 });        
 
-        });
-        
+        });}
+
+    /*function validate(){
+        var correct=document.forms['form1']['correct'];
+        if (correct.value==''){
+            alert('Please select a correct option')
+            return false;
+        }
     }
-    
+    function validate(){
+    var radios = document.forms['form1']['option'];
+    var formValid = false;
+    var i = 0;
+    while (!formValid && i < radios.length) {
+        if (radios[i].checked) formValid = true;
+        i++;        
+    }
+    if (!formValid) alert("Must check some option!");
+    return formValid;
+}​   */ 
 </script>
 
 {%endblock%}

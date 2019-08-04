@@ -1,86 +1,256 @@
 {% extends "layout.html" %} {% block content %}
 
 <div class="container">
+<form action="" method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group " style="padding-top:5px;">
+          <div class="row">
+                <div class="col-sm-8">
+                        <div class="row">
+                            <h4>School Details</h4>
+                            <div class="col-sm-11">
+                                    {{ form.schoolName.label(class='labelsize') }}
+                                    <br>
+                                    {% if form.schoolName.errors %}
+                                    {{ form.schoolName(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                    {% for error in form.schoolName.errors %}
+                                     <span>{{ error }}</span>
+                                    {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.schoolName(class='form-control') }}
+                                    {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                                <div class="col-sm-3">
+                                        {{ form.board.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.board.errors %}
+                                        {{ form.board(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.board.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.board(class='form-control') }}
+                                        {% endif %}
+                                </div>
+                        </div>
+                        <div class="row">
+                                <h4>Address Details</h4>
+                                <div class="col-sm-4">
+                                        {{ form.address1.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.address1.errors %}
+                                        {{ form.address1(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.address1.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.address1(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-4">
+                                        {{ form.address2.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.address2.errors %}
+                                        {{ form.address2(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.address2.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.address2(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form.locality.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.locality.errors %}
+                                        {{ form.locality(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.locality.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.locality(class='form-control') }}
+                                        {% endif %}
+                                    </div> 
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        {{ form.city.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.city.errors %}
+                                        {{ form.city(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.city.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.city(class='form-control') }}
+                                        {% endif %}
+                                    </div> 
+                            
+                                    <div class="col-sm-3">
+                                        {{ form.state.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.state.errors %}
+                                        {{ form.state(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.state.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.state(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form.country.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.country.errors %}
+                                        {{ form.country(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.country.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.country(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form.pincode.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.pincode.errors %}
+                                        {{ form.pincode(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.pincode.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.pincode(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                            
+                                </div>
+                        
+                        </div>
+                        <div class="col-sm-4">
+                                <img style="border:1px solid gray; width:400px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg"><br>
+                                <br>
+                                <div class="col-sm-3">
+                                    <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;"><br>
+                                    <input type="hidden" id="file-input" name="file-input" value="">
+                                    <input type="hidden" id="file-src" name="file-src" value="">
+                                </div>
+                        </div>
+                </div>
+                <div id="classbox" name="classbox"> 
+                </div>
+                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addClass();" value="Add Class"></p>
+                <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+            </div>
+        </div>
 
-<div class="row">
-        
-    <div class="col s12 m6 offset-m3 z-depth-3">
-            <h3 class="text-green" >School Registration</h3>
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-    <p>
-       {{ form.schoolName.label }}<br> {{ form.schoolName(size=100) }}
-       <br> {% for error in form.schoolName.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-       {{ form.board.label }}<br> {{ form.board }} <!--This needs some changes-->
-       <br> {% for error in form.board.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-       {{ form.address1.label }} <br>{{ form.address1(cols=50, rows=4) }}
-       <br> {% for error in form.address1.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.address2.label }}<br> {{ form.address2(cols=50, rows=4) }}
-       <br> {% for error in form.address2.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.locality.label }} <br>{{ form.locality(size=100) }}
-       <br> {% for error in form.locality.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.city.label }} <br>{{ form.city(size=100) }}
-       <br> {% for error in form.city.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.country.label }} <br>{{ form.country(size=100) }}
-       <br> {% for error in form.country.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.pinCode.label }} <br>{{ form.pinCode(size=10) }}
-       <br> {% for error in form.pinCode.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form.paymentPlan.label }}<br> {{ form.paymentPlan }}
-       <br> {% for error in form.paymentPlan.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>        
-       {{ form1.cardNumber.label }}<br> {{ form1.cardNumber }}
-       <br> {% for error in form1.cardNumber.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       {{ form1.cardHolder.label }}<br> {{ form1.cardHolder }}
-       <br> {% for error in form1.cardHolder.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p><p>
-       Expiry: 
-       {{ form1.expiry_month.label }}<br> {{ form1.expiry_month }}
-       {{ form1.expiry_year.label }}<br> {{ form1.expiry_year }}
-        <br> {% for error in form1.expiry_month.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        <br> {% for error in form1.expiry_year.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>    
-    <p><button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Register and Pay</button></p>    
-    </div>
+
 </form>
 </div>
-</div>
-</div>
+
+<script>
+ var classbox_data='';
+    var count=0;
+    function addClass(){
+        const div = document.createElement('div');
+        var row_id=document.getElementById('classbox');
+      count+=1  
+      header='<h4 style="text-weight:Bold;">Class Details</h4>'
+      classbox_data=`
+      <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+      <div class='row'>
+      <div class='col-sm-3'>
+          {{ form.class_val.label(class='labelsize') }}
+                <br>
+                {% if form.class_val.errors %}
+                {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                {% for error in form.class_val.errors %}
+                 <span>{{ error }}</span>
+                {% endfor %}
+                </div>
+                {% else %}
+                {{ form.class_val(class='form-control') }}
+                {% endif %}
+      </div>
+      <div class='col-sm-3'>
+          {{ form.section.label(class='labelsize') }}
+                <br>
+                {% if form.section.errors %}
+                {{ form.section(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                {% for error in form.section.errors %}
+                 <span>{{ error }}</span>
+                {% endfor %}
+                </div>
+                {% else %}
+                {{ form.section(class='form-control') }}
+                {% endif %}
+          </div>
+          <div class='col-sm-3'>
+          {{ form.student_count.label(class='labelsize') }}
+                <br>
+                {% if form.student_count.errors %}
+                {{ form.student_count(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                {% for error in form.student_count.errors %}
+                 <span>{{ error }}</span>
+                {% endfor %}
+                </div>
+                {% else %}
+                {{ form.student_count(class='form-control') }}
+                {% endif %}
+          </div>
+   </div></div>`;
+      if (count==1){
+          div.innerHTML=header+classbox_data;
+       }
+        else {
+            div.innerHTML=classbox_data;
+        }
+        row_id.appendChild(div);     
+    }
+
+
+
+function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+        alert($("#school_image").val());
+      $('#preview').attr('src', e.target.result);
+      $('#file-src').val($("#school_image").val());
+      $('#file-input').val(input.files[0].name);
+    }
+    
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+$("#school_image").change(function() {
+  readURL(this);
+});
+
+    </script>
+    
+
 {% endblock %}

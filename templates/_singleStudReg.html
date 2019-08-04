@@ -238,7 +238,9 @@
   </div>
 
   <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
-
+  <div id="buttonbox" style="display:none;">
+        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+</div>
 </div>
 </div>
 
@@ -280,10 +282,10 @@ var class_select = document.getElementById("class_val");
   var prevguardianbox_data='';
   var count=0;
   function addGuardian(){
+  const div = document.createElement('div');
   var row_id=document.getElementById('guardianbox');
   count+=1;
-  var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
-  guardianbox_data+=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+  guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
   <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
   <div class='row'>
   <div class='col-sm-3'>
@@ -359,7 +361,10 @@ var class_select = document.getElementById("class_val");
         {% endif %}
     </div>
   </div></div></div>`;
-  row_id.innerHTML=guardianbox_data+submitButton;
+        div.innerHTML=guardianbox_data;
+        row_id.appendChild(div);
+        $('#buttonbox').show();
+            
 
   if (count==2)
   {

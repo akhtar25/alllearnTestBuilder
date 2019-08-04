@@ -23,7 +23,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %} {%if School_name== None %} Account not connected to school {%else %}| {{ School_Name }} {%endif%}{% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name== None %} Account not connected to school {%else %}| {{ School_Name }} {%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -57,6 +57,7 @@
               <a style="color: green;" href="{{url_for('help')}}">Help</a>
             </li>
         </ul>
+        
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}
@@ -128,6 +129,7 @@
               </a>
             </li>
             {% else %}
+            {% if School_Name %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>   
@@ -157,9 +159,11 @@
             </a>
           </li>
           {% endif %}
+          {% endif %}
         </ul>
   
       </div>
+     
       <div id="searchDiv">
         <form method="get" action="{{ url_for('search') }}" id="search-2">
           <div class="input-field">
