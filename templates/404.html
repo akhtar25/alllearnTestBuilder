@@ -1,8 +1,12 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-<h3>File Not Found</h3>
-<p>
-    <a href="{{ url_for('index') }}">Back</a>
-</p>
-</div>
+<div class="error-wall load-error">
+        <div class="error-container">
+          <h1>oh no...</h1>
+          <h3>We have had an error</h3>
+          <h4>Error 404: Page not found</h4>
+          <p>Go back to <a href="{{url_for('index')}}">Dashboard</a>?</p>
+        </div>
+      </div>
+    </div>
 {% endblock %}

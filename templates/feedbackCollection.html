@@ -67,7 +67,8 @@
                   </div>
                   </div>
                   <div  class="box" id="feedbackReportDiv" style="display: none;">                  
-                  </div>                
+                  </div>   
+                  <a class="btn btn-primary" id="completeClassBTN" href="{{url_for('classCon')}}" style="display: none;">Complete Class</a>
                 </div>              
                   <div class="col-md-3" style="margin-top:20px;">
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
@@ -171,7 +172,8 @@
                     $("#feedbackQuestionDiv").hide();
                     $("#video-field").hide();                    
                     $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show();              
+                    $("#allResponsesSubmitted").show(); 
+                    $("#completeClassBTN").show();                     
                   },
                   error: function(xhr) {
                     window.alert("error occurred while submittig data");

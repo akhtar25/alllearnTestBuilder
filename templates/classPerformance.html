@@ -1,161 +1,135 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Class Performance</h3>
-    <!--<div id="performanceDiv">
-        <iframe height="1750px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcB8wQZHTIxaW8LXo22/view"></iframe>
-    </div>-->
-    <div class="row">
-        <section class="col-lg-12 connectedSortable">
-            <div id="testWisePerformanceDiv">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Feedback Report</h3>
-                </div>
-                <div id="twpControls" class="center">
-                    <form>
-                        <div class="input-field col s2">
-                            <select id="class_val">
-                                <option value="" disabled selected>Select Class</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="3">4</option>
-                                <option value="3">5</option>
-                                <option value="3">6</option>
-                                <option value="3">7</option>
-                                <option value="3">8</option>
-                                <option value="3">9</option>
-                                <option value="3">10</option>
-                            </select>
-
+        <h2>Class - Feedback Report</h2>        
+        {{ form.hidden_tag() }}
+        <div class="form-group ">
+                <div class="row">
+                        <div class="col-sm-2">
+                                <div>
+                                        {{ form.class_val.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.class_val.errors %}
+                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.class_val.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.class_val(class='form-control') }}
+                                        {% endif %}
+                                </div>
                         </div>
-                        <div class="input-field col s2">
-                            <select id="section">
-                                <option value="" disabled selected>Select Section</option>
-                                <option value="1">A</option>
-                                <option value="2">B</option>
-                                <option value="3">C</option>
-                                <option value="3">D</option>
-                            </select>
+                        <div class="col-sm-2">
+                                <div style="width:150px;" >
+                                                {{ form.section.label(class='labelsize') }}
+                                                <div id='loader'style='display: none; float: right;'>
+                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                </div>
+                                        <br>
+                                                {% if form.section.errors %}
+                                                {{ form.section(class="form-control form-control-lg is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                {% for error in form.section.errors %}
+                                                 <span>{{ error }}</span>
+                                                {% endfor %}
+                                        </div>
+                                                {% else %}
+                                                {{ form.section(class='form-control') }}
+                                                {% endif %}                                                
+                                </div>
                         </div>
-                        <div class="input-field col s2">
-                            <select id="subect">
-                                <option value="" disabled selected>Select Subject</option>
-                                <option value="1">English</option>
-                                <option value="2">Hindi</option>
-                                <option value="3">Math</option>
-                                <option value="3">Science</option>
-                                <option value="3">Social Science</option>
-                            </select>
-
+                        <div class="col-sm-2">
+                        <label class='labelsize' for='Date'>Date</label>
+                        <input type="date" name='testdate' id='testdate'>
                         </div>
+                        <div class="col-sm-2"> 
+                                        {{ form.subject_name.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.subject_name.errors %}
+                                        {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.subject_name.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                </div>
+                                        {% else %}
+                                        {{ form.subject_name(class='form-control') }}
+                                        {% endif %}
+                        </div>    
 
-                        <div class="input-field col s2">
-                            <select id="feedback_date">
-                                <option value="" disabled selected>Select Date</option>
-                                <option value="1">11/07/19</option>
-                                <option value="1">12/07/19</option>
-                                <option value="1">13/07/19</option>
-                                <option value="1">14/07/19</option>
-                            </select>
-
-                        </div>
-                        <input type="button" value="Submit" class="btn" id="submitFeedData"
-                            style="height: 40px; width: 100px;">
-                    </form>
-                </div>
-            </div>
-        </section>
-    </div>
-    <div class="row">
-        <div class="box" id="feedbackReportDiv" style="display:none;">
-            <div class="box-title">
-                <h3 class="box-title">Feedback Report </h3>
-            </div>
-            <div class="box-body table-responsive">
-                <table class="table table-bordered table-responsive-md table-striped table-centered">
-                    <tr>
-                        <td class="pt-3-half" contenteditable="false">
-                            <h4>Total Unique Responses</h4>
-                        </td>
-                        <td class="pt-3-half" contenteditable="false">
-                            <h3>30</h3>
-                        </td>
-
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr>
-                        <td class="pt-3-half" contenteditable="false">
-                            <h4>Average Class Percentage</h4>
-                        </td>                        
-                        <td class="pt-3-half" contenteditable="false">
-                            <h3 class="green-text">80 %</h3>
-                        </td>
-                    </tr>
-                </table>
-                <table class="table table-bordered table-hover table-striped text-center">
-                    <tr>
-                        <th>Roll Number </th>
-                        <th>Student Name</th>
-                        <th>Points Scored</th>
-                        <th>Total Points </th>
-                        <th>Percentage </th>
-                        <th>Details </th>
-                    </tr>                                    
-                    <tr>
-                        <td>1 </td>
-                        <td> Ankit</td>
-                        <td> 80</td>
-                        <td> 100</td>
-                        <td> 80%</td>
-                        <td> <a href="{{url_for('studentfeedbackreport_dummy')}}" target="_blank">Details</a> </td>
-                    </tr>
-                    <tr>
-                            <td>2 </td>
-                            <td> Ayushi</td>
-                            <td> 80</td>
-                            <td> 100</td>
-                            <td> 80%</td>
-                            <td> <a href="{{url_for('studentfeedbackreport_dummy')}}" target="_blank">Details</a> </td>
-                        </tr>
-                        <tr>
-                                <td>3 </td>
-                                <td> Ashish</td>
-                                <td> 80</td>
-                                <td> 100</td>
-                                <td> 80%</td>
-                                <td> <a href="{{url_for('studentfeedbackreport_dummy')}}" target="_blank">Details</a> </td>
-                            </tr>
-                            <tr>
-                                    <td>4</td>
-                                    <td> Ayush</td>
-                                    <td> 80</td>
-                                    <td> 100</td>
-                                    <td> 80%</td>
-                                    <td> <a href="{{url_for('studentfeedbackreport_dummy')}}" target="_blank">Details</a> </td>
-                                </tr>                                
-                                    <tr>
-                                            <td>5</td>
-                                            <td> Akansha</td>
-                                            <td> 80</td>
-                                            <td> 100</td>
-                                            <td> 80%</td>
-                                            <td> <a href="{{url_for('studentfeedbackreport_dummy')}}" target="_blank">Details</a> </td>
-                                        </tr>
-                </table>
-            </div>
+                        <div class="col-sm-2" style="margin-top:25px;">
+						
+                <input type="button"  class="btn green lighten-1"  style="height:35px; width:100px;" id="fetchFeedbackBtn" value="Submit">                
+                </div>              
+						</div>
+						<div class="row">
+                        
+				</div>
+				<div class="row">       
+        <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">    
+        <div id="feedbackReportDiv" style="display:none;">
         </div>
-    </div>
+		</div>        
+      </div>
 </div>
-<script>
-</script>
-<script>
-    $(document).ready(function () {
-        $('select').formSelect();
-    });
-</script>
-<script>
-    submitFeedData.addEventListener('click', function(ev){
-        $('#feedbackReportDiv').show();
-    }, false);
-</script>
+      <script>
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+                dd='0'+dd
+        } 
+        if(mm<10){
+                mm='0'+mm
+        } 
+
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById("testdate").setAttribute("max", today);
+
+        var class_select = document.getElementById("class_val");
+        var section_select = document.getElementById("section");
+        class_select.onchange = function()  {
+             
+            class_val = class_select.value;
+            $("#loader").show();
+            
+            fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loader").hide();    
+                        var optionHTML = '';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+            });
+        }
+    </script>
+
+     <script>        
+            $('#fetchFeedbackBtn').click(function(){
+            $("#feedbackReportDiv").html('');     
+              var class_val = $('#class_val').val();              
+              var section = $('#section').val();                            
+              var subject_id = $('#subject_name').val();   
+              var selected_date=$('#testdate').val();
+              $('#loaderDiv').show();
+              var data="";
+                $.ajax({
+                  url: "/feedbackReport?class_val="+ class_val+"&section="+section+"&subject_id="+subject_id+"&date="+selected_date ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      $('#loaderDiv').hide();
+                    $("#feedbackReportDiv").show(); 
+                    $("#feedbackReportDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });              
+            });
+            </script>
 {%endblock%}

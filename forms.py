@@ -221,3 +221,22 @@ class SingleStudentRegistration(FlaskForm):
     guardian_phone = StringField('Guardian Phone', validators=[Length(max=100),DataRequired()])
     relation = SelectField('Relation',choices=[(c, c) for c in ['Father', 'Mother', 'Other']])   
     submit=SubmitField('Confirm') 
+
+
+class feedbackReportForm(FlaskForm):
+    class_val=SelectField('Select Class')
+    section=SelectField('Select Section')    
+    subject_name=SelectField('Select Subject')
+
+
+class testPerformanceForm(FlaskForm):
+    class_val=SelectField('Select Class')
+    section=SelectField('Select Section')    
+    test_type=SelectField('Select Test Type')
+
+
+class studentPerformanceForm(FlaskForm):
+    class_val1=SelectField('Select Class')
+    section1=SelectField('Select Section')    
+    test_type1=SelectField('Select Test Type')
+    student_name1=SelectField('Select Student')
