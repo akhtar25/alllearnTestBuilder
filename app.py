@@ -94,6 +94,11 @@ def school_name():
     else:
         return None
 
+
+@app.route("/loaderio-ad2552628971ece0389988c13933a170/")
+def performanceTestLoaderFunction():
+    return render_template("loaderio-ad2552628971ece0389988c13933a170.html")
+
 @app.route("/account/")
 @login_required
 def account():
