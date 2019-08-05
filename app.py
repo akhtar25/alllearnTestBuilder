@@ -215,37 +215,43 @@ def schoolRegistration():
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
 def teacherRegistration():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-    class_list=[('select','Select')]
-    section_list=[]
-    for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all():
-        class_list.append((str(i.class_val), "Class "+str(i.class_val)))
-    for i in available_section:
-        section_list.append((i.section,i.section))
-    form=SchoolTeacherForm()
-    form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
-    form.class_teacher.choices = class_list
-    form.class_teacher_section.choices = section_list
-    if request.method=='POST':
-        teacher_name=request.form.getlist('teacher_name')
-        teacher_subject=request.form.getlist('teacher_subject')
-        teacher_class=request.form.getlist('class_teacher')
-        teacher_class_section=request.form.getlist('class_teacher_section')
-        teacher_email=request.form.getlist('teacher_email')
-        print(teacher_name)
-        for i in range(len(teacher_name)):
-            if teacher_class[i]!='select':
-                class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
-                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
-                db.session.add(teacher_data)
-            else:
-                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
-                db.session.add(teacher_data)
-        db.session.commit()
-        flash('Successful registration !')
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+        class_list=[('select','Select')]
+        section_list=[]
+        for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all():
+            class_list.append((str(i.class_val), "Class "+str(i.class_val)))
+        for i in available_section:
+            section_list.append((i.section,i.section))
+        form=SchoolTeacherForm()
+        form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
+        form.class_teacher.choices = class_list
+        form.class_teacher_section.choices = section_list
+        if request.method=='POST':
+            teacher_name=request.form.getlist('teacher_name')
+            teacher_subject=request.form.getlist('teacher_subject')
+            teacher_class=request.form.getlist('class_teacher')
+            teacher_class_section=request.form.getlist('class_teacher_section')
+            teacher_email=request.form.getlist('teacher_email')
+            print(teacher_name)
+            for i in range(len(teacher_name)):
+                if teacher_class[i]!='select':
+                    class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    db.session.add(teacher_data)
+                else:
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    db.session.add(teacher_data)
+            db.session.commit()
+            flash('Successful registration !')
+            return render_template('teacherRegistration.html',form=form,School_Name=school_name())
         return render_template('teacherRegistration.html',form=form,School_Name=school_name())
-    return render_template('teacherRegistration.html',form=form,School_Name=school_name())
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -348,34 +354,6 @@ def studentRegistration():
                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
-                #if row['guardian1_email']!='' and row['guardian2_email']!='':
-                 #   for i in range(2):
-                  #      relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
-                   #     if relation_id is not None:
-                    #        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
-                     #       email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                      #  else:
-                       #     guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
-                        #    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                        #db.session.add(guardian_data)
-               # elif row['guardian1_email']!='':
-                #    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                 #   if relation_id is not None:
-                  #      guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],relation=relation_id.msg_id,
-                   #     email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                   # else:
-                    #    guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],
-                     #   email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                    #db.session.add(guardian_data)
-               # elif row['guardian2_email']!='':
-                  #  relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                  #  if relation_id is not None:
-                   #     guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],relation=relation_id.msg_id,
-                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                   # else:
-                    #    guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
-                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                   # db.session.add(guardian_data)
             for i in range(2):
                 relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
                 if relation_id is not None:
@@ -520,7 +498,7 @@ def index():
 @app.route('/disconnectedAccount')
 @login_required
 def disconnectedAccount():    
-    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1)
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name())
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -750,7 +728,7 @@ def guardianDashboard():
     for g in guardian:
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student)
+    return render_template('guardianDashboard.html',students=student,School_Name=school_name())
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
@@ -1176,7 +1154,7 @@ def testPerformance():
         )]        
     #print(graphData)
     graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1)
+    return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1,School_Name=school_name())
 
 
 @app.route('/testPerformanceGraph')
@@ -1345,7 +1323,7 @@ def classPerformance():
     form.section.choices= section_list    
     form.subject_name.choices=subject_name_list
 
-    return render_template('classPerformance.html',form=form)
+    return render_template('classPerformance.html',form=form,School_Name=school_name())
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
