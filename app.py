@@ -1649,6 +1649,48 @@ def addEvent():
 def studentProfile():
     return render_template('studentProfile.html',School_Name=school_name())
 
+@app.route('/indivStudentProfile')
+@login_required
+def indivStudentProfile():    
+    student_id=request.args.get('student_id')
+    print(student_id)
+    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    studentProfileRow = db.session.execute(text(studentProfileQuery)).first()    
+
+    guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
+
+    #print("reached indiv student ")
+    #print(studentProfileRow)
+    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows)
+
+
+@app.route('/studentProfileNew')
+@login_required
+def studentProfileNew():    
+    form=studentPerformanceForm()
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form.class_val1.choices = class_list
+    form.section1.choices= section_list    
+    form.test_type1.choices=test_type_list
+    form.student_name1.choices = student_list
+    return render_template('studentProfileNew.html',School_Name=school_name(),form=form)
+
+
 @app.route('/performance')
 def performance():
     df = pd.read_csv('data.csv').drop('Open', axis=1)

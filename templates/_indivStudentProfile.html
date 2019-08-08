@@ -1,0 +1,46 @@
+<div class="row">
+        <div class="col s7 offset-s3" style="background: whitesmoke">    
+        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>Student Details</h3></div>        
+        
+           <div class="col s4 m4 l4 center" >
+            <img class="responsive-img circle" src="{{studentProfileRow.profile_picture}}">
+            <h4 style="font-weight: bold;">{{studentProfileRow.full_name}}</h4>
+            <h4>Class {{studentProfileRow.class_val}} - {{studentProfileRow.section}}</h4>
+        </div>
+        
+            <div class="col s4 m4 l6">
+                
+            <h4><b>Email:</b> {{studentProfileRow.email}}</h4>
+            <h4><b>Phone:</b> {{studentProfileRow.phone}}</h4>
+            <h4><b>Date of Birth:</b> {{studentProfileRow.dob}}</h4>
+            <h4><b>{% if studentProfileRow.dob == '16'%}</h4>
+            <h4><b>Gender:</b> Male</h4>
+            <h4><b>{%else%}</h4>
+            <h4><b>Gender:</b> Female</h4>
+            <h4><b>{%endif%}</h4>
+          
+            <h4>Roll Number:</b> {{studentProfileRow.roll_number}}</h4>
+            <h4>Admission Number:</b> {{studentProfileRow.school_adm_number}}</h4>
+        </div>
+        <div class="col s4 m6 l6">
+            {% if guardianRows | length != 0 %}
+            <h4><u>Guardian Details</u> </h4>
+            {%endif%}
+            {% for guardian in guardianRows %}
+            <h4 style="font-weight: bold;">{{guardian.first_name}} {{guardian.last_name}} </h4>
+            {% if guardian.relation==44 %}
+            <h4><b>Relation:</b> Father</h4>
+            {%elif guardian.relation==45%}
+            <h4><b>Relation:</b> Mother</h4>
+            {%else%}
+            <h4><b>Relation:</b> Other</h4>
+            {%endif%}
+            <h4><b>Phone:</b> {{guardian.phone}}</h4>
+            {%endfor%}
+        </div>
+    </div>        
+    <div class="col s12 m4 l4">
+                
+                </div>
+    </div>
+</div>
