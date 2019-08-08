@@ -334,7 +334,7 @@
                 response.json().then(function(data) {
                         $("#loader1").hide();    
                         var optionHTML = '';
-                        optionHTML += '<option value="na" disabled> Select Section </option>';
+                        optionHTML += '<option value="na"  selected disabled> Select Section </option>';
                         for (var section1 of data.sections) {
                         optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
                     }
@@ -354,7 +354,7 @@
                 response.json().then(function(data) {  
                         $("#loader2").hide();    
                         var optionHTML = '';
-                        optionHTML += '<option value="na" disabled> Select Student </option>';
+                        optionHTML += '<option value="na" selected disabled> Select Student </option>';
                         for (var student of data.students) {
                         optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
                     }
