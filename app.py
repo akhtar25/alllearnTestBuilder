@@ -1644,9 +1644,9 @@ def addEvent():
         flash('Event Added!')
     return render_template('addEvent.html', form=form)
 
-@app.route('/studentProfile')
+@app.route('/studentProfileOld')
 @login_required
-def studentProfile():
+def studentProfileOld():
     return render_template('studentProfile.html',School_Name=school_name())
 
 @app.route('/indivStudentProfile')
@@ -1665,9 +1665,9 @@ def indivStudentProfile():
     return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows)
 
 
-@app.route('/studentProfileNew')
+@app.route('/studentProfile')
 @login_required
-def studentProfileNew():    
+def studentProfile():    
     form=studentPerformanceForm()
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    

@@ -1,9 +1,9 @@
 <div class="row">
-        <div class="col s7 offset-s3" style="background: whitesmoke">    
+        <div class="col s8 offset-s2" style="background: whitesmoke">    
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>Student Details</h3></div>        
         
            <div class="col s4 m4 l4 center" >
-            <img class="responsive-img circle" src="{{studentProfileRow.profile_picture}}">
+            <img class="responsive-img " src="{{studentProfileRow.profile_picture}}">
             <h4 style="font-weight: bold;">{{studentProfileRow.full_name}}</h4>
             <h4>Class {{studentProfileRow.class_val}} - {{studentProfileRow.section}}</h4>
         </div>
@@ -38,9 +38,6 @@
             <h4><b>Phone:</b> {{guardian.phone}}</h4>
             {%endfor%}
         </div>
-    </div>        
-    <div class="col s12 m4 l4">
-                
-                </div>
+    </div>            
     </div>
 </div>
