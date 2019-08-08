@@ -34,8 +34,10 @@ from urllib.request import urlopen,Request
 from io import StringIO
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
+from flask_material import Material
 
 app=Flask(__name__)
+Material(app)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
 app.config.from_object(Config)
@@ -43,6 +45,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 login_manager.init_app(app)
 moment = Moment(app)
+
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
@@ -738,15 +741,38 @@ def guardianDashboard():
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
 def performanceDetails(student_id):
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    form1=studentPerformanceForm()
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form1.class_val1.choices = class_list
+    form1.section1.choices= section_list    
+    form1.test_type1.choices=test_type_list
+    form1.student_name1.choices = student_list
+
     student=StudentProfile.query.filter_by(student_id=student_id).first()
     if request.method=='POST':
         student=StudentProfile.query.filter_by(student_id=student_id).first()
         class_sec=ClassSection.query.filter_by(class_sec_id=student.class_sec_id).first()
         subject=subjectPerformance(class_sec.class_val,class_sec.school_id)
         print(subject)
-        date=request.form['performace_date']
+        date=request.form['performace_date']        
+
+
         return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student,School_Name=school_name())
-    return render_template('performanceDetails.html',students=student,School_Name=school_name())
+    return render_template('performanceDetails.html',students=student,School_Name=school_name(), student_id=student_id,form1=form1)
 
 
 @app.route('/studentfeedbackreporttemp')
@@ -1242,7 +1268,8 @@ def testPerformanceGraph():
 def studentPerformanceGraph():    
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-    section = section.strip()    
+    if section!=None:
+        section = section.strip()    
     test_type=request.args.get('test_type')
     student_id=request.args.get('student_id')
     #print('here is the class_val '+ str(class_val))
@@ -1250,9 +1277,12 @@ def studentPerformanceGraph():
     
     if dateVal ==None or dateVal=="":
         dateVal= datetime.today()
-
+    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+    fromTestPerformance=0
+    if class_val!=None:
+        fromTestPerformance=1
+        classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
 
     
     
@@ -1264,8 +1294,9 @@ def studentPerformanceGraph():
     studPerformanceQuery = studPerformanceQuery + "inner join "
     studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
     studPerformanceQuery = studPerformanceQuery + "and "
-    studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
-    studPerformanceQuery = studPerformanceQuery + "and "
+    if fromTestPerformance==1:
+        studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
+        studPerformanceQuery = studPerformanceQuery + "and "
     studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' "
     studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
 
