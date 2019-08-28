@@ -1,0 +1,131 @@
+{% if questions %}
+<div id="questionUpdateParentDiv">
+<div id="editQuestionsTableDiv">
+<h3>Select questions
+        <button style="float:right;text-transform: initial;width: 190px;"
+                class="btn waves-light green lighten-1 white-text" onclick="" type="submit">Add Question</button>
+    </h3>
+<div class="card id">
+    <div class="card-body">
+        <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+                <thead>
+                    <tr>
+                        <th scope="col">Question</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Weightage</th>
+                        <th scope="col">Edit</th>  
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    {% for question in q %}
+                    <tr>
+                        <td>
+                            {% if question.question_type=='MCQ1' %}
+                            <a href="#" class="quesDescLink">{{ question.question_description }}</a>
+                            {% else %}
+                                {{ question.question_description }}
+                            {% endif %}
+                            <!-- {% for qp in quesOption %}
+                            {% for quesOption in qp %} -->
+                                {{ question.option_desc }}
+                                <div class="quesOptionDiv" style='display:none;'> <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" value="{{ question.option_desc }}" name="option_desc"></span></label><br> </div>
+                            <!-- {% endfor %}  
+                            {% endfor %} -->
+                        </td>
+                        <td> {{ question.question_type }} </td>
+                        <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}"
+                            id="{{ question.question_id }}select"></td>
+                        <td><label for="{{ question.question_id }}">
+                                <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
+                                <!-- {{url_for('questionDetails',question_id=question.question_id )}} -->
+                            </label></td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+ <!-- <div class="col-sm-9" id="questions">
+        <div id="questionloader" style="display: none;padding-left: 300px;">
+                <img src="../static/images/loader.gif">
+                </div>
+</div>  -->
+ <div id='loader'>
+        <div id='questionSubmitLoader' style='display: none;'>
+            <img src='../static/images/spinner.gif' width='50px' height='50px'>
+        </div>
+        </div>  
+    </div>
+        <div id="questionEditorDiV" style='display:none;'></div>
+</div>
+
+{% endif %}
+
+<script>
+
+$(document).ready(function() {  
+    $(".quesDescLink").click(function() {  
+        console.log('Inside Link')
+         $(".quesOptionDiv").show();     
+    });  
+});
+
+
+
+
+        $('.questionUpdateButton').click(function(){              
+                      
+                      var question_id = $(this).attr('name');
+                      console.log("Question Id in Question Update Button:"+question_id);
+                      var data="";
+                      $.ajax({
+                        url: "/questionDetails?question_id="+question_id,
+                        type: "get",
+                        data: data,
+                        beforeSend: function() {
+                            $("#editQuestionsTableDiv").hide();  
+                            $("#loader").show();
+                            $("#questionSubmitLoader").show();
+                        },
+                         success: function(response) {       
+                            $("#loader").hide();
+                            $("#questionSubmitLoader").hide();
+                            $('#editQuestionsTableDiv').hide();
+                            $("#questionEditorDiV").html(response);
+                            $("#questionEditorDiV").show();  
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      });      
+                             
+                  });
+                  
+
+
+
+
+    //               updateQuestion = document.getElementById('questionUpdateButton');
+    //               updateQuestion.onclick=function(){
+    //                 $(function(){
+    //                 $.ajax({
+    //                 url: "/questionUpload",
+    //                 type: "get",
+    //                 success: function(response) {
+    //                 $("#new").show();
+    //                 $("#new").html(response);
+    //                 $("#buttonbox").show();        
+    //                 },
+    //                 error: function(xhr) {
+    //                 window.alert("error occurred while loading question");
+    //               }
+    //             });        
+
+    //     });
+        
+    // }
+                  </script>

@@ -1,5 +1,5 @@
-{{ form.hidden_tag() }}
-      
+ {{ form.csrf_token() }}
+      <div class="updateFormDiv">
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
                         <div class="col-sm-3">
@@ -14,12 +14,12 @@
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_val(class='form-control') }}
+                                        {{ form.class_val(class='form-control',id='class_val',style='width: 215px;') }}
                                         {% endif %}
                                 </div>
                         </div>
                         <div class="col-sm-2">
-                                <div style="width:150px;" >
+                                <div style="width:150px;" > 
                                                 {{ form.subject_name.label(class='labelsize') }}
                                                 <div id='loader'style='display: none; float: right;'>
                                                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -33,7 +33,7 @@
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.subject_name(class='form-control') }}
+                                                {{ form.subject_name(class='form-control',id='subject_name',style='width: 140px;') }}
                                                 {% endif %}
     
                                                 
@@ -41,7 +41,7 @@
                         </div>
     
                         <div class="col-sm-2">
-                            <div style="width:150px;" >
+                            <div style="width:150px;" > 
                                             {{ form.topics.label(class='labelsize') }}
                                             <div id='loader'style='display: none; float: right;'>
                                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -55,7 +55,7 @@
                                             {% endfor %}
                                     </div>
                                             {% else %}
-                                            {{ form.topics(class='form-control') }}
+                                            {{ form.topics(class='form-control',id='topicNameSelect',style='width: 140px;') }}
                                             {% endif %}
     
                                             
@@ -73,7 +73,7 @@
                             {% endfor %}
                     </div>
                             {% else %}
-                            {{ form.question_type(class='form-control') }}
+                            {{ form.question_type(class='form-control',id='question_type') }}
                             {% endif %}    
             </div>
                     </div>
@@ -83,7 +83,7 @@
 
 <div class="row">
     <div class="col-sm-8">
-    <h4>Questions</h4>
+    <h4>Question</h4> 
     {{ form.question_desc.label(class='labelsize') }}
     <br>
     {% if form.question_desc.errors %}
@@ -94,36 +94,75 @@
     {% endfor %}
     </div>
     {% else %}
-    {{ form.question_desc(class='form-control') }}
+    {% if  flag %}
+    {{ form.question_desc(class='form-control',id='questionDesc') }}
+    {% else %}
+    {{ form.question_desc(class='form-control',id='questionDesc') }} 
+    {% endif %}
     {% endif %}
     <br>
     <div class="row">
     <div class="col-sm-6">
+      
             <div style="display:none;" id="MCQ1_type">
-            <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc2" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc3" name="option_desc"></span></label><br><br>
-            <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc4" name="option_desc"></span></label><br><br><br>
-            <input type="hidden" id="correct" name="correct" value="">
+              {% if  flag %}
+                {% for option in avail_options %}
+                {% if option.option_desc==correctOption %}
+                
+            <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+                {% else %}
+                <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+                {% endif %}
+                 {% endfor %}
+              {% else %}
+              <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc2" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc3" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc4" name="option_desc"></span></label><br><br><br>
+              <input type="hidden" id="correct" name="correct" value="">
+              {% endif %}
             </div>
     <label for="weightage">Weightage</label>
-    <input type="number" id="weightage" name="weightage" placeholder="Enter the Weightage of Question">
+    {% if  flag %}
+    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.suggested_weightage }}" placeholder="Enter the Weightage of Question">
+    {% else %}
+    <input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
+    {% endif %}
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
     <input type="hidden" id="reference" name="reference" value="">
     <div style="margin-top: 30px; margin-left: 10px;">
+       {% if  flag %} 
+        {% if  questionUpdateUpload.reference_link  %}
+            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">
+        {% else %}
             <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+        {% endif %}  
+       {% else %}
+      <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+      {% endif %} 
         </div>
     </div>
     </div>
     <div class="row">
-    
-    <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" type="submit" id="submit" name="submit" value="submit">Confirm</button>
+        <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;" id="back" name="back" value="Back" onclick="back();"></p>
+      {% if  flag %} 
+    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
+       {% else %}
+      <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" id="submit" name="submit" value="submit">Confirm</button>
+      {% endif %}   
     <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
   </div>
   </div>
 
+  <!-- Extraaa -->
+
+
+
+  <!-- /Extraaa -->
+
+</div>
 </div>
 </div>
 
@@ -132,11 +171,12 @@
     var subject_select = document.getElementById("subject_name");
     var topic_select = document.getElementById("topics");
     var question_type=document.getElementById("question_type");
+    
     class_select.onchange = function()  {
          
         class_val = class_select.value;
         $("#loader").show();
-        
+        console.log('Inside class value Onchange')
         fetch('/questionBuilder/' + class_val).then(function(response) {
             response.json().then(function(data) {
                     $("#loader").hide();    
@@ -148,7 +188,7 @@
             })
             
         });
-        if (class_val>5){
+        if (class_val>5){ 
           subject_id='56';
         }
         else if(class_val>2 && class_val<=5){
@@ -163,7 +203,7 @@
                      var optionHTML = '';
                     
                      for (var topic of data.topics) {
-                    
+
                         optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
                  }                 
                  topic_select.innerHTML =  optionHTML;
@@ -171,6 +211,7 @@
              
          });
     }
+  
     //for (i = 0; i < 20; i++) {
     //$('#topiclist').append('<input type="radio" name="radio_name" />');
 //}     
@@ -179,12 +220,12 @@
          
          subject_id = subject_select.value;
          $("#loader").show();
-         
+         console.log('Inside subject value Onchange')
          fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
                      var optionHTML = '';
-                    
+                    console.log('')
                      for (var topic of data.topics) {
                     
                         optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
@@ -196,15 +237,14 @@
     }
 
     question_type.onchange = function(){
-
+      console.log('Inside question type Onchange')
       question_type_value=question_type.value;
+      console.log(question_type_value);
       if (question_type_value=='MCQ1'){
         $("#MCQ1_type").show();
-       
       }
       else{
         $("#MCQ1_type").hide();
-       
       }
     }
     function correctOption(correct){
@@ -218,6 +258,12 @@
       document.getElementById('option_desc3').value='';
       document.getElementById('option_desc4').value='';
       document.getElementById('weightage').value='';
+    }
+
+    function back(){
+        console.log('Hide');
+        $('.updateFormDiv').hide();
+        $('#editQuestionsTableDiv').show();
     }
     
     /*
@@ -291,5 +337,63 @@
     (() => {
       document.getElementById('file-input').onchange = initUpload;
     })();
+
+    var updateButton = document.getElementById('updateButton')
+    
+    $('#updateButton').click(function(){
+                      var question_id = $(this).attr('name');
+                      var updatedCV = document.getElementById('class_val').value;
+                      var topicName = document.getElementById('topicNameSelect').value;
+                      var subName = document.getElementById('subject_name').value;
+                      var qType = document.getElementById('question_type').value;
+                      var qDesc = document.getElementById('questionDesc').value;
+                      var correctOption = document.getElementById('option_desc1').value;
+                      var weightage = document.getElementById('weightage').value;
+                      var preview = document.getElementById("preview").src;
+                      console.log("Question Id in update Question:"+question_id);
+                      console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+correctOption+" "+weightage+" "+preview)
+                      var data="";
+                      $.ajax({
+                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+correctOption+"&weightage="+weightage+"&preview="+preview,
+                        type: "get",
+                        data: data,
+                        success: function(response) {       
+                                window.alert('Success')    
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      }); 
+    });
+
+    $(document).ready(function () {
+      console.log('Inside function')
+      var f = "{{flag}}";
+      console.log(f);
+      {% if  flag %} 
+        if(f){
+          var questionDesc = "{{ questionUpdateUpload.question_description }}";
+          var questionType = '{{ questionUpdateUpload.question_type }}';
+          if(questionDesc || classVal || questionType || desc || topicName){
+              var questionDesc = "{{ questionUpdateUpload.question_description }}";
+              var classVal = '{{ questionUpdateUpload.class_val }}'; 
+              var desc = '{{ questionUpdateUpload.msg_id }}';
+              var topicName = '{{ questionUpdateUpload.topic_id }}';
+              console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
+            document.getElementById('questionDesc').value = questionDesc;
+              $('#class_val').val(classVal);
+              $('#topicNameSelect').val(topicName);
+              $('#subject_name').val(desc);
+              $('#question_type').val(questionType);
+          }
+        }
+        if(questionType=='MCQ1'){
+        $("#MCQ1_type").show();
+       }else{
+        $("#MCQ1_type").hide();
+      }
+        {% endif %}
+       
+    });
     </script>
 

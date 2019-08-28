@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, QuestionUpdaterQueryForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, QuestionBankQueryForm, SchoolTeacherForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -648,6 +648,84 @@ def success():
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
+
+@app.route('/questionBank',methods=['POST','GET'])
+@login_required
+def questionBank():
+    topic_list=None
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBankQueryForm()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    if request.method=='POST':
+        if request.form['chapter_num']=='':
+            flash('Select Chapter')
+            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            return render_template('questionBank.html',form=form,School_Name=school_name())
+        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
+        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+        session['class_val']=form.class_val.data
+        # session['date']=request.form['test_date']
+        session['sub_name']=subject.description
+        session['test_type_val']=form.test_type.data
+        session['chapter_num']=form.chapter_num.data
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        return render_template('questionBank.html',form=form,School_Name=school_name(),topics=topic_list)
+    return render_template('questionBank.html',form=form,School_Name=school_name())
+
+@app.route('/questionBankQuestions',methods=['GET','POST'])
+def questionBankQuestions():
+    questions=[]
+    # quesOption=[]
+    topicList=request.get_json()
+    for topic in topicList:
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage, QuestionOptions.option_desc).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        # questionOption = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_column(QuestionOptions.option_desc, QuestionDetails.question_type).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questions.append(questionList)
+        for q in questions:
+            for qp in q:
+                print("Question id in questionBankQuestions:"+str(qp.question_id))   
+
+        # query = "select option_desc from question_options where question_id='" + question_id + "'"
+
+        # quesOption.append(questionOption)
+    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
+
+@app.route('/questionBankFileUpload',methods=['GET','POST'])
+def questionBankFileUpload():
+    #question_list=request.get_json()
+    data=request.get_json()
+    question_list=data[0]
+    count_marks=data[1]
+    document = Document()
+    document.add_heading(school_name(), 0)
+    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
+    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
+    p = document.add_paragraph()
+    for question in question_list:
+        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        document.add_paragraph(
+            data.question_description, style='List Number'
+        )    
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        for option in options:
+            if option.option_desc is not None:
+                document.add_paragraph(
+                    option.option+". "+option.option_desc)     
+    #document.add_page_break()
+    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
+    document.save('tempdocx/'+file_name)
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    os.remove('tempdocx/'+file_name)
+
+    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
+
 @app.route('/testBuilder',methods=['POST','GET'])
 @login_required
 def testBuilder():
@@ -826,6 +904,89 @@ def topicList():
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
+
+# @app.route('/questionUpdateUpload')
+# def questionUpdateUpload():
+#     return render_template('questionUpdateUpload.html')
+
+@app.route('/updateQuestion')
+def updateQuestion():
+    question_id = request.args.get('question_id')
+    updatedCV = request.args.get('updatedCV')
+    topicId = request.args.get('topicName')
+    subId = request.args.get('subName')
+    qType = request.args.get('qType')
+    qDesc = request.args.get('qDesc')
+    correctOption = request.args.get('correctOption')
+    weightage = request.args.get('weightage')
+    imageUrl = request.args.get('preview')
+    form = QuestionBuilderQueryForm()
+    print("Updated class Value:"+updatedCV)
+    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(correctOption)+" "+str(weightage)+" "+str(imageUrl))
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    flag = False
+
+    updateQuery = "update question_details set class_val='" + str(updatedCV) + "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ imageUrl +"' where question_id='" + str(question_id) + "'"
+    queryOneExe = db.session.execute(text(updateQuery))
+    db.session.commit()
+    updateSecondQuery = "update question_options set weightage='" + str(weightage) +"' where question_id='" + str(question_id) + "'"
+    querySecondExe = db.session.execute(text(updateSecondQuery)) 
+    db.session.commit()
+    print("Question Id in update Question:"+question_id)
+    # print(updatedData)
+    flash('Data Successfully Updated!!!')
+    return render_template('questionUpload.html', form=form, flag=flag)
+
+
+@app.route('/questionDetails')
+def questionDetails():
+    flag = True
+    question_id = request.args.get('question_id')
+    print("Question Id-:"+question_id)
+    form = QuestionBuilderQueryForm()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+
+    questionDetailsQuery = "select t1.class_val, t1.question_id, t4.msg_id, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
+    questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+    questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
+    questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
+
+    questionUpdateUploadSubjective = db.session.execute(text(questionDetailsQuery)).first()   
+    
+    
+    # questionDetailsQuery = "select t1.class_val, t1.question_id, t4.msg_id,t3.option_desc, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
+    # questionDetailsQuery = questionDetailsQuery + "inner join question_options t3 on t1.question_id=t3.question_id "
+    # questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+    # questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
+    # questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
+    # questionUpdateUploadMCQ = db.session.execute(text(questionDetailsQuery)).first()
+    questionUpdateUpload=questionUpdateUploadSubjective
+    if questionUpdateUploadSubjective.question_type=='MCQ1':
+       
+        query = "select option_desc from question_options where question_id='" + question_id + "'"
+        avail_options = db.session.execute(text(query)).fetchall()
+        queryCorrectoption = "select option_desc from question_options where is_correct='Y' and question_id='" + question_id + "'"  
+        correctoption = db.session.execute(text(queryCorrectoption)).fetchall()
+        print(correctoption)
+        for c in correctoption:
+            print(c.option_desc)
+            correctOption = c.option_desc
+        for q in questionUpdateUploadSubjective:
+            print('this is check ' + str(q))
+        for a in avail_options:
+            print(a)
+        return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag, avail_options=avail_options, correctOption=correctOption)
+    
+    for q in questionUpdateUpload:
+        print('this is check ' + str(q))
+    
+    return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag)
 
 @app.route('/classDelivery')
 @login_required
@@ -1248,6 +1409,88 @@ def section(class_val):
 
     return jsonify({'sections' : sectionArray})
 
+# @app.route('/questionUpdate')
+# def questionUpdate():
+#     question_id=request.args.get('question_id')
+#     return render_template('questionUpdate.html',question_id=question_id)
+
+
+# @app.route('/questionPageUpdate',methods=['POST','GET'])
+# @login_required
+# def questionPageUpdate():
+#     form=QuestionUpdaterQueryForm() 
+#     if request.method=='POST':
+#         if form.submit.data:
+#             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
+#             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data)
+#             db.session.add(question)
+#             if form.question_type.data=='Subjective':
+#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+#                 options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
+#                 db.session.add(options)
+#                 db.session.commit()
+#                 flash('Success')
+#                 return render_template('questionUpdate.html',School_Name=school_name())
+#             else:
+#                 option_list=request.form.getlist('option_desc')
+#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+#                 if request.form['correct']=='':
+#                     flash('Correct option not seleted !')
+#                     return render_template('questionUpdate.html',School_Name=school_name())
+#                 for i in range(len(option_list)):
+#                     if int(request.form['option'])==i+1:
+#                         correct='Y'
+#                         weightage=int(request.form['weightage'])
+#                     else:
+#                         weightage=0
+#                         correct='N'
+#                     if i+1==1:
+#                         option='A'
+#                     elif i+1==2:
+#                         option='B'
+#                     elif i+1==3:
+#                         option='C'
+#                     else:
+#                         option='D'
+#                     options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+#                     db.session.add(options)
+#                 db.session.commit()
+#                 flash('Success')
+#                 return render_template('questionUpdate.html',School_Name=school_name())
+#         else:
+#             csv_file=request.files['file-input']
+#             df1=pd.read_csv(csv_file)
+#             for index ,row in df1.iterrows():
+#                 question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+#                 topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
+#                 db.session.add(question)
+#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
+#                 for i in range(1,5):
+#                     option_no=str(i)
+#                     option_name='Option'+option_no
+#                     weightage_name='Weightage'+option_no
+#                     if row['CorrectAnswer']=='option '+option_no:
+#                         correct='Y'
+#                         weightage=row[weightage_name]
+#                     else:
+#                         correct='N'
+#                         weightage='0'
+#                     if i==1:
+#                             option_val='A'
+#                     elif i==2:
+#                             option_val='B'
+#                     elif i==3:
+#                             option_val='C'
+#                     else:
+#                         option_val='D'
+
+#                     option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+#                     db.session.add(option)
+#             db.session.commit()
+#             flash('Successfullly Uploaded !')
+#             return render_template('questionUpdate.html',School_Name=school_name())
+#     return render_template('questionUpdate.html',School_Name=school_name())
+
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():
@@ -1320,18 +1563,28 @@ def questionBuilder():
                     option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
                     db.session.add(option)
             db.session.commit()
-            flash('Successfullly Uploaded !')
+            flash('Successfully Uploaded !')
             return render_template('questionBuilder.html',School_Name=school_name())
     return render_template('questionBuilder.html',School_Name=school_name())
 
 @app.route('/questionUpload',methods=['GET'])
 def questionUpload():
+    flag = False
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    return render_template('questionUpload.html',form=form)
+    return render_template('questionUpload.html',form=form, flag=flag)
+
+# @app.route('/questionUpdateUpload',methods=['GET'])
+# def questionUpdateUpload():
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form=QuestionUpdaterQueryForm()
+#     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+#     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+#     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+#     return render_template('questionUpdateUpload.html',form=form)
 
 @app.route('/questionFile',methods=['GET'])
 def questionFile():
@@ -1370,20 +1623,27 @@ def subject_list(class_val):
     return jsonify({'subjects' : subjectArray})
 
 #topic list generation dynamically
-@app.route('/questionBuilder/<class_val>/<subject_id>')
-def topic_list(class_val,subject_id):
-    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+# @app.route('/questionBuilder/<class_val>/<subject_id>')
+# def topic_list(class_val,subject_id):
+#     topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
 
-    topicArray=[]
+#     topicArray=[]
 
-    for topic in topic_list:
-        topicObj={}
-        topicObj['topic_id']=topic.topic_id
-        topicObj['topic_name']=topic.topic_name
-        topicArray.append(topicObj)
+#     for topic in topic_list:
+#         topicObj={}
+#         topicObj['topic_id']=topic.topic_id
+#         topicObj['topic_name']=topic.topic_name
+#         topicArray.append(topicObj)
     
-    return jsonify({'topics':topicArray})
+#     return jsonify({'topics':topicArray})
 
+# @app.route('/questionBuilder/<class_val>/<subject_id>')
+# def chapterNum(class_val,subject_id):
+#     chapter_num_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+#     chapterArray = []
+#     for chapter_num in chapter_num_list:
+#         topicObj={}
+#         topicObj['chapter_num']=chapter_num.
 
 @app.route('/addEvent', methods = ["GET","POST"])
 @login_required
