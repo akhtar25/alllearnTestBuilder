@@ -677,6 +677,7 @@ def questionBank():
 
 @app.route('/questionBankQuestions',methods=['GET','POST'])
 def questionBankQuestions():
+    Sign=False
     questions=[]
     # quesOption=[]
     topicList=request.get_json()
@@ -691,7 +692,7 @@ def questionBankQuestions():
         # query = "select option_desc from question_options where question_id='" + question_id + "'"
 
         # quesOption.append(questionOption)
-    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
+    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name(),Sign=Sign)
 
 @app.route('/questionBankFileUpload',methods=['GET','POST'])
 def questionBankFileUpload():
@@ -939,6 +940,28 @@ def updateQuestion():
     # print(updatedData)
     flash('Data Successfully Updated!!!')
     return render_template('questionUpload.html', form=form, flag=flag)
+
+
+@app.route('/questionOptions')
+def questionOptions():
+    question_id_arg=request.args.get('question_id')
+    questionOptionResults = QuestionOptions.query.filter_by(question_id=question_id_arg).all()
+    #query = "select option_desc from question_options where question_id='" + question_id + "'"
+    #avail_options = db.session.execute(text(query)).fetchall()
+    # if avail_options:
+    #     options = json.dumps(avail_options)
+    # for option in avail_options:
+    #     ans = []
+    #     print(option)
+    #     ans.append(option)
+    questionOptionsList=[]
+    for value in questionOptionResults:
+        print("This is the value; "+str(value))        
+        questionOptionsList.append(value.option+". "+value.option_desc)
+
+    print(questionOptionsList)
+
+    return jsonify([questionOptionsList])
 
 
 @app.route('/questionDetails')

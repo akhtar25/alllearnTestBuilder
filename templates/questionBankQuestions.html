@@ -23,16 +23,19 @@
                     <tr>
                         <td>
                             {% if question.question_type=='MCQ1' %}
-                            <a href="#" class="quesDescLink">{{ question.question_description }}</a>
+                            <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a>
+                            
+                            <div id="quesOptionDiv">
+                          
+                            </div>
                             {% else %}
                                 {{ question.question_description }}
                             {% endif %}
                             <!-- {% for qp in quesOption %}
                             {% for quesOption in qp %} -->
-                                {{ question.option_desc }}
-                                <div class="quesOptionDiv" style='display:none;'> <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" value="{{ question.option_desc }}" name="option_desc"></span></label><br> </div>
-                            <!-- {% endfor %}  
-                            {% endfor %} -->
+                            
+                            <!-- {% endfor %}   -->
+                            <!-- {% endfor %}  -->
                         </td>
                         <td> {{ question.question_type }} </td>
                         <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}"
@@ -67,12 +70,26 @@
 
 <script>
 
-$(document).ready(function() {  
-    $(".quesDescLink").click(function() {  
-        console.log('Inside Link')
-         $(".quesOptionDiv").show();     
-    });  
+  
+    $(document).ready(function() {  
+    var flag =  true;
+    $('.quesDescLink').click(function(){
+        var question_id = $(this).attr('name');
+        var data="";
+        $.ajax({
+            url: "/questionOptions?question_id="+question_id,
+            type: "get",
+            data: data,
+            success: function(response){
+                     console.log('Inside Link')
+               
+                console.log(response);
+                $('#quesOptionDiv').html(response);
+            }
+        })
+    });
 });
+
 
 
 
