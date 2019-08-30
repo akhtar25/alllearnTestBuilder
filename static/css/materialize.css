@@ -6888,6 +6888,8 @@ textarea.materialize-textarea {
   height: 25px;
   line-height: 25px;
   font-size: 1.4rem;
+  font-family:serif;
+  color:black;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;

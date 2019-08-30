@@ -3,7 +3,7 @@
 <div id="editQuestionsTableDiv">
 <h3>Select questions
         <button style="float:right;text-transform: initial;width: 190px;"
-                class="btn waves-light green lighten-1 white-text" onclick="" type="submit">Add Question</button>
+                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Question</a></button>
     </h3>
 <div class="card id">
     <div class="card-body">
@@ -23,11 +23,18 @@
                     <tr>
                         <td>
                             {% if question.question_type=='MCQ1' %}
-                            <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a>
-                            
-                            <div id="quesOptionDiv">
+                            <!-- <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a> -->
+                            <!-- <ul> -->
+                                    <ul>
+                                            <li>
+                                              <div><a href="#" data-toggle="collapse" data-target="#{{ question.question_id }}" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a></div>
+                                              <div class="collapse" class="optDiv" style="margin-left: 180px;" id="{{ question.question_id }}" ></div>
+                                            </li>
+                                    </ul>
+                            <!-- <div class="optDiv" id="{{ question.question_id }}">
                           
-                            </div>
+                            </div> -->
+                            <!-- </ul> -->
                             {% else %}
                                 {{ question.question_description }}
                             {% endif %}
@@ -57,12 +64,16 @@
                 <img src="../static/images/loader.gif">
                 </div>
 </div>  -->
- <div id='loader'>
+ <!-- <div id='loader'>
         <div id='questionSubmitLoader' style='display: none;'>
             <img src='../static/images/spinner.gif' width='50px' height='50px'>
         </div>
-        </div>  
+        </div>   -->
+        
     </div>
+    <div id="questionloader" style="display: none;padding-left: 300px;">
+            <img src="../static/images/loader.gif">
+            </div>
         <div id="questionEditorDiV" style='display:none;'></div>
 </div>
 
@@ -81,18 +92,45 @@
             type: "get",
             data: data,
             success: function(response){
-                     console.log('Inside Link')
-               
-                console.log(response);
-                $('#quesOptionDiv').html(response);
+                var v = '#'+question_id;
+                var option_list="<ul style='float:left;'><li>"+response[0][0]+"</li><li>"+response[0][1]+"</li></ul><ul><li>"+response[0][2]+"</li><li>"+response[0][3]+"</li></ul>";
+                console.log(response[0][0]);
+                console.log(response[0][1]);
+                 for(var i=0;i<response.length;i++){
+                    //  console.log(response[0][i]);
+                 }
+                $(v).html(option_list);
             }
         })
     });
 });
 
+    // function addQuestion(){
+    //     console.log('Inside addQuestion');
+    //     var data="";
+    //     $.ajax({
+    //         url: "/questionBuilder",
+    //         type: "get",
+    //         data: data,
+    //         success: function(){
+    //             console.log('Success');
+    //         },
+    //         error:function(xhr){
+    //             window.alert("error occurred while loading question");
+    //         }
+    //     });
+    // }
 
 
 
+    $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.collapsible');
+    var instances = M.Collapsible.init(elems, options);
+  });
 
         $('.questionUpdateButton').click(function(){              
                       
@@ -105,12 +143,12 @@
                         data: data,
                         beforeSend: function() {
                             $("#editQuestionsTableDiv").hide();  
-                            $("#loader").show();
-                            $("#questionSubmitLoader").show();
+                            // $("#loader").show();
+                            $("#questionloader").show();
                         },
                          success: function(response) {       
-                            $("#loader").hide();
-                            $("#questionSubmitLoader").hide();
+                            // $("#loader").hide();
+                            $("#questionloader").hide();
                             $('#editQuestionsTableDiv').hide();
                             $("#questionEditorDiV").html(response);
                             $("#questionEditorDiV").show();  

@@ -71,7 +71,7 @@
             <h3>Topics</h3>
             <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
                 {% for topic in topics %}
-                <label for="{{ topic.topic_id }}">
+                <label for="{{ topic.topic_id }}" style="font-weight: 500;">
                     <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
                         value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
                 </label><br>

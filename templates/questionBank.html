@@ -87,7 +87,7 @@
             <h3>Topics</h3>
             <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
                 {% for topic in topics %}
-                <label for="{{ topic.topic_id }}">
+                <label for="{{ topic.topic_id }}" style="font-weight: 500;">
                     <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
                         value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
                 </label><br>
@@ -99,8 +99,8 @@
         </div>
         <div class="col-sm-9" id="questions">
                 <div id="questionloader" style="display: none;padding-left: 300px;">
-                        <img src="../static/images/loader.gif">
-                        </div>
+                    <img src="../static/images/loader.gif">
+                </div>
         </div>
     </div>
     <div id="filebox" style="display: none;">
@@ -158,7 +158,7 @@
             contentType: "application/json",
             data: checkboxesChecked,
             beforeSend: function() {
-                $("#questions").show();  
+                $("#questionEditorDiV").hide();
               $("#questionloader").show();
            },
             success: function (response) {

@@ -956,7 +956,7 @@ def questionOptions():
     #     ans.append(option)
     questionOptionsList=[]
     for value in questionOptionResults:
-        print("This is the value; "+str(value))        
+        print("This is the value: "+str(value))        
         questionOptionsList.append(value.option+". "+value.option_desc)
 
     print(questionOptionsList)
