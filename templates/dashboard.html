@@ -66,56 +66,19 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body no-padding" style="overflow-y:auto;height:300px">
-         <ul class="users-list clearfix">
+                  <ul class="users-list clearfix">
+                    {% for student in topStudentRows%}
                     <li>
-                      <img src="../static/images/user1-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl1-Anurag</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user2-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl2-Ayush</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user3-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl3-Shailesh</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user4-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl4-Ayushi</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user5-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl5-Ashish</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user6-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl6-Abhishek</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user7-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl7-Anuj</a>
-                      
-                    </li>
-                    <li>
-                      <img src="../static/images/user8-128x128.jpg" alt="User Image">
-                      <a class="users-list-name" href="#">Cl8-Sumit</a>
-                      
-                    </li>
+                      <img src="{{topStudentsRows.profile_picture}}" alt="User Image">
+                      <span class="users-list-name" >CL{{student.class}}{{student.section}}-{{student.student_name}}</span>                      
+                    </li>                   
+                    {%endfor%}
                   </ul>
                 </div>
-                <!-- /.box-body -->
-               
-                <!-- /.box-footer -->
               </div>
-               <div class="box-footer text-right">
-                  <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
-                </div>
+              <div class="box-footer text-right">
+                <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
+              </div>
               <!-- /.box -->
             </section>
           </div>
@@ -175,7 +138,7 @@
   </body>
 </div>
 <script>
-  var graphData = {{ graphJSON | safe}};
+  var graphData = {{graphJSON | safe}};
   for (key in graphData) {
     value1 = graphData[key].data1[0];
     value2 = graphData[key].data2[0];
@@ -189,6 +152,9 @@
     value10 = graphData[key].data10[0];
   }
   var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
-  Plotly.newPlot('graphDiv', data, {}, { showlegend: true, displayModeBar: false });
+  Plotly.newPlot('graphDiv', data, {}, {
+    showlegend: true,
+    displayModeBar: false
+  });
 </script>
 {%endblock%}

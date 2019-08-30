@@ -1,0 +1,137 @@
+{%extends "layout.html"%}
+{%block content%}
+<div class="container">
+    <h3>Student Profile</h3>
+    <div id="studentProfileDiv">
+        <!--This is the start of student performance input form-->
+        <div class="row">            
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div>
+                    {{ form.class_val1.label(class='labelsize') }}
+                    <br>
+                    {% if form.class_val1.errors %}
+                    {{ form.class_val1(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.class_val1.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_val1(class='form-control') }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div style="width:150px;" >
+                    {{ form.section1.label(class='labelsize') }}
+                    <div id='loader1'style='display: none; float: right;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                    </div>
+                    <br>
+                    {% if form.section1.errors %}
+                    {{ form.section1(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.section1.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.section1(class='form-control') }}
+                    {% endif %}                                                
+                </div>
+                <input type='hidden' name='checkIndx' id='checkIndx' />
+            </div>         
+            <div class="col-sm-2"> 
+                {{ form.student_name1.label(class='labelsize') }}
+                <div id='loader2'style='display: none; float: right;'>
+                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                </div>
+                <br>
+                {% if form.student_name1.errors %}
+                {{ form.student_name1(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.student_name1.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.student_name1(class='form-control') }}
+                {% endif %}
+            </div>            
+            <div class="col-sm-2" style="margin-top:25px;">						
+                <input type="button"  class="btn"  style="height:35px; width:180px;" id="loadStudentProfBTN" value="Load Student Data">                
+            </div>              
+        </div>        
+    </div>
+    <div class="row">
+        <div id="studentProfileData"></div>
+    </div>
+</div>
+<!--Student level graph loader-->
+<script>
+    $('#loadStudentProfBTN').click(function(){                    
+        var data="";
+        var student_id = $('#student_name1').val();   
+        $.ajax({
+            url: "/indivStudentProfile?student_id="+student_id ,
+            type: "get",
+            data: data,
+            success: function(response) {                            
+                $("#studentProfileData").html(response);                     
+            },
+            error: function(xhr) {
+                window.alert("error occurred while submitting data");
+            }
+        });              
+    });
+</script>
+
+<!--Section for Student level form - dynamic-->
+
+<script>        
+    
+    var class_select1 = document.getElementById("class_val1");
+    var section_select1 = document.getElementById("section1");
+    var student_select1 = document.getElementById("student_name1")
+    
+    class_select1.onchange = function()  {
+        
+        class_val = class_select1.value;
+        $("#loader1").show();
+        
+        fetch('/resultUpload/' + class_val).then(function(response) {
+            response.json().then(function(data) {
+                $("#loader1").hide();    
+                var optionHTML = '';
+                optionHTML += '<option value="na" disabled selected> Select Section </option>';
+                for (var section1 of data.sections) {
+                    optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
+                }
+                section_select1.innerHTML = optionHTML;
+            })
+        });
+    }
+    
+    
+    
+    section_select1.onchange=function()  {
+        class_val1 = class_select1.value;
+        section_val1 = section_select1.value;
+        $("#loader2").show();
+        
+        fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
+            response.json().then(function(data) {  
+                $("#loader2").hide();    
+                var optionHTML = '';
+                optionHTML += '<option value="na" disabled selected> Select Student </option>';
+                for (var student of data.students) {
+                    optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
+                }
+                student_select1.innerHTML = optionHTML;
+            })
+        });
+    };
+</script>
+{%endblock%}

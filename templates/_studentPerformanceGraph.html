@@ -1,0 +1,28 @@
+  <div class="row">
+    <div id="indivStudentPerformance">
+    </div>
+  </div>
+</div>
+
+<script>
+  var graphData = {{graphJSON | safe}};
+   Plotly.plot('indivStudentPerformance',graphData,{showlegend: true,displayModeBar: false});   
+
+ // var data = [trace1, trace2, trace3, trace4, trace5];
+//
+ // var layout = {
+ //   legend: {
+ //     y: 0.5,
+ //     traceorder: 'reversed',
+ //     font: {
+ //       size: 16
+ //     },
+ //     yref: 'paper'
+ //   }
+ // };
+//
+ // Plotly.newPlot('indivStudentPerformance', data, layout, {
+ //   showlegend: true,
+ //   displayModeBar: false
+ // });
+</script>

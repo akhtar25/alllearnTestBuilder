@@ -1,0 +1,23 @@
+<!--This is the end of the test performance input form -->
+  <div class="row">
+  <section class="col-lg-12 connectedSortable">
+    <div id="stackedStudentPerformance">
+      <!-- Plotly chart will be drawn inside this DIV -->
+    </div>
+    </section>
+  </div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+
+   var graphData = {{graphJSON | safe}};
+   Plotly.plot('stackedStudentPerformance',graphData,{showlegend: true,displayModeBar: false});   
+</script>
+
+
+<!--<script>
+  $(document).ready(function () {
+    $('select').formSelect();
+  });
+</script>-->
+

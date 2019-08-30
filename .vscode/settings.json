@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/usr/local/bin/python3",
+    "python.pythonPath": "virtual\\Scripts\\python.exe",
     "python.formatting.provider": "yapf",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true

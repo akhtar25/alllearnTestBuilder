@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, QuestionUpdaterQueryForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, QuestionBankQueryForm, SchoolTeacherForm
+from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -32,9 +32,12 @@ from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
 from io import StringIO
-
+from collections import defaultdict
+from sqlalchemy.inspection import inspect
+from flask_material import Material
 
 app=Flask(__name__)
+Material(app)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
 app.config.from_object(Config)
@@ -42,6 +45,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 login_manager.init_app(app)
 moment = Moment(app)
+
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
@@ -92,6 +96,11 @@ def school_name():
             return None
     else:
         return None
+
+
+@app.route("/loaderio-ad2552628971ece0389988c13933a170/")
+def performanceTestLoaderFunction():
+    return render_template("loaderio-ad2552628971ece0389988c13933a170.html")
 
 @app.route("/account/")
 @login_required
@@ -214,37 +223,43 @@ def schoolRegistration():
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
 def teacherRegistration():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-    class_list=[('select','Select')]
-    section_list=[]
-    for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all():
-        class_list.append((str(i.class_val), "Class "+str(i.class_val)))
-    for i in available_section:
-        section_list.append((i.section,i.section))
-    form=SchoolTeacherForm()
-    form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
-    form.class_teacher.choices = class_list
-    form.class_teacher_section.choices = section_list
-    if request.method=='POST':
-        teacher_name=request.form.getlist('teacher_name')
-        teacher_subject=request.form.getlist('teacher_subject')
-        teacher_class=request.form.getlist('class_teacher')
-        teacher_class_section=request.form.getlist('class_teacher_section')
-        teacher_email=request.form.getlist('teacher_email')
-        print(teacher_name)
-        for i in range(len(teacher_name)):
-            if teacher_class[i]!='select':
-                class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
-                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
-                db.session.add(teacher_data)
-            else:
-                teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
-                db.session.add(teacher_data)
-        db.session.commit()
-        flash('Successful registration !')
+    school_name_val = school_name()
+    
+    if school_name_val ==None:
+        print('did we reach here')
+        return redirect(url_for('disconnectedAccount'))
+    else:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+        class_list=[('select','Select')]
+        section_list=[]
+        for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all():
+            class_list.append((str(i.class_val), "Class "+str(i.class_val)))
+        for i in available_section:
+            section_list.append((i.section,i.section))
+        form=SchoolTeacherForm()
+        form.teacher_subject.choices = [(str(i.msg_id), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()]
+        form.class_teacher.choices = class_list
+        form.class_teacher_section.choices = section_list
+        if request.method=='POST':
+            teacher_name=request.form.getlist('teacher_name')
+            teacher_subject=request.form.getlist('teacher_subject')
+            teacher_class=request.form.getlist('class_teacher')
+            teacher_class_section=request.form.getlist('class_teacher_section')
+            teacher_email=request.form.getlist('teacher_email')
+            print(teacher_name)
+            for i in range(len(teacher_name)):
+                if teacher_class[i]!='select':
+                    class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    db.session.add(teacher_data)
+                else:
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    db.session.add(teacher_data)
+            db.session.commit()
+            flash('Successful registration !')
+            return render_template('teacherRegistration.html',form=form,School_Name=school_name())
         return render_template('teacherRegistration.html',form=form,School_Name=school_name())
-    return render_template('teacherRegistration.html',form=form,School_Name=school_name())
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -347,34 +362,6 @@ def studentRegistration():
                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
-                #if row['guardian1_email']!='' and row['guardian2_email']!='':
-                 #   for i in range(2):
-                  #      relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
-                   #     if relation_id is not None:
-                    #        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
-                     #       email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                      #  else:
-                       #     guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
-                        #    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                        #db.session.add(guardian_data)
-               # elif row['guardian1_email']!='':
-                #    relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                 #   if relation_id is not None:
-                  #      guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],relation=relation_id.msg_id,
-                   #     email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                   # else:
-                    #    guardian_data=GuardianProfile(first_name=row['guardian1_first_name'],last_name=row['guardian1_last_name'],full_name=row['guardian1_first_name'] + ' ' + row['guardian1_last_name'],
-                     #   email=row['guardian1_email'],phone=row['guardian1_phone'],student_id=student_data.student_id)
-                    #db.session.add(guardian_data)
-               # elif row['guardian2_email']!='':
-                  #  relation_id=MessageDetails.query.filter_by(description=row['guardian1_relation']).first()
-                  #  if relation_id is not None:
-                   #     guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],relation=relation_id.msg_id,
-                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                   # else:
-                    #    guardian_data=GuardianProfile(first_name=row['guardian2_first_name'],last_name=row['guardian2_last_name'],full_name=row['guardian2_first_name'] + ' ' + row['guardian2_last_name'],
-                     #   email=row['guardian2_email'],phone=row['guardian2_phone'],student_id=student_data.student_id)
-                   # db.session.add(guardian_data)
             for i in range(2):
                 relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
                 if relation_id is not None:
@@ -500,8 +487,9 @@ def index():
         #chart_data = json.dumps(chart_data, indent=2)
         #data = {'chart_data': chart_data}
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from student_profile where school_id="+str(teacher.school_id)+" fetch first 8 rows only"
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()        
+        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+        
+        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
@@ -518,7 +506,7 @@ def index():
 @app.route('/disconnectedAccount')
 @login_required
 def disconnectedAccount():    
-    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1)
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name())
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -827,26 +815,49 @@ def guardianDashboard():
     for g in guardian:
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student)
+    return render_template('guardianDashboard.html',students=student,School_Name=school_name())
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
 def performanceDetails(student_id):
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    form1=studentPerformanceForm()
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form1.class_val1.choices = class_list
+    form1.section1.choices= section_list    
+    form1.test_type1.choices=test_type_list
+    form1.student_name1.choices = student_list
+
     student=StudentProfile.query.filter_by(student_id=student_id).first()
     if request.method=='POST':
         student=StudentProfile.query.filter_by(student_id=student_id).first()
         class_sec=ClassSection.query.filter_by(class_sec_id=student.class_sec_id).first()
         subject=subjectPerformance(class_sec.class_val,class_sec.school_id)
         print(subject)
-        date=request.form['performace_date']
+        date=request.form['performace_date']        
+
+
         return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student,School_Name=school_name())
-    return render_template('performanceDetails.html',students=student,School_Name=school_name())
+    return render_template('performanceDetails.html',students=student,School_Name=school_name(), student_id=student_id,form1=form1)
 
 
-@app.route('/studentfeedbackreport_dummy')
-def studentfeedbackreport_dummy():
+@app.route('/studentfeedbackreporttemp')
+def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreportdummy.html',student_name=student_name,School_Name=school_name())
+    return render_template('studentfeedbackreporttemp.html',student_name=student_name,School_Name=school_name())
 
 @app.route('/class')
 @login_required
@@ -1097,7 +1108,7 @@ def feedbackCollection():
                     db.session.commit()
         # end of  - update to mark the checked topics as completed
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics)).all()  
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
         questionListSize = len(questionList)
 
         return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
@@ -1190,14 +1201,22 @@ def feedbackReport():
     #print('here is the class_val '+ str(class_val))
     section=request.args.get('section')
     section = section.strip()
+    dateVal = request.args.get('date')
     #print('here is the section '+ str(section))
-    if (questionListJson != None) and (class_val != None) and (section != None):
+    #if (questionListJson != None) and (class_val != None) and (section != None):
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section).first()       
+    if (class_val != None) and (section != None):
+
+        classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section, school_id=teacher.school_id).first()       
         print('here is the subject_id: '+ str(subject_id))
         #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
-                    
-        dateVal= datetime.today().strftime("%d%m%Y")
+        
+        if dateVal == None or dateVal=="":
+            dateVal= datetime.today().strftime("%d%m%Y")
+        else:
+            tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
+            dateVal= tempDate.strftime("%d%m%Y")
 
         responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
@@ -1244,7 +1263,10 @@ def feedbackReport():
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
-    return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+    if responseResultRowCount>0:
+        return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+    else:
+         return jsonify(['No Data for the selected Date'])
 
 
 @app.route('/studentFeedbackReport')
@@ -1273,6 +1295,46 @@ def studentFeedbackReport():
 def testPerformance():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    
+    #setting up testperformance form
+    form=testPerformanceForm()        
+
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list    
+    form.test_type.choices=test_type_list
+
+    #setting up studentperformance form
+    form1=studentPerformanceForm()
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form1.class_val1.choices = class_list
+    form1.section1.choices= section_list    
+    form1.test_type1.choices=test_type_list
+    form1.student_name1.choices = student_list
+
+    
+
      #####Fetch school perf graph information##########
     performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
     performanceRows = db.session.execute(text(performanceQuery)).fetchall()
@@ -1307,13 +1369,181 @@ def testPerformance():
         )]        
     #print(graphData)
     graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('testPerformance.html',graphJSON=graphJSON)
+    return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1,School_Name=school_name())
+
+
+@app.route('/testPerformanceGraph')
+@login_required
+def testPerformanceGraph():    
+    class_val=request.args.get('class_val')
+    section=request.args.get('section')
+    section = section.strip()    
+    test_type=request.args.get('test_type')
+    #print('here is the class_val '+ str(class_val))
+    dateVal = request.args.get('date')
+    
+    if dateVal ==None or dateVal=="":
+        dateVal= datetime.today()
+
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+
+    
+    #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
+    #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
+    
+    testPerformanceQuery = "select sp.full_name, pd.student_score, md.description "
+    testPerformanceQuery = testPerformanceQuery + "from performance_detail pd "
+    testPerformanceQuery = testPerformanceQuery + "inner join student_profile sp on "
+    testPerformanceQuery = testPerformanceQuery + "sp.student_id=pd.student_id inner join "
+    testPerformanceQuery = testPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+    testPerformanceQuery = testPerformanceQuery + "where "
+    testPerformanceQuery = testPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
+    testPerformanceQuery = testPerformanceQuery + "and "
+    testPerformanceQuery = testPerformanceQuery + "pd.date='"+ str(dateVal) +"' "
+    testPerformanceQuery = testPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
+
+
+    testPerformanceRecords = db.session.execute(text(testPerformanceQuery)).fetchall()
+        
+    if len(testPerformanceRecords) !=0:
+
+        #result = defaultdict(list)
+        #for obj in testPerformanceRecords:
+        #    instance = inspect(obj)
+        #    for key, x in instance.attrs.items():
+        #        result[key].append(x.value)
+        #
+        #df = pd.DataFrame(result)
+
+        df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
+        df.rename(columns={0: 'full_name', 1: 'student_score', 2: 'subject'}, inplace=True)
+
+        student_names= list(df['full_name'])
+        student_scores= list(df['student_score'])
+        subject= list(df['subject'])    
+
+        distinct_subjects= df['subject'].unique()
+        ##print(dateRange)
+        ###Class 1
+        #print(distinct_subjects)
+        subLevelData=[]
+        i=0
+        for subVal in distinct_subjects:
+            filtered_df=df[df.subject==subVal]
+            filtered_df_student = list(filtered_df['full_name'])
+            filtered_df_student_scored = list(filtered_df['student_score'])
+            #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
+            tempDict = dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar',name=subVal,orientation='h')
+            subLevelData.append(tempDict)
+        print(str(subLevelData))
+
+        graphData=[dict()]
+
+        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)
+        #return str(graphJSON)
+        return render_template('_testPerformanceGraph.html',graphJSON=graphJSON)
+    else:
+        return jsonify(['No records found for the selected date'])
+    
+
+@app.route('/studentPerformanceGraph')
+@login_required
+def studentPerformanceGraph():    
+    class_val=request.args.get('class_val')
+    section=request.args.get('section')
+    if section!=None:
+        section = section.strip()    
+    test_type=request.args.get('test_type')
+    student_id=request.args.get('student_id')
+    #print('here is the class_val '+ str(class_val))
+    dateVal = request.args.get('date')
+    
+    if dateVal ==None or dateVal=="":
+        dateVal= datetime.today()
+    
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    fromTestPerformance=0
+    if class_val!=None:
+        fromTestPerformance=1
+        classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+
+    
+    
+    #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
+    #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
+    
+    studPerformanceQuery = "select pd.date, pd.student_score,md.description "
+    studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
+    studPerformanceQuery = studPerformanceQuery + "inner join "
+    studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+    studPerformanceQuery = studPerformanceQuery + "and "
+    if fromTestPerformance==1:
+        studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
+        studPerformanceQuery = studPerformanceQuery + "and "
+    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' "
+    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
+
+
+    studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
+        
+    if len(studPerformanceRecords) !=0:
+        df = pd.DataFrame( [[ij for ij in i] for i in studPerformanceRecords])
+        df.rename(columns={0: 'date', 1: 'student_score', 2: 'subject'}, inplace=True)
+
+        dateRange= list(df['date'])
+        student_scores= list(df['student_score'])
+        subject= list(df['subject'])
+
+        distinct_subjects= df['subject'].unique()
+        ##print(dateRange)
+        ###Class 1
+        #print(distinct_subjects)
+        subLevelData=[]
+        i=0
+        for subVal in distinct_subjects:
+            filtered_df=df[df.subject==subVal]
+            filtered_df_date = list(filtered_df['date'])
+            filtered_df_student_scored = list(filtered_df['student_score'])
+            #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
+            tempDict = dict(y=filtered_df_student_scored,x=filtered_df_date,mode= 'lines+markers',type='scatter',name=subVal,line_shape='spline')
+            subLevelData.append(tempDict)
+        print(str(subLevelData))
+
+        graphData=[dict()]
+
+        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)
+        #return str(graphJSON)
+        return render_template('_studentPerformanceGraph.html',graphJSON=graphJSON)
+    else:
+        return jsonify(['No records found for the selected values'])
+  
+    
+
 
 
 @app.route('/classPerformance')
 @login_required
 def classPerformance():
-    return render_template('classPerformance.html')
+    form=feedbackReportForm()
+
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()    
+    available_subject=MessageDetails.query.filter_by(category='Subject').all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    subject_name_list=[(i.msg_id,i.description) for i in available_subject]
+
+    #selectfield choices
+    form.class_val.choices = class_list
+    form.section.choices= section_list    
+    form.subject_name.choices=subject_name_list
+
+    return render_template('classPerformance.html',form=form,School_Name=school_name())
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -1514,6 +1744,22 @@ def section(class_val):
 #             return render_template('questionUpdate.html',School_Name=school_name())
 #     return render_template('questionUpdate.html',School_Name=school_name())
 
+@app.route('/studentList/<class_val>/<section>/')
+def studentList(class_val,section):
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section,school_id=teacher_id.school_id).first()
+    students = StudentProfile.query.distinct().filter_by(class_sec_id=classSecRow.class_sec_id).all()
+    studentArray = []
+
+    for student in students:
+        studentObj = {}
+        studentObj['student_id'] = student.student_id
+        studentObj['student_name'] = student.full_name
+        studentArray.append(studentObj)
+
+    print(str(studentArray))
+    return jsonify({'students' : studentArray})
+
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():
@@ -1692,10 +1938,52 @@ def addEvent():
         flash('Event Added!')
     return render_template('addEvent.html', form=form)
 
+@app.route('/studentProfileOld')
+@login_required
+def studentProfileOld():
+    return render_template('studentProfile.html',School_Name=school_name())
+
+@app.route('/indivStudentProfile')
+@login_required
+def indivStudentProfile():    
+    student_id=request.args.get('student_id')
+    print(student_id)
+    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    studentProfileRow = db.session.execute(text(studentProfileQuery)).first()    
+
+    guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
+
+    #print("reached indiv student ")
+    #print(studentProfileRow)
+    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows)
+
+
 @app.route('/studentProfile')
 @login_required
-def studentProfile():
-    return render_template('studentProfile.html',School_Name=school_name())
+def studentProfile():    
+    form=studentPerformanceForm()
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+    section_list=[(i.section,i.section) for i in available_section]    
+    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+    student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+    #selectfield choices
+    form.class_val1.choices = class_list
+    form.section1.choices= section_list    
+    form.test_type1.choices=test_type_list
+    form.student_name1.choices = student_list
+    return render_template('studentProfileNew.html',School_Name=school_name(),form=form)
+
 
 @app.route('/performance')
 def performance():
