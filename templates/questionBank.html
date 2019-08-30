@@ -52,7 +52,7 @@
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.chapter_num(class='form-control') }}
+                            {{ form.chapter_num(class='form-control',id='chapter_num_id') }}
                             {% endif %}
                         </div>
                     </div>
@@ -110,6 +110,7 @@
     var count_marks = 0;
     var class_select = document.getElementById("class_val");
     var subject_select = document.getElementById("subject_name");
+    var chapter_num_select = document.getElementById("chapter_num_id");
     class_select.onchange = function () {
         class_val = class_select.value;
         $("#loader1").show();
@@ -121,6 +122,21 @@
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                 }
                 subject_select.innerHTML = optionHTML;
+            })
+        });
+        $("#loader1").show();
+        subject_id = subject_select.value;
+        fetch('/questionChapterpicker/' +  class_val + '/'+ subject_id).then(function(response){
+            class_val = class_select.value;
+            response.json().then(function(data){
+                $("#loader1").hide();
+                var optionHTML = '';
+
+                for(var chapno of data.chapterNum){
+                    print(chapno.chapter_num);
+                    optionHTML += '<option value="' + chapno.chapter_num + '">' + chapno.chapter_num + '</option>';
+                }
+                chapter_num_select.innerHTML = optionHTML;
             })
         });
     }

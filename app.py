@@ -1645,20 +1645,32 @@ def subject_list(class_val):
 
     return jsonify({'subjects' : subjectArray})
 
-#topic list generation dynamically
-# @app.route('/questionBuilder/<class_val>/<subject_id>')
-# def topic_list(class_val,subject_id):
-#     topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+# topic list generation dynamically
+@app.route('/questionBuilder/<class_val>/<subject_id>')
+def topic_list(class_val,subject_id):
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
 
-#     topicArray=[]
+    topicArray=[]
 
-#     for topic in topic_list:
-#         topicObj={}
-#         topicObj['topic_id']=topic.topic_id
-#         topicObj['topic_name']=topic.topic_name
-#         topicArray.append(topicObj)
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
     
-#     return jsonify({'topics':topicArray})
+    return jsonify({'topics':topicArray})
+
+@app.route('/questionChapterpicker/<class_val>/<subject_id>')
+def chapter_list(class_val,subject_id):
+    chapter_num_list = Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+    chapter_num_array=[]
+    for chapterno in chapter_num_list:
+        chapterNo = {}
+        chapterNo['chapter_num']=chapterno.chapter_num
+        chapter_num_array.append(chapterNo)
+    return jsonify({'chapterNum':chapter_num_array})
+
+
 
 # @app.route('/questionBuilder/<class_val>/<subject_id>')
 # def chapterNum(class_val,subject_id):
