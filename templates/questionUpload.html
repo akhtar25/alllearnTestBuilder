@@ -14,14 +14,14 @@
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_val(class='form-control',id='class_val',style='width: 215px;') }}
+                                        {{ form.class_val(class='form-control',id='classValSelected',style='width: 215px;') }}
                                         {% endif %}
                                 </div>
                         </div>
                         <div class="col-sm-2">
                                 <div style="width:150px;" > 
                                                 {{ form.subject_name.label(class='labelsize') }}
-                                                <div id='loader'style='display: none; float: right;'>
+                                                <div id='loader1'style='display: none; float: right;'>
                                                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                                 </div>
                                         <br>
@@ -33,7 +33,7 @@
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.subject_name(class='form-control',id='subject_name',style='width: 140px;') }}
+                                                {{ form.subject_name(class='form-control',id='subjectNameSelected',style='width: 140px;') }}
                                                 {% endif %}
     
                                                 
@@ -43,7 +43,7 @@
                         <div class="col-sm-2">
                             <div style="width:150px;" > 
                                             {{ form.topics.label(class='labelsize') }}
-                                            <div id='loader'style='display: none; float: right;'>
+                                            <div id='loader1'style='display: none; float: right;'>
                                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                             </div>
                                     <br>
@@ -108,23 +108,22 @@
               {% if  flag %}
                 {% for option in avail_options %}
                 {% if option.option_desc==correctOption %}
-                
-            <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc1" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc2" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
                 {% else %}
-                <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc1" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+                <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
                 {% endif %}
                  {% endfor %}
               {% else %}
-              <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option_desc1" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option_desc2" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option_desc3" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option_desc4" name="option_desc"></span></label><br><br><br>
+              <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_desc1" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_desc2" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_desc3" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_desc4" name="option_desc"></span></label><br><br><br>
               <input type="hidden" id="correct" name="correct" value="">
               {% endif %}
             </div>
     <label for="weightage">Weightage</label>
     {% if  flag %}
-    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.suggested_weightage }}" placeholder="Enter the Weightage of Question">
+    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.weightage }}" placeholder="Enter the Weightage of Question">
     {% else %}
     <input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
     {% endif %}
@@ -167,19 +166,20 @@
 </div>
 
 <script type="text/javascript">
-    var class_select = document.getElementById("class_val");
-    var subject_select = document.getElementById("subject_name");
+    var class_select = document.getElementById("classValSelected");
+    var subject_select = document.getElementById("subjectNameSelected");
     var topic_select = document.getElementById("topicNameSelect");
     var question_type=document.getElementById("question_type");
+    var options = document.getElementById("option_desc1");
     
     class_select.onchange = function()  {
          
         class_val = class_select.value;
-        $("#loader").show();
+        $("#loader1").show();
         console.log('Inside class value Onchange')
         fetch('/questionBuilder/' + class_val).then(function(response) {
             response.json().then(function(data) {
-                    $("#loader").hide();    
+                    $("#loader1").hide();    
                     var optionHTML = '';
                     for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
@@ -199,7 +199,7 @@
         }
         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
-                     $("#loader").hide();    
+                     $("#loader1").hide();    
                      var optionHTML = '';
                     
                      for (var topic of data.topics) {
@@ -219,11 +219,11 @@
          subject_select.onchange=function()  {
          
          subject_id = subject_select.value;
-         $("#loader").show();
+         $("#loader1").show();
          console.log('Inside subject value Onchange')
          fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
-                     $("#loader").hide();    
+                     $("#loader1").hide();    
                      var optionHTML = '';
                     console.log('')
                      for (var topic of data.topics) {
@@ -247,12 +247,15 @@
         $("#MCQ1_type").hide();
       }
     }
+
+    
     function correctOption(correct){
       document.getElementById('correct').value=correct.value;
+      
     }
 
     function Clear(){
-      document.getElementById('question_desc').value='';
+      document.getElementById('questionDesc').value='';
       document.getElementById('option_desc1').value='';
       document.getElementById('option_desc2').value='';
       document.getElementById('option_desc3').value='';
@@ -342,23 +345,70 @@
     
     $('#updateButton').click(function(){
                       var question_id = $(this).attr('name');
-                      var updatedCV = document.getElementById('class_val').value;
+                      var updatedCV = document.getElementById('classValSelected').value;
                       var topicName = document.getElementById('topicNameSelect').value;
-                      var subName = document.getElementById('subject_name').value;
+                      var subName = document.getElementById('subjectNameSelected').value;
                       var qType = document.getElementById('question_type').value;
                       var qDesc = document.getElementById('questionDesc').value;
-                      var correctOption = document.getElementById('option_desc1').value;
+                      var correctOption = document.getElementById('option_desc2').value;
                       var weightage = document.getElementById('weightage').value;
                       var preview = document.getElementById("preview").src;
+                      var opt = document.getElementsByClassName("option_class");
+
+
+
+                      var checkBox1 = document.getElementById("option1");
+                      var checkBox2 = document.getElementById("option2");
+                      var checkBox3 = document.getElementById("option3");
+                      var checkBox4 = document.getElementById("option4");
+                      var correctans="";
+                        if(checkBox1.checked == true){
+                          correctans = document.getElementById("option_desc1").value;
+                        }
+                        else
+                        if(checkBox2.checked == true){
+                          correctans = document.getElementById("option_desc2").value;
+                        }
+                        else
+                        if(checkBox3.checked == true){
+                          correctans = document.getElementById("option_desc3").value;
+                        }
+                        else{
+                          correctans = document.getElementById("option_desc4").value;
+                        }
+                          console.log("options:"+correctans);
+                      console.log(opt.length);
+                      var options = [];
+                      for(var i=0;i<opt.length;i++){
+                        var obj = {};
+                        console.log(opt[i].value);
+                        options.push(opt[i].value);
+                      }
+                      console.log("Option"+options);
+                      var op1,op2,op3,op4;
+                      for(var i=0;i<options.length;i++){
+                        if(i==0){
+                        op1 = options[i];
+                        }
+                        else if(i==1){
+                          op2 = options[i];
+                        }
+                        else if(i==2){
+                          op3 = options[i];
+                        }
+                        else{
+                          op4 = options[i];
+                        }
+                      }
                       console.log("Question Id in update Question:"+question_id);
                       console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+correctOption+" "+weightage+" "+preview)
                       var data="";
                       $.ajax({
-                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+correctOption+"&weightage="+weightage+"&preview="+preview,
+                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+correctans+"&weightage="+weightage+"&preview="+preview+"&options="+options+"&op1="+op1+"&op2="+op2+"&op3="+op3+"&op4="+op4,
                         type: "get",
                         data: data,
                         success: function(response) {       
-                                window.alert('Success')    
+                                    
                         },
                         error: function(xhr) {
                           window.alert("error occurred while loading question");
@@ -377,13 +427,13 @@
           if(questionDesc || classVal || questionType || desc || topicName){
               var questionDesc = "{{ questionUpdateUpload.question_description }}";
               var classVal = '{{ questionUpdateUpload.class_val }}'; 
-              var desc = '{{ questionUpdateUpload.msg_id }}';
+              var desc = '{{ questionUpdateUpload.subject_id }}';
               var topicName = '{{ questionUpdateUpload.topic_id }}';
               console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
             document.getElementById('questionDesc').value = questionDesc;
-              $('#class_val').val(classVal);
+              $('#classValSelected').val(classVal);
+              $('#subjectNameSelected').val(desc);
               $('#topicNameSelect').val(topicName);
-              $('#subject_name').val(desc);
               $('#question_type').val(questionType);
           }
         }

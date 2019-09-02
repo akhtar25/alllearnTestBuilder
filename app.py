@@ -34,10 +34,10 @@ from urllib.request import urlopen,Request
 from io import StringIO
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
-from flask_material import Material
+#from flask_material import Material
 
 app=Flask(__name__)
-Material(app)
+#Material(app)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
 app.config.from_object(Config)
@@ -652,7 +652,7 @@ def questionBank():
             flash('Select Chapter')
             form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
             return render_template('questionBank.html',form=form,School_Name=school_name())
-        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
+        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
         # session['date']=request.form['test_date']
@@ -739,7 +739,7 @@ def testBuilder():
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
     return render_template('testBuilder.html',form=form,School_Name=school_name())
 
-@app.route('/testBuilderQuestions',methods=['GET','POST'])
+@app.route('/testBuilderQuestions',methods=['GET','POST'])  
 def testBuilderQuestions():
     questions=[]
     topicList=request.get_json()
@@ -932,6 +932,22 @@ def updateQuestion():
     correctOption = request.args.get('correctOption')
     weightage = request.args.get('weightage')
     imageUrl = request.args.get('preview')
+    options = request.args.get('options')
+    op1 = request.args.get('op1')
+    op2 = request.args.get('op2')
+    op3 = request.args.get('op3')
+    op4 = request.args.get('op4')
+    # for i in range(options.length):
+
+        # print(i)
+    
+    # for opt in options:
+    #     print(opt)
+    # print(options)
+    print(op1)
+    print(op2)
+    print(op3)
+    print(op4)
     form = QuestionBuilderQueryForm()
     print("Updated class Value:"+updatedCV)
     print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(correctOption)+" "+str(weightage)+" "+str(imageUrl))
@@ -940,13 +956,52 @@ def updateQuestion():
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     flag = False
+    # updateQuery = "update question_details t1 set topic_id='" + str(topicId) + "' where question_id='" + question_id + "'"
+    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ imageUrl +"' where question_id='" + str(question_id) + "'"
 
-    updateQuery = "update question_details set class_val='" + str(updatedCV) + "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ imageUrl +"' where question_id='" + str(question_id) + "'"
     queryOneExe = db.session.execute(text(updateQuery))
+    updateWeightage = "update question_options set weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
+    querytwoExe = db.session.execute(text(updateWeightage))
+
+    option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
+    print(option_id_list)
+    i=0
+    for opt in option_id_list:
+        if i==0:
+            opId1 = opt.option_id
+        elif i==1:
+            opId2 = opt.option_id
+        elif i==2:
+            opId3 = opt.option_id
+        else:
+            opId4 = opt.option_id
+        i=i+1
+    print(str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
+    # print(option_id) 
+    # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
+    # opt = db.session.execute(text(option))
+    # print("Updated options "+str(opt))
+    updateOption1 = "update question_options set option_desc='"+str(op1)+"' where option_id='"+ str(opId1) + "'"
+    print(updateOption1)
+    updateOpt1Exe = db.session.execute(text(updateOption1))
+    updateOption2 = "update question_options set option_desc='"+str(op2)+"' where option_id='"+ str(opId2) + "'"
+    print(updateOption2)
+    updateOpt2Exe = db.session.execute(text(updateOption2))
+    updateOption3 = "update question_options set option_desc='"+str(op3)+"' where option_id='"+ str(opId3) + "'"
+    print(updateOption3)
+    updateOpt3Exe = db.session.execute(text(updateOption3))
+    updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
+    print(updateOption4)
+    updateOpt4Exe = db.session.execute(text(updateOption4))
+    updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
+    print(updateCorrectOption)
+    updateOp = db.session.execute(text(updateCorrectOption))
+    print('Inside Update Questions')
     db.session.commit()
-    updateSecondQuery = "update question_options set weightage='" + str(weightage) +"' where question_id='" + str(question_id) + "'"
-    querySecondExe = db.session.execute(text(updateSecondQuery)) 
-    db.session.commit()
+    print(updateQuery)
+    # updateSecondQuery = "update question_options set weightage='" + str(weightage) +"' where question_id='" + str(question_id) + "'"
+    # querySecondExe = db.session.execute(text(updateSecondQuery)) 
+    # db.session.commit()
     print("Question Id in update Question:"+question_id)
     # print(updatedData)
     flash('Data Successfully Updated!!!')
@@ -986,12 +1041,21 @@ def questionDetails():
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
 
-    questionDetailsQuery = "select t1.class_val, t1.question_id, t4.msg_id, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
+    # questionDetailsquery = "select question_description, question_id, reference_link, question_type, suggested_weightage, topic_id from question_details where question_id='" + question_id + "'"
+    # query1 = db.session.execute(text(questionDetailsquery))
+    # topicDetailsquery = "select class_val, subject_id, topic_name from topic_detail where topic_id='"  + query1.topic_id + "'"
+    # query2 = db.session.execute(text(topicDetailsquery))
+
+
+    questionDetailsQuery = "select t2.class_val, t1.question_id, t2.subject_id, t1.reference_link, t3.weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
     questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+    questionDetailsQuery = questionDetailsQuery + "inner join question_options t3 on t3.question_id=t1.question_id "
     questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
     questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
 
     questionUpdateUploadSubjective = db.session.execute(text(questionDetailsQuery)).first()   
+
+
     
     
     # questionDetailsQuery = "select t1.class_val, t1.question_id, t4.msg_id,t3.option_desc, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
@@ -1016,7 +1080,8 @@ def questionDetails():
         for a in avail_options:
             print(a)
         return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag, avail_options=avail_options, correctOption=correctOption)
-    
+        # return render_template('questionUpload.html',question_id=question_id, questionUpdateUploadSubjective=questionUpdateUploadSubjective,form=form,flag=flag,avail_options=avail_options,correctOption=correctOption)
+
     for q in questionUpdateUpload:
         print('this is check ' + str(q))
     
@@ -1798,6 +1863,7 @@ def questionBuilder():
                     else:
                         option='D'
                     options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+                    print("Options in question Builder:"+options)
                     db.session.add(options)
                 db.session.commit()
                 flash('Success')
@@ -1908,7 +1974,7 @@ def topic_list(class_val,subject_id):
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):
-    chapter_num_list = Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+    chapter_num_list = Topic.query.filter_by(class_val=class_val,subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
     chapter_num_array=[]
     for chapterno in chapter_num_list:
         chapterNo = {}
