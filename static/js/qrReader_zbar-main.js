@@ -8,6 +8,7 @@ var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
 var hiddenInputList = $("#questionListSizeDiv");
+var errorMsgElement = $("#errorMsgElement");
 var resultArray = [];
 //set this to true from an event handler to stop the execution
 var cancelled = false;
