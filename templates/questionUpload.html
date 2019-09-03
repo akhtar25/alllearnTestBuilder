@@ -168,13 +168,94 @@
 </div>
 
 <script type="text/javascript">
-    var rad1 = document.getElementById("option_Desc1");
     var class_select = document.getElementById("classValSelected");
     var subject_select = document.getElementById("subjectNameSelected");
     var topic_select = document.getElementById("topicNameSelect");
     var question_type=document.getElementById("question_type");
     var options = document.getElementById("option_desc1");
+    var a = 1;
+    var b = 1;   
+    {% if flag %}
     
+    var classVal = '{{ questionUpdateUpload.class_val }}'; 
+    var desc = '{{ questionUpdateUpload.subject_id }}';
+    var topicName = '{{ questionUpdateUpload.topic_id }}';
+    class_select.onchange = function()  {
+         
+         class_val = class_select.value;
+         $("#loader1").show();
+         console.log('Inside class value Onchange')
+         fetch('/questionBuilder/' + class_val).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader1").hide();    
+                     var optionHTML = '';
+                     for (var subject of data.subjects) {
+                       console.log(subject.subject_id);
+                       console.log(desc);
+                       if(a==1){
+                         if(subject.subject_id==desc){
+                        console.log(subject.subject_id+' '+subject.subject_name);
+                        
+                       console.log(desc);
+
+                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                        a++;
+                        break;
+                         }
+                       }else{
+                        optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';   
+                       }
+                 }
+                 subject_select.innerHTML = optionHTML;
+             })
+             
+         });
+         if (class_val>5){ 
+           subject_id='56';
+         }
+         else if(class_val>2 && class_val<=5){
+         subject_id='55';
+         }
+         else{
+           subject_id='54';
+         }
+ 
+ 
+ 
+ 
+         $("#loader1").show();
+         subId='';
+         if(b==1){
+           subId=desc;
+         }else{
+          subId=subject_id;
+         }
+         fetch('/questionBuilder/' + class_val + '/'+ subId).then(function(response) {
+              response.json().then(function(data) {
+                      $("#loader1").hide();    
+                      var optionHTML = '';
+                     console.log('Inside Subject value onchange')
+                      for (var topic of data.topics) {
+                        console.log(topic.topic_id);
+                        console.log(topicName);
+                        if(b==1){
+                          if(topic.topic_id==topicName){
+                          console.log('Inside topic chosen');
+                         optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                         b++;
+                         break;
+                          }
+                        }else{
+                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                        }
+                  }                 
+                  topic_select.innerHTML =  optionHTML;
+              })
+              
+          });
+     }
+
+    {% else %}
     class_select.onchange = function()  {
          
         class_val = class_select.value;
@@ -201,25 +282,6 @@
           subject_id='54';
         }
 
-        subject_select.onchange=function()  {
-         
-         subject_id = subject_select.value;
-         $("#loader1").show();
-         console.log('Inside subject value Onchange')
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader1").hide();    
-                     var optionHTML = '';
-                    console.log('')
-                     for (var topic of data.topics) {
-                    
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
-             
-         });
-    }
 
 
 
@@ -238,7 +300,7 @@
              
          });
     }
-  
+  {% endif %}
     //for (i = 0; i < 20; i++) {
     //$('#topiclist').append('<input type="radio" name="radio_name" />');
 //}     
@@ -471,9 +533,8 @@
               var topicName = '{{ questionUpdateUpload.topic_id }}';
               console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
             document.getElementById('questionDesc').value = questionDesc;
-              $('#classValSelected').val(classVal);
-              
-              $('#subjectNameSelected').val(desc);
+              $('#classValSelected').val(classVal).change();
+              $('#subjectNameSelected').val(desc).change();
               $('#topicNameSelect').val(topicName);
               $('#question_type').val(questionType);
           }

@@ -976,11 +976,12 @@ def updateQuestion():
     updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
     print(updateOption4)
     updateOpt4Exe = db.session.execute(text(updateOption4))
-    updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
-    update1 = db.session.execute(text(updatequery1))
-    updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
-    print(updateCorrectOption)
-    updateOp = db.session.execute(text(updateCorrectOption))
+    if str(correctOption)!='':
+        updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
+        update1 = db.session.execute(text(updatequery1))
+        updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
+        print(updateCorrectOption)
+        updateOp = db.session.execute(text(updateCorrectOption))
     print('Inside Update Questions')
     db.session.commit()
     print(updateQuery)
@@ -1816,14 +1817,17 @@ def studentList(class_val,section):
 @login_required
 def questionBuilder():
     form=QuestionBuilderQueryForm()
+    print("Inside Question Builder")
     if request.method=='POST':
         if form.submit.data:
             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data)
+            print(question)
             db.session.add(question)
             if form.question_type.data=='Subjective':
                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
                 options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
+                print(options)
                 db.session.add(options)
                 db.session.commit()
                 flash('Success')
@@ -1883,6 +1887,7 @@ def questionBuilder():
                         option_val='D'
 
                     option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                    print(option)
                     db.session.add(option)
             db.session.commit()
             flash('Successfully Uploaded !')
