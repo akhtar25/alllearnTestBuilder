@@ -1856,7 +1856,7 @@ def questionBuilder():
                     else:
                         option='D'
                     options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
-                    print("Options in question Builder:"+options)
+                    print("Options in question Builder:"+str(options))
                     db.session.add(options)
                 db.session.commit()
                 flash('Success')
@@ -1901,11 +1901,15 @@ def questionUpload():
     flag = False
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
-    topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    return render_template('questionUpload.html',form=form, flag=flag,topic_list=topic_list)
+    if form.class_val.data!='None' and form.subject_name.data!='None' and  form.chapter_num.data!='None':
+        print('Inside if question Upload')
+        topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=str(form.subject_name.data),chapter_num=str(form.chapter_num.data)).all()
+        return render_template('questionUpload.html',form=form, flag=flag,topic_list=topic_list)
+    else:
+        return render_template('questionUpload.html',form=form,flag=flag)
 
 # @app.route('/questionUpdateUpload',methods=['GET'])
 # def questionUpdateUpload():
