@@ -670,6 +670,7 @@ def questionBankQuestions():
     for topic in topicList:
         questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
+    print("Inside questionBankquestions")
     return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
 
 @app.route('/questionBankFileUpload',methods=['GET','POST'])
@@ -1899,10 +1900,12 @@ def questionUpload():
     flag = False
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
+    formBuld = QuestionBankQueryForm()
+    topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    return render_template('questionUpload.html',form=form, flag=flag)
+    return render_template('questionUpload.html',form=form, flag=flag,topic_list=topic_list)
 
 # @app.route('/questionUpdateUpload',methods=['GET'])
 # def questionUpdateUpload():
