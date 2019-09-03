@@ -665,22 +665,12 @@ def questionBank():
 
 @app.route('/questionBankQuestions',methods=['GET','POST'])
 def questionBankQuestions():
-    Sign=False
     questions=[]
-    # quesOption=[]
     topicList=request.get_json()
     for topic in topicList:
-        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage, QuestionOptions.option_desc).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
-        # questionOption = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_column(QuestionOptions.option_desc, QuestionDetails.question_type).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
-        for q in questions:
-            for qp in q:
-                print("Question id in questionBankQuestions:"+str(qp.question_id))   
-
-        # query = "select option_desc from question_options where question_id='" + question_id + "'"
-
-        # quesOption.append(questionOption)
-    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name(),Sign=Sign)
+    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
 
 @app.route('/questionBankFileUpload',methods=['GET','POST'])
 def questionBankFileUpload():
@@ -937,13 +927,6 @@ def updateQuestion():
     op2 = request.args.get('op2')
     op3 = request.args.get('op3')
     op4 = request.args.get('op4')
-    # for i in range(options.length):
-
-        # print(i)
-    
-    # for opt in options:
-    #     print(opt)
-    # print(options)
     print(op1)
     print(op2)
     print(op3)
@@ -993,6 +976,8 @@ def updateQuestion():
     updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
     print(updateOption4)
     updateOpt4Exe = db.session.execute(text(updateOption4))
+    updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
+    update1 = db.session.execute(text(updatequery1))
     updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
     print(updateCorrectOption)
     updateOp = db.session.execute(text(updateCorrectOption))
@@ -1049,7 +1034,7 @@ def questionDetails():
 
     questionDetailsQuery = "select t2.class_val, t1.question_id, t2.subject_id, t1.reference_link, t3.weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
     questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
-    questionDetailsQuery = questionDetailsQuery + "inner join question_options t3 on t3.question_id=t1.question_id "
+    questionDetailsQuery = questionDetailsQuery + "inner join question_options t3 on t3.question_id=t1.question_id and is_correct='Y' "
     questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
     questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
 
@@ -1064,12 +1049,14 @@ def questionDetails():
     # questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
     # questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
     # questionUpdateUploadMCQ = db.session.execute(text(questionDetailsQuery)).first()
+    print(questionUpdateUploadSubjective.question_type)
     questionUpdateUpload=questionUpdateUploadSubjective
-    if questionUpdateUploadSubjective.question_type=='MCQ1':
+    if questionUpdateUpload.question_type=='MCQ1':
        
         query = "select option_desc from question_options where question_id='" + question_id + "'"
         avail_options = db.session.execute(text(query)).fetchall()
         queryCorrectoption = "select option_desc from question_options where is_correct='Y' and question_id='" + question_id + "'"  
+        print(queryCorrectoption)
         correctoption = db.session.execute(text(queryCorrectoption)).fetchall()
         print(correctoption)
         for c in correctoption:

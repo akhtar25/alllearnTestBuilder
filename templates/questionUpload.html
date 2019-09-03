@@ -108,9 +108,11 @@
               {% if  flag %}
                 {% for option in avail_options %}
                 {% if option.option_desc==correctOption %}
-            <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc2" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
-                {% else %}
-                <label><input class="with-gap" id="option1" name="option" type="radio" value="" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+            <input type="hidden" id="correct" name="correct" value="">    
+            {% else %}
+                <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+                <input type="hidden" id="correct" name="correct" value=""> 
                 {% endif %}
                  {% endfor %}
               {% else %}
@@ -166,6 +168,7 @@
 </div>
 
 <script type="text/javascript">
+    var rad1 = document.getElementById("option_Desc1");
     var class_select = document.getElementById("classValSelected");
     var subject_select = document.getElementById("subjectNameSelected");
     var topic_select = document.getElementById("topicNameSelect");
@@ -197,26 +200,8 @@
         else{
           subject_id='54';
         }
-        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader1").hide();    
-                     var optionHTML = '';
-                    
-                     for (var topic of data.topics) {
 
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
-             
-         });
-    }
-  
-    //for (i = 0; i < 20; i++) {
-    //$('#topiclist').append('<input type="radio" name="radio_name" />');
-//}     
-      
-         subject_select.onchange=function()  {
+        subject_select.onchange=function()  {
          
          subject_id = subject_select.value;
          $("#loader1").show();
@@ -236,6 +221,48 @@
          });
     }
 
+
+
+        $("#loader1").show();
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader1").hide();    
+                     var optionHTML = '';
+                    
+                     for (var topic of data.topics) {
+
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }
+  
+    //for (i = 0; i < 20; i++) {
+    //$('#topiclist').append('<input type="radio" name="radio_name" />');
+//}     
+      
+    //      subject_select.onchange=function()  {
+         
+    //      subject_id = subject_select.value;
+    //      $("#loader1").show();
+    //      console.log('Inside subject value Onchange')
+    //      fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+    //          response.json().then(function(data) {
+    //                  $("#loader1").hide();    
+    //                  var optionHTML = '';
+    //                 console.log('')
+    //                  for (var topic of data.topics) {
+                    
+    //                     optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+    //              }                 
+    //              topic_select.innerHTML =  optionHTML;
+    //          })
+             
+    //      });
+    // }
+
     question_type.onchange = function(){
       console.log('Inside question type Onchange')
       question_type_value=question_type.value;
@@ -248,11 +275,16 @@
       }
     }
 
-    
+    // var checkBox1 = document.getElementById("option1");
+    // var checkBox2 = document.getElementById("option2");
+    // var checkBox3 = document.getElementById("option3");
+    // var checkBox4 = document.getElementById("option4");
+    // var correctans="";
     function correctOption(correct){
       document.getElementById('correct').value=correct.value;
       
     }
+    // console.log("Correct Ans:"+correctans);
 
     function Clear(){
       document.getElementById('questionDesc').value='';
@@ -350,33 +382,41 @@
                       var subName = document.getElementById('subjectNameSelected').value;
                       var qType = document.getElementById('question_type').value;
                       var qDesc = document.getElementById('questionDesc').value;
-                      var correctOption = document.getElementById('option_desc2').value;
+                      // var correctOption = document.getElementById('option_desc2').value;
                       var weightage = document.getElementById('weightage').value;
                       var preview = document.getElementById("preview").src;
                       var opt = document.getElementsByClassName("option_class");
-
-
-
-                      var checkBox1 = document.getElementById("option1");
-                      var checkBox2 = document.getElementById("option2");
-                      var checkBox3 = document.getElementById("option3");
-                      var checkBox4 = document.getElementById("option4");
-                      var correctans="";
-                        if(checkBox1.checked == true){
-                          correctans = document.getElementById("option_desc1").value;
-                        }
-                        else
-                        if(checkBox2.checked == true){
-                          correctans = document.getElementById("option_desc2").value;
-                        }
-                        else
-                        if(checkBox3.checked == true){
-                          correctans = document.getElementById("option_desc3").value;
-                        }
-                        else{
-                          correctans = document.getElementById("option_desc4").value;
-                        }
-                          console.log("options:"+correctans);
+                      // var v = document.getElementById('option_Desc2').value;
+          // console.log("selected option:"+v);
+          // $('#optionRad2').val(v)
+                      // $('#optionRad1').val(rad1);
+      //                 if(checkBox1.checked == true){
+      //   correctans = document.getElementById("option_desc1").value;
+      // }
+      // else
+      // if(checkBox2.checked == true){
+      //   correctans = document.getElementById("option_desc2").value;
+      // }
+      // else
+      // if(checkBox3.checked == true){
+      //   correctans = document.getElementById("option_desc3").value;
+      // }
+      // else{
+      //   correctans = document.getElementById("option_desc4").value;
+      // }
+        var corrans="";
+          var ele = document.getElementsByName('optionChoice');
+          console.log("No of choices:"+ele.length);
+            for(var i=0;i<ele.length;i++){
+              if(ele[i].value!=null){
+              if(ele[i].checked){
+                corrans = ele[i].value;
+                console.log(ele[i].value);
+              }
+              }
+              console.log("ele:"+ele[i].value);
+            }
+            console.log("Ans:"+corrans);
                       console.log(opt.length);
                       var options = [];
                       for(var i=0;i<opt.length;i++){
@@ -401,10 +441,10 @@
                         }
                       }
                       console.log("Question Id in update Question:"+question_id);
-                      console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+correctOption+" "+weightage+" "+preview)
+                      console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+corrans+" "+weightage+" "+preview)
                       var data="";
                       $.ajax({
-                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+correctans+"&weightage="+weightage+"&preview="+preview+"&options="+options+"&op1="+op1+"&op2="+op2+"&op3="+op3+"&op4="+op4,
+                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+corrans+"&weightage="+weightage+"&preview="+preview+"&options="+options+"&op1="+op1+"&op2="+op2+"&op3="+op3+"&op4="+op4,
                         type: "get",
                         data: data,
                         success: function(response) {       
@@ -432,6 +472,7 @@
               console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
             document.getElementById('questionDesc').value = questionDesc;
               $('#classValSelected').val(classVal);
+              
               $('#subjectNameSelected').val(desc);
               $('#topicNameSelect').val(topicName);
               $('#question_type').val(questionType);
