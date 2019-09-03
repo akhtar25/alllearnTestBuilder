@@ -281,6 +281,26 @@
           });
      }
 
+     subject_select.onchange=function()  {
+         
+         subject_id = subject_select.value;
+         $("#loader1").show();
+         console.log('Inside subject value Onchange')
+         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader1").hide();    
+                     var optionHTML = '';
+                    console.log('')
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    } 
+
     {% else %}
     class_select.onchange = function()  {
          
@@ -326,6 +346,25 @@
              
          });
     }
+    subject_select.onchange=function()  {
+         
+         subject_id = subject_select.value;
+         $("#loader1").show();
+         console.log('Inside subject value Onchange')
+         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader1").hide();    
+                     var optionHTML = '';
+                    console.log('')
+                     for (var topic of data.topics) {
+                    
+                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                 }                 
+                 topic_select.innerHTML =  optionHTML;
+             })
+             
+         });
+    }  
   {% endif %}
     //for (i = 0; i < 20; i++) {
     //$('#topiclist').append('<input type="radio" name="radio_name" />');
