@@ -960,7 +960,7 @@ def updateQuestion():
         else:
             opId4 = opt.option_id
         i=i+1
-    print(str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
+    print("Options order of id:"+str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
     # print(option_id) 
     # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
     # opt = db.session.execute(text(option))
@@ -1055,7 +1055,8 @@ def questionDetails():
     questionUpdateUpload=questionUpdateUploadSubjective
     if questionUpdateUpload.question_type=='MCQ1':
        
-        query = "select option_desc from question_options where question_id='" + question_id + "'"
+        query = "select option_desc from question_options where question_id='" + question_id + "' order by option_id"
+        print(query)
         avail_options = db.session.execute(text(query)).fetchall()
         queryCorrectoption = "select option_desc from question_options where is_correct='Y' and question_id='" + question_id + "'"  
         print(queryCorrectoption)
@@ -1900,7 +1901,6 @@ def questionUpload():
     flag = False
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
-    formBuld = QuestionBankQueryForm()
     topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]

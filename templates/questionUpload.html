@@ -515,30 +515,11 @@ if(b!=1){
                       var updatedCV = document.getElementById('classValSelected').value;
                       var topicName = document.getElementById('topicNameSelect').value;
                       var subName = document.getElementById('subjectNameSelected').value;
-                      var qType = document.getElementById('question_type').value;
+                      var qType = document.getElementById('questionType').value;
                       var qDesc = document.getElementById('questionDesc').value;
-                      // var correctOption = document.getElementById('option_desc2').value;
                       var weightage = document.getElementById('weightage').value;
                       var preview = document.getElementById("preview").src;
                       var opt = document.getElementsByClassName("option_class");
-                      // var v = document.getElementById('option_Desc2').value;
-          // console.log("selected option:"+v);
-          // $('#optionRad2').val(v)
-                      // $('#optionRad1').val(rad1);
-      //                 if(checkBox1.checked == true){
-      //   correctans = document.getElementById("option_desc1").value;
-      // }
-      // else
-      // if(checkBox2.checked == true){
-      //   correctans = document.getElementById("option_desc2").value;
-      // }
-      // else
-      // if(checkBox3.checked == true){
-      //   correctans = document.getElementById("option_desc3").value;
-      // }
-      // else{
-      //   correctans = document.getElementById("option_desc4").value;
-      // }
         var corrans="";
           var ele = document.getElementsByName('optionChoice');
           console.log("No of choices:"+ele.length);
@@ -583,7 +564,7 @@ if(b!=1){
                         type: "get",
                         data: data,
                         success: function(response) {       
-                                    
+                           window.location.reload(); 
                         },
                         error: function(xhr) {
                           window.alert("error occurred while loading question");
