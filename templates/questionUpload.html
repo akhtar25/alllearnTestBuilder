@@ -168,7 +168,7 @@
     <div class="row">
         <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
       {% if  flag %} 
-    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="" onclick="M.toast({html: 'Data successfully updated!!!',style:'margin-top:50px;'})">Update</button>
+    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
        {% else %}
       <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" id="submit" name="submit" value="submit">Confirm</button>
@@ -193,6 +193,9 @@
 </div>
 
 <script type="text/javascript">
+  $('#updateButton').click(function(){
+    M.toast({html:'Data Successfully Updated!!!'},3000);
+  });
     var class_select = document.getElementById("classValSelected");
     var subject_select = document.getElementById("subjectNameSelected");
     var topic_select = document.getElementById("topicNameSelect");
