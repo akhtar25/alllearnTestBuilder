@@ -1981,6 +1981,16 @@ def chapter_list(class_val,subject_id):
         chapter_num_array.append(chapterNo)
     return jsonify({'chapterNum':chapter_num_array})
 
+@app.route('/questionChapterpicker/<subject_id>')
+def chapter_list_from_subject(subject_id):
+    chapter_num_list = Topic.query.filter_by(subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
+    chapter_num_array=[]
+    for chapterno in chapter_num_list:
+        chapterNo = {}
+        chapterNo['chapter_num']=chapterno.chapter_num
+        chapter_num_array.append(chapterNo)
+    return jsonify({'chapterNum':chapter_num_array})
+
 
 
 # @app.route('/questionBuilder/<class_val>/<subject_id>')

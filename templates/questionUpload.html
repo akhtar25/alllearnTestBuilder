@@ -168,7 +168,7 @@
     <div class="row">
         <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
       {% if  flag %} 
-    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
+    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="" onclick="M.toast({html: 'Data successfully updated!!!',style:'margin-top:50px;'})">Update</button>
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
        {% else %}
       <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" id="submit" name="submit" value="submit">Confirm</button>
@@ -280,9 +280,8 @@
               
           });
      }
-
      subject_select.onchange=function()  {
-         
+         console.log("Value of B:"+b);
          subject_id = subject_select.value;
          $("#loader1").show();
          console.log('Inside subject value Onchange')
@@ -299,7 +298,7 @@
              })
              
          });
-    } 
+    }
 
     {% else %}
     class_select.onchange = function()  {
@@ -603,7 +602,7 @@ if(b!=1){
                         type: "get",
                         data: data,
                         success: function(response) {       
-                           window.location.reload(); 
+                          //  window.location.reload(); 
                         },
                         error: function(xhr) {
                           window.alert("error occurred while loading question");
@@ -620,14 +619,14 @@ if(b!=1){
           var questionDesc = "{{ questionUpdateUpload.question_description }}";
           var questionType = '{{ questionUpdateUpload.question_type }}';
           if(questionDesc || classVal || questionType || desc || topicName){
-              var questionDesc = "{{ questionUpdateUpload.question_description }}";
-              var classVal = '{{ questionUpdateUpload.class_val }}'; 
-              var desc = '{{ questionUpdateUpload.subject_id }}';
-              var topicName = '{{ questionUpdateUpload.topic_id }}';
+              // var questionDesc = "{{ questionUpdateUpload.question_description }}";
+              // var classVal = '{{ questionUpdateUpload.class_val }}'; 
+              // var desc = '{{ questionUpdateUpload.subject_id }}';
+              // var topicName = '{{ questionUpdateUpload.topic_id }}';
               console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
             document.getElementById('questionDesc').value = questionDesc;
               $('#classValSelected').val(classVal).change();
-              $('#subjectNameSelected').val(desc).change();
+              $('#subjectNameSelected').val(desc);
               $('#topicNameSelect').val(topicName);
               $('#questionType').val(questionType);
           }
