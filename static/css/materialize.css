@@ -4995,6 +4995,7 @@ small {
 #toast-container {
   display: block;
   position: fixed;
+  margin-top:50px;
   z-index: 10000;
 }
 
@@ -6887,7 +6888,9 @@ textarea.materialize-textarea {
   display: inline-block;
   height: 25px;
   line-height: 25px;
-  font-size: 1rem;
+  font-size: 1.4rem;
+  font-family:serif;
+  color:black;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;

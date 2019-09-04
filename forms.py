@@ -113,6 +113,21 @@ class QuestionBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
     topics=SelectField('Topics')
+    chapter_num=SelectField('Select Chapter')
+    question_type=SelectField('Question Type',choices=[(c, c) for c in ['Subjective','MCQ1']])
+    question_desc=TextAreaField('Question',validators=[DataRequired(),Length(min=0, max=200)])
+    option=StringField('Options',validators=[DataRequired()])
+    weightage=IntegerField('Weightage',validators=[DataRequired()],widget=NumberInput(min=0,max=100,step=1))
+    reference=StringField('Reference')
+    submit=SubmitField('Confirm')
+    def validate_option(self,option):
+        if option.data=='':
+            raise ValidationError('Select the correct option')
+
+class QuestionUpdaterQueryForm(FlaskForm):
+    class_val=SelectField('Class')
+    subject_name=SelectField('Subject')
+    topics=SelectField('Topics')
     question_type=SelectField('Question Type',choices=[(c, c) for c in ['Subjective','MCQ1']])
     question_desc=TextAreaField('Question',validators=[DataRequired(),Length(min=0, max=200)])
     option=StringField('Options',validators=[DataRequired()])
@@ -129,6 +144,13 @@ class TestBuilderQueryForm(FlaskForm):
     test_type=SelectField('Test Type')
     test_date=DateField('Test Date',format='%d/%m/%Y')
     submit=SubmitField('Load Topics')
+
+class QuestionBankQueryForm(FlaskForm):
+    class_val=SelectField('Select Class')
+    subject_name=SelectField('Select Subject')
+    chapter_num=SelectField('Select Chapter')
+    submit=SubmitField('Load Topics')
+    test_type=SubmitField('Test type')
 
 
 
