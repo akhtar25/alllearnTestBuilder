@@ -991,7 +991,6 @@ def updateQuestion():
     # db.session.commit()
     print("Question Id in update Question:"+question_id)
     # print(updatedData)
-    flash('Data Successfully Updated!!!')
     return render_template('questionUpload.html', form=form, flag=flag)
 
 
@@ -1973,7 +1972,11 @@ def topic_list(class_val,subject_id):
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):
-    chapter_num_list = Topic.query.filter_by(class_val=class_val,subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
+    chapter_num = "select distinct chapter_num from topic_detail where class_val='"+class_val+"' and subject_id='"+subject_id+"'"
+    print(chapter_num)
+    print('Inside chapterPicker')
+    # Topic.query.filter_by(class_val=class_val,subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
+    chapter_num_list = db.session.execute(text(chapter_num))
     chapter_num_array=[]
     for chapterno in chapter_num_list:
         chapterNo = {}
@@ -1981,15 +1984,15 @@ def chapter_list(class_val,subject_id):
         chapter_num_array.append(chapterNo)
     return jsonify({'chapterNum':chapter_num_array})
 
-@app.route('/questionChapterpicker/<subject_id>')
-def chapter_list_from_subject(subject_id):
-    chapter_num_list = Topic.query.filter_by(subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
-    chapter_num_array=[]
-    for chapterno in chapter_num_list:
-        chapterNo = {}
-        chapterNo['chapter_num']=chapterno.chapter_num
-        chapter_num_array.append(chapterNo)
-    return jsonify({'chapterNum':chapter_num_array})
+# @app.route('/questionChapterpicker/<subject_id>')
+# def chapter_list_from_subject(subject_id):
+#     chapter_num_list = Topic.query.filter_by(subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
+#     chapter_num_array=[]
+#     for chapterno in chapter_num_list:
+#         chapterNo = {}
+#         chapterNo['chapter_num']=chapterno.chapter_num
+#         chapter_num_array.append(chapterNo)
+#     return jsonify({'chapterNum':chapter_num_array})
 
 
 
