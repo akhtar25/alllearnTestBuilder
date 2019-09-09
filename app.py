@@ -490,13 +490,15 @@ def index():
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
         
         topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
+        for val in topStudentsRows:
+            print(val.student_name)
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
 
     #####Fetch Course Completion infor##########    
-        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
+        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         #print(topicToCoverDetails)
         return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 

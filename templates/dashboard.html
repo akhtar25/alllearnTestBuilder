@@ -67,10 +67,10 @@
                 <!-- /.box-header -->
                 <div class="box-body no-padding" style="overflow-y:auto;height:300px">
                   <ul class="users-list clearfix">
-                    {% for student in topStudentRows%}
+                    {% for student in topStudentsRows%}
                     <li>
-                      <img src="{{topStudentsRows.profile_picture}}" alt="User Image">
-                      <span class="users-list-name" >CL{{student.class}}{{student.section}}-{{student.student_name}}</span>                      
+                      <img src="{{student.profile_picture}}" alt="User Image">
+                      <span class="users-list-name" >{{student.class}}{{student.section}}-{{student.student_name}}</span>                      
                     </li>                   
                     {%endfor%}
                   </ul>
