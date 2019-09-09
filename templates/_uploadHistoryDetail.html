@@ -1,0 +1,41 @@
+
+
+                      <div class="box-header">
+                          <h3 class="box-title">Result Details - Class {{class_val_record}}  {{section_record}} | {{test_type_record}}  | Exam Date  - {{exam_date_record.strftime('%Y-%m-%d')}}</h3>
+                        </div>
+                          <div style="height: 500px;overflow-y:auto;">
+                                <div class="box-body  no-padding table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                      <tr>
+                        <th>Name</th>                        
+                        <th>Total Marks</th>                        
+                        <th>Marks Scored</th>                                                                 
+                      </tr>
+                    </thead>
+                      {% if resultUploadRows!="" %}
+                      <div >
+                          <tbody>
+                      {% for row in resultUploadRows %}                      
+                      <tr>
+                        <td>{{row.full_name}}</td>
+                        {%if row.total_marks is none%}
+                        <td>100</td>  
+                        {%else %}                  
+                        <td>{{row.total_marks}}</td>  
+                        {%endif%}
+                        <td>{{row.marks_scored}}</td>
+                      </tr>                    
+                      {% endfor %}
+                    </tbody>
+                    </div>
+                      {% else %}
+                      <p>No data found in DB</p>
+                      {% endif %}
+                    
+                    </table>
+                    </div>
+                  </div>                  
+
+                    
+                  
