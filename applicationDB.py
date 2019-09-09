@@ -272,6 +272,7 @@ class ResultUpload(db.Model):
     marks_scored=db.Column(db.Integer)
     total_marks=db.Column(db.Integer)
     test_id=db.Column(db.ForeignKey('test_details.test_id'),nullable=True)
+    upload_id=db.Column(db.String(120),nullable=True)
     version_number=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     last_modified_date=db.Column(db.DateTime)    
