@@ -245,7 +245,7 @@ class TestDetails(db.Model):
     test_id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
-    class_val = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)    
+    class_val=db.Column(db.Integer,nullable=True)
     test_type=db.Column(db.String(120),nullable=True)
     region_id=db.Column(db.ForeignKey('message_detail.msg_id'))    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'))
