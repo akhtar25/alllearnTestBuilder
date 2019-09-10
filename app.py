@@ -979,10 +979,10 @@ def updateQuestion():
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     flag = False
     # updateQuery = "update question_details t1 set topic_id='" + str(topicId) + "' where question_id='" + question_id + "'"
-    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ imageUrl +"' where question_id='" + str(question_id) + "'"
+    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ str(imageUrl) +"' where question_id='" + str(question_id) + "'"
 
     queryOneExe = db.session.execute(text(updateQuery))
-    updateWeightage = "update question_options set weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
+    updateWeightage = "update question_details set suggested_weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
     querytwoExe = db.session.execute(text(updateWeightage))
 
     option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
@@ -1083,13 +1083,16 @@ def questionDetails():
         print(queryCorrectoption)
         correctoption = db.session.execute(text(queryCorrectoption)).fetchall()
         print(correctoption)
+        correctOption = ''
         for c in correctoption:
             print(c.option_desc)
             correctOption = c.option_desc
+        print('Correct Option:'+correctOption)
         for q in questionUpdateUploadSubjective:
             print('this is check for MCQ ' + str(q))
         for a in avail_options:
             print(a)
+        print('Correct Option Again:'+correctOption)
         return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag, avail_options=avail_options, correctOption=correctOption,question_desc=question_desc)
         # return render_template('questionUpload.html',question_id=question_id, questionUpdateUploadSubjective=questionUpdateUploadSubjective,form=form,flag=flag,avail_options=avail_options,correctOption=correctOption)
 
@@ -1621,8 +1624,10 @@ def classPerformance():
 
     #selectfield choices
     form.class_val.choices = class_list
-    form.section.choices= section_list    
-    form.subject_name.choices=subject_name_list
+    form.section.choices= ''
+    # section_list    
+    form.subject_name.choices= ''
+    # subject_name_list
 
     return render_template('classPerformance.html',form=form,School_Name=school_name())
 
@@ -2125,9 +2130,11 @@ def studentProfile():
 
     #selectfield choices
     form.class_val1.choices = class_list
-    form.section1.choices= section_list    
+    form.section1.choices= ''
+    # section_list    
     form.test_type1.choices=test_type_list
-    form.student_name1.choices = student_list
+    form.student_name1.choices = ''
+    # student_list
     return render_template('studentProfileNew.html',School_Name=school_name(),form=form)
 
 

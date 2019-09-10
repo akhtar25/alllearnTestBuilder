@@ -65,27 +65,28 @@
             </div>              
         </div>        
     </div>
+    <span id="message" style="color:Red;display: none;float:left;"></span>    
     <div class="row">
         <div id="studentProfileData"></div>
     </div>
 </div>
 <!--Student level graph loader-->
 <script>
-    $('#loadStudentProfBTN').click(function(){                    
-        var data="";
-        var student_id = $('#student_name1').val();   
-        $.ajax({
-            url: "/indivStudentProfile?student_id="+student_id ,
-            type: "get",
-            data: data,
-            success: function(response) {                            
-                $("#studentProfileData").html(response);                     
-            },
-            error: function(xhr) {
-                window.alert("error occurred while submitting data");
-            }
-        });              
-    });
+    // $('#loadStudentProfBTN').click(function(){                    
+    //     var data="";
+    //     var student_id = $('#student_name1').val();   
+    //     $.ajax({
+    //         url: "/indivStudentProfile?student_id="+student_id ,
+    //         type: "get",
+    //         data: data,
+    //         success: function(response) {                            
+    //             $("#studentProfileData").html(response);                     
+    //         },
+    //         error: function(xhr) {
+    //             window.alert("error occurred while submitting data");
+    //         }
+    //     });              
+    // });
 </script>
 
 <!--Section for Student level form - dynamic-->
@@ -95,6 +96,20 @@
     var class_select1 = document.getElementById("class_val1");
     var section_select1 = document.getElementById("section1");
     var student_select1 = document.getElementById("student_name1")
+
+    var optionHTMLClass = '';
+        var optionHTMLStudentName = '';
+        var optionHTMLSection = '';
+    $(document).ready(function(){
+        $('#class_val1').val("na");
+        
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select1.innerHTML = optionHTMLClass + class_select1.innerHTML;
+        optionHTMLStudentName += '<option value="na"  selected disabled> Select Student Name </option>';
+        student_select1.innerHTML = optionHTMLStudentName + student_select1.innerHTML;
+        optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
+        section_select1.innerHTML = optionHTMLSection + section_select1.innerHTML;
+    });
     
     class_select1.onchange = function()  {
         
@@ -105,7 +120,7 @@
             response.json().then(function(data) {
                 $("#loader1").hide();    
                 var optionHTML = '';
-                optionHTML += '<option value="na" disabled selected> Select Section </option>';
+                optionHTML += '<option value="na" selected disabled> Select Section </option>';
                 for (var section1 of data.sections) {
                     optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
                 }
@@ -125,7 +140,7 @@
             response.json().then(function(data) {  
                 $("#loader2").hide();    
                 var optionHTML = '';
-                optionHTML += '<option value="na" disabled selected> Select Student </option>';
+                optionHTML += '<option value="na" selected disabled> Select Student </option>';
                 for (var student of data.students) {
                     optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
                 }
@@ -133,5 +148,52 @@
             })
         });
     };
+
+
+
+    $(document).ready(function(){
+        $('#loadStudentProfBTN').click(function(){
+            classValue = document.getElementById('class_val1').value;
+            sectionValue = document.getElementById('section1').value;
+            studentNameValue = document.getElementById('student_name1').value;
+            console.log('Class Value:'+classValue);
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Class Selected';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else
+            if(sectionValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Section Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(studentNameValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Student Name Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else{
+                $('#message').hide();
+                var data="";
+        var student_id = $('#student_name1').val();   
+        $.ajax({
+            url: "/indivStudentProfile?student_id="+student_id ,
+            type: "get",
+            data: data,
+            success: function(response) {                            
+                $("#studentProfileData").html(response);                     
+            },
+            error: function(xhr) {
+                window.alert("error occurred while submitting data");
+            }
+        });   
+            }
+            
+        });
+    });
 </script>
 {%endblock%}
