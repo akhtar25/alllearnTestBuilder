@@ -1557,7 +1557,7 @@ def studentPerformanceGraph():
     #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
     #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
     
-    studPerformanceQuery = "select pd.date, pd.student_score,md.description "
+    studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
     studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
     studPerformanceQuery = studPerformanceQuery + "inner join "
     studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
@@ -1566,7 +1566,7 @@ def studentPerformanceGraph():
         studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
         studPerformanceQuery = studPerformanceQuery + "and "
     studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' "
-    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "'"  
+    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "' order by date"  
 
 
     studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
@@ -1590,7 +1590,7 @@ def studentPerformanceGraph():
             filtered_df_date = list(filtered_df['date'])
             filtered_df_student_scored = list(filtered_df['student_score'])
             #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
-            tempDict = dict(y=filtered_df_student_scored,x=filtered_df_date,mode= 'lines+markers',type='scatter',name=subVal,line_shape='spline')
+            tempDict = dict(y=filtered_df_student_scored,x=filtered_df_date,mode= 'lines+markers',type='scatter',name=subVal,line_shape="spline", smoothing= '1.5')
             subLevelData.append(tempDict)
         print(str(subLevelData))
 
