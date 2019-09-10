@@ -490,13 +490,15 @@ def index():
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
         
         topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
+        for val in topStudentsRows:
+            print(val.student_name)
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     
 
     #####Fetch Course Completion infor##########    
-        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+")"
+        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         #print(topicToCoverDetails)
         return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
@@ -733,6 +735,7 @@ def testBuilder():
         session['class_val']=form.class_val.data
         session['date']=request.form['test_date']
         session['sub_name']=subject.description
+        session['sub_id']=form.subject_name.data
         session['test_type_val']=form.test_type.data
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
@@ -778,12 +781,37 @@ def testBuilderFileUpload():
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
     os.remove('tempdocx/'+file_name)
 
-    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
+    #topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
+    #topicFromTracker.is_covered='N'
+    #topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+    #db.session.commit()
+
+    #test_type, total_marks, year, month, last_modified_date, 
+    #board_id, subject_id, class_val, date_of creation, date_of_test,
+    #schoold_id, teacher_id, test_paper_link
+
+    file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
+
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+    testDetailsUpd = TestDetails(test_type=session.get('test_type_val',None), total_marks=str(count_marks),last_modified_date= datetime.utcnow(),
+        board_id='1001', subject_id=int(session.get('sub_id',None)),class_val=session.get('class_val',"0"),date_of_creation=datetime.utcnow(),
+        date_of_test=str(session.get('date',None)), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=current_user.id)
+    db.session.add(testDetailsUpd)
+    db.session.commit()
+    return render_template('testPaperDisplay.html',file_name=file_name_val)
 
 @app.route('/testPapers')
 @login_required
 def testPapers():
-    return render_template('testPapers.html',School_Name=school_name())
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).join(MessageDetails,MessageDetails.msg_id==TestDetails.subject_id).all()
+    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).all()
+    subjectNames=MessageDetails.query.filter_by(category='Subject')
+    #for val in testPaperData:
+    #    for row in val.message_detail:
+    #        print(row.description)
+    return render_template('testPapers.html',School_Name=school_name(),testPaperData=testPaperData,subjectNames=subjectNames)
 
 @app.route('/calendar')
 @login_required
@@ -1688,10 +1716,14 @@ def resultUpload():
                 else:
                     marks=marks_list[i]
                     is_present=MessageDetails.query.filter_by(description='Present').first()
+                
+                #test_id=schoold_id+class_sec_id+subject+test_type+exam date
+                upload_id=str(session.get('school_id',None))+str(session.get('class_sec_id',None))+str(session.get('sub_val',None)) + str(session.get('test_type_val',None)) + str(session.get('date',None))
+                upload_id=upload_id.replace('-','')
                 Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
                 exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
                 test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
-                uploaded_by=session.get('teacher_id',None)
+                uploaded_by=session.get('teacher_id',None), upload_id=upload_id,last_modified_date=datetime.today()
                 )
                 db.session.add(Marks)
                 i+=1
@@ -1714,6 +1746,43 @@ def section(class_val):
         sectionArray.append(sectionObj)
 
     return jsonify({'sections' : sectionArray})
+
+
+@app.route('/resultUploadHistory')
+def resultUploadHistory():
+    uploadHistoryQuery = "select distinct upload_id, cs.class_val, cs.section, "
+    uploadHistoryQuery = uploadHistoryQuery + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date "
+    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id "
+    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id"
+    
+    uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
+    return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords, School_Name=school_name())
+
+
+
+@app.route('/uploadHistoryDetail',methods=['POST','GET'])
+def uploadHistoryDetail():
+    upload_id=request.args.get('upload_id')
+    resultDetailQuery = "select sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
+    resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
+    resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
+    resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id" 
+    resultUploadRows = db.session.execute(text(resultDetailQuery)).fetchall()
+
+    runcount=0
+    class_val_record = ""    
+    section_record=""
+    test_type_record=""
+    exam_date_record=""
+    for value in resultUploadRows:
+        if runcount==0:        
+            class_val_record = value.class_val
+            section_record = value.section
+            test_type_record=value.test_type
+            exam_date_record= value.exam_date
+        runcount+1
+
+    return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,School_Name=school_name())
 
 # @app.route('/questionUpdate')
 # def questionUpdate():
