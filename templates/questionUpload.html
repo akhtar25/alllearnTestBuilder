@@ -125,6 +125,7 @@
       
             <div style="display:none;" id="MCQ1_type">
               {% if  flag %}
+              {%if option %}
                 {% for option in avail_options %}
                 {% if option.option_desc==correctOption %}
             <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
@@ -141,10 +142,17 @@
               <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_desc4" name="option_desc"></span></label><br><br><br>
               <input type="hidden" id="correct" name="correct" value="">
               {% endif %}
+              {% else %}
+              <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_desc1" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_desc2" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_desc3" name="option_desc"></span></label><br><br>
+              <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_desc4" name="option_desc"></span></label><br><br><br>
+              <input type="hidden" id="correct" name="correct" value="">
+              {% endif %}
             </div>
     <label for="weightage">Weightage</label>
     {% if  flag %}
-    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.weightage }}" placeholder="Enter the Weightage of Question">
+    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.suggested_weightage }}" placeholder="Enter the Weightage of Question">
     {% else %}
     <input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
     {% endif %}
@@ -166,8 +174,9 @@
     </div>
     </div>
     <div class="row">
-        <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
+      <span id="message" style="color:Red;display: none;float:left;"></span>
       {% if  flag %} 
+      <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
     <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
        {% else %}
@@ -193,8 +202,28 @@
 </div>
 
 <script type="text/javascript">
+
+$('#submit').click(function(){
+  var weightage = document.getElementById("weightage").value;
+  var questionDesc = document.getElementById("questionDesc").value;
+  if(questionDesc==''){
+    tag = document.getElementById('message');
+                tag.innerHTML = 'Create Question';
+                $('#message').show();
+                event.preventDefault();
+  }else
+  if(weightage==''){
+    tag = document.getElementById('message');
+                tag.innerHTML = 'Create Weightage';
+                $('#message').show();
+                event.preventDefault();
+  }
+
+});
+
+
   $('#updateButton').click(function(){
-    M.toast({html:'Data Successfully Updated!!!'},3000);
+    M.toast({html:'Question updated!'},3000);
   });
     var class_select = document.getElementById("classValSelected");
     var subject_select = document.getElementById("subjectNameSelected");
@@ -619,15 +648,13 @@ if(b!=1){
       console.log(f);
       {% if  flag %} 
         if(f){
-          var questionDesc = "{{ questionUpdateUpload.question_description }}";
           var questionType = '{{ questionUpdateUpload.question_type }}';
           if(questionDesc || classVal || questionType || desc || topicName){
-              // var questionDesc = "{{ questionUpdateUpload.question_description }}";
               // var classVal = '{{ questionUpdateUpload.class_val }}'; 
               // var desc = '{{ questionUpdateUpload.subject_id }}';
               // var topicName = '{{ questionUpdateUpload.topic_id }}';
               console.log(questionDesc+' '+classVal+' '+questionType+' '+desc+' '+topicName);
-            document.getElementById('questionDesc').value = questionDesc;
+            document.getElementById('questionDesc').value = '{{ question_desc }}';
               $('#classValSelected').val(classVal).change();
               $('#subjectNameSelected').val(desc);
               $('#topicNameSelect').val(topicName);
