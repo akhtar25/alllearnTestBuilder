@@ -1,0 +1,118 @@
+
+@media(max-width:900px){
+    #btnCode{
+        background: #66BB6A;
+        color: white;
+        border-radius: 15px;
+        padding: 40px 100px 40px 100px;
+        font-size: 25px;
+        margin:300px 0px 250px 0px;
+    }
+    .btn{
+        padding: 300 150 300 150;
+    }
+    .schoolDiv{
+        margin-left: 20px;
+    }
+    .logoutDiv{
+        margin-left: 20px;
+    }
+    .container{
+        text-align: center;
+        margin: auto;
+    } 
+    .helpDiv{
+        font-size: 20px;
+        margin-left: 225px;
+    }
+    body{
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+    }
+    header{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        padding: 0;
+        background: white;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    header .logo{
+        color: white;
+        height: 50px;
+        line-height: 50px;
+        font-size: 24px;
+        float: left;
+        font-weight: bold; 
+    }
+   header nav{
+       float: left;
+   }
+   header nav ul{
+       margin: 0;
+       padding: 0;
+       display: flex;
+   }
+   header nav ul li{
+    list-style: none;
+    margin-top: 20px;
+   }
+   header nav ul li a{
+       height: 50px;
+       line-height: 50px;
+       color: white;
+       padding: 0 20px;
+       text-decoration: none;
+   }
+   header nav ul li a:hover,header nav ul li a.active{
+        color :white;
+        background: #66BB6A;
+   }
+   .menu-toggle:hover{
+       cursor: pointer;
+   }
+   .menu-toggle{
+       color: black;
+       float: left;
+       line-height: 50px;
+       font-size: 24px;
+       margin-left:10px;
+       height: 200px;
+       width:200px
+   }
+   button:hover{
+       background-color:pink;
+       cursor: pointer;
+   }
+   a:hover{
+       cursor: pointer;
+   }
+   header nav{
+       position: absolute;
+       width: 70%;
+       height: calc(100vh - 50px);
+       background: #66BB6A;
+       top: 50px;
+       left: 0;
+       transition: 0.5s;
+       display: none;
+   }
+   header nav.active{
+       left: 0;
+       display: block;
+       font-size: 30px;
+       font-family: sans-serif;
+   }
+   header nav ul{
+       display: block;
+       text-align: center;
+   }
+   header nav ul li a{
+       border-bottom: 0px solid rgba(0,0,0,.2);
+   }
+   img{
+       border-radius: 30px;
+   }
+}

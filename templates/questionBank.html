@@ -43,7 +43,7 @@
                 <div class="col-sm-3">
                         <div style="width:250px;">
                             {{ form.chapter_num.label(class='labelsize') }}
-                            <div id='loader' style='display: none; float: right;'>
+                            <div id='loader1' style='display: none; float: right;'>
                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
                             </div>
                             <br>
@@ -79,7 +79,7 @@
                 </div> -->
                 <div class="col-sm-2">
                     <p><button style="margin-top:22px; margin-left:5px;"
-                            class="btn waves-light green lighten-1 white-text" type="submit">Load Topics</button></p>
+                            class="btn waves-light green lighten-1 white-text" id="topic" type="submit">Load Topics</button></p>
                 </div>
             </div>
         </div>
@@ -101,9 +101,10 @@
                 {% endfor %}
             </div>
             <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text"
-                    onclick="questions(); ">Load Questions</button></p>
+                    onclick="questions();">Load Questions</button></p>
             {% endif %}
         </div>
+        <span id="message" style="color:Red;display: none;float:left;"></span>
         <div class="col-sm-9" id="questions">
                 <div id="questionloader" style="display: none;padding-left: 300px;">
                     <img src="../static/images/loader.gif">
@@ -118,15 +119,29 @@
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
     var chapter_num_select = document.getElementById("chapno");
+    var optionHTMLClass = '';
+    var optionHTMLSubject = '';
+    var optionHTMLChapter = '';
+    $(document).ready(function(){
+        $('#classVal').val("na");
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+    });
+    class_val = class_select.value;
     class_select.onchange = function()  {
          
-         class_val = class_select.value;
+         
          $("#loader").show();
          console.log('Inside class value Onchange')
          fetch('/questionBuilder/' + class_val).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
                      var optionHTML = '';
+                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
                      for (var subject of data.subjects) {
                      optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                  }
@@ -134,7 +149,23 @@
              })
              
          });
-         if (class_val>5){ 
+         
+        //  $("#loader1").show();
+        //  fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+        //       response.json().then(function(data) {
+        //               $("#loader1").hide();    
+        //               var optionHTML = '';
+        //               optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+        //               for (var chapterNo of data.chapterNum) {
+ 
+        //                  optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+        //           }                 
+        //           chapter_num_select.innerHTML =  optionHTML;
+        //       })
+              
+        //   });
+     }
+     if (class_val>5){ 
            subject_id='56';
          }
          else if(class_val>2 && class_val<=5){
@@ -143,28 +174,16 @@
          else{
            subject_id='54';
          }
-         $("#loader").show();
-         fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
-              response.json().then(function(data) {
-                      $("#loader").hide();    
-                      var optionHTML = '';
-                     
-                      for (var chapterNo of data.chapterNum) {
- 
-                         optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
-                  }                 
-                  chapter_num_select.innerHTML =  optionHTML;
-              })
-              
-          });
-     }
-     subject_id = subject_select.value;
-     subject_select.onchange = function(){
-        $("#loader").show();
-        fetch('/questionChapterpicker/' + subject_id).then(function(response){
+     
+     subject_select.onchange=function()  {
+        subject_id = subject_select.value;
+        console.log('Inside subject_select on change')
+        $("#loader1").show();
+        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
-                $("#loader").hide();
+                $("#loader1").hide();
                 var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
                 for (var chapterNo of data.chapterNum){
                     optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
                   }
@@ -172,50 +191,48 @@
             })
         });
      }
-    // class_select.onchange = function () {
-    //     class_val = class_select.value;
-    //     // $("#loader").show();
-    //     fetch('/questionBuilder/' + class_val).then(function (response) {
-    //         response.json().then(function (data) {
-    //             console.log('Inside question Builder');
-    //             // $("#loader").hide();
-    //             var optionHTML = '';
-    //             for (var subject of data.subjects) {
-    //                 optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-    //             }
-    //             subject_select.innerHTML = optionHTML;
-    //         })
-    //     });
-    //     // $("#loader").show();
-    //     subject_id = subject_select.value;
-    //     fetch('/questionChapterpicker/' +  class_val + '/'+ subject_id).then(function(response){
-    //         class_val = class_select.value;
-    //         response.json().then(function(data){
-    //             // $("#loader").hide();
-    //             var optionHTML = '';
 
-    //             for(var chapno of data.chapterNum){
-    //                 print(chapno.chapter_num);
-    //                 optionHTML += '<option value="' + chapno.chapter_num + '">' + chapno.chapter_num + '</option>';
-    //             }
-    //             chapter_num_select.innerHTML = optionHTML;
-    //         })
-    //     });
-    // }
-    // var class_select = document.getElementById("class_val");
-    // var subject_select = document.getElementById("subject_name");
-    // var chapter_num = document.getElementById("chapter_num");
-    // subject_select.onchange = function(){
-    //     subject_name = subject_select.value;
-    //     class_val = class_select.value;
-    //     fetch('/questionBuilder/' + subject_name +'/'+class_val).then(function(response){
-    //         response.json().then(function(data){
-    //             var optionHTML = '';
-    //             for(var chapternum of data.)
-    //         })
-    //     });
+     $(document).ready(function(){
+        $('#topic').click(function(){
+            classValue = document.getElementById('classVal').value;
+            subjectValue = document.getElementById('subId').value;
+            chapterValue = document.getElementById('chapno').value;
+            console.log(classValue);
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Class Selected';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Subject Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(chapterValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Chapter Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else{
+                $('#message').hide();
+            }
+            
+        });
+        var optionHTMLChapter='';
+        classValue = document.getElementById('classVal').value;
+        if(classValue=='na'){
+            var val = 'na';
+            optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        chapter_num_select.innerHTML = optionHTMLChapter;
+        }
 
-    // }
+     });
+
+     
 
 
     function questions() {
