@@ -81,6 +81,7 @@
                     onclick="questions(); ">Load Questions</button></p>
             {% endif %}
         </div>
+        <span id="message" style="color:Red;display: none;float:left;"></span>
         <div class="col-sm-9" id="questions">
                 <div id="questionloader" style="display: none;padding-left: 300px;">
                         <img src="../static/images/loader.gif">
@@ -94,6 +95,21 @@
     var count_marks = 0;
     var class_select = document.getElementById("class_val");
     var subject_select = document.getElementById("subject_name");
+    var test_type_select = document.getElementById("test_type");
+    var optionHTMLClass = '';
+    var optionHTMLSubject = '';
+    var optionHTMLTestType = '';
+    $(document).ready(function(){
+        $('#class_val').val("na");
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+        optionHTMLTestType += '<option value="na"  selected disabled> Select Test Type </option>';
+        test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
+    });
+
+
     class_select.onchange = function () {
         class_val = class_select.value;
         $("#loader1").show();
@@ -101,6 +117,7 @@
             response.json().then(function (data) {
                 $("#loader1").hide();
                 var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
                 for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                 }
@@ -192,11 +209,43 @@
 // var maxDate = year + '-' + month + '-' + day;
 //     alert(maxDate);
 //     $('#test_date').attr('min', maxDate);
-var date=''
-$('#topic').click(function(){
-     date = new Date($('#test_date').val());
-     console.log(date)
-    console.log("Inside topic button function")
+$(document).ready(function(){
+    $('#topic').click(function(){
+        classValue = document.getElementById('class_val').value;
+            subjectValue = document.getElementById('subject_name').value;
+            testTypeValue = document.getElementById('test_type').value;
+            testDateValue = document.getElementById('test_date').value;
+            console.log(classValue);
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Class Selected';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Subject Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(testTypeValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Test Type Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(testDateValue==''){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Date Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            {
+                $('#message').hide();
+            }
+    });
 });
 $(document).ready(function(){
     var dtToday = new Date();

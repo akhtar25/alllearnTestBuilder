@@ -718,12 +718,15 @@ def testBuilder():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=TestBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.subject_name.choices= ''
+    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    # print(request.form['class_val'])
+    # print(request.form['subject_id'])
     if request.method=='POST':
         if request.form['test_date']=='':
-            flash('Select Date')
-            form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+            # flash('Select Date')
+            # form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
             return render_template('testBuilder.html',form=form,School_Name=school_name())
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
@@ -1092,7 +1095,7 @@ def classDelivery():
         #for curr in currClass:        
         #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
         #print ("this is topic Track: " + topicTrack)
-        topicDet = Topic.query.filter_by(topic_id=qtopic_id).first()
+        topicDet = Topic.query.filter_by(topic_id=qtopic_id).order_by(Topic.chapter_num).first()
         bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
 
         #if retake is true then set is_covered to No
@@ -1111,7 +1114,7 @@ def classDelivery():
         topicTrackerQuery = topicTrackerQuery + " where"
         topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
         topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
-        topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "'"
+        topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
 
 
@@ -1357,7 +1360,8 @@ def testPerformance():
 
     #selectfield choices
     form.class_val.choices = class_list
-    form.section.choices= section_list    
+    form.section.choices= ''
+    # section_list    
     form.test_type.choices=test_type_list
 
     #setting up studentperformance form
@@ -1376,9 +1380,11 @@ def testPerformance():
 
     #selectfield choices
     form1.class_val1.choices = class_list
-    form1.section1.choices= section_list    
+    form1.section1.choices= ''
+    # section_list    
     form1.test_type1.choices=test_type_list
-    form1.student_name1.choices = student_list
+    form1.student_name1.choices = ''
+    # student_list
 
     
 

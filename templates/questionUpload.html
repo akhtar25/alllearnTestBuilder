@@ -174,7 +174,7 @@
     </div>
     </div>
     <div class="row">
-        
+      <span id="message" style="color:Red;display: none;float:left;"></span>
       {% if  flag %} 
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
     <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
@@ -202,6 +202,26 @@
 </div>
 
 <script type="text/javascript">
+
+$('#submit').click(function(){
+  var weightage = document.getElementById("weightage").value;
+  var questionDesc = document.getElementById("questionDesc").value;
+  if(questionDesc==''){
+    tag = document.getElementById('message');
+                tag.innerHTML = 'Create Question';
+                $('#message').show();
+                event.preventDefault();
+  }else
+  if(weightage==''){
+    tag = document.getElementById('message');
+                tag.innerHTML = 'Create Weightage';
+                $('#message').show();
+                event.preventDefault();
+  }
+
+});
+
+
   $('#updateButton').click(function(){
     M.toast({html:'Question updated!'},3000);
   });
