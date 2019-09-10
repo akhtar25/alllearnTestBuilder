@@ -12,9 +12,9 @@
         <tr>
           <td class="pt-3-half" contenteditable="false"><h4>Average Class Percentage</h4></td>
           {% if classAverage > 50 %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="green-text">{{ classAverage }} %</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="green-text">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% else %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="red-text">{{ classAverage }} %</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="red-text">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% endif %}
         </tr>
   </table>
@@ -34,7 +34,7 @@
                         <td> {{row.full_name}}</td>
                         <td> {{row.points_scored}}</td>
                         <td> {{row.total_weightage}}</td>
-                        <td> {{ percentage }}%</td>
+                        <td> {{'%0.2f' % percentage|float}}%</td>
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}
