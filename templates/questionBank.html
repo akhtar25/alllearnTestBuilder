@@ -124,6 +124,7 @@
     var optionHTMLChapter = '';
     $(document).ready(function(){
         $('#classVal').val("na");
+        console.log("CLass Value:"+class_select.value);
         optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
         class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
         optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
@@ -131,9 +132,9 @@
         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
         chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
     });
-    class_val = class_select.value;
+    
     class_select.onchange = function()  {
-         
+        class_val = class_select.value;
          
          $("#loader").show();
          console.log('Inside class value Onchange')
@@ -165,17 +166,10 @@
               
         //   });
      }
-     if (class_val>5){ 
-           subject_id='56';
-         }
-         else if(class_val>2 && class_val<=5){
-         subject_id='55';
-         }
-         else{
-           subject_id='54';
-         }
+    
      
      subject_select.onchange=function()  {
+        class_val = class_select.value;
         subject_id = subject_select.value;
         console.log('Inside subject_select on change')
         $("#loader1").show();
