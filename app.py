@@ -328,7 +328,8 @@ def studentRegistration():
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
-            df1=df1.replace(np.nan, '', regex=True)
+            df1=df1.replace(np.nan,'', regex=True)
+            df1.dropna(how="all", inplace=True)
             print(df1)
             for index ,row in df1.iterrows():
                 address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
@@ -344,7 +345,7 @@ def studentRegistration():
                 student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
                 school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
                 dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
-                roll_number=int(row['roll_number']))
+                roll_number=str(row['roll_number']))
                 db.session.add(student)
                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
                 for i in range(4):
@@ -446,38 +447,41 @@ def index():
     #####Fetch school perf graph information##########
         performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
         performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-        #print(df)
-        dateRange = list(df['Date'])
-        class1Data= list(df['Class_1'])
-        class2Data= list(df['Class_2'])
-        class3Data= list(df['Class_3'])
-        class4Data= list(df['Class_4'])
-        class5Data= list(df['Class_5'])
-        class6Data= list(df['Class_6'])
-        class7Data= list(df['Class_7'])
-        class8Data= list(df['Class_8'])
-        class9Data= list(df['Class_9'])
-        class10Data= list(df['Class_10'])
-        #print(dateRange)
-        ##Class 1
-        graphData = [dict(
-            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-            )]        
-        #print(graphData)
+        if len(performanceRows)>0:
+            df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+            df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+                5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+            #print(df)
+            dateRange = list(df['Date'])
+            class1Data= list(df['Class_1'])
+            class2Data= list(df['Class_2'])
+            class3Data= list(df['Class_3'])
+            class4Data= list(df['Class_4'])
+            class5Data= list(df['Class_5'])
+            class6Data= list(df['Class_6'])
+            class7Data= list(df['Class_7'])
+            class8Data= list(df['Class_8'])
+            class9Data= list(df['Class_9'])
+            class10Data= list(df['Class_10'])
+            #print(dateRange)
+            ##Class 1
+            graphData = [dict(
+                data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+                data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+                data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+                data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+                data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+                data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+                data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+                data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+                data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+                data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+                )]        
+            #print(graphData)
 
-        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+        else:
+            graphJSON="No data found"
 
 
         #dateRange = performanceRows.date
@@ -643,7 +647,7 @@ def questionBank():
     topic_list=None
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBankQueryForm()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
 #  [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
@@ -717,7 +721,8 @@ def testBuilder():
     topic_list=None
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=TestBuilderQueryForm()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    print(teacher_id.school_id)
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
@@ -930,9 +935,11 @@ def updateQuestion():
     subId = request.args.get('subName')
     qType = request.args.get('qType')
     qDesc = request.args.get('qDesc')
-    correctOption = request.args.get('correctOption')
+    correctOption = request.args.get('corrans')
     weightage = request.args.get('weightage')
-    imageUrl = request.args.get('preview')
+    print('Weightage:'+str(weightage))
+    print('Correct option:'+str(str(correctOption)))
+    preview = request.args.get('preview')
     options = request.args.get('options')
     op1 = request.args.get('op1')
     op2 = request.args.get('op2')
@@ -944,55 +951,77 @@ def updateQuestion():
     print(op4)
     form = QuestionBuilderQueryForm()
     print("Updated class Value:"+updatedCV)
-    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(correctOption)+" "+str(weightage)+" "+str(imageUrl))
+    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(correctOption)+" "+str(weightage))
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     flag = False
     # updateQuery = "update question_details t1 set topic_id='" + str(topicId) + "' where question_id='" + question_id + "'"
-    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ str(imageUrl) +"' where question_id='" + str(question_id) + "'"
+    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ str(preview) +"' where question_id='" + str(question_id) + "'"
 
     queryOneExe = db.session.execute(text(updateQuery))
     updateWeightage = "update question_details set suggested_weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
     querytwoExe = db.session.execute(text(updateWeightage))
+    
 
     option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
-    print(option_id_list)
-    i=0
-    for opt in option_id_list:
-        if i==0:
-            opId1 = opt.option_id
-        elif i==1:
-            opId2 = opt.option_id
-        elif i==2:
-            opId3 = opt.option_id
+    if correctOption:
+        print(option_id_list)
+        i=0
+        opId1=''
+        opId2=''
+        opId3=''
+        opId4=''
+        for opt in option_id_list:
+            if i==0:
+                opId1 = opt.option_id
+            elif i==1:
+                opId2 = opt.option_id
+            elif i==2:
+                opId3 = opt.option_id
+            else:
+                opId4 = opt.option_id
+            i=i+1
+        print("Options order of id:"+str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
+        # print(option_id) 
+        # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
+        # opt = db.session.execute(text(option))
+        # print("Updated options "+str(opt))
+        if opId1 and opId2 and opId3 and opId4:
+            updateOption1 = "update question_options set option_desc='"+str(op1)+"' where option_id='"+ str(opId1) + "'"
+            print(updateOption1)
+            updateOpt1Exe = db.session.execute(text(updateOption1))
+            updateOption2 = "update question_options set option_desc='"+str(op2)+"' where option_id='"+ str(opId2) + "'"
+            print(updateOption2)
+            updateOpt2Exe = db.session.execute(text(updateOption2))
+            updateOption3 = "update question_options set option_desc='"+str(op3)+"' where option_id='"+ str(opId3) + "'"
+            print(updateOption3)
+            updateOpt3Exe = db.session.execute(text(updateOption3))
+            updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
+            print(updateOption4)
+            updateOpt4Exe = db.session.execute(text(updateOption4))
+            if str(correctOption)!='':
+                updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
+                print(updatequery1)
+                update1 = db.session.execute(text(updatequery1))
+                updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
+                print(updateCorrectOption)
+                updateOp = db.session.execute(text(updateCorrectOption))
         else:
-            opId4 = opt.option_id
-        i=i+1
-    print("Options order of id:"+str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
-    # print(option_id) 
-    # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
-    # opt = db.session.execute(text(option))
-    # print("Updated options "+str(opt))
-    updateOption1 = "update question_options set option_desc='"+str(op1)+"' where option_id='"+ str(opId1) + "'"
-    print(updateOption1)
-    updateOpt1Exe = db.session.execute(text(updateOption1))
-    updateOption2 = "update question_options set option_desc='"+str(op2)+"' where option_id='"+ str(opId2) + "'"
-    print(updateOption2)
-    updateOpt2Exe = db.session.execute(text(updateOption2))
-    updateOption3 = "update question_options set option_desc='"+str(op3)+"' where option_id='"+ str(opId3) + "'"
-    print(updateOption3)
-    updateOpt3Exe = db.session.execute(text(updateOption3))
-    updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
-    print(updateOption4)
-    updateOpt4Exe = db.session.execute(text(updateOption4))
-    if str(correctOption)!='':
-        updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
-        update1 = db.session.execute(text(updatequery1))
-        updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
-        print(updateCorrectOption)
-        updateOp = db.session.execute(text(updateCorrectOption))
+            optionlist = []
+            optionlist.append(op1)
+            optionlist.append(op2)
+            optionlist.append(op3)
+            optionlist.append(op4)
+            corrAns = 'Y'
+            for optionDesc in optionlist:
+                if optionDesc==correctOption:
+                    query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','"+optionDesc+"')"
+                else:
+                    query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','"+optionDesc+"')"
+                    db.session.execute(query)
+
     print('Inside Update Questions')
     db.session.commit()
     print(updateQuery)
@@ -1352,7 +1381,7 @@ def testPerformance():
     #setting up testperformance form
     form=testPerformanceForm()        
 
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
 
@@ -1585,7 +1614,7 @@ def classPerformance():
 
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()    
     available_subject=MessageDetails.query.filter_by(category='Subject').all()
 
@@ -1826,13 +1855,13 @@ def questionBuilder():
     if request.method=='POST':
         if form.submit.data:
             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
-            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data)
+            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data,suggested_weightage=int(request.form['weightage']))
             print(question)
             db.session.add(question)
             if form.question_type.data=='Subjective':
                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
                 options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
-                print(options)
+                print('Options Desc:'+str(options))
                 db.session.add(options)
                 db.session.commit()
                 flash('Success')
@@ -1904,7 +1933,7 @@ def questionUpload():
     flag = False
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     if form.class_val.data!='None' and form.subject_name.data!='None' and  form.chapter_num.data!='None':
@@ -2048,7 +2077,7 @@ def studentProfile():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
     
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).all()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
     available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()

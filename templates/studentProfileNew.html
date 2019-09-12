@@ -134,6 +134,7 @@
     section_select1.onchange=function()  {
         class_val1 = class_select1.value;
         section_val1 = section_select1.value;
+        console.log("Inside section select");
         $("#loader2").show();
         
         fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {

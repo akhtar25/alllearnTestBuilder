@@ -125,17 +125,30 @@
       
             <div style="display:none;" id="MCQ1_type">
               {% if  flag %}
+              <!-- start -->
+              {% if avail_options %}
+              <!-- /start -->
                 {% for option in avail_options %}
                 {% if option.option_desc==correctOption %}
                 
-            <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+            <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
             <input type="hidden" id="correct" name="correct" value=""> 
                   
             {% else %}
-                <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" placeholder="Option 1" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+                <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
                 <input type="hidden" id="correct" name="correct" value=""> 
                 {% endif %}
                  {% endfor %}
+                 <!-- else -->
+                 {% else %}
+                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br><br>
+                 <input type="hidden" id="correct" name="correct" value="">
+                 <!-- /else -->
+                 {% endif %}
+                 
               {% else %}
               <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_desc1" name="option_desc"></span></label><br><br>
               <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_desc2" name="option_desc"></span></label><br><br>
@@ -589,9 +602,11 @@ if(b!=1){
           console.log("No of choices:"+ele.length);
             for(var i=0;i<ele.length;i++){
               if(ele[i].value!=null){
-              if(ele[i].checked){
+                // console.log(ele[i].value);
+                console.log(ele[i].checked);
+              if(ele[i].checked==true){
                 corrans = ele[i].value;
-                console.log(ele[i].value);
+                console.log('Correct Ans:'+ele[i].value);
               }
               }
               console.log("ele:"+ele[i].value);
@@ -621,10 +636,10 @@ if(b!=1){
                         }
                       }
                       console.log("Question Id in update Question:"+question_id);
-                      console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+corrans+" "+weightage+" "+preview)
+                      console.log(updatedCV+" "+topicName+" "+subName+" "+qType+" "+qDesc+" "+corrans+" "+weightage+" "+preview+" "+op1+" "+op2+" "+op3+" "+op4)
                       var data="";
                       $.ajax({
-                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&qDesc="+qDesc+"&correctOption="+corrans+"&weightage="+weightage+"&preview="+preview+"&options="+options+"&op1="+op1+"&op2="+op2+"&op3="+op3+"&op4="+op4,
+                        url: "/updateQuestion?question_id="+ question_id + "&updatedCV="+ updatedCV+"&topicName="+topicName+"&subName="+subName+"&qType="+qType+"&weightage="+weightage+"&corrans="+corrans+"&preview="+preview+"&op1="+op1+"&op2="+op2+"&op3="+op3+"&op4="+op4+"&qDesc="+qDesc,
                         type: "get",
                         data: data,
                         success: function(response) {       
