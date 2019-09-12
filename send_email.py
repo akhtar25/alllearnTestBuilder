@@ -16,9 +16,9 @@ def send_async_email(msg, from_email, from_password):
 
 
 def send_email(email, name, subjectToSend, messageToSend):
-    from_email="zaheen@alllearn.in"
+    from_email="contact@alllearn.in"
     #from_password = app.config['SECRET_KEY']
-    from_password = "akhtar@123"
+    from_password = "indiana4jones"
     to_email=email
 
     subject=subjectToSend

@@ -328,8 +328,7 @@ def studentRegistration():
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
-            df1=df1.replace(np.nan,'', regex=True)
-            df1.dropna(how="all", inplace=True)
+            df1=df1.replace(np.nan, '', regex=True)
             print(df1)
             for index ,row in df1.iterrows():
                 address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
@@ -345,7 +344,7 @@ def studentRegistration():
                 student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
                 school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
                 dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
-                roll_number=str(row['roll_number']))
+                roll_number=int(row['roll_number']))
                 db.session.add(student)
                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
                 for i in range(4):
