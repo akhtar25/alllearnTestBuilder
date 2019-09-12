@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+
+  <link rel="shortcut icon" type="image/png" href="#" /> {% if title %}
+  <title>Alllearn  - {{ title }}</title>
+  {% else %}
+  <title>Alllearn</title>
+  {% endif %}    
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['\\(','\\)']]}});
+  </script>
+  <script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">  
+  <link href="../static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+  <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+  <link rel="stylesheet" href="../static/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body>
+  
+  <div class="body" style="padding-top: 100px; padding-right: 20px; height: 100%; width: 100%;">
+    <!--This is a temp section -->
+    <hr> {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>
+        <div id="card-alert" class="card green lighten-5">
+          <div class="card-content green-text">
+            <p>{{ message }}</p>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+    {%block content%} {%endblock%}
+  </div>
+
+<script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../static/bower_components/jquery-ui/jquery-ui.min.js"></script>
+
+<script type="text/javascript" src="../static/js/materialize.min.js"></script>
+<script src="../static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+<script src="../static/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="../static/js/websiteJS.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+<script>
+$(document).ready(function(){
+  $('.sidenav').sidenav();
+});
+</script>
+</body>
+<footer class="page-footer black ">
+    <div class="footer-copyright">
+      <div class="container">        
+        <span><a class="yellow-text text-lighten-5" href="https://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
+          <span class="pull-right">   1.0.4</span>
+      </div>
+    </div>
+  </footer>
+</html>

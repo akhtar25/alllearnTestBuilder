@@ -950,6 +950,42 @@ def topicList():
 # def questionUpdateUpload():
 #     return render_template('questionUpdateUpload.html')
 
+#new mobile specific pages
+
+
+@app.route('/mobDashboard')
+def mobDashboard():
+    return render_template('mobDashboard.html')
+
+@app.route('/qrSessionScanner')
+def qrSessionScanner():
+    return render_template('qrSessionScanner.html')
+
+
+@app.route('/mobFeedbackCollection')
+def mobQuestionLoader():
+    return render_template('mobQuestionLoader.html')
+
+
+@app.route('/mobQuestion')
+def mobQuestion():
+    return render_template('_mobQuestion.html')
+
+
+@app.route('/mobResponseCapture')
+def mobResponseCapture():
+    return render_template('_mobResponseCapture.html')
+
+@app.route('/mobResponseResult')
+def mobResponseResult():
+    return render_template('_mobResponseResult.html')
+
+#end of mobile specific pages
+
+
+
+
+
 @app.route('/updateQuestion')
 def updateQuestion():
     question_id = request.args.get('question_id')
