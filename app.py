@@ -934,10 +934,10 @@ def updateQuestion():
     subId = request.args.get('subName')
     qType = request.args.get('qType')
     qDesc = request.args.get('qDesc')
-    correctOption = request.args.get('corrans')
+    corrans = request.args.get('corrans')
     weightage = request.args.get('weightage')
     print('Weightage:'+str(weightage))
-    print('Correct option:'+str(str(correctOption)))
+    print('Correct option:'+str(str(corrans)))
     preview = request.args.get('preview')
     options = request.args.get('options')
     op1 = request.args.get('op1')
@@ -950,7 +950,7 @@ def updateQuestion():
     print(op4)
     form = QuestionBuilderQueryForm()
     print("Updated class Value:"+updatedCV)
-    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(correctOption)+" "+str(weightage))
+    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(corrans)+" "+str(weightage))
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
@@ -965,7 +965,7 @@ def updateQuestion():
     
 
     option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
-    if correctOption:
+    if corrans:
         print(option_id_list)
         i=0
         opId1=''
@@ -1000,11 +1000,11 @@ def updateQuestion():
             updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
             print(updateOption4)
             updateOpt4Exe = db.session.execute(text(updateOption4))
-            if str(correctOption)!='':
+            if str(corrans)!='':
                 updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
                 print(updatequery1)
                 update1 = db.session.execute(text(updatequery1))
-                updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(correctOption)+"' and question_id='"+str(question_id)+"'"
+                updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(corrans)+"' and question_id='"+str(question_id)+"'"
                 print(updateCorrectOption)
                 updateOp = db.session.execute(text(updateCorrectOption))
         else:
@@ -1015,7 +1015,7 @@ def updateQuestion():
             optionlist.append(op4)
             corrAns = 'Y'
             for optionDesc in optionlist:
-                if optionDesc==correctOption:
+                if optionDesc==corrans:
                     query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','"+optionDesc+"')"
                 else:
                     query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','"+optionDesc+"')"
@@ -1061,7 +1061,7 @@ def questionDetails():
     print("Question Id-:"+question_id)
     form = QuestionBuilderQueryForm()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
 
@@ -1933,8 +1933,10 @@ def questionUpload():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    form.subject_name.choices= ''
+    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.topics.choices= ''
+    # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     if form.class_val.data!='None' and form.subject_name.data!='None' and  form.chapter_num.data!='None':
         print('Inside if question Upload')
         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=str(form.subject_name.data),chapter_num=str(form.chapter_num.data)).all()
