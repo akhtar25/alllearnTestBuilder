@@ -8,8 +8,12 @@
   <title>Alllearn  - {{ title }}</title>
   {% else %}
   <title>Alllearn</title>
-  {% endif %}  
+  {% endif %}    
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['\\(','\\)']]}});
+  </script>
   <script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">  
   <link href="../static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
   <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
@@ -196,6 +200,7 @@
 <script src="../static/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 <script src="../static/js/adminlte.min.js"></script>
 <script src="../static/js/websiteJS.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
 <script>
 $(document).ready(function(){
   $('.sidenav').sidenav();
@@ -275,7 +280,7 @@ $(document).ready(function(){
     <div class="footer-copyright">
       <div class="container">        
         <span><a class="yellow-text text-lighten-5" href="http://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
-          <span class="pull-right">   1.0.2</span>
+          <span class="pull-right">   1.0.4</span>
       </div>
     </div>
   </footer>

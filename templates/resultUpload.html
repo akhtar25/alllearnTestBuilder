@@ -75,12 +75,13 @@
                         </div>  
                 </div>
                 <p><button class="btn waves-light green lighten-1 white-text" type="submit">Submit</button></p>
+                <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div>
             </div>
         </form>
       </div>
       
 {% if student_list %}
-<div style="float:right;">
+<div class="container" style="float:right;">
 <p class="right">* Please enter -1 for absent students</p>
 </div>
 <div class="card id" id="result_table">

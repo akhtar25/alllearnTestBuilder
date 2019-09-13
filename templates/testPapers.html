@@ -1,9 +1,36 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Tests</h3>
+    <h3>Test Papers</h3>
     <div id="testDiv">
-        <iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>
+        <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
+        <div class="box-body table-responsive no-padding">
+            <table class="table table-hover">
+              <tr>
+               <th>Class</th>
+                <th>Test Type</th>
+                <th>Subject</th>
+                <th>Total Marks</th>
+                <th>Creation Date</th>
+                <th>Test Date</th>                
+                <th>Download</th>                
+              </tr>
+              {% for eachRow in testPaperData%}
+              <tr style="margin-top:5px;">
+                <td><img height="50px" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/classNumberImages/class{{eachRow.class_val}}.png"></td>                
+                <td>{{eachRow.test_type}}</td>
+                {%for subRow in subjectNames%}
+                {% if eachRow.subject_id== subRow.msg_id %}                
+                <td>{{subRow.description}}</td>
+                {%endif%}
+                {%endfor%}
+                <td>{{eachRow.total_marks}}</td>
+                <td>{{eachRow.date_of_creation.strftime('%Y-%m-%d')}}</td>
+                <td>{{eachRow.date_of_test.strftime('%Y-%m-%d')}}</td>
+                <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download</a></td>                
+              </tr>
+                   {% endfor %}
+            </table>
+          </div>
     </div>
-</div>
 </div>
 {%endblock%}
