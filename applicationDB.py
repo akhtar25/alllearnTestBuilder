@@ -490,3 +490,22 @@ class FinancialDetails(db.Model):
     maint_cost = db.Column(db.Integer,nullable=True)
     year= db.Column(db.Integer,nullable=True)
     month= db.Column(db.Integer,nullable=True)
+
+
+
+class SessionDetail(db.Model):
+    __tablename__="session_detail"
+    session_id = db.Column(db.Integer,primary_key=True)
+    resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
+    session_status = db.Column(db.Integer,nullable=True)   # open, in_progress, closed
+    teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
+
+class RespSessionQuestion(db.Model):
+    __tablename__="resp_session_question"
+    resp_quest_id = db.Column(db.Integer,primary_key=True)
+    topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
+    question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
+    question_status = db.Column(db.Integer,nullable=True)  #answered_full, skipped, answered_part
+
+
