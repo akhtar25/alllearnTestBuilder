@@ -968,6 +968,7 @@ def mobQuestionLoader():
     resp_session_id=request.args.get('resp_session_id')
     print(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    print("This is the session status - "+str(sessionDetailRow.session_status))
     if sessionDetailRow.session_status=='80':
         sessionDetailRow.session_status='81'        
         db.session.commit()
@@ -2264,7 +2265,9 @@ def search():
 if __name__=="__main__":
     app.debug=True
     app.jinja_env.filters['zip'] = zip
-    app.run(host=os.getenv('IP', '127.0.0.1'), 
-            port=int(os.getenv('PORT', 8000)))
+    #app.run(host=os.getenv('IP', '127.0.0.1'), 
+    #        port=int(os.getenv('PORT', 8000)))
+    app.run(host=os.getenv('IP', '0.0.0.0'), 
+        port=int(os.getenv('PORT', 8000)))
     #app.run()
 
