@@ -1232,9 +1232,34 @@ def feedbackCollection():
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
         questionListSize = len(questionList)
 
-        return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+        responseSessionID = str(dateVal) + str(subject_id) + str(classSections.class_sec_id)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+        #changes for use with PC+ mobile cam combination hahaha
+        if questionListSize >0:
+            sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=classSections.class_sec_id, current_question='0')
+            db.session.add(sessionDetailRowInsert)
+            db.session.commit()
+
+            #respSessionQuestionRowInsert = RespSessionQuestion()
+
+
+
+        if teacherProfile.device_preference==78:        
+            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+        else:
+            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, responseSessionID = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
-        return redirect(url_for('classCon'))    
+        return redirect(url_for('classCon'))
+
+
+@app.route('/currentQuestionID')
+@login_required
+def curentQuestionID():
+    resp_session_id = request.args.get('resp_session_id')
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow.session_status=='80':
+        
 
 
 @app.route('/loadQuestion')
