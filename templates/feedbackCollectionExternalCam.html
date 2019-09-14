@@ -49,9 +49,9 @@
                         <br>
                         <br>
                         {% if questionList|length > 0 %}
-                      <p style="font-size: 48px;" class="grey-text text-lighten-1">Scan QR or enter the below id <br><br>on phone to load questions<br><br>{{responseSessionID}}</p>
+                      <p style="font-size: 48px;" class="grey-text text-lighten-1">Scan QR or enter the below id on phone<br><br>{{responseSessionID}}</p>
                       <br><br>
-                      <img url={{responseSessionIDQRCode}}>
+                      <img src={{responseSessionIDQRCode}}>
                     
                       {%else %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
@@ -60,7 +60,7 @@
                     </div>  
                     <div id="questionButtons">
                      {% if questionList|length > 0 %}
-                    <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
+                    <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
                      {% endif %}
                     <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 

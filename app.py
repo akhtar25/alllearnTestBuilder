@@ -1225,8 +1225,8 @@ def feedbackCollection():
             print("These are class sec values"+str(eachRow.class_sec_id))
             print("section"+ str(section)+" and "+ str(eachRow.section))
             print("class_val"+ str(class_val)+" and "+  str(eachRow.class_val))
-            if str(eachRow.section)==str(section):
-                if str(eachRow.class_val)==str(class_val):
+            if str(eachRow.section).strip()==str(section).strip():
+                if str(eachRow.class_val).strip()==str(class_val).strip():
                     ("Entered where class sec values are updated")
                     curr_class_sec_id=eachRow.class_sec_id
 
@@ -1247,17 +1247,17 @@ def feedbackCollection():
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
         questionListSize = len(questionList)
 
-        responseSessionID = str(dateVal) + str(subject_id) + str(curr_class_sec_id)
+        responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
         #changes for use with PC+ mobile cam combination hahaha
         if questionListSize >0:
             sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=curr_class_sec_id, current_question='0')
+                        class_sec_id=curr_class_sec_id)
             db.session.add(sessionDetailRowInsert)
             db.session.commit()
         
             for eachQuestion in questionList:
-                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion, question_status='86', resp_session_id=responseSessionID)
+                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
                 db.session.add(respSessionQuestionRowInsert)
                 db.session.commit()
             # topic_id, question_id, question_status, resp_session_id
