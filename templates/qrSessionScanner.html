@@ -2,23 +2,25 @@
 <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 <div class="container">
     <div class="video-field" id="video-field">                
-        <video id="video" height="300"></video>      
-        <canvas id="piccanvas" width="640" height="480"></canvas>        
-
-
+        <video id="preview" height="300"></video>      
+        <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>        
         
-<input type="button" id="startScanner" value="Start Scanner">
-
-<input type="button" id="stopScanner" value="Stop Scanner">
 
 
 </div>
+<a class="waves-effect waves-light btn green" id="startScanner">Start Scanner</a>
+
+<a class="waves-effect waves-light btn green" id="stopScanner">Stop Scanner</a>
+    
+</div>
 
 <script type="text/javascript">
-    
       let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-      scanner.addListener('scan', function (content) {          
-        //alert(content);
+      scanner.addListener('scan', function (content) {
+        alert(content);        
+        if (content!=""){
+        window.location.href = "/mobFeedbackCollection?resp_session_id="+content;
+    }
       });      
 $('#startScanner').click(function(){
       Instascan.Camera.getCameras().then(function (cameras) {

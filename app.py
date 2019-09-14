@@ -958,13 +958,17 @@ def mobDashboard():
     return render_template('mobDashboard.html')
 
 @app.route('/qrSessionScanner')
+@login_required
 def qrSessionScanner():
     return render_template('qrSessionScanner.html')
 
 
 @app.route('/mobFeedbackCollection')
 def mobQuestionLoader():
-    return render_template('mobQuestionLoader.html')
+    resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
+    
+    return render_template('mobFeedbackCollection.html')
 
 
 @app.route('/mobQuestion')
