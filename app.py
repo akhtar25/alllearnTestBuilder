@@ -967,6 +967,10 @@ def qrSessionScanner():
 def mobQuestionLoader():
     resp_session_id=request.args.get('resp_session_id')
     print(resp_session_id)
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow.session_status=='80':
+        sessionDetailRow.session_status='81'        
+        db.session.commit()
     
     return render_template('mobFeedbackCollection.html')
 
@@ -1214,7 +1218,14 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
-    
+
+        curr_class_sec_id=""
+
+        for eachRow in classSections:
+            print(eachRow.class_sec_id)
+            if eachRow.section==section and eachRow.class_val==class_val:
+                curr_class_sec_id=eachRow.class_sec_id
+
         #start of - db update to ark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
@@ -1232,18 +1243,20 @@ def feedbackCollection():
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
         questionListSize = len(questionList)
 
-        responseSessionID = str(dateVal) + str(subject_id) + str(classSections.class_sec_id)
+        responseSessionID = str(dateVal) + str(subject_id) + str(curr_class_sec_id)
         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
         #changes for use with PC+ mobile cam combination hahaha
         if questionListSize >0:
             sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=classSections.class_sec_id, current_question='0')
+                        class_sec_id=curr_class_sec_id, current_question='0')
             db.session.add(sessionDetailRowInsert)
             db.session.commit()
-
-            #respSessionQuestionRowInsert = RespSessionQuestion()
-
-
+        
+            for eachQuestion in questionList:
+                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion, question_status='86', resp_session_id=responseSessionID)
+                db.session.add(respSessionQuestionRowInsert)
+                db.session.commit()
+            # topic_id, question_id, question_status, resp_session_id
 
         if teacherProfile.device_preference==78:        
             return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
@@ -1257,8 +1270,16 @@ def feedbackCollection():
 @login_required
 def curentQuestionID():
     resp_session_id = request.args.get('resp_session_id')
-    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    if sessionDetailRow.session_status=='80':
+    #sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    #if sessionDetailRow.session_status=='80':
+    #    sessionDetailRow.session_status='81'        
+    #    db.session.commit()
+    respSessionQuestionRowOne=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id, question_status='86').first()
+    if len(respSessionQuestionRowOne)==1:
+        return jsonify([respSessionQuestionRowOne.question_id])
+    else:
+        return jsonify(['NA'])
+    
         
 
 

@@ -50,7 +50,8 @@
                         <br>
                         {% if questionList|length > 0 %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">Scan QR or enter the below id <br><br>on phone to load questions<br><br>{{responseSessionID}}</p>
-                      <br><br><br><br><br><br><br><br>
+                      <br><br>
+                      <img url={{responseSessionIDQRCode}}>
                     
                       {%else %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
@@ -74,24 +75,12 @@
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
                     <h4>Response Summary</h4> 
                     <div id="errorMsgElement"></div>
-                      <div id="ResponseList">                
-                        <form id="responseForm">
-                          <div id="result_strip">
-                        <ul class="thumbnails"></ul>
-                          </div>
-                            <div id="questionListSizeDiv">                      
-                           </div>
-                        </form>
-                      </div>
+
                     <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
                 </div>                
                 
                 
-                <div >                                       
-               <div class="video-field" id="video-field">                
-               <video id="video" height="300" muted autoplay></video>      
-               <canvas id="piccanvas" width="640" height="480" style="display:none !important"></canvas>
-               </div>    
+                <div >  
               <!--  <div class="select">
                     <label for="videoSource"></label><select id="videoSource"></select>
                 </div>-->                                                       
@@ -131,20 +120,35 @@
               {% endfor %}
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
-
-
-            //$("#startAndNextBTN").click(function(){
-              function processCapture(){
-                setInterval(function(){ 
-
-
-
-                  
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
               //document.getElementById("result_strip").innerHTML="";
               keepRecording = true;   
-                if(tempCountVar<questionListSize){
-                $.ajax({
+
+            //$("#startAndNextBTN").click(function(){
+              function checkCurrentQuestion(){
+                setInterval(function(){ 
+                  $.ajax({
+                  url: "/currentQuestionID?resp_session_id="+ resp_session_id ,
+                  type: "get",
+                  data: "",
+                  success: function(responseQID) {                                             
+                    if (questionIDListJS[tempCountVar]==responseQID){
+                      loadNewQuestion();
+                    }
+                    else if (responseQID=="NA"){
+                      loadFeedbackReport();
+                    }
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });                
+            }, 2000);
+            }
+            
+
+            function loadNewQuestion(){
+            $.ajax({
                   url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
@@ -152,13 +156,13 @@
                     $("#questionSection").html(response);                    
                     tempCountVar= tempCountVar+1;
                     if(tempCountVar==questionListSize){
-                      $("#startAndNextBTN").hide();                                            
-                      $("#startrecordResponsesBTN").show();                      
+                      //$("#startAndNextBTN").show();
+                      //$("#startrecordResponsesBTN").show();
                     }
                     else{
-                      $("#startAndNextBTN").attr('value','Next');       
-                      $("#startAndNextBTN").hide();
-                      $("#startrecordResponsesBTN").show();                                         
+                      //$("#startAndNextBTN").attr('value','Next');
+                      //$("#startAndNextBTN").hide();
+                      //$("#startrecordResponsesBTN").show();
                     }
                   },
                   error: function(xhr) {
@@ -166,14 +170,9 @@
                   }
                 });
               }
-              else{
-              }
-            }, 2000);
-            }
-            
 
 
-            $('#submitAndFinishBTN').click(function(){     
+            function loadFeedbackReport(){     
               var class_val = $('#class_val_ip').val();
               console.log('This is the class_val in js: ' + class_val);
               var section = $('#section_ip').val();
@@ -188,18 +187,16 @@
                          subject_id:subject_id},
                   success: function(response) {
                     $("#feedbackReportDiv").show(); 
-                    $("#feedbackReportDiv").html(response);        
+                    $("#feedbackReportDiv").html(response);
                     $("#feedbackQuestionDiv").hide();
-                    $("#video-field").hide();                    
-                    $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show(); 
+                    $("#allResponsesSubmitted").show();
                     $("#completeClassBTN").show();                     
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while submittig data");
+                    window.alert("error occurred while submitting data");
                   }
                 });              
-            });
+            }
             </script>            
 
 {%endblock%}
