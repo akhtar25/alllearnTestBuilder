@@ -1222,9 +1222,13 @@ def feedbackCollection():
         curr_class_sec_id=""
 
         for eachRow in classSections:
-            print(eachRow.class_sec_id)
-            if eachRow.section==section and eachRow.class_val==class_val:
-                curr_class_sec_id=eachRow.class_sec_id
+            print("These are class sec values"+str(eachRow.class_sec_id))
+            print("section"+ str(section)+" and "+ str(eachRow.section))
+            print("class_val"+ str(class_val)+" and "+  str(eachRow.class_val))
+            if str(eachRow.section)==str(section):
+                if str(eachRow.class_val)==str(class_val):
+                    ("Entered where class sec values are updated")
+                    curr_class_sec_id=eachRow.class_sec_id
 
         #start of - db update to ark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
