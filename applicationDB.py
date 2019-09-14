@@ -500,6 +500,7 @@ class SessionDetail(db.Model):
     session_status = db.Column(db.Integer,nullable=True)   # open, in_progress, closed
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
+    current_question = db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
 
 class RespSessionQuestion(db.Model):
     __tablename__="resp_session_question"
