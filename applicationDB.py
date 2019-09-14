@@ -509,5 +509,6 @@ class RespSessionQuestion(db.Model):
     topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     question_status = db.Column(db.Integer,nullable=True)  #answered_full, skipped, answered_part
+    resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
 
 
