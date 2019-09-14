@@ -385,6 +385,7 @@ class TeacherProfile(db.Model):
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
+    device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
 
 
 class FeeManagement(db.Model):
