@@ -137,7 +137,9 @@
                   data: "",
                   success: function(responseQID) {     
                     console.log("We're here in currentQuestionID js"+responseQID);
-                    if (questionIDListJS[tempCountVar]==responseQID){
+                    alert("This is respQid "+responseQID);
+                    if (responseQID!="FR" && responseQID!="NA"){
+
                       loadNewQuestion(responseQID);
                     }
                     else if (responseQID=="FR"){
