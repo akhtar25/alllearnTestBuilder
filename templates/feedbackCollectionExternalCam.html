@@ -49,7 +49,7 @@
                         <br>
                         <br>
                         {% if questionList|length > 0 %}
-                      <span class="grey-text text-lighten-1"> <p style="font-size: 24px;">Scan QR or enter the below id on phone</p><br><br><p style="font-size: 48px;">{{responseSessionID}}</p></span>
+                      <span class="grey-text text-lighten-1"> <p style="font-size: 24px;">Scan QR or enter the below id on phone</p><br><br><p style="font-size: 48px;">{{resp_session_id}}</p></span>
                       <br><br>
                       <img src={{responseSessionIDQRCode}}>
                     
@@ -136,7 +136,7 @@
                   type: "get",
                   data: "",
                   success: function(responseQID) {     
-                    alert("We're here in currentQuestionID js");
+                    alert("We're here in currentQuestionID js"+responseQID);
                     if (questionIDListJS[tempCountVar]==responseQID){
                       loadNewQuestion(responseQID);
                     }
@@ -145,7 +145,7 @@
                       flag=false;
                     }
                     else{
-                      flag=false;
+                      flag=true;
                     }
                   },
                   error: function(xhr) {
