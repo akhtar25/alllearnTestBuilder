@@ -963,8 +963,9 @@ def qrSessionScanner():
     return render_template('qrSessionScanner.html')
 
 
-@app.route('/mobFeedbackCollection')
+@app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
 def mobQuestionLoader():
+
     resp_session_id=request.args.get('resp_session_id')
     print(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
@@ -973,7 +974,11 @@ def mobQuestionLoader():
         if sessionDetailRow.session_status=='80':
             sessionDetailRow.session_status='81'        
             db.session.commit()    
-        return render_template('mobFeedbackCollection.html')
+        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
+        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).all()
+        if respSessionQuestionRow!=None:
+            questionListSize = len(respSessionQuestionRow)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScanner.html')
