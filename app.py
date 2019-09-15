@@ -1303,10 +1303,16 @@ def loadQuestion():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
+    resp_session_id=request.args.get('resp_session_id')
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
-    for option in questionOp:
-        print(option.option_desc)
+    if resp_session_id!="":
+        respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).first()
+        if respSessionQuestionRow!=None:
+            respSessionQuestionRow.question_status='87'
+            db.session.commit()
+    #for option in questionOp:
+    #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 

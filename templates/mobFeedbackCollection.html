@@ -101,6 +101,7 @@
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
               var questionListSize = {{ questionListSize }};
+              var resp_session_id={{resp_session_id}}
               var tempCountVar = 0;
             $("#startAndNextBTN").click(function(){                
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
@@ -108,7 +109,7 @@
               keepRecording = true;   
                 if(tempCountVar<questionListSize){
                 $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
+                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {       
