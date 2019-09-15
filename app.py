@@ -968,12 +968,16 @@ def mobQuestionLoader():
     resp_session_id=request.args.get('resp_session_id')
     print(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    print("This is the session status - "+str(sessionDetailRow.session_status))
-    if sessionDetailRow.session_status=='80':
-        sessionDetailRow.session_status='81'        
-        db.session.commit()
-    
-    return render_template('mobFeedbackCollection.html')
+    if sessionDetailRow!=None:
+        print("This is the session status - "+str(sessionDetailRow.session_status))
+        if sessionDetailRow.session_status=='80':
+            sessionDetailRow.session_status='81'        
+            db.session.commit()    
+        return render_template('mobFeedbackCollection.html')
+    else:
+        flash('This is not a valid id')
+        return render_template('qrSessionScanner.html')
+
 
 
 @app.route('/mobQuestion')
