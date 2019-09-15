@@ -136,7 +136,7 @@
                   type: "get",
                   data: "",
                   success: function(responseQID) {     
-                    alert("We're here in currentQuestionID js"+responseQID);
+                    console.log("We're here in currentQuestionID js"+responseQID);
                     if (questionIDListJS[tempCountVar]==responseQID){
                       loadNewQuestion(responseQID);
                     }
