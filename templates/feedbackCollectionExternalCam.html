@@ -156,6 +156,7 @@
             
 
             function loadNewQuestion(){
+              tempCountVar=tempCountVar+1;
             $.ajax({
                   url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
