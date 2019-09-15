@@ -1287,9 +1287,9 @@ def checkQuestionChange():
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
     if str(sessionDetailRow.session_status).strip()=='80':
         if sessionDetailRow.load_new_question=='Y':
-            sessionDetailRow.load_new_question='N'
-            db.session.commit()
             return jsonify(["Y"])
+        else:
+            return jsonify(["N"])
     elif sessionDetailRow.session_status=='82':
         return jsonify(["FR"])
     else:
@@ -1299,14 +1299,18 @@ def checkQuestionChange():
 @app.route('/loadQuestionExtCam')
 @login_required
 def loadQuestionExtCam():
-    resp_session_id=('resp_session_id')
+    resp_session_id=request.args.get('resp_session_id')
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
+    print("This is the complete response session ID received in load quest ext cam"+resp_session_id)
     sessionDetailRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        sessionDetailRow.load_new_question='N'
+        db.session.commit()
     current_question_id=sessionDetailRow.current_question
     question = QuestionDetails.query.filter_by(question_id=current_question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=current_question_id).all()
-    return render_template('loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
+    return render_template('_loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
 
 @app.route('/loadQuestion')
 @login_required

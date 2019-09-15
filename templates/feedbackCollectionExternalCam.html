@@ -137,7 +137,7 @@
                   data: "",
                   success: function(checkValue) {                         
                     if (checkValue=="Y"){
-                      loadNewQuestion(resp_session_id);
+                      loadNewQuestion();
                     }
                     else if (responseQID=="FR"){
                       loadFeedbackReport();
@@ -155,7 +155,7 @@
             }
             
 
-            function loadNewQuestion(resp_session_id){
+            function loadNewQuestion(){
             $.ajax({
                   url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
