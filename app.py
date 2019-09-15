@@ -1275,7 +1275,7 @@ def feedbackCollection():
         if teacherProfile.device_preference==78:        
             return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
         else:
-            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, responseSessionID = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))
 
