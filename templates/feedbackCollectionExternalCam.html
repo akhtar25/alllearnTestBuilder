@@ -156,13 +156,14 @@
             
 
             function loadNewQuestion(){
-              tempCountVar=tempCountVar+1;
+              
             $.ajax({
                   url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
                   data: "",
                   success: function(response) {       
-                    $("#questionSection").html(response);                    
+                    $("#questionSection").html(response);     
+                    tempCountVar=tempCountVar+1;               
                    
                   },
                   error: function(xhr) {
