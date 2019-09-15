@@ -137,7 +137,9 @@
                   data: "",
                   success: function(checkValue) {                         
                     if (checkValue=="Y"){
+                      tempCountVar=tempCountVar+1;
                       loadNewQuestion();
+                      
                     }
                     else if (responseQID=="FR"){
                       loadFeedbackReport();
@@ -151,7 +153,7 @@
                     window.alert("error occurred while loading question--");
                   }
                 });                
-            }}, 3000);          
+            }}, 4000);          
             }
             
 
@@ -162,9 +164,7 @@
                   type: "get",
                   data: "",
                   success: function(response) {       
-                    $("#questionSection").html(response);     
-                    tempCountVar=tempCountVar+1;               
-                   
+                    $("#questionSection").html(response);                                            
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question-!");
