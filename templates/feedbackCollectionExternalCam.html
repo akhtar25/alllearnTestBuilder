@@ -115,6 +115,7 @@
         <script>
           var subject_id = {{subject_id}};
               var questionIDListJS = [];
+              var flag=true;
               {%  for question in questionList%}              
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
@@ -122,48 +123,46 @@
               var tempCountVar = 0;
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
               //document.getElementById("result_strip").innerHTML="";
-              keepRecording = true;   
+              //keepRecording = true;   
+              checkCurrentQuestion();
 
             //$("#startAndNextBTN").click(function(){
               function checkCurrentQuestion(){
                 setInterval(function(){ 
+                  if (flag==true){
                   $.ajax({
                   url: "/currentQuestionID?resp_session_id="+ resp_session_id ,
                   type: "get",
                   data: "",
-                  success: function(responseQID) {                                             
+                  success: function(responseQID) {     
+                    alert("We're here in currentQuestionID js");
                     if (questionIDListJS[tempCountVar]==responseQID){
-                      loadNewQuestion();
+                      loadNewQuestion(responseQID);
                     }
-                    else if (responseQID=="NA"){
+                    else if (responseQID=="FR"){
                       loadFeedbackReport();
+                      flag=false;
+                    }
+                    else{
+                      flag=false;
                     }
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");
                   }
                 });                
-            }, 2000);
+            }}, 2000);          
             }
             
 
-            function loadNewQuestion(){
+            function loadNewQuestion(responseQID){
             $.ajax({
                   url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
                   type: "get",
-                  data: {question_id: questionIDListJS[tempCountVar]},
+                  data: {question_id: responseQID},
                   success: function(response) {       
                     $("#questionSection").html(response);                    
-                    tempCountVar= tempCountVar+1;
-                    if(tempCountVar==questionListSize){
-                      //$("#startAndNextBTN").show();
-                      //$("#startrecordResponsesBTN").show();
-                    }
-                    else{
-                      //$("#startAndNextBTN").attr('value','Next');
-                      //$("#startAndNextBTN").hide();
-                      //$("#startrecordResponsesBTN").show();
-                    }
+                   
                   },
                   error: function(xhr) {
                     window.alert("error occurred while loading question");

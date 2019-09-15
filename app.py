@@ -978,7 +978,7 @@ def mobQuestionLoader():
         respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).all()
         if respSessionQuestionRow!=None:
             questionListSize = len(respSessionQuestionRow)
-        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=resp_session_id)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScanner.html')
@@ -1284,15 +1284,14 @@ def feedbackCollection():
 @login_required
 def curentQuestionID():
     resp_session_id = request.args.get('resp_session_id')
-    #sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    #if sessionDetailRow.session_status=='80':
-    #    sessionDetailRow.session_status='81'        
-    #    db.session.commit()
-    respSessionQuestionRowOne=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id, question_status='86').first()
-    if len(respSessionQuestionRowOne)==1:
-        return jsonify([respSessionQuestionRowOne.question_id])
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow.session_status=='80':
+        current_question = sessionDetailRow.current_question    
+        return jsonify([current_question])
+    elif sessionDetailRow.session_status=='82':
+        return jsonify(["FR"])
     else:
-        return jsonify(['NA'])
+        return jsonify(["NA"])
     
         
 
@@ -1311,6 +1310,9 @@ def loadQuestion():
         if respSessionQuestionRow!=None:
             respSessionQuestionRow.question_status='87'
             db.session.commit()
+        sessionDetRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+        sessionDetRow.current_question=question_id
+        db.session.commit()
     #for option in questionOp:
     #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
@@ -1389,6 +1391,7 @@ def feedbackReport():
     section=request.args.get('section')
     section = section.strip()
     dateVal = request.args.get('date')
+    responseSessionID=request.args.get('resp_session_id')
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -1404,8 +1407,9 @@ def feedbackReport():
         else:
             tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
             dateVal= tempDate.strftime("%d%m%Y")
+        if responseSessionID=="":
+            responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
 
-        responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
         responseResultQuery = "WITH sum_cte AS ( "
         responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
