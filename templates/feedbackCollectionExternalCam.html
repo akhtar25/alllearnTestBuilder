@@ -125,22 +125,19 @@
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
               //document.getElementById("result_strip").innerHTML="";
               //keepRecording = true;   
-              checkCurrentQuestion();
+              checkQuestionChange();
 
             //$("#startAndNextBTN").click(function(){
-              function checkCurrentQuestion(){
+              function checkQuestionChange(){
                 setInterval(function(){ 
                   if (flag==true){
                   $.ajax({
-                  url: "/currentQuestionID?resp_session_id="+ resp_session_id ,
+                  url: "/checkQuestionChange?resp_session_id="+ resp_session_id ,
                   type: "get",
                   data: "",
-                  success: function(responseQID) {     
-                    console.log("We're here in currentQuestionID js"+responseQID);
-                    console.log("This is respQid "+responseQID);
-                    if (responseQID!="FR" && responseQID!="NA"){
-
-                      loadNewQuestion(responseQID,resp_session_id);
+                  success: function(checkValue) {                         
+                    if (checkValue=="Y"){
+                      loadNewQuestion(resp_session_id);
                     }
                     else if (responseQID=="FR"){
                       loadFeedbackReport();
@@ -154,15 +151,15 @@
                     window.alert("error occurred while loading question--");
                   }
                 });                
-            }}, 2000);          
+            }}, 3000);          
             }
             
 
-            function loadNewQuestion(responseQID,resp_session_id){
+            function loadNewQuestion(resp_session_id){
             $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
+                  url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
-                  data: {question_id: responseQID},
+                  data: "",
                   success: function(response) {       
                     $("#questionSection").html(response);                    
                    

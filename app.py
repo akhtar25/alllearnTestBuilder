@@ -1280,21 +1280,33 @@ def feedbackCollection():
         return redirect(url_for('classCon'))
 
 
-@app.route('/currentQuestionID')
+@app.route('/checkQuestionChange')
 @login_required
-def curentQuestionID():
+def checkQuestionChange():
     resp_session_id = request.args.get('resp_session_id')
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
     if str(sessionDetailRow.session_status).strip()=='80':
-        current_question = sessionDetailRow.current_question    
-        return jsonify([current_question])
+        if sessionDetailRow.load_new_question=='Y':
+            sessionDetailRow.load_new_question='N'
+            db.session.commit()
+            return jsonify(["Y"])
     elif sessionDetailRow.session_status=='82':
         return jsonify(["FR"])
     else:
         return jsonify([str(sessionDetailRow.session_status)+'NA'])
-    
-        
+            
 
+@app.route('/loadQuestionExtCam')
+@login_required
+def loadQuestionExtCam():
+    resp_session_id=('resp_session_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    sessionDetailRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    current_question_id=sessionDetailRow.current_question
+    question = QuestionDetails.query.filter_by(question_id=current_question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=current_question_id).all()
+    return render_template('loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
 
 @app.route('/loadQuestion')
 @login_required
@@ -1313,10 +1325,18 @@ def loadQuestion():
             db.session.commit()
         sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
         sessionDetRow.current_question=question_id
+        sessionDetRow.load_new_question='Y'
         db.session.commit()
     #for option in questionOp:
     #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+
+
+
+
+
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
