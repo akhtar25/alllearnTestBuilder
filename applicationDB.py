@@ -502,6 +502,7 @@ class SessionDetail(db.Model):
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     current_question = db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
+    load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
 
 class RespSessionQuestion(db.Model):
     __tablename__="resp_session_question"
