@@ -1291,7 +1291,7 @@ def curentQuestionID():
     elif sessionDetailRow.session_status=='82':
         return jsonify(["FR"])
     else:
-        return jsonify(["NA"])
+        return jsonify([sessionDetailRow.session_status+'NA'])
     
         
 
