@@ -137,10 +137,10 @@
                   data: "",
                   success: function(responseQID) {     
                     console.log("We're here in currentQuestionID js"+responseQID);
-                    alert("This is respQid "+responseQID);
+                    console.log("This is respQid "+responseQID);
                     if (responseQID!="FR" && responseQID!="NA"){
 
-                      loadNewQuestion(responseQID);
+                      loadNewQuestion(responseQID,resp_session_id);
                     }
                     else if (responseQID=="FR"){
                       loadFeedbackReport();
@@ -151,16 +151,16 @@
                     }
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while loading question");
+                    window.alert("error occurred while loading question--");
                   }
                 });                
             }}, 2000);          
             }
             
 
-            function loadNewQuestion(responseQID){
+            function loadNewQuestion(responseQID,resp_session_id){
             $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
+                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
                   data: {question_id: responseQID},
                   success: function(response) {       
@@ -168,7 +168,7 @@
                    
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while loading question");
+                    window.alert("error occurred while loading question-!");
                   }
                 });
               }

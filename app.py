@@ -1285,13 +1285,13 @@ def feedbackCollection():
 def curentQuestionID():
     resp_session_id = request.args.get('resp_session_id')
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    if sessionDetailRow.session_status=='80':
+    if str(sessionDetailRow.session_status).strip()=='80':
         current_question = sessionDetailRow.current_question    
         return jsonify([current_question])
     elif sessionDetailRow.session_status=='82':
         return jsonify(["FR"])
     else:
-        return jsonify([sessionDetailRow.session_status+'NA'])
+        return jsonify([str(sessionDetailRow.session_status)+'NA'])
     
         
 
@@ -1303,14 +1303,15 @@ def loadQuestion():
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
     resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
     if resp_session_id!="":
-        respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).first()
+        respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
         if respSessionQuestionRow!=None:
             respSessionQuestionRow.question_status='87'
             db.session.commit()
-        sessionDetRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+        sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
         sessionDetRow.current_question=question_id
         db.session.commit()
     #for option in questionOp:
