@@ -215,7 +215,8 @@
             contentType: "application/json",
             data: checkboxesChecked,
             beforeSend: function() {
-                $("#questionEditorDiV").hide();
+                $("#editQuestionsTableDiv").hide();
+                
               $("#questionloader").show();
            },
             success: function (response) {

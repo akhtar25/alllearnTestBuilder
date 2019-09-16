@@ -9,6 +9,10 @@
         font-size: 25px;
         margin:300px 0px 250px 0px;
     }
+    #profileDiv{
+        display: flex;
+        margin-left: 10px;
+    }
     .btn{
         padding: 300 150 300 150;
     }

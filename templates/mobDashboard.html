@@ -1,40 +1,40 @@
 {% extends "mobLayout.html" %} {% block content %}
-<div class="container">
+<div id="content">
+        <header>
+            <div class="logo">
+                <nav class="active">
+                    <ul>
+                        <li>
+                          <div id="profileDiv">
+                            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50"><a href="#" style="font-size:30px;">My Profile</a>
+                          </div>
+                        </li>
+                        <li><div class="schoolDiv">
+                                <a href="#" style="font-size:30px;margin-left: 40px;">School</a>
+                            </div>
+                        </li>
+                        <li><div class="logoutDiv">
+                                <a href="#" style="font-size:30px;margin-left: 40px;">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></div>
+            </div>
+        </header>
     
-
-
+        <div class="container">
+            <div class="btn">
+                <!-- <button class="btn green lighten-1" id="scanCodeBTN" name="scanCodeBTN">Scan Code</button></a> -->
     
-    <header>
-        <div class="logo">
-            <nav class="active">
-                <ul>
-                    <li>
-                        <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50">
-                        <a href="#">My Profile</a>
-                    </li>
-                    <li><div class="schoolDiv">
-                            <a href="#">School</a>
-                        </div>
-                    </li>
-                    <li><div class="logoutDiv">
-                            <a href="#">Logout</a>
-                        </div>
-                    </li>
-                </ul>
-            </nav>
-            <div class="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></div>
-        </div>
-    </header>
-
-    <div class="container1">
-        <!-- <div class="btn"> -->
-            <a href="{{url_for('qrSessionScanner')}}"><button class="btn green lighten-1" id="scanCodeBTN" name="scanCodeBTN">Scan Code</button></a>
-        <!-- </div> -->
-        <div class="helpDiv">
-            <a href="#" id="helpId">Need Help?</a>
+                <a href=""><button id="btnCode" name="scanCodeBTN">Scan Code</button></a>
+            </div>
+            <div class="helpDiv">
+                <a href="#" id="helpId">Need Help?</a>
+            </div>
         </div>
     </div>
-    <script
+        <script
   src="https://code.jquery.com/jquery-3.4.1.js"></script>
   <script type="text/javascript">
     $(document).ready(function(){

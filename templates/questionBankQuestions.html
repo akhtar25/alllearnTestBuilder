@@ -14,7 +14,7 @@
                         <th scope="col">Question</th>
                         <th scope="col">Type</th>
                         <th scope="col">Weightage</th>
-                        <th scope="col">Edit</th>  
+                        <th scope="col">Actions</th>  
                     </tr>
                 </thead>
                 <tbody>
@@ -47,8 +47,9 @@
                         <td> {{ question.question_type }} </td>
                         <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
                             id="{{ question.question_id }}select"></td>
-                        <td><label for="{{ question.question_id }}">
+                        <td style="width:100px;"><label for="{{ question.question_id }}">
                                 <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
+                                <a class="delete" name="{{ question.question_id }}" href="#" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
                                 <!-- {{url_for('questionDetails',question_id=question.question_id )}} -->
                             </label></td>
                     </tr>
@@ -94,24 +95,6 @@
     });
 });
 
-    // function addQuestion(){
-    //     console.log('Inside addQuestion');
-    //     var data="";
-    //     $.ajax({
-    //         url: "/questionBuilder",
-    //         type: "get",
-    //         data: data,
-    //         success: function(){
-    //             console.log('Success');
-    //         },
-    //         error:function(xhr){
-    //             window.alert("error occurred while loading question");
-    //         }
-    //     });
-    // }
-
-
-
     $(document).ready(function(){
     $('.collapsible').collapsible();
   });
@@ -145,31 +128,30 @@
                         error: function(xhr) {
                           window.alert("error occurred while loading question");
                         }
-                      });      
-                             
+                      });               
+                  });
+
+                  $('.delete').click(function(){
+                    console.log('Inside delete funtion');  
+                    var question_id = $(this).attr('name');
+                    console.log('Inside delete:'+question_id);
+                    var data="";
+                    $.ajax({
+                        url: "deleteQuestion?question_id="+question_id,
+                        type: "get",
+                        data: data,
+                        beforeSend: function() {
+                            $("#editQuestionsTableDiv").hide();
+                            $("#questionloader").show();
+                        },
+                        success: function(response){
+                            questions();
+                        },
+                        error: function(xhr){
+                            window.alert("error occurred while loading question");
+                        }
+                    });
                   });
                   
 
-
-
-
-    //               updateQuestion = document.getElementById('questionUpdateButton');
-    //               updateQuestion.onclick=function(){
-    //                 $(function(){
-    //                 $.ajax({
-    //                 url: "/questionUpload",
-    //                 type: "get",
-    //                 success: function(response) {
-    //                 $("#new").show();
-    //                 $("#new").html(response);
-    //                 $("#buttonbox").show();        
-    //                 },
-    //                 error: function(xhr) {
-    //                 window.alert("error occurred while loading question");
-    //               }
-    //             });        
-
-    //     });
-        
-    // }
                   </script>
