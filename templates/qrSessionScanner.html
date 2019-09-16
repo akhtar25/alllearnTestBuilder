@@ -1,39 +1,64 @@
 {% extends "mobLayout.html" %} {% block content %}
 <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 <div class="container">
-    <div class="video-field" id="video-field">                
-        <video id="video" height="300"></video>      
-        <canvas id="piccanvas" width="640" height="480"></canvas>        
-
-
-        
-<input type="button" id="startScanner" value="Start Scanner">
-
-<input type="button" id="stopScanner" value="Stop Scanner">
-
-
+        <div class="col-md-5"  >
+    <div class="video-field" id="video-field">
+        <video id="preview" height="300"></video>
+        <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>
+    </div>
+    <a class="waves-effect waves-light btn green" id="startScanner">Start Scanner</a>
+    <a class="waves-effect waves-light btn green" id="stopScanner">Stop Scanner</a>
+    <div id="textCodeEntry">
+        <input type="text" id="textRespCodeInput">
+        <a class="waves-effect waves-light btn green" id="textRespIntputBTN">Submit</a>
+    </div>
 </div>
-
+</div>
 <script type="text/javascript">
-    
-      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-      scanner.addListener('scan', function (content) {          
-        //alert(content);
-      });      
-$('#startScanner').click(function(){
-      Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-          scanner.start(cameras[0]);
-        } else {
-          console.error('No cameras found.');
+    let scanner = new Instascan.Scanner({
+        video: document.getElementById('preview')
+    });
+    scanner.addListener('scan', function (content) {
+        alert(content);
+        if (content != "") {
+            window.location.href = "/mobFeedbackCollection?resp_session_id=" + content;
         }
-      }).catch(function (e) {
-        console.error(e);
-      });
-      });
-$('#stopScanner').click(function(){
-scanner.stop();
+    });
+    $('#startScanner').click(function () {
+        Instascan.Camera.getCameras().then(function (cameras) {
 
-     });
-    </script>
+            if (cameras.length > 0) {
+                var selectedCam = cameras[0];
+                $.each(cameras, (i, c) => {
+                    if (c.name.indexOf('back') != -1) {
+                        selectedCam = c;
+                        return false;
+                    }
+                });
+
+                scanner.start(selectedCam);
+            }
+            //if (cameras.length > 0) {
+            //  scanner.start(cameras[0]);
+            //} 
+            else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
+    });
+
+
+    $('#stopScanner').click(function () {
+        scanner.stop();
+    });
+
+    $('#textRespIntputBTN').click(function () {
+        var resp_session_code = $('#textRespCodeInput').val();
+        if (resp_session_code != "") {
+            window.location.href = "/mobFeedbackCollection?resp_session_id=" + resp_session_code;
+        }
+    });
+</script>
 {% endblock%}

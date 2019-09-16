@@ -962,13 +962,31 @@ def mobDashboard():
     return render_template('mobDashboard.html')
 
 @app.route('/qrSessionScanner')
+@login_required
 def qrSessionScanner():
     return render_template('qrSessionScanner.html')
 
 
-@app.route('/mobFeedbackCollection')
+@app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
 def mobQuestionLoader():
-    return render_template('mobQuestionLoader.html')
+
+    resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        print("This is the session status - "+str(sessionDetailRow.session_status))
+        if sessionDetailRow.session_status=='80':
+            sessionDetailRow.session_status='81'        
+            db.session.commit()    
+        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
+        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).all()
+        if respSessionQuestionRow!=None:
+            questionListSize = len(respSessionQuestionRow)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=resp_session_id)
+    else:
+        flash('This is not a valid id')
+        return render_template('qrSessionScanner.html')
+
 
 
 @app.route('/mobQuestion')
@@ -1238,7 +1256,18 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
-    
+
+        curr_class_sec_id=""
+
+        for eachRow in classSections:
+            print("These are class sec values"+str(eachRow.class_sec_id))
+            print("section"+ str(section)+" and "+ str(eachRow.section))
+            print("class_val"+ str(class_val)+" and "+  str(eachRow.class_val))
+            if str(eachRow.section).strip()==str(section).strip():
+                if str(eachRow.class_val).strip()==str(class_val).strip():
+                    ("Entered where class sec values are updated")
+                    curr_class_sec_id=eachRow.class_sec_id
+
         #start of - db update to ark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
@@ -1256,10 +1285,60 @@ def feedbackCollection():
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
         questionListSize = len(questionList)
 
-        return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
-    else:
-        return redirect(url_for('classCon'))    
+        responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+        #changes for use with PC+ mobile cam combination hahaha
+        if questionListSize >0:
+            sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=curr_class_sec_id)
+            db.session.add(sessionDetailRowInsert)
+            db.session.commit()
+        
+            for eachQuestion in questionList:
+                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
+                db.session.add(respSessionQuestionRowInsert)
+                db.session.commit()
+            # topic_id, question_id, question_status, resp_session_id
 
+        if teacherProfile.device_preference==78:        
+            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+        else:
+            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+    else:
+        return redirect(url_for('classCon'))
+
+
+@app.route('/checkQuestionChange')
+@login_required
+def checkQuestionChange():
+    resp_session_id = request.args.get('resp_session_id')
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if str(sessionDetailRow.session_status).strip()=='80':
+        if sessionDetailRow.load_new_question=='Y':
+            return jsonify(["Y"])
+        else:
+            return jsonify(["N"])
+    elif sessionDetailRow.session_status=='82':
+        return jsonify(["FR"])
+    else:
+        return jsonify([str(sessionDetailRow.session_status)+'NA'])
+            
+
+@app.route('/loadQuestionExtCam')
+@login_required
+def loadQuestionExtCam():
+    resp_session_id=request.args.get('resp_session_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    print("This is the complete response session ID received in load quest ext cam"+resp_session_id)
+    sessionDetailRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        sessionDetailRow.load_new_question='N'
+        db.session.commit()
+    current_question_id=sessionDetailRow.current_question
+    question = QuestionDetails.query.filter_by(question_id=current_question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=current_question_id).all()
+    return render_template('_loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
 
 @app.route('/loadQuestion')
 @login_required
@@ -1267,11 +1346,29 @@ def loadQuestion():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
+    resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
-    for option in questionOp:
-        print(option.option_desc)
+    if resp_session_id!="":
+        respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
+        if respSessionQuestionRow!=None:
+            respSessionQuestionRow.question_status='87'
+            db.session.commit()
+        sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
+        sessionDetRow.current_question=question_id
+        sessionDetRow.load_new_question='Y'
+        db.session.commit()
+    #for option in questionOp:
+    #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+
+
+
+
+
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
@@ -1347,6 +1444,7 @@ def feedbackReport():
     section=request.args.get('section')
     section = section.strip()
     dateVal = request.args.get('date')
+    responseSessionID=request.args.get('resp_session_id')
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -1362,8 +1460,9 @@ def feedbackReport():
         else:
             tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
             dateVal= tempDate.strftime("%d%m%Y")
+        if responseSessionID=="":
+            responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
 
-        responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
         print('Here is response session id in feedback report: ' + responseSessionID)
         responseResultQuery = "WITH sum_cte AS ( "
         responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
@@ -2240,7 +2339,9 @@ def search():
 if __name__=="__main__":
     app.debug=True
     app.jinja_env.filters['zip'] = zip
-    app.run(host=os.getenv('IP', '127.0.0.1'), 
-            port=int(os.getenv('PORT', 8000)))
+    #app.run(host=os.getenv('IP', '127.0.0.1'), 
+    #        port=int(os.getenv('PORT', 8000)))
+    app.run(host=os.getenv('IP', '0.0.0.0'), 
+        port=int(os.getenv('PORT', 8000)))
     #app.run()
 

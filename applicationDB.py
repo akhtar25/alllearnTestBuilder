@@ -385,6 +385,7 @@ class TeacherProfile(db.Model):
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
+    device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
 
 
 class FeeManagement(db.Model):
@@ -500,6 +501,8 @@ class SessionDetail(db.Model):
     session_status = db.Column(db.Integer,nullable=True)   # open, in_progress, closed
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
+    current_question = db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
+    load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
 
 class RespSessionQuestion(db.Model):
     __tablename__="resp_session_question"
@@ -507,5 +510,6 @@ class RespSessionQuestion(db.Model):
     topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     question_status = db.Column(db.Integer,nullable=True)  #answered_full, skipped, answered_part
+    resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
 
 
