@@ -128,9 +128,7 @@
             $("#startrecordResponsesBTN").click(function(){
               $("#skipButton").hide();
             });
-            $("#skipButton").click(function(){
-              document.getElementById("startAndNextBTN").click();
-            });
+            
             $("#startAndNextBTN").click(function(){                
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
               document.getElementById("result_strip").innerHTML="";
@@ -146,13 +144,18 @@
                     if(tempCountVar==questionListSize){
                       $("#startAndNextBTN").hide();                                            
                       $("#startrecordResponsesBTN").show();  
-                                          
+                      $("#skipButton").click(function(){
+                        document.getElementById("submitAndFinishBTN").click();
+                      });                  
                     }
                     else{
                       $("#startAndNextBTN").attr('value','Next');       
                       $("#startAndNextBTN").hide();
                       $("#startrecordResponsesBTN").show();   
                       $("#skipButton").show();
+                      $("#skipButton").click(function(){
+                        document.getElementById("startAndNextBTN").click();
+                      });
                     }
                   },
                   error: function(xhr) {
