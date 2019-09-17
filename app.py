@@ -946,9 +946,9 @@ def topicList():
 #new mobile specific pages
 
 
-@app.route('/mobDashboard')
-def mobDashboard():
-    return render_template('mobDashboard.html')
+#@app.route('/mobDashboard')
+#def mobDashboard():
+#    return render_template('mobDashboard.html')
 
 @app.route('/qrSessionScanner')
 @login_required
@@ -977,19 +977,19 @@ def mobQuestionLoader():
         return render_template('qrSessionScanner.html')
 
 
-
-@app.route('/mobQuestion')
-def mobQuestion():
-    return render_template('_mobQuestion.html')
-
-
-@app.route('/mobResponseCapture')
-def mobResponseCapture():
-    return render_template('_mobResponseCapture.html')
-
-@app.route('/mobResponseResult')
-def mobResponseResult():
-    return render_template('_mobResponseResult.html')
+#
+#@app.route('/mobQuestion')
+#def mobQuestion():
+#    return render_template('_mobQuestion.html')
+#
+#
+#@app.route('/mobResponseCapture')
+#def mobResponseCapture():
+#    return render_template('_mobResponseCapture.html')
+#
+#@app.route('/mobResponseResult')
+#def mobResponseResult():
+#    return render_template('_mobResponseResult.html')
 
 #end of mobile specific pages
 
