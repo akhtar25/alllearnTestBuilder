@@ -153,12 +153,11 @@
                     window.alert("error occurred while loading question--");
                   }
                 });                
-            }}, 4000);          
+            }}, 3000);
             }
             
 
-            function loadNewQuestion(){
-              
+            function loadNewQuestion(){              
             $.ajax({
                   url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
@@ -171,7 +170,6 @@
                   }
                 });
               }
-
 
             function loadFeedbackReport(){     
               var class_val = $('#class_val_ip').val();
@@ -187,16 +185,16 @@
                         section: section,
                          subject_id:subject_id},
                   success: function(response) {
-                    $("#feedbackReportDiv").show(); 
+                    $("#feedbackReportDiv").show();
                     $("#feedbackReportDiv").html(response);
                     $("#feedbackQuestionDiv").hide();
                     $("#allResponsesSubmitted").show();
-                    $("#completeClassBTN").show();                     
+                    $("#completeClassBTN").show();
                   },
                   error: function(xhr) {
                     window.alert("error occurred while submitting data");
                   }
-                });              
+                });
             }
             </script>            
 

@@ -446,46 +446,41 @@ def index():
     #####Fetch school perf graph information##########
         performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
         performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-        #print(df)
-        dateRange = list(df['Date'])
-        class1Data= list(df['Class_1'])
-        class2Data= list(df['Class_2'])
-        class3Data= list(df['Class_3'])
-        class4Data= list(df['Class_4'])
-        class5Data= list(df['Class_5'])
-        class6Data= list(df['Class_6'])
-        class7Data= list(df['Class_7'])
-        class8Data= list(df['Class_8'])
-        class9Data= list(df['Class_9'])
-        class10Data= list(df['Class_10'])
-        #print(dateRange)
-        ##Class 1
-        graphData = [dict(
-            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-            )]        
-        #print(graphData)
+        if len(performanceRows)>0:
+            df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+            df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+                5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+            #print(df)
+            dateRange = list(df['Date'])
+            class1Data= list(df['Class_1'])
+            class2Data= list(df['Class_2'])
+            class3Data= list(df['Class_3'])
+            class4Data= list(df['Class_4'])
+            class5Data= list(df['Class_5'])
+            class6Data= list(df['Class_6'])
+            class7Data= list(df['Class_7'])
+            class8Data= list(df['Class_8'])
+            class9Data= list(df['Class_9'])
+            class10Data= list(df['Class_10'])
+            #print(dateRange)
+            ##Class 1
+            graphData = [dict(
+                data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+                data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+                data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+                data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+                data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+                data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+                data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+                data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+                data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+                data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+                )]        
+            #print(graphData)
 
-        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-
-
-        #dateRange = performanceRows.date
-        #below code needs to be rejected. Only being kept for reference right now
-        #df = pd.read_csv('data.csv').drop('Open', axis=1)
-        #chart_data = df.to_dict(orient='records')
-        #chart_data = json.dumps(chart_data, indent=2)
-        #data = {'chart_data': chart_data}
+            graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+        else:
+            graphJSON="No data found"
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
         
@@ -495,8 +490,6 @@ def index():
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
-    
-
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
@@ -1322,7 +1315,7 @@ def loadQuestion():
     print(resp_session_id)
     question = QuestionDetails.query.filter_by(question_id=question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
-    if resp_session_id!="":
+    if resp_session_id!=None:
         respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
         if respSessionQuestionRow!=None:
             respSessionQuestionRow.question_status='87'
