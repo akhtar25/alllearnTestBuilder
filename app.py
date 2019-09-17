@@ -666,7 +666,7 @@ def questionBankQuestions():
     for topic in topicList:
         # question_Details=QuestionDetails.query.filter_by(QuestionDetails.topic_id == int(topic)).first()
         # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionDetails.suggested_weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
-        questionList = QuestionDetails.query.filter_by(topic_id=int(topic)).all()
+        questionList = QuestionDetails.query.filter_by(topic_id=int(topic),archive_status='N').all()
         questions.append(questionList)
         for q in questionList:
             print("Question List"+str(q))
@@ -686,7 +686,7 @@ def questionBankFileUpload():
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
         document.add_paragraph(
             data.question_description, style='List Number'
         )    
@@ -739,7 +739,7 @@ def testBuilderQuestions():
     questions=[]
     topicList=request.get_json()
     for topic in topicList:
-        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
     return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
 
@@ -756,7 +756,7 @@ def testBuilderFileUpload():
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
         document.add_paragraph(
             data.question_description, style='List Number'
         )    
@@ -1247,7 +1247,7 @@ def feedbackCollection():
                     db.session.commit()
         # end of  - update to mark the checked topics as completed
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
         questionListSize = len(questionList)
 
         responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
@@ -1301,7 +1301,7 @@ def loadQuestionExtCam():
         sessionDetailRow.load_new_question='N'
         db.session.commit()
     current_question_id=sessionDetailRow.current_question
-    question = QuestionDetails.query.filter_by(question_id=current_question_id).first()
+    question = QuestionDetails.query.filter_by(question_id=current_question_id, archive_status='N').first()
     questionOp = QuestionOptions.query.filter_by(question_id=current_question_id).all()
     return render_template('_loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
 
@@ -1313,7 +1313,7 @@ def loadQuestion():
     qnum= request.args.get('qnum')
     resp_session_id=request.args.get('resp_session_id')
     print(resp_session_id)
-    question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
     if resp_session_id!=None:
         respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
@@ -1371,7 +1371,7 @@ def responseDBUpdate():
                     studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
 
                     #studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
-                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0]).first()
+                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0], archive_status='N').first()
                     
                     dateVal= datetime.today().strftime("%d%m%Y")
 
@@ -1490,7 +1490,7 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, "
     responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
     responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
-    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
+    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
     responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
