@@ -1519,7 +1519,7 @@ def studentFeedbackReport():
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
+    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow, School_Name=school_name())
 
 @app.route('/testPerformance')
 @login_required
