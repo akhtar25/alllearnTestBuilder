@@ -14,17 +14,17 @@
     }
     .btn{
         padding: 300 150 300 150;
+        margin-left: -33px;
+        height: 50px;
+        margin-top: -172px;
     }
+
     .schoolDiv{
         margin-left: 20px;
     }
     .logoutDiv{
         margin-left: 20px;
     }
-    .container{
-        text-align: center;
-        margin: auto;
-    } 
     .helpDiv{
         font-size: 20px;
         margin-left: 225px;

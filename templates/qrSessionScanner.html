@@ -2,30 +2,18 @@
 <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 <div class="container">
 
-        <!-- <header>
-                <div class="logo">
-                    <nav class="active">
-                        <ul>
-                            <li>
-                              <div id="profileDiv">
-                                <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50"><a href="#" style="font-size:30px;">My Profile</a>
-                              </div>
-                            </li>
-                            <li><div class="schoolDiv">
-                                    <a href="#" style="font-size:30px;margin-left: 40px;">School</a>
-                                </div>
-                            </li>
-                            <li><div class="logoutDiv">
-                                    <a href="#" style="font-size:30px;margin-left: 40px;">Logout</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </nav>
-                    <div class="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></div>
-                </div>
-            </header> -->
+        <ul id="dropdown2" class="dropdown-content" style="width: 280px;">
+                <li><a href="#!">one<span class="badge">1</span></a></li>
+                <li><a href="#!">two<span class="new badge">1</span></a></li>
+                <li><a href="#!">three</a></li>
+              </ul>
+              <a class="btn dropdown-trigger" href="#!" data-target="dropdown2" style="width:375px;text-align: left;"><i class="fa fa-bars" style="margin-right: 232px;color:black;font-size: 30px;"></i></a>
+              <div class="col-md-5">
+                <a class="waves-effect waves-light btn green" id="startScanner" style="margin-left: 32px;margin-top: 230px;padding: 30px 60px 50px 60px;border-radius: 26px;">Scan Code</a>
+              </div>
+ 
     
-        <div class="col-md-5"  >
+        <div class="col-md-5" style="display: none;" >
     <div class="video-field" id="video-field">
         <video id="preview" height="300"></video>
         <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>
