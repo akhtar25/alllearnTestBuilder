@@ -1,0 +1,25 @@
+<div class="content">
+<div class="row">
+
+<label id="currQuestionLabel">        
+    {% set qnum = qnum | int %}
+    {% set qnum = qnum + 1 %}
+            Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>             
+    </label>
+    <label><span id="questionID" style="display:none;">{{ question.question_id}}</span></label>
+
+    <h3>Q: {{ question.question_description }}</h3>
+    {%if question.reference_link !=None %}
+<aside class="right">    
+    <img src="{{ question.reference_link }}" height="300px" width="300px">
+</aside>
+{% endif %}
+ 
+ <br>
+ <ul>
+    {% for optionVal in questionOp %}    
+    <li><h5>{{ optionVal.option }}</h5><h4>&nbsp;&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
+    {% endfor %}
+ </ul>
+</div></div>
+           

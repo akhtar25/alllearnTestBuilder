@@ -49,8 +49,9 @@
                         <br>
                         <br>
                         {% if questionList|length > 0 %}
-                      <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>
-                      <br><br><br><br><br><br><br><br>
+                      <span class="grey-text text-lighten-1"> <p style="font-size: 24px;">Scan QR or enter the below id on phone</p><br><br><p style="font-size: 48px;">{{resp_session_id}}</p></span>
+                      <br><br>
+                      <img src={{responseSessionIDQRCode}}>
                     
                       {%else %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
@@ -59,7 +60,7 @@
                     </div>  
                     <div id="questionButtons">
                      {% if questionList|length > 0 %}
-                    <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
+                    <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
                      {% endif %}
                     <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
@@ -74,24 +75,12 @@
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
                     <h4>Response Summary</h4> 
                     <div id="errorMsgElement"></div>
-                      <div id="ResponseList">                
-                        <form id="responseForm">
-                          <div id="result_strip">
-                        <ul class="thumbnails"></ul>
-                          </div>
-                            <div id="questionListSizeDiv">                      
-                           </div>
-                        </form>
-                      </div>
+
                     <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
                 </div>                
                 
                 
-                <div >                                       
-               <div class="video-field" id="video-field">                
-               <video id="video" height="300" muted autoplay></video>                     
-               <canvas id="piccanvas" width="640" height="480" style="display:none !important"></canvas>
-               </div>    
+                <div >  
               <!--  <div class="select">
                     <label for="videoSource"></label><select id="videoSource"></select>
                 </div>-->                                                       
@@ -116,51 +105,79 @@
            <!-- <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>                 -->
         </div>
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+
+        <script>
+        
+        </script>
+
+
         <script>
           var subject_id = {{subject_id}};
               var questionIDListJS = [];
+              var flag=true;
               {%  for question in questionList%}              
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
-            $("#startAndNextBTN").click(function(){                
-              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
-              document.getElementById("result_strip").innerHTML="";
-              keepRecording = true;   
-                if(tempCountVar<questionListSize){
-                $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
+              var resp_session_id = {{resp_session_id}};
+              var loaded_question = "";
+              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
+              //document.getElementById("result_strip").innerHTML="";
+              //keepRecording = true;   
+              checkQuestionChange();
+
+            //$("#startAndNextBTN").click(function(){
+              function checkQuestionChange(){
+                setInterval(function(){ 
+                  if (flag==true){
+                  $.ajax({
+                  url: "/checkQuestionChange?resp_session_id="+ resp_session_id ,
                   type: "get",
-                  data: {question_id: questionIDListJS[tempCountVar]},
-                  success: function(response) {       
-                    $("#questionSection").html(response);                    
-                    tempCountVar= tempCountVar+1;                
-                    if(tempCountVar==questionListSize){
-                      $("#startAndNextBTN").hide();                                            
-                      $("#startrecordResponsesBTN").show();                      
+                  data: "",
+                  success: function(checkValue) {                         
+                    if (checkValue=="Y"){
+                      tempCountVar=tempCountVar+1;
+                      loadNewQuestion();
+                      
+                    }
+                    else if (checkValue=="FR"){
+                      loadFeedbackReport();
+                      flag=false;
                     }
                     else{
-                      $("#startAndNextBTN").attr('value','Next');       
-                      $("#startAndNextBTN").hide();
-                      $("#startrecordResponsesBTN").show();                                         
+                      flag=true;
                     }
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while loading question");
+                    window.alert("error occurred while loading question--");
+                  }
+                });                
+            }}, 3000);
+            }
+            
+
+            function loadNewQuestion(){              
+            $.ajax({
+                  url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
+                  type: "get",
+                  data: "",
+                  success: function(response) {       
+                    $("#questionSection").html(response);                                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question-!");
                   }
                 });
               }
-              else{
-              }
-            });
-            $('#submitAndFinishBTN').click(function(){     
+
+            function loadFeedbackReport(){     
               var class_val = $('#class_val_ip').val();
               console.log('This is the class_val in js: ' + class_val);
               var section = $('#section_ip').val();
               console.log('This is the section: ' + section);
-              questionIDListStr  = JSON.stringify(questionIDListJS);     
-              var resp_session_id={{resp_session_id}};
+              questionIDListStr  = JSON.stringify(questionIDListJS);                       
                 $.ajax({
                   url: "/feedbackReport?resp_session_id="+resp_session_id,
                   type: "get",
@@ -171,22 +188,19 @@
                     }
                     else{
                       $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
-                    }    
-                    $("#feedbackReportDiv").show(); 
+                    }
+                    $("#feedbackReportDiv").show();
+                    
                     $("#feedbackQuestionDiv").hide();
-                    $("#video-field").hide();                    
-                    $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show(); 
-                    $("#completeClassBTN").show();                     
+                    $("#allResponsesSubmitted").show();
+                    $("#completeClassBTN").show();
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while submittig data");
+                    window.alert("error occurred while submitting data");
                   }
-                });              
-            });
-            </script>
-            <script src="../static/js/qrReader_zbar-main.js"></script>
-             <script type="text/javascript" src="../static/js/zbar-processor.js"></script>
+                });
+            }
+            </script>            
 
 {%endblock%}
         

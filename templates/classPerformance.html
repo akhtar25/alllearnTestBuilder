@@ -146,16 +146,23 @@
               var section = $('#section').val();                            
               var subject_id = $('#subject_name').val();   
               var selected_date=$('#testdate').val();
+                            
               $('#loaderDiv').show();
               var data="";
                 $.ajax({
-                  url: "/feedbackReport?class_val="+ class_val+"&section="+section+"&subject_id="+subject_id+"&date="+selected_date ,
+                  url: "/feedbackReport?class_val="+ class_val+"&section="+section+"&subject_id="+subject_id+"&date="+selected_date+"&fromClassPerf=1" ,
                   type: "get",
                   data: data,
                   success: function(response) {
+                    if (response!="NA"){
+                    $("#feedbackReportDiv").html(response);
+                    }
+                    else{
+                      $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No data available for selected date.</p></span>');
+                    }
                       $('#loaderDiv').hide();
                     $("#feedbackReportDiv").show(); 
-                    $("#feedbackReportDiv").html(response);                            
+                    
                   },
                   error: function(xhr) {
                     window.alert("error occurred while submitting data");

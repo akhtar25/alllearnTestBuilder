@@ -446,46 +446,41 @@ def index():
     #####Fetch school perf graph information##########
         performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
         performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-        #print(df)
-        dateRange = list(df['Date'])
-        class1Data= list(df['Class_1'])
-        class2Data= list(df['Class_2'])
-        class3Data= list(df['Class_3'])
-        class4Data= list(df['Class_4'])
-        class5Data= list(df['Class_5'])
-        class6Data= list(df['Class_6'])
-        class7Data= list(df['Class_7'])
-        class8Data= list(df['Class_8'])
-        class9Data= list(df['Class_9'])
-        class10Data= list(df['Class_10'])
-        #print(dateRange)
-        ##Class 1
-        graphData = [dict(
-            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-            )]        
-        #print(graphData)
+        if len(performanceRows)>0:
+            df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+            df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+                5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+            #print(df)
+            dateRange = list(df['Date'])
+            class1Data= list(df['Class_1'])
+            class2Data= list(df['Class_2'])
+            class3Data= list(df['Class_3'])
+            class4Data= list(df['Class_4'])
+            class5Data= list(df['Class_5'])
+            class6Data= list(df['Class_6'])
+            class7Data= list(df['Class_7'])
+            class8Data= list(df['Class_8'])
+            class9Data= list(df['Class_9'])
+            class10Data= list(df['Class_10'])
+            #print(dateRange)
+            ##Class 1
+            graphData = [dict(
+                data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+                data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+                data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+                data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+                data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+                data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+                data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+                data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+                data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+                data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+                )]        
+            #print(graphData)
 
-        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-
-
-        #dateRange = performanceRows.date
-        #below code needs to be rejected. Only being kept for reference right now
-        #df = pd.read_csv('data.csv').drop('Open', axis=1)
-        #chart_data = df.to_dict(orient='records')
-        #chart_data = json.dumps(chart_data, indent=2)
-        #data = {'chart_data': chart_data}
+            graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+        else:
+            graphJSON="No data found"
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
         
@@ -495,8 +490,6 @@ def index():
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
-    
-
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
@@ -673,7 +666,7 @@ def questionBankQuestions():
     for topic in topicList:
         # question_Details=QuestionDetails.query.filter_by(QuestionDetails.topic_id == int(topic)).first()
         # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionDetails.suggested_weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
-        questionList = QuestionDetails.query.filter_by(topic_id=int(topic)).all()
+        questionList = QuestionDetails.query.filter_by(topic_id=int(topic),archive_status='N').all()
         questions.append(questionList)
         for q in questionList:
             print("Question List"+str(q))
@@ -693,7 +686,7 @@ def questionBankFileUpload():
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
         document.add_paragraph(
             data.question_description, style='List Number'
         )    
@@ -746,7 +739,7 @@ def testBuilderQuestions():
     questions=[]
     topicList=request.get_json()
     for topic in topicList:
-        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
     return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
 
@@ -763,7 +756,7 @@ def testBuilderFileUpload():
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question)).first()
+        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
         document.add_paragraph(
             data.question_description, style='List Number'
         )    
@@ -949,6 +942,60 @@ def topicList():
 # @app.route('/questionUpdateUpload')
 # def questionUpdateUpload():
 #     return render_template('questionUpdateUpload.html')
+
+#new mobile specific pages
+
+
+#@app.route('/mobDashboard')
+#def mobDashboard():
+#    return render_template('mobDashboard.html')
+
+@app.route('/qrSessionScanner')
+@login_required
+def qrSessionScanner():
+    return render_template('qrSessionScanner.html')
+
+
+@app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
+def mobQuestionLoader():
+
+    resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        print("This is the session status - "+str(sessionDetailRow.session_status))
+        if sessionDetailRow.session_status=='80':
+            sessionDetailRow.session_status='81'        
+            db.session.commit()    
+        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
+        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).all()
+        if respSessionQuestionRow!=None:
+            questionListSize = len(respSessionQuestionRow)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=resp_session_id)
+    else:
+        flash('This is not a valid id')
+        return render_template('qrSessionScanner.html')
+
+
+#
+#@app.route('/mobQuestion')
+#def mobQuestion():
+#    return render_template('_mobQuestion.html')
+#
+#
+#@app.route('/mobResponseCapture')
+#def mobResponseCapture():
+#    return render_template('_mobResponseCapture.html')
+#
+#@app.route('/mobResponseResult')
+#def mobResponseResult():
+#    return render_template('_mobResponseResult.html')
+
+#end of mobile specific pages
+
+
+
+
 
 @app.route('/updateQuestion')
 def updateQuestion():
@@ -1174,7 +1221,18 @@ def feedbackCollection():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
         # end of sidebarm
-    
+
+        curr_class_sec_id=""
+
+        for eachRow in classSections:
+            print("These are class sec values"+str(eachRow.class_sec_id))
+            print("section"+ str(section)+" and "+ str(eachRow.section))
+            print("class_val"+ str(class_val)+" and "+  str(eachRow.class_val))
+            if str(eachRow.section).strip()==str(section).strip():
+                if str(eachRow.class_val).strip()==str(class_val).strip():
+                    ("Entered where class sec values are updated")
+                    curr_class_sec_id=eachRow.class_sec_id
+
         #start of - db update to ark the checked topics as completed
         teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
@@ -1189,13 +1247,77 @@ def feedbackCollection():
                     db.session.commit()
         # end of  - update to mark the checked topics as completed
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).all()  
+        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
         questionListSize = len(questionList)
 
-        return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
-    else:
-        return redirect(url_for('classCon'))    
+        responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+        #changes for use with PC+ mobile cam combination hahaha
+        if questionListSize >0:
+            sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=curr_class_sec_id)
+            db.session.add(sessionDetailRowInsert)
+            db.session.commit()
+        
+            for eachQuestion in questionList:
+                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
+                db.session.add(respSessionQuestionRowInsert)
+                db.session.commit()
+            # topic_id, question_id, question_status, resp_session_id
 
+        if teacherProfile.device_preference==78:        
+            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name(), resp_session_id = responseSessionID)
+        else:
+            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+    else:
+        return redirect(url_for('classCon'))
+
+@app.route('/markSessionComplete')
+@login_required
+def markSessionComplete():
+    resp_session_id = request.args.get('resp_session_id')
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        sessionDetailRow.session_status='82'
+        db.session.commit()
+        return jsonify(["0"])
+    else:
+        return jsonify(["1"])
+
+
+@app.route('/checkQuestionChange')
+@login_required
+def checkQuestionChange():
+    resp_session_id = request.args.get('resp_session_id')
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if str(sessionDetailRow.session_status).strip()=='80':
+        if sessionDetailRow.load_new_question=='Y':
+            return jsonify(["Y"])
+        else:
+            return jsonify(["N"])
+    elif str(sessionDetailRow.session_status).strip()=='82':
+        print ("returning FR")
+        return jsonify(["FR"])
+    else:
+        print("We're in returning sessionDetail row's sessionstatus NA")
+        return jsonify([str(sessionDetailRow.session_status)+'NA'])
+            
+
+@app.route('/loadQuestionExtCam')
+@login_required
+def loadQuestionExtCam():
+    resp_session_id=request.args.get('resp_session_id')
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    print("This is the complete response session ID received in load quest ext cam"+resp_session_id)
+    sessionDetailRow=SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        sessionDetailRow.load_new_question='N'
+        db.session.commit()
+    current_question_id=sessionDetailRow.current_question
+    question = QuestionDetails.query.filter_by(question_id=current_question_id, archive_status='N').first()
+    questionOp = QuestionOptions.query.filter_by(question_id=current_question_id).all()
+    return render_template('_loadQuestionExtCam.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount)
 
 @app.route('/loadQuestion')
 @login_required
@@ -1203,11 +1325,29 @@ def loadQuestion():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
-    question = QuestionDetails.query.filter_by(question_id=question_id).first()
+    resp_session_id=request.args.get('resp_session_id')
+    print(resp_session_id)
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
-    for option in questionOp:
-        print(option.option_desc)
+    if resp_session_id!=None:
+        respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
+        if respSessionQuestionRow!=None:
+            respSessionQuestionRow.question_status='87'
+            db.session.commit()
+        sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
+        sessionDetRow.current_question=question_id
+        sessionDetRow.load_new_question='Y'
+        db.session.commit()
+    #for option in questionOp:
+    #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+
+
+
+
+
 
 
 @app.route('/decodes', methods=['GET', 'POST'])
@@ -1245,7 +1385,7 @@ def responseDBUpdate():
                     studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
 
                     #studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
-                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0]).first()
+                    questionDetailRow = QuestionDetails.query.filter_by(question_id=splitVal[0], archive_status='N').first()
                     
                     dateVal= datetime.today().strftime("%d%m%Y")
 
@@ -1276,31 +1416,40 @@ def responseDBUpdate():
   
 @app.route('/feedbackReport')
 def feedbackReport():    
-    questionListJson=request.args.get('question_id')
-    class_val=request.args.get('class_val')
-    subject_id=request.args.get('subject_id')
-    #print('here is the class_val '+ str(class_val))
-    section=request.args.get('section')
-    section = section.strip()
-    dateVal = request.args.get('date')
+    fromClassPerf = request.args.get('fromClassPerf')
+    responseSessionID=request.args.get('resp_session_id')
+    if fromClassPerf!=None:
+    #questionListJson=request.args.get('question_id')
+        class_val=request.args.get('class_val')
+        subject_id=request.args.get('subject_id')
+    ##print('here is the class_val '+ str(class_val))
+        section=request.args.get('section')
+        section = section.strip()
+        dateVal = request.args.get('date')
+    
+    
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
+    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    if (class_val != None) and (section != None):
-
+#
+    if fromClassPerf!=None:
+#
         classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section, school_id=teacher.school_id).first()       
         print('here is the subject_id: '+ str(subject_id))
-        #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
-        
+    #    #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
+    #    
         if dateVal == None or dateVal=="":
             dateVal= datetime.today().strftime("%d%m%Y")
         else:
             tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
             dateVal= tempDate.strftime("%d%m%Y")
-
         responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
+
+    if responseSessionID!=None:
+        #
         print('Here is response session id in feedback report: ' + responseSessionID)
+
         responseResultQuery = "WITH sum_cte AS ( "
         responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
         responseResultQuery = responseResultQuery + "question_options where question_id in  "
@@ -1340,14 +1489,15 @@ def feedbackReport():
                 print("total Points limit is zero")
 
             responseResultRowCount = len(responseResultRow)
-        print('Here is the questionListJson: ' + str(questionListJson))
+        #print('Here is the questionListJson: ' + str(questionListJson))
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
     if responseResultRowCount>0:
         return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
     else:
-         return jsonify(['No Data for the selected Date'])
+         return jsonify(['NA'])
+         
 
 
 @app.route('/studentFeedbackReport')
@@ -1355,21 +1505,21 @@ def feedbackReport():
 def studentFeedbackReport():
     student_id = request.args.get('student_id')  
     student_name = request.args.get('student_name') 
-    student_id=student_id.strip()  
+    student_id=student_id.strip()
     resp_session_id = request.args.get('resp_session_id')
     #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
     responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
     responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, "
     responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
     responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
-    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  "    
+    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "' and and rc.resp_session_id='"+resp_session_id+ "'"
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
+    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow, School_Name=school_name())
 
 @app.route('/testPerformance')
 @login_required
@@ -1629,7 +1779,7 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    return render_template('classPerformance.html',form=form,School_Name=school_name())
+    return render_template('classPerformance.html',form=form,School_Name=school_name(), school_id=teacher_id.school_id)
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -2174,7 +2324,9 @@ def search():
 if __name__=="__main__":
     app.debug=True
     app.jinja_env.filters['zip'] = zip
-    app.run(host=os.getenv('IP', '127.0.0.1'), 
-            port=int(os.getenv('PORT', 8000)))
+    #app.run(host=os.getenv('IP', '127.0.0.1'), 
+    #        port=int(os.getenv('PORT', 8000)))
+    app.run(host=os.getenv('IP', '0.0.0.0'), 
+        port=int(os.getenv('PORT', 8000)))
     #app.run()
 

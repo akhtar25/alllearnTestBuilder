@@ -1,64 +1,37 @@
-{%extends "layout.html"%} {%block content%}
-<div class="container" height=100% >
-        
-    
-    <div class="skin-blue sidebar-mini">            
-        <aside class="main-sidebar" style="margin-top:15px;">
-            <!-- sidebar: style can be found in sidebar.less -->            
-            <section class="sidebar">                     
-              <ul class="sidebar-menu" data-widget="tree">
-                  {% for singleClass in distinctClasses %}
-                         <li class="treeview">
-                           <a href="#">
-                             <i class="glyphicon glyphicon-education"></i>
-                             <span>Class {{singleClass[0]}}</span>
-                             <span class="pull-right-container">
-                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-                             </span>
-                           </a>                                                      
-                           <ul class="treeview-menu">                            
-                              {% for classsection in classSections %}
-                                 {% if classsection.class_val==singleClass[0] %}
-                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
-                              {% endif %}
-                             {% endfor %}
-                           </ul>                                                      
-                         </li>
-                         {% endfor %}                
-         <ul>                  
-        </section>                
-            </aside>                
+{%extends "mobLayout.html"%} {%block content%}
+<div class="container" height=100% >        
+    <div class="skin-blue sidebar-mini">                               
             <!--------------------------------------------------------------------------------------------->
             <div class="content-wrapper" style="background-color: white;">
     <section class="content">
         <div class="row">
                 <div class="row">
-                <div class="col-xs-8"  >
+                <div class="col-md-5"  >
                   <div class="box" id="feedbackQuestionDiv">
                     <div class="box-header" >
                       <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>                              
                     </div>                                           
-                    <span id="questionList" style="display: none;">{{ questionList }}</span>
+                    <span id="respSessionQuestionRow" style="display: none;">{{ respSessionQuestionRow }}</span>
                     <input id="currrent_question_id" style="display: none;">
                     <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
                     <input id="section_ip" style="display: none;"type="text" value="{{section}}">
                     <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
-                    <div id = "questionSection">        
+                    <div id = "questionSection">
                       <div id="questionPlaceholder">
                         <br>
                         <br>
                         <br>
-                        {% if questionList|length > 0 %}
-                      <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>
+                        {% if questionListSize > 0 %}
+                      <p style="font-size: 24px;" class="grey-text text-lighten-1">Click Start to load questions</p>
                       <br><br><br><br><br><br><br><br>
                     
                       {%else %}
-                      <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
+                      <p style="font-size: 24px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
                       {% endif %}
                     </div>
                     </div>  
                     <div id="questionButtons">
-                     {% if questionList|length > 0 %}
+                     {% if respSessionQuestionRow|length > 0 %}
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
                      {% endif %}
                     <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
@@ -70,7 +43,7 @@
                   </div>   
                   <a class="btn btn-primary" id="completeClassBTN" href="{{url_for('classCon')}}" style="display: none;">Complete Class</a>
                 </div>              
-                  <div class="col-md-3" style="margin-top:20px;">
+                  <div class="col-md-3" style="margin-top:20px;display: none;">
                     <div id="answerCounter" style="overflow-y: auto; height:200px;">
                     <h4>Response Summary</h4> 
                     <div id="errorMsgElement"></div>
@@ -82,27 +55,32 @@
                             <div id="questionListSizeDiv">                      
                            </div>
                         </form>
-                      </div>
-                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
-                </div>                
-                
-                
-                <div >                                       
-               <div class="video-field" id="video-field">                
-               <video id="video" height="300" muted autoplay></video>                     
-               <canvas id="piccanvas" width="640" height="480" style="display:none !important"></canvas>
-               </div>    
+                      </div>                   
+                </div>
+                                              
+                 
               <!--  <div class="select">
                     <label for="videoSource"></label><select id="videoSource"></select>
                 </div>-->                                                       
-                  </div>            
+                  
                 </div>
+                <div class="video-field" id="video-field">                
+                        <video id="video" height="640" autoplay="true" style="display: block"></video>      
+                        <canvas id="piccanvas" width="640" height="480" style="display:none !important"></canvas>
+                        </div> 
+
+<div id="responsesSubmittedGif" class="col-md-5" style="display: none;">
+    <img src="../static/images/checkGif.gif">    
+    <h4>All Responses Submitted</h4>
+</div>
+
+
               </div>
-        </div>        
+        </div>
     </section>
 </div>
     </div>
-        </div>    
+        </div>
         <!--New Div for the updated camera mechanism-->
         <div id="container">            
             <div class="">
@@ -117,12 +95,12 @@
         </div>
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
         <script>
-          var subject_id = {{subject_id}};
               var questionIDListJS = [];
-              {%  for question in questionList%}              
+              {%  for question in respSessionQuestionRow%}              
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
               var questionListSize = {{ questionListSize }};
+              var resp_session_id={{resp_session_id}};
               var tempCountVar = 0;
             $("#startAndNextBTN").click(function(){                
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
@@ -130,7 +108,7 @@
               keepRecording = true;   
                 if(tempCountVar<questionListSize){
                 $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
+                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
                   type: "get",
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {       
@@ -151,38 +129,27 @@
                   }
                 });
               }
-              else{
-              }
             });
-            $('#submitAndFinishBTN').click(function(){     
-              var class_val = $('#class_val_ip').val();
-              console.log('This is the class_val in js: ' + class_val);
-              var section = $('#section_ip').val();
-              console.log('This is the section: ' + section);
-              questionIDListStr  = JSON.stringify(questionIDListJS);     
-              var resp_session_id={{resp_session_id}};
+            $('#submitAndFinishBTN').click(function(){
                 $.ajax({
-                  url: "/feedbackReport?resp_session_id="+resp_session_id,
+                  url: "/markSessionComplete?&resp_session_id="+resp_session_id ,
                   type: "get",
                   data: "",
                   success: function(response) {
-                    if (response!="NA"){
-                    $("#feedbackReportDiv").html(response);
-                    }
-                    else{
-                      $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
-                    }    
-                    $("#feedbackReportDiv").show(); 
-                    $("#feedbackQuestionDiv").hide();
-                    $("#video-field").hide();                    
-                    $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show(); 
-                    $("#completeClassBTN").show();                     
+                      if (response=="0"){
+                          console.log("Response session Closed");
+                      }
+                      else{
+                        alert("Error while closing session");
+                      }
                   },
                   error: function(xhr) {
-                    window.alert("error occurred while submittig data");
+                    window.alert("error occurred while loading question");
                   }
-                });              
+                });
+                $('#feedbackQuestionDiv').hide();
+                $('#responsesSubmittedGif').show().delay(1200);
+                window.location.href = "/qrSessionScanner";          
             });
             </script>
             <script src="../static/js/qrReader_zbar-main.js"></script>
