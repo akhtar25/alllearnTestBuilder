@@ -1505,7 +1505,7 @@ def feedbackReport():
 def studentFeedbackReport():
     student_id = request.args.get('student_id')  
     student_name = request.args.get('student_name') 
-    student_id=student_id.strip()  
+    student_id=student_id.strip()
     resp_session_id = request.args.get('resp_session_id')
     #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
     responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
@@ -1515,7 +1515,7 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "'"
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "' and and rc.resp_session_id='"+resp_session_id+ "'"
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
