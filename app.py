@@ -1266,11 +1266,23 @@ def feedbackCollection():
             # topic_id, question_id, question_status, resp_session_id
 
         if teacherProfile.device_preference==78:        
-            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name(), resp_session_id = responseSessionID)
         else:
             return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))
+
+@app.route('/markSessionComplete')
+@login_required
+def markSessionComplete():
+    resp_session_id = request.args.get('resp_session_id')
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    if sessionDetailRow!=None:
+        sessionDetailRow.session_status='82'
+        db.session.commit()
+        return jsonify(["0"])
+    else:
+        return jsonify(["1"])
 
 
 @app.route('/checkQuestionChange')
@@ -1283,9 +1295,11 @@ def checkQuestionChange():
             return jsonify(["Y"])
         else:
             return jsonify(["N"])
-    elif sessionDetailRow.session_status=='82':
+    elif str(sessionDetailRow.session_status).strip()=='82':
+        print ("returning FR")
         return jsonify(["FR"])
     else:
+        print("We're in returning sessionDetail row's sessionstatus NA")
         return jsonify([str(sessionDetailRow.session_status)+'NA'])
             
 
@@ -1402,33 +1416,40 @@ def responseDBUpdate():
   
 @app.route('/feedbackReport')
 def feedbackReport():    
-    questionListJson=request.args.get('question_id')
-    class_val=request.args.get('class_val')
-    subject_id=request.args.get('subject_id')
-    #print('here is the class_val '+ str(class_val))
-    section=request.args.get('section')
-    section = section.strip()
-    dateVal = request.args.get('date')
+    fromClassPerf = request.args.get('fromClassPerf')
     responseSessionID=request.args.get('resp_session_id')
+    if fromClassPerf!=None:
+    #questionListJson=request.args.get('question_id')
+        class_val=request.args.get('class_val')
+        subject_id=request.args.get('subject_id')
+    ##print('here is the class_val '+ str(class_val))
+        section=request.args.get('section')
+        section = section.strip()
+        dateVal = request.args.get('date')
+    
+    
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
+    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    if (class_val != None) and (section != None):
-
+#
+    if fromClassPerf!=None:
+#
         classSecRow = ClassSection.query.filter_by(class_val=class_val, section=section, school_id=teacher.school_id).first()       
         print('here is the subject_id: '+ str(subject_id))
-        #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
-        
+    #    #questionDetailRow = QuestionDetails.query.filter_by(question_id=questionListJson[1]).first()
+    #    
         if dateVal == None or dateVal=="":
             dateVal= datetime.today().strftime("%d%m%Y")
         else:
             tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
             dateVal= tempDate.strftime("%d%m%Y")
-        if responseSessionID=="":
-            responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
+        responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
 
+    if responseSessionID!=None:
+        #
         print('Here is response session id in feedback report: ' + responseSessionID)
+
         responseResultQuery = "WITH sum_cte AS ( "
         responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
         responseResultQuery = responseResultQuery + "question_options where question_id in  "
@@ -1468,14 +1489,15 @@ def feedbackReport():
                 print("total Points limit is zero")
 
             responseResultRowCount = len(responseResultRow)
-        print('Here is the questionListJson: ' + str(questionListJson))
+        #print('Here is the questionListJson: ' + str(questionListJson))
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
     if responseResultRowCount>0:
         return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
     else:
-         return jsonify(['No Data for the selected Date'])
+         return jsonify(['NA'])
+         
 
 
 @app.route('/studentFeedbackReport')
@@ -1757,7 +1779,7 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    return render_template('classPerformance.html',form=form,School_Name=school_name())
+    return render_template('classPerformance.html',form=form,School_Name=school_name(), school_id=teacher_id.school_id)
 
 
 @app.route('/resultUpload',methods=['POST','GET'])

@@ -142,7 +142,7 @@
                       loadNewQuestion();
                       
                     }
-                    else if (responseQID=="FR"){
+                    else if (checkValue=="FR"){
                       loadFeedbackReport();
                       flag=false;
                     }
@@ -179,15 +179,18 @@
               console.log('This is the section: ' + section);
               questionIDListStr  = JSON.stringify(questionIDListJS);                       
                 $.ajax({
-                  url: "/feedbackReport",
+                  url: "/feedbackReport?resp_session_id="+resp_session_id,
                   type: "get",
-                  data: {question_id: questionIDListStr,
-                        class_val: class_val,
-                        section: section,
-                         subject_id:subject_id},
+                  data: "",
                   success: function(response) {
-                    $("#feedbackReportDiv").show();
+                    if (response!="NA"){
                     $("#feedbackReportDiv").html(response);
+                    }
+                    else{
+                      $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
+                    }
+                    $("#feedbackReportDiv").show();
+                    
                     $("#feedbackQuestionDiv").hide();
                     $("#allResponsesSubmitted").show();
                     $("#completeClassBTN").show();

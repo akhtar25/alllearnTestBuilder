@@ -130,7 +130,23 @@
                 });
               }
             });
-            $('#submitAndFinishBTN').click(function(){    
+            $('#submitAndFinishBTN').click(function(){
+                $.ajax({
+                  url: "/markSessionComplete?&resp_session_id="+resp_session_id ,
+                  type: "get",
+                  data: "",
+                  success: function(response) {
+                      if (response=="0"){
+                          console.log("Response session Closed");
+                      }
+                      else{
+                        alert("Error while closing session");
+                      }
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });
                 $('#feedbackQuestionDiv').hide();
                 $('#responsesSubmittedGif').show().delay(1200);
                 window.location.href = "/qrSessionScanner";          
