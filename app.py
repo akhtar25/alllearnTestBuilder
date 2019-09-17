@@ -664,7 +664,7 @@ def questionBank():
         # session['date']=request.form['test_date']
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
-        session['chapter_num']=form.chapter_num.data
+        session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('questionBank.html',form=form,School_Name=school_name(),topics=topic_list)
     return render_template('questionBank.html',form=form,School_Name=school_name())
@@ -1098,9 +1098,9 @@ def updateQuestion():
             corrAns = 'Y'
             for optionDesc in optionlist:
                 if optionDesc==corrans:
-                    query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','"+optionDesc+"')"
+                    query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','A')"
                 else:
-                    query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','"+optionDesc+"')"
+                    query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','A')"
                     db.session.execute(query)
 
     print('Inside Update Questions')
@@ -1118,14 +1118,6 @@ def updateQuestion():
 def questionOptions():
     question_id_arg=request.args.get('question_id')
     questionOptionResults = QuestionOptions.query.filter_by(question_id=question_id_arg).all()
-    #query = "select option_desc from question_options where question_id='" + question_id + "'"
-    #avail_options = db.session.execute(text(query)).fetchall()
-    # if avail_options:
-    #     options = json.dumps(avail_options)
-    # for option in avail_options:
-    #     ans = []
-    #     print(option)
-    #     ans.append(option)
     questionOptionsList=[]
     for value in questionOptionResults:
         print("This is the value: "+str(value))        
