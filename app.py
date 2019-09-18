@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import logging
 import datetime as dt
+from datetime import timedelta
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
 from flask import g, jsonify
@@ -1905,10 +1906,19 @@ def section(class_val):
 
 @app.route('/resultUploadHistory')
 def resultUploadHistory():
+
+    #date_last_week = datetime.now() - timedelta(days=7)
+    #date_last_week = date_last_week.strftime("%d-%m-%Y")
+    #date_last_week = datetime.strptime(date_last_week, '%m-%d-%Y').date()
+
+    #print(datetime.now())
+    #print(date_N_days_ago)
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
     uploadHistoryQuery = "select distinct upload_id, cs.class_val, cs.section, "
     uploadHistoryQuery = uploadHistoryQuery + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date "
-    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id "
-    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id"
+    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id and cs.school_id='"+str(teacher_id.school_id)+"' "
+    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by upload_date desc"
     
     uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
     return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords, School_Name=school_name())
@@ -1918,7 +1928,7 @@ def resultUploadHistory():
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
 def uploadHistoryDetail():
     upload_id=request.args.get('upload_id')
-    resultDetailQuery = "select sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
+    resultDetailQuery = "select distinct sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
     resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
     resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id" 

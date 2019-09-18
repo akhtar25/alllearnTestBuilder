@@ -11,7 +11,7 @@
                 <th>Test Type</th>
                 <th>Subject</th>                
                 <th>Upload Date</th>
-                <th>Details</th>                
+                <th>Details</th>          
               </tr>
               {% for eachRow in uploadHistoryRecords%}
               <tr style="margin-top:5px;">
@@ -38,6 +38,7 @@
 $('.uploadHistoryDetBTN').click(function(){
   var upload_id_val = $(this).attr('name');
   $("#loaderDiv").show();
+  $("#uploadHistDiv").hide();
 $.ajax({
             url: "/uploadHistoryDetail?upload_id="+ upload_id_val,
             type: "POST",
