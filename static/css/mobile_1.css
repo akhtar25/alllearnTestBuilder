@@ -1,4 +1,8 @@
 
+@media only screen 
+and (min-width : 0px) 
+and (max-width : 767px) {
+/* Styles */
 
     #btnCode{
         background: #66BB6A;
@@ -30,10 +34,28 @@
         margin-left: 225px;
         margin-top: 600px;
     }
+    #textRespIntputBTN{
+        padding: 15px 20px 15px 20px;
+        margin-top: 6px;
+        margin-left: 25px;
+        border-radius: 20px;
+    }
+    #video-field{
+        margin-top: 60px;
+        margin-left: -20px;
+    }
+    #textRespCodeInput{
+        width: 59%;
+        margin-top: 22px;
+    }
+    #textCodeEntry{
+        display:flex;
+    }
     body{
         margin: 0;
         padding: 0;
-        font-family: sans-serif;
+        font: Regular 30px/40px Segoe UI;
+        min-height:100%;
     }
     header{
         position: absolute;
@@ -120,4 +142,4 @@
    img{
        border-radius: 30px;
    }
-
+}

@@ -46,7 +46,8 @@
    flex-direction: column;
  }
  #mobContainer{
-  min-height: 711px;
+  overflow: hidden;
+  min-height: 100%;
  }
 
  #readMoreDiv{
