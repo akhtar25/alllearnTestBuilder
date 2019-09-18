@@ -1605,7 +1605,8 @@ def testPerformance():
      #####Fetch school perf graph information##########
     performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
     performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-    if performanceRows!=None:
+    print(performanceRows)
+    if len(performanceRows)>0:
         df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
         df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
             5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
@@ -1638,7 +1639,7 @@ def testPerformance():
         #print(graphData)
         graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
     else:
-        graphJSON="No data found"
+        graphJSON=json.dumps("NA")
     return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1,School_Name=school_name())
 
 
