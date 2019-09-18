@@ -49,15 +49,27 @@
                             id="{{ question.question_id }}select"></td>
                         <td style="width:100px;"><label for="{{ question.question_id }}">
                                 <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
-                                <a class="delete" name="{{ question.question_id }}" href="#" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
+                                <a class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
+                                <div id="modal1" class="modal" style="display:none;">
+                                        <div class="modal-content">
+                                          <h1>Are you sure want to delete?</h1>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <a href="#!" class="delete" name="{{ question.question_id }}" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+                                          <a href="#!" class="modal-close waves-effect waves-green btn-flat">No</a>
+                                        </div>
+                                      </div>
                                 <!-- {{url_for('questionDetails',question_id=question.question_id )}} -->
                             </label></td>
                     </tr>
+                    
                     {% endfor %}
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <!-- Modal Structure -->
+        
     </div>
 </div>
     </div>
@@ -70,6 +82,17 @@
 {% endif %}
 
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, options);
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
 
   
     $(document).ready(function() {  
@@ -134,7 +157,7 @@
                   $('.delete').click(function(){
                     console.log('Inside delete funtion');  
                     var question_id = $(this).attr('name');
-                    console.log('Inside delete:'+question_id);
+                    console.log('Inside delete QuestionId:'+question_id);
                     var data="";
                     $.ajax({
                         url: "deleteQuestion?question_id="+question_id,

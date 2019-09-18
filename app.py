@@ -1125,7 +1125,7 @@ def deleteQuestion():
     print("Question Id:-"+question_id)
 
     updateQuery = "update question_details set archive_status='Y' where question_id='"+question_id+"'"
-    
+    print(updateQuery)
     db.session.execute(updateQuery)
     db.session.commit()
     return "text" 
