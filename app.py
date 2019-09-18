@@ -1121,14 +1121,12 @@ def questionOptions():
 @app.route('/deleteQuestion')
 def deleteQuestion():
     question_id = request.args.get('question_id')
+    print('Delete Question Id:'+question_id)
     print("Question Id:-"+question_id)
-    deleteOptions = "delete from question_options where question_id='"+question_id+"'"
-    print(deleteOptions)
-    db.session.execute(deleteOptions)
-    db.session.commit()
-    deleteQuery = "delete from question_details where question_id='"+question_id+"'"
-    print(deleteQuery)
-    db.session.execute(deleteQuery)
+
+    updateQuery = "update question_details set archive_status='Y' where question_id='"+question_id+"'"
+    
+    db.session.execute(updateQuery)
     db.session.commit()
     return "text" 
 
