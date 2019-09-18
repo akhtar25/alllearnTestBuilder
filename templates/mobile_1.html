@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en”>
 <head>
@@ -8,23 +9,32 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Comment code -->
+
+    <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link rel="stylesheet" href="../static/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
     <title>Mobile Page Index</title>
 </head>
 <body>
+<!-- <div id="content"> -->
     <header>
         <div class="logo">
             <nav class="active">
                 <ul>
                     <li>
-                        <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50">
-                        <a href="#">My Profile</a>
+                      <div id="profileDiv">
+                        <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50"><a href="#" style="font-size:30px;">My Profile</a>
+                      </div>
                     </li>
                     <li><div class="schoolDiv">
-                            <a href="#">School</a>
+                            <a href="#" style="font-size:30px;margin-left: 40px;">School</a>
                         </div>
                     </li>
                     <li><div class="logoutDiv">
-                            <a href="#">Logout</a>
+                            <a href="#" style="font-size:30px;margin-left: 40px;">Logout</a>
                         </div>
                     </li>
                 </ul>
@@ -33,14 +43,49 @@
         </div>
     </header>
 
-    <div class="container">
+    <!-- <div class="container">
         <div class="btn">
-            <button id="btnCode">Scan Code</button>
+
+            <a href=""><button id="btnCode" name="scanCodeBTN">Scan Code</button></a>
         </div>
         <div class="helpDiv">
             <a href="#" id="helpId">Need Help?</a>
         </div>
-    </div>
+    </div> -->
+<!-- </div> -->
+
+<div id="mobScanner" style="display:none;">
+
+        <h1> QR Code Scanner</h1>
+    
+        <video id="preview"></video>
+</div>
+
+        <script type="text/javascript">
+                  $("#btnCode").click(function(){
+
+          let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+          scanner.addListener('scan', function (content) {
+            alert(content);
+          });
+          Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+              scanner.start(cameras[0]);
+            } else {
+              console.error('No cameras found.');
+            }
+          }).catch(function (e) {
+            console.error(e);
+          });
+
+        });
+
+          $("#btnCode").click(function(){
+            $("#content").hide();
+            $("#mobScanner").show();
+          });
+        </script>
+       
     <script
   src="https://code.jquery.com/jquery-3.4.1.js"></script>
   <script type="text/javascript">
@@ -52,3 +97,4 @@
   </script>
 </body>
 </html>
+

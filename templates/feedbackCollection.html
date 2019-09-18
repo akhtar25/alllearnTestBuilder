@@ -61,7 +61,8 @@
                      {% if questionList|length > 0 %}
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
                      {% endif %}
-                    <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
+                    <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a> 
+                    <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">  
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
@@ -124,6 +125,10 @@
               {% endfor %}
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
+            $("#startrecordResponsesBTN").click(function(){
+              $("#skipButton").hide();
+            });
+            
             $("#startAndNextBTN").click(function(){                
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
               document.getElementById("result_strip").innerHTML="";
@@ -138,12 +143,19 @@
                     tempCountVar= tempCountVar+1;                
                     if(tempCountVar==questionListSize){
                       $("#startAndNextBTN").hide();                                            
-                      $("#startrecordResponsesBTN").show();                      
+                      $("#startrecordResponsesBTN").show();  
+                      $("#skipButton").click(function(){
+                        document.getElementById("submitAndFinishBTN").click();
+                      });                  
                     }
                     else{
                       $("#startAndNextBTN").attr('value','Next');       
                       $("#startAndNextBTN").hide();
-                      $("#startrecordResponsesBTN").show();                                         
+                      $("#startrecordResponsesBTN").show();   
+                      $("#skipButton").show();
+                      $("#skipButton").click(function(){
+                        document.getElementById("startAndNextBTN").click();
+                      });
                     }
                   },
                   error: function(xhr) {

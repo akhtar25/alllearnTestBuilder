@@ -1,61 +1,38 @@
 
-@media only screen 
-and (min-width : 0px) 
-and (max-width : 767px) {
-/* Styles */
-
+@media(max-width:900px){
     #btnCode{
         background: #66BB6A;
         color: white;
         border-radius: 15px;
-        padding: 40px 85px 40px 100px;
+        padding: 40px 100px 40px 100px;
         font-size: 25px;
         margin:300px 0px 250px 0px;
     }
-    #profileDiv{
-        display: flex;
-        margin-left: 10px;
-    }
     .btn{
         padding: 300 150 300 150;
-        margin-left: -33px;
-        height: 50px;
-        margin-top: -172px;
     }
-
     .schoolDiv{
         margin-left: 20px;
     }
     .logoutDiv{
         margin-left: 20px;
     }
+    .container1{
+        text-align: center;
+        margin: auto;
+    } 
     .helpDiv{
         font-size: 20px;
         margin-left: 225px;
-        margin-top: 600px;
-    }
-    #textRespIntputBTN{
-        padding: 15px 20px 15px 20px;
-        margin-top: 6px;
-        margin-left: 25px;
-        border-radius: 20px;
-    }
-    #video-field{
-        margin-top: 60px;
-        margin-left: -20px;
-    }
-    #textRespCodeInput{
-        width: 59%;
-        margin-top: 22px;
-    }
-    #textCodeEntry{
-        display:flex;
     }
     body{
         margin: 0;
         padding: 0;
-        font: Regular 30px/40px Segoe UI;
-        min-height:100%;
+        font-family: sans-serif;
+        padding-top: 100px; 
+        padding-right: 20px; 
+        height: 100%; 
+        width: 100%;
     }
     header{
         position: absolute;
@@ -124,11 +101,11 @@ and (max-width : 767px) {
        top: 50px;
        left: 0;
        transition: 0.5s;
-       display: block;
+       display: none;
    }
    header nav.active{
        left: 0;
-       display: none;
+       display: block;
        font-size: 30px;
        font-family: sans-serif;
    }
