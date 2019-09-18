@@ -231,30 +231,6 @@ var class_select = document.getElementById("class_val");
         student_name_select.innerHTML = optionHTMLNameStudent + student_name_select.innerHTML;
     });
 
-
-
-  // $('#loadTestPerfBTN').click(function(){
-  //           $("#testPerformanceGraphDiv").html('');     
-  //             var class_val = $('#class_val').val();              
-  //             var section = $('#section').val();                            
-  //             var test_type = $('#test_type').val();   
-  //             var selected_date=$('#testdate').val();
-  //             $('#loaderDivTest').show();
-  //             var data="";
-  //               $.ajax({
-  //                 url: "/testPerformanceGraph?class_val="+ class_val+"&section="+section+"&test_type="+test_type+"&date="+selected_date ,
-  //                 type: "get",
-  //                 data: data,
-  //                 success: function(response) {
-  //                     $('#loaderDivTest').hide();
-  //                   $("#testPerformanceGraphDiv").show(); 
-  //                   $("#testPerformanceGraphDiv").html(response);                            
-  //                 },
-  //                 error: function(xhr) {
-  //                   window.alert("error occurred while submitting data");
-  //                 }
-  //               });              
-  //           });
 </script>
 
 <!--Student level graph loader-->
@@ -382,41 +358,12 @@ $(document).ready(function(){
     });
 });
 
-
-
-
-
-
-
-
-
-  // $('#loadStudentPerfBTN').click(function(){
-  //           $("#studentPerformanceGraphDiv").html('');     
-  //             var class_val = $('#class_val1').val();              
-  //             var section = $('#section1').val();                            
-  //             var student = $('#student_name1').val();   
-  //             var test_type=$('#test_type1').val();
-  //             $('#loaderDivStud').show();
-  //             var data="";
-  //               $.ajax({
-  //                 url: "/studentPerformanceGraph?class_val="+ class_val+"&section="+section+"&student_id="+student+"&test_type="+test_type ,
-  //                 type: "get",
-  //                 data: data,
-  //                 success: function(response) {
-  //                     $('#loaderDivStud').hide();
-  //                   $("#studentPerformanceGraphDiv").show(); 
-  //                   $("#studentPerformanceGraphDiv").html(response);                            
-  //                 },
-  //                 error: function(xhr) {
-  //                   window.alert("error occurred while submitting data");
-  //                 }
-  //               });              
-  //           });
 </script>
 
 
 <script>
   var graphData = {{graphJSON | safe}};
+  if (graphData!="NA"){
   for (key in graphData) {
     value1 = graphData[key].data1[0];
     value2 = graphData[key].data2[0];
@@ -435,6 +382,11 @@ $(document).ready(function(){
     showlegend: true,
     displayModeBar: false
   });
+}
+else{
+  $("#graphDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 24px;">No data available right now.</p></span>');
+}
+
 </script>
       <script>
         var today = new Date();
