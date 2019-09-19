@@ -36,7 +36,9 @@
                             </div> -->
                             <!-- </ul> -->
                             {% else %}
-                                {{ question.question_description }}
+                                <h5>
+                                    {{ question.question_description }}
+                                </h5>
                             {% endif %}
                             <!-- {% for qp in quesOption %}
                             {% for quesOption in qp %} -->
@@ -49,12 +51,12 @@
                             id="{{ question.question_id }}select"></td>
                         <td style="width:100px;"><label for="{{ question.question_id }}">
                                 <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
-                                <a  onclick="Btn();"  name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
+                                <a  name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
                                  <div id="modal1" class="modal" style="width:52%;height:25%;">
                                         <div class="modal-content">
                                           <h1> 
-                                              <!-- Are you sure want to delete? -->
-                                               {{ question.question_id }}
+                                            Are you sure want to delete? 
+                                               <!-- {{ question.question_id }} -->
                                           </h1>
                                         </div>
                                         <div class="modal-footer">
@@ -166,27 +168,47 @@ document.addEventListener('DOMContentLoaded', function() {
                   $('#deleteBtn').click(function(){
 
                      var question_id = $(this).attr('name');
-                    // var question_id= document.getElementById('qId').value;
-                    // console.log('Inside delete funtion');  
-                        
+                    
                     console.log('Inside delete QuestionId:'+question_id);
-                    // var data="";
-                    // $.ajax({
-                    //     url: "deleteQuestion?question_id="+question_id,
-                    //     type: "get",
-                    //     data: data,
-                    //     beforeSend: function() {
-                    //         $("#editQuestionsTableDiv").hide();
-                    //         $("#questionloader").show();
-                    //     },
-                    //     success: function(response){
-                    //         questions();
-                    //     },
-                    //     error: function(xhr){
-                    //         window.alert("error occurred while loading question");
-                    //     }
-                    // });
+                    var data="";
+                    $.ajax({
+                        url: "deleteQuestion?question_id="+question_id,
+                        type: "get",
+                        data: data,
+                        beforeSend: function() {
+                            $("#editQuestionsTableDiv").hide();
+                            $("#questionloader").show();
+                        },
+                        success: function(response){
+                            questions();
+                        },
+                        error: function(xhr){
+                            window.alert("error occurred while loading question");
+                        }
+                    });
                   });
                   
+
+                  </script>
+                  <script>
+
+(function () {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+
+  var config = 'MathJax.Hub.Config({' +
+                 'extensions: ["tex2jax.js"],' +
+                 'jax: ["input/TeX","output/HTML-CSS"]' +
+               '});' +
+               'MathJax.Hub.Startup.onload();';
+               
+
+  if (window.opera) {script.innerHTML = config}
+               else {script.text = config}
+
+  document.getElementsByTagName("head")[0].appendChild(script);
+  MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+})();
 
                   </script>
