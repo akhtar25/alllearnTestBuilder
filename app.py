@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import logging
 import datetime as dt
+from datetime import timedelta
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
 from flask import g, jsonify
@@ -1604,37 +1605,41 @@ def testPerformance():
      #####Fetch school perf graph information##########
     performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
     performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-    df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-    df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-        5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-    #print(df)
-    dateRange = list(df['Date'])
-    class1Data= list(df['Class_1'])
-    class2Data= list(df['Class_2'])
-    class3Data= list(df['Class_3'])
-    class4Data= list(df['Class_4'])
-    class5Data= list(df['Class_5'])
-    class6Data= list(df['Class_6'])
-    class7Data= list(df['Class_7'])
-    class8Data= list(df['Class_8'])
-    class9Data= list(df['Class_9'])
-    class10Data= list(df['Class_10'])
-    #print(dateRange)
-    ##Class 1
-    graphData = [dict(
-        data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-        data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-        data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-        data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-        data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-        data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-        data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-        data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-        data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-        data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-        )]        
-    #print(graphData)
-    graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+    print(performanceRows)
+    if len(performanceRows)>0:
+        df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+        df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+            5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+        #print(df)
+        dateRange = list(df['Date'])
+        class1Data= list(df['Class_1'])
+        class2Data= list(df['Class_2'])
+        class3Data= list(df['Class_3'])
+        class4Data= list(df['Class_4'])
+        class5Data= list(df['Class_5'])
+        class6Data= list(df['Class_6'])
+        class7Data= list(df['Class_7'])
+        class8Data= list(df['Class_8'])
+        class9Data= list(df['Class_9'])
+        class10Data= list(df['Class_10'])
+        #print(dateRange)
+        ##Class 1
+        graphData = [dict(
+            data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+            data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+            data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+            data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+            data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+            data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+            data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+            data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+            data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+            data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+            )]        
+        #print(graphData)
+        graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+    else:
+        graphJSON=json.dumps("NA")
     return render_template('testPerformance.html',graphJSON=graphJSON,form=form,form1=form1,School_Name=school_name())
 
 
@@ -1937,10 +1942,19 @@ def section(class_val):
 
 @app.route('/resultUploadHistory')
 def resultUploadHistory():
+
+    #date_last_week = datetime.now() - timedelta(days=7)
+    #date_last_week = date_last_week.strftime("%d-%m-%Y")
+    #date_last_week = datetime.strptime(date_last_week, '%m-%d-%Y').date()
+
+    #print(datetime.now())
+    #print(date_N_days_ago)
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
     uploadHistoryQuery = "select distinct upload_id, cs.class_val, cs.section, "
     uploadHistoryQuery = uploadHistoryQuery + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date "
-    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id "
-    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id"
+    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id and cs.school_id='"+str(teacher_id.school_id)+"' "
+    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by upload_date desc"
     
     uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
     return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords, School_Name=school_name())
@@ -1950,7 +1964,7 @@ def resultUploadHistory():
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
 def uploadHistoryDetail():
     upload_id=request.args.get('upload_id')
-    resultDetailQuery = "select sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
+    resultDetailQuery = "select distinct sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
     resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
     resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id" 
