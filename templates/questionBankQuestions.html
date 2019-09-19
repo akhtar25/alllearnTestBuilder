@@ -49,17 +49,19 @@
                             id="{{ question.question_id }}select"></td>
                         <td style="width:100px;"><label for="{{ question.question_id }}">
                                 <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
-                                <a class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
-                                <div id="modal1" class="modal" style="display:none;">
+                                <a  onclick="Btn();"  name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
+                                 <div id="modal1" class="modal" style="width:52%;height:25%;">
                                         <div class="modal-content">
-                                          <h1>Are you sure want to delete?</h1>
+                                          <h1> 
+                                              <!-- Are you sure want to delete? -->
+                                               {{ question.question_id }}
+                                          </h1>
                                         </div>
                                         <div class="modal-footer">
-                                          <a href="#!" class="delete" name="{{ question.question_id }}" class="modal-close waves-effect waves-green btn-flat">Yes</a>
-                                          <a href="#!" class="modal-close waves-effect waves-green btn-flat">No</a>
+                                          <a href="#" id="deleteBtn" name="{{ question.question_id }}" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+                                           <a href="#" id="no" class="modal-close waves-effect waves-green btn-flat">No</a>
                                         </div>
-                                      </div>
-                                <!-- {{url_for('questionDetails',question_id=question.question_id )}} -->
+                                      </div> 
                             </label></td>
                     </tr>
                     
@@ -154,26 +156,36 @@ document.addEventListener('DOMContentLoaded', function() {
                       });               
                   });
 
-                  $('.delete').click(function(){
-                    console.log('Inside delete funtion');  
-                    var question_id = $(this).attr('name');
+
+                  function Btn(){
+                    console.log('Inside qId');
+                      var question_id = $(this).attr('name');
+                      console.log('Id:'+question_id);
+                  };
+            
+                  $('#deleteBtn').click(function(){
+
+                     var question_id = $(this).attr('name');
+                    // var question_id= document.getElementById('qId').value;
+                    // console.log('Inside delete funtion');  
+                        
                     console.log('Inside delete QuestionId:'+question_id);
-                    var data="";
-                    $.ajax({
-                        url: "deleteQuestion?question_id="+question_id,
-                        type: "get",
-                        data: data,
-                        beforeSend: function() {
-                            $("#editQuestionsTableDiv").hide();
-                            $("#questionloader").show();
-                        },
-                        success: function(response){
-                            questions();
-                        },
-                        error: function(xhr){
-                            window.alert("error occurred while loading question");
-                        }
-                    });
+                    // var data="";
+                    // $.ajax({
+                    //     url: "deleteQuestion?question_id="+question_id,
+                    //     type: "get",
+                    //     data: data,
+                    //     beforeSend: function() {
+                    //         $("#editQuestionsTableDiv").hide();
+                    //         $("#questionloader").show();
+                    //     },
+                    //     success: function(response){
+                    //         questions();
+                    //     },
+                    //     error: function(xhr){
+                    //         window.alert("error occurred while loading question");
+                    //     }
+                    // });
                   });
                   
 

@@ -2077,7 +2077,7 @@ def questionBuilder():
     if request.method=='POST':
         if form.submit.data:
             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
-            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data,suggested_weightage=int(request.form['weightage']))
+            reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data,suggested_weightage=int(request.form['weightage']),archive_status=str('N'))
             print(question)
             db.session.add(question)
             if form.question_type.data=='Subjective':
