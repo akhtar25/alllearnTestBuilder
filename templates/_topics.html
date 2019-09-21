@@ -1,7 +1,8 @@
 {% if topic_list %}
-    <table>
+    <table cellpadding="10">
         <thead>
             <tr style="border-bottom: none;">
+                <th scope="col" >Ch.</th>
                 <th scope="col">Topic Name</th>
                 <th scope="col">Topic Id</th>
             </tr>
@@ -9,6 +10,7 @@
         <tbody>
             {% for topic in topic_list%}
           <tr style="border-bottom: none;">
+            <td>{{ topic.chapter_num }}</td>
             <td>{{ topic.topic_name }}</td>
             <td>{{ topic.topic_id }}</td>
           </tr>

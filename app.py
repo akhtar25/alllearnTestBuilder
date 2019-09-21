@@ -2260,11 +2260,11 @@ def questionTopicPicker():
     print('Inside topic picker')
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    chapter_num = request.args.get('chapter_num')
-    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id,chapter_num=chapter_num).all()
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).order_by(Topic.chapter_num).all()
     for topic in topic_list:
         print(topic.topic_id)
         print(topic.topic_name)
+        print(topic.chapter_num)
     # form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     # form.subject_name.choices= ''
     # # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
