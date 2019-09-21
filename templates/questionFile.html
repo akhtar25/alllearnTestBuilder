@@ -1,7 +1,9 @@
 <h4>Upload a file </h4>
 <!--{{ form.hidden_tag() }}-->
+
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
+                    
                         <div class="col-sm-3">
                                 <div style="width:150px;">
                                         {{ form.class_val.label(class='labelsize') }}
@@ -56,7 +58,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="col-sm-2" style="margin-left: -120px;">
+                        <!-- <div class="col-sm-2" style="margin-left: -120px;">
                             <div style="width:150px;" >
                                             {{ form.topics.label(class='labelsize') }}
                                             <div id='loader3'style='display: none; float: right;'>
@@ -76,16 +78,21 @@
     
                                             
                             </div>
-                    </div>
-                    <div class="col-sm-4" style="padding-top:22px; padding-left:20px;">
+                    </div> -->
+                    <div class="col-sm-4" style="padding-top:22px; padding-left:20px;margin-left: -80px;">
                       <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" id="UploadBtn" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
                     </div>
+                    
                     </div>
 
                     <span id="message" style="color:Red;display: none;float:left;"></span>
 
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
-<div style="display:None;"></div>
+
+<!-- <div id="topicTable">
+    <div id="topicLoader" style="display: none;padding-left: 300px;">
+        <img src="../static/images/loader.gif"></div>
+</div> -->
 
 <!--<div class="container">
     <div class="table-responsive">
@@ -173,20 +180,39 @@
        class_val = class_select.value;
        subject_id = subject_select.value;
        chapter_num = chapter_num_select.value;
-       $("#loader3").show();
-       fetch('/questionTopicPicker/' + class_val + '/'+ subject_id+'/'+chapter_num).then(function(response) {
-              response.json().then(function(data) {
-                      $("#loader3").hide();    
-                      var optionHTML = '';
-                     console.log('Inside Subject value onchange')
-                     optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
-                      for (var topic of data.topics) {
-                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                    }                 
-                  topic_select.innerHTML =  optionHTML;
-              })
+      //  $("#loader3").show();
+      //  fetch('/questionTopicPicker/' + class_val + '/'+ subject_id+'/'+chapter_num).then(function(response) {
+      //         response.json().then(function(data) {
+      //                 $("#loader3").hide();    
+      //                 var optionHTML = '';
+      //                console.log('Inside Subject value onchange')
+      //                optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
+      //                 for (var topic of data.topics) {
+      //                     optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+      //               }                 
+      //             topic_select.innerHTML =  optionHTML;
+      //         })
               
-          });
+      //     });
+
+                      var data="";
+                      $.ajax({
+                        url: "/questionTopicPicker?class_val="+ class_val + "&subject_id="+ subject_id+"&chapter_num="+chapter_num,
+                        type: "get",
+                        data: data,
+                        beforeSend: function() {
+                            $("#topicLoader").show();
+                        },
+                        success: function(response) {   
+                          $("#topicLoader").hide();
+                          $("#topicTable").html(response);
+                          $("#topicTableHeader").show();
+                          $('#topicTable').show();
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      }); 
      }
 
 
@@ -199,6 +225,8 @@
             testTypeValue = document.getElementById('topics').value;
             chapterNumValue = document.getElementById('chapter_num').value;
             console.log(classValue);
+            $('#topicTableHeader').hide();
+            $('#topicTable').hide();
             if(classValue=='na'){
                 console.log('Inside message');
                 tag = document.getElementById('message');

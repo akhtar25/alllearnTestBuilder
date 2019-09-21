@@ -2136,9 +2136,9 @@ def questionBuilder():
                 if row['Question Type']=='MCQ1':
                     print("Inside MCQ")
                     question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-                    topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                    topic_id=row['Topic Id'],question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
                     db.session.add(question)
-                    question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
+                    question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
                     for i in range(1,5):
                         option_no=str(i)
                         option_name='Option'+option_no
@@ -2168,7 +2168,7 @@ def questionBuilder():
                 else:
                     print("Inside Subjective")
                     question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-                    topic_id=int(request.form['topics']),question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                    topic_id=row['Topic Id'],question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
                     db.session.add(question)
             db.session.commit()
             flash('Successfully Uploaded !')
@@ -2201,7 +2201,7 @@ def questionUpload():
 #     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
 #     return render_template('questionUpdateUpload.html',form=form)
 
-@app.route('/questionFile',methods=['GET'])
+@app.route('/questionFile',methods=['GET']) 
 def questionFile():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
@@ -2255,19 +2255,23 @@ def topic_list(class_val,subject_id):
     
     return jsonify({'topics':topicArray})
 
-@app.route('/questionTopicPicker/<class_val>/<subject_id>/<chapter_num>')
-def topic_list_chapterwise(class_val,subject_id,chapter_num):
+@app.route('/questionTopicPicker')
+def questionTopicPicker():
+    print('Inside topic picker')
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    chapter_num = request.args.get('chapter_num')
     topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id,chapter_num=chapter_num).all()
-
-    topicArray=[]
-
     for topic in topic_list:
-        topicObj={}
-        topicObj['topic_id']=topic.topic_id
-        topicObj['topic_name']=topic.topic_name
-        topicArray.append(topicObj)
+        print(topic.topic_id)
+        print(topic.topic_name)
+    # form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
+    # form.subject_name.choices= ''
+    # # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    # form.chapter_num.choices= ''
+    # form.topics.choices= ''
     
-    return jsonify({'topics':topicArray})
+    return render_template('_topics.html',topic_list=topic_list)
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):

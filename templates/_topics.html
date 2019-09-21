@@ -1,0 +1,19 @@
+{% if topic_list %}
+    <table>
+        <thead>
+            <tr style="border-bottom: none;">
+                <th scope="col">Topic Name</th>
+                <th scope="col">Topic Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic in topic_list%}
+          <tr style="border-bottom: none;">
+            <td>{{ topic.topic_name }}</td>
+            <td>{{ topic.topic_id }}</td>
+          </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+    {% endif %}
