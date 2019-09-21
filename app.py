@@ -2133,32 +2133,43 @@ def questionBuilder():
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
             for index ,row in df1.iterrows():
-                question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-                topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
-                db.session.add(question)
-                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
-                for i in range(1,5):
-                    option_no=str(i)
-                    option_name='Option'+option_no
-                    weightage_name='Weightage'+option_no
-                    if row['CorrectAnswer']=='option '+option_no:
-                        correct='Y'
-                        weightage=row[weightage_name]
-                    else:
-                        correct='N'
-                        weightage='0'
-                    if i==1:
-                            option_val='A'
-                    elif i==2:
-                            option_val='B'
-                    elif i==3:
-                            option_val='C'
-                    else:
-                        option_val='D'
+                if row['Question Type']=='MCQ1':
+                    print("Inside MCQ")
+                    question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                    topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                    db.session.add(question)
+                    question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
+                    for i in range(1,5):
+                        option_no=str(i)
+                        option_name='Option'+option_no
 
-                    option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
-                    print(option)
-                    db.session.add(option)
+                        print(row[option_name])
+                        if row['CorrectAnswer']=='Option'+option_no:
+                            correct='Y'
+                            weightage=row['Suggested Weightage']
+                        else:
+                            correct='N'
+                            weightage='0'
+                        if i==1:
+                                option_val='A'
+                        elif i==2:
+                                option_val='B'
+                        elif i==3:
+                                option_val='C'
+                        else:
+                            option_val='D'
+                        print(row[option_name])
+                        print(question_id.question_id)
+                        print(correct)
+                        print(option_val)
+                        options=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                        print(options)
+                        db.session.add(options)
+                else:
+                    print("Inside Subjective")
+                    question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                    topic_id=int(request.form['topics']),question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                    db.session.add(question)
             db.session.commit()
             flash('Successfully Uploaded !')
             return render_template('questionBuilder.html',School_Name=school_name())
@@ -2194,9 +2205,12 @@ def questionUpload():
 def questionFile():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBuilderQueryForm()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= ''
+    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.chapter_num.choices= ''
+    form.topics.choices= ''
+    # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
 
 
@@ -2230,6 +2244,20 @@ def subject_list(class_val):
 @app.route('/questionBuilder/<class_val>/<subject_id>')
 def topic_list(class_val,subject_id):
     topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
+
+    topicArray=[]
+
+    for topic in topic_list:
+        topicObj={}
+        topicObj['topic_id']=topic.topic_id
+        topicObj['topic_name']=topic.topic_name
+        topicArray.append(topicObj)
+    
+    return jsonify({'topics':topicArray})
+
+@app.route('/questionTopicPicker/<class_val>/<subject_id>/<chapter_num>')
+def topic_list_chapterwise(class_val,subject_id,chapter_num):
+    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id,chapter_num=chapter_num).all()
 
     topicArray=[]
 

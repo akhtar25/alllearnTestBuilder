@@ -3,7 +3,7 @@
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
                         <div class="col-sm-3">
-                                <div style="width:250px;">
+                                <div style="width:150px;">
                                         {{ form.class_val.label(class='labelsize') }}
                                         <br>
                                         {% if form.class_val.errors %}
@@ -18,7 +18,7 @@
                                         {% endif %}
                                 </div>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2" style="margin-left: -120px;">
                                 <div style="width:150px;">
                                                 {{ form.subject_name.label(class='labelsize') }}
                                                 <div id='loader1'style='display: none; float: right;'>
@@ -37,11 +37,29 @@
                                                 {% endif %}      
                                 </div>
                         </div>
-    
-                        <div class="col-sm-2">
+                        <div class="col-sm-3" style="margin-left: -20px;">
+                            <div style="width:150px;">
+                                {{ form.chapter_num.label(class='labelsize') }}
+                                <div id='loader2' style='display: none; float: right;'>
+                                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                </div>
+                                <br>
+                                {% if form.chapter_num.errors %}
+                                {{ form.chapter_num(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.chapter_num.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.chapter_num(class='form-control') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-sm-2" style="margin-left: -120px;">
                             <div style="width:150px;" >
                                             {{ form.topics.label(class='labelsize') }}
-                                            <div id='loader2'style='display: none; float: right;'>
+                                            <div id='loader3'style='display: none; float: right;'>
                                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                             </div>
                                     <br>
@@ -60,10 +78,11 @@
                             </div>
                     </div>
                     <div class="col-sm-4" style="padding-top:22px; padding-left:20px;">
-                      <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
+                      <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" id="UploadBtn" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
                     </div>
                     </div>
 
+                    <span id="message" style="color:Red;display: none;float:left;"></span>
 
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
 <div style="display:None;"></div>
@@ -86,7 +105,22 @@
    var class_select = document.getElementById("class_val");
     var subject_select = document.getElementById("subject_name");
     var topic_select = document.getElementById("topics");
-    
+    var chapter_num_select = document.getElementById("chapter_num");
+    var optionHTMLClass = '';
+    var optionHTMLSubject = '';
+    var optionHTMLTopic = '';
+    var optionHTMLChapter = '';
+    $(document).ready(function(){
+        $('#class_val').val("na");
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+        optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
+        topic_select.innerHTML = optionHTMLTopic + topic_select.innerHTML;
+    });
 
     class_select.onchange = function()  {
          
@@ -97,6 +131,8 @@
             response.json().then(function(data) {
                     $("#loader1").hide();    
                     var optionHTML = '';
+                    optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+
                     for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                 }
@@ -113,40 +149,87 @@
         else{
           subject_id='54';
         }
-        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader").hide();    
-                     var optionHTML = '';
-                    
-                     for (var topic of data.topics) {
-                    
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
-             
-         });
     }
 
-         subject_select.onchange=function()  {
-         
-         subject_id = subject_select.value;
-         $("#loader2").show();
-         
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader2").hide();    
-                     var optionHTML = '';
-                    
-                     for (var topic of data.topics) {
-                    
-                        optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
-                 }                 
-                 topic_select.innerHTML =  optionHTML;
-             })
-             
-         });
-    }
+    subject_select.onchange=function()  {
+        class_val = class_select.value;
+        subject_id = subject_select.value;
+        console.log('Inside subject_select on change')
+        $("#loader2").show();
+        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+                $("#loader2").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+                for (var chapterNo of data.chapterNum){
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+                  }
+                  chapter_num_select.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+     chapter_num_select.onchange=function(){
+       class_val = class_select.value;
+       subject_id = subject_select.value;
+       chapter_num = chapter_num_select.value;
+       $("#loader3").show();
+       fetch('/questionTopicPicker/' + class_val + '/'+ subject_id+'/'+chapter_num).then(function(response) {
+              response.json().then(function(data) {
+                      $("#loader3").hide();    
+                      var optionHTML = '';
+                     console.log('Inside Subject value onchange')
+                     optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
+                      for (var topic of data.topics) {
+                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                    }                 
+                  topic_select.innerHTML =  optionHTML;
+              })
+              
+          });
+     }
+
+
+
+
+    $(document).ready(function(){
+    $('#file-input').click(function(){
+        classValue = document.getElementById('class_val').value;
+            subjectValue = document.getElementById('subject_name').value;
+            testTypeValue = document.getElementById('topics').value;
+            chapterNumValue = document.getElementById('chapter_num').value;
+            console.log(classValue);
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Class Selected';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Subject Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(chapterNumValue=='na'){
+              tag = document.getElementById('message');
+                tag.innerHTML = 'No Chapter Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(testTypeValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Topic Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            {
+                $('#message').hide();
+            }
+    });
+});
 //$(document).ready(function(){
   //$('#file-input').click(function(){
     /*function hasExtension(inputID, exts) {
