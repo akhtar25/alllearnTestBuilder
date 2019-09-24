@@ -1022,7 +1022,7 @@ def updateQuestion():
     print(op3)
     print(op4)
     form = QuestionBuilderQueryForm()
-    print("Updated class Value:"+updatedCV)
+    print("Updated class Value+:"+updatedCV)
     print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(corrans)+" "+str(weightage))
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
@@ -1861,10 +1861,12 @@ def resultUpload():
                 sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first()
                 test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first()
 
-                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
 
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),school_id=teacher_id.school_id).first()
 
+                print(class_sec_id.class_sec_id)
+                print(teacher_id.school_id)
                 student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
 
                 if student_list:
@@ -2123,7 +2125,8 @@ def questionBuilder():
                         option='C'
                     else:
                         option='D'
-                    options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
+                        
+                    options=QuestionOptions(option_desc=option_list[i],question_id=question.question_id,is_correct=correct,weightage=weightage,option=option)
                     print("Options in question Builder:"+str(options))
                     db.session.add(options)
                 db.session.commit()
