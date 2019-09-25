@@ -231,12 +231,14 @@
             type: "POST",
             contentType: "application/json",
             data: checkboxesChecked,
-            beforeSend: function() {
+            beforeSend: function() {    
                 $("#questionEditorDiV").hide();
+                $("#editQuestionsTableDiv").hide();
               $("#questionloader").show();
            },
             success: function (response) {
                 $("#questionloader").hide();
+                $("#questionEditorDiV").show();
                 $("#questions").html(response);
             },
             error: function (xhr) {

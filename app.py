@@ -1375,6 +1375,16 @@ def loadQuestion():
     #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
+@app.route('/questionAllDetails')
+def questionAllDetails():
+    question_id = request.args.get('question_id')
+    totalQCount = ''
+    qnum= ''
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    
+    return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
 
 
 
