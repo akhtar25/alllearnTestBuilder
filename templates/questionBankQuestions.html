@@ -51,7 +51,7 @@
                             id="{{ question.question_id }}select"></td>
                         <td style="width:100px;"><label for="{{ question.question_id }}">
                                 <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
-                                <a  name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
+                                <a id="delBtn" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger delBTNClass" href="#modal1" style="margin-left: 15px;"><i class="fa fa-window-close" style="font-size:17px;color:red;" ></i></a>
                                  <div id="modal1" class="modal" style="width:52%;height:25%;">
                                         <div class="modal-content">
                                           <h1> 
@@ -92,6 +92,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var instances = M.Modal.init(elems, options);
   });
 
+  
+
   // Or with jQuery
 
   $(document).ready(function(){
@@ -101,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
     $(document).ready(function() {  
     var flag =  true;
+    
+
     $('.quesDescLink').click(function(){
         var question_id = $(this).attr('name');
         var data="";
@@ -164,10 +168,15 @@ document.addEventListener('DOMContentLoaded', function() {
                       var question_id = $(this).attr('name');
                       console.log('Id:'+question_id);
                   };
+                  var question_id='';
+                  $('.delBTNClass').click(function(){
+                     question_id = $(this).attr('name');
+                    console.log('Question Id on Delete button:'+question_id);
+                  });
             
                   $('#deleteBtn').click(function(){
 
-                     var question_id = $(this).attr('name');
+                     //var question_id = $(this).attr('name');
                     
                     console.log('Inside delete QuestionId:'+question_id);
                     var data="";
