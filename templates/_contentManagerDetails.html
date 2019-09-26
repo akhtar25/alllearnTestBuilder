@@ -1,0 +1,52 @@
+<div class="container">
+<div id="contentBoxDiv">
+<h3></h3>
+<div class="card id">
+    <div class="card-body">
+        <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+                <thead>
+                    <tr>                      
+                        <th scope="col">Content</th>
+                        <th scope="col">Modified Date</th>
+                        <th scope="col">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for content in contents %}          
+                    <tr>
+                        <td>
+                            {%if content.type=="88"%}
+                            <video width="160" height="120" controls>
+                                    <source src="{{content.reference_link}}">
+                                    Your browser does not support the video.
+                                  </video>
+                            {%elif content.type=="89"%}
+                            <audio controls>
+                                    <source src="{{content.reference_link}}">
+                                  Your browser does not support the audio.
+                                  </audio>
+                            {%elif content.type=="90"%}
+                                  <img src="{{content.reference_link}}">
+                            {%elif content.type=="91"%}
+                            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png">
+                            {%endif%}
+                            &nbsp;&nbsp;
+                            {{content.content_name}}
+                        </td>
+                        <td>{{content.last_modified_date.strftime('%Y-%m-%d')}}</td>
+                        <td>{{content.type}}</td>
+                    </tr>                
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>        
+    </div>
+</div>
+</div>
+    <div id="loaderDiv" style="display: none;padding-left: 300px;">
+            <img src="../static/images/loader.gif">
+            </div>        
+</div>
+
+<script></script>
