@@ -514,3 +514,20 @@ class RespSessionQuestion(db.Model):
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
 
 
+class ContentDetail(db.Model):
+    __tablename__="content_detail"
+    content_id = db.Column(db.Integer,primary_key=True)
+    content_name = db.Column(db.String(200), nullable=True)
+    reference_link = db.Column(db.String(300),nullable=True)
+    topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)    
+    archive_status = db.Column(db.String(1),nullable=True)
+    uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+    class_val=db.Column(db.Integer,nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_private = db.Column(db.String(1),nullable=True)
+    content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    
+    
+
+
