@@ -1193,8 +1193,10 @@ def classDelivery():
         qclass_sec_id = request.args.get('class_sec_id')
         retake = request.args.get('retake')
         print('this is retake val: '+str(retake))
-
-
+        contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id)).all()
+        print('Content Data:'+str(contentData))
+        for content in contentData:
+            print('This is Content Data:'+str(content.content_name)+' '+str(content.reference_link)+' '+str(content.last_modified_date))
         #db query 
             #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
@@ -1230,7 +1232,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name())
+    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData)
 
 
 

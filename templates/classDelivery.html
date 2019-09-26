@@ -106,7 +106,25 @@
                 <a href="#"><h3>Reference</h3></a>
               <ul class="treeview-menu">
                  <li>
-                    <h3 ></h3>
+                    <table cellpadding="10">
+                        <thead>
+                            <tr style="border-bottom: none;">
+                                <th scope="col" >Content Name</th>
+                                <th scope="col">Content</th>
+                                <th scope="col">Last Modified Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for content in contentData%}
+                          <tr style="border-bottom: none;">
+                            <td>{{ content.content_name }}</td>
+                            <td>{{ content.reference_link }}</td>
+                            <td>{{ content.last_modified_date }}</td>
+                          </tr>
+                            {% endfor %}
+                        </tbody>
+                
+                    </table>
                   </li>
               </ul>
             </li>
