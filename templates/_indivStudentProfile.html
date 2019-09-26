@@ -3,7 +3,11 @@
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>Student Details</h3></div>        
         
            <div class="col s4 m4 l4 center" >
+               {%if studentProfileRow.profile_picture!="" %}
             <img class="responsive-img " src="{{studentProfileRow.profile_picture}}">
+            {%else%}
+            <img class="responsive-img " src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+            {%endif%}
             <h4 style="font-weight: bold;">{{studentProfileRow.full_name}}</h4>
             <h4>Class {{studentProfileRow.class_val}} - {{studentProfileRow.section}}</h4>
         </div>
