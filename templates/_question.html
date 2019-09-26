@@ -31,8 +31,13 @@
     {% endif %}
     {% endfor %}
  </ul>
- <a id="showAns" style="cursor: pointer;font-size: 16px;margin-left: 170px">Solution</a>
- <a id="hideAns" style="cursor: pointer;font-size: 16px;margin-left: 170px;display:none;">Hide Solution</a>
+ {% if qnum %}
+ <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;">Show Answer</a>
+ <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;display:none;">Hide Answer</a>
+ {% else %}
+ <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top:140px;">Show Answer</a>
+ <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 140px;display:none;">Hide Answer</a>
+ {% endif %}
 </div>
 </div>
 
