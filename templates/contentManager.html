@@ -1,0 +1,70 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+    <h3>Upload History</h3>
+    <div id="uploadHistDiv">
+        <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
+        <div class="box-body table-responsive no-padding">
+            <table class="table table-hover">
+              <tr>
+               <th>Class</th>
+               <th>Section</th>
+                <th>Test Type</th>
+                <th>Subject</th>                
+                <th>Upload Date</th>
+                <th>Details</th>          
+              </tr>
+              {% for eachRow in uploadHistoryRecords%}
+              <tr style="margin-top:5px;">
+                <td>{{eachRow.class_val}}</td>                
+                <td>{{eachRow.section}}</td>
+                <td>{{eachRow.test_type}}</td>
+                <td>{{eachRow.subject}}</td>
+                <td>{{eachRow.upload_date}}</td>                
+                <td><button class="uploadHistoryDetBTN btn green lighten-1" id="uploadDetailsButton" name="{{eachRow.upload_id}}">Details</button></td>
+              </tr>
+                   {% endfor %}
+            </table>
+          </div>
+    </div>    
+                  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+                  <div class="section">
+<div id="uploadHistDetailDiv" style="display: none; padding-bottom: 50px;"></div>
+<div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeResultDetBTN" style="margin-top: 10px;">Back</button></div>   
+</div>
+                </div>               
+
+
+<script>
+$('.uploadHistoryDetBTN').click(function(){
+  var upload_id_val = $(this).attr('name');
+  $("#loaderDiv").show();
+  $("#uploadHistDiv").hide();
+$.ajax({
+            url: "/uploadHistoryDetail?upload_id="+ upload_id_val,
+            type: "POST",
+            contentType: "application/json",
+            data: "",            
+            success: function (response) {
+                $("#loaderDiv").hide();
+                $("#uploadHistDetailDiv").html(response);
+                $("#uploadHistDetailDiv").show();
+                $("#backButton").show();
+                $("#uploadHistDiv").hide();
+                
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+      });
+
+      $('#closeResultDetBTN').click(function(){    
+    $('#uploadHistDiv').show();
+    $('#uploadHistDetailDiv').hide();
+    $('#backButton').hide();
+
+})      
+</script>
+
+
+{%endblock%}

@@ -1234,6 +1234,13 @@ def classDelivery():
 
 
 
+@app.route('/contentManager')
+@login_required
+def contentManager():
+    return render_template('contentManager.html')
+
+
+
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
