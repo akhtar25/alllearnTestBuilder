@@ -526,6 +526,7 @@ class ContentDetail(db.Model):
     class_val=db.Column(db.Integer,nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
+    content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     
     
 
