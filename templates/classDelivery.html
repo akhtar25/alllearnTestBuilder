@@ -3,6 +3,7 @@
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
       <!-- sidebar: style can be found in sidebar.less -->
+      
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           {% for singleClass in distinctClasses %}
@@ -60,33 +61,55 @@
       </section>
       <section class="col-md-4">
         <form method="POST" action="/feedbackCollection">
-          <div class="box box-info">
-            <h3>Topics</h3>
-          </div>
-          <div class="box-body">
-            <div id="tableData" class="table-responsive scrollableDiv" style="height: 700px;position: relative;">
-              <table>
-                <tbody>
-                  {% for topic in topicTrackerDetails %}
-                  <tr>
-                    <label>
-                      {% if topic.is_covered=='Y' %}
-                      <input type="checkbox" name="topicCheck" checked="checked" value="{{ topic.topic_id }}">
-                      {% else %}
-                      <input type="checkbox" name="topicCheck" value="{{ topic.topic_id }}">
-                      {% endif %}
-                      <span style="font-size: 12px;font-family: Arial"
-                        class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
-                    </label>
-                    <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <ul data-widget="tree">
+              <li class="treeview">
+                <a href="#"><h3>Topics</h3></a>
+              <ul class="treeview-menu">
+                 <li>
+                    <div class="box-body" id="content">
+                        <div id="tableData" class="table-responsive scrollableDiv" style="height: 700px;position: relative;">
+                          <table>
+                            <tbody>
+                              <ul class="treeview-menu">
+                                <li><a href="">Base</a></li>
+                              </ul>
+                                <ul class="treeview-menu">
+                                    <li>
+                              {% for topic in topicTrackerDetails %}
+                              
+                              <a><tr>
+                                <label>
+                                  {% if topic.is_covered=='Y' %}
+                                  <input type="checkbox" class="c1" onclick="checkedBox();" name="topicCheck" checked="checked" value="{{ topic.topic_id }}">
+                                  {% else %}
+                                  <input type="checkbox" class="c1" onclick="checkedBox();" name="topicCheck" value="{{ topic.topic_id }}">
+                                  {% endif %}
+                                  <span style="font-size: 12px;font-family: Arial"
+                                    class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
+                                </label>
+                                <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
+                              </tr></a>
+                              {% endfor %}
+                              </li>
+                              <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;" disabled>
+                              </ul>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                  </li>
+              </ul>
+            </li>
+            <li class="treeview">
+                <a href="#"><h3>Reference</h3></a>
+              <ul class="treeview-menu">
+                 <li>
+                    <h3 >No Data</h3>
+                  </li>
+              </ul>
+            </li>
+          </ul>
           <div class="box-footer">
-            <input class="btn btn-primary" type="submit" value="Collect Feedback" style="height:40px;">
             <input type="text" name="class_val" value="{{ currClassSecDet.class_val }}" style="display: none;">
             <input type="text" name="section" value="{{ currClassSecDet.section }} " style="display: none;">
           </div>
@@ -97,7 +120,22 @@
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script src="../static/js/pdfLoader.js"></script>
-<script>$('html, body').animate({
+<script>
+$('html, body').animate({
     scrollTop: $(".form-elem").offset().top
-  }, 2000);</script>
+  }, 2000);
+  
+    function checkedBox(){
+     var anyBoxesChecked = false;
+     var check1 = document.getElementsByName('topicCheck');
+     if($('.c1:checked').length == 0){
+        anyBoxesChecked = true;
+       $("#feedBackBtn").attr("disabled", true);
+       console.log('Inside unchecked');
+     }else{
+      $("#feedBackBtn").attr("disabled", false);
+      console.log('Inside checked');
+     }
+};
+  </script>
 {%endblock%}
