@@ -1236,6 +1236,46 @@ def classDelivery():
 
 
 
+@app.route('/contentManager',methods=['GET','POST'])
+@login_required
+def contentManager():
+    topic_list=None
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form=QuestionBankQueryForm() # resusing form used in question bank 
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
+    form.subject_name.choices= ''
+    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    if request.method=='POST':
+        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
+        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+        session['class_val']=form.class_val.data
+        session['sub_name']=subject.description
+        session['test_type_val']=form.test_type.data
+        session['chapter_num']=form.chapter_num.data    
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        return render_template('contentManager.html',form=form,School_Name=school_name(),topics=topic_list)
+    return render_template('contentManager.html',form=form,School_Name=school_name())
+
+
+@app.route('/contentManagerDetails',methods=['GET','POST'])
+def contentManagerDetails():
+    contents=[]
+    topicList=request.get_json()
+    for topic in topicList:
+        contentList = ContentDetail.query.filter_by(topic_id=int(topic),archive_status='N').all()
+        if len(contentList)!=0:
+            contents.append(contentList)
+    if len(contents)==0:
+        print("No data present in the content manager details")
+        return jsonify(["NA"])
+    else:
+        print(len(contents))
+        for c in contents:
+            print("Content List"+str(c))    
+        return render_template('_contentManagerDetails.html',contents=contents,School_Name=school_name())
+
+
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
@@ -1978,7 +2018,7 @@ def resultUploadHistory():
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
 def uploadHistoryDetail():
     upload_id=request.args.get('upload_id')
-    resultDetailQuery = "select distinct sp.full_name, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
+    resultDetailQuery = "select distinct sp.full_name, sp.profile_picture, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
     resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
     resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id" 

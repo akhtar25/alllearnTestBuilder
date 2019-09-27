@@ -56,9 +56,13 @@
               <li>
                 <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Test Performance</a>
               </li>
+              <li>
+                  <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+                </li>
           <li>
-              <a style="color: green;" href="{{url_for('studentProfile')}}">Student Profile</a>
+              <a style="color: green;" href="{{url_for('studentProfile')}}">Student Directory</a>
             </li>
+           
    
             <li>
               <a style="color: green;" href="{{url_for('help')}}">Help</a>
@@ -86,8 +90,11 @@
         </ul>
 
         <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">          
+            <li>
+                <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+              </li>
           <li>
-            <a style="color: green;" href="{{url_for('studentProfile')}}">Student Profile</a>
+            <a style="color: green;" href="{{url_for('studentProfile')}}">Student Directory</a>
           </li>
           <li>
             <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
@@ -269,10 +276,13 @@ $(document).ready(function(){
                   </li>
                 <li>
                   <a class="white-text" href="{{url_for('testPerformance')}}">Test Performance</a>
-                </li>           
+                </li>                    
           <li>
-            <a class="white-text" href="{{url_for('studentProfile')}}">Student Profile</a>
-          </li>
+              <a class="white-text" href="{{url_for('contentManager')}}">Content Manager</a>
+            </li>
+            <li>
+                <a class="white-text" href="{{url_for('studentProfile')}}">Student Profile</a>
+              </li>
           <li>
             <a class="white-text" href="{{url_for('help')}}">Help</a>
           </li>
