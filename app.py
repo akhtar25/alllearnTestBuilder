@@ -1280,11 +1280,11 @@ def loadContent():
     reference = request.args.get('reference')
     if reference!='':
         contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=reference)
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=reference,archive_status='N')
         db.session.add(contentData)
     else:
         contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl)
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl,archive_status='N')
         db.session.add(contentData)
     db.session.commit()
     flash("content Uploaded Successfully")
