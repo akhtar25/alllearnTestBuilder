@@ -1287,6 +1287,9 @@ def loadContent():
         topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl)
         db.session.add(contentData)
     db.session.commit()
+    flash("content Uploaded Successfully")
+    return "Upload"
+
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
     contents=[]
