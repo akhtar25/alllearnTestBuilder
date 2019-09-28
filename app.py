@@ -3,7 +3,7 @@ from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
+from forms import LoginForm, RegistrationForm,ContentManager, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -642,7 +642,8 @@ def questionBank():
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
 #  [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.chapter_num.choices= ''
+    # [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
         # if request.form['chapter_num']=='':
@@ -1184,6 +1185,13 @@ def questionDetails():
 @app.route('/classDelivery')
 @login_required
 def classDelivery():
+    form = ContentManager()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+    form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.chapter_num.choices = [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.topics.choices = [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    form.content_type.choices = ''
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
@@ -1193,10 +1201,13 @@ def classDelivery():
         qclass_sec_id = request.args.get('class_sec_id')
         retake = request.args.get('retake')
         print('this is retake val: '+str(retake))
-        contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id)).all()
+        contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
         print('Content Data:'+str(contentData))
+        q=0
         for content in contentData:
             print('This is Content Data:'+str(content.content_name)+' '+str(content.reference_link)+' '+str(content.last_modified_date))
+            q=q+1
+        print('Times:'+str(q))
         #db query 
             #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
@@ -1232,7 +1243,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData)
+    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData)
 
 
 
@@ -1257,7 +1268,25 @@ def contentManager():
         return render_template('contentManager.html',form=form,School_Name=school_name(),topics=topic_list)
     return render_template('contentManager.html',form=form,School_Name=school_name())
 
-
+@app.route('/loadContent',methods=['GET','POST'])
+def loadContent():
+    class_val = request.args.get('selected_class_value')
+    selected_subject = request.args.get('selected_subject_value')
+    selected_chapter = request.args.get('selected_chapter_value')
+    selected_topic = request.args.get('selected_topic_value')
+    contentName = request.args.get('contentName')
+    contentTypeId = request.args.get('contentTypeId')
+    contentUrl = request.args.get('contentUrl')
+    reference = request.args.get('reference')
+    if reference!='':
+        contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=reference)
+        db.session.add(contentData)
+    else:
+        contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl)
+        db.session.add(contentData)
+    db.session.commit()
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
     contents=[]
@@ -2229,6 +2258,8 @@ def questionBuilder():
             flash('Successfully Uploaded !')
             return render_template('questionBuilder.html',School_Name=school_name())
     return render_template('questionBuilder.html',School_Name=school_name())
+
+
 
 @app.route('/questionUpload',methods=['GET'])
 def questionUpload():
