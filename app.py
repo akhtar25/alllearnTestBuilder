@@ -1279,7 +1279,7 @@ def contentManager():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        return render_template('contentManager.html',form=form,School_Name=school_name(),topics=topic_list)
+        return render_template('contentManager.html',form=form,School_Name=school_name(),formContent=formContent,topics=topic_list)
     return render_template('contentManager.html',form=form,formContent=formContent,School_Name=school_name())
 
 @app.route('/loadContent',methods=['GET','POST'])
