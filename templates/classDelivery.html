@@ -429,7 +429,7 @@ selected_class.onchange = function()  {
                 $('#contentMessage').show();
                 event.preventDefault();
             }else
-            if(fileValue==''||contentUrlValue==''){
+            if(fileValue==''&&contentUrlValue==''){
                 tag = document.getElementById('contentMessage');
                 tag.innerHTML = 'Please either choose file or enter url';
                 $('#contentMessage').show();
