@@ -63,7 +63,7 @@
         <form method="POST" action="/feedbackCollection">
           <ul data-widget="tree">
               <li class="treeview">
-                <a href="#"><div class="box box-info"><h3>Topics</h3></div></a>
+                <a href="#"><div class="box box-info"><h3 id="topicBtn">Topics</h3></div></a>
               <ul class="treeview-menu">
                  <li>
                     <div class="box-body" id="content">
@@ -106,7 +106,7 @@
                 <a href="#"><h3>Reference</h3></a>
               <ul class="treeview-menu reference_data">
                  <li>
-                      <div style="overflow-y: auto;height:410px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
+                      <div style="overflow-y: auto;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
                                 <table>
                                     {% for content in contentData %}   
                                     <div class="row z-depth-1" style="width:285px;height:98px;margin-left:-1px;margin-bottom: 5px;">  
@@ -156,7 +156,7 @@
                                         {% endfor %}
                                     </table>
                                   </div>
-                                  <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;" class="waves-effect waves-light modal-trigger">Add content</a>  
+                                  <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;margin-top: 10px;" class="waves-effect waves-light modal-trigger">Add content</a>  
                   </li>
               </ul>
             </li>
@@ -168,6 +168,11 @@
                     <form action="" method="POST" enctype="multipart/form-data">
                       {{ form.hidden_tag() }}
                       <div class="form-group " style="padding-top:5px;">
+                        <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
+                          <div class="col-sm-3" style="display:flex;">
+                              <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                          </div>
+                        </div>
                           <div class="row">
                               <div class="col-sm-3">
                                   <div style="width:250px;margin-left: 30px;">
@@ -185,7 +190,7 @@
                                       {% endif %}
                                   </div>
                               </div>
-                              <div class="col-sm-2">
+                              <div class="col-sm-2" style="width: 0px;">
                                   <div style="width:250px;margin-left: 200px;">
                                       {{ form.subject_name.label(class='labelsize') }}
                                       <div id='loader' style='display: none; float: right;'>
@@ -225,7 +230,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2" style="width: 0px;">
                                     <div style="width:250px;margin-left: 200px;" > 
                                                     {{ form.topics.label(class='labelsize') }}
                                                     <div id='loaderTopic'style='display: none; float: right;'>
@@ -240,7 +245,7 @@
                                                     {% endfor %}
                                             </div>
                                                     {% else %}
-                                                    {{ form.topics(class='form-control') }}
+                                                    {{ form.topics(class='form-control',id='topicId') }}
                                                     {% endif %}
             
                                                     
@@ -249,7 +254,7 @@
                             </div>
                             <div class="row">
                             <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
-                            <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br>
+                            <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
                             <label>Content Type:</label>&nbsp;
                             <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span><label>Image</label></span>
                             <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span><label>Document</label></span>
@@ -260,15 +265,17 @@
                             </div>
                             <div style="display: flex;margin-top: -15px;margin-left: 30px;">
                               <div id="uploadContent" style="visibility: hidden;">
-                                <input type="file" style="height: 25px;" id="file-input"><br>
-                                <div style="display: flex;"><label>URL</label><input type="text" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"><a href="#" onclick="initUpload();" style="float: right;margin-left: 30px;">Upload</a></div>
+                                <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" id="file-input"><a href="#" id="uploadBtn" onclick="uploadBtn();" style="float: right;">Upload</a></div><br>
+                                <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
+                                <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
                                 <input type="hidden" id="reference" name="reference" value="">
                               </div>
-                                <img style="border:1px solid gray; width:200px; height: 100px;margin-left: 35px;float: right;" id="preview" src=" ">
+                                <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
                             </div>
                             </div>
-                            <p><button class="btn waves-light green lighten-1 white-text modal-close" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
+                            <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
                               </form>
+                              <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
                   </div>
                 </div>
               <!-- <input class="btn btn-primary modal-trigger" data-target="modal1" onclick="addContentId();" value="Add Content" style="background-color:green;height:40px;margin-left: -10px;width: 290px;border-radius: 5px;"> -->
@@ -288,13 +295,149 @@ $(document).ready(function(){
   $('.reference_data').css('display','block');
 });
 
+$('#topicBtn').click(function(){
+  $('.reference_data').css('display','none');
+});
+
 
 var selected_class = document.getElementById('class_val');
 var selected_subject = document.getElementById('subject_name');
 var selected_chapter = document.getElementById('chapter_num');
-var selected_topic = document.getElementById('topics');
-$('#submit').click(function(){
-  event.preventDefault();
+var selected_topic = document.getElementById('topicId');
+var optionHTMLClass = '';
+var optionHTMLSubject = '';
+var optionHTMLChapter = '';
+var optionHTMLTopic = '';
+$(document).ready(function(){
+        $('#classVal').val("na");
+        console.log("CLass Value:"+selected_class.value);
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        selected_class.innerHTML = optionHTMLClass + selected_class.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        selected_subject.innerHTML = optionHTMLSubject + selected_subject.innerHTML;
+        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        selected_chapter.innerHTML = optionHTMLChapter + selected_chapter.innerHTML;
+        optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
+        selected_topic.innerHTML = optionHTMLChapter + selected_topic.innerHTML;
+    });
+
+selected_class.onchange = function()  {
+        class_val = selected_class.value;
+         console.log('Topic:'+selected_topic.value);
+         $("#loader").show();
+         console.log('Inside class value Onchange')
+         fetch('/questionBuilder/' + class_val).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+                     for (var subject of data.subjects) {
+                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                 }
+                 selected_subject.innerHTML = optionHTML;
+             })
+             
+         });
+     }
+     selected_subject.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside subject_select on change')
+        $("#loader1").show();
+        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+                $("#loader1").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+                for (var chapterNo of data.chapterNum){
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+                  }
+                  selected_chapter.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+     selected_chapter.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside topic_select on change')
+        $("#loaderTopic").show();
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+              console.log('Data:'+data)
+                $("#loaderTopic").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
+                for (var topic of data.topics) {
+                        console.log(topic.topic_id);
+                        console.log(topic.topic_name);
+                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                    }  
+                  selected_topic.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+
+
+     $('#submit').click(function(){
+            var classValue = selected_class.value;
+            var subjectValue = selected_subject.value;
+            var topicValue = selected_topic.value;
+            var chapterValue = selected_chapter.value;
+            var contentTypeValue = document.getElementById('contentTypeId').value;
+            var fileValue = document.getElementById("file-input").value;
+            var contentUrlValue = document.getElementById("contentUrl").value;
+            var contentName = document.getElementById('contentNameDiv').value;
+            console.log(classValue);
+
+            if(contentName==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please enter content name';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Class Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Subject Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(chapterValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Chapter Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(topicValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Topic Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(contentTypeValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Content Type Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(fileValue==''||contentUrlValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please either choose file or enter url';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else{
+                $('#contentMessage').hide();
+                event.preventDefault();
   selected_class_value = selected_class.value;
   selected_subject_value = selected_subject.value;
   selected_chapter_value = selected_chapter.value;
@@ -350,6 +493,13 @@ $('#submit').click(function(){
     window.alert("error occurred while loading question");
     }
   }); 
+            }
+            
+        });
+
+
+$('#submit').click(function(){
+  
 
 
 });
@@ -369,14 +519,21 @@ $('html, body').animate({
       $("#uploadContent").css('visibility', 'visible');
     }
 
+  function previewUrl(url){
+    document.getElementById('preview').src = url;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems, options);
+    
   });
+
 
   // Or with jQuery
 
   $(document).ready(function(){
+    console.log('Inside model');
     $('.modal').modal();
   });
 
@@ -457,6 +614,18 @@ $('html, body').animate({
        Function called when file input updated. If there is a file selected, then
        start upload procedure by asking for a signed request from the app.
     */
+    function uploadBtn(){
+      if($('#file-input').val()){
+    console.log('Inside file length');
+    // $('#uploadBtn').css('visibility','visible');
+    $('#message').hide();
+    initUpload();
+  }else{
+    $('#message').show();
+  }
+    };
+
+
     function initUpload(){
       const files = document.getElementById('file-input').files;
       const file = files[0];

@@ -1189,9 +1189,12 @@ def classDelivery():
     form = ContentManager()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-    form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.chapter_num.choices = [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
-    form.topics.choices = [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    form.subject_name.choices = ''
+    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    form.chapter_num.choices = ''
+    # [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.topics.choices = ''
+    # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     form.content_type.choices = ''
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
