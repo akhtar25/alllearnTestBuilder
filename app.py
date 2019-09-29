@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import logging
 import datetime as dt
+from datetime import date
 from datetime import timedelta
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
@@ -1278,13 +1279,16 @@ def loadContent():
     contentTypeId = request.args.get('contentTypeId')
     contentUrl = request.args.get('contentUrl')
     reference = request.args.get('reference')
+    today = date.today()
+    d4 = today.strftime("%b-%d-%Y")
+    print(d4)
     if reference!='':
         contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=reference,archive_status='N')
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=reference,archive_status='N',last_modified_date=d4)
         db.session.add(contentData)
     else:
         contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl,archive_status='N')
+        topic_id=int(selected_topic),content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4)
         db.session.add(contentData)
     db.session.commit()
     flash("content Uploaded Successfully")
