@@ -104,9 +104,9 @@
             <li class="treeview">
 
                 <a href="#"><h3>Reference</h3></a>
-              <ul class="treeview-menu">
+              <ul class="treeview-menu reference_data">
                  <li>
-                      <div style="overflow-y: auto;" class="table-responsive scrollableDiv">
+                      <div style="overflow-y: auto;height:410px;width: 300px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
                                 <table>
                                     {% for content in contentData %}   
                                     <div class="row z-depth-1" style="width:285px;height:98px;margin-left:-1px;margin-bottom: 5px;">  
@@ -156,7 +156,7 @@
                                         {% endfor %}
                                     </table>
                                   </div>
-                                  <a href="#" data-target="modal2" onclick="addContentId();" style="margin-top:-15px;float:right;" class="waves-effect waves-light modal-trigger">Add content</a>  
+                                  <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;" class="waves-effect waves-light modal-trigger">Add content</a>  
                   </li>
               </ul>
             </li>
@@ -283,6 +283,10 @@
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script src="../static/js/pdfLoader.js"></script>
 <script>
+
+$(document).ready(function(){
+  $('.reference_data').css('display','block');
+});
 
 
 var selected_class = document.getElementById('class_val');
