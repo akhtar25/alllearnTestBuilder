@@ -1,6 +1,7 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h2>Question Builder</h2> 
+    <h2>Question Builder
+</h2> 
                 <div class="row">
                         <div class="col-sm-3">
                         <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type1"  value="single"><span style="font-size:13px;">Create Single Question</span></label></p>
@@ -8,7 +9,12 @@
                         <div class="col-sm-3">
                         <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type2" value="bulk"><span style="font-size:13px;">Bulk Upload Questions</span></label></p>
                         </div>
-                
+                        <div id="topicTableHeader" style="display:none;float:right;margin-top: -30px;margin-right: 278px;"><h3>Topics</h3></div>
+    
+                        <div id="topicTable" style="width:350px;float:right;overflow-y: auto;position: relative;display:none;height: 100px;border:green solid;padding: 10px;">
+                            <!-- <div id="topicLoader" style="display: none;padding-left: 300px;">
+                                <img src="../static/images/loader.gif"></div> -->
+                        </div>
                 </div>
              
                 <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->

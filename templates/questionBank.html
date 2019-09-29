@@ -132,7 +132,6 @@
              })
              
          });
-         
      }
     
      
@@ -214,13 +213,14 @@
             type: "POST",
             contentType: "application/json",
             data: checkboxesChecked,
-            beforeSend: function() {
+            beforeSend: function() {    
+                $("#questionEditorDiV").hide();
                 $("#editQuestionsTableDiv").hide();
-                
               $("#questionloader").show();
            },
             success: function (response) {
                 $("#questionloader").hide();
+                $("#questionEditorDiV").show();
                 $("#questions").html(response);
             },
             error: function (xhr) {
@@ -275,6 +275,9 @@
         $("#marks").text(count_marks);
     }
 }
+    //for (i = 0; i < 20; i++) {
+    //$('#topiclist').append('<input type="radio" name="radio_name" />');
+//}     
 </script>
 
 {%endblock%}

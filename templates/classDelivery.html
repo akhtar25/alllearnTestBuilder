@@ -3,6 +3,7 @@
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
       <!-- sidebar: style can be found in sidebar.less -->
+      
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           {% for singleClass in distinctClasses %}
@@ -60,33 +61,224 @@
       </section>
       <section class="col-md-4">
         <form method="POST" action="/feedbackCollection">
-          <div class="box box-info">
-            <h3>Topics</h3>
-          </div>
-          <div class="box-body">
-            <div id="tableData" class="table-responsive scrollableDiv" style="height: 700px;position: relative;">
-              <table>
-                <tbody>
-                  {% for topic in topicTrackerDetails %}
-                  <tr>
-                    <label>
-                      {% if topic.is_covered=='Y' %}
-                      <input type="checkbox" name="topicCheck" checked="checked" value="{{ topic.topic_id }}">
-                      {% else %}
-                      <input type="checkbox" name="topicCheck" value="{{ topic.topic_id }}">
-                      {% endif %}
-                      <span style="font-size: 12px;font-family: Arial"
-                        class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
-                    </label>
-                    <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <ul data-widget="tree">
+              <li class="treeview">
+                <a href="#"><div class="box box-info"><h3 id="topicBtn">Topics</h3></div></a>
+              <ul class="treeview-menu">
+                 <li>
+                    <div class="box-body" id="content">
+                        <div id="tableData" class="table-responsive scrollableDiv" style="height: 700px;position: relative;">
+                          <table>
+                            <tbody>
+                              <ul class="treeview-menu">
+                                <li><a href="">Base</a></li>
+                              </ul>
+                                <ul class="treeview-menu">
+                                    <li>
+                              {% for topic in topicTrackerDetails %}
+                              
+                              <a><tr>
+                                <label>
+                                  {% if topic.is_covered=='Y' %}
+                                  <input type="checkbox" class="c1" onclick="checkedBox();" name="topicCheck" checked="checked" value="{{ topic.topic_id }}" disabled>
+                                  {% else %}
+                                  <input type="checkbox" class="c1" onclick="checkedBox();" name="topicCheck" value="{{ topic.topic_id }}">
+                                  {% endif %}
+                                  <span style="font-size: 12px;font-family: Arial"
+                                    class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
+                                </label>
+                                <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
+                              </tr></a>
+                              {% endfor %}
+                              </li>
+                              <!-- <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled> -->
+                              </ul>
+                            </tbody>
+                          </table>
+                        </div>
+                        <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled>
+                      </div>
+                  </li>
+              </ul>
+            </li>
+            <li class="treeview">
+
+                <a href="#"><div class="box box-info"><h3>Reference</h3></div></a>
+              <ul class="treeview-menu reference_data">
+                 <li>
+                      <div style="overflow-y: auto;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
+                                <table>
+                                    {% for content in contentData %}   
+                                    <div class="row z-depth-1" style="width:285px;height:98px;margin-left:-1px;margin-bottom: 5px;">  
+                                                 <div class="">
+                                            {%if content.content_type==92%}
+                             
+                                            <video class="responsive-video" >
+                                                      <source src="{{content.reference_link}}">
+                                                    </video>
+                                                    {%elif content.content_type==96%}
+                        
+                                                    <iframe src="{{content.reference_link}}" style="width: 140px;height: 90px;margin-top: 4px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                                              {%elif content.content_type==93 or content.content_type==97 %}  
+                                              <audio controls style="width: 160px;">
+                                                      <source src="{{content.reference_link}}">
+                                                    Your browser does not support the audio.
+                                                    </audio>
+                                              {%elif content.content_type==94 or content.content_type==98%}
+                                                    <div class="center-align responsive-image">
+                                                    <img class="materialboxed" style="margin-top: 8px;margin-left: 5px;" height="83" src="{{content.reference_link}}">
+                                                  </div>
+                                              {%elif content.content_type==95 or content.content_type==99%}            
+                                              <a href="#modal1" data-target="modal1" class="modal-trigger"><img height="83" style="margin-left:30px;" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
+                                              <div id="modal1" class="modal">
+                                                      <div class="modal-content" >
+                                                        <h2>{{content.content_name}}</h4>                         
+                                                    </div>  
+                                                    </div>
+                                              {%endif%}
+                                    </div> 
+                                            <div class="">
+                                                <div class="row">
+                                                    
+                                                    <div>
+                                                        
+                                                        <h3><span> <a href="{{content.reference_link}}" target="_blank" style="float: right;font-size: 13px;margin-right: 30px;margin-top: -90px;">{{content.content_name}}</a></span></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div>
+                                                        <h4 style="font-size: 13px;float: right;margin-top: -66px;width: 136px;margin-right: 5px;"> {{content.last_modified_date.strftime('%d-%B-%Y')}}</h4>
+                                                    </div>
+                                                </div>           
+                                            </div>                                                   
+                                        </div>
+                        
+                                        {% endfor %}
+                                    </table>
+                                  </div>
+                                  <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;margin-top: 10px;" class="waves-effect waves-light modal-trigger">Add content</a>  
+                  </li>
+              </ul>
+            </li>
+          </ul>
           <div class="box-footer">
-            <input class="btn btn-primary" type="submit" value="Collect Feedback" style="height:40px;">
+              <div id="modal2" class="modal">
+                  <div class="modal-content" style="height:504px;">
+                    <h4 style="text-align: center;">Add Content</h4>
+                    <form action="" method="POST" enctype="multipart/form-data">
+                      {{ form.hidden_tag() }}
+                      <div class="form-group " style="padding-top:5px;">
+                        <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
+                          <div class="col-sm-3" style="display:flex;">
+                              <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                          </div>
+                        </div>
+                          <div class="row">
+                              <div class="col-sm-3">
+                                  <div style="width:250px;margin-left: 30px;">
+                                      {{ form.class_val.label(class='labelsize') }}
+                                      <br>
+                                      {% if form.class_val.errors %}
+                                      {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                      <div class="invalid-feedback">
+                                          {% for error in form.class_val.errors %}
+                                          <span>{{ error }}</span>
+                                          {% endfor %}
+                                      </div>
+                                      {% else %}
+                                      {{ form.class_val(class='form-control') }}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                              <div class="col-sm-2" style="width: 0px;">
+                                  <div style="width:250px;margin-left: 200px;">
+                                      {{ form.subject_name.label(class='labelsize') }}
+                                      <div id='loader' style='display: none; float: right;'>
+                                          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                      </div>
+                                      <br>
+                                      {% if form.subject_name.errors %}
+                                      {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                      <div class="invalid-feedback">
+                                          {% for error in form.subject_name.errors %}
+                                          <span>{{ error }}</span>
+                                          {% endfor %}
+                                      </div>
+                                      {% else %}
+                                      {{ form.subject_name(class='form-control') }}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div style="width:250px;margin-left: 30px;">
+                                        {{ form.chapter_num.label(class='labelsize') }}
+                                        <div id='loader1' style='display: none; float: right;'>
+                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                        </div>
+                                        <br>
+                                        {% if form.chapter_num.errors %}
+                                        {{ form.chapter_num(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.chapter_num.errors %}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.chapter_num(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-sm-2" style="width: 0px;">
+                                    <div style="width:250px;margin-left: 200px;" > 
+                                                    {{ form.topics.label(class='labelsize') }}
+                                                    <div id='loaderTopic'style='display: none; float: right;'>
+                                                                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                    </div>
+                                            <br>
+                                                    {% if form.topics.errors %}
+                                                    {{ form.topics(class="form-control form-control-lg is-invalid") }}
+                                                    <div class="invalid-feedback">
+                                                    {% for error in form.topics.errors %}
+                                                     <span>{{ error }}</span>
+                                                    {% endfor %}
+                                            </div>
+                                                    {% else %}
+                                                    {{ form.topics(class='form-control',id='topicId') }}
+                                                    {% endif %}
+            
+                                                    
+                                    </div>
+                            </div> 
+                            </div>
+                            <div class="row">
+                            <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
+                            <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
+                            <label>Content Type:</label>&nbsp;
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span><label>Image</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span><label>Document</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span><label>Video</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span><label>Audio</label></span>
+                            <input type="hidden" id="contentType" name="contentType" value="">
+                            </div>
+                            </div>
+                            <div style="display: flex;margin-top: -15px;margin-left: 30px;">
+                              <div id="uploadContent" style="visibility: hidden;">
+                                <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" id="file-input"><a href="#" id="uploadBtn" onclick="uploadBtn();" style="float: right;">Upload</a></div><br><label style="margin-left: 111px;">OR</label>
+                                <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
+                                <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
+                                <input type="hidden" id="reference" name="reference" value="">
+                              </div>
+                                <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
+                            </div>
+                            </div>
+                            <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
+                              </form>
+                              <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
+                  </div>
+                </div>
+              <!-- <input class="btn btn-primary modal-trigger" data-target="modal1" onclick="addContentId();" value="Add Content" style="background-color:green;height:40px;margin-left: -10px;width: 290px;border-radius: 5px;"> -->
             <input type="text" name="class_val" value="{{ currClassSecDet.class_val }}" style="display: none;">
             <input type="text" name="section" value="{{ currClassSecDet.section }} " style="display: none;">
           </div>
@@ -97,7 +289,361 @@
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script src="../static/js/pdfLoader.js"></script>
-<script>$('html, body').animate({
+<script>
+
+$(document).ready(function(){
+  $('.reference_data').css('display','block');
+});
+
+$('#topicBtn').click(function(){
+  $('.reference_data').css('display','none');
+});
+
+
+var selected_class = document.getElementById('class_val');
+var selected_subject = document.getElementById('subject_name');
+var selected_chapter = document.getElementById('chapter_num');
+var selected_topic = document.getElementById('topicId');
+var optionHTMLClass = '';
+var optionHTMLSubject = '';
+var optionHTMLChapter = '';
+var optionHTMLTopic = '';
+$(document).ready(function(){
+        $('#class_val').val("na");
+        console.log("CLass Value:"+selected_class.value);
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        selected_class.innerHTML = optionHTMLClass + selected_class.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        selected_subject.innerHTML = optionHTMLSubject + selected_subject.innerHTML;
+        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        selected_chapter.innerHTML = optionHTMLChapter + selected_chapter.innerHTML;
+        optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
+        selected_topic.innerHTML = optionHTMLChapter + selected_topic.innerHTML;
+        // if($('#file-input').val()){
+        //   $('#contentUrl').prop('disabled', true);
+        // }
+        console.log('Inside log');
+        // if (document.getElementById("file-input").value) {
+         $('#file-input').click(function(){   
+            console.log('Inside file Input');
+            $('#contentUrl').prop('disabled', true);
+        });
+    });
+
+selected_class.onchange = function()  {
+        class_val = selected_class.value;
+         console.log('Topic:'+selected_topic.value);
+         $("#loader").show();
+         console.log('Inside class value Onchange')
+         fetch('/questionBuilder/' + class_val).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader").hide();    
+                     var optionHTML = '';
+                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+                     for (var subject of data.subjects) {
+                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                 }
+                 selected_subject.innerHTML = optionHTML;
+             })
+             
+         });
+     }
+     selected_subject.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside subject_select on change')
+        $("#loader1").show();
+        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+                $("#loader1").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+                for (var chapterNo of data.chapterNum){
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+                  }
+                  selected_chapter.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+     selected_chapter.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside topic_select on change')
+        $("#loaderTopic").show();
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+              console.log('Data:'+data)
+                $("#loaderTopic").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
+                for (var topic of data.topics) {
+                        console.log(topic.topic_id);
+                        console.log(topic.topic_name);
+                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                    }  
+                  selected_topic.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+
+
+     $('#submit').click(function(){
+            var classValue = selected_class.value;
+            var subjectValue = selected_subject.value;
+            var topicValue = selected_topic.value;
+            var chapterValue = selected_chapter.value;
+            var contentTypeValue = document.getElementById('contentType').value;
+            var fileValue = document.getElementById("file-input").value;
+            var contentUrlValue = document.getElementById("contentUrl").value;
+            var contentName = document.getElementById('contentNameDiv').value;
+            console.log(classValue);
+
+            if(contentName==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please enter content name';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Class Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Subject Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(chapterValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Chapter Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(topicValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Topic Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(contentTypeValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Content Type Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(fileValue==''&&contentUrlValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please either choose file or enter url';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else{
+                $('#contentMessage').hide();
+                event.preventDefault();
+  selected_class_value = selected_class.value;
+  selected_subject_value = selected_subject.value;
+  selected_chapter_value = selected_chapter.value;
+  selected_topic_value = selected_topic.value;
+  var contentName = document.getElementById('contentNameDiv').value;
+  var contentType = document.getElementById('contentType').value;
+  var contentUrl = document.getElementById('contentUrl').value;
+  var reference = document.getElementById('reference').value;
+  console.log(selected_class_value+' '+selected_subject_value+' '+selected_chapter_value+' '+selected_topic_value+' '+contentName+' '+contentType+' ');
+  var contentTypeId=''
+  if(contentType==1){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 98;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 94;
+    }
+  }else if(contentType==2){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 99;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 95;
+    }
+  }else if(contentType==3){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 96;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 92;
+    }
+  }else{
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 97;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 93;
+    }
+  }
+
+    var data="";
+    $.ajax({
+    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference,
+    type: "get",
+    data: data,
+    success: function(response) {   
+      location.reload();    
+    },
+    error: function(xhr) {
+    window.alert("error occurred while loading question");
+    }
+  }); 
+            }
+            
+        });
+
+
+$('html, body').animate({
     scrollTop: $(".form-elem").offset().top
-  }, 2000);</script>
+  }, 2000);
+  
+  function addContentId(){
+    console.log('Inside addContentId');
+    $('.modal').modal();
+  };
+
+  function contentOption(contentType){
+      document.getElementById('contentType').value=contentType.value;
+      console.log('Insert option');
+      $("#uploadContent").css('visibility', 'visible');
+    }
+
+  function previewUrl(url){
+    document.getElementById('preview').src = url;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, options);
+    
+  });
+
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    console.log('Inside model');
+    $('.modal').modal();
+  });
+
+
+    function checkedBox(){
+     var anyBoxesChecked = false;
+     var check1 = document.getElementsByName('topicCheck');
+     if($('.c1:checked').not(':disabled').length == 0){
+        anyBoxesChecked = true;
+       $("#feedBackBtn").attr("disabled", true);
+       console.log('Inside unchecked');
+     }else{
+      $("#feedBackBtn").attr("disabled", false);
+      console.log('Inside checked');
+     }
+};
+
+
+
+
+
+/*
+      Function to carry out the actual POST request to S3 using the signed request from the Python app.
+    */
+    function uploadFile(file, s3Data, url){
+      console.log('Inside uploadFile');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            console.log(url);
+            document.getElementById('preview').src = url;
+            document.getElementById('reference').value = url;
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      console.log('Inside getSignedRequest');
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function uploadBtn(){
+      if($('#file-input').val()){
+    console.log('Inside file length');
+    // $('#uploadBtn').css('visibility','visible');
+    $('#message').hide();
+    initUpload();
+  }else{
+    $('#message').show();
+  }
+    };
+
+
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      console.log('Inside initUpload');
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
+    /*
+       Bind listeners when the page loads.
+    */
+    (() => {
+      document.getElementById('file-input').onchange = initUpload;
+    })();
+  </script>
 {%endblock%}

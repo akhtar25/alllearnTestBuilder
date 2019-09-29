@@ -145,6 +145,13 @@ class TestBuilderQueryForm(FlaskForm):
     test_date=DateField('Test Date',format='%d/%m/%Y')
     submit=SubmitField('Load Topics')
 
+class ContentManager(FlaskForm):
+    class_val=SelectField('Class')
+    subject_name=SelectField('Select Subject')
+    chapter_num=SelectField('Select Chapter')
+    topics=SelectField('Topics')
+    content_type=SelectField('Content Type')
+
 class QuestionBankQueryForm(FlaskForm):
     class_val=SelectField('Select Class')
     subject_name=SelectField('Select Subject')
