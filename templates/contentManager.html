@@ -68,8 +68,127 @@
     </form>
         <div class="addContentDiv">
             <button style="margin-left: 1000px;"
-                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Content</a></button>
+                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" onclick="addContentId();" data-target="modal2" class="waves-effect waves-light modal-trigger" style="color: white;">Add Content</a></button>
         </div>
+        <!-- Model -->
+
+        <div id="modal2" class="modal">
+                <div class="modal-content" style="height:504px;">
+                  <h4 style="text-align: center;">Add Content</h4>
+                  <form action="" method="POST" enctype="multipart/form-data">
+                    {{ formContent.hidden_tag() }}
+                    <div class="form-group " style="padding-top:5px;">
+                      <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
+                        <div class="col-sm-3" style="display:flex;">
+                            <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                        </div>
+                      </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div style="width:250px;margin-left: 30px;">
+                                    {{ formContent.class_val.label(class='labelsize') }}
+                                    <br>
+                                    {% if formContent.class_val.errors %}
+                                    {{ formContent.class_val(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in formContent.class_val.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ formContent.class_val(class='form-control') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-sm-2" style="width: 0px;">
+                                <div style="width:250px;margin-left: 200px;">
+                                    {{ formContent.subject_name.label(class='labelsize') }}
+                                    <div id='loader2' style='display: none; float: right;'>
+                                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                    </div>
+                                    <br>
+                                    {% if formContent.subject_name.errors %}
+                                    {{ formContent.subject_name(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in formContent.subject_name.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ formContent.subject_name(class='form-control') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-sm-3">
+                                  <div style="width:250px;margin-left: 30px;">
+                                      {{ formContent.chapter_num.label(class='labelsize') }}
+                                      <div id='loader3' style='display: none; float: right;'>
+                                          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                      </div>
+                                      <br>
+                                      {% if formContent.chapter_num.errors %}
+                                      {{ formContent.chapter_num(class="form-control form-control-lg is-invalid") }}
+                                      <div class="invalid-feedback">
+                                          {% for error in formContent.chapter_num.errors %}
+                                          <span>{{ error }}</span>
+                                          {% endfor %}
+                                      </div>
+                                      {% else %}
+                                      {{ formContent.chapter_num(class='form-control') }}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                              <div class="col-sm-2" style="width: 0px;">
+                                  <div style="width:250px;margin-left: 200px;" > 
+                                                  {{ formContent.topics.label(class='labelsize') }}
+                                                  <div id='loaderTopic'style='display: none; float: right;'>
+                                                                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                                  </div>
+                                          <br>
+                                                  {% if formContent.topics.errors %}
+                                                  {{ formContent.topics(class="form-control form-control-lg is-invalid") }}
+                                                  <div class="invalid-feedback">
+                                                  {% for error in formContent.topics.errors %}
+                                                   <span>{{ error }}</span>
+                                                  {% endfor %}
+                                          </div>
+                                                  {% else %}
+                                                  {{ formContent.topics(class='form-control',id='topicId') }}
+                                                  {% endif %}
+          
+                                                  
+                                  </div>
+                          </div> 
+                          </div>
+                          <div class="row">
+                          <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
+                          <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
+                          <label>Content Type:</label>&nbsp;
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span><label>Image</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span><label>Document</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span><label>Video</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span><label>Audio</label></span>
+                          <input type="hidden" id="contentType" name="contentType" value="">
+                          </div>
+                          </div>
+                          <div style="display: flex;margin-top: -15px;margin-left: 30px;">
+                            <div id="uploadContent" style="visibility: hidden;">
+                              <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" id="file-input"><a href="#" id="uploadBtn" onclick="uploadBtn();" style="float: right;">Upload</a></div><br>
+                              <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
+                              <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
+                              <input type="hidden" id="reference" name="reference" value="">
+                            </div>
+                              <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
+                          </div>
+                          </div>
+                          <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
+                            </form>
+                            <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
+                </div>
+              </div>
+        <!-- End Modal -->
     <div class="row">
         {% if topics %}
         <div class="col-sm-3">
@@ -228,6 +347,331 @@
             }
         });
     });
+
+
+    // For Modal Form
+
+    $(document).ready(function(){
+  $('.reference_data').css('display','block');
+});
+
+$('#topicBtn').click(function(){
+  $('.reference_data').css('display','none');
+});
+
+
+var selected_class = document.getElementById('class_val');
+var selected_subject = document.getElementById('subject_name');
+var selected_chapter = document.getElementById('chapter_num');
+var selected_topic = document.getElementById('topicId');
+var optionHTMLClass = '';
+var optionHTMLSubject = '';
+var optionHTMLChapter = '';
+var optionHTMLTopic = '';
+$(document).ready(function(){
+        $('#class_val').val("na");
+        console.log("CLass Value:"+selected_class.value);
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        selected_class.innerHTML = optionHTMLClass + selected_class.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        selected_subject.innerHTML = optionHTMLSubject + selected_subject.innerHTML;
+        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        selected_chapter.innerHTML = optionHTMLChapter + selected_chapter.innerHTML;
+        optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
+        selected_topic.innerHTML = optionHTMLChapter + selected_topic.innerHTML;
+    });
+
+selected_class.onchange = function()  {
+        class_val = selected_class.value;
+         console.log('Topic:'+selected_topic.value);
+         $("#loader2").show();
+         console.log('Inside class value Onchange')
+         fetch('/questionBuilder/' + class_val).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loader2").hide();    
+                     var optionHTML = '';
+                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+                     for (var subject of data.subjects) {
+                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                 }
+                 selected_subject.innerHTML = optionHTML;
+             })
+             
+         });
+     }
+     selected_subject.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside subject_select on change')
+        $("#loader3").show();
+        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+                $("#loader3").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+                for (var chapterNo of data.chapterNum){
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+                  }
+                  selected_chapter.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+     selected_chapter.onchange=function()  {
+        class_val = selected_class.value;
+        subject_id = selected_subject.value;
+        console.log('Inside topic_select on change')
+        $("#loaderTopic").show();
+        fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+            response.json().then(function(data){
+              console.log('Data:'+data)
+                $("#loaderTopic").hide();
+                var optionHTML = '';
+                optionHTML += '<option value="na"  selected disabled> Select Topic </option>';
+                for (var topic of data.topics) {
+                        console.log(topic.topic_id);
+                        console.log(topic.topic_name);
+                          optionHTML += '<option value="' + topic.topic_id + '">' + topic.topic_name + '</option>';
+                    }  
+                  selected_topic.innerHTML =  optionHTML;
+            })
+        });
+     }
+
+
+
+     $('#submit').click(function(){
+            var classValue = selected_class.value;
+            var subjectValue = selected_subject.value;
+            var topicValue = selected_topic.value;
+            var chapterValue = selected_chapter.value;
+            var contentTypeValue = document.getElementById('contentTypeId').value;
+            var fileValue = document.getElementById("file-input").value;
+            var contentUrlValue = document.getElementById("contentUrl").value;
+            var contentName = document.getElementById('contentNameDiv').value;
+            console.log(classValue);
+
+            if(contentName==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please enter content name';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Class Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Subject Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(chapterValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Chapter Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(topicValue=='na'){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Topic Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(contentTypeValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Content Type Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(fileValue==''&&contentUrlValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please either choose file or enter url';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else{
+                $('#contentMessage').hide();
+                event.preventDefault();
+  selected_class_value = selected_class.value;
+  selected_subject_value = selected_subject.value;
+  selected_chapter_value = selected_chapter.value;
+  selected_topic_value = selected_topic.value;
+  var contentName = document.getElementById('contentNameDiv').value;
+  var contentType = document.getElementById('contentType').value;
+  var contentUrl = document.getElementById('contentUrl').value;
+  var reference = document.getElementById('reference').value;
+  console.log(selected_class_value+' '+selected_subject_value+' '+selected_chapter_value+' '+selected_topic_value+' '+contentName+' '+contentType+' ');
+  var contentTypeId=''
+  if(contentType==1){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 98;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 94;
+    }
+  }else if(contentType==2){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 99;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 95;
+    }
+  }else if(contentType==3){
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 96;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 92;
+    }
+  }else{
+    if(contentUrl!=''){
+      console.log('Content Url'+contentUrl);
+      contentTypeId = 97;
+    }else{
+      console.log('Content path'+reference);
+      contentTypeId = 93;
+    }
+  }
+
+    var data="";
+    $.ajax({
+    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference,
+    type: "get",
+    data: data,
+    success: function(response) {       
+    },
+    error: function(xhr) {
+    window.alert("error occurred while loading question");
+    }
+  }); 
+            }
+            
+        });
+        function addContentId(){
+    console.log('Inside addContentId');
+    $('.modal').modal();
+  };
+
+
+
+
+  function contentOption(contentType){
+      document.getElementById('contentType').value=contentType.value;
+      console.log('Insert option');
+      $("#uploadContent").css('visibility', 'visible');
+    }
+
+  function previewUrl(url){
+    document.getElementById('preview').src = url;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, options);
+    
+  });
+
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    console.log('Inside model');
+    $('.modal').modal();
+  });
+
+
+  function uploadFile(file, s3Data, url){
+      console.log('Inside uploadFile');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            console.log(url);
+            document.getElementById('preview').src = url;
+            document.getElementById('reference').value = url;
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      console.log('Inside getSignedRequest');
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function uploadBtn(){
+      if($('#file-input').val()){
+    console.log('Inside file length');
+    // $('#uploadBtn').css('visibility','visible');
+    $('#message').hide();
+    initUpload();
+  }else{
+    $('#message').show();
+  }
+    };
+
+
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      console.log('Inside initUpload');
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
+    /*
+       Bind listeners when the page loads.
+    */
+    (() => {
+      document.getElementById('file-input').onchange = initUpload;
+    })();
 </script>
 
 {%endblock%}
