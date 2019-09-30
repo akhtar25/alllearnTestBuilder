@@ -1206,6 +1206,12 @@ def classDelivery():
         retake = request.args.get('retake')
         print('this is retake val: '+str(retake))
         contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
+        subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
+        subName = ''
+        for sub in subject_name:
+            subName = sub.description
+            break
+        print('Subject Name:'+subName)
         print('Content Data:'+str(contentData))
         q=0
         for content in contentData:
@@ -1247,7 +1253,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData)
+    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData,subName=subName)
 
 
 
