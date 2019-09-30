@@ -667,7 +667,7 @@ $('html, body').animate({
           if(xhr.status === 200 || xhr.status === 204){
             console.log(url);
             if(contentType==1){
-    if(reference!=''){
+    if(contentUrl==''){
       document.getElementById('preview').src = url;
       $('#preview').show();
       $('#docDiv').hide();

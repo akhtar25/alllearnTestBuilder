@@ -78,14 +78,14 @@
                   <form action="" method="POST" enctype="multipart/form-data">
                     {{ formContent.hidden_tag() }}
                     <div class="form-group " style="padding-top:5px;">
-                      <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
+                      <div class="row" style="margin-left: 15px;margin-bottom: 10px;margin-top: 15px;">
                         <div class="col-sm-3" style="display:flex;">
                             <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
                         </div>
                       </div>
-                        <div class="row">
+                      <div class="row" id="classDetailsDiv">
                             <div class="col-sm-3">
-                                <div style="width:250px;margin-left: 30px;">
+                                <div style="width:100px;margin-left:30px;">
                                     {{ formContent.class_val.label(class='labelsize') }}
                                     <br>
                                     {% if formContent.class_val.errors %}
@@ -100,10 +100,10 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-sm-2" style="width: 0px;">
-                                <div style="width:250px;margin-left: 200px;">
+                            <div class="col-sm-2" style="width: 0px;margin-left: -20px;">
+                                <div style="width:130px;">
                                     {{ formContent.subject_name.label(class='labelsize') }}
-                                    <div id='loader2' style='display: none; float: right;'>
+                                    <div id='loaderSubject' style='display: none; float: right;'>
                                         <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                     </div>
                                     <br>
@@ -119,12 +119,10 @@
                                     {% endif %}
                                 </div>
                             </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-sm-3">
-                                  <div style="width:250px;margin-left: 30px;">
+                              <div class="col-sm-3" style="width:0px;">
+                                  <div style="width:125px;margin-left: 120px;">
                                       {{ formContent.chapter_num.label(class='labelsize') }}
-                                      <div id='loader3' style='display: none; float: right;'>
+                                      <div id='loaderChapter' style='display: none; float: right;'>
                                           <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                       </div>
                                       <br>
@@ -141,7 +139,7 @@
                                   </div>
                               </div>
                               <div class="col-sm-2" style="width: 0px;">
-                                  <div style="width:250px;margin-left: 200px;" > 
+                                  <div style="width:160px;margin-left: 240px;" > 
                                                   {{ formContent.topics.label(class='labelsize') }}
                                                   <div id='loaderTopic'style='display: none; float: right;'>
                                                                   <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -160,8 +158,8 @@
           
                                                   
                                   </div>
-                          </div> 
                           </div>
+                        </div>
                           <div class="row">
                           <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
                           <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
@@ -180,8 +178,13 @@
                               <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
                               <input type="hidden" id="reference" name="reference" value="">
                             </div>
-                              <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
-                          </div>
+                            <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
+                            <iframe src=" " id="iframeDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                            <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;"><source src=" "></audio>
+                            <embed width="251" height="115" id="docDiv" style="margin-left: 90px;float: right;margin-top: -15px;display:none;" src=" " type="application/pdf">
+                           
+                            </embed>                           
+                        </div>
                           </div>
                           <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
                             </form>
@@ -378,7 +381,7 @@ $(document).ready(function(){
         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
         selected_chapter.innerHTML = optionHTMLChapter + selected_chapter.innerHTML;
         optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
-        selected_topic.innerHTML = optionHTMLChapter + selected_topic.innerHTML;
+        selected_topic.innerHTML = optionHTMLTopic + selected_topic.innerHTML;
         $('#file-input').click(function(){   
             console.log('Inside file Input');
             $('#contentUrl').prop('disabled', true);
@@ -388,11 +391,11 @@ $(document).ready(function(){
 selected_class.onchange = function()  {
         class_val = selected_class.value;
          console.log('Topic:'+selected_topic.value);
-         $("#loader2").show();
+         $("#loaderSubject").show();
          console.log('Inside class value Onchange')
          fetch('/questionBuilder/' + class_val).then(function(response) {
              response.json().then(function(data) {
-                     $("#loader2").hide();    
+                     $("#loaderSubject").hide();    
                      var optionHTML = '';
                      optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
                      for (var subject of data.subjects) {
@@ -407,10 +410,10 @@ selected_class.onchange = function()  {
         class_val = selected_class.value;
         subject_id = selected_subject.value;
         console.log('Inside subject_select on change')
-        $("#loader3").show();
+        $("#loaderChapter").show();
         fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
-                $("#loader3").hide();
+                $("#loaderChapter").hide();
                 var optionHTML = '';
                 optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
                 for (var chapterNo of data.chapterNum){
@@ -575,7 +578,44 @@ selected_class.onchange = function()  {
     }
 
   function previewUrl(url){
-    document.getElementById('preview').src = url;
+    var contentType = document.getElementById('contentType').value;
+  var contentUrl = document.getElementById('contentUrl').value;
+  if(contentType==1){
+    if(contentUrl!=''){
+      document.getElementById('preview').src = contentUrl;
+      $('#preview').show();
+      $('#docDiv').hide();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+    }
+  }
+  if(contentType==2){
+    if(contentUrl!=''){
+      document.getElementById('docDiv').src = contentUrl;
+      $('#docDiv').show();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+      $('#preview').hide();
+    }
+  }
+  if(contentType==3){
+    if(contentUrl!=''){
+    document.getElementById('iframeDiv').src = url;
+    $('#iframeDiv').show();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    $('#audioDiv').hide();
+    }
+  }
+  if(contentType==4){
+    if(contentUrl!=''){
+    document.getElementById('audioDiv').src = url;
+    $('#audioDiv').show();
+    $('#iframeDiv').hide();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    }
+  }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -594,6 +634,9 @@ selected_class.onchange = function()  {
 
 
   function uploadFile(file, s3Data, url){
+    var contentType = document.getElementById('contentType').value;
+  var reference = document.getElementById('reference').value;
+  var contentUrl = document.getElementById('contentUrl').value;
       console.log('Inside uploadFile');
       const xhr = new XMLHttpRequest();
       xhr.open('POST', s3Data.url);
@@ -610,7 +653,42 @@ selected_class.onchange = function()  {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
             console.log(url);
-            document.getElementById('preview').src = url;
+            if(contentType==1){
+    if(contentUrl==''){
+      document.getElementById('preview').src = url;
+      $('#preview').show();
+      $('#docDiv').hide();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+    }
+  }
+  if(contentType==2){
+    if(contentUrl==''){
+      document.getElementById('docDiv').src = url;
+      $('#docDiv').show();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+      $('#preview').hide();
+    }
+  }
+  if(contentType==3){
+    if(contentUrl==''){
+    document.getElementById('iframeDiv').src = url;
+    $('#iframeDiv').show();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    $('#audioDiv').hide();
+    }
+  }
+  if(contentType==4){
+    if(contentUrl==''){
+    document.getElementById('audioDiv').src = url;
+    $('#audioDiv').show();
+    $('#iframeDiv').hide();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    }
+  }
             document.getElementById('reference').value = url;
           }
           else{
