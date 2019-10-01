@@ -127,7 +127,7 @@
                                                     </audio>
                                               {%elif content.content_type==94 or content.content_type==98%}
                                                     <div class="center-align responsive-image">
-                                                    <img class="materialboxed" style="margin-top: 8px;margin-left: 5px;" height="83" src="{{content.reference_link}}">
+                                                    <img class="materialboxed" style="margin-top: 8px;margin-left: 5px;" height="83" width= "140px"; src="{{content.reference_link}}">
                                                   </div>
                                               {%elif content.content_type==95 or content.content_type==99%}            
                                               <a href="#modal1" data-target="modal1" class="modal-trigger"><img height="83" style="margin-left:30px;" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
@@ -261,10 +261,10 @@
                             <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
                             <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
                             <label>Content Type:</label>&nbsp;
-                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span><label>Image</label></span>
-                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span><label>Document</label></span>
-                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span><label>Video</label></span>
-                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span><label>Audio</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span><label style="margin-left: -10px;margin-right: 20px;">Image</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span><label style="margin-left: -10px;margin-right: 20px;">Document</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span><label style="margin-left: -10px;margin-right: 20px;">Video</label></span>
+                            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span><label style="margin-left: -10px;margin-right: 20px;">Audio</label></span>
                             <input type="hidden" id="contentType" name="contentType" value="">
                             </div>
                             </div>
@@ -603,6 +603,7 @@ $('html, body').animate({
         $("#uploadContent").css('visibility', 'hidden');
         $('#show').show();
         $('#hide').hide();
+        $('#contentMessage').hide();
   };
 
   function contentOption(contentType){
@@ -643,7 +644,8 @@ $('html, body').animate({
   }
   if(contentType==3){
     if(contentUrl!=''){
-    document.getElementById('iframeDiv').src = contentUrl;
+      var videoUrl = getId(contentUrl);
+    document.getElementById('iframeDiv').src = '//www.youtube.com/embed/'+videoUrl;
     $('#iframeDiv').show();
     $('#preview').hide();
     $('#docDiv').hide();
@@ -704,6 +706,7 @@ $('html, body').animate({
       const xhr = new XMLHttpRequest();
       xhr.open('POST', s3Data.url);
       xhr.setRequestHeader('x-amz-acl', 'public-read');
+      
       const postData = new FormData();
       for(key in s3Data.fields){
         postData.append(key, s3Data.fields[key]);      
@@ -715,6 +718,8 @@ $('html, body').animate({
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
+            
+            
             console.log(url);
             if(contentType==1){
     if(contentUrl==''){
@@ -736,7 +741,8 @@ $('html, body').animate({
   }
   if(contentType==3){
     if(contentUrl==''){
-    document.getElementById('iframeDiv').src = url;
+      var videoUrl = getId(url);
+    document.getElementById('iframeDiv').src = '//www.youtube.com/embed/'+videoUrl;
     $('#iframeDiv').show();
     $('#preview').hide();
     $('#docDiv').hide();
@@ -801,6 +807,22 @@ $('html, body').animate({
     $('#message').show();
   }
     };
+
+    function getId(url) {
+    var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    var match = url.match(regExp);
+
+    if (match && match[2].length == 11) {
+        return match[2];
+    } else {
+        return 'error';
+    }
+}
+
+// var videoId = getId('http://www.youtube.com/watch?v=zbYf5_S7oJo');
+
+// var iframeMarkup = '<iframe width="560" height="315" src="//www.youtube.com/embed/' 
+//     + videoId + '" frameborder="0" allowfullscreen></iframe>';
 
 
     function initUpload(){
