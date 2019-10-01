@@ -1211,7 +1211,7 @@ def classDelivery():
         for sub in subject_name:
             subName = sub.description
             break
-        print('Subject Name:'+subName)
+        print('Subject Name:'+str(subName))
         print('Content Data:'+str(contentData))
         q=0
         for content in contentData:
