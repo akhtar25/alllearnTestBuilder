@@ -106,8 +106,9 @@
                 <a href="#"><div class="box box-info"><h3>Reference</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
-                      <div style="overflow-y: auto;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
+                      <div style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
                                 <table>
+                                    {% if contentData %}
                                     {% for content in contentData %}   
                                     <div class="row z-depth-1" style="width:285px;height:98px;margin-left:-1px;margin-bottom: 5px;">  
                                                  <div class="">
@@ -154,9 +155,12 @@
                                         </div>
                         
                                         {% endfor %}
+                                        {% else %}
+                                            <span class="grey-text text-lighten-1"><p style="font-size: 15px;">No content found</p></span>
+                                        {% endif %}
+                                        <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;margin-top: 10px;cursor: pointer;" class="waves-effect waves-light modal-trigger">Add content</a>  
                                     </table>
                                   </div>
-                                  <a href="#" data-target="modal2" onclick="addContentId();" style="float:right;margin-top: 10px;" class="waves-effect waves-light modal-trigger">Add content</a>  
                   </li>
               </ul>
             </li>
@@ -173,9 +177,12 @@
                               <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
                           </div>
                         </div>
-                          <div class="row">
+                        <div class="row" style="margin-left: 30px;margin-bottom: 10px;margin-top: 15px;">
+                          <label>Class:</label><span style="margin-left: 10px;">{{currClassSecDet.class_val}}</span><label style="margin-left: 30px;">Subject:</label><span style="margin-left: 10px;">{{subName}}</span> <label style="margin-left: 30px;">Chapter:</label><span  style="margin-left: 10px;">{{ topicDet.chapter_num }}</span> <label style="margin-left: 30px;">Topic:</label><span  style="margin-left: 10px;">{{ topicDet.topic_name }}</span><a href="#" id="show" style="float: right;width: 80px;height: 30px;margin-right: 50px;">Show Edit</a><a href="#" id="hide" style="float: right;width: 80px;height: 30px;margin-right: 50px;display:none;">Hide Edit</a>
+                        </div>
+                          <div class="row" id="classDetailsDiv" style="display:none;">
                               <div class="col-sm-3">
-                                  <div style="width:250px;margin-left: 30px;">
+                                  <div style="width:100px;margin-left:30px;">
                                       {{ form.class_val.label(class='labelsize') }}
                                       <br>
                                       {% if form.class_val.errors %}
@@ -190,8 +197,8 @@
                                       {% endif %}
                                   </div>
                               </div>
-                              <div class="col-sm-2" style="width: 0px;">
-                                  <div style="width:250px;margin-left: 200px;">
+                              <div class="col-sm-2" style="width: 0px;margin-left: -20px;">
+                                  <div style="width:130px;">
                                       {{ form.subject_name.label(class='labelsize') }}
                                       <div id='loader' style='display: none; float: right;'>
                                           <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -209,10 +216,8 @@
                                       {% endif %}
                                   </div>
                               </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <div style="width:250px;margin-left: 30px;">
+                                <div class="col-sm-3" style="width:0px;">
+                                    <div style="width:125px;margin-left: 120px;">
                                         {{ form.chapter_num.label(class='labelsize') }}
                                         <div id='loader1' style='display: none; float: right;'>
                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -231,7 +236,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-2" style="width: 0px;">
-                                    <div style="width:250px;margin-left: 200px;" > 
+                                    <div style="width:160px;margin-left: 240px;" > 
                                                     {{ form.topics.label(class='labelsize') }}
                                                     <div id='loaderTopic'style='display: none; float: right;'>
                                                                     <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -250,8 +255,8 @@
             
                                                     
                                     </div>
-                            </div> 
                             </div>
+                          </div>
                             <div class="row">
                             <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
                             <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
@@ -271,6 +276,11 @@
                                 <input type="hidden" id="reference" name="reference" value="">
                               </div>
                                 <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
+                                <iframe src=" " id="iframeDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                                <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;"><source src=" "></audio>
+                                <embed width="251" height="115" id="docDiv" style="margin-left: 90px;float: right;margin-top: -15px;display:none;" src=" " type="application/pdf">
+                               
+                                </embed>        
                             </div>
                             </div>
                             <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
@@ -293,6 +303,19 @@
 
 $(document).ready(function(){
   $('.reference_data').css('display','block');
+});
+
+$('#show').click(function(){
+  $('#classDetailsDiv').show();
+  $('#classDetailsDiv').show();
+  $('#show').hide();
+  $('#hide').show();
+});
+$('#hide').click(function(){
+  $('#classDetailsDiv').hide();
+  $('#classDetailsDiv').hide();
+  $('#show').show();
+  $('#hide').hide();
 });
 
 $('#topicBtn').click(function(){
@@ -318,7 +341,7 @@ $(document).ready(function(){
         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
         selected_chapter.innerHTML = optionHTMLChapter + selected_chapter.innerHTML;
         optionHTMLTopic += '<option value="na"  selected disabled> Select Topic </option>';
-        selected_topic.innerHTML = optionHTMLChapter + selected_topic.innerHTML;
+        selected_topic.innerHTML = optionHTMLTopic + selected_topic.innerHTML;
         // if($('#file-input').val()){
         //   $('#contentUrl').prop('disabled', true);
         // }
@@ -328,6 +351,9 @@ $(document).ready(function(){
             console.log('Inside file Input');
             $('#contentUrl').prop('disabled', true);
         });
+        if(document.getElementById('contentUrl').value!=''){
+          $('#file-input').prop('disabled', true);
+        }
     });
 
 selected_class.onchange = function()  {
@@ -406,6 +432,22 @@ selected_class.onchange = function()  {
                 $('#contentMessage').show();
                 event.preventDefault();
             }else
+            if(contentTypeValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'No Content Type Selected';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }else
+            if(fileValue==''&&contentUrlValue==''){
+                tag = document.getElementById('contentMessage');
+                tag.innerHTML = 'Please either choose file or enter url';
+                $('#contentMessage').show();
+                event.preventDefault();
+            }
+            else{
+                $('#contentMessage').hide();
+
+        if($('#classDetailsDiv').css('display') == 'block'){
             if(classValue=='na'){
                 console.log('Inside message');
                 tag = document.getElementById('contentMessage');
@@ -431,22 +473,11 @@ selected_class.onchange = function()  {
                 tag.innerHTML = 'No Topic Selected';
                 $('#contentMessage').show();
                 event.preventDefault();
-            }else
-            if(contentTypeValue==''){
-                tag = document.getElementById('contentMessage');
-                tag.innerHTML = 'No Content Type Selected';
-                $('#contentMessage').show();
-                event.preventDefault();
-            }else
-            if(fileValue==''&&contentUrlValue==''){
-                tag = document.getElementById('contentMessage');
-                tag.innerHTML = 'Please either choose file or enter url';
-                $('#contentMessage').show();
-                event.preventDefault();
+            }else{
+
+              $('#contentMessage').hide();
             }
-            else{
-                $('#contentMessage').hide();
-                event.preventDefault();
+        }
   selected_class_value = selected_class.value;
   selected_subject_value = selected_subject.value;
   selected_chapter_value = selected_chapter.value;
@@ -490,6 +521,22 @@ selected_class.onchange = function()  {
       contentTypeId = 93;
     }
   }
+  if(selected_class_value=='na'){
+    selected_class_value = '{{currClassSecDet.class_val}}';
+    console.log('Class_val:'+selected_class_value);
+  }
+  if(selected_subject_value=='na'){
+    selected_subject_value = '{{ topicDet.subject_id }}';
+    console.log('Subject val:'+selected_subject_value);
+  }
+  if(selected_chapter_value=='na'){
+    selected_chapter_value = '{{ topicDet.chapter_num }}';
+    console.log('Chapter number:'+selected_chapter_value);
+  }
+  if(selected_topic_value=='na'){
+    selected_topic_value = '{{ topicDet.topic_id }}';
+    console.log('Topic :'+selected_topic_value);
+  }
 
     var data="";
     $.ajax({
@@ -500,7 +547,7 @@ selected_class.onchange = function()  {
       location.reload();    
     },
     error: function(xhr) {
-    window.alert("error occurred while loading question");
+    alert("error occurred while loading question");
     }
   }); 
             }
@@ -524,8 +571,45 @@ $('html, body').animate({
     }
 
   function previewUrl(url){
-    document.getElementById('preview').src = url;
+    var contentType = document.getElementById('contentType').value;
+  var contentUrl = document.getElementById('contentUrl').value;
+  if(contentType==1){
+    if(contentUrl!=''){
+      document.getElementById('preview').src = contentUrl;
+      $('#preview').show();
+      $('#docDiv').hide();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+    }
   }
+  if(contentType==2){
+    if(contentUrl!=''){
+      document.getElementById('docDiv').src = contentUrl;
+      $('#docDiv').show();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+      $('#preview').hide();
+    }
+  }
+  if(contentType==3){
+    if(contentUrl!=''){
+    document.getElementById('iframeDiv').src = url;
+    $('#iframeDiv').show();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    $('#audioDiv').hide();
+    }
+  }
+  if(contentType==4){
+    if(contentUrl!=''){
+    document.getElementById('audioDiv').src = url;
+    $('#audioDiv').show();
+    $('#iframeDiv').hide();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    }
+  }
+}
 
   document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.modal');
@@ -563,6 +647,9 @@ $('html, body').animate({
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
     function uploadFile(file, s3Data, url){
+      var contentType = document.getElementById('contentType').value;
+  var reference = document.getElementById('reference').value;
+  var contentUrl = document.getElementById('contentUrl').value;
       console.log('Inside uploadFile');
       const xhr = new XMLHttpRequest();
       xhr.open('POST', s3Data.url);
@@ -579,7 +666,43 @@ $('html, body').animate({
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
             console.log(url);
-            document.getElementById('preview').src = url;
+            if(contentType==1){
+    if(contentUrl==''){
+      document.getElementById('preview').src = url;
+      $('#preview').show();
+      $('#docDiv').hide();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+    }
+  }
+  if(contentType==2){
+    if(contentUrl==''){
+      document.getElementById('docDiv').src = url;
+      $('#docDiv').show();
+      $('#audioDiv').hide();
+      $('#iframeDiv').hide();
+      $('#preview').hide();
+    }
+  }
+  if(contentType==3){
+    if(contentUrl==''){
+    document.getElementById('iframeDiv').src = url;
+    $('#iframeDiv').show();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    $('#audioDiv').hide();
+    }
+  }
+  if(contentType==4){
+    if(contentUrl==''){
+    document.getElementById('audioDiv').src = url;
+    $('#audioDiv').show();
+    $('#iframeDiv').hide();
+    $('#preview').hide();
+    $('#docDiv').hide();
+    }
+  }
+            // document.getElementById('preview').src = url;
             document.getElementById('reference').value = url;
           }
           else{
