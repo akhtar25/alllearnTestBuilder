@@ -1194,7 +1194,14 @@ def leaderBoard():
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-    return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses,School_Name=school_name())
+        query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+        print('Query:'+query)
+        leaderBoardData = db.session.execute(text(query)).fetchall()
+        print('Inside leaderboard')
+        for data in leaderBoardData:
+            print('Marks:'+str(data.marks))
+            print('Student:'+data.student_name)
+    return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,School_Name=school_name())
 
 @app.route('/classDelivery')
 @login_required
@@ -2342,6 +2349,52 @@ def questionFile():
 
 
 #Subject list generation dynamically
+
+@app.route('/topperList')
+def topperList():
+    classValue = request.args.get('class_val')
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section='All' and subjects='All' and test='All' order by marks desc"
+    print('Query topperList:'+query)
+    leaderBoardData = db.session.execute(text(query)).fetchall()
+    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+
+@app.route('/topperListBySubject')
+def topperListBySubject():
+    classValue = request.args.get('class_val')
+    subjectValue = request.args.get('subject_id')
+    subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
+    print(subjectName.description)
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+    print('Query topperList:'+query)
+    leaderBoardData = db.session.execute(text(query)).fetchall()
+    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+
+@app.route('/topperListByTestType')
+def topperListByTestType():
+    classValue = request.args.get('class_val')
+    subjectValue = request.args.get('subject_id')
+    test_type = request.args.get('test_type')
+    subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
+    print(subjectName.description)
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+test_type+"' and section='All' order by marks desc"
+    print('Query topperList:'+query)
+    leaderBoardData = db.session.execute(text(query)).fetchall()
+    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+
+
+@app.route('/topperListBySection')
+def topperListBySection():
+    classValue = request.args.get('class_val')
+    subjectValue = request.args.get('subject_id')
+    test_type = request.args.get('test_type')
+    section = request.args.get('section_val')
+    subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
+    print(subjectName.description)
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+test_type+"' and section='"+section+"' order by marks desc"
+    print('Query topperList:'+query)
+    leaderBoardData = db.session.execute(text(query)).fetchall()
+    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+    
 
 @app.route('/questionBuilder/<class_val>')
 def subject_list(class_val):

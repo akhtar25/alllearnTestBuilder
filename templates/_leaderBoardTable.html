@@ -1,0 +1,27 @@
+<div class="box-body table-responsive no-padding" style="height:525px;">
+      
+        <table class="table table-hover">
+            
+            <thead>
+          <tr>
+            
+           <th>Student</th>
+           <th>Class</th>
+            <th>Section</th>
+            <th>Subject</th>                
+            <th>Marks %</th>      
+          </tr>
+          </thead>
+          <tbody>
+          {% for eachRow in leaderBoardData%}
+          <tr style="margin-top:5px;">
+            <td>{{eachRow.student_name}}</td>                
+            <td>{{eachRow.class}}</td>
+            <td>{{eachRow.section}}</td>
+            <td>{{eachRow.subjects}}</td>
+            <td>{{eachRow.marks}}</td>                
+          </tr>
+          {% endfor %}
+        </tbody>
+        </table>    
+      </div>

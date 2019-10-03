@@ -32,7 +32,7 @@
   <div class="content-wrapper" style="background-color: white;">
   <div class="box">
     <div class="box-header">
-      <h3 class="box-title">Leaderboard for</h3><span style="padding-left: 10px;"> Class: <span id="classNo">1</span></span>                             
+      <h3 class="box-title">Leaderboard for</h3><span style="padding-left: 10px;font-size: 16px;"> Class: <span id="classNo">1</span></span>                             
     </div>
     <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 60px;">
       {{ form.hidden_tag() }}
@@ -60,9 +60,6 @@
         <div class="col-sm-2" style="width: 200px;">
           <div>
               {{ form.test_type.label(class='labelsize') }}
-              <div id='loader' style='display: none; float: right;'>
-                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
-              </div>
               <br>
               {% if form.test_type.errors %}
               {{ form.test_type(class="form-control form-control-lg is-invalid") }}
@@ -98,30 +95,39 @@
       </div>
       </form>
   </div>
-  <div id="table" class="table-editable">
-    <table class="table table-bordered table-responsive-md table-striped text-center">
-            <thead>
-                    <tr>
-                        <th scope="col">Student</th>
-                        <th scope="col">Class</th>
-                        <th scope="col">Section</th>
-                        <th scope="col">Subjects</th>
-                        <th scope="col">Marks %</th>
-                    </tr>
-            </thead>
-            <tbody>
-                <form action="" method="POST" name="form-upload">
-                  
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-            </tbody>
-    </table>
-</div>
+  <div id="firstTable" class="box-body table-responsive no-padding" style="height:525px;">
+      
+      <table class="table table-hover">
+          
+          <thead>
+        <tr>
+          
+         <th>Student</th>
+         <th>Class</th>
+          <th>Section</th>
+          <th>Subject</th>                
+          <th>Marks %</th>      
+        </tr>
+        </thead>
+        <tbody>
+        {% for eachRow in leaderBoardData%}
+        <tr style="margin-top:5px;">
+          <td>{{eachRow.student_name}}</td>                
+          <td>{{eachRow.class}}</td>
+          <td>{{eachRow.section}}</td>
+          <td>{{eachRow.subjects}}</td>
+          <td>{{eachRow.marks}}</td>                
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>    
+    </div>
+
+    <div id="dynamicDataTable">
+        <div id="loader" style="display: none;padding-left: 300px;">
+            <img src="../static/images/loader.gif">
+        </div>
+    </div>
   </div>
 
 </div>
@@ -135,7 +141,7 @@ var optionHTMLTestType = '';
 var optionHTMLSubject = '';
 var optionHTMLSection = '';
     $(document).ready(function(){
-        $('#class_val').val("na");
+        $('#test_type').val("na");
         optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
         test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
         optionHTMLSubject += '<option value="na"  selected disabled> All </option>';
@@ -143,14 +149,15 @@ var optionHTMLSection = '';
         optionHTMLSection += '<option value="na"  selected disabled> All </option>';
         section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
     });
-
+var classVal = '';
 $('.classDiv').click(function(){
     console.log('inside classDiv');
-    var classVal = $(this).attr('name');
+    classVal = $(this).attr('name');
     var classNo =  classVal;
     $('#classNo').html(classNo)
     console.log('Class:'+classVal);
-    
+    optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
+        test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
     class_val = classVal;
         $("#loaderSubject").show();
         console.log('Inside class value Onchange')
@@ -180,8 +187,108 @@ $('.classDiv').click(function(){
                     section_select.innerHTML = optionHTML;
                 })
             });
+
+
+            $.ajax({  
+            url: "/topperList?class_val="+classVal,
+            type: "get",
+            data: "",            
+            beforeSend: function() { 
+                $('#firstTable').hide();
+                $('#loader').show();
+           },
+            success: function (response) {
+              $('#loader').hide();
+              $('#dynamicDataTable').html(response);
+              $('#dynamicDataTable').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
     
 });
+
+
+test_type_select.onchange=function()  {
+      class_val = classVal;
+ 
+         subject_id = subject_select.value;
+
+         test_type = test_type_select.value;
+
+         $.ajax({  
+            url: "/topperListByTestType?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
+            type: "get",
+            data: "",            
+            beforeSend: function() { 
+                $('#firstTable').hide();
+                $('#loader').show();
+           },
+            success: function (response) {
+              $('#loader').hide();
+              $('#dynamicDataTable').html(response);
+              $('#dynamicDataTable').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+}
+
+subject_select.onchange=function()  {
+      class_val = classVal;
+ 
+         subject_id = subject_select.value;
+
+         $.ajax({  
+            url: "/topperListBySubject?class_val="+class_val+"&subject_id="+subject_id,
+            type: "get",
+            data: "",            
+            beforeSend: function() { 
+                $('#firstTable').hide();
+                $('#loader').show();
+           },
+            success: function (response) {
+              $('#loader').hide();
+              $('#dynamicDataTable').html(response);
+              $('#dynamicDataTable').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+}
+
+section_select.onchange=function()  {
+      class_val = classVal;
+ 
+         subject_id = subject_select.value;
+
+         test_type = test_type_select.value;
+
+         section_val = section_select.value;
+
+         $.ajax({  
+            url: "/topperListBySection?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
+            type: "get",
+            data: "",            
+            beforeSend: function() { 
+                $('#firstTable').hide();
+                $('#loader').show();
+           },
+            success: function (response) {
+              $('#loader').hide();
+              $('#dynamicDataTable').html(response);
+              $('#dynamicDataTable').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+}
+
+         
 </script>
 
 {% endblock %}
