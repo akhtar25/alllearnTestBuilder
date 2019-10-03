@@ -1,0 +1,187 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+  <div class="skin-blue sidebar-mini">
+    <aside class="main-sidebar" style="margin-top:15px;">
+      <!-- sidebar: style can be found in sidebar.less -->
+      
+      <section class="sidebar">
+        <ul class="sidebar-menu" data-widget="tree">
+          <li class="treeview menu-open">
+            <a href="#">
+                <i class="glyphicon glyphicon-education"></i>
+              <span>All</span>
+            </a>
+          </li>
+          {% for singleClass in distinctClasses %}
+          <li class="treeview">
+            <a href="#" class="classDiv" name="{{singleClass[0]}}">
+              <i class="glyphicon glyphicon-education"></i>
+              <span>Class {{singleClass[0]}}</span>
+              <span class="pull-right-container">
+                <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+              </span>
+            </a>
+          </li>
+          {% endfor %}
+          <ul>
+      </section>
+      <!-- /.sidebar -->
+    </aside>
+  </div>
+
+  <div class="content-wrapper" style="background-color: white;">
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Leaderboard for</h3><span style="padding-left: 10px;"> Class: <span id="classNo">1</span></span>                             
+    </div>
+    <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 60px;">
+      {{ form.hidden_tag() }}
+      <div class="form-group ">
+        <div class="row" id="classDetailsDiv">
+          <div class="col-sm-2" style="width: 200px;">
+            <div>
+                {{ form.subject_name.label(class='labelsize') }}
+                <div id='loaderSubject' style='display: none; float: right;'>
+                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                </div>
+                <br>
+                {% if form.subject_name.errors %}
+                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.subject_name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.subject_name(class='form-control') }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-2" style="width: 200px;">
+          <div>
+              {{ form.test_type.label(class='labelsize') }}
+              <div id='loader' style='display: none; float: right;'>
+                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
+              </div>
+              <br>
+              {% if form.test_type.errors %}
+              {{ form.test_type(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                  {% for error in form.test_type.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
+              </div>
+              {% else %}
+              {{ form.test_type(class='form-control') }}
+              {% endif %}
+          </div>
+      </div>
+      <div class="col-sm-2" style="width: 200px;">
+        <div>
+            {{ form.section.label(class='labelsize') }}
+            <div id='loaderSection' style='display: none; float: right;'>
+                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+            </div>
+            <br>
+            {% if form.section.errors %}
+            {{ form.section(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.section.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.section(class='form-control') }}
+            {% endif %}
+        </div>
+    </div>
+      </div>
+      </form>
+  </div>
+  <div id="table" class="table-editable">
+    <table class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Class</th>
+                        <th scope="col">Section</th>
+                        <th scope="col">Subjects</th>
+                        <th scope="col">Marks %</th>
+                    </tr>
+            </thead>
+            <tbody>
+                <form action="" method="POST" name="form-upload">
+                  
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+            </tbody>
+    </table>
+</div>
+  </div>
+
+</div>
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+
+var subject_select = document.getElementById('subject_name');
+var section_select = document.getElementById('section');
+var test_type_select = document.getElementById('test_type');
+var optionHTMLTestType = '';
+var optionHTMLSubject = '';
+var optionHTMLSection = '';
+    $(document).ready(function(){
+        $('#class_val').val("na");
+        optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
+        test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> All </option>';
+        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+        optionHTMLSection += '<option value="na"  selected disabled> All </option>';
+        section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
+    });
+
+$('.classDiv').click(function(){
+    console.log('inside classDiv');
+    var classVal = $(this).attr('name');
+    var classNo =  classVal;
+    $('#classNo').html(classNo)
+    console.log('Class:'+classVal);
+    
+    class_val = classVal;
+        $("#loaderSubject").show();
+        console.log('Inside class value Onchange')
+        fetch('/questionBuilder/' + class_val).then(function(response) {
+            response.json().then(function(data) {
+                    $("#loaderSubject").hide();    
+                    var optionHTML = '';
+                    optionHTML += '<option value="na"  selected disabled> All </option>';
+                    for (var subject of data.subjects) {
+                    optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+                }
+                subject_select.innerHTML = optionHTML;
+            })
+            
+        });
+
+        $("#loaderSection").show();
+        console.log('Inside class value Onchange')
+        fetch('/resultUpload/' + class_val).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loaderSection").hide();    
+                        var optionHTML = '';
+                        optionHTML += '<option value="na"  selected disabled> All </option>';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_select.innerHTML = optionHTML;
+                })
+            });
+    
+});
+</script>
+
+{% endblock %}
