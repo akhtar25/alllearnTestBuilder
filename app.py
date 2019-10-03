@@ -1197,6 +1197,7 @@ def leaderBoard():
         query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
+        student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         print('Inside leaderboard')
         for data in leaderBoardData:
             print('Marks:'+str(data.marks))
