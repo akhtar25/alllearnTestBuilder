@@ -1194,7 +1194,7 @@ def leaderBoard():
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-    return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses)
+    return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses,School_Name=school_name())
 
 @app.route('/classDelivery')
 @login_required
