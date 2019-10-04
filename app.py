@@ -1183,6 +1183,12 @@ def questionDetails():
     
     return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
 
+@app.route('/topperListAll')
+def topperListAll():
+    query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    print('Query:'+query)
+    leaderBoardData = db.session.execute(text(query)).fetchall()
+    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
 @app.route('/leaderBoard')
 def leaderBoard():
     form = LeaderBoardQueryForm()
@@ -1197,7 +1203,7 @@ def leaderBoard():
         query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
-        student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
+        # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         print('Inside leaderboard')
         for data in leaderBoardData:
             print('Marks:'+str(data.marks))
@@ -2365,7 +2371,11 @@ def topperListBySubject():
     subjectValue = request.args.get('subject_id')
     subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
     print(subjectName.description)
-    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+    if classValue:
+        query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+    else:
+        query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)

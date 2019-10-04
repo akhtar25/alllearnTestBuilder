@@ -7,7 +7,7 @@
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           <li class="treeview menu-open">
-            <a href="#">
+            <a href="#" class="class_div">
                 <i class="glyphicon glyphicon-education"></i>
               <span>All</span>
             </a>
@@ -126,12 +126,15 @@
       </tbody>
       </table>    
     </div>
-
+    
+    <div class="tableDynamic">
     <div id="dynamicDataTable">
-        <div id="loader" style="display: none;padding-left: 300px;">
-            <img src="../static/images/loader.gif">
-        </div>
+        
     </div>
+    <div id="loader" style="display: none;padding-left: 300px;padding-top: 150px;">
+        <img src="../static/images/loader.gif">
+    </div>
+  </div>
   </div>
 
 </div>
@@ -145,23 +148,48 @@ var optionHTMLTestType = '';
 var optionHTMLSubject = '';
 var optionHTMLSection = '';
     $(document).ready(function(){
-        $('#test_type').val("na");
         optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
         test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
         optionHTMLSubject += '<option value="na"  selected disabled> All </option>';
         subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
         optionHTMLSection += '<option value="na"  selected disabled> All </option>';
         section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
+        $('#classNo').html('All');
     });
 var classVal = '';
+$('.class_div').click(function(){
+  $('#classNo').html('All');
+  document.getElementById('test_type').value = "na";
+  document.getElementById('section').value = "na";
+  document.getElementById('subject_name').value = "na";
+  $.ajax({  
+            url: "/topperListAll",
+            type: "get",
+            data: "",            
+            beforeSend: function() { 
+                $('#firstTable').hide();
+                $('#dynamicDataTable').hide();
+                $('#loader').show();
+           },
+            success: function (response) {
+              $('#loader').hide();
+              $('#dynamicDataTable').html(response);
+              $('#dynamicDataTable').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+});
 $('.classDiv').click(function(){
     console.log('inside classDiv');
+    document.getElementById('test_type').value = "na";
+    document.getElementById('section').value = "na";
+    document.getElementById('subject_name').value = "na";
     classVal = $(this).attr('name');
     var classNo =  classVal;
     $('#classNo').html(classNo)
     console.log('Class:'+classVal);
-    optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
-        test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
     class_val = classVal;
         $("#loaderSubject").show();
         console.log('Inside class value Onchange')
@@ -199,6 +227,7 @@ $('.classDiv').click(function(){
             data: "",            
             beforeSend: function() { 
                 $('#firstTable').hide();
+                $('#dynamicDataTable').hide();
                 $('#loader').show();
            },
             success: function (response) {
@@ -226,7 +255,7 @@ test_type_select.onchange=function()  {
             type: "get",
             data: "",            
             beforeSend: function() { 
-                $('#firstTable').hide();
+                $('#dynamicDataTable').hide();
                 $('#loader').show();
            },
             success: function (response) {
@@ -250,7 +279,7 @@ subject_select.onchange=function()  {
             type: "get",
             data: "",            
             beforeSend: function() { 
-                $('#firstTable').hide();
+                $('#dynamicDataTable').hide();
                 $('#loader').show();
            },
             success: function (response) {
@@ -278,7 +307,7 @@ section_select.onchange=function()  {
             type: "get",
             data: "",            
             beforeSend: function() { 
-                $('#firstTable').hide();
+                $('#dynamicDataTable').hide();
                 $('#loader').show();
            },
             success: function (response) {

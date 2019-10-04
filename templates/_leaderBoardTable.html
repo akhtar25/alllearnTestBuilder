@@ -15,7 +15,11 @@
           <tbody>
           {% for eachRow in leaderBoardData%}
           <tr style="margin-top:5px;">
-            <td>{{eachRow.student_name}}</td>                
+                {% if profile_pic %}
+                <td><img src="{{ profile_pic }}" height="50" width="50"> {{eachRow.student_name}}</td>    
+                {% else %} 
+                <td><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"> {{eachRow.student_name}}</td>    
+                {% endif %}                 
             <td>{{eachRow.class}}</td>
             <td>{{eachRow.section}}</td>
             <td>{{eachRow.subjects}}</td>
