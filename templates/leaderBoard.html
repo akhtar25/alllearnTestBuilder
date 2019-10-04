@@ -95,7 +95,7 @@
       </div>
       </form>
   </div>
-  <div id="firstTable" class="box-body table-responsive no-padding" style="height:525px;">
+  <div id="firstTable" class="box-body table-responsive no-padding" style="height:500px;">
       
       <table class="table table-hover">
           
@@ -134,7 +134,7 @@
     <div id="dynamicDataTable">
         
     </div>
-    <div id="loader" style="display: none;padding-left: 300px;padding-top: 150px;">
+    <div id="loader" style="display: none;padding-left: 300px;padding-top: 150px;padding-bottom: 250px;">
         <img src="../static/images/loader.gif">
     </div>
   </div>
@@ -151,11 +151,11 @@ var optionHTMLTestType = '';
 var optionHTMLSubject = '';
 var optionHTMLSection = '';
     $(document).ready(function(){
-        optionHTMLTestType += '<option value="na"  selected disabled> All </option>';
+        optionHTMLTestType += '<option value="na"  selected> All </option>';
         test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
-        optionHTMLSubject += '<option value="na"  selected disabled> All </option>';
+        optionHTMLSubject += '<option value="na"  selected> All </option>';
         subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        optionHTMLSection += '<option value="na"  selected disabled> All </option>';
+        optionHTMLSection += '<option value="na"  selected> All </option>';
         section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
         $('#classNo').html('All');
     });
@@ -200,7 +200,7 @@ $('.classDiv').click(function(){
             response.json().then(function(data) {
                     $("#loaderSubject").hide();    
                     var optionHTML = '';
-                    optionHTML += '<option value="na"  selected disabled> All </option>';
+                    optionHTML += '<option value="na"  selected> All </option>';
                     for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                 }
@@ -215,7 +215,7 @@ $('.classDiv').click(function(){
                 response.json().then(function(data) {
                         $("#loaderSection").hide();    
                         var optionHTML = '';
-                        optionHTML += '<option value="na"  selected disabled> All </option>';
+                        optionHTML += '<option value="na"  selected> All </option>';
                         for (var section of data.sections) {
                         optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
                     }
@@ -254,7 +254,7 @@ test_type_select.onchange=function()  {
          test_type = test_type_select.value;
 
          $.ajax({  
-            url: "/topperListByTestType?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
+            url: "/topperListByTestType?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
             type: "get",
             data: "",            
             beforeSend: function() { 
@@ -276,12 +276,14 @@ subject_select.onchange=function()  {
       class_val = classVal;
  
          subject_id = subject_select.value;
-
+         section_val = section_select.value;
+         test_type = test_type_select.value;
          $.ajax({  
-            url: "/topperListBySubject?class_val="+class_val+"&subject_id="+subject_id,
+            url: "/topperListBySubject?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
             type: "get",
             data: "",            
             beforeSend: function() { 
+                $('#firstTable').hide();
                 $('#dynamicDataTable').hide();
                 $('#loader').show();
            },
