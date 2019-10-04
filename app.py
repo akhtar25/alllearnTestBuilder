@@ -2360,7 +2360,7 @@ def questionFile():
 @app.route('/topperList')
 def topperList():
     classValue = request.args.get('class_val')
-    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section='All' and subjects='All' and test='All' order by marks desc"
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section!='All' and subjects!='All' and test!='All' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
