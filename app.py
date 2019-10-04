@@ -2372,9 +2372,9 @@ def topperListBySubject():
     subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
     print(subjectName.description)
     if classValue:
-        query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+        query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' order by marks desc"
     else:
-        query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and test='All' and section='All' order by marks desc"
+        query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' order by marks desc"
 
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
@@ -2387,7 +2387,7 @@ def topperListByTestType():
     test_type = request.args.get('test_type')
     subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
     print(subjectName.description)
-    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+test_type+"' and section='All' order by marks desc"
+    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+test_type+"' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)

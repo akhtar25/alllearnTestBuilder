@@ -102,25 +102,28 @@
           <thead>
         <tr>
           
-         <th>Student</th>
-         <th>Class</th>
-          <th>Section</th>
-          <th>Subject</th>                
-          <th>Marks %</th>      
+         <th style="text-align: center;">Student</th>
+         <th style="text-align: center;">Class</th>
+          <th style="text-align: center;">Section</th>
+          <th style="text-align: center;">Subject</th>                
+          <th style="text-align: center;">Marks %</th>      
         </tr>
         </thead>
         <tbody>
         {% for eachRow in leaderBoardData%}
         <tr style="margin-top:5px;">
           {% if profile_pic %}
-          <td><img src="{{ profile_pic }}" height="50" width="50"> {{eachRow.student_name}}</td>    
+          <td style="text-align: center;width:250px;" ><img src="{{ profile_pic }}" height="50" width="50"><span style="text-align: center;"> {{eachRow.student_name}}</span></td>    
           {% else %} 
-          <td><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"> {{eachRow.student_name}}</td>    
+          <td style="text-align: center;width: 250px;">
+            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">
+            <span style="text-align: center;"> {{eachRow.student_name}}</span>
+          </td>    
           {% endif %}       
-          <td>{{eachRow.class}}</td>
-          <td>{{eachRow.section}}</td>
-          <td>{{eachRow.subjects}}</td>
-          <td>{{eachRow.marks}}</td>                
+          <td style="text-align: center;">{{eachRow.class}}</td>
+          <td style="text-align: center;">{{eachRow.section}}</td>
+          <td style="text-align: center;">{{eachRow.subjects}}</td>
+          <td style="text-align: center;">{{eachRow.marks}}</td>                
         </tr>
         {% endfor %}
       </tbody>
