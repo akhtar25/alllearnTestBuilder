@@ -339,6 +339,12 @@ def studentRegistration():
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section']).first()
                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
+                date = row['dob']
+                li = date.split('/',3)
+                print('Date'+str(row['dob']))
+                if int(li[1])>12:
+                    flash('Date formate should be dd/mm/yyyy')
+                    return render_template('studentRegistration.html',School_Name=school_name())
                 if row['dob']!='':
                     date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
                 else:
