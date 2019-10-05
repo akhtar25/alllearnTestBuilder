@@ -1200,7 +1200,7 @@ def leaderBoard():
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
@@ -2360,7 +2360,9 @@ def questionFile():
 @app.route('/topperList')
 def topperList():
     classValue = request.args.get('class_val')
-    query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section!='All' and subjects!='All' and test!='All' order by marks desc"
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section!='All' and subjects!='All' and test!='All' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -2371,6 +2373,8 @@ def topperListBySubject():
     subjectValue = request.args.get('subject_id')
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
     print('Subject id:'+subjectValue)
     if subjectValue!='na':
@@ -2379,41 +2383,41 @@ def topperListBySubject():
     if subjectName:
         if classValue:
             if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section!='All' order by marks desc"
             elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
             elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
         else:
             if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section!='All' order by marks desc"
             elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
             elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
     else:
         if classValue:
             if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section!='All' order by marks desc"
             elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and test='"+ test_type +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and test='"+ test_type +"' and section!='All' order by marks desc"
             elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section='"+ section_val +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+ section_val +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+classValue+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
         else:
             if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section!='All' order by marks desc"
             elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ test_type +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ test_type +"' and section!='All' order by marks desc"
             elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where section='"+ section_val +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='"+ section_val +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -2424,6 +2428,8 @@ def topperListByTestType():
     subjectValue = request.args.get('subject_id')
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
     print('Class value:'+str(classValue)+'SubjectId:'+str(subjectValue)+'Test Type:'+str(test_type)+'Section Value:'+str(section_val))
     if subjectValue!='na':
@@ -2432,41 +2438,41 @@ def topperListByTestType():
     if test_type!='na':
         if classValue:
             if subjectValue=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
         else:
             if subjectValue=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ str(test_type) +"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ str(test_type) +"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
     else:
         if classValue:
             if subjectValue=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' order by marks desc"
         else:
             if subjectValue=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' order by marks desc"
 
     print(subjectName.description)
     # if classValue:
@@ -2482,6 +2488,8 @@ def topperListBySection():
     subjectValue = request.args.get('subject_id')
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
     print('Class value:'+str(classValue)+'SubjectId:'+str(subjectValue)+'Test Type:'+str(test_type)+'Section Value:'+str(section_val))
     if subjectValue!='na':
@@ -2490,41 +2498,41 @@ def topperListBySection():
     if section_val!='na':
         if classValue:
             if subjectValue=="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             elif subjectValue!="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section='"+ str(section_val) +"' order by marks desc"
             elif subjectValue=="na" and test_type!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
         else:
             if subjectValue=="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             elif subjectValue!="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+ str(subjectName.description) +"' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+ str(subjectName.description) +"' and section='"+ str(section_val) +"' order by marks desc"
             elif subjectValue=="na" and test_type!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ str(test_type) +"' and subjects!='All' and section='"+ str(section_val) +"' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+str(subjectName.description)+"' and section='"+ str(section_val) +"' and test='"+ str(test_type) +"' order by marks desc"
     else:
         if classValue:
             if subjectValue=="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and test_type!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section!='All' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+str(classValue)+"' and subjects='"+str(subjectName.description)+"' and section!='All' and test='"+ str(test_type) +"' order by marks desc"
         else:
             if subjectValue=="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects!='All' and section!='All' order by marks desc"
             elif subjectValue!="na" and test_type=="na":
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+ str(subjectName.description) +"' and section!='All' order by marks desc"
             elif subjectValue=="na" and test_type!="na":
-                query = "select *from public.fn_performance_leaderboard(1) where test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ str(test_type) +"' and subjects!='All' and section!='All' order by marks desc"
             else:
-                query = "select *from public.fn_performance_leaderboard(1) where subjects='"+str(subjectName.description)+"' and section!='All' and test='"+ str(test_type) +"' order by marks desc"
+                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+str(subjectName.description)+"' and section!='All' and test='"+ str(test_type) +"' order by marks desc"
 
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()

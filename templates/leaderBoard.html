@@ -1,7 +1,7 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
   <div class="skin-blue sidebar-mini">
-    <aside class="main-sidebar" style="margin-top:15px;">
+    <aside class="main-sidebar">
       <!-- sidebar: style can be found in sidebar.less -->
       
       <section class="sidebar">
@@ -102,11 +102,11 @@
           <thead>
         <tr>
           
-         <th style="text-align: center;">Student</th>
-         <th style="text-align: center;">Class</th>
-          <th style="text-align: center;">Section</th>
-          <th style="text-align: center;">Subject</th>                
-          <th style="text-align: center;">Marks %</th>      
+         <th>Student</th>
+         <th>Class</th>
+          <th>Section</th>
+          <th>Subject</th>                
+          <th>Marks %</th>      
         </tr>
         </thead>
         <tbody>
@@ -120,10 +120,10 @@
             <span style="text-align: center;"> {{eachRow.student_name}}</span>
           </td>    
           {% endif %}       
-          <td style="text-align: center;">{{eachRow.class}}</td>
-          <td style="text-align: center;">{{eachRow.section}}</td>
-          <td style="text-align: center;">{{eachRow.subjects}}</td>
-          <td style="text-align: center;">{{eachRow.marks}}</td>                
+          <td>{{eachRow.class}}</td>
+          <td>{{eachRow.section}}</td>
+          <td>{{eachRow.subjects}}</td>
+          <td>{{eachRow.marks}}</td>                
         </tr>
         {% endfor %}
       </tbody>
