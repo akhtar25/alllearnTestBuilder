@@ -342,8 +342,8 @@ def studentRegistration():
                 date = row['dob']
                 li = date.split('/',3)
                 print('Date'+str(row['dob']))
-                if int(li[1])>12:
-                    flash('Date formate should be dd/mm/yyyy')
+                if int(li[1])>12 or int(li[0])>31:
+                    flash('Invalid Date formate use dd/mm/yyyy')
                     return render_template('studentRegistration.html',School_Name=school_name())
                 if row['dob']!='':
                     date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
@@ -970,18 +970,18 @@ def qrSessionScanner():
 def mobQuestionLoader():
 
     resp_session_id=request.args.get('resp_session_id')
-    print(resp_session_id)
-    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    print('Response Session Id:'+str(resp_session_id))
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
         if sessionDetailRow.session_status=='80':
             sessionDetailRow.session_status='81'        
             db.session.commit()    
         classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
-        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id).all()
+        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=str(resp_session_id)).all()
         if respSessionQuestionRow!=None:
             questionListSize = len(respSessionQuestionRow)
-        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=resp_session_id)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=str(resp_session_id))
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScanner.html')
@@ -1422,7 +1422,7 @@ def feedbackCollection():
                         class_sec_id=curr_class_sec_id)
             db.session.add(sessionDetailRowInsert)
             db.session.commit()
-        
+            
             for eachQuestion in questionList:
                 respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
                 db.session.add(respSessionQuestionRowInsert)

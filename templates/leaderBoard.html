@@ -110,6 +110,7 @@
         </tr>
         </thead>
         <tbody>
+        {% if leaderBoardData %}  
         {% for eachRow in leaderBoardData%}
         <tr style="margin-top:5px;">
           {% if profile_pic %}
@@ -126,6 +127,11 @@
           <td>{{eachRow.marks}}</td>                
         </tr>
         {% endfor %}
+        {% else %}
+        <tr>
+        <td colspan="5"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
+      </tr>
+        {% endif %}
       </tbody>
       </table>    
     </div>

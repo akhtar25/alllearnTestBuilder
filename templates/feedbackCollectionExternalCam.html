@@ -121,7 +121,7 @@
               {% endfor %}
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
-              var resp_session_id = {{resp_session_id}};
+              var resp_session_id = '{{resp_session_id}}';
               var loaded_question = "";
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
               //document.getElementById("result_strip").innerHTML="";
@@ -130,10 +130,11 @@
 
             //$("#startAndNextBTN").click(function(){
               function checkQuestionChange(){
+                console.log(resp_session_id);
                 setInterval(function(){ 
                   if (flag==true){
                   $.ajax({
-                  url: "/checkQuestionChange?resp_session_id="+ resp_session_id ,
+                  url: "/checkQuestionChange?resp_session_id="+ resp_session_id,
                   type: "get",
                   data: "",
                   success: function(checkValue) {                         
