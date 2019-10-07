@@ -100,7 +100,7 @@
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
               var questionListSize = {{ questionListSize }};
-              var resp_session_id={{resp_session_id}};
+              var resp_session_id='{{resp_session_id}}';
               var tempCountVar = 0;
             $("#startAndNextBTN").click(function(){                
               $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      

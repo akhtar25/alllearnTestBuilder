@@ -138,6 +138,11 @@ class QuestionUpdaterQueryForm(FlaskForm):
         if option.data=='':
             raise ValidationError('Select the correct option')
 
+class LeaderBoardQueryForm(FlaskForm):
+    subject_name=SelectField('Subject')
+    test_type=SelectField('Test Type')
+    section=SelectField('Section') 
+
 class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
