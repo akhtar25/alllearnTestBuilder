@@ -44,8 +44,8 @@ def send_password_reset_email(user):
 def newsletterEmail(email, name):
 
     subject = "Welcome to Alllearn"
-    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn Group." % name
-    message = message + " Our goal at Alllear is to ensure we uplift the performance of every child in our country, no matter how small the school."
+    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn." % name
+    message = message + " Our goal at Alllearn is to ensure we uplift the performance of every child in our country, no matter how small the school."
     message = message + "If you have any queries or concerns, please feel free to write back to us and we'll do the best we can to answer you at the earliest.</p>"
     message = message + "<br> <br> Let's make our schools better! <br><br>Thanks, <br>Alllearn "
 
