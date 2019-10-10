@@ -9,16 +9,16 @@ def send_async_email(msg, from_email, from_password):
 
     gmail=smtplib.SMTP('smtp.gmail.com',587)
     gmail.ehlo()
-    gmail.starttls()
+    gmail.starttls()    
     gmail.login(from_email,from_password)
     gmail.send_message(msg)
 
 
 
 def send_email(email, name, subjectToSend, messageToSend):
-    from_email="contact@alllearn.in"
+    from_email="alllearndev@gmail.com"
     #from_password = app.config['SECRET_KEY']
-    from_password = "indiana4jones"
+    from_password = "alllearn'sDev1"    
     to_email=email
 
     subject=subjectToSend
@@ -41,7 +41,7 @@ def send_password_reset_email(user):
 
     send_email(email, name, subject, message)
 
-def newsletterEmail(email, name):
+def welcome_email(email, name):
 
     subject = "Welcome to Alllearn"
     message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn." % name
@@ -49,4 +49,14 @@ def newsletterEmail(email, name):
     message = message + "If you have any queries or concerns, please feel free to write back to us and we'll do the best we can to answer you at the earliest.</p>"
     message = message + "<br> <br> Let's make our schools better! <br><br>Thanks, <br>Alllearn "
 
+    send_email(email, name, subject, message)
+
+def teacher_access_request_email(email,name, school, requestFrom):
+    subject = "Alllearn - Teacher access request for %s" % requestFrom
+    message = render_template('teacher_access_req_email.html', name=name, school=school)
+    send_email(email, name, subject, message)
+
+def guardian_access_request_email(email,name, school, requestFrom):
+    subject = "Alllearn - Guardian access request for %s" % requestFrom
+    message = render_template('guardian_access_req_email.html', name=name, school=school)
     send_email(email, name, subject, message)

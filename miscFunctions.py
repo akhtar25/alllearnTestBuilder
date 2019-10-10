@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import newsletterEmail, send_password_reset_email
+from send_email import welcome_email, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config

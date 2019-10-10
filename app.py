@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import newsletterEmail, send_password_reset_email
+from send_email import welcome_email, send_password_reset_email
 from applicationDB import *
 from qrReader import *
 from config import Config
@@ -187,7 +187,7 @@ def reset_password(token):
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
-def schoolRegistration():  
+def schoolRegistration():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
@@ -629,7 +629,7 @@ def success():
             db.session.add(survivor)
             db.session.commit()
             print(email,name)
-            newsletterEmail(email, name)
+            welcome_email(email, name)
             return render_template('newsletterSuccess.html')
         else:
             return render_template('index.html',text='Error: Email already used.')
