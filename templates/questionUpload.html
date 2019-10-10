@@ -245,6 +245,7 @@ fileReader.onload = function (event) {
       var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       var charactersLength = characters.length;
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       ImageName = Image;
       console.log('Full image Name:'+ImageName);
       initUpload();
@@ -677,7 +678,7 @@ if(b!=1){
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
       var type = '.png';
-      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=question_references`);
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=question_references/images`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -705,12 +706,6 @@ if(b!=1){
       }
       getSignedRequest(file);
     }
-    /*
-       Bind listeners when the page loads.
-    */
-    // (() => {
-    //   document.getElementById('file-input').onchange = initUpload;
-    // })();
 
     var updateButton = document.getElementById('updateButton')
     

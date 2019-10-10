@@ -283,6 +283,7 @@ fileReader.onload = function (event) {
       var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       var charactersLength = characters.length;
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       ImageName = Image;
       console.log('Full image Name:'+ImageName);
       initUpload();
