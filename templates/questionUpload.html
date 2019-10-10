@@ -165,17 +165,17 @@
     {% endif %}
     </div>
     <div class="col-sm-2">
-    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="loadImageFile();" ><br>
+    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
     <input type="hidden" id="reference" name="reference" value="">
     <div style="margin-top: 30px; margin-left: 10px;">
        {% if  flag %} 
         {% if  questionUpdateUpload.reference_link  %}
             <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">
         {% else %}
-            <img style="border:1px solid gray; width:200px;display:none; height: 200px;" id="preview" src="">
+            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
         {% endif %}  
        {% else %}
-      <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="">
+      <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
       {% endif %} 
         </div>
     </div>
@@ -209,71 +209,6 @@
 </div>
 
 <script type="text/javascript">
-
-var fileReader = new FileReader();
-var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
-var ImageName = '';
-fileReader.onload = function (event) {
-  var image = new Image();
-  
-  image.onload=function(){
-      // document.getElementById("preview").src=image.src;
-      var canvas=document.createElement("canvas");
-      var context=canvas.getContext("2d");
-      canvas.width=200;
-      canvas.height=200;
-      context.drawImage(image,
-          0,
-          0,
-          image.width,
-          image.height,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-      );
-      
-      document.getElementById("preview").src = canvas.toDataURL();
-      
-      String.prototype.filename=function(extension){
-    var s= this.replace(/\\/g, '/');
-    s= s.substring(s.lastIndexOf('/')+ 1);
-    return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
-}     
-      console.log('Image Name:'+$('img').attr('src').filename());
-      var Image = $('img').attr('src').filename();
-      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      var charactersLength = characters.length;
-      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      ImageName = Image;
-      console.log('Full image Name:'+ImageName);
-      initUpload();
-  }
-  image.src=event.target.result;
-  
-};
-var loadImageFile = function () {
-  var uploadImage = document.getElementById("file-input");
-  
-  //check and retuns the length of uploded file.
-  if (uploadImage.files.length === 0) { 
-    return; 
-  }
-  
-  //Is Used for validate a valid file.
-  var uploadFile = document.getElementById("file-input").files[0];
-  if (!filterType.test(uploadFile.type)) {
-    alert("Please select a valid image."); 
-    return;
-  }
-  
-  fileReader.readAsDataURL(uploadFile);
-  
-}
-
-
-
 
 
 
@@ -659,7 +594,7 @@ if(b!=1){
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
             
-            
+            document.getElementById('preview').src = url;
             document.getElementById('reference').value = url;
           }
           else{
@@ -677,8 +612,7 @@ if(b!=1){
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-      var type = '.png';
-      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -706,6 +640,12 @@ if(b!=1){
       }
       getSignedRequest(file);
     }
+    /*
+       Bind listeners when the page loads.
+    */
+    (() => {
+      document.getElementById('file-input').onchange = initUpload;
+    })();
 
     var updateButton = document.getElementById('updateButton')
     
