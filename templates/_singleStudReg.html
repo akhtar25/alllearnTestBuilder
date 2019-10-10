@@ -260,8 +260,8 @@ fileReader.onload = function (event) {
       // document.getElementById("preview").src=image.src;
       var canvas=document.createElement("canvas");
       var context=canvas.getContext("2d");
-      canvas.width=image.width/4;
-      canvas.height=image.height/4;
+      canvas.width=image.width/2;
+      canvas.height=image.height/2;
       context.drawImage(image,
           0,
           0,
