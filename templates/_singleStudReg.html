@@ -228,7 +228,8 @@
         <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
         <br>
         <div class="col-sm-3">
-            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" accept="image/*"/><br>
+            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="loadImageFile();" accept="image/*"/><br>
+            <input type="button" value="Resize Image"  onclick="ResizeImage()"/> 
             <input type="hidden" id="profile_image" name="profile_image" value="">
         </div>
 </div>
@@ -249,8 +250,62 @@
 
 <script>
 
-
-
+var fileReader = new FileReader();
+var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
+var ImageName = '';
+fileReader.onload = function (event) {
+  var image = new Image();
+  
+  image.onload=function(){
+      // document.getElementById("preview").src=image.src;
+      var canvas=document.createElement("canvas");
+      var context=canvas.getContext("2d");
+      canvas.width=image.width/4;
+      canvas.height=image.height/4;
+      context.drawImage(image,
+          0,
+          0,
+          image.width,
+          image.height,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+      );
+      
+      document.getElementById("preview").src = canvas.toDataURL();
+      String.prototype.filename=function(extension){
+    var s= this.replace(/\\/g, '/');
+    s= s.substring(s.lastIndexOf('/')+ 1);
+    return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
+}     
+      console.log('Image Name:'+$('img').attr('src').filename());
+      var Image = $('img').attr('src').filename();
+      ImageName = Image + '.png';
+      console.log('Full image Name:'+ImageName);
+      initUpload();
+  }
+  image.src=event.target.result;
+  
+};
+var loadImageFile = function () {
+  var uploadImage = document.getElementById("file-input");
+  
+  //check and retuns the length of uploded file.
+  if (uploadImage.files.length === 0) { 
+    return; 
+  }
+  
+  //Is Used for validate a valid file.
+  var uploadFile = document.getElementById("file-input").files[0];
+  if (!filterType.test(uploadFile.type)) {
+    alert("Please select a valid image."); 
+    return;
+  }
+  
+  fileReader.readAsDataURL(uploadFile);
+  
+}
 
 var today = new Date();
 var dd = today.getDate();
@@ -511,8 +566,8 @@ function val(){
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=student_profile`);
+      var type = '.png';
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -528,69 +583,21 @@ function val(){
       };
       xhr.send();
     }
-    /*
-       Function called when file input updated. If there is a file selected, then
-       start upload procedure by asking for a signed request from the app.
-    */
-    var dataUrl = '';
     function initUpload(){
-      console.log('Image loaded');
-      var filesToUpload = document.getElementById('file-input').files;
-    var file1 = filesToUpload[0];
-
-    // Create an image
-    var img = document.createElement("img");
-    // Create a file reader
-    var reader = new FileReader();
-    // Set the image once loaded into file reader
-    reader.onload = function(e) {
-            img.src = e.target.result;
-
-            var canvas = document.createElement("canvas");
-            //var canvas = $("<canvas>", {"id":"testing"})[0];
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-
-            var MAX_WIDTH = 400;
-            var MAX_HEIGHT = 400;
-            var width = img.width;
-            var height = img.height;
-
-            if (width > height) {
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-            } else {
-                if (height > MAX_HEIGHT) {
-                    width *= MAX_HEIGHT / height;
-                    height = MAX_HEIGHT;
-                }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-
-             dataUrl = canvas.toDataURL("image/png");
-             console.log('Resized image Url:'+dataUrl)
-            // document.getElementById('preview').src = dataurl;
-        }
-        // Load files into file reader
-      reader.readAsDataURL(file1);
       const files = document.getElementById('file-input').files;
       const file = files[0];
       if(!file){
         return alert('No file selected.');
       }
+      console.log('FileName:'+file);
       getSignedRequest(file);
     }
     /*
        Bind listeners when the page loads.
     */
-    (() => {
-      document.getElementById('file-input').onchange = initUpload;
-    })();
+    // (() => {
+    //     document.getElementById('file-input').onchange = initUpload;
+    //  })();
 
 
     $('#submit').click(function(){
