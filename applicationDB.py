@@ -367,6 +367,7 @@ class SchoolProfile(db.Model):
     org_leaving_reason=db.Column(db.String(500),nullable=True)    
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     school_picture = db.Column(db.String(500), nullable=True)
+    school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
