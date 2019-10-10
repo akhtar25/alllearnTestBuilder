@@ -907,7 +907,11 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         for section in classSections:
             print("Class Section:"+section.section)
+<<<<<<< HEAD
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val  order by class_val")).fetchall()
+=======
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+>>>>>>> master
 
         selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
