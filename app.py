@@ -218,7 +218,7 @@ def schoolRegistration():
         db.session.add(teacher)
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
-        flash('Successful Resgistration !')
+        flash('Successful Registration!')
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
     return render_template('schoolRegistration.html',form=form)
 
