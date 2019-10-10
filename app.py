@@ -587,15 +587,18 @@ def logout():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
+    
     print(user.id)
-    posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
+    #posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
     school_name_val = school_name()
     
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
     else:
-        return render_template('user.html', user=user, posts=posts,School_Name=school_name())
+        return render_template('user.html', user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows)
 
 
 @app.route('/login', methods=['GET', 'POST'])

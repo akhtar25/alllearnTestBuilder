@@ -2,8 +2,8 @@
 <div class="container">
   <h3>You're not connected to any school yet. </h3>
   <p> Please ask your school's account administrator to grant you access to the school page. </p>
-
-  <ul class="collapsible z-depth-0">
+<div class="col s6 offset-s4">
+  <ul class="collapsible  z-depth-0">
     <li>
         <a href="{{url_for('schoolRegistration')}}" ><div class="collapsible-header"><i class="material-icons">school</i>Register New School</div></a>
       
@@ -13,9 +13,14 @@
       <div class="collapsible-body">
           <div class="input-field">
               <input placeholder="School ID" id="reqAccessTeacher" type="text" class="validate">
-              <label for="reqAccessTeacher">Enter School ID</label>
-              <a class="waves-effect waves-light btn">Submit</a>
+              <label for="reqAccessTeacher">Enter School ID</label>              
             </div>
+            <div class="input-field">
+                <input placeholder="Enter Message" id="reqAccessTeacherMSG" type="text" class="validate">
+                <label for="reqAccessTeacherMSG">Enter Message</label>              
+              </div>
+            <a class="waves-effect waves-light btn">Submit</a>
+            
       </div>
     </li>
     <li>
@@ -23,13 +28,17 @@
       <div class="collapsible-body">
           <div class="input-field">
               <input placeholder="School ID" id="reqAccessGuardian" type="text" class="validate">
-              <label for="reqAccessGuardian">Enter School ID</label>
-              <a class="waves-effect waves-light btn">Submit</a>
+              <label for="reqAccessGuardian">Enter School ID</label>             
             </div>
+            <div class="input-field">
+                <input placeholder="Enter Message" id="reqAccessTeacherMSG" type="text" class="validate">
+                <label for="reqAccessTeacherMSG">Enter Message</label>              
+              </div>
+            <a class="waves-effect waves-light btn">Submit</a>
       </div>
     </li>
   </ul>
-
+</div>
 </div>
 <script>
    $(document).ready(function(){
