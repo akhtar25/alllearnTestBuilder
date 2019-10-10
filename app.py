@@ -903,7 +903,7 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         for section in classSections:
             print("Class Section:"+section.section)
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
 
         selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
@@ -1257,7 +1257,7 @@ def classDelivery():
         for classSec in classSections:
             print("class Section:"+str(classSec.section))
         currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()        
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
             # end of sidebar        
         #for curr in currClass:        
         #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
