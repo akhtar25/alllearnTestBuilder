@@ -573,6 +573,7 @@ function val(){
             ctx.drawImage(img, 0, 0, width, height);
 
              dataUrl = canvas.toDataURL("image/png");
+             console.log('Resized image Url:'+dataUrl)
             // document.getElementById('preview').src = dataurl;
         }
         // Load files into file reader
