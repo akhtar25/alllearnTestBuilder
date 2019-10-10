@@ -229,7 +229,6 @@
         <br>
         <div class="col-sm-3">
             <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="loadImageFile();" accept="image/*"/><br>
-            <input type="button" value="Resize Image"  onclick="ResizeImage()"/> 
             <input type="hidden" id="profile_image" name="profile_image" value="">
         </div>
 </div>
@@ -260,8 +259,8 @@ fileReader.onload = function (event) {
       // document.getElementById("preview").src=image.src;
       var canvas=document.createElement("canvas");
       var context=canvas.getContext("2d");
-      canvas.width=image.width/2;
-      canvas.height=image.height/2;
+      canvas.width=200;
+      canvas.height=141;
       context.drawImage(image,
           0,
           0,
@@ -548,7 +547,6 @@ function val(){
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
 
-            document.getElementById('preview').src = url;
             document.getElementById('profile_image').value = url;
           }
           else{
@@ -592,12 +590,6 @@ function val(){
       console.log('FileName:'+file);
       getSignedRequest(file);
     }
-    /*
-       Bind listeners when the page loads.
-    */
-    // (() => {
-    //     document.getElementById('file-input').onchange = initUpload;
-    //  })();
 
 
     $('#submit').click(function(){
