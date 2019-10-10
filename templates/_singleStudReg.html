@@ -280,7 +280,10 @@ fileReader.onload = function (event) {
 }     
       console.log('Image Name:'+$('img').attr('src').filename());
       var Image = $('img').attr('src').filename();
-      ImageName = Image + '.png';
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      ImageName = Image;
       console.log('Full image Name:'+ImageName);
       initUpload();
   }
