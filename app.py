@@ -218,7 +218,7 @@ def schoolRegistration():
         db.session.add(teacher)
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
-        flash('Succesfull Resgistration !')
+        flash('Successful Resgistration !')
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
     return render_template('schoolRegistration.html',form=form)
 
@@ -572,7 +572,7 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data, user_type='140')
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
