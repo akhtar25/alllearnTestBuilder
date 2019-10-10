@@ -1,9 +1,10 @@
+
 <h4>Upload a file </h4>
 <div class="col-sm-4">
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input">
 </div>
 <div class="col-sm-8">
-<a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_student_registration_template.csv"><input class="btn waves-light green lighten-1 white-text" type="button" value="Sample template" style="height:30px; width:160px;"></a><span>  *Dowload the sample template and edit the data .</span>
+<a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_student_registration_template.csv"><input class="btn waves-light green lighten-1 white-text" type="button" value="Sample template" style="height:30px; width:160px;"></a><span>  *Download the sample template and edit the data .</span>
 </div>
 <br>
 
@@ -19,6 +20,28 @@
      <div id="student_table">
      </div>
     </div>
+    <p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;display:none;">Upload</button></p>
+    <div class="message" style="margin-top: -310px;">
+     <span id="message1" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message2" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message3" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message4" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message5" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message6" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message7" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message8" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message9" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message10" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message11" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message12" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message13" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message14" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message15" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message16" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message17" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message18" style="color:Red;display: none;float:left;"></span><br/>
+    <span id="message19" style="color:Red;display: none;float:left;"></span> 
+    </div>
     <!--</div>
    </div>-->
   
@@ -26,6 +49,26 @@
  <script>
 //$(document).ready(function(){
   //$('#file-input').click(function(){
+
+    var first_name = '';
+    var school_adm_no = '';
+    var roll_num = '';
+    var class_val = '';
+    var section = '';
+    var gender = '';
+    var dob = '';
+    var email = '';
+    var phone = '';
+    var guardian1_name = '';
+    var guardian1_email = '';
+    var guardian1_phone = '';
+    var guardian1_relation = '';
+    var address1 = '';
+    var locality = '';
+    var city = '';
+    var state = '';
+    var country = '';
+    var pin = '';
     $( document ).ready(function() {
       $('#file-input').change(function () {
 
@@ -38,21 +81,266 @@
    
      //var employee_data = data.split(/\r?\n|\r/);
      var table_data = '<table class="table table-bordered table-striped">';
+     var dataCount = 0;
+     var check = 0;
      for(var count = 0; count<data.length; count++)
      {
+      check=check+1;
       var cell_data = data[count].split(",");
       table_data += '<tr>';
       for(var cell_count=0; cell_count<cell_data.length; cell_count++)
-      { if(count === 0)
+      {
+         if(count === 0)
        {
         table_data += '<th>'+cell_data[cell_count]+'</th>';
        }
        else
        {
         table_data += '<td>'+cell_data[cell_count]+'</td>';
-        
+        dataCount = dataCount + 1;
+        if(dataCount == 1){
+          console.log('student first name:'+cell_data[cell_count]);
+          first_name = cell_data[cell_count];
+          if(first_name==''){
+          console.log('Inside first Name Show');
+          tag = document.getElementById('message1');
+          tag.innerHTML = 'Enter first Name';
+          $('#message1').show();
+          event.preventDefault();
+          }else{
+            console.log('Inside hide first name:');
+            $('#message1').hide();
+          }
+        }
+        if(dataCount == 3){
+          console.log('School Adm no.:'+cell_data[cell_count]);
+          school_adm_no = cell_data[cell_count];
+          if(school_adm_no==''){
+          tag = document.getElementById('message2');
+          tag.innerHTML = 'Enter School admission no.';
+          $('#message2').show();
+          event.preventDefault();
+          }else{
+            $('#message2').hide();
+          }
+        }
+        if(dataCount == 4){
+          roll_num = cell_data[cell_count];
+          console.log('Roll no:'+roll_num);
+          if(roll_num==''){
+            tag = document.getElementById('message3');
+            tag.innerHTML = 'Enter Roll no';
+            $('#message3').show();
+            event.preventDefault();
+          }else{
+            $('#message3').hide();
+          }
+        }
+        if(dataCount == 5){
+          class_val = cell_data[cell_count];
+          console.log('Class:'+class_val);
+          if(class_val==''){
+            tag = document.getElementById('message4');
+            tag.innerHTML = 'Enter Class';
+            $('#message4').show();
+            event.preventDefault();
+          }else{
+            $('#message4').hide();
+          }
+        }
+        if(dataCount == 6){
+          section = cell_data[cell_count];
+          console.log('Section:'+section);
+          if(section==''){
+            tag = document.getElementById('message5');
+            tag.innerHTML = 'Enter Section';
+            $('#message5').show();
+            event.preventDefault();
+          }else{
+            $('#message5').hide();
+          }
+        }
+        if(dataCount == 7){
+          gender = cell_data[cell_count];
+          console.log('Gender:'+gender);
+          if(gender==''){
+            tag = document.getElementById('message6');
+            tag.innerHTML = 'Enter Gender';
+            $('#message6').show();
+            event.preventDefault();
+          }else{
+            $('#message6').hide();
+          }
+        }
+        if(dataCount == 8){
+          dob = cell_data[cell_count];
+          console.log('DOB:'+dob);
+          if(dob==''){
+            tag = document.getElementById('message7');
+            tag.innerHTML = 'Enter DOB';
+            $('#message7').show();
+            event.preventDefault();
+          }else{
+            $('#message7').hide();
+          }
+        }
+        if(dataCount == 9){
+          email = cell_data[cell_count];
+          console.log('Email:'+email);
+          if(email==''){
+          tag = document.getElementById('message8');
+          tag.innerHTML = 'Enter Email';
+          $('#message8').show();
+          event.preventDefault();
+          }else{
+            $('#message8').hide();
+          }
+        }
+        if(dataCount == 10){
+          phone = cell_data[cell_count];
+          console.log('phone:'+phone);
+          if(phone==''){
+            tag = document.getElementById('message9');
+            tag.innerHTML = 'Enter Phone';
+            $('#message9').show();
+            event.preventDefault();
+          }else{
+            $('#message9').hide();
+          }
+        }
+        if(dataCount == 11){
+          guardian1_name = cell_data[cell_count];
+          console.log('Guardian Name:'+guardian1_name);
+          if(guardian1_name==''){
+            tag = document.getElementById('message10');
+            tag.innerHTML = 'Enter Guardian Name';
+            $('#message10').show();
+            event.preventDefault();
+          }else{
+            $('#message10').hide();
+          }
+        }
+        if(dataCount == 13){
+          guardian1_email = cell_data[cell_count];
+          console.log('Guardian Email:'+guardian1_email);
+          if(guardian1_email==''){
+            tag = document.getElementById('message11');
+            tag.innerHTML = 'Enter Guardian Email';
+            $('#message11').show();
+            event.preventDefault();
+          }else{
+            $('#message11').hide();
+          }
+        }
+        if(dataCount == 14){
+          guardian1_phone = cell_data[cell_count];
+          console.log('Guardian phone:'+guardian1_phone);
+          if(guardian1_phone==''){
+            tag = document.getElementById('message12');
+            tag.innerHTML = 'Enter Guardian Phone';
+            $('#message12').show();
+            event.preventDefault();
+          }else{
+            $('#message12').hide();
+          }
+        }
+        if(dataCount == 15){
+          guardian1_relation = cell_data[cell_count];
+          console.log('Guardian relation:'+guardian1_relation);
+          if(guardian1_relation==''){
+            tag = document.getElementById('message13');
+            tag.innerHTML = 'Enter Guardian Relation';
+            $('#message13').show();
+            event.preventDefault();
+          }else{
+            $('#message13').hide();
+          }
+        }
+        if(dataCount == 21){
+          address1 = cell_data[cell_count];
+          console.log('Address1:'+address1);
+          if(address1==''){
+            tag = document.getElementById('message14');
+            tag.innerHTML = 'Enter Guardian Address';
+            $('#message14').show();
+            event.preventDefault();
+          }else{
+            $('#message14').hide();
+          }
+        }
+        if(dataCount == 23){
+          locality = cell_data[cell_count];
+          console.log('Locality:'+locality);
+          if(locality==''){
+            tag = document.getElementById('message15');
+            tag.innerHTML = 'Enter Locality';
+            $('#message15').show();
+            event.preventDefault();
+          }else{
+            $('#message15').hide();
+          }
+        }
+        if(dataCount == 24){
+          city = cell_data[cell_count];
+          console.log('City:'+city);
+          if(city==''){
+            tag = document.getElementById('message16');
+            tag.innerHTML = 'Enter City';
+            $('#message16').show();
+            event.preventDefault();
+          }else{
+            $('#message16').hide();
+          }
+        }
+        if(dataCount == 25){
+          state = cell_data[cell_count];
+          console.log('State:'+state);
+          if(state==''){
+            tag = document.getElementById('message17');
+            tag.innerHTML = 'Enter State';
+            $('#message17').show();
+            event.preventDefault();
+          }else{
+            $('#message17').hide();
+          }
+        }
+        if(dataCount == 27){
+          country = cell_data[cell_count];
+          console.log('Country:'+country);
+          if(country==''){
+            tag = document.getElementById('message18');
+            tag.innerHTML = 'Enter Country';
+            $('#message18').show();
+            event.preventDefault();
+          }else{
+            $('#message18').hide();
+          }
+        }
+        if(dataCount == 28){
+          pin = cell_data[cell_count];
+          console.log('pin:'+pin);
+          if(pin==''){
+            tag = document.getElementById('message19');
+            tag.innerHTML = 'Enter Pin';
+            $('#message19').show();
+            event.preventDefault();
+          }else{
+            $('#message19').hide();
+          }
+        }
        }
       }
+    if(check==2){
+      if(pin==''||country==''||state==''||city==''||locality==''||address1==''||guardian1_relation==''||guardian1_phone==''||guardian1_email==''||guardian1_name==''||phone==''||email==''||dob==''||gender==''||section==''||class_val==''||roll_num==''||school_adm_no==''||first_name==''){
+        $('#upload').hide();
+        console.log('Button hide');
+      }else{
+        $('#upload').show();
+        console.log('Button show');
+      }
+    }
+
+
       if( count!=0){
         count1=count.toString();
       table_data+='<td><input type="file"'+'id="'+count1+'"'+ 'name="'+count1+'"'+ 'onchange="initUpload(this);" style="height: 30px;"></td> <input type="hidden" value=""'+'id= "reference-url'+count1+'"'+'name="reference-url'+count1+'">';}
@@ -61,11 +349,11 @@
          table_data+='<th>Attach references</th>';
      }
       table_data += '</tr>';
-     }
+}
      
      table_data += '</table>';
 
-     table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
+    //  table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
      $('#student_table').html(table_data);
   }
   rdr.readAsText($("#file-input")[0].files[0]);
@@ -76,6 +364,17 @@
 /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
+  $('#upload').click(function(){
+    
+    console.log('Inside Submit function');
+    if(first_name==''){
+      tag = document.getElementById('message1');
+      tag.innerHTML = 'Enter first Name';
+      $('#message1').show();
+      event.preventDefault();
+    }
+  });
+
     function uploadFile(file, s3Data, url){
       const xhr = new XMLHttpRequest();
       //alert("the url being posted" + s3Data.url);

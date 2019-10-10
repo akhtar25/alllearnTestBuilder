@@ -46,6 +46,9 @@
                         </div>
                         <div class="col-sm-3" style="padding-top:5px;"> 
                                         {{ form.subject_name.label(class='labelsize') }}
+                                        <div id='loaderSubject'style='display: none; float: right;'>
+                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                </div>
                                         <br>
                                         {% if form.subject_name.errors %}
                                         {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
@@ -132,8 +135,30 @@
         today = yyyy+'-'+mm+'-'+dd;
         document.getElementById("testdate").setAttribute("max", today);
 
+
+
         var class_select = document.getElementById("class_val");
         var section_select = document.getElementById("section");
+        var subject_select = document.getElementById("subject_name");
+        var test_type_select = document.getElementById("test_type");
+        var optionHTMLClass = '';
+        var optionHTMLSubject = '';
+        var optionHTMLSection = '';
+        var optionHtmlTestType = '';
+        $(document).ready(function(){
+        $('#class_val').val("na");
+        $('#test_type').val("na");
+        console.log("CLass Value:"+class_select.value);
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+        optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
+        section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
+        optionHtmlTestType += '<option value="na" select disabled>Select Test Type</option>';
+        console.log('Inside test type');
+        test_type_select.innerHTML = optionHtmlTestType + test_type_select.innerHTML;
+        });
         class_select.onchange = function()  {
              
             class_val = class_select.value;
@@ -143,12 +168,26 @@
                 response.json().then(function(data) {
                         $("#loader").hide();    
                         var optionHTML = '';
+                        optionHTML += '<option value="na"  selected disabled> Select Section </option>';
                         for (var section of data.sections) {
                         optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
                     }
                     section_select.innerHTML = optionHTML;
                 })
             });
+            $("#loaderSubject").show();
+            fetch('/questionBuilder/' + class_val).then(function(response){
+                response.json().then(function(data){
+                        $("#loaderSubject").hide();
+                        var optionHTML = '';
+                        optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+                     for (var subject of data.subjects) {     
+                        optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>'; 
+                 }
+                 subject_select.innerHTML = optionHTML;
+                })
+            });
+
         }
     </script>
 {%endblock%}

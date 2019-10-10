@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
+from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify, Markup
 from send_email import newsletterEmail, send_password_reset_email
 from applicationDB import *
 from qrReader import *
@@ -274,7 +274,7 @@ def singleStudReg():
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
     section_list=[(i.section,i.section) for i in available_section]
     form=SingleStudentRegistration()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()]
+    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.section.choices= section_list
     return render_template('_singleStudReg.html',form=form)
 
@@ -333,6 +333,10 @@ def studentRegistration():
             df1=df1.replace(np.nan, '', regex=True)
             print(df1)
             for index ,row in df1.iterrows():
+                if row['first_name']=='' and row['gender']=='' and row['dob']=='' and row['phone'] and row['address_1'] and row['locality'] and row['city'] and row['state'] and row['country'] and row['pin'] and row['class_val'] and row['section'] and row['roll_number'] and row['school_adm_number'] and row['guardian1_first_name'] and row['guardian1_email'] and row['guardian1_phone'] and row['guardian1_relation']:
+                    message = Markup("<h5>(a)Enter first name <br/>(b)Enter gender<br/> (c)Enter date of birth <br/> (d)Enter phone number<br/> (e)Enter address 1 <br/>(f)Enter locality<br/> (g)Enter city<br/> (h)Enter state <br/>(i)Enter country<br/>(j)Enter pin code<br/> (k)Enter class<br/> (l)Enter section<br/> (m)Enter roll number<br/> (n)Enter school admission number<br/>(o)Enter guardian first name<br/> (p)Enter guardian email<br/>(q)Enter guardian phone<br/> (r)Enter guardian relation </h5>")
+                    flash(message)
+                    return render_template('studentRegistration.html',School_Name=school_name())
                 address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
@@ -380,7 +384,7 @@ def studentRegistration():
                     email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
                 
                 db.session.add(guardian_data)
-            
+                
             db.session.commit()
             flash('Successful upload !')
             return render_template('studentRegistration.html',School_Name=school_name())
@@ -903,7 +907,7 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         for section in classSections:
             print("Class Section:"+section.section)
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val  order by class_val")).fetchall()
 
         selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
@@ -1201,7 +1205,7 @@ def leaderBoard():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()    
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()    
         form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
@@ -1257,7 +1261,7 @@ def classDelivery():
         for classSec in classSections:
             print("class Section:"+str(classSec.section))
         currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()        
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
             # end of sidebar        
         #for curr in currClass:        
         #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
@@ -1383,7 +1387,7 @@ def feedbackCollection():
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
 
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val")).fetchall()
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         # end of sidebarm
 
         curr_class_sec_id=""
@@ -1512,7 +1516,7 @@ def questionAllDetails():
     totalQCount = ''
     qnum= ''
     question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
-    questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
     
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
