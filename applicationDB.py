@@ -331,6 +331,7 @@ class StudentProfile(db.Model):
     roll_number=db.Column(db.Integer,nullable=True)
     school_adm_number=db.Column(db.String(120),nullable=True)
     profile_picture= db.Column(db.String(500),nullable=True)
+    student_unique_id = db.Column(db.String(50),nullable=True) #added to identify each student since if a student is promoted new row will have to be inserted thereby changing the student_id
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
@@ -494,7 +495,6 @@ class FinancialDetails(db.Model):
     month= db.Column(db.Integer,nullable=True)
 
 
-
 class SessionDetail(db.Model):
     __tablename__="session_detail"
     session_id = db.Column(db.Integer,primary_key=True)
@@ -529,5 +529,35 @@ class ContentDetail(db.Model):
     content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     
     
+class ModuleDetail(db.Model):
+    __tablename__="module_detail"
+    module_id = db.Column(db.Integer,primary_key=True)
+    module_name=db.Column(db.String(100),nullable=True)
+    description = db.Column(db.String(300),nullable=True)
+    page_link = db.Column(db.String(200),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
 
 
+class ModuleAccess(db.Model):
+    __tablename__="module_access"
+    access_id =  db.Column(db.Integer,primary_key=True)
+    user_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    module_id = db.Column(db.ForeignKey('module_detail.module_id'),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
+class TagDetail(db.Model):
+    __tablename__="tag_detail"
+    tag_id =  db.Column(db.Integer,primary_key=True)
+    tag_name = db.Column(db.String(200),nullable=True)
+    description=db.Column(db.String(200),nullable=True)
+    tag_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    archive_status = db.Column(db.String(1),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
+class StudentTag(db.Model):
+    __tablename__="student_tag"
+    stud_tag_id =  db.Column(db.Integer,primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
+    tag_id =  db.Column(db.ForeignKey('tag_detail.tag_id'),nullable=True)
+    archive_status = db.Column(db.String(1),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
