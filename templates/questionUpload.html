@@ -678,7 +678,7 @@ if(b!=1){
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
       var type = '.png';
-      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=question_references`);
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
