@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email
+from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email
 from applicationDB import *
 from qrReader import *
 from config import Config
@@ -509,7 +509,8 @@ def index():
 @app.route('/disconnectedAccount')
 @login_required
 def disconnectedAccount():    
-    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name())
+    userDetailRow=User.query.filter_by(username=current_user.username).first()    
+    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -568,10 +569,15 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, user_type='140')
+        user = User(username=form.username.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+        #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value
+        checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
+        if checkTeacherProf!=None:
+            checkTeacherProf.email=user.id
+            db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -588,20 +594,17 @@ def logout():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
-    print(schoolAdminRow[0][0])
-    if schoolAdminRow[0][0]==teacher.teacher_id:
-        accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
-    else:
-        accessRequestListRows = None
-    #print(user.id)
-    #posts = Post.query.filter_by(user_id=user.id).order_by(Post.timestamp.desc())
     school_name_val = school_name()
     
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
     else:
+        schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
+        print(schoolAdminRow[0][0])
+        accessRequestListRows=""
+        if schoolAdminRow[0][0]==teacher.teacher_id:
+            accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
         return render_template('user.html', user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows)
 
 
@@ -645,6 +648,44 @@ def success():
 @login_required
 def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
+
+
+@app.route('/requestUserAccess')
+def requestUserAccess():
+    requestorUsername=request.args.get('username')    
+    school_id=request.args.get('school_id')    
+    about_me=request.args.get('about_me')    
+    userTableDetails = User.query.filter_by(username=requestorUsername).first()
+    userTableDetails.school_id=school_id
+    userTableDetails.access_status='143'    
+    userTableDetails.user_type='140'
+    userTableDetails.about_me=about_me
+    db.session.commit()
+    #Send email section
+    adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
+    print(adminEmail)
+    teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, requestorUsername, adminEmail.username)
+
+    return jsonify(["0"])
+
+@app.route('/grantUserAccess')
+def grantUserAccess():
+    username=request.args.get('username')    
+    school_id=request.args.get('school_id')        
+    school=school_name()
+    print("we're in grant access request ")
+    userTableDetails = User.query.filter_by(username=username).first()
+    userTableDetails.access_status='145'
+    
+    checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
+    if checkTeacherProfile==None:
+        teacherData=TeacherProfile(teacher_name=username,school_id=school_id, registration_date=datetime.utcnow(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
+        db.session.add(teacherData)    
+        db.session.commit()
+    access_granted_email(userTableDetails.email,userTableDetails.username,school )
+    return jsonify(["0"])
+
+
 
 
 @app.route('/questionBank',methods=['POST','GET'])

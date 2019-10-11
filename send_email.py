@@ -51,9 +51,14 @@ def welcome_email(email, name):
 
     send_email(email, name, subject, message)
 
-def teacher_access_request_email(email,name, school, requestFrom):
+def teacher_access_request_email(email,name, school, requestFrom,adminUsername):
     subject = "Alllearn - Teacher access request for %s" % requestFrom
-    message = render_template('teacher_access_req_email.html', name=name, school=school)
+    message = render_template('teacher_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
+    send_email(email, name, subject, message)
+
+def access_granted_email(email,name, school):
+    subject = "Alllearn - Access granted to %s" % school
+    message = render_template('access_granted_email.html', name=name, school=school)
     send_email(email, name, subject, message)
 
 def guardian_access_request_email(email,name, school, requestFrom):

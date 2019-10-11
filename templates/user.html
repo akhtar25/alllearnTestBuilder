@@ -27,19 +27,19 @@
             <h4><b>About Me:</b> {{user.about_me}}</h4>                                  
         </div>
 
-        {% if accessRequestListRows!=none %}
+        {% if accessRequestListRows | length > 0 %}
         <div class="col s4 m6 l6">
                 <h4>Access Requests</h4>
             <ul  class="collapsible">
             {%for row in accessRequestListRows%}
-            <li>
+            <li class="accessRequestDiv">
             <div class="collapsible-header"><i class="material-icons">person_add</i>{{row.username}}</div>
             <div class="collapsible-body">
-                <p>{{row.email}}</p>
-                <p>{{row.phone}}</p>
-                <p>{{row.user_type}}</p>
-                <p>{{row.about_me}}</p>
-                <a class="waves-effect waves-light btn">Grant Access</a>
+                <p>Email: {{row.email}}</p>
+                <p>Phone: {{row.phone}}</p>
+                <p>Requested Access as: {{row.user_type}}</p>                
+                <p>About requestor:{{row.about_me}}</p>
+                <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}" id="{{row.school_id}}">Grant Access</a>
             </div>
         </li>
             {%endfor%}
@@ -54,6 +54,36 @@
 <script>
         $(document).ready(function(){
          $('.collapsible').collapsible();
-       });                         
+       });        
+
+       $('.grantAccessBTNCLass').click(function(){
+                //$('#loaderDiv').show();
+                //$('#classTrackerDiv').hide();    
+                console.log("Granting access");
+                
+                var username = $(this).attr('name');
+                var school_id = $(this).attr('id');
+                console.log(username);
+                var data="";
+                $.ajax({
+                  url: "/grantUserAccess?username="+ username+"&school_id="+school_id,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      
+                    $(".accessRequestDiv").html("");
+                    if (response=='0'){
+                    $(".accessRequestDiv").html("<p>Access Granted to: "+ username+"</p>");
+                }
+                else{
+                    $(".accessRequestDiv").html("<p>Error granting access. Please message customer service");
+                }
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while granting access");
+                  }
+                });      
+                       
+            });                 
        </script>
 {% endblock %}

@@ -1,8 +1,11 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
+  {%if userDetailRow.access_status!=143%}
+  <div id="mainDiv">
   <h3>You're not connected to any school yet. </h3>
-  <p> Please ask your school's account administrator to grant you access to the school page. </p>
-<div class="col s6 offset-s4">
+  <p> Please ask your school's account administrator to grant you access to the school page below </p>
+
+<div class="col s6 offset-s4" id="accessAndNewSchoolDiv">
   <ul class="collapsible  z-depth-0">
     <li>
         <a href="{{url_for('schoolRegistration')}}" ><div class="collapsible-header"><i class="material-icons">school</i>Register New School</div></a>
@@ -16,10 +19,10 @@
               <label for="reqAccessTeacher">Enter School ID</label>              
             </div>
             <div class="input-field">
-                <input placeholder="Enter Message" id="reqAccessTeacherMSG" type="text" class="validate">
-                <label for="reqAccessTeacherMSG">Enter Message</label>              
+                <input placeholder="Introduce yourself in 5 words" id="reqAccessTeacherMSG" type="text" class="validate">
+                <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>              
               </div>
-            <a class="waves-effect waves-light btn">Submit</a>
+            <a class="waves-effect waves-light btn" id="requestAccessTeacherBTNID">Submit</a>
             
       </div>
     </li>
@@ -31,13 +34,22 @@
               <label for="reqAccessGuardian">Enter School ID</label>             
             </div>
             <div class="input-field">
-                <input placeholder="Enter Message" id="reqAccessTeacherMSG" type="text" class="validate">
-                <label for="reqAccessTeacherMSG">Enter Message</label>              
+                <input placeholder="Introduce yourself in 5 words" id="reqAccessGuardianMSG" type="text" class="validate">
+                <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>              
               </div>
-            <a class="waves-effect waves-light btn">Submit</a>
+            <a class="waves-effect waves-light btn" id="requestAccessGuardianBTNID">Submit</a>
       </div>
     </li>
   </ul>
+</div>
+</div>
+{%else%}
+<div id="alreadyRequestedDiv">
+    <h2>Access requested</h2><p> You will receive a notification in your email once access has been granted</p>
+</div>
+{%endif%}
+<div id="accessRequestedAlreadyDiv" style="display: none;">
+    <h2>Access requested</h2><p> You will receive a notification in your email once access has been granted</p>
 </div>
 </div>
 <script>
@@ -46,6 +58,25 @@
   });
   
 
+  $('#requestAccessTeacherBTNID').click(function(){
+                var username = "{{current_user.username}}";
+                var school_id = $('#reqAccessTeacher').val();
+                about_me= $('#reqAccessTeacherMSG').val();
+                console.log(username);
+                var data="";
+                $.ajax({
+                  url: "/requestUserAccess?username="+ username+"&school_id="+school_id+"&about_me="+about_me,
+                  type: "get",
+                  data: data,
+                  success: function(response) {                      
+                    $("#mainDiv").hide();
+                    $("#accessRequestedAlreadyDiv").show();
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while requesting access");
+                  }
+                });                             
+            });        
         
   </script>
 {%endblock%}

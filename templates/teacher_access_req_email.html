@@ -1,15 +1,14 @@
 <div class="container">
 <p>Dear {{name}},</p>
 <p>
-    {{requestFrom}} has requested access to {{school}}'s Alllearn dashboard.
-    Please click below to grant access 
-    <a href="{{ url_for('reset_password', token=token, _external=True) }}">
-        click here
-    </a>.
+    {{requestFrom}} has requested access to <b>{{school}}'s</b> Alllearn dashboard.
+    Please click below to grant access <br>
+    <h3><a href="{{ url_for('user',username=adminUsername, _external=True) }}">
+        Grant Access
+    </a></h3>
 </p>
-<p>Alternatively, you can paste the following link in your browser's address bar:</p>
-<p>{{ url_for('reset_password', token=token, _external=True) }}</p>
-<p>If you have not requested a password reset simply ignore this message.</p>
+<p>To see the list of pending access requests, please visit your profile page</p>
+
 <p>Sincerely,</p>
 <p>Alllearn Team</p>
 </div>
