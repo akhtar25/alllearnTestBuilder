@@ -200,7 +200,7 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input']       
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), school_admin=current_user.id)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
