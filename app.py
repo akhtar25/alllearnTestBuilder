@@ -509,8 +509,12 @@ def index():
 @app.route('/disconnectedAccount')
 @login_required
 def disconnectedAccount():    
-    userDetailRow=User.query.filter_by(username=current_user.username).first()    
-    return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
+    userDetailRow=User.query.filter_by(username=current_user.username).first()
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if teacher==None:
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
