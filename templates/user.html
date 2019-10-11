@@ -4,9 +4,12 @@
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>My Profile</h3>
             
         </div>        
+        <div class="right col s4 m8 l2">
+                <a class="waves-effect waves-light btn" href="{{url_for('edit_profile')}}"><i class="material-icons">edit</i> Edit Profile</a>
+            </div>  
         
            <div class="col s4 m4 l4 center" >               
-               {% if teacher.profile_picture|length == 0 %}
+               {% if teacher.profile_picture != none %}
             <img class="responsive-img " src="{{teacher.profile_picture}}">
             {%else%}
             <img class="responsive-img " src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
@@ -42,9 +45,7 @@
         </ul>
         </div>
         {%endif%}
-        <div class="right col s4 m8 l2">
-            <a class="waves-effect waves-light btn" href="{{url_for('edit_profile')}}"><i class="material-icons">edit</i> Edit Profile</a>
-        </div>  
+        
     </div>            
   
     </div>

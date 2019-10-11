@@ -589,7 +589,8 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
-    if schoolAdminRow==teacher.teacher_id:
+    print(schoolAdminRow[0][0])
+    if schoolAdminRow[0][0]==teacher.teacher_id:
         accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
     else:
         accessRequestListRows = None

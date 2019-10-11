@@ -75,6 +75,7 @@ class User(UserMixin, db.Model):
     user_avatar = db.Column(db.String(500), nullable=True)
     access_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True) #when an access request is raised the status is updated here: Requested, Not Requested, Granted
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    
    
 
     def __repr__(self):
