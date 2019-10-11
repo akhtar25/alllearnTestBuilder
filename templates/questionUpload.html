@@ -165,7 +165,7 @@
     {% endif %}
     </div>
     <div class="col-sm-2">
-    <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+    <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
     <input type="hidden" id="reference" name="reference" value="">
     <div style="margin-top: 30px; margin-left: 10px;">
        {% if  flag %} 
@@ -245,7 +245,7 @@ fileReader.onload = function (event) {
       var charactersLength = characters.length;
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      ImageName = Image;
+      ImageName = Image+'.jpeg';
       console.log('Full image Name:'+ImageName);
       initUpload();
   }
@@ -674,9 +674,9 @@ if(b!=1){
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-      var type = '.png';
+      var type = 'image/jpeg';
       console.log('File Name:'+file.name+'File type:'+file.type)
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -707,9 +707,9 @@ if(b!=1){
     /*
        Bind listeners when the page loads.
     */
-    (() => {
-      document.getElementById('file-input').onchange = initUpload;
-    })();
+    // (() => {
+    //   document.getElementById('file-input').onchange = initUpload;
+    // })();
 
     var updateButton = document.getElementById('updateButton')
     
