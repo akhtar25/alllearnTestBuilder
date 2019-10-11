@@ -650,6 +650,11 @@ def feeManagement():
     return render_template('feeManagement.html',School_Name=school_name())
 
 
+@app.route('/privacyPolicy')
+def privacyPolicy():
+    return render_template('privacyPolicy.html',School_Name=school_name())
+
+
 @app.route('/requestUserAccess')
 def requestUserAccess():
     requestorUsername=request.args.get('username')    
