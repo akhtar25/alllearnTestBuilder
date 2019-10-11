@@ -21,6 +21,20 @@
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
+   <!-- <p>
+            {{ form.email.label }}
+            <br> {{ form.email(size=100) }}
+            <br> {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+                {{ form.full_name.label }}
+                <br> {{ form.full_name(size=100) }}
+                <br> {% for error in form.email.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>-->
     <!--<p>{{ form.submit() }}</p>-->
     <button class="btn waves-effect waves-light green" type="submit" name="action">Submit
         <i class="material-icons right">send</i>
