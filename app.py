@@ -1969,28 +1969,26 @@ def classPerformance():
 def resultUpload():
     #selectfield choices list
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
     available_subject=MessageDetails.query.filter_by(category='Subject').all()
-
-
+    
     class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
     section_list=[(i.section,i.section) for i in available_section]
     test_type_list=[(i.description,i.description) for i in available_test_type]
     subject_name_list=[(i.description,i.description) for i in available_subject]
-
     form = ResultQueryForm()
     form1=MarksForm()
-
+    subject_name = []
     #selectfield choices
     form.class_val.choices = class_list
     form.section.choices= section_list
     form.test_type.choices= test_type_list
     form.subject_name.choices=subject_name_list
     if not form1.upload.data:
-        if form.validate_on_submit() :
+        if form.validate_on_submit():
             if current_user.is_authenticated:
                 date=request.form['testdate']
                 print(date)
@@ -2009,11 +2007,18 @@ def resultUpload():
 
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),school_id=teacher_id.school_id).first()
-
+                subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_sec_id.class_val),board_id=board_id).all()
                 print(class_sec_id.class_sec_id)
                 print(teacher_id.school_id)
+                class_value = int(form.class_val.data)
+                print('Class Value:'+str(class_value))
                 student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-
+                query = "select description from message_detail where msg_id in (select distinct subject_id from topic_detail where class_val='"+ str(class_value) +"' and board_id='"+ str(board_id[0]) +"')"
+                subject_name = db.session.execute(query).fetchall()
+                print('No of Subjects:'+str(len(subject_name)))
+                totalSubjects = len(subject_name)
+                for subjects in subject_name:
+                    print('Subjects Name:'+subjects[0])
                 if student_list:
                     session['class_sec_id']=class_sec_id.class_sec_id
                     session['school_id']=teacher_id.school_id
@@ -2030,7 +2035,7 @@ def resultUpload():
                         return render_template('resultUpload.html', form=form,School_Name=school_name())
 
                     else:
-                        return render_template('resultUpload.html',form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date,sub_name=sub_name,School_Name=school_name())
+                        return render_template('resultUpload.html',subject_name=subject_name,totalSubjects=totalSubjects, form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date, School_Name=school_name(),class_value=class_value)
 
                 else:
                     flash('No Student list for the given class and section')
@@ -2131,88 +2136,6 @@ def uploadHistoryDetail():
         runcount+1
 
     return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,School_Name=school_name())
-
-# @app.route('/questionUpdate')
-# def questionUpdate():
-#     question_id=request.args.get('question_id')
-#     return render_template('questionUpdate.html',question_id=question_id)
-
-
-# @app.route('/questionPageUpdate',methods=['POST','GET'])
-# @login_required
-# def questionPageUpdate():
-#     form=QuestionUpdaterQueryForm() 
-#     if request.method=='POST':
-#         if form.submit.data:
-#             question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
-#             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data)
-#             db.session.add(question)
-#             if form.question_type.data=='Subjective':
-#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
-#                 options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
-#                 db.session.add(options)
-#                 db.session.commit()
-#                 flash('Success')
-#                 return render_template('questionUpdate.html',School_Name=school_name())
-#             else:
-#                 option_list=request.form.getlist('option_desc')
-#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
-#                 if request.form['correct']=='':
-#                     flash('Correct option not seleted !')
-#                     return render_template('questionUpdate.html',School_Name=school_name())
-#                 for i in range(len(option_list)):
-#                     if int(request.form['option'])==i+1:
-#                         correct='Y'
-#                         weightage=int(request.form['weightage'])
-#                     else:
-#                         weightage=0
-#                         correct='N'
-#                     if i+1==1:
-#                         option='A'
-#                     elif i+1==2:
-#                         option='B'
-#                     elif i+1==3:
-#                         option='C'
-#                     else:
-#                         option='D'
-#                     options=QuestionOptions(option_desc=option_list[i],question_id=question_id.question_id,is_correct=correct,weightage=weightage,option=option)
-#                     db.session.add(options)
-#                 db.session.commit()
-#                 flash('Success')
-#                 return render_template('questionUpdate.html',School_Name=school_name())
-#         else:
-#             csv_file=request.files['file-input']
-#             df1=pd.read_csv(csv_file)
-#             for index ,row in df1.iterrows():
-#                 question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-#                 topic_id=int(request.form['topics']),question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)])
-#                 db.session.add(question)
-#                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=row['Question Description']).first()
-#                 for i in range(1,5):
-#                     option_no=str(i)
-#                     option_name='Option'+option_no
-#                     weightage_name='Weightage'+option_no
-#                     if row['CorrectAnswer']=='option '+option_no:
-#                         correct='Y'
-#                         weightage=row[weightage_name]
-#                     else:
-#                         correct='N'
-#                         weightage='0'
-#                     if i==1:
-#                             option_val='A'
-#                     elif i==2:
-#                             option_val='B'
-#                     elif i==3:
-#                             option_val='C'
-#                     else:
-#                         option_val='D'
-
-#                     option=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
-#                     db.session.add(option)
-#             db.session.commit()
-#             flash('Successfullly Uploaded !')
-#             return render_template('questionUpdate.html',School_Name=school_name())
-#     return render_template('questionUpdate.html',School_Name=school_name())
 
 @app.route('/studentList/<class_val>/<section>/')
 def studentList(class_val,section):

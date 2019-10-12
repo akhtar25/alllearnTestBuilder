@@ -44,7 +44,7 @@
                         <label class='labelsize' for='Date'>Date</label>
                         <input type="date" name='testdate' id='testdate'>
                         </div>
-                        <div class="col-sm-3" style="padding-top:5px;"> 
+                        <div class="col-sm-3" style="padding-top:5px;display:none;"> 
                                         {{ form.subject_name.label(class='labelsize') }}
                                         <div id='loaderSubject'style='display: none; float: right;'>
                                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -84,19 +84,38 @@
       </div>
       
 {% if student_list %}
-<div class="container" style="float:right;">
-<p class="right">* Please enter -1 for absent students</p>
+<div class="container" style="float:right;margin-top: 20px;">
+
+<p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
 </div>
 <div class="card id" id="result_table">
-        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ sub_name }} {{ test_type }} [{{ test_date }}] </h3>
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Class {{ class_value }}<sup style="text-transform: lowercase;">th</sup> | {{ test_type }} [{{ test_date }}] </h3>
         <div class="card-body">
           <div id="table" class="table-editable">
             <table class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                             <tr>
                                 <th scope="col">Student Name</th>
-                                <th scope="col">Total Marks</th>
-                                <th scope="col">Marks Scored</th>
+                                
+                                {% for subject in subject_name %}
+                                <th scope="col">
+                                                <p style="margin-bottom: 0px;">
+                                                        <label>
+                                                        <input type="checkbox" id="marksCheckBox{{loop.index}}" name="selectSubject"/>
+                                                        <span>{{ subject[0]}}</span><br/>
+                                                        <!-- <form action="" method="POST" name="form-upload" style="width: 130px;margin-right: -20px;">
+                                                        {{ form1.hidden_tag() }} -->
+                                                        <input type="hidden" name="upload_form" value="Upload">
+                                                        <div class="marksbox">
+                                                        <p class="right" style="margin-bottom: 0px;width: 112px;font-size: 13px;display: flex;margin-right: 6px;"><span style="width: 70px;">Total Marks:</span><input id="Tmarks{{loop.index}}" type="number" max="100" min="-1" name="marks" disabled></p><br/>
+                                                        <!-- <label class='labelsize' for='Date'>Date</label> -->
+                                                        <input type="date" name='testdate' id='testdate{{loop.index}}' style="font-size: 13px;width: 127px;margin-bottom: 0px;" disabled>
+                                                        </div>
+                                                        </label>
+                                                </p>   
+                                </th>
+                                {% endfor %}
+                                <!-- <th scope="col">Marks Scored</th> -->
                             </tr>
                     </thead>
                     <tbody>
@@ -107,9 +126,9 @@
                             {% for student in student_list %}
                                 <tr>
                                     <td> {{student.full_name }} </td>
-                                    <td> {{ totalmarks }} </td>
-                                
-                                    <td><div class="container" style="width:100px;">{{ form1.marks }}</div></td>
+                                    {% for subject in subject_name %}
+                                    <td><div class="container" style="width:100px;"><input type="number" id="marks{{loop.index}}" name="marks{{loop.index}}" max="100" min="-1" disabled></div></td> 
+                                     {% endfor %}
                                 </tr>
                             {% endfor %}
                     </tbody>
@@ -132,62 +151,44 @@
                 mm='0'+mm
         } 
 
+        
+
         today = yyyy+'-'+mm+'-'+dd;
         document.getElementById("testdate").setAttribute("max", today);
 
+        // $('#marksCheckBox').click(function(){
+        //         console.log('Inside Marks checkbox');
+        //         if ($("input[type=checkbox]").prop(":checked")) { 
+        //              console.log('Check box is checked');
+                    
+        //         }
+        // });
 
-
-        var class_select = document.getElementById("class_val");
-        var section_select = document.getElementById("section");
-        var subject_select = document.getElementById("subject_name");
-        var test_type_select = document.getElementById("test_type");
-        var optionHTMLClass = '';
-        var optionHTMLSubject = '';
-        var optionHTMLSection = '';
-        var optionHtmlTestType = '';
         $(document).ready(function(){
-        $('#class_val').val("na");
-        $('#test_type').val("na");
-        console.log("CLass Value:"+class_select.value);
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
-        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
-        section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
-        optionHtmlTestType += '<option value="na" select disabled>Select Test Type</option>';
-        console.log('Inside test type');
-        test_type_select.innerHTML = optionHtmlTestType + test_type_select.innerHTML;
+        
+        var id = '';
+        var inputId = '';
+         {% for subject in subject_name %}
+        $('#marksCheckBox{{loop.index}}').click(function(){
+                console.log('Inside checkbox');
+            if($(this).prop("checked") == true){
+                console.log("Checkbox is checked.");
+                
+                $('#Tmarks{{loop.index}}').removeAttr("disabled");
+                $('#testdate{{loop.index}}').removeAttr("disabled");
+                $('[name="marks{{loop.index}}"]').removeAttr("disabled");
+            }
+            else if($(this).prop("checked") == false){
+                console.log("Checkbox is unchecked.");
+                $('#Tmarks{{loop.index}}').attr("disabled",true);
+                $('#testdate{{loop.index}}').attr("disabled",true);
+                $('[name="marks{{loop.index}}"]').attr("disabled",true);
+            }
         });
-        class_select.onchange = function()  {
-             
-            class_val = class_select.value;
-            $("#loader").show();
-            
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader").hide();    
-                        var optionHTML = '';
-                        optionHTML += '<option value="na"  selected disabled> Select Section </option>';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_select.innerHTML = optionHTML;
-                })
-            });
-            $("#loaderSubject").show();
-            fetch('/questionBuilder/' + class_val).then(function(response){
-                response.json().then(function(data){
-                        $("#loaderSubject").hide();
-                        var optionHTML = '';
-                        optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
-                     for (var subject of data.subjects) {     
-                        optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>'; 
-                 }
-                 subject_select.innerHTML = optionHTML;
-                })
-            });
 
-        }
+
+        {% endfor %}
+        });
+        
     </script>
 {%endblock%}
