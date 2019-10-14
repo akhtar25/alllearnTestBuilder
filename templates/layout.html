@@ -80,9 +80,9 @@
             <a style="color: green;" href="{{ url_for('register') }}">Register</a>
           </li>
           {% else %}
-          <!--<li>
+          <li>
             <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>-->
+          </li>
           <li>
           <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
           </li>
@@ -225,12 +225,13 @@ $(document).ready(function(){
     <div class="container">
       <div class="row">
         <div class="col l6 s12">
-          <p class="white-text text-lighten-4 left-align" style="font-size: 30px;"><strong>email:
+            <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
+                <strong>WhatsApp <span>for any issues/queries</span>: 99103 68828 </strong>
+            </p>
+          <p class="white-text text-lighten-4 left-align" style="font-size: 20px;"><strong>email:
             contact@alllearn.in</strong>
           </p>
-          <p class="white-text text-lighten-4 left-align" style="font-size: 30px;">
-            <strong>phone: 99103 68828 </strong>
-          </p>        
+               
         </div>
         <div class="col l2 s12">
           <ul>
@@ -238,16 +239,16 @@ $(document).ready(function(){
               <a class="white-text" href="http://www.fb.me/alllearn.in">Facebook</a>
             </li>
             <li>
-                <a class="white-text" href="fb.me/alllearn.in">Instagram</a>
+                <a class="white-text" href="https://www.instagram.com/alllearn_/">Instagram</a>
               </li>
               <li>
-                  <a class="white-text" href="fb.me/alllearn.in">YouTube</a>
+                  <a class="white-text" href="https://www.youtube.com/channel/UCva7EZtfhlSGgYDQ7yPavvQ">YouTube</a>
                 </li>
                 <li>
-                    <a class="white-text" href="fb.me/alllearn.in">Privacy Policy</a>
+                    <a class="white-text" href="{{url_for('privacyPolicy')}}">Privacy Policy</a>
                   </li>
                   <li>
-                      <a class="white-text" href="fb.me/alllearn.in">Terms and Conditions</a>
+                      <a class="white-text" href="../static/docs/termsAndConditions.pdf">Terms and Conditions</a>
                     </li>
           </ul>
               </div>
@@ -297,7 +298,7 @@ $(document).ready(function(){
     <div class="footer-copyright">
       <div class="container">        
         <span><a class="yellow-text text-lighten-5" href="http://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
-          <span class="pull-right">   1.1.0</span>
+          <span class="pull-right">   1.2.0 Beta</span>
       </div>
     </div>
   </footer>
