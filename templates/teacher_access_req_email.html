@@ -1,0 +1,14 @@
+<div class="container">
+<p>Dear {{name}},</p>
+<p>
+    {{requestFrom}} has requested access to <b>{{school}}'s</b> Alllearn dashboard.
+    Please click below to grant access <br>
+    <h3><a href="{{ url_for('user',username=adminUsername, _external=True) }}">
+        Grant Access
+    </a></h3>
+</p>
+<p>To see the list of pending access requests, please visit your profile page</p>
+
+<p>Sincerely,</p>
+<p>Alllearn Team</p>
+</div>
