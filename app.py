@@ -13,6 +13,7 @@ import logging
 import datetime as dt
 from datetime import date
 from datetime import timedelta
+from datetime import datetime
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
 from flask import g, jsonify
@@ -1255,8 +1256,6 @@ def classDelivery():
             print('This is Content Data:'+str(content.content_name)+' '+str(content.reference_link)+' '+str(content.last_modified_date))
             q=q+1
         print('Times:'+str(q))
-        #db query 
-            #sidebar
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         for classSec in classSections:
             print("class Section:"+str(classSec.section))
@@ -1968,113 +1967,42 @@ def classPerformance():
 @login_required
 def resultUpload():
     #selectfield choices list
+    user = User.query.filter_by(username=current_user.username).first_or_404()    
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
-    available_subject=MessageDetails.query.filter_by(category='Subject').all()
-    
-    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
-    section_list=[(i.section,i.section) for i in available_section]
-    test_type_list=[(i.description,i.description) for i in available_test_type]
-    subject_name_list=[(i.description,i.description) for i in available_subject]
-    form = ResultQueryForm()
-    form1=MarksForm()
+    distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
+    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+    qclass_val = request.args.get('class_val',1)
+    qsection=request.args.get('section','A')
+    for section in classSections:
+            print("Class Section:"+section.section)
     subject_name = []
-    #selectfield choices
-    form.class_val.choices = class_list
-    form.section.choices= section_list
-    form.test_type.choices= test_type_list
-    form.subject_name.choices=subject_name_list
-    if not form1.upload.data:
-        if form.validate_on_submit():
-            if current_user.is_authenticated:
-                date=request.form['testdate']
-                print(date)
-                if date=='':
-                    flash('Please select date !')
-                    return render_template('resultUpload.html',form=form,School_Name=school_name())
-                
-                sub_name=form.subject_name.data
-                test_type=form.test_type.data
-        
-                #class_val=MessageDetails.query.filter_by(description=form.class_val.data).first()
-                #sec_val=MessageDetails.query.filter_by(description=form.section.data).first()
-                sub_val=MessageDetails.query.filter_by(description=form.subject_name.data).first()
-                test_type_val=MessageDetails.query.filter_by(description=form.test_type.data).first()
+    if current_user.is_authenticated:
 
-
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec_id=ClassSection.query.filter_by(class_val=int(form.class_val.data),school_id=teacher_id.school_id).first()
-                subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_sec_id.class_val),board_id=board_id).all()
-                print(class_sec_id.class_sec_id)
-                print(teacher_id.school_id)
-                class_value = int(form.class_val.data)
-                print('Class Value:'+str(class_value))
-                student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-                query = "select description from message_detail where msg_id in (select distinct subject_id from topic_detail where class_val='"+ str(class_value) +"' and board_id='"+ str(board_id[0]) +"')"
-                subject_name = db.session.execute(query).fetchall()
-                print('No of Subjects:'+str(len(subject_name)))
-                totalSubjects = len(subject_name)
-                for subjects in subject_name:
-                    print('Subjects Name:'+subjects[0])
-                if student_list:
-                    session['class_sec_id']=class_sec_id.class_sec_id
-                    session['school_id']=teacher_id.school_id
-                    session['date']=date
-                    session['sub_val']=sub_val.msg_id
-                    session['test_type_val']=test_type_val.msg_id
-                    session['teacher_id']=teacher_id.teacher_id
-                
-                    result_check=ResultUpload.query.filter_by(exam_date=session.get('date',None),
-                    class_sec_id=session.get('class_sec_id',None),subject_id=session.get('sub_val',None)).first()
-
-                    if result_check:
-                        flash('Result already uploaded !')
-                        return render_template('resultUpload.html', form=form,School_Name=school_name())
-
-                    else:
-                        return render_template('resultUpload.html',subject_name=subject_name,totalSubjects=totalSubjects, form=form,form1=form1,student_list=student_list,totalmarks=100,test_type=test_type,test_date=date, School_Name=school_name(),class_value=class_value)
-
-                else:
-                    flash('No Student list for the given class and section')
-                   
-                    return render_template('resultUpload.html', form=form,School_Name=school_name())
-        
-            else:
-                flash('Login required !')
-                return render_template('resultUpload.html', form=form,School_Name=school_name())
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        class_sec_id=ClassSection.query.filter_by(class_val=int(qclass_val),school_id=teacher_id.school_id).first()
+        print(class_sec_id.class_sec_id)
+        print(teacher_id.school_id)
+        class_value = int(qclass_val)
+        print('Class Value:'+str(class_value))
+        student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
+        queryForSubjectName = "select description,msg_id from message_detail where msg_id in (select distinct subject_id from topic_detail where class_val='"+ str(class_value) +"' and board_id='"+ str(board_id[0]) +"')"
+        subject_name = db.session.execute(queryForSubjectName).fetchall()
+        print('No of Subjects:'+str(len(subject_name)))
+        for subjects in subject_name:
+            print('Subjects Name:'+subjects[0])
+        if student_list:
+                return render_template('resultUpload.html',qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
 
         else:
-            return render_template('resultUpload.html', form=form,School_Name=school_name())
+            flash('No Student list for the given class and section')
+                   
+            return render_template('resultUpload.html',qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
+        
     else:
-        if form1.validate_on_submit():
-            marks_list=request.form.getlist('marks')
-            i=0
-            student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-            for student in student_list:
-                if marks_list[i]=='-1':
-                    marks=0
-                    is_present=MessageDetails.query.filter_by(description='Not Present').first()
-                else:
-                    marks=marks_list[i]
-                    is_present=MessageDetails.query.filter_by(description='Present').first()
-                
-                #test_id=schoold_id+class_sec_id+subject+test_type+exam date
-                upload_id=str(session.get('school_id',None))+str(session.get('class_sec_id',None))+str(session.get('sub_val',None)) + str(session.get('test_type_val',None)) + str(session.get('date',None))
-                upload_id=upload_id.replace('-','')
-                Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
-                exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
-                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
-                uploaded_by=session.get('teacher_id',None), upload_id=upload_id,last_modified_date=datetime.today()
-                )
-                db.session.add(Marks)
-                i+=1
-            db.session.commit()
-            flash('Marks Uploaded !')
-        return render_template('resultUpload.html',form=form,School_Name=school_name())
-
+        flash('Login required !')
+        return render_template('resultUpload.html',qclass_val=qclass_val,qsection=qsection,subject_name=subject_name, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
 
 
 @app.route('/resultUpload/<class_val>')

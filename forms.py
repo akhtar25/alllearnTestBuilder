@@ -102,7 +102,10 @@ class ResultQueryForm(FlaskForm):
       #      raise ValidationError('* Please Select a Subject')
 
 class MarksForm(FlaskForm):
-    marks=IntegerField('Marks',validators=[DataRequired()],widget=NumberInput(min=-1,max=100,step=1))
+    marks=IntegerField('Marks',widget=NumberInput(min=-1,max=100,step=1))
+    subjectId = StringField('Subject Id')
+    date = DateField('Test Date', validators=[DataRequired()])
+    totalMarks = IntegerField('Marks',widget=NumberInput(min=10,max=100,step=1))
     upload=SubmitField('Upload')
     def validate_marks(self,marks):
         if marks.data=='':

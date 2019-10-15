@@ -1,95 +1,52 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-        <h2>Result Upload</h2>
-        <form action="" method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group " style="padding-top:5px;">
-                <div class="row">
-                        <div class="col-sm-3">
-                                <div style="width:250px;">
-                                        {{ form.class_val.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.class_val.errors %}
-                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.class_val.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.class_val(class='form-control') }}
-                                        {% endif %}
+                <div class="hold-transition skin-blue sidebar-mini">    
+                                <div id="sidebarDiv" >   
+                                    <div class="main-sidebar" style="margin-top:15px;">
+                                        <section class="sidebar">                     
+                                              <ul class="sidebar-menu table-responsive" data-widget="tree">
+                                                  {% for singleClass in distinctClasses %}
+                                                         <li class="treeview">
+                                                           <a href="#">
+                                                             <i class="glyphicon glyphicon-education"></i>
+                                                             <span>Class {{singleClass[0]}}</span>
+                                                             <span class="pull-right-container">
+                                                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+                                                             </span>
+                                                           </a>                                                      
+                                                           <ul class="treeview-menu">                            
+                                                              {% for classsection in classsections %}
+                                                                 {% if classsection.class_val==singleClass[0] %}
+                                                             <li>
+                                                                <a href="{{ url_for('resultUpload',class_val=classsection.class_val, section=classsection.section) }}"> 
+                                                                <i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                                                              {% endif %}
+                                                             {% endfor %}
+                                                           </ul>                                                      
+                                                         </li>
+                                                         {% endfor %}                
+                                         <ul>                  
+                                        </section>
+                                        <!-- /.sidebar -->
+                                    </div>
                                 </div>
-                        </div>
-                        <div class="col-sm-2">
-                                <div style="width:150px;" >
-                                                {{ form.section.label(class='labelsize') }}
-                                                <div id='loader'style='display: none; float: right;'>
-                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                                </div>
-                                        <br>
-                                                {% if form.section.errors %}
-                                                {{ form.section(class="form-control form-control-lg is-invalid") }}
-                                                <div class="invalid-feedback">
-                                                {% for error in form.section.errors %}
-                                                 <span>{{ error }}</span>
-                                                {% endfor %}
-                                        </div>
-                                                {% else %}
-                                                {{ form.section(class='form-control') }}
-                                                {% endif %}                                                
-                                </div>
-                        </div>
-                        <div class="col-sm-2">
-                        <label class='labelsize' for='Date'>Date</label>
-                        <input type="date" name='testdate' id='testdate'>
-                        </div>
-                        <div class="col-sm-3" style="padding-top:5px;display:none;"> 
-                                        {{ form.subject_name.label(class='labelsize') }}
-                                        <div id='loaderSubject'style='display: none; float: right;'>
-                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                </div>
-                                        <br>
-                                        {% if form.subject_name.errors %}
-                                        {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.subject_name.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                </div>
-                                        {% else %}
-                                        {{ form.subject_name(class='form-control') }}
-                                        {% endif %}
-                        </div>  
-                        <div class="col-sm-2" style="padding-top:5px;"> 
+        <!-------------------------------------------------------------------------------------------  -->
+        <div class="content-wrapper" style="background-color: white;">
+        <section class="content">
+        
+        
 
-                                        {{ form.test_type.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.test_type.errors %}
-                                        {{ form.test_type(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.test_type.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.test_type(class='form-control') }}
-                                        {% endif %}
-                        </div>  
-                </div>
-                <p><button class="btn waves-light green lighten-1 white-text" type="submit">Submit</button></p>
-                <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div>
-            </div>
-        </form>
-      </div>
-      
-{% if student_list %}
-<div class="container" style="float:right;margin-top: 20px;">
+        <!-- Start Result Table -->
 
-<p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
-</div>
-<div class="card id" id="result_table">
-        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Class {{ class_value }}<sup style="text-transform: lowercase;">th</sup> | {{ test_type }} [{{ test_date }}] </h3>
+        {% if student_list %}
+
+        <div class="box">
+        <div class="box-header">
+        <h3 class="box-title">Result Upload</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
+        </div>
+        <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div><br/>
+        <p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
+        <div class="card id" id="result_table" style="margin-top: 24px;">
         <div class="card-body">
           <div id="table" class="table-editable">
             <table class="table table-bordered table-responsive-md table-striped text-center">
@@ -101,27 +58,23 @@
                                 <th scope="col">
                                                 <p style="margin-bottom: 0px;">
                                                         <label>
-                                                        <input type="checkbox" id="marksCheckBox{{loop.index}}" name="selectSubject"/>
+                                                        <input type="checkbox" id="marksCheckBox{{loop.index}}" name="selectSubject" value="{{ subject[1]}}"/>
                                                         <span>{{ subject[0]}}</span><br/>
-                                                        <!-- <form action="" method="POST" name="form-upload" style="width: 130px;margin-right: -20px;">
-                                                        {{ form1.hidden_tag() }} -->
-                                                        <input type="hidden" name="upload_form" value="Upload">
+                                                         <input type="text" id="subjectId" value="{{ subject[1]}}" style="display:none;"> 
+                                                        
                                                         <div class="marksbox">
-                                                        <p class="right" style="margin-bottom: 0px;width: 112px;font-size: 13px;display: flex;margin-right: 6px;"><span style="width: 70px;">Total Marks:</span><input id="Tmarks{{loop.index}}" type="number" max="100" min="-1" name="marks" disabled></p><br/>
-                                                        <!-- <label class='labelsize' for='Date'>Date</label> -->
-                                                        <input type="date" name='testdate' id='testdate{{loop.index}}' style="font-size: 13px;width: 127px;margin-bottom: 0px;" disabled>
-                                                        </div>
+                                                        <p class="right" style="margin-bottom: 0px;width: 112px;font-size: 13px;display: flex;margin-right: 6px;"><span style="width: 70px;">Total Marks:</span><input id="Tmarks{{loop.index}}" type="number" max="100" min="-1" name="marks" disabled></p><br/> 
+                                                       
+                                                       
+                                                         <input type="date" name='testdate' id='testdate{{loop.index}}' style="font-size: 13px;width: 127px;margin-bottom: 0px;" disabled> 
+                                                         </div>
                                                         </label>
                                                 </p>   
                                 </th>
-                                {% endfor %}
-                                <!-- <th scope="col">Marks Scored</th> -->
-                            </tr>
+                                {% endfor %} 
+                             </tr>
                     </thead>
                     <tbody>
-                        <form action="" method="POST" name="form-upload">
-                                {{ form1.hidden_tag() }}
-                                <input type="hidden" name="upload_form" value="Upload">
                                 
                             {% for student in student_list %}
                                 <tr>
@@ -135,10 +88,17 @@
             </table>
         </div>
         </div>
-      </div>
-      <p style="padding-left:575px;">{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
+        </div>
+      </div> 
+      <p style="padding-left:575px;"><input type="button" class="btn waves-light green lighten-1 white-text" id="upload" name="upload" value="upload"></p>
       </form>
       {% endif %}
+        <!-- End Result Upload Table -->
+</section>
+</div>
+</div>  
+</div> 
+      <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
       <script>
         var today = new Date();
         var dd = today.getDate();
@@ -156,13 +116,6 @@
         today = yyyy+'-'+mm+'-'+dd;
         document.getElementById("testdate").setAttribute("max", today);
 
-        // $('#marksCheckBox').click(function(){
-        //         console.log('Inside Marks checkbox');
-        //         if ($("input[type=checkbox]").prop(":checked")) { 
-        //              console.log('Check box is checked');
-                    
-        //         }
-        // });
 
         $(document).ready(function(){
         
@@ -170,6 +123,7 @@
         var inputId = '';
          {% for subject in subject_name %}
         $('#marksCheckBox{{loop.index}}').click(function(){
+                console.log('Subject Id:'+document.getElementById('marksCheckBox{{loop.index}}').value);
                 console.log('Inside checkbox');
             if($(this).prop("checked") == true){
                 console.log("Checkbox is checked.");
@@ -185,10 +139,24 @@
                 $('[name="marks{{loop.index}}"]').attr("disabled",true);
             }
         });
-
-
         {% endfor %}
         });
+
+        // $('#upload').click(function(){
+        //         {% for subject in subject_name %}
+        //                 if(document.getElementById('marksCheckBox{{loop.index}}').value==subject[1]){
+        //                         var maxMarks = document.getElementById('Tmarks{{loop.index}}');
+        //                         var testDate = document.getElementById('testdate{{loop.index}}');
+        //                         var marksArray = new Array();
+        //                         $("input[name=marks{{loop.index}}]").each(function(){
+        //                                 marksArray.push($(this).val());
+        //                         });
+        //                 }
+        //         {% endfor %}
+        // });
+
+        
+        
         
     </script>
 {%endblock%}
