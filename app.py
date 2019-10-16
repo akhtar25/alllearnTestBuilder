@@ -298,6 +298,7 @@ def studentRegistration():
             school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
             dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
             roll_number=int(form.roll_number.data))
+            print('Query:'+student)
             db.session.add(student)
             student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
             for i in range(4):
@@ -2032,6 +2033,7 @@ def resultUpload():
     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
     qclass_val = request.args.get('class_val',1)
     qsection=request.args.get('section','A')
+    test_details = TestDetails.query.filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
     for section in classSections:
             print("Class Section:"+section.section)
     subject_name = []
@@ -2050,16 +2052,16 @@ def resultUpload():
         for subjects in subject_name:
             print('Subjects Name:'+subjects[0])
         if student_list:
-                return render_template('resultUpload.html',qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
+                return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
 
         else:
             flash('No Student list for the given class and section')
                    
-            return render_template('resultUpload.html',qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
+            return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
         
     else:
         flash('Login required !')
-        return render_template('resultUpload.html',qclass_val=qclass_val,qsection=qsection,subject_name=subject_name, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
+        return render_template('resultUpload.html',qclass_val=qclass_val,test_details=test_details,qsection=qsection,subject_name=subject_name, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
 
 
 @app.route('/resultUpload/<class_val>')

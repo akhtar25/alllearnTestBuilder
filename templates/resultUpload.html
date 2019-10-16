@@ -48,40 +48,51 @@
         <p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
         <div class="card id" id="result_table" style="margin-top: 24px;">
         <div class="card-body">
-          <div id="table" class="table-editable">
+          <div id="table" class="table-editable" style="overflow-y: auto;height: 466px;overflow-x: auto;">
             <table class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                             <tr>
-                                <th scope="col">Student Name</th>
-                                
-                                {% for subject in subject_name %}
-                                <th scope="col">
-                                                <p style="margin-bottom: 0px;">
-                                                        <label>
-                                                        <input type="checkbox" id="marksCheckBox{{loop.index}}" name="selectSubject" value="{{ subject[1]}}"/>
-                                                        <span>{{ subject[0]}}</span><br/>
-                                                         <input type="text" id="subjectId" value="{{ subject[1]}}" style="display:none;"> 
-                                                        
-                                                        <div class="marksbox">
-                                                        <p class="right" style="margin-bottom: 0px;width: 112px;font-size: 13px;display: flex;margin-right: 6px;"><span style="width: 70px;">Total Marks:</span><input id="Tmarks{{loop.index}}" type="number" max="100" min="-1" name="marks" disabled></p><br/> 
-                                                       
-                                                       
-                                                         <input type="date" name='testdate' id='testdate{{loop.index}}' style="font-size: 13px;width: 127px;margin-bottom: 0px;" disabled> 
-                                                         </div>
-                                                        </label>
-                                                </p>   
+                                <th scope="col" style="width: 200px;">
+
+                                        Student Name
                                 </th>
-                                {% endfor %} 
+                                
+                                
+                                <th scope="col" style='width: 200px;'>
+                                                <select class="browser-default" style="float: right;">
+                                                  <option value="" disabled selected style="font-size:11px;">Choose Subject</option>
+                                                  {% for subject in subject_name %}
+                                                  <option value="{{subject[1]}}">{{subject[0]}}</option>
+                                                  {% endfor %}
+                                                </select> <br/>
+                                                <div style="margin-top: 24px;text-align: center;display:flex;">
+                                                <input type="number" name="Tmarks" placeholder="total marks" value="Tmarks" style="width: 120px;font-size: 14px;">
+                                                <input type="date" name="testdate" id="testdate" style="margin-left: 10px;width: 200px;">     
+                                        </div>  <br/>
+                                        <select class="browser-default">
+                                                        <option value="" disabled selected style="font-size:11px;">Test Id</option>
+                                                        <option value="" style="font-size:11px;">NA</option>
+                                                        {% for test in test_details %}
+                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}} <a href="#"><i class="fa fa-eye"></i></a></option>
+                                                        {% endfor %}
+                                                      </select>
+                                                      <a href="#"><i class="fa fa-eye"></i></a>
+                                </th>
+                                <th><a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="margin-bottom: 20px;"><i class="material-icons">add</i></a><br/>
+                                        Add Column
+                                </th>
+                        
                              </tr>
+
                     </thead>
                     <tbody>
                                 
                             {% for student in student_list %}
                                 <tr>
                                     <td> {{student.full_name }} </td>
-                                    {% for subject in subject_name %}
+                                    
                                     <td><div class="container" style="width:100px;"><input type="number" id="marks{{loop.index}}" name="marks{{loop.index}}" max="100" min="-1" disabled></div></td> 
-                                     {% endfor %}
+                                    <td></td>
                                 </tr>
                             {% endfor %}
                     </tbody>
@@ -90,7 +101,10 @@
         </div>
         </div>
       </div> 
-      <p style="padding-left:575px;"><input type="button" class="btn waves-light green lighten-1 white-text" id="upload" name="upload" value="upload"></p>
+      <!-- Start -->
+
+      <!-- End -->
+      <p style="padding-left:395px;"><input type="button" class="btn waves-light green lighten-1 white-text" id="upload" name="upload" value="upload" style="width:100px;height: 35px;"></p>
       </form>
       {% endif %}
         <!-- End Result Upload Table -->
@@ -117,46 +131,25 @@
         document.getElementById("testdate").setAttribute("max", today);
 
 
-        $(document).ready(function(){
-        
-        var id = '';
-        var inputId = '';
-         {% for subject in subject_name %}
-        $('#marksCheckBox{{loop.index}}').click(function(){
-                console.log('Subject Id:'+document.getElementById('marksCheckBox{{loop.index}}').value);
-                console.log('Inside checkbox');
-            if($(this).prop("checked") == true){
-                console.log("Checkbox is checked.");
-                
-                $('#Tmarks{{loop.index}}').removeAttr("disabled");
-                $('#testdate{{loop.index}}').removeAttr("disabled");
-                $('[name="marks{{loop.index}}"]').removeAttr("disabled");
-            }
-            else if($(this).prop("checked") == false){
-                console.log("Checkbox is unchecked.");
-                $('#Tmarks{{loop.index}}').attr("disabled",true);
-                $('#testdate{{loop.index}}').attr("disabled",true);
-                $('[name="marks{{loop.index}}"]').attr("disabled",true);
-            }
-        });
-        {% endfor %}
+       
+
+
+        $('#upload').click(function(){
+                var class_val = '{{qclass_val}}';
+                subject_id = document.getElementById('').value;
         });
 
-        // $('#upload').click(function(){
-        //         {% for subject in subject_name %}
-        //                 if(document.getElementById('marksCheckBox{{loop.index}}').value==subject[1]){
-        //                         var maxMarks = document.getElementById('Tmarks{{loop.index}}');
-        //                         var testDate = document.getElementById('testdate{{loop.index}}');
-        //                         var marksArray = new Array();
-        //                         $("input[name=marks{{loop.index}}]").each(function(){
-        //                                 marksArray.push($(this).val());
-        //                         });
-        //                 }
-        //         {% endfor %}
-        // });
+        
 
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
         
         
-        
+  $("#addColumn").click(function () {
+	$("tr:first").append("<th scope='col' style='width: 200px;'><select class='browser-default' style='float:right;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <br/><div style='margin-top: 24px;text-align: center;display:flex;'><input type='number' name='Tmarks' placeholder='total marks' value='Tmarks' style='width: 120px;font-size: 14px;'><input type='date' name='testdate' id='testdate' style='margin-left: 10px;width: 200px;'> </div>  <br/><select class='browser-default' ><option value='' disabled selected style='font-size:11px;'>Choose Test Id</option><option value=''>Test Id --  Date of Creation </option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} --  {{test.date_of_creation}} </option>{% endfor %} </select> </th>");
+	$("tr:not(:first)").append("<td><div class='container' style='width:100px;'><input type='number' id='marks' name='marks' max='100' min='-1' disabled></div></td>");
+    //$("tr:not(:first)").append("<td><input type='checkbox' />Sample Element</td>");
+});
     </script>
 {%endblock%}
