@@ -815,6 +815,7 @@ def testBuilderQuestions():
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
     #question_list=request.get_json()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     data=request.get_json()
     question_list=data[0]
     count_marks=data[1]
@@ -835,26 +836,19 @@ def testBuilderFileUpload():
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    #naming file here
+    file_name=teacher_id.school_id+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'    
+    
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
     document.save('tempdocx/'+file_name)
+    #uploading to s3 bucket
     client = boto3.client('s3', region_name='ap-south-1')
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    #deleting file from temporary location after upload to s3
     os.remove('tempdocx/'+file_name)
 
-    #topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
-    #topicFromTracker.is_covered='N'
-    #topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
-    #db.session.commit()
-
-    #test_type, total_marks, year, month, last_modified_date, 
-    #board_id, subject_id, class_val, date_of creation, date_of_test,
-    #schoold_id, teacher_id, test_paper_link
-
     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
-
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
     testDetailsUpd = TestDetails(test_type=session.get('test_type_val',None), total_marks=str(count_marks),last_modified_date= datetime.utcnow(),
         board_id='1001', subject_id=int(session.get('sub_id',None)),class_val=session.get('class_val',"0"),date_of_creation=datetime.utcnow(),
