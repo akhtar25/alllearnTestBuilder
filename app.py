@@ -291,8 +291,10 @@ def studentRegistration():
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
+            print('Print Form Data:'+form.section.data)
+            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
             gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+            print('Section Id:'+str(class_sec.class_sec_id))
             student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
             school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
             dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
@@ -1242,7 +1244,7 @@ def questionDetails():
 
 @app.route('/topperListAll')
 def topperListAll():
-    query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard("+ str(teacher.school_id)+") where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
     print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
