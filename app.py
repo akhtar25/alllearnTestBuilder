@@ -292,8 +292,10 @@ def studentRegistration():
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data).first()
+            print('Print Form Data:'+form.section.data)
+            class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
             gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+            print('Section Id:'+str(class_sec.class_sec_id))
             student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
             school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
             dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
@@ -819,6 +821,7 @@ def testBuilderQuestions():
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
     #question_list=request.get_json()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     data=request.get_json()
     question_list=data[0]
     count_marks=data[1]
@@ -839,26 +842,19 @@ def testBuilderFileUpload():
                 document.add_paragraph(
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+    #naming file here
+    file_name=teacher_id.school_id+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'    
+    
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
     document.save('tempdocx/'+file_name)
+    #uploading to s3 bucket
     client = boto3.client('s3', region_name='ap-south-1')
     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    #deleting file from temporary location after upload to s3
     os.remove('tempdocx/'+file_name)
 
-    #topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
-    #topicFromTracker.is_covered='N'
-    #topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
-    #db.session.commit()
-
-    #test_type, total_marks, year, month, last_modified_date, 
-    #board_id, subject_id, class_val, date_of creation, date_of_test,
-    #schoold_id, teacher_id, test_paper_link
-
     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
-
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
     testDetailsUpd = TestDetails(test_type=session.get('test_type_val',None), total_marks=str(count_marks),last_modified_date= datetime.utcnow(),
         board_id='1001', subject_id=int(session.get('sub_id',None)),class_val=session.get('class_val',"0"),date_of_creation=datetime.utcnow(),
@@ -1254,7 +1250,7 @@ def questionDetails():
 
 @app.route('/topperListAll')
 def topperListAll():
-    query = "select *from public.fn_performance_leaderboard(1) where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard("+ str(teacher.school_id)+") where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
     print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
