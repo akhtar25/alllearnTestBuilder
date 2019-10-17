@@ -56,31 +56,34 @@
 
                                         Student Name
                                 </th>
-                                
+                                <th><a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="margin-bottom: 20px;"><i class="material-icons">add</i></a><br/>
+                                        Add Column
+                                </th>
                                 
                                 <th scope="col" style='width: 200px;'>
-                                                <select class="browser-default" style="float: right;">
+                                                <select class="browser-default selectSubID" style="float: right;" name="subjectIds" id="subjectIds">
                                                   <option value="" disabled selected style="font-size:11px;">Choose Subject</option>
                                                   {% for subject in subject_name %}
                                                   <option value="{{subject[1]}}">{{subject[0]}}</option>
                                                   {% endfor %}
                                                 </select> <br/>
                                                 <div style="margin-top: 24px;text-align: center;display:flex;">
-                                                <input type="number" name="Tmarks" placeholder="total marks" value="Tmarks" style="width: 120px;font-size: 14px;">
+                                                <input type="number" id="Tmarks" name="Tmarks" placeholder="total marks" value="Tmarks" style="width: 120px;font-size: 14px;">
                                                 <input type="date" name="testdate" id="testdate" style="margin-left: 10px;width: 200px;">     
                                         </div>  <br/>
-                                        <select class="browser-default">
+                                        <select class="browser-default fa" id="test_id">
                                                         <option value="" disabled selected style="font-size:11px;">Test Id</option>
                                                         <option value="" style="font-size:11px;">NA</option>
                                                         {% for test in test_details %}
-                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}} <a href="#"><i class="fa fa-eye"></i></a></option>
+                                                        <div style="display:flex;">
+                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}} <a href="#"><i class="fa fa-eye" aria-hidden="true"></i></a></option>
+                                                        <a href="#"><i class="fa fa-eye"></i></a>
+                                                        </div>
                                                         {% endfor %}
                                                       </select>
-                                                      <a href="#"><i class="fa fa-eye"></i></a>
+                                                      
                                 </th>
-                                <th><a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="margin-bottom: 20px;"><i class="material-icons">add</i></a><br/>
-                                        Add Column
-                                </th>
+                               
                         
                              </tr>
 
@@ -90,9 +93,9 @@
                             {% for student in student_list %}
                                 <tr>
                                     <td> {{student.full_name }} </td>
-                                    
-                                    <td><div class="container" style="width:100px;"><input type="number" id="marks{{loop.index}}" name="marks{{loop.index}}" max="100" min="-1" disabled></div></td> 
                                     <td></td>
+                                    <td><div class="container" style="width:100px;"><input type="number" id="marks{{loop.index}}" class="marks" name="marks{{loop.index}}" max="100" min="-1" ></div></td> 
+                                    
                                 </tr>
                             {% endfor %}
                     </tbody>
@@ -135,8 +138,48 @@
 
 
         $('#upload').click(function(){
+        var windeId = $('.selectSubID').map(function(){
+                
+                return this.value;
+        }).get();
+        for(var i=0;i<windeId.length;i++){
                 var class_val = '{{qclass_val}}';
-                subject_id = document.getElementById('').value;
+                var class_section = '{{qsection}}';
+                
+                
+                
+                {% for subject in subject_name %}
+                // var list_marks = document.getElementsByClassName('marks{{loop.index}}').value;
+                        console.log('SubjectId:'+windeId[i]+'No of Subjects:'+windeId.length);
+                var subject_id = windeId[i];
+                console.log('Subject Id : {{subject[1]}}' + ' from windeId' + windeId[i]);
+                if('{{subject[1]}}'==windeId[i]){
+                var marks = $('.marks{{loop.index}}').map(function(){
+                        return this.value;
+                }).get();
+                for(var i=0;i<marks.length;i++){
+                        console.log('Marks of '+'{{subject[0]}} '+'Subject are:'+marks[i]);
+                }
+                var testdate = $('#testdate').val();
+                var Tmarks = $('#Tmarks').val();
+                var testId = $('#test_id').val();
+                var data = "";
+                $.ajax({
+                        url: "/uploadMarks?class_val="+ class_val + "&class_section="+class_section+"&subject_id="+subject_id+"&marks="+marks+"&testdate="+testdate+"&Tmarks="+Tmarks+"&testId="+testId,
+                        type: "get",
+                        data: data,
+                        success: function(response) {       
+                        //     window.location.reload(); 
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      }); 
+                      
+                 }
+                 {% endfor %}
+                }
+        
         });
 
         
@@ -147,9 +190,14 @@
         
         
   $("#addColumn").click(function () {
-	$("tr:first").append("<th scope='col' style='width: 200px;'><select class='browser-default' style='float:right;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <br/><div style='margin-top: 24px;text-align: center;display:flex;'><input type='number' name='Tmarks' placeholder='total marks' value='Tmarks' style='width: 120px;font-size: 14px;'><input type='date' name='testdate' id='testdate' style='margin-left: 10px;width: 200px;'> </div>  <br/><select class='browser-default' ><option value='' disabled selected style='font-size:11px;'>Choose Test Id</option><option value=''>Test Id --  Date of Creation </option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} --  {{test.date_of_creation}} </option>{% endfor %} </select> </th>");
-	$("tr:not(:first)").append("<td><div class='container' style='width:100px;'><input type='number' id='marks' name='marks' max='100' min='-1' disabled></div></td>");
+	$("tr:first").append("<th scope='col' style='width: 200px;'><select class='browser-default selectSubID' style='float:right;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <br/><div style='margin-top: 24px;text-align: center;display:flex;'><input type='number' name='Tmarks' placeholder='total marks' value='Tmarks' style='width: 120px;font-size: 14px;'><input type='date' name='testdate' id='testdate' style='margin-left: 10px;width: 200px;'> </div>  <br/><select class='browser-default' ><option value='' disabled selected style='font-size:11px;'>Test Id</option><option value=''>Test Id --  Date of Creation </option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} --  {{test.date_of_creation}} </option>{% endfor %} </select> </th>");
+        
+	$("tr:not(:first)").append("<td><div class='container' style='width:100px;'><input type='number' class='marks{{loop.index}}' id='marks' name='marks' max='100' min='-1'></div></td>");
     //$("tr:not(:first)").append("<td><input type='checkbox' />Sample Element</td>");
 });
+
+
+
+
     </script>
 {%endblock%}

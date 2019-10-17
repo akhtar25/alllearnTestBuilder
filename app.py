@@ -2058,11 +2058,39 @@ def resultUpload():
             flash('No Student list for the given class and section')
                    
             return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
+
+            # me())
+    """else:
+        if form1.validate_on_submit():
+            marks_list=request.form.getlist('marks')
+            i=0
+            student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
+            for student in student_list:
+                if marks_list[i]=='-1':
+                    marks=0
+                    is_present=MessageDetails.query.filter_by(description='Not Present').first()
+                else:
+                    marks=marks_list[i]
+                    is_present=MessageDetails.query.filter_by(description='Present').first()
+                
+                #test_id=schoold_id+class_sec_id+subject+test_type+exam date
+                upload_id=str(session.get('school_id',None))+str(session.get('class_sec_id',None))+str(session.get('sub_val',None)) + str(session.get('test_type_val',None)) + str(session.get('date',None))
+                upload_id=upload_id.replace('-','')
+                Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
+                exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
+                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
+                uploaded_by=session.get('teacher_id',None), upload_id=upload_id,last_modified_date=datetime.today()
+                )
+                db.session.add(Marks)
+                i+=1
+            db.session.commit()
+            flash('Marks Uploaded !')
+        return render_template('resultUpload.html',form=form,School_Name=school_name())
         
     else:
         flash('Login required !')
         return render_template('resultUpload.html',qclass_val=qclass_val,test_details=test_details,qsection=qsection,subject_name=subject_name, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
-
+    """
 
 @app.route('/resultUpload/<class_val>')
 def section(class_val):
@@ -2077,6 +2105,7 @@ def section(class_val):
         sectionArray.append(sectionObj)
 
     return jsonify({'sections' : sectionArray})
+
 
 
 @app.route('/resultUploadHistory')
@@ -2252,6 +2281,20 @@ def questionUpload():
     else:
         return render_template('questionUpload.html',form=form,flag=flag)
 
+@app.route('/uploadMarks',methods=['GET'])
+def uploadMarks():
+    classValue = request.args.get('class_val')
+    class_section = request.args.get('class_section')
+    subject_id = request.args.get('subject_id')
+    marks = request.args.get('marks')
+    testdate = request.args.get('testdate')
+    Tmarks = request.args.get('Tmarks')
+    testId = request.args.get('testId')
+    for marksSubjectWise in marks:
+        print('Marks:'+marksSubjectWise)
+    print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId)
+    
+    return render_template('resultUpload.html')
 # @app.route('/questionUpdateUpload',methods=['GET'])
 # def questionUpdateUpload():
 #     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
