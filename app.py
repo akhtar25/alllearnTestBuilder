@@ -1250,6 +1250,8 @@ def questionDetails():
 
 @app.route('/topperListAll')
 def topperListAll():
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     query = "select *from public.fn_performance_leaderboard("+ str(teacher.school_id)+") where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
     print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
@@ -2029,7 +2031,8 @@ def resultUpload():
     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
     qclass_val = request.args.get('class_val',1)
     qsection=request.args.get('section','A')
-    test_details = TestDetails.query.filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
+    test_type = MessageDetails.query.filter_by(category='Test type').all()
+    test_details = TestDetails.query.distinct().filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
     for section in classSections:
             print("Class Section:"+section.section)
     subject_name = []
@@ -2048,7 +2051,7 @@ def resultUpload():
         for subjects in subject_name:
             print('Subjects Name:'+subjects[0])
         if student_list:
-                return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
+                return render_template('resultUpload.html',test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
 
         else:
             flash('No Student list for the given class and section')
@@ -2056,37 +2059,7 @@ def resultUpload():
             return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
 
             # me())
-    """else:
-        if form1.validate_on_submit():
-            marks_list=request.form.getlist('marks')
-            i=0
-            student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-            for student in student_list:
-                if marks_list[i]=='-1':
-                    marks=0
-                    is_present=MessageDetails.query.filter_by(description='Not Present').first()
-                else:
-                    marks=marks_list[i]
-                    is_present=MessageDetails.query.filter_by(description='Present').first()
-                
-                #test_id=schoold_id+class_sec_id+subject+test_type+exam date
-                upload_id=str(session.get('school_id',None))+str(session.get('class_sec_id',None))+str(session.get('sub_val',None)) + str(session.get('test_type_val',None)) + str(session.get('date',None))
-                upload_id=upload_id.replace('-','')
-                Marks=ResultUpload(school_id=session.get('school_id',None),student_id=student.student_id,
-                exam_date=session.get('date',None),marks_scored=marks,class_sec_id=session.get('class_sec_id',None),
-                test_type=session.get('test_type_val',None),subject_id=session.get('sub_val',None),is_present=is_present.msg_id,
-                uploaded_by=session.get('teacher_id',None), upload_id=upload_id,last_modified_date=datetime.today()
-                )
-                db.session.add(Marks)
-                i+=1
-            db.session.commit()
-            flash('Marks Uploaded !')
-        return render_template('resultUpload.html',form=form,School_Name=school_name())
-        
-    else:
-        flash('Login required !')
-        return render_template('resultUpload.html',qclass_val=qclass_val,test_details=test_details,qsection=qsection,subject_name=subject_name, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
-    """
+    
 
 @app.route('/resultUpload/<class_val>')
 def section(class_val):
@@ -2279,18 +2252,63 @@ def questionUpload():
 
 @app.route('/uploadMarks',methods=['GET'])
 def uploadMarks():
+    user = User.query.filter_by(username=current_user.username).first_or_404()    
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     classValue = request.args.get('class_val')
+    class_sec_id=ClassSection.query.filter_by(class_val=int(classValue),school_id=teacher_id.school_id).first()
+    student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
     class_section = request.args.get('class_section')
     subject_id = request.args.get('subject_id')
     marks = request.args.get('marks')
     testdate = request.args.get('testdate')
     Tmarks = request.args.get('Tmarks')
     testId = request.args.get('testId')
+    test_type = request.args.get('test_type')
+    marks = marks.split(",")
+    count = 0
+    num = 1
+    list_id = []
+    for student_id in student_list:
+        list_id.append(student_id.student_id)
     for marksSubjectWise in marks:
+        if marksSubjectWise=='-1':
+            marksSubjectWise=0
+            is_present=MessageDetails.query.filter_by(description='Not Present').first()
+        else:
+            is_present=MessageDetails.query.filter_by(description='Present').first()
         print('Marks:'+marksSubjectWise)
-    print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId)
+        upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + str(testdate)
+        upload_id=upload_id.replace('-','')
+        if testId=='':
+            Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
+            exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
+            test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,
+            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today()
+            )
+        else:
+            Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
+            exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
+            test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,test_id=testId,
+            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today()
+            )
+        db.session.add(Marks)
+        count = count + 1
+    db.session.execute(text('call sp_performance_detail_load()'))
+    db.session.commit()
+    flash('Login required !')
+    print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId+"Test type:"+test_type)
     
+
+
     return render_template('resultUpload.html')
+
+
+
+
+
+
 # @app.route('/questionUpdateUpload',methods=['GET'])
 # def questionUpdateUpload():
 #     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
