@@ -1254,7 +1254,7 @@ def questionDetails():
 def topperListAll():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard("+ str(teacher.school_id)+") where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
     print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
