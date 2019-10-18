@@ -988,7 +988,9 @@ def classCon():
         courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
-        #endOfQueries        
+        #endOfQueries  
+        db.session.execute(text('call sp_performance_detail_load_feedback()'))
+        db.session.commit()      
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
