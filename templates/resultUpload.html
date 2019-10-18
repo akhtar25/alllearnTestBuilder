@@ -1,122 +1,137 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-        <h2>Result Upload</h2>
-        <form action="" method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group " style="padding-top:5px;">
-                <div class="row">
-                        <div class="col-sm-3">
-                                <div style="width:250px;">
-                                        {{ form.class_val.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.class_val.errors %}
-                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.class_val.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.class_val(class='form-control') }}
-                                        {% endif %}
+                <div class="hold-transition skin-blue sidebar-mini">    
+                                <div id="sidebarDiv" >   
+                                    <div class="main-sidebar" style="margin-top:15px;">
+                                        <section class="sidebar">                     
+                                              <ul class="sidebar-menu table-responsive" data-widget="tree">
+                                                  {% for singleClass in distinctClasses %}
+                                                         <li class="treeview">
+                                                           <a href="#">
+                                                             <i class="glyphicon glyphicon-education"></i>
+                                                             <span>Class {{singleClass[0]}}</span>
+                                                             <span class="pull-right-container">
+                                                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+                                                             </span>
+                                                           </a>                                                      
+                                                           <ul class="treeview-menu">                            
+                                                              {% for classsection in classsections %}
+                                                                 {% if classsection.class_val==singleClass[0] %}
+                                                             <li>
+                                                                <a href="{{ url_for('resultUpload',class_val=classsection.class_val, section=classsection.section) }}"> 
+                                                                <i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                                                              {% endif %}
+                                                             {% endfor %}
+                                                           </ul>                                                      
+                                                         </li>
+                                                         {% endfor %}                
+                                         <ul>                  
+                                        </section>
+                                        <!-- /.sidebar -->
+                                    </div>
                                 </div>
-                        </div>
-                        <div class="col-sm-2">
-                                <div style="width:150px;" >
-                                                {{ form.section.label(class='labelsize') }}
-                                                <div id='loader'style='display: none; float: right;'>
-                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                                </div>
-                                        <br>
-                                                {% if form.section.errors %}
-                                                {{ form.section(class="form-control form-control-lg is-invalid") }}
-                                                <div class="invalid-feedback">
-                                                {% for error in form.section.errors %}
-                                                 <span>{{ error }}</span>
-                                                {% endfor %}
-                                        </div>
-                                                {% else %}
-                                                {{ form.section(class='form-control') }}
-                                                {% endif %}                                                
-                                </div>
-                        </div>
-                        <div class="col-sm-2">
-                        <label class='labelsize' for='Date'>Date</label>
-                        <input type="date" name='testdate' id='testdate'>
-                        </div>
-                        <div class="col-sm-3" style="padding-top:5px;"> 
-                                        {{ form.subject_name.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.subject_name.errors %}
-                                        {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.subject_name.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                </div>
-                                        {% else %}
-                                        {{ form.subject_name(class='form-control') }}
-                                        {% endif %}
-                        </div>  
-                        <div class="col-sm-2" style="padding-top:5px;"> 
+        <!-------------------------------------------------------------------------------------------  -->
+        <div class="content-wrapper" style="background-color: white;">
+        <section class="content">
+        
+        
 
-                                        {{ form.test_type.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.test_type.errors %}
-                                        {{ form.test_type(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.test_type.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.test_type(class='form-control') }}
-                                        {% endif %}
-                        </div>  
-                </div>
-                <p><button class="btn waves-light green lighten-1 white-text" type="submit">Submit</button></p>
-                <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div>
-            </div>
-        </form>
-      </div>
-      
-{% if student_list %}
-<div class="container" style="float:right;">
-<p class="right">* Please enter -1 for absent students</p>
-</div>
-<div class="card id" id="result_table">
-        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">{{ sub_name }} {{ test_type }} [{{ test_date }}] </h3>
+        <!-- Start Result Table -->
+
+        {% if student_list %}
+
+        <div class="box">
+        <div class="box-header">
+        <h3 class="box-title">Result Upload</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
+        </div>
+        <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div><br/>
+        <p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
+        <div class="card id" id="result_table" style="margin-top: 24px;">
         <div class="card-body">
-          <div id="table" class="table-editable">
+          <div id="table" class="table-editable" style="overflow-y: auto;height: 466px;overflow-x: auto;">
             <table class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                             <tr>
-                                <th scope="col">Student Name</th>
-                                <th scope="col">Total Marks</th>
-                                <th scope="col">Marks Scored</th>
-                            </tr>
+                                <th scope="col" style="width: 200px;">
+                                        <!-- <a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="margin-bottom: 20px;"><i class="material-icons">add</i></a><br/> -->
+                                                
+                                        Student Name
+                                </th>
+                                
+                                
+                                
+                                <th scope="col" style='width: 200px;'>
+                                        <div style="display:flex;margin-bottom: 20px;">
+                                                <select class="browser-default selectSubID" style="float: left;margin-right: 10px;" name="subjectIds" id="subjectIds">
+                                                  <option value="" disabled selected style="font-size:11px;">Choose Subject</option>
+                                                  {% for subject in subject_name %}
+                                                  <option value="{{subject[1]}}">{{subject[0]}}</option>
+                                                  {% endfor %}
+                                                </select> 
+                                                
+                                                <select class="browser-default testtype" style="float: right;" name="testtype" id="testtype">
+                                                  <option value="" disabled selected style="font-size:11px;">Choose Test type</option>
+                                                  {% for test in test_type %}
+                                                  <option value="{{test.msg_id}}">{{test.description}}</option>
+                                                  {% endfor %}
+                                                </select> 
+                                        </div>
+                                                <div style="display: flex;margin-bottom: 28px;">
+                                                <input type="number" id="Tmarks" name="Tmarks" placeholder="total marks" value="Tmarks" style="width: 220px;font-size: 14px;">
+                                                <input type="date" name="testdate" id="testdate" style="margin-left: 10px;width: 210px;float: right;">     
+                                        </div> 
+                                        <select class="browser-default fa" id="test_id">
+                                                        <option value="" disabled selected style="font-size:11px;">Test papers</option>
+                                                        <option value="" style="font-size:11px;">NA</option>
+                                                        {% for test in test_details %}
+                                                        <div>
+                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}}</option>
+                                                        <a href="{{test.test_paper_link}}"><i class="fa fa-eye"></i></a>
+                                                        </div>
+                                                        {% endfor %}
+                                                      </select>
+                                                      
+                                </th>
+                               
+                        
+                             </tr>
+
                     </thead>
                     <tbody>
-                        <form action="" method="POST" name="form-upload">
-                                {{ form1.hidden_tag() }}
-                                <input type="hidden" name="upload_form" value="Upload">
                                 
                             {% for student in student_list %}
                                 <tr>
                                     <td> {{student.full_name }} </td>
-                                    <td> {{ totalmarks }} </td>
-                                
-                                    <td><div class="container" style="width:100px;">{{ form1.marks }}</div></td>
+                                    <td><div class="container" style="width:100px;"><input type="number" id="marks" class="marks" name="marks" max="100" min="-1" ></div>
+                                   </td>  
                                 </tr>
                             {% endfor %}
                     </tbody>
             </table>
         </div>
         </div>
-      </div>
-      <p style="padding-left:575px;">{{ form1.upload(class="btn waves-light green lighten-1 white-text") }}</p>
+        </div>
+      </div> 
+      <!-- Start -->
+
+      <!-- End -->
+      <p style="padding-left:395px;"><input type="button" onclick="M.toast({html: 'Result Successfully Uploaded !!!'})" class="btn waves-light green lighten-1 white-text" id="upload" name="upload" value="upload" style="width:100px;height: 35px;"></p>
       </form>
       {% endif %}
+        <!-- End Result Upload Table -->
+        <div class="fixed-action-btn">
+                        <a class="btn-floating btn-large blue" style="font-size: 12px;">Column
+                          <!-- <i class="large material-icons">mode_edit</i> -->
+                        </a>
+                        <ul>
+                          <li><a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="font-size: 12px;"><i class="material-icons">add</i></a></li>
+                        </ul>
+                      </div>
+</section>
+</div>
+</div>  
+</div> 
+      <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
       <script>
         var today = new Date();
         var dd = today.getDate();
@@ -129,26 +144,110 @@
                 mm='0'+mm
         } 
 
+        
+
         today = yyyy+'-'+mm+'-'+dd;
         document.getElementById("testdate").setAttribute("max", today);
 
-        var class_select = document.getElementById("class_val");
-        var section_select = document.getElementById("section");
-        class_select.onchange = function()  {
-             
-            class_val = class_select.value;
-            $("#loader").show();
-            
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader").hide();    
-                        var optionHTML = '';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_select.innerHTML = optionHTML;
-                })
-            });
-        }
+      
+        $(document).ready(function(){
+    $('.fixed-action-btn').floatingActionButton();
+  });
+//         document.addEventListener('DOMContentLoaded', function() {
+//     var elems = document.querySelectorAll('.fixed-action-btn');
+//     var instances = M.FloatingActionButton.init(elems, {
+//       direction: 'left'
+//     });
+//   });
+        var count = 1;
+
+
+        $('#upload').click(function(){
+        console.log('count of upload;'+count);
+        var subject_id = $(".selectSubID").val();
+        var test_type = $(".testtype").val();
+                var class_val = '{{qclass_val}}';
+                var class_section = '{{qsection}}';
+                var marks = $(".marks").map(function(){
+                        return this.value;
+                }).get();
+                console.log('marks length:'+marks.length);
+                for(var i=0;i<marks.length;i++){
+                        console.log('Marks of Subject are:'+marks[i]);
+                }
+                console.log('Inside Marks Test');
+                var testdate = $('#testdate').val();
+                var Tmarks = $('#Tmarks').val();
+                var testId = $('#test_id').val();
+                var data = "";
+                $.ajax({
+                        url: "/uploadMarks?class_val="+ class_val + "&class_section="+class_section+"&subject_id="+subject_id+"&marks="+marks+"&testdate="+testdate+"&Tmarks="+Tmarks+"&testId="+testId+"&test_type="+test_type,
+                        type: "get",
+                        data: data,
+                        success: function(response) {       
+                             window.location.reload(); 
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      });       
+        count = count +1;
+       if(num!=0){
+               var n = 1;
+               for(var i=0;i<num;i++){
+                
+                var subject_id = $(".selectSubID"+n).val();
+                console.log("Subjects:"+subject_id);
+                var class_val = '{{qclass_val}}';
+                var class_section = '{{qsection}}';
+                var test_type = $(".testtype"+n).val(); 
+                var marks = $(".marks"+n).map(function(){
+                        return this.value;
+                }).get();
+                var testdate = $('#testdate'+n).val();
+                var Tmarks = $('#Tmarks'+n).val();
+                var testId = $('#test_id'+n).val();
+                var data = "";
+                $.ajax({
+                        url: "/uploadMarks?class_val="+ class_val + "&class_section="+class_section+"&subject_id="+subject_id+"&marks="+marks+"&testdate="+testdate+"&Tmarks="+Tmarks+"&testId="+testId+"&test_type="+test_type,
+                        type: "get",
+                        data: data,
+                        success: function(response) {       
+                             window.location.reload(); 
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while loading question");
+                        }
+                      }); 
+                n=n+1;
+               }
+               console.log('Yes');
+       }else{
+               console.log('No');
+       }
+        });
+
+        
+
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
+ 
+//   $('#addColumn').click(function(){
+//         count = count +1;
+//   });
+        
+        var num = 0;
+        $("#addColumn").click(function () {
+                num=num+1;
+        console.log('count of add Column function:'+num);
+	$("tr:first").append("<th scope='col' style='width: 200px;'><div style='display:flex;margin-bottom: 20px;'><select class='browser-default selectSubID"+num+"' style='float:left;margin-right:10px;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <select class='browser-default testtype"+num+"' style='float: right;' name='testtype' id='testtype'><option value='' disabled selected style='font-size:11px;'>Choose Test type</option>{% for test in test_type %}<option value='{{test.msg_id}}'>{{test.description}}</option>{% endfor %}</select> </div><div style='margin-bottom: 10px;display:flex;'><input type='number' name='Tmarks' id='Tmarks"+num+"' placeholder='total marks' value='Tmarks' style='width: 220px;font-size: 14px;'><input type='date' name='testdate' id='testdate"+num+"' style='margin-left: 10px;width: 210px;float:right;'> </div>  <br/><select class='browser-default'  id='test_id"+num+"'><option value='' disabled selected style='font-size:11px;'>Test Papers</option><option value=''>Test Id --  Date of Creation </option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} --  {{test.date_of_creation}} </option>{% endfor %} </select> </th>");
+	$("tr:not(:first)").append("<td><div class='container' style='width:100px;'><input type='number' class='marks"+num+"' id='marks' name='marks' max='100' min='-1'></div></td>");
+       
+        });
+
+
+
+
     </script>
 {%endblock%}

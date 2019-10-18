@@ -216,11 +216,11 @@
     </div>
       <div class="col-sm-2">
         <label for="roll_number">Roll Number</label>
-        <input type="number" id="roll_number" name="roll_number" min=1 placeholder="Roll No.">
+        <input type="number" id="roll_number" name="roll_number" min=1 max=100 placeholder="Roll No." onKeyPress="if(this.value.length==2) return false;">
       </div>
       <div class="col-sm-3">
           <label for="school_admn_no">Admission No.</label>
-          <input type="number" id="school_admn_no" name="school_admn_no" min=1 placeholder="School Admission No.">
+          <input id="school_admn_no" name="school_admn_no" min=1 placeholder="School Admission No." maxlength="10">
         </div>
     </div>
 </div>
@@ -228,7 +228,7 @@
         <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
         <br>
         <div class="col-sm-3">
-            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input"><br>
+            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="loadImageFile();" accept="image/*"/><br>
             <input type="hidden" id="profile_image" name="profile_image" value="">
         </div>
 </div>
@@ -237,9 +237,10 @@
 <div id="guardianbox" name="guardianbox">
   </div>
 
-  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();" value="Add Guardian"></p>
+  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();val();" value="Add Guardian"></p>
   <div id="buttonbox" style="display:none;">
-        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+      <span id="message" style="color:Red;display: none;float:left;"></span>
+        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top:5px; margin-right:550px;float:right;margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
 </div>
 </div>
 </div>
@@ -247,6 +248,68 @@
 
 
 <script>
+
+var fileReader = new FileReader();
+var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
+var ImageName = '';
+fileReader.onload = function (event) {
+  var image = new Image();
+  
+  image.onload=function(){
+      // document.getElementById("preview").src=image.src;
+      var canvas=document.createElement("canvas");
+      var context=canvas.getContext("2d");
+      canvas.width=200;
+      canvas.height=200;
+      context.drawImage(image,
+          0,
+          0,
+          image.width,
+          image.height,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+      );
+      
+      document.getElementById("preview").src = canvas.toDataURL();
+      String.prototype.filename=function(extension){
+    var s= this.replace(/\\/g, '/');
+    s= s.substring(s.lastIndexOf('/')+ 1);
+    return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
+}     
+      console.log('Image Name:'+$('img').attr('src').filename());
+      var Image = $('img').attr('src').filename();
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      ImageName = Image;
+      console.log('Full image Name:'+ImageName);
+      initUpload();
+  }
+  image.src=event.target.result;
+  
+};
+var loadImageFile = function () {
+  var uploadImage = document.getElementById("file-input");
+  
+  //check and retuns the length of uploded file.
+  if (uploadImage.files.length === 0) { 
+    return; 
+  }
+  
+  //Is Used for validate a valid file.
+  var uploadFile = document.getElementById("file-input").files[0];
+  if (!filterType.test(uploadFile.type)) {
+    alert("Please select a valid image."); 
+    return;
+  }
+  
+  fileReader.readAsDataURL(uploadFile);
+  
+}
+
 var today = new Date();
 var dd = today.getDate();
 var mm = today.getMonth()+1; //January is 0!
@@ -281,10 +344,18 @@ var class_select = document.getElementById("class_val");
   var guardianbox_data='';
   var prevguardianbox_data='';
   var count=0;
+  var guardian_first_name2 = 'na';
+  var guardian_email2 = 'na';
+  var guardian_phone2 = 'na';
+  var relation2 = 'na';
+  
   function addGuardian(){
   const div = document.createElement('div');
   var row_id=document.getElementById('guardianbox');
   count+=1;
+  console.log('Initial Count:'+count);
+  if(count==1){
+    console.log('Count:'+count);
   guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
   <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
   <div class='row'>
@@ -361,16 +432,104 @@ var class_select = document.getElementById("class_val");
         {% endif %}
     </div>
   </div></div></div>`;
+  }else{
+    guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+  <div class='row'>
+  <div class='col-sm-3'>
+      {{ form.guardian_first_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_first_name.errors %}
+            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_first_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_first_name(class='form-control',id='guardianfname') }}
+            {% endif %}
+  </div>
+  <div class='col-sm-3'>
+      {{ form.guardian_last_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_last_name.errors %}
+            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_last_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_last_name(class='form-control') }}
+            {% endif %}
+      </div>
+      <div class='col-sm-3'>
+      {{ form.guardian_email.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_email.errors %}
+            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_email.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_email(class='form-control',id='guardianemail') }}
+            {% endif %}
+            </div>
+  </div>
+  <div class='row'>
+      <div class='col-sm-3'>
+      {{ form.guardian_phone.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_phone.errors %}
+            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_phone.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_phone(class='form-control',id='guardianphone') }}
+            {% endif %}</div>
+<div class='col-sm-2'>
+    <div style="width:250px;">
+        {{ form.relation.label(class='labelsize') }}
+            <br>
+        {% if form.relation.errors %}
+        {{ form.relation(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+        {% for error in form.relation.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+        {% else %}
+        {{ form.relation(class='form-control',id='guardianrelation') }}
+        {% endif %}
+    </div>
+  </div></div></div>`;
+  }
         div.innerHTML=guardianbox_data;
         row_id.appendChild(div);
         $('#buttonbox').show();
-            
-
   if (count==2)
   {
     $("#addGuardianbtn").hide();
-      }
+  }
+  
+}
 
+function val(){
+  console.log('Inside second function');
+  var c = 1;
+  if(document.getElementById('guardianfname')){
+    guardian_first_name2 = '';
+    console.log('Guardian2 name:')
+    c=c + 1;
+    guardian_first_name2 = document.getElementById('guardianfname').value;
+  }
+  return c;
 }
 
   /*
@@ -392,7 +551,6 @@ var class_select = document.getElementById("class_val");
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
 
-            document.getElementById('preview').src = url;
             document.getElementById('profile_image').value = url;
           }
           else{
@@ -410,8 +568,8 @@ var class_select = document.getElementById("class_val");
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=student_profile`);
+      var type = '.png';
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -427,23 +585,209 @@ var class_select = document.getElementById("class_val");
       };
       xhr.send();
     }
-    /*
-       Function called when file input updated. If there is a file selected, then
-       start upload procedure by asking for a signed request from the app.
-    */
     function initUpload(){
       const files = document.getElementById('file-input').files;
       const file = files[0];
       if(!file){
         return alert('No file selected.');
       }
+      console.log('FileName:'+file);
       getSignedRequest(file);
     }
-    /*
-       Bind listeners when the page loads.
-    */
-    (() => {
-      document.getElementById('file-input').onchange = initUpload;
-    })();
+
+
+    $('#submit').click(function(){
+      console.log('Inside Submit button function');
+      first_name = document.getElementById('first_name').value;
+      gender = document.getElementById('gender').value;
+      birthdate = document.getElementById('birthdate').value;
+      phone = document.getElementById('phone').value;
+      address1 = document.getElementById('address1').value;
+      locality = document.getElementById('locality').value;
+      city = document.getElementById('city').value;
+      state = document.getElementById('state').value;
+      country = document.getElementById('country').value;
+      pincode = document.getElementById('pincode').value;
+      class_val = document.getElementById('class_val').value;
+      section = document.getElementById('section').value;
+      roll_number = document.getElementById('roll_number').value;
+      school_admn_no = document.getElementById('school_admn_no').value;
+      guardian_first_name = document.getElementById('guardian_first_name').value;
+      guardian_email = document.getElementById('guardian_email').value;
+      guardian_phone = document.getElementById('guardian_phone').value;
+      relation = document.getElementById('relation').value;
+      var c = val();
+      if(c==2){
+        guardian_first_name2 = document.getElementById('guardianfname').value;
+        guardian_email2 = document.getElementById('guardianemail').value;
+        guardian_phone2 = document.getElementById('guardianphone').value;
+        relation2 = document.getElementById('guardianrelation').value;
+      }
+      if(first_name==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter first Name';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(gender==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter gender';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(birthdate==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter date of birth';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(phone==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter phone';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(address1==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter Address 1';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(locality==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter locality';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(city==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter city';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(state==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter state';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(country==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter country';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(pincode==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter pincode';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(class_val==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please select class';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(section==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please select section';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(roll_number==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter roll number';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(school_admn_no==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter admission no';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_first_name==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter guardian first name';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_email==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter guardian email';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_phone==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter guardian phone no';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(relation==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter relation';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_first_name2==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter second guardian first name';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_email2==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter second guardian email';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(guardian_phone2==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter second guardian phone';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(relation2==''){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter second guardian relation';
+        $('#message').show();
+        event.preventDefault();
+      }else
+      if(relation==relation2){
+        console.log('Inside message');
+        tag = document.getElementById('message');
+        tag.innerHTML = 'please enter different relation for guardian second';
+        $('#message').show();
+        event.preventDefault();
+      }
+      else
+      {
+        $('#message').hide();
+      }
+    });
 
 </script>
