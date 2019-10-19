@@ -1266,10 +1266,10 @@ def leaderBoard():
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()    
         form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+        form.testdate.choices = [(i.date_of_test,i.date_of_test) for i in TestDetails.query.filter_by(class_val='1').all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
         query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
-        #print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
@@ -2073,7 +2073,20 @@ def section(class_val):
 
     return jsonify({'sections' : sectionArray})
 
-
+@app.route('/testDateSearch/<class_val>')
+def testDate(class_val):
+    print('Inside TestDate Search')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    testdates = TestDetails.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.teacher_id).all()
+    print('class value:'+str(class_val)+"School Id:"+str(teacher_id.school_id)+"Teacher_id:"+str(teacher_id.teacher_id)+"userId:"+str(current_user.id))
+    for test in testdates:
+        print("Test Dates:"+str(test.date_of_test))
+    testdateArray = []
+    for testdate in testdates:
+        testdateObj = {}
+        testdateObj['date'] = testdate.date_of_test
+        testdateArray.append(testdateObj)
+    return jsonify({'testdates' : testdateArray})
 
 @app.route('/resultUploadHistory')
 def resultUploadHistory():
@@ -2335,13 +2348,13 @@ def topperListBySubject():
     subjectValue = request.args.get('subject_id')
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
+    test_date = request.args.get('test_date')
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
     print('Subject id:'+subjectValue)
     if subjectValue!='All':
         subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
-<<<<<<< HEAD
     query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where "
 
     if classValue!='':
@@ -2358,7 +2371,11 @@ def topperListBySubject():
     if test_type!='All': 
         if section_val!='':
             query = query + " and"
-        query = query + " test='"+ test_type +"' "
+        query = query + " test='"+ test_type +"'"
+    if test_date!='All':
+        if test_type!='':
+            query = query + " and"
+        query = query + " exam_date='"+test_date +"' "
     query = query + "order by marks desc"
     # else:
     #     query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section='"+section_val+"' and test='"+ test_type +"' order by marks desc"
@@ -2402,48 +2419,6 @@ def topperListBySubject():
     #         else:
     #             query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
     print('Query topperList:'+query)
-=======
-    query = ''
-    if subjectName:
-        if classValue:
-            if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section!='All' order by marks desc"
-            elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
-            elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
-            else:
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
-        else:
-            if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section!='All' order by marks desc"
-            elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and test='"+ test_type +"' and section!='All' order by marks desc"
-            elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section='"+ section_val +"' order by marks desc"
-            else:
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='"+subjectName.description+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
-    else:
-        if classValue:
-            if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section!='All' order by marks desc"
-            elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and test='"+ test_type +"' and section!='All' order by marks desc"
-            elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+ section_val +"' order by marks desc"
-            else:
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
-        else:
-            if test_type=="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section!='All' order by marks desc"
-            elif test_type!="na" and section_val=="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where test='"+ test_type +"' and section!='All' order by marks desc"
-            elif test_type=="na" and section_val!="na":
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='"+ section_val +"' order by marks desc"
-            else:
-                query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='"+ section_val +"' and test='"+ test_type +"' order by marks desc"
-    #print('Query topperList:'+query)
->>>>>>> master
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
 
