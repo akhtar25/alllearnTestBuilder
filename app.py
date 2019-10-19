@@ -1273,10 +1273,7 @@ def leaderBoard():
         #print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-        print('Inside leaderboard')
-        for data in leaderBoardData:
-            print('Marks:'+str(data.marks))
-            print('Student:'+data.student_name)
+        #print('Inside leaderboard')        
     return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,School_Name=school_name())
 
 @app.route('/classDelivery')
@@ -2280,7 +2277,7 @@ def uploadMarks():
             is_present=MessageDetails.query.filter_by(description='Not Present').first()
         else:
             is_present=MessageDetails.query.filter_by(description='Present').first()
-        print('Marks:'+marksSubjectWise)
+        #print('Marks:'+marksSubjectWise)
         upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + str(testdate)
         upload_id=upload_id.replace('-','')
         if testId=='':
