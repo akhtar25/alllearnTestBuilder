@@ -1,6 +1,6 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Upload History</h3>
+    <h3>Result upload History</h3>
     <div id="uploadHistDiv">
         <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
         <div class="box-body table-responsive no-padding">
@@ -11,6 +11,7 @@
                 <th>Test Type</th>
                 <th>Subject</th>                
                 <th>Upload Date</th>
+                <th>Exam Date</th>
                 <th>Details</th>          
               </tr>
               {% for eachRow in uploadHistoryRecords%}
@@ -20,6 +21,7 @@
                 <td>{{eachRow.test_type}}</td>
                 <td>{{eachRow.subject}}</td>
                 <td>{{eachRow.upload_date}}</td>                
+                <td>{{eachRow.exam_date}}</td>  
                 <td><button class="uploadHistoryDetBTN btn green lighten-1" id="uploadDetailsButton" name="{{eachRow.upload_id}}">Details</button></td>
               </tr>
                    {% endfor %}
