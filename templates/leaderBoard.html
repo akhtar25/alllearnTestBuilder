@@ -73,7 +73,7 @@
               {% endif %}
           </div>
       </div>
-      <div class="col-sm-2" style="width: 200px;">
+      <div class="col-sm-2" id="sectionDiv" style="width: 200px;display:none;">
         <div>
             {{ form.section.label(class='labelsize') }}
             <div id='loaderSection' style='display: none; float: right;'>
@@ -157,16 +157,23 @@ var optionHTMLTestType = '';
 var optionHTMLSubject = '';
 var optionHTMLSection = '';
     $(document).ready(function(){
-        optionHTMLTestType += '<option value="na"  selected> All </option>';
+        optionHTMLTestType += '<option value="All"  selected> All </option>';
         test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
-        optionHTMLSubject += '<option value="na"  selected> All </option>';
+        optionHTMLSubject += '<option value="All"  selected> All </option>';
         subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        optionHTMLSection += '<option value="na"  selected> All </option>';
+        optionHTMLSection += '<option value="All"  selected> All </option>';
         section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
         $('#classNo').html('All');
     });
 var classVal = '';
+$('.classDiv').click(function(){
+  $('#sectionDiv').show();
+});
+
+
+
 $('.class_div').click(function(){
+  $('#sectionDiv').hide();
   $('#classNo').html('All');
   document.getElementById('test_type').value = "na";
   document.getElementById('section').value = "na";
@@ -192,9 +199,9 @@ $('.class_div').click(function(){
 });
 $('.classDiv').click(function(){
     console.log('inside classDiv');
-    document.getElementById('test_type').value = "na";
-    document.getElementById('section').value = "na";
-    document.getElementById('subject_name').value = "na";
+    document.getElementById('test_type').value = "All";
+    document.getElementById('section').value = "All";
+    document.getElementById('subject_name').value = "All";
     classVal = $(this).attr('name');
     var classNo =  classVal;
     $('#classNo').html(classNo)
@@ -206,7 +213,7 @@ $('.classDiv').click(function(){
             response.json().then(function(data) {
                     $("#loaderSubject").hide();    
                     var optionHTML = '';
-                    optionHTML += '<option value="na"  selected> All </option>';
+                    optionHTML += '<option value="All"  selected> All </option>';
                     for (var subject of data.subjects) {
                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                 }
@@ -221,7 +228,7 @@ $('.classDiv').click(function(){
                 response.json().then(function(data) {
                         $("#loaderSection").hide();    
                         var optionHTML = '';
-                        optionHTML += '<option value="na"  selected> All </option>';
+                        optionHTML += '<option value="All"  selected> All </option>';
                         for (var section of data.sections) {
                         optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
                     }
@@ -256,11 +263,11 @@ test_type_select.onchange=function()  {
       class_val = classVal;
  
          subject_id = subject_select.value;
-
+         section_val = section_select.value;
          test_type = test_type_select.value;
 
          $.ajax({  
-            url: "/topperListByTestType?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
+            url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
             type: "get",
             data: "",            
             beforeSend: function() { 
@@ -285,7 +292,7 @@ subject_select.onchange=function()  {
          section_val = section_select.value;
          test_type = test_type_select.value;
          $.ajax({  
-            url: "/topperListBySubject?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
+            url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
             type: "get",
             data: "",            
             beforeSend: function() { 
@@ -305,7 +312,7 @@ subject_select.onchange=function()  {
 }
 
 section_select.onchange=function()  {
-      class_val = classVal;
+         class_val = classVal;
  
          subject_id = subject_select.value;
 
@@ -314,7 +321,7 @@ section_select.onchange=function()  {
          section_val = section_select.value;
 
          $.ajax({  
-            url: "/topperListBySection?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
+            url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val,
             type: "get",
             data: "",            
             beforeSend: function() { 
