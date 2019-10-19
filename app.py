@@ -2100,10 +2100,10 @@ def resultUploadHistory():
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
 def uploadHistoryDetail():
     upload_id=request.args.get('upload_id')
-    resultDetailQuery = "select distinct sp.full_name, sp.profile_picture, ru.total_marks, ru.marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section "
+    resultDetailQuery = "select distinct sp.full_name, sp.profile_picture, ru.total_marks, ru.marks_scored as marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section, ru.question_paper_ref "
     resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
-    resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id" 
+    resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id order by marks_scored" 
     resultUploadRows = db.session.execute(text(resultDetailQuery)).fetchall()
 
     runcount=0
@@ -2111,15 +2111,17 @@ def uploadHistoryDetail():
     section_record=""
     test_type_record=""
     exam_date_record=""
+    question_paper_ref = ""
     for value in resultUploadRows:
         if runcount==0:        
             class_val_record = value.class_val
             section_record = value.section
             test_type_record=value.test_type
             exam_date_record= value.exam_date
+            question_paper_ref = value.question_paper_ref
         runcount+1
 
-    return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,School_Name=school_name())
+    return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,question_paper_ref=question_paper_ref,School_Name=school_name())
 
 @app.route('/studentList/<class_val>/<section>/')
 def studentList(class_val,section):
