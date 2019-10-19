@@ -279,7 +279,9 @@ class ResultUpload(db.Model):
     upload_id=db.Column(db.String(120),nullable=True)
     version_number=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
-    last_modified_date=db.Column(db.DateTime)    
+    question_paper_ref = db.Column(db.String(300), nullable=True)
+    answer_sheet_ref = db.Column(db.String(300), nullable=True)
+    last_modified_date=db.Column(db.DateTime)   
 
 class MessageDetails(db.Model):
     __tablename__ = "message_detail"
