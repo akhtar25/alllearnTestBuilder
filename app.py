@@ -2077,14 +2077,20 @@ def section(class_val):
 def testDate(class_val):
     print('Inside TestDate Search')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    testdates = TestDetails.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.teacher_id).all()
+    testdates = TestDetails.query.with_entities(TestDetails.date_of_test).distinct().distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     print('class value:'+str(class_val)+"School Id:"+str(teacher_id.school_id)+"Teacher_id:"+str(teacher_id.teacher_id)+"userId:"+str(current_user.id))
+    
+    dates = []
     for test in testdates:
         print("Test Dates:"+str(test.date_of_test))
+        test = test.date_of_test.date()
+        print('Dates:'+str(test))
+        dates.append(test)
     testdateArray = []
-    for testdate in testdates:
+    print(dates)
+    for testdate in dates:
         testdateObj = {}
-        testdateObj['date'] = testdate.date_of_test
+        testdateObj['date'] = testdate
         testdateArray.append(testdateObj)
     return jsonify({'testdates' : testdateArray})
 
