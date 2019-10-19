@@ -989,7 +989,7 @@ def classCon():
         courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
         courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
         #endOfQueries  
-        db.session.execute(text('call sp_performance_detail_load_feedback()'))
+        #db.session.execute(text('call sp_performance_detail_load_feedback()'))
         db.session.commit()      
         return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
