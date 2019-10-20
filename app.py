@@ -2083,7 +2083,7 @@ def testDate(class_val):
     dates = []
     for test in testdates:
         print("Test Dates:"+str(test.date_of_test))
-        test = test.date_of_test.date()
+        test = test.date_of_test.date().strftime("%Y-%m-%d %H:%M:%S")
         print('Dates:'+str(test))
         dates.append(test)
     testdateArray = []
@@ -2362,7 +2362,7 @@ def topperListBySubject():
     if subjectValue!='All':
         subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
     query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where "
-
+    print('Subject Value:'+subjectValue)
     if classValue!='':
         query = query + "class='"+classValue+"'"
     
@@ -2370,16 +2370,16 @@ def topperListBySubject():
         if classValue!='':
             query =  query + " and"
         query =  query + " subjects='"+subjectName.description+"'"
-    if section_val!='All':
-        if subjectValue!='':
-            query = query + " and"
-        query = query + " section='"+section_val+"'"
     if test_type!='All': 
-        if section_val!='':
+        if subjectValue!='All' or classValue!='':
             query = query + " and"
         query = query + " test='"+ test_type +"'"
+    if section_val!='All':
+        if test_type!='All' or subjectValue!='All' or classValue!='':
+            query = query + " and"
+        query = query + " section='"+section_val+"'"
     if test_date!='All':
-        if test_type!='':
+        if section_val!='All' or test_type!='All' or subjectValue!='All' or classValue!='':
             query = query + " and"
         query = query + " exam_date='"+test_date +"' "
     query = query + "order by marks desc"

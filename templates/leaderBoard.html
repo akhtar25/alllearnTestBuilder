@@ -201,10 +201,10 @@ $('.class_div').click(function(){
   $('#sectionDiv').hide();
   $('#testdateDiv').hide();
   $('#classNo').html('All');
-  document.getElementById('test_type').value = "na";
-  document.getElementById('section').value = "na";
-  document.getElementById('subject_name').value = "na";
-  document.getElementById('testdate').value = "na";
+  document.getElementById('test_type').value = "All";
+  document.getElementById('section').value = "All";
+  document.getElementById('subject_name').value = "All";
+  document.getElementById('testdate').value = "All";
   $.ajax({  
             url: "/topperListAll",
             type: "get",
@@ -304,6 +304,7 @@ $('.classDiv').click(function(){
 
 
 test_type_select.onchange=function()  {
+    console.log('Inside test type change');
       class_val = classVal;
          test_date = test_date_select.value;
          subject_id = subject_select.value;
