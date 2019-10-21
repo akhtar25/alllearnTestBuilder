@@ -37,6 +37,8 @@ from urllib.request import urlopen,Request
 from io import StringIO
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
+import hashlib
+from random import randint
 #from flask_material import Material
 
 app=Flask(__name__)
@@ -2700,6 +2702,42 @@ def search():
         next_url=next_url,
         prev_url=prev_url,School_Name=school_name())
 
+
+
+@app.route('/checkout')
+@login_required
+def checkout():
+    MERCHANT_KEY = ""
+    key = ""
+    SALT = ""
+    PAYU_BASE_URL = "https://sandboxsecure.payu.in/_payment"
+    action = ''
+    posted={}
+    # Merchant Key and Salt provided y the PayU.
+    for i in request.form:
+    	posted[i]=request.form[i]
+    hash_object = hashlib.sha256(b'randint(0,20)')
+    txnid=hash_object.hexdigest()[0:20]
+    hashh = ''
+    posted['txnid']=txnid
+    hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10"
+    posted['key']=key
+    hash_string=''
+    hashVarsSeq=hashSequence.split('|')
+    for i in hashVarsSeq:
+    	try:
+    		hash_string+=str(posted[i])
+    	except Exception:
+    		hash_string+=''
+    	hash_string+='|'
+    hash_string+=SALT
+    hash_string=hash_string.encode('utf-8')
+    hashh=hashlib.sha512(hash_string).hexdigest().lower()
+    action =PAYU_BASE_URL
+    if(posted.get("key")!=None and posted.get("txnid")!=None and posted.get("productinfo")!=None and posted.get("firstname")!=None and posted.get("email")!=None):
+    	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='https://test.payu.in/_payment')
+    else:
+    	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='.')   
 
 if __name__=="__main__":
     app.debug=True
