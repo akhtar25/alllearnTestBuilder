@@ -1265,8 +1265,10 @@ def leaderBoard():
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()    
         form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+        class_sec_id=ClassSection.query.filter_by(class_val=int(1),school_id=teacher.school_id).first()
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
-        form.testdate.choices = [(i.date_of_test,i.date_of_test) for i in TestDetails.query.filter_by(class_val='1').all()]
+
+        form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
         query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
@@ -2077,13 +2079,14 @@ def section(class_val):
 def testDate(class_val):
     print('Inside TestDate Search')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    testdates = TestDetails.query.with_entities(TestDetails.date_of_test).distinct().distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    class_sec_id=ClassSection.query.filter_by(class_val=int(class_val),school_id=teacher_id.school_id).first()
+    testdates = ResultUpload.query.with_entities(ResultUpload.exam_date).distinct().filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
     print('class value:'+str(class_val)+"School Id:"+str(teacher_id.school_id)+"Teacher_id:"+str(teacher_id.teacher_id)+"userId:"+str(current_user.id))
     
     dates = []
     for test in testdates:
-        print("Test Dates:"+str(test.date_of_test))
-        test = test.date_of_test.date().strftime("%Y-%m-%d %H:%M:%S")
+        print("Test Dates:"+str(test.exam_date))
+        test = test.exam_date.date().strftime("%Y-%m-%d %H:%M:%S")
         print('Dates:'+str(test))
         dates.append(test)
     testdateArray = []
