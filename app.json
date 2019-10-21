@@ -36,6 +36,9 @@
     },
     "DATABASE_URL": {
       "required": true
+    },
+	"EMAIL_API_KEY": {
+      "required": true
     }
   },
   "formation": {
