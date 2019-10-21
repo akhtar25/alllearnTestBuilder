@@ -279,7 +279,9 @@ class ResultUpload(db.Model):
     upload_id=db.Column(db.String(120),nullable=True)
     version_number=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
-    last_modified_date=db.Column(db.DateTime)    
+    question_paper_ref = db.Column(db.String(300), nullable=True)
+    answer_sheet_ref = db.Column(db.String(300), nullable=True)
+    last_modified_date=db.Column(db.DateTime)   
 
 class MessageDetails(db.Model):
     __tablename__ = "message_detail"
@@ -371,6 +373,9 @@ class SchoolProfile(db.Model):
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     school_picture = db.Column(db.String(500), nullable=True)
     school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    sub_id =  db.Column(db.ForeignKey('subscription_detail.sub_id'), nullable=True)
+    next_bill_due = db.Column(db.DateTime, nullable=True)
+    #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
@@ -488,15 +493,58 @@ class Search(db.Model):
     redirect_url = db.Column(db.String(500),nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
-class FinancialDetails(db.Model):
-    __tablename__ = "financial_details"
-    fin_det_id=db.Column(db.Integer,primary_key=True)
+class SubcriptionDetail(db.Model):
+    __tablename__ = "subscription_detail"
+    sub_id=db.Column(db.Integer,primary_key=True)
+    sub_name = db.Column(db.String(100),nullable=True)  # plan for different durations (annual, quarter etc) should also be created separately
+    monthly_charge = db.Column(db.Integer,nullable=True)    
+    start_date = db.Column(db.DateTime, nullable=True)
+    end_date = db.Column(db.DateTime, nullable=True)
+    school_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    archive_status = db.Column(db.String(1), nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=True)
+
+
+class CampaignDetail(db.Model):
+    __tablename__ = "campaign_detail"
+    camp_id = db.Column(db.Integer,primary_key=True)
+    camp_name = db.Column(db.String(100), primary_key=True)
+    start_date = db.Column(db.DateTime, nullable=True)
+    end_date = db.Column(db.DateTime, nullable=True)
+    discount_percent = db.Column(db.Integer, nullable=True)
+    archive_status = db.Column(db.String(1), nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=True)
+
+
+class InvoiceDetail(db.Model):
+    __tablename__="invoice_detail"
+    invoice_id = db.Column(db.Integer,primary_key=True)
+    school_id= db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
+    sent_to = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    sent_email = db.Column(db.String(200), nullable=True)
+    billing_date = db.Column(db.DateTime,nullable=True)
+    payment_date = db.Column(db.DateTime,nullable=True)
+    due_date =  db.Column(db.DateTime,nullable=True)
+    subcription_charge = db.Column(db.Integer,nullable=True)
+    tax = db.Column(db.Integer,nullable=True)
+    invoice_total =db.Column(db.Integer,nullable=True)
+    invoice_status = db.Column(db.String(1),nullable=True)     # Paid (P)    Unpaid (U)     Late (L)
+    pay_id = db.Column(db.ForeignKey('payment_detail.pay_id'),nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=True)
+
+
+class PaymentDetail(db.Model):
+    __tablename__="payment_detail"
+    pay_id = db.Column(db.Integer,primary_key=True)
+    pay_type =  db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    account_card_num = db.Column(db.String(50), nullable=True)
+    expiry_date = db.Column(db.Integer,nullable=True)
+    ifsc_code = db.Column(db.String(20),nullable=True)
+    ac_holder_name = db.Column(db.String(100), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
-    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
-    subscription_amt = db.Column(db.Integer,nullable=True)
-    maint_cost = db.Column(db.Integer,nullable=True)
-    year= db.Column(db.Integer,nullable=True)
-    month= db.Column(db.Integer,nullable=True)
+    school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    archive_status = db.Column(db.String(1),nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=True)
 
 
 class SessionDetail(db.Model):
