@@ -2086,7 +2086,7 @@ def testDate(class_val):
     dates = []
     for test in testdates:
         print("Test Dates:"+str(test.exam_date))
-        test = test.exam_date.date().strftime("%Y-%m-%d %H:%M:%S")
+        test = test.exam_date.date().strftime("%d-%B-%Y")
         print('Dates:'+str(test))
         dates.append(test)
     testdateArray = []
@@ -2358,6 +2358,12 @@ def topperListBySubject():
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
     test_date = request.args.get('test_date')
+    print('old Date:'+test_date)
+    date = test_date
+    if test_date!='All':
+        datetime_object = datetime.strptime(test_date, '%d-%B-%Y')
+        print('New Date:'+str(datetime_object))
+        date = datetime_object
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
@@ -2366,10 +2372,14 @@ def topperListBySubject():
         subjectName = MessageDetails.query.filter_by(msg_id=subjectValue).first()
     query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where "
     print('Subject Value:'+subjectValue)
-    if classValue!='':
-        query = query + "class='"+classValue+"' and subjects='"+subjectName.description+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+test_date +"' order by marks desc"
+    if subjectValue=='All':
+        sub = 'All'
     else:
-        query = query + "subjects='"+subjectName.description+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+test_date +"' order by marks desc"
+        sub = subjectName.description
+    if classValue!='':
+        query = query + "class='"+classValue+"' and subjects='"+sub+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+str(date) +"' order by marks desc"
+    else:
+        query = query + "subjects='"+sub+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+str(date) +"' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
