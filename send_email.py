@@ -7,7 +7,7 @@ from flask import current_app as app
 
 def send_async_email(msg, from_email, from_password):
 
-    gmail=smtplib.SMTP('smtp.gmail.com',587)
+    gmail=smtplib.SMTP('smtp.sendgrid.net',587)
     gmail.ehlo()
     gmail.starttls()    
     gmail.login(from_email,from_password)
@@ -16,9 +16,10 @@ def send_async_email(msg, from_email, from_password):
 
 
 def send_email(email, name, subjectToSend, messageToSend):
-    from_email="alllearndev@gmail.com"
+    #from_email="alllearndev@gmail.com"
     #from_password = app.config['SECRET_KEY']
-    from_password = "alllearn'sDev1"    
+    from_email = "apikey"
+    from_password = app.config['EMAIL_API_KEY']
     to_email=email
 
     subject=subjectToSend
@@ -27,7 +28,8 @@ def send_email(email, name, subjectToSend, messageToSend):
     msg=MIMEText(message,'html')
     msg['Subject']=subject
     msg['To']=to_email
-    msg['From']=from_email
+    #msg['From']=from_email
+    msg['From']="Alllearn"
 
     Thread(target=send_async_email, args=(msg, from_email, from_password)).start()
 
