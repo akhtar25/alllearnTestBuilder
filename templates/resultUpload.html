@@ -396,7 +396,7 @@
             else{
                 $('#message').hide();
                 uploadResult();
-                M.toast({html: 'Result Successfully Uploaded !!!'})
+                M.toast({html: 'Result Successfully Uploaded!'})
             }
                 n=n+1;
                }
@@ -453,7 +453,7 @@
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=test_papers`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
