@@ -280,3 +280,17 @@ class studentPerformanceForm(FlaskForm):
     section1=SelectField('Select Section')    
     test_type1=SelectField('Select Test Type')
     student_name1=SelectField('Select Student')
+
+
+class createSubscriptionForm(FlaskForm):    
+    sub_name =StringField('Subcription Name',validators=[DataRequired(),Length(max=100)])
+    monthly_charge= StringField('Charge',validators=[DataRequired()])
+    start_date = DateField('Start Date', validators=[DataRequired()])
+    end_date = DateField('End Date', validators=[DataRequired()])
+    student_limit =StringField('Student Limit',validators=[DataRequired()])     
+    teacher_limit = StringField('Teacher Limit',validators=[DataRequired()])
+    test_limit = StringField('Tests Limit',validators=[DataRequired()])
+    sub_desc = TextAreaField('Subscription Description', validators=[Length(min=0, max=500)])
+
+
+    

@@ -4,6 +4,7 @@ from applicationDB import *
 from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
+from forms import createSubscriptionForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -2753,6 +2754,21 @@ def paymentSuccess():
 @login_required
 def paymentFailure():
     return render_template('paymentFailure.html')
+
+
+@app.route('/createSubscription',methods = ["GET","POST"])
+@login_required
+def createSubscription():
+    form = createSubscriptionForm()
+    if form.validate_on_submit():
+        subcription_data=SubscriptionDetail(sub_name=form.sub_name.data,
+            monthly_charge=form.monthly_charge.data,start_date=form.start_date.data,end_date=form.end_date.data,
+            student_limit=form.student_limit.data,teacher_limit=form.teacher_limit.data,test_limit=form.test_limit.data, 
+            sub_desc= form.sub_desc.data, last_modified_date= datetime.utcnow(), archive_status='N')
+        db.session.add(subcription_data)
+        db.session.commit()
+        flash('New subscription plan created.')
+    return render_template('createSubscription.html',form=form,School_Name=school_name())
 
 
 if __name__=="__main__":

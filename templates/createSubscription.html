@@ -1,0 +1,133 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+    <h3>Create Subscription</h3>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+    <div class="form-group " style="padding-top:5px;">                          
+                          <div class="row">                              
+                              <div class="col-sm-8">
+                                      {{ form.sub_name.label(class='labelsize') }}
+                                      <br>
+                                      {% if form.sub_name.errors %}
+                                      {{ form.sub_name(class="form-control form-control-lg is-invalid") }}
+                                      <div class="invalid-feedback">
+                                      {% for error in form.sub_name.errors %}
+                                       <span>{{ error }}</span>
+                                      {% endfor %}
+                                      </div>
+                                      {% else %}
+                                      {{ form.sub_name(class='form-control') }}
+                                      {% endif %}
+                              </div>
+                          </div>
+                          <div class="row">
+                                <div class="col-sm-10">
+                                        {{ form.sub_desc.label(class='labelsize') }}
+                                        <br>
+                                        {% if form.sub_desc.errors %}
+                                        {{ form.sub_desc(class="form-control form-control-lg is-invalid") }}
+                                        {{form.sub_desc(rows='50', cols='100')}}
+                                        <div class="invalid-feedback">
+                                        {% for error in form.sub_desc.errors %}
+                                         <span>{{ error }}</span>
+                                        {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.sub_desc(class='form-control') }}
+                                        {% endif %}
+                                    </div>
+                          </div>                          
+                          <div class="row">
+                                  <div class="col-sm-4">
+                                          {{ form.start_date.label(class='labelsize') }}
+                                          <br>
+                                          {% if form.start_date.errors %}
+                                          {{ form.start_date(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.start_date.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          {{ form.start_date(class='form-control') }}
+                                          {% endif %}
+                                      </div>
+                                      <div class="col-sm-4">
+                                          {{ form.end_date.label(class='labelsize') }}
+                                          <br>
+                                          {% if form.end_date.errors %}
+                                          {{ form.end_date(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.end_date.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          {{ form.end_date(class='form-control') }}
+                                          {% endif %}
+                                      </div>
+                                      <div class="col-sm-3">
+                                          {{ form.student_limit.label(class='labelsize') }}
+                                          <br>
+                                          {% if form.student_limit.errors %}
+                                          {{ form.student_limit(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.student_limit.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          {{ form.student_limit(class='form-control') }}
+                                          {% endif %}
+                                      </div> 
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-sm-3">
+                                          {{ form.teacher_limit.label(class='labelsize') }}
+                                          <br>
+                                          {% if form.teacher_limit.errors %}
+                                          {{ form.teacher_limit(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.teacher_limit.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          {{ form.teacher_limit(class='form-control') }}
+                                          {% endif %}
+                                      </div> 
+                              
+                                      <div class="col-sm-3">
+                                          {{ form.test_limit.label(class='labelsize') }}
+                                          <br>
+                                          {% if form.test_limit.errors %}
+                                          {{ form.test_limit(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.test_limit.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          {{ form.test_limit(class='form-control') }}
+                                          {% endif %}
+                                      </div>  
+                                      <div class="col-sm-3">
+                                            {{ form.monthly_charge.label(class='labelsize') }}
+                                            <br>
+                                            {% if form.monthly_charge.errors %}
+                                            {{ form.monthly_charge(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                            {% for error in form.monthly_charge.errors %}
+                                             <span>{{ error }}</span>
+                                            {% endfor %}
+                                            </div>
+                                            {% else %}
+                                            {{ form.monthly_charge(class='form-control') }}
+                                            {% endif %}
+                                    </div>                                   
+                                  </div>                                                                  
+                                                <button class="btn waves-effect waves-light green right" type="submit" name="action">Submit</button>                                        
+              </div>
+            </form>
+</div>
+{%endblock%}
