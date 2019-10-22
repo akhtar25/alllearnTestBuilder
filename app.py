@@ -2703,7 +2703,9 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
-
+@app.route('/subscriptionPlans')
+def subscriptionPlans():
+    return render_template('/subscriptionPlans.html')
 
 
 @app.route('/checkout')
@@ -2743,14 +2745,14 @@ def checkout():
 
 
 @app.route('/paymentSuccess')
+@login_required
 def paymentSuccess():
     return render_template('paymentSuccess.html')
 
 @app.route('/paymentFailure')
+@login_required
 def paymentFailure():
     return render_template('paymentFailure.html')
-
-
 
 
 if __name__=="__main__":
