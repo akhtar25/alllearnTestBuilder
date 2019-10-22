@@ -542,11 +542,8 @@ function val(){
       const postData = new FormData();
       for(key in s3Data.fields){
         postData.append(key, s3Data.fields[key]);      
-        //console.log(s3Data.fields[key]);
       }
       postData.append('file', file);
-      //alert('This is the file' + file);
-      //alert('This is the url' + url);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
@@ -561,11 +558,6 @@ function val(){
       };
       xhr.send(postData);
     }
-    /*
-      Function to get the temporary signed request from the Python app.
-      If request successful, continue to upload the file using this signed
-      request.
-    */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
       var type = '.png';
@@ -574,8 +566,6 @@ function val(){
         if(xhr.readyState === 4){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
-            //alert("this is reponse data"+ response.data);
-            //alert("this is reponse url"+ response.url);
             uploadFile(file, response.data, response.url);
           }
           else{

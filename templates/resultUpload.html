@@ -459,6 +459,7 @@
 //       File += characters.charAt(Math.floor(Math.random() * charactersLength));
 //       console.log('File name:'+file.name+"File Type:"+file.type);
     function getSignedRequest(file){
+        console.log('Inside getSignedURL');
       const xhr = new XMLHttpRequest();
       xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=test_papers/nonTestBuilder`);
       xhr.onreadystatechange = () => {
