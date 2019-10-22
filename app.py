@@ -2704,12 +2704,14 @@ def search():
 
 
 
+
+
 @app.route('/checkout')
 @login_required
 def checkout():
-    MERCHANT_KEY = ""
+    MERCHANT_KEY = "jS0QCS0O"
     key = ""
-    SALT = ""
+    SALT = "m4UzSP4umv"
     PAYU_BASE_URL = "https://sandboxsecure.payu.in/_payment"
     action = ''
     posted={}
@@ -2738,6 +2740,18 @@ def checkout():
     	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='https://test.payu.in/_payment')
     else:
     	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='.')   
+
+
+@app.route('/paymentSuccess')
+def paymentSuccess():
+    return render_template('paymentSuccess.html')
+
+@app.route('/paymentFailure')
+def paymentFailure():
+    return render_template('paymentFailure.html')
+
+
+
 
 if __name__=="__main__":
     app.debug=True
