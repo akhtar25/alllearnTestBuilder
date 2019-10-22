@@ -460,7 +460,7 @@
 //       console.log('File name:'+file.name+"File Type:"+file.type);
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', '/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=test_papers/nonTestBuilder');
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=test_papers/nonTestBuilder`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
