@@ -2282,6 +2282,7 @@ def uploadMarks():
     class_sec_id=ClassSection.query.filter_by(class_val=int(classValue),school_id=teacher_id.school_id).first()
     student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
     class_section = request.args.get('class_section')
+    paperUrl = request.args.get('paperUrl')
     subject_id = request.args.get('subject_id')
     marks = request.args.get('marks')
     testdate = request.args.get('testdate')
@@ -2307,7 +2308,7 @@ def uploadMarks():
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
             exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
             test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,
-            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today()
+            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today(),question_paper_ref=paperUrl
             )
         else:
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
