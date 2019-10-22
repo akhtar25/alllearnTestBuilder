@@ -7,25 +7,57 @@
     </div>
     </div>
         <div class="row">
-
                 <div class="section">
             <section class="plans-container" id="plans">                
-                {%for row in subscriptionRow%}
-                <article class="col s12 m6 l4 "> <!--cyan here-->
+                {%for row in distinctSubsQuery%}
+                <article class="col s12 m6 l2 "> <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">                            
                         </div>
                         <div class="card-content ">
-                                <div class="card-title">BASIC</div>
+                                <div class="card-title">{{row.group_name}}</div>
+                                <a class="modal-trigger" href="#{{row.group_name}}">More Details</a>
+
+                                <!-- Modal Structure -->
+                                <div id="{{row.group_name}}" class="modal">
+                                  <!--<div class="modal-footer">
+                                        <p>{{row.sub_desc}}</p>                                    
+                                  </div>       -->
+
+                                  <div class="modal-content">
+                                        <h4>{{row.group_name}}</h4>
+                                        {% autoescape false %}
+                                      <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
+                                        {% endautoescape %}                                        
+                                      </div>
+                                      <div class="modal-footer">
+                                        
+                                      </div>                           
+                                </div>
+                                
                             <ul class="collection ">
-                                <li class="collection-item">500 emails</li>
-                                <li class="collection-item">unlimited data</li>
-                                <li class="collection-item">1 users</li>
-                                <li class="collection-item">first 15 day free</li>
+                                <li class="collection-item">{{row.sub_name}}</li>                                
+                                <li class="collection-item">Student Limit: {{row.student_limit}}</li>
+                                <li class="collection-item">Teacher Limit: {{row.teacher_limit}}</li>
+                                <li class="collection-item">Test Limit: {{row.test_limit}}</li>
+                            </ul>
+                                <ul class="collapsible">
+                                {%for row2 in subscriptionRow%}
+                                {%if row2.group_name==row.group_name%}
+                                <li>
+                                    {%if row2.sub_duration_months!=None%}
+                                        <div class="collapsible-header">{{row2.sub_duration_months}}  months - {{ "₹{:,.2f}".format(row2.monthly_charge) }}</div>
+                                        {%else%}
+                                        <div class="collapsible-header">Always Free</div>
+                                        {%endif%}
+                                        <div class="collapsible-body"><span><button class="waves-effect waves-light green btn">Select Plan</button></span></div>
+                                      </li>
+                                {%endif%}
+                                {%endfor%}                        
                             </ul>
                         </div>
                         <div class="card-action center-align">
-                            <button class="waves-effect waves-light green btn">Select Plan</button>
+                            
                         </div>
                     </div>
                 </article>  
@@ -36,4 +68,24 @@
         <!-- Floating Action Button -->
     </div>
 </div>
+<script>
+  const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2
+})
+$(document).ready(function(){
+var charge_val = $('.charge').val();
+$(this).val(formatter.format(charge_val));
+});
+
+$(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+        
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
+     
+</script>
 {% endblock %}

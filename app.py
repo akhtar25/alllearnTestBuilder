@@ -2769,10 +2769,12 @@ def createSubscription():
 
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
-    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').all()
-    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow)
+    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
+    distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
+    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
 
-
+def format_currency(value):
+    return "₹{:,.2f}".format(value)
 
 if __name__=="__main__":
     app.debug=True
