@@ -2347,9 +2347,14 @@ def questionFile():
 @app.route('/topperList')
 def topperList():
     classValue = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    test_type = request.args.get('test_type')
+    section_val = request.args.get('section_val')
+    test_date = request.args.get('test_date')
+    print('Class Value:'+classValue+"Subject Value:"+subject_id+"Test Type:"+test_type+"Section value:"+section_val+"Test date:"+test_date)
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section!='All' and subjects!='All' and test!='All' order by marks desc"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+section_val+"' and subjects='"+subject_id+"' and test='"+test_type+"' and exam_date='"+test_date+"' order by marks desc"
     #print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -2445,7 +2450,7 @@ def questionTopicPicker():
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):
-    chapter_num = "select distinct chapter_num from topic_detail where class_val='"+class_val+"' and subject_id='"+subject_id+"' order by chapter_num"
+    chapter_num = "select distinct chapter_num,chapter_name from topic_detail where class_val='"+class_val+"' and subject_id='"+subject_id+"' order by chapter_num"
     print(chapter_num)
     print('Inside chapterPicker')
     # Topic.query.filter_by(class_val=class_val,subject_id=subject_id).distinct().order_by(Topic.chapter_num).all()
@@ -2454,6 +2459,7 @@ def chapter_list(class_val,subject_id):
     for chapterno in chapter_num_list:
         chapterNo = {}
         chapterNo['chapter_num']=chapterno.chapter_num
+        chapterNo['chapter_name']=chapterno.chapter_name
         chapter_num_array.append(chapterNo)
     return jsonify({'chapterNum':chapter_num_array})
 

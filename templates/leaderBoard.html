@@ -190,10 +190,7 @@ var optionHTMLTestDate = '';
         $('#classNo').html('All');
     });
 var classVal = '';
-$('.classDiv').click(function(){
-  $('#sectionDiv').show();
-  $('#testdateDiv').show();
-});
+
 
 
 
@@ -226,10 +223,16 @@ $('.class_div').click(function(){
 });
 $('.classDiv').click(function(){
     console.log('inside classDiv');
+    $('#sectionDiv').show();
+    $('#testdateDiv').show();
     document.getElementById('test_type').value = "All";
     document.getElementById('section').value = "All";
     document.getElementById('subject_name').value = "All";
     document.getElementById("testdate").value = "All";
+    $('#test_type').val('All');
+    $('#section').val('All');
+    $('#subject_name').val('All');
+    $('#testdate').val('All');
     classVal = $(this).attr('name');
     var classNo =  classVal;
     $('#classNo').html(classNo)
@@ -280,9 +283,12 @@ $('.classDiv').click(function(){
             });
 
 
-
+            var subject_id = $('#subject_name').val();
+            var test_type = $('#test_type').val();
+            var section_val = $('#section').val();
+            var test_date = $('#testdate').val();
             $.ajax({  
-            url: "/topperList?class_val="+classVal,
+            url: "/topperList?class_val="+classVal+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val+'&test_date='+test_date,
             type: "get",
             data: "",            
             beforeSend: function() { 
