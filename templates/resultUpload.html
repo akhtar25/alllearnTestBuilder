@@ -452,8 +452,15 @@
       request.
     */
     function getSignedRequest(file){
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      var type='.docx'
+      var File = 'file';
+      File += characters.charAt(Math.floor(Math.random() * charactersLength));
+      File += characters.charAt(Math.floor(Math.random() * charactersLength));
+      console.log('File name:'+file.name+"File Type:"+file.type);
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references`);
+      xhr.open('GET', `/sign-s3?file-name=${File}&file-type=${type}&folder=test_papers/nonTestBuilder`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
