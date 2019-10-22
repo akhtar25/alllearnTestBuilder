@@ -4,17 +4,33 @@
   <h3>Performance Report</h3>
 
   <div class="row">
-    <section class="col-lg-12 connectedSortable">
+    <section class="col-lg-7 connectedSortable">
       <div class="box-header with-border">
-        <h3 class="box-title">Average School Performance</h3>
+        <h3 class="box-title grey-text">Performance Summary</h3>
       </div>
-      <div id='graphDiv' style="overflow: auto;top:-30px;"></div>
+      <div id='performanceSummaryDiv' style="overflow: auto;">
+          <h3 class="grey-text darken-5">Average percentage last week: <strong>90%</strong> <br><br>
+          Average pass percentage last week: <strong>87%</strong>  <br><br>
+          Highest marks: <strong>97%</strong>          &nbsp;&nbsp;&nbsp;&nbsp;              Lowest marks: <strong>67%</strong><br><br></h3>
+          <h4 class="grey-text">
+          Student above 90%: <strong>5</strong>    | 80%-90%: <strong>10</strong>  |  70%-80% : <strong>25</strong>   |   50% -70%: <strong>5</strong> |
+Below 50%: <strong>3</strong><br><br>
+Number of students expected to score above 50% this year: <strong>80%</strong></h4>
+
+      </div>
+    </section>
+    <section class="col-lg-5">
+      <div class="box-header with-border">
+        <h3 class="box-title grey-text">Test attendance</h3>
+      </div>
+      <div id="testAttendanceGraph" style="overflow:none;top:-30px;">
+      </div>
     </section>
   </div>
 
 <!--This is the start of test performance input form-->
 <div class="row">
-<h4>Test Level Report </h4>
+<h4 class="grey-text">Test Level Report </h4>
 </div>
  <div class="row">
                         <div class="col-sm-2">
@@ -97,7 +113,9 @@
 
 <!--This is the start of student performance input form-->
 <div class="row">
-<h4>Student Level Report </h4>
+  <section>
+<h4 class="grey-text">Student Level Report </h4>
+</section>
 </div>
  <div class="row">
                         <div class="col-sm-2">
@@ -360,35 +378,26 @@ $(document).ready(function(){
 
 </script>
 
-
+<!--Attendance graph js-->
 <script>
-  var graphData = {{graphJSON | safe}};
-  if (graphData!="NA"){
-  for (key in graphData) {
-    value1 = graphData[key].data1[0];
-    value2 = graphData[key].data2[0];
-    value3 = graphData[key].data3[0];
-    value4 = graphData[key].data4[0];
-    value5 = graphData[key].data5[0];
-    value6 = graphData[key].data6[0];
-    value7 = graphData[key].data7[0];
-    value8 = graphData[key].data8[0];
-    value9 = graphData[key].data9[0];
-    value10 = graphData[key].data10[0];
-  }
-  console.log(value1);
-  var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
-  Plotly.newPlot('graphDiv', data, {}, {
-    showlegend: true,
-    displayModeBar: false
-  });
-}
-else{
-  $("#graphDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 24px;">No data available right now.</p></span>');
-}
+  
+var data = [{
+  values: [20, 5],
+  labels: ['Present', 'Absent'],
+  type: 'pie'
+}];
+
+var layout = {
+  height: 400,
+  width: 500
+};
+
+Plotly.newPlot('testAttendanceGraph', data, layout);
 
 </script>
+
       <script>
+        
         var today = new Date();
         var dd = today.getDate();
         var mm = today.getMonth()+1; //January is 0!
