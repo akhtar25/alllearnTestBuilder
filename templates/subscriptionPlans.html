@@ -9,11 +9,11 @@
         <div class="row">
 
                 <div class="section">
-            <section class="plans-container" id="plans">
+            <section class="plans-container" id="plans">                
+                {%for row in subscriptionRow%}
                 <article class="col s12 m6 l4 "> <!--cyan here-->
                     <div class="card  z-depth-4">
-                        <div class="card-image">
-                            
+                        <div class="card-image">                            
                         </div>
                         <div class="card-content ">
                                 <div class="card-title">BASIC</div>
@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </article>  
-                                                
+                {%endfor%}
             </section>
         
         </div>

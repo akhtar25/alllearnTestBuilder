@@ -291,6 +291,7 @@ class createSubscriptionForm(FlaskForm):
     teacher_limit = StringField('Teacher Limit',validators=[DataRequired()])
     test_limit = StringField('Tests Limit',validators=[DataRequired()])
     sub_desc = TextAreaField('Subscription Description', validators=[Length(min=0, max=500)])
+    sub_duration = StringField('Duration',validators=[DataRequired()])
 
 
     

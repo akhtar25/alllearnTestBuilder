@@ -2704,10 +2704,6 @@ def search():
         prev_url=prev_url,School_Name=school_name())
 
 
-@app.route('/subscriptionPlans')
-def subscriptionPlans():
-    return render_template('/subscriptionPlans.html')
-
 
 @app.route('/checkout')
 @login_required
@@ -2764,11 +2760,18 @@ def createSubscription():
         subcription_data=SubscriptionDetail(sub_name=form.sub_name.data,
             monthly_charge=form.monthly_charge.data,start_date=form.start_date.data,end_date=form.end_date.data,
             student_limit=form.student_limit.data,teacher_limit=form.teacher_limit.data,test_limit=form.test_limit.data, 
-            sub_desc= form.sub_desc.data, last_modified_date= datetime.utcnow(), archive_status='N')
+            sub_desc= form.sub_desc.data, last_modified_date= datetime.utcnow(), archive_status='N', sub_duration_months=form.sub_duration.data)
         db.session.add(subcription_data)
         db.session.commit()
         flash('New subscription plan created.')
     return render_template('createSubscription.html',form=form,School_Name=school_name())
+
+
+@app.route('/subscriptionPlans')
+def subscriptionPlans():
+    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').all()
+    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow)
+
 
 
 if __name__=="__main__":
