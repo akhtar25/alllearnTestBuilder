@@ -493,14 +493,19 @@ class Search(db.Model):
     redirect_url = db.Column(db.String(500),nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
-class SubcriptionDetail(db.Model):
+class SubscriptionDetail(db.Model):
     __tablename__ = "subscription_detail"
     sub_id=db.Column(db.Integer,primary_key=True)
     sub_name = db.Column(db.String(100),nullable=True)  # plan for different durations (annual, quarter etc) should also be created separately
+    sub_desc = db.Column(db.String(500), nullable=True)
+    sub_duration_months = db.Column(db.Integer, nullable=True)
     monthly_charge = db.Column(db.Integer,nullable=True)    
     start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=True)
-    school_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    school_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)  #NGO, Budget, Lower Elite, Upper Elite, Government    
+    student_limit = db.Column(db.Integer, nullable=True)
+    teacher_limit = db.Column(db.Integer, nullable=True)
+    test_limit = db.Column(db.Integer, nullable=True)
     archive_status = db.Column(db.String(1), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
