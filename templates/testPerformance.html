@@ -8,21 +8,114 @@
       <div class="box-header with-border">
         <h3 class="box-title grey-text">Performance Summary</h3>
       </div>
-      <div id='performanceSummaryDiv' style="overflow: auto;">
-          <h3 class="grey-text darken-5">Average percentage last week: <strong>90%</strong> <br><br>
-          Average pass percentage last week: <strong>87%</strong>  <br><br>
-          Highest marks: <strong>97%</strong>          &nbsp;&nbsp;&nbsp;&nbsp;              Lowest marks: <strong>67%</strong><br><br></h3>
+      <div id='performanceSummaryDiv' style="overflow: auto;margin-top: 20px;">
+          <div class="row">
+              <div class="col-sm-3">
+                  <div>
+                      {{ form.class_val.label(class='labelsize') }}
+                      <br>
+                      {% if form.class_val.errors %}
+                      {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.class_val.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                      {% else %}
+                      {{ form.class_val(class='form-control',id='classId') }}
+                      {% endif %}
+                  </div>
+              </div>
+              <div class="col-sm-3" id="sectionDiv">
+                  <div>
+                      {{ form.section.label(class='labelsize') }}
+                      <div id='loaderSection' style='display: none; float: right;'>
+                          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                      </div>
+                      <br>
+                      {% if form.section.errors %}
+                      {{ form.section(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.section.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                      {% else %}
+                      {{ form.section(class='form-control',id='sectionId') }}
+                      {% endif %}
+                  </div>
+              </div>
+              <div class="col-sm-3">
+                  <div>
+                      {{ form.subject_name.label(class='labelsize') }}
+                      <div id='loaderSubject' style='display: none; float: right;'>
+                          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                      </div>
+                      <br>
+                      {% if form.subject_name.errors %}
+                      {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.subject_name.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                      {% else %}
+                      {{ form.subject_name(class='form-control',id='subjectId') }}
+                      {% endif %}
+                  </div>
+              </div>
+              </div>
+              {% for percentage in resultSet %}
+              <h3 class="grey-text darken-5">Average percentage last week: <strong id="avg_score">{{ "%.2f"|format(percentage.avg_score | float) }}%</strong><br><br>
+          Highest marks: <strong id="highest_mark">{{ percentage.highest_mark }}%</strong>&nbsp;&nbsp;&nbsp;&nbsp;Lowest marks: <strong id="lowest_mark"> {{percentage.lowest_mark }}%</strong><br><br></h3>
           <h4 class="grey-text">
-          Student above 90%: <strong>5</strong>    | 80%-90%: <strong>10</strong>  |  70%-80% : <strong>25</strong>   |   50% -70%: <strong>5</strong> |
-Below 50%: <strong>3</strong><br><br>
-Number of students expected to score above 50% this year: <strong>80%</strong></h4>
-
+          Student above 90%: <strong id="no_of_students_above_90">{{percentage.no_of_students_above_90}}</strong>    | 80%-90%: <strong id="no_of_students_80_90">{{percentage.no_of_students_80_90}}</strong>  |  70%-80% : <strong id="no_of_students_70_80">{{percentage.no_of_students_70_80}}</strong>   |   50% -70%: <strong id="no_of_students_50_70">{{percentage.no_of_students_50_70}}</strong> |
+Below 50%: <strong id="no_of_students_below_50">{{percentage.no_of_students_below_50}}</strong><br><br>
+Number of students expected to score above 50% this year: <strong id="no_of_students_cross_50">{{percentage.no_of_students_cross_50}}</strong></h4>
+            {% endfor %}
       </div>
     </section>
     <section class="col-lg-5">
       <div class="box-header with-border">
         <h3 class="box-title grey-text">Test attendance</h3>
       </div>
+      <div class="row">
+          <div class="col-sm-3">
+              <div>
+                  {{ form.class_val.label(class='labelsize') }}
+                  <br>
+                  {% if form.class_val.errors %}
+                  {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                      {% for error in form.class_val.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                  </div>
+                  {% else %}
+                  {{ form.class_val(class='form-control',id='classIdForAttend') }}
+                  {% endif %}
+              </div>
+          </div>
+          <div class="col-sm-3" id="sectionDiv">
+              <div>
+                  {{ form.section.label(class='labelsize') }}
+                  <div id='loaderAttendSection' style='display: none; float: right;'>
+                      <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                  </div>
+                  <br>
+                  {% if form.section.errors %}
+                  {{ form.section(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                      {% for error in form.section.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                  </div>
+                  {% else %}
+                  {{ form.section(class='form-control',id='sectionIdForAttend') }}
+                  {% endif %}
+              </div>
+          </div>
+          </div>
       <div id="testAttendanceGraph" style="overflow:none;top:-30px;">
       </div>
     </section>
@@ -214,7 +307,11 @@ Number of students expected to score above 50% this year: <strong>80%</strong></
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>  
-
+var class_for_attend = document.getElementById("classIdForAttend");
+var section_for_attend = document.getElementById("classIdForAttend");
+var section_val = document.getElementById("sectionId");
+var class_value = document.getElementById("classId");
+var subject_value = document.getElementById("subjectId");
 var class_select = document.getElementById("class_val");
     var section_select = document.getElementById("section");
     var test_type_select = document.getElementById("test_type");
@@ -229,9 +326,25 @@ var class_select = document.getElementById("class_val");
     var optionHTMLSectionStudent = '';
     var optionHTMLNameStudent = '';
     var optionHTMLTestTypeStudent = '';
+    var optionHTMLsection = '';
+    var optionHTMLclass = '';
+    var optionHTMLsubject = '';
+    var optionAttendHTMLclass = '';
+    var optionAttendHTMLsection = '';
     $(document).ready(function(){
         $('#class_val').val("na");
         $('#class_val1').val("na");
+        $('#classId').val("All");
+        optionAttendHTMLclass += '<option value="All"  selected > All </option>';
+        class_for_attend.innerHTML = optionAttendHTMLclass + class_for_attend.innerHTML;
+        optionAttendHTMLsection += '<option value="All"  selected disabled> All </option>';
+        section_for_attend.innerHTML = optionAttendHTMLsection + section_for_attend.innerHTML;
+        optionHTMLsubject += '<option value="All"  selected disabled> All </option>';
+        subject_value.innerHTML = optionHTMLsubject + subject_value.innerHTML;
+        optionHTMLclass += '<option value="All"  selected > All </option>';
+        class_value.innerHTML = optionHTMLclass + class_value.innerHTML;
+        optionHTMLsection += '<option value="All"  selected disabled> All </option>';
+        section_val.innerHTML = optionHTMLsection + section_val.innerHTML;
         optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
         class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
         optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
@@ -412,6 +525,28 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
         today = yyyy+'-'+mm+'-'+dd;
         document.getElementById("testdate").setAttribute("max", today);
 
+        class_for_attend.onchange = function(){
+          var class_value = class_for_attend.value;
+          $('#loaderAttendSection').show();
+          fetch('/resultUpload/' + class_value).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loaderAttendSection").hide();    
+                        var optionHTML = '';
+                        optionHTML += '<option value="All"  selected > All </option>';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    section_for_attend.innerHTML = optionHTML;
+                })
+            });
+        }
+
+        section_for_attend.onchange = function(){
+          var class_value = class_for_attend.value;
+          var section_value = section_for_attend.value;
+
+        }
+
         var class_select = document.getElementById("class_val");
         var section_select = document.getElementById("section");
         class_select.onchange = function()  {
@@ -423,7 +558,7 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 response.json().then(function(data) {
                         $("#loader").hide();    
                         var optionHTML = '';
-                        optionHTML += '<option value="na"  selected disabled> Select Section </option>';
+                        optionHTML += '<option value="na"  selected > Select Section </option>';
                         for (var section of data.sections) {
                         optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
                     }
@@ -431,6 +566,143 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 })
             });
         }
+
+
+
+        var class_v = document.getElementById("classId");
+        var selected_section = document.getElementById("sectionId");
+        var selected_subject = document.getElementById("subjectId");
+        console.log('Value:'+class_v.value);
+        class_v.onchange = function(){
+          console.log('Inside class change');
+          var selected_class = class_v.value;
+          
+          if(selected_class!='All'){
+            $('#loaderSection').show();
+          fetch('/resultUpload/' + selected_class).then(function(response) {
+                response.json().then(function(data) {
+                        $("#loaderSection").hide();    
+                        var optionHTML = '';
+                        optionHTML += '<option value="All"  selected > All </option>';
+                        for (var section of data.sections) {
+                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                    }
+                    selected_section.innerHTML = optionHTML;
+                })
+            });
+          }
+          if(selected_class!='All'){
+            $('#loaderSubject').show();
+            fetch('/questionBuilder/' + selected_class).then(function(response) {
+             response.json().then(function(data) {
+                     $("#loaderSubject").hide();    
+                     var optionHTML = '';
+                     optionHTML += '<option value="All"  selected > All </option>';
+                     for (var subject of data.subjects) {
+                        optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>'; 
+                 }
+                 selected_subject.innerHTML = optionHTML;      
+             })
+             
+         });
+        }
+
+          var sec = selected_section.value;
+          var subj = selected_subject.value;
+          $.ajax({  
+            url: "/performanceSummary?class_val="+selected_class+"&section="+sec+"&subject="+subj,
+            type: "get",
+            data: "",   
+            success: function (response) {
+              for(var result of response.result){
+                $('#avg_score').html(result.avg_score+'%');
+                $('#highest_mark').html(result.highest_mark+'%');
+                $('#lowest_mark').html(result.lowest_mark+'%');
+                $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('Average Marks:'+result.avg_score);
+              } 
+              console.log('success');
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+
+        
+        }
+
+
+       
+
+        selected_subject.onchange = function(){
+          console.log('Inside section change');
+          var selected_class = class_v.value;
+          var sec = selected_section.value;
+          var subj = selected_subject.value;
+          $.ajax({  
+            url: "/performanceSummary?class_val="+selected_class+"&section="+sec+"&subject="+subj,
+            type: "get",
+            data: "",   
+            success: function (response) {
+              for(var result of response.result){
+                $('#avg_score').html(result.avg_score+'%');
+                $('#highest_mark').html(result.highest_mark+'%');
+                $('#lowest_mark').html(result.lowest_mark+'%');
+                $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('Average Marks:'+result.avg_score);
+              } 
+              console.log('success');
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+        }
+
+        
+        selected_section.onchange = function(){
+          console.log('Inside section change');
+          var selected_class = class_v.value;
+          var sec = selected_section.value;
+          var subj = selected_subject.value;
+          $.ajax({  
+            url: "/performanceSummary?class_val="+selected_class+"&section="+sec+"&subject="+subj,
+            type: "get",
+            data: "",   
+            success: function (response) {
+              for(var result of response.result){
+                $('#avg_score').html(result.avg_score+'%');
+                $('#highest_mark').html(result.highest_mark+'%');
+                $('#lowest_mark').html(result.lowest_mark+'%');
+                $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('Average Marks:'+result.avg_score);
+              } 
+              console.log('success');
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+        }
+
+        
+
+
     </script>
 
 
@@ -492,5 +764,31 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 })
             });
         };
+
+
+
+
+        // Pi Graph plot
+// $(document).ready(function(){
+//   console.log('Inside ready function');
+//         console.log('Inside for loop');
+//         var marks1 = '{{resultSet.avg_score}}';
+//         var marks2 = '{{resultSet.highest_mark}}';
+//         var marks3 = '{{resultSet.lowest_mark}}';
+        
+//         console.log(marks1+' '+marks2+' '+marks3);
+//         var data = [{
+//   values: [marks1, marks2,marks3],
+//   labels: ['Average Marks', 'Highest Marks','Lowest Marks'],
+//   type: 'pie'
+// }];
+
+// var layout = {
+//   height: 400,
+//   width: 500
+// };
+
+// Plotly.newPlot('testAttendanceGraph', data, layout);
+// });
     </script>
 {%endblock%}

@@ -274,6 +274,7 @@ class testPerformanceForm(FlaskForm):
     class_val=SelectField('Select Class')
     section=SelectField('Select Section')    
     test_type=SelectField('Select Test Type')
+    subject_name = SelectField('Select Subject')
 
 
 class studentPerformanceForm(FlaskForm):

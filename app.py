@@ -1769,14 +1769,14 @@ def testPerformance():
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
 
-
     class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
     section_list=[(i.section,i.section) for i in available_section]    
     test_type_list=[(i.msg_id,i.description) for i in available_test_type]
 
     #selectfield choices
     form.class_val.choices = class_list
-    form.section.choices= ''
+    form.subject_name.choices= ''
+    form.section.choices = ''
     # section_list    
     form.test_type.choices=test_type_list
 
@@ -1793,56 +1793,24 @@ def testPerformance():
     section_list=[(i.section,i.section) for i in available_section]    
     test_type_list=[(i.msg_id,i.description) for i in available_test_type]
     student_list=[(i.student_id,i.full_name) for i in available_student_list]
-
+    resultSet = db.session.execute(text("Select * from fn_overall_performance_summary(1) where class='All' and section='All'"))
+    avg_scores = []
+    print('Type of Resultset:'+str(type(resultSet)))
     #selectfield choices
     form1.class_val1.choices = class_list
     form1.section1.choices= ''
     # section_list    
     form1.test_type1.choices=test_type_list
     form1.student_name1.choices = ''
-    # student_list
-
-    
-
-    # #####Fetch school perf graph information##########
-    #performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
-    #performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-    #print(performanceRows)
-    #if len(performanceRows)>0:
-    #    df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-    #    df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-    #        5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-    #    #print(df)
-    #    dateRange = list(df['Date'])
-    #    class1Data= list(df['Class_1'])
-    #    class2Data= list(df['Class_2'])
-    #    class3Data= list(df['Class_3'])
-    #    class4Data= list(df['Class_4'])
-    #    class5Data= list(df['Class_5'])
-    #    class6Data= list(df['Class_6'])
-    #    class7Data= list(df['Class_7'])
-    #    class8Data= list(df['Class_8'])
-    #    class9Data= list(df['Class_9'])
-    #    class10Data= list(df['Class_10'])
-    #    #print(dateRange)
-    #    ##Class 1
-    #    graphData = [dict(
-    #        data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-    #        data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-    #        data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-    #        data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-    #        data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-    #        data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-    #        data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-    #        data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-    #        data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-    #        data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-    #        )]        
-    #    #print(graphData)
-    #    graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-    #else:
-    #    graphJSON=json.dumps("NA")
-    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name())
+        # avg_scores.append(marks.highest_mark)
+        # avg_scores.append(marks.lowest_mark)
+        # avg_scores.append(marks.no_of_students_above_90)
+        # avg_scores.append(marks.no_of_students_80_90)
+        # avg_scores.append(marks.no_of_students_70_80)
+        # avg_scores.append(marks.no_of_students_50_70)
+        # avg_scores.append(marks.no_of_students_below_50)
+        # avg_scores.append(marks.no_of_students_cross_50)
+    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet)
 
 
 @app.route('/testPerformanceGraph')
@@ -2065,17 +2033,60 @@ def resultUpload():
 
 @app.route('/resultUpload/<class_val>')
 def section(class_val):
+    if class_val!='All':
+
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        sections = ClassSection.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+        sectionArray = []
+
+        for section in sections:
+            sectionObj = {}
+            sectionObj['section_id'] = section.class_sec_id
+            sectionObj['section_val'] = section.section
+            sectionArray.append(sectionObj)
+        return jsonify({'sections' : sectionArray})
+    else:
+        return "return"
+
+    
+
+
+
+@app.route('/performanceSummary')
+def performanceSummary():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    sections = ClassSection.query.distinct().filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
-    sectionArray = []
+    class_value = request.args.get('class_val')
+    section = request.args.get('section')
+    subject = request.args.get('subject')
+    subName = ''
+    if(subject!='All'):
+        subject_name = MessageDetails.query.filter_by(msg_id=subject).first()
+        subName = subject_name.description
+    else:
+        subName = subject
 
-    for section in sections:
-        sectionObj = {}
-        sectionObj['section_id'] = section.class_sec_id
-        sectionObj['section_val'] = section.section
-        sectionArray.append(sectionObj)
+    print('Inside performance Summary')
+    query = "Select * from fn_overall_performance_summary("+str(teacher_id.school_id)+") where class='"+str(class_value)+"' and section='"+str(section)+"' and subject='"+str(subName)+"'"
+    print(query)
+    resultSet = db.session.execute(text(query))
+    print(resultSet)
+    resultArray = []
 
-    return jsonify({'sections' : sectionArray})
+    for result in resultSet:
+        Array = {}
+        Array['avg_score'] = str(round(result.avg_score,2))
+        Array['highest_mark'] = str(result.highest_mark)
+        Array['lowest_mark'] = str(result.lowest_mark)
+        Array['no_of_students_above_90'] = str(result.no_of_students_above_90)
+        Array['no_of_students_80_90'] = str(result.no_of_students_80_90)
+        Array['no_of_students_70_80'] = str(result.no_of_students_70_80)
+        Array['no_of_students_50_70'] = str(result.no_of_students_50_70)
+        Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
+        Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
+        resultArray.append(Array)
+    return jsonify({'result' : resultArray})
+    # return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet)
+
 
 @app.route('/testDateSearch/<class_val>')
 def testDate(class_val):
@@ -2117,7 +2128,6 @@ def resultUploadHistory():
     
     uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
     return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords, School_Name=school_name())
-
 
 
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
@@ -2394,26 +2404,29 @@ def topperListBySubject():
 
 @app.route('/questionBuilder/<class_val>')
 def subject_list(class_val):
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
-    subject_name_list=[]
+    if class_val!='All':
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+        subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
+        subject_name_list=[]
 
-    for id in subject_id:
+        for id in subject_id:
 
-        subject_name=MessageDetails.query.filter_by(msg_id=id).first()
-        if subject_name in subject_name_list:
-            continue
-        subject_name_list.append(subject_name)
-    subjectArray = []
+            subject_name=MessageDetails.query.filter_by(msg_id=id).first()
+            if subject_name in subject_name_list:
+                continue
+            subject_name_list.append(subject_name)
+        subjectArray = []
 
-    for subject in subject_name_list:
-        subjectObj = {}
-        subjectObj['subject_id'] = subject.msg_id
-        subjectObj['subject_name'] = subject.description
-        subjectArray.append(subjectObj)
+        for subject in subject_name_list:
+            subjectObj = {}
+            subjectObj['subject_id'] = subject.msg_id
+            subjectObj['subject_name'] = subject.description
+            subjectArray.append(subjectObj)
 
-    return jsonify({'subjects' : subjectArray})
+        return jsonify({'subjects' : subjectArray})
+    else:
+        return "return"
 
 # topic list generation dynamically
 @app.route('/questionBuilder/<class_val>/<subject_id>')
