@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email
+from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email, new_school_reg_email
 from applicationDB import *
 from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
+from forms import createSubscriptionForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -37,6 +38,8 @@ from urllib.request import urlopen,Request
 from io import StringIO
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
+import hashlib
+from random import randint
 #from flask_material import Material
 
 app=Flask(__name__)
@@ -189,6 +192,10 @@ def reset_password(token):
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():
+    #queries for subcription 
+    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
+    distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
+
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
@@ -201,7 +208,7 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input']       
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), school_admin=current_user.id)
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
@@ -215,13 +222,18 @@ def schoolRegistration():
         for i in range(len(class_val)):
             class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=int(student_count[i]),school_id=school_id.school_id)
             db.session.add(class_data)
-        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id)
+        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
         db.session.add(teacher)
+        db.session.commit()
+        newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()        
+        newSchool.school_admin = newTeacherRow.teacher_id
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('Successful Registration!')
+        new_school_reg_email(form.schoolName.data)
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
-    return render_template('schoolRegistration.html',form=form)
+    return render_template('schoolRegistration.html',form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
@@ -254,10 +266,10 @@ def teacherRegistration():
             for i in range(len(teacher_name)):
                 if teacher_class[i]!='select':
                     class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
-                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]),last_modified_date= datetime.utcnow())
                     db.session.add(teacher_data)
                 else:
-                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]),last_modified_date= datetime.utcnow())
                     db.session.add(teacher_data)
             db.session.commit()
             flash('Successful registration !')
@@ -588,9 +600,10 @@ def register():
         #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value
         checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
         if checkTeacherProf!=None:
-            checkTeacherProf.email=user.id
+            checkTeacherProf.user_id=user.id
             db.session.commit()
         flash('Congratulations, you are now a registered user!')
+        welcome_email(str(form.email.data), str(form.username.data))
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -672,18 +685,24 @@ def requestUserAccess():
     requestorUsername=request.args.get('username')    
     school_id=request.args.get('school_id')    
     about_me=request.args.get('about_me')    
-    userTableDetails = User.query.filter_by(username=requestorUsername).first()
-    userTableDetails.school_id=school_id
-    userTableDetails.access_status='143'    
-    userTableDetails.user_type='140'
-    userTableDetails.about_me=about_me
-    db.session.commit()
-    #Send email section
+
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
-    teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, requestorUsername, adminEmail.username)
+    if adminEmail!=None:
+        userTableDetails = User.query.filter_by(username=requestorUsername).first()
+        userTableDetails.school_id=school_id
+        userTableDetails.access_status='143'    
+        userTableDetails.user_type='140'
+        userTableDetails.about_me=about_me
+        db.session.commit()
+        #Send email section
+        teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, requestorUsername, adminEmail.username)
+        return jsonify(["0"])
+    else:
+        return jsonify(["1"])
 
-    return jsonify(["0"])
+
+    
 
 @app.route('/grantUserAccess')
 def grantUserAccess():
@@ -2700,6 +2719,78 @@ def search():
         next_url=next_url,
         prev_url=prev_url,School_Name=school_name())
 
+
+
+@app.route('/checkout')
+@login_required
+def checkout():
+    MERCHANT_KEY = "jS0QCS0O"
+    key = ""
+    SALT = "m4UzSP4umv"
+    PAYU_BASE_URL = "https://sandboxsecure.payu.in/_payment"
+    action = ''
+    posted={}
+    # Merchant Key and Salt provided y the PayU.
+    for i in request.form:
+    	posted[i]=request.form[i]
+    hash_object = hashlib.sha256(b'randint(0,20)')
+    txnid=hash_object.hexdigest()[0:20]
+    hashh = ''
+    posted['txnid']=txnid
+    hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10"
+    posted['key']=key
+    hash_string=''
+    hashVarsSeq=hashSequence.split('|')
+    for i in hashVarsSeq:
+    	try:
+    		hash_string+=str(posted[i])
+    	except Exception:
+    		hash_string+=''
+    	hash_string+='|'
+    hash_string+=SALT
+    hash_string=hash_string.encode('utf-8')
+    hashh=hashlib.sha512(hash_string).hexdigest().lower()
+    action =PAYU_BASE_URL
+    if(posted.get("key")!=None and posted.get("txnid")!=None and posted.get("productinfo")!=None and posted.get("firstname")!=None and posted.get("email")!=None):
+    	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='https://test.payu.in/_payment')
+    else:
+    	return render_template('checkout.html',posted=posted,hashh=hashh,MERCHANT_KEY=MERCHANT_KEY,txnid=txnid,hash_string=hash_string,action='.')   
+
+
+@app.route('/paymentSuccess')
+@login_required
+def paymentSuccess():
+    return render_template('paymentSuccess.html')
+
+@app.route('/paymentFailure')
+@login_required
+def paymentFailure():
+    return render_template('paymentFailure.html')
+
+
+@app.route('/createSubscription',methods = ["GET","POST"])
+@login_required
+def createSubscription():
+    form = createSubscriptionForm()
+    if form.validate_on_submit():
+        subcription_data=SubscriptionDetail(sub_name=form.sub_name.data,
+            monthly_charge=form.monthly_charge.data,start_date=form.start_date.data,end_date=form.end_date.data,
+            student_limit=form.student_limit.data,teacher_limit=form.teacher_limit.data,test_limit=form.test_limit.data, 
+            sub_desc= form.sub_desc.data, last_modified_date= datetime.utcnow(), archive_status='N', sub_duration_months=form.sub_duration.data)
+        db.session.add(subcription_data)
+        db.session.commit()
+        flash('New subscription plan created.')
+    return render_template('createSubscription.html',form=form,School_Name=school_name())
+
+
+@app.route('/subscriptionPlans')
+def subscriptionPlans():
+    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
+    distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
+    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
+
+def format_currency(value):
+    return "₹{:,.2f}".format(value)
 
 if __name__=="__main__":
     app.debug=True

@@ -1,0 +1,82 @@
+{%extends "layout.html"%} {%block content%}
+<script type="text/javascript">
+    var hash = "{{ hashh }}";
+
+    function submitPayuForm() {
+        if (hash == '') {
+            return;
+        }
+        var payuForm = document.forms.payuForm;
+        payuForm.submit();
+    }
+</script>
+
+{% if error %}
+
+
+{% endif %}
+<div class="container">
+    <div class="row">
+        <h3>Checkout</h3>
+        <br />
+        <span style="color:red">Please fill all mandatory fields.</span>
+        <br />
+        <br />
+        <div class="col m8 offset-m2">
+        <form action={{ action }} method="post" name="payuForm">
+
+            <input type="hidden" name="key" value="{{ MERCHANT_KEY }}" />
+            <input type="hidden" name="hash_string" value="{{ hash_string }}" />
+            <input type="hidden" name="hash" value="{{ hashh }}" />
+            <input type="hidden" name="posted" value="{{ posted }}" />
+            <input type="hidden" name="txnid" value="{{ txnid }}" />            
+                <table class="no-border">
+
+                    <tr>
+                        <td>Amount: </td>                    
+                    <td><input name="amount" value="{{ posted.amount }}" /></td>
+                    </tr>
+                    <tr>
+                        <td>First Name: </td>
+                        <td><input name="firstname" id="firstname" value="{{ posted.firstname}}" /></td>
+
+                        <td>Last Name: </td>
+                        <td><input name="lastname" id="lastname" value="{{ posted.lastname }}" /></td>
+                    </tr>
+                    <tr>
+                        <td>Email: </td>
+                        <td><input name="email" id="email" value="{{ posted.email}}" /></td>
+                        <td>Phone: </td>
+                        <td><input name="phone" value="{{ posted.phone}}" /></td>
+                    </tr>
+                    <tr>
+                        <td>Product Info: </td>
+                        <td colspan="3">
+                            <info name="productinfo" value="{{ posted.productinfo }}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Success URI: </td>
+                        <td colspan="3"><input type="hidden" name="surl" value="{{ url_for('paymentSuccess') }}" size="64" /></td>
+                    </tr>
+                    <tr>
+                        <td>Failure URI: </td>
+                        <td colspan="3"><input type="hidden"  name="furl" value="{{ url_for('paymentFailure') }}" size="64" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><input type="hidden" name="service_provider" value="payu_paisa" size="64" />
+                        </td>
+                    </tr>
+                    <br>
+                    </tr>                    
+                </table>
+                <button class="btn waves-effect waves-light green right" type="submit" name="action">Submit
+                        <i class="material-icons right">send</i>
+                    </button>
+        </form>
+    </div>
+        <br>
+        <br>
+    </div>
+</div>
+{%endblock%}
