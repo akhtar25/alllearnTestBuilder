@@ -192,6 +192,10 @@ def reset_password(token):
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():
+    #queries for subcription 
+    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
+    distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
+
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
@@ -204,7 +208,7 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input']       
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), school_admin=current_user.id)
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
@@ -218,13 +222,17 @@ def schoolRegistration():
         for i in range(len(class_val)):
             class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=int(student_count[i]),school_id=school_id.school_id)
             db.session.add(class_data)
-        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id)
+        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
         db.session.add(teacher)
+        db.session.commit()
+        newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()        
+        newSchool.school_admin = newTeacherRow.teacher_id
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('Successful Registration!')
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
-    return render_template('schoolRegistration.html',form=form)
+    return render_template('schoolRegistration.html',form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
@@ -257,10 +265,10 @@ def teacherRegistration():
             for i in range(len(teacher_name)):
                 if teacher_class[i]!='select':
                     class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
-                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]),last_modified_date= datetime.utcnow())
                     db.session.add(teacher_data)
                 else:
-                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]))
+                    teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,email=teacher_email[i],subject_id=int(teacher_subject[i]),last_modified_date= datetime.utcnow())
                     db.session.add(teacher_data)
             db.session.commit()
             flash('Successful registration !')

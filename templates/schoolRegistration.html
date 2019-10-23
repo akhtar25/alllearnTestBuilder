@@ -1,182 +1,292 @@
 {% extends "layout.html" %} {% block content %}
 
-<div class="container">
-<form action="" method="POST" enctype="multipart/form-data">
+<div class="container ">
+    <form action="" method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="form-group " style="padding-top:5px;">
-          <div class="row">
+            <div class="row ">
                 <div class="col-sm-8">
-                        <div class="row">
-                            <h4>School Details</h4>
-                            <div class="col-sm-11">
-                                    {{ form.schoolName.label(class='labelsize') }}
-                                    <br>
-                                    {% if form.schoolName.errors %}
-                                    {{ form.schoolName(class="form-control form-control-lg is-invalid") }}
-                                    <div class="invalid-feedback">
-                                    {% for error in form.schoolName.errors %}
-                                     <span>{{ error }}</span>
-                                    {% endfor %}
-                                    </div>
-                                    {% else %}
-                                    {{ form.schoolName(class='form-control') }}
-                                    {% endif %}
+                    <div class="row">
+                        <h3>School Registration</h3>
+                        <div class="col-sm-11">
+                            {{ form.schoolName.label(class='labelsize') }}
+                            <br>
+                            {% if form.schoolName.errors %}
+                            {{ form.schoolName(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.schoolName.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
                             </div>
+                            {% else %}
+                            {{ form.schoolName(class='form-control') }}
+                            {% endif %}
                         </div>
-                        <div class="row">
-                                <div class="col-sm-3">
-                                        {{ form.board.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.board.errors %}
-                                        {{ form.board(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.board.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.board(class='form-control') }}
-                                        {% endif %}
-                                </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            {{ form.board.label(class='labelsize') }}
+                            <br>
+                            {% if form.board.errors %}
+                            {{ form.board(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.board.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.board(class='form-control') }}
+                            {% endif %}
                         </div>
-                        <div class="row">
-                                <h4>Address Details</h4>
-                                <div class="col-sm-4">
-                                        {{ form.address1.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.address1.errors %}
-                                        {{ form.address1(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.address1.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.address1(class='form-control') }}
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-sm-4">
-                                        {{ form.address2.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.address2.errors %}
-                                        {{ form.address2(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.address2.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.address2(class='form-control') }}
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-sm-3">
-                                        {{ form.locality.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.locality.errors %}
-                                        {{ form.locality(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.locality.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.locality(class='form-control') }}
-                                        {% endif %}
-                                    </div> 
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        {{ form.city.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.city.errors %}
-                                        {{ form.city(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.city.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.city(class='form-control') }}
-                                        {% endif %}
-                                    </div> 
-                            
-                                    <div class="col-sm-3">
-                                        {{ form.state.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.state.errors %}
-                                        {{ form.state(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.state.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.state(class='form-control') }}
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-sm-3">
-                                        {{ form.country.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.country.errors %}
-                                        {{ form.country(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.country.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.country(class='form-control') }}
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-sm-3">
-                                        {{ form.pincode.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.pincode.errors %}
-                                        {{ form.pincode(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.pincode.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.pincode(class='form-control') }}
-                                        {% endif %}
-                                    </div>
-                            
-                                </div>
-                        
+                    </div>
+                    <div class="row">
+                        <h4 class="grey-text">Address Details</h4>
+                        <div class="col-sm-4">
+                            {{ form.address1.label(class='labelsize') }}
+                            <br>
+                            {% if form.address1.errors %}
+                            {{ form.address1(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.address1.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.address1(class='form-control') }}
+                            {% endif %}
                         </div>
                         <div class="col-sm-4">
-                                <img style="border:1px solid gray; width:400px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg"><br>
-                                <br>
-                                <div class="col-sm-3">
-                                    <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;"><br>
-                                    <input type="hidden" id="file-input" name="file-input" value="">
-                                    <input type="hidden" id="file-src" name="file-src" value="">
-                                </div>
+                            {{ form.address2.label(class='labelsize') }}
+                            <br>
+                            {% if form.address2.errors %}
+                            {{ form.address2(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.address2.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.address2(class='form-control') }}
+                            {% endif %}
                         </div>
+                        <div class="col-sm-3">
+                            {{ form.locality.label(class='labelsize') }}
+                            <br>
+                            {% if form.locality.errors %}
+                            {{ form.locality(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.locality.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.locality(class='form-control') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            {{ form.city.label(class='labelsize') }}
+                            <br>
+                            {% if form.city.errors %}
+                            {{ form.city(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.city.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.city(class='form-control') }}
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-3">
+                            {{ form.state.label(class='labelsize') }}
+                            <br>
+                            {% if form.state.errors %}
+                            {{ form.state(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.state.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.state(class='form-control') }}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-3">
+                            {{ form.country.label(class='labelsize') }}
+                            <br>
+                            {% if form.country.errors %}
+                            {{ form.country(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.country.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.country(class='form-control') }}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-3">
+                            {{ form.pincode.label(class='labelsize') }}
+                            <br>
+                            {% if form.pincode.errors %}
+                            {{ form.pincode(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.pincode.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.pincode(class='form-control') }}
+                            {% endif %}
+                        </div>
+
+                    </div>
+
                 </div>
-                <div id="classbox" name="classbox"> 
+                <div class="col-sm-4">
+                    <img style="border:1px solid gray; width:400px; height: 200px;" id="preview"
+                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg"><br>
+                    <br>
+                    <div class="col-sm-3">
+                        <input type="file" id="school_image" name="school_image"
+                            style="height: 30px; margin-top: 10px;"><br>
+                        <input type="hidden" id="file-input" name="file-input" value="">
+                        <input type="hidden" id="file-src" name="file-src" value="">
+                    </div>
                 </div>
-                <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addClass();" value="Add Class"></p>
-                <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
             </div>
+            <div id="classbox" name="classbox">
+            </div>
+            <br>
+            <p><button type='button' id="addClassbtn"
+                    onclick="addClass();"class="waves-effect waves-light green btn">Add Class Details</button></p>            
+        </div>
+<br>
+<br>
+
+<!--This section is fo subscription plans-->
+
+        <div class="row">
+            <div class="section">
+            <h4 class="grey-text">Choose Subscription Plans</h4>
+            <p>No credit card/ account details needed. </p>
+            <p>The first month is free. We'll send the payment link 5 days before renewal date if you opt for a paid subscription.</p>
+        </div>
+        </div>
+            <div class="row">
+                    <div class="section">
+                <section class="plans-container" id="plans">                
+                    {%for row in distinctSubsQuery%}
+                    <article class="col s12 m6 l2 "> <!--cyan here-->
+                        <div class="card  z-depth-4">
+                            <div class="card-image">                            
+                            </div>
+                            <div class="card-content ">
+                                    <div class="card-title">{{row.group_name}}</div>
+                                    <a class="modal-trigger" href="#{{row.group_name}}">More Details</a>
+    
+                                    <!-- Modal Structure -->
+                                    <div id="{{row.group_name}}" class="modal" style="width:338px;">
+                                      <!--<div class="modal-footer">
+                                            <p>{{row.sub_desc}}</p>                                    
+                                      </div>       -->
+    
+                                      <div class="modal-content">
+                                            <h4>{{row.group_name}}</h4>
+                                            {% autoescape false %}
+                                          <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
+                                            {% endautoescape %}
+                                          </div>
+                                    </div>
+                                    
+                                <ul class="collection ">
+                                    <!--<li class="collection-item">{{row.sub_name}}</li>-->
+                                    <li class="collection-item">Student Limit: <strong>{{row.student_limit}}</strong></li>
+                                    <li class="collection-item">Teacher Limit: <strong>{{row.teacher_limit}}</strong></li>
+                                    <li class="collection-item">Test Limit: <strong>{{row.test_limit}}</strong></li>
+                                </ul>
+                                    <ul class="collapsible">
+                                    {%for row2 in subscriptionRow%}
+                                    {%if row2.group_name==row.group_name%}
+                                    <li>
+                                        {%if row2.sub_duration_months!=None%}
+                                            <div class="collapsible-header">{{row2.sub_duration_months}}  month <br/> {{ "₹{:,.2f}".format(row2.monthly_charge) }}</div>
+                                            {%else%}
+                                            <div class="collapsible-header">Always Free</div>
+                                            {%endif%}
+                                            <div class="collapsible-body selectPlanClass" name="{{row2.sub_name}}" id="{{row.group_name}}<br><h3>Charge: {{ '₹{:,.2f}'.format(row2.monthly_charge) }}</h3> every {{row2.sub_duration_months}} months" ><span><a class="waves-effect waves-light green btn">Select Plan</a></span></div>
+                                            <input type="hidden" id="" value="{{row2.sub_id}}"> 
+                                          </li>
+                                    {%endif%}
+                                    {%endfor%}
+                                </ul>
+                            </div>
+                           
+                        </div>
+                    </article>  
+                    {%endfor%}
+                </section>
+            
+            </div>
+            <!-- Floating Action Button -->
         </div>
 
+    <div class="row">
+        <h4 class="grey-text">Plan Selected </h4> <span id="showPlanSelected"> No Plan Selected</span>
 
-</form>
+    </div>
+
+        <p><!--<button class="btn waves-light green lighten-1 white-text"
+            style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
+            value="submit">Register School</button>-->
+            <button class="btn-large waves-effect green waves-light right" type="submit" id="submit" name="submit">Register School
+                    <i class="material-icons right">send</i>
+                  </button>                  
+        </p>
+        
+    </form>
 </div>
+<br><br>
+<!--End of subscription plans-->
 
 <script>
- var classbox_data='';
-    var count=0;
-    function addClass(){
+  $(".selectPlanClass").click(function () {
+      var selectedPlan = this.id;
+        $('#showPlanSelected').html('<h5 class="">'+selectedPlan+'</h5>');
+        $(this).attr("name");
+    });
+
+        const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      })
+      $(document).ready(function(){
+      var charge_val = $('.charge').val();
+      $(this).val(formatter.format(charge_val));
+      });
+      
+      $(document).ready(function(){
+          $('.collapsible').collapsible();
+        });
+              
+        $(document).ready(function(){
+          $('.modal').modal();
+        });
+           
+    var classbox_data = '';
+    var count = 0;
+
+    function addClass() {
         const div = document.createElement('div');
-        var row_id=document.getElementById('classbox');
-      count+=1  
-      header='<h4 style="text-weight:Bold;">Class Details</h4>'
-      classbox_data=`
-      <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+        var row_id = document.getElementById('classbox');
+        count += 1
+        header = '<h4 style="text-weight:Bold;" class="grey-text">Class Details</h4>'
+        classbox_data = `
+      <div class="z-depth-0" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
       <div class='row'>
       <div class='col-sm-3'>
           {{ form.class_val.label(class='labelsize') }}
@@ -221,35 +331,33 @@
                 {% endif %}
           </div>
    </div></div>`;
-      if (count==1){
-          div.innerHTML=header+classbox_data;
-       }
-        else {
-            div.innerHTML=classbox_data;
+        if (count == 1) {
+            div.innerHTML = header + classbox_data;
+        } else {
+            div.innerHTML = classbox_data;
         }
-        row_id.appendChild(div);     
+        row_id.appendChild(div);
     }
 
 
 
-function readURL(input) {
-  if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function(e) {
-        alert($("#school_image").val());
-      $('#preview').attr('src', e.target.result);
-      $('#file-src').val($("#school_image").val());
-      $('#file-input').val(input.files[0].name);
-    }
-    
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-$("#school_image").change(function() {
-  readURL(this);
-});
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
 
-    </script>
+            reader.onload = function (e) {
+                alert($("#school_image").val());
+                $('#preview').attr('src', e.target.result);
+                $('#file-src').val($("#school_image").val());
+                $('#file-input').val(input.files[0].name);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#school_image").change(function () {
+        readURL(this);
+    });
+</script>
 
 {% endblock %}
