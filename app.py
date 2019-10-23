@@ -699,8 +699,7 @@ def requestUserAccess():
         teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, requestorUsername, adminEmail.username)
         return jsonify(["0"])
     else:
-        flash('School ID not valid')
-        return redirect(url_for('disconnectedAccount'))
+        return jsonify(["1"])
 
 
     
