@@ -45,11 +45,12 @@ def send_password_reset_email(user):
 
 def welcome_email(email, name):
     subject = "Welcome to Alllearn"
-    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn." % name
-    message = message + " <br>We're so happy to welcome to the family. Our goal at Alllearn is to help the schools and teachers uplift their students' performance, no matter the sizes.</p>"
-    message = message + "<p>If you're a school principal or admin you can register your school or if you are a teacher you can request access to your school's dashboard from your school admin. </p>"
-    message = message + "<p>If you have any queries or concerns, please let us know on email(contact@alllearn.in) or whatsapp(+91 991-036-8828) and we'll get back to you at the earliest.</p>"    
-    message = message + "<br> <br> Let's make our schools better! <br><br>Thanks, <br>Alllearn "
+    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn</p>." % name
+    message = message + " <p>We're so happy to welcome to the family. Our goal at Alllearn is to help school teachers uplift their students' performance and deliver effective classes.</p>"
+    message = message + "<p>For the next step, simply login to the account and choose from the following options:"
+    message = message + "<br>1. If you're a school principal or admin you can register your school <br>2. if you are a teacher you can request access to your school's dashboard from your school admin. </p>"
+    message = message + "<p>If you have any queries or concerns, please let us know on email(contact@alllearn.in) or whatsapp(+91 991-036-8828) and we'll get back to you at the earliest.</p>"
+    message = message + "<br> <br> Welcome once again! <br><br>Thanks, <br>Alllearn "
     send_email(email, name, subject, message)
 
 def teacher_access_request_email(email,name, school, requestFrom,adminUsername):
