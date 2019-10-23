@@ -19,7 +19,7 @@
                                 <a class="modal-trigger" href="#{{row.group_name}}">More Details</a>
 
                                 <!-- Modal Structure -->
-                                <div id="{{row.group_name}}" class="modal">
+                                <div id="{{row.group_name}}" class="modal" style="width:338px;">
                                   <!--<div class="modal-footer">
                                         <p>{{row.sub_desc}}</p>                                    
                                   </div>       -->
@@ -28,32 +28,29 @@
                                         <h4>{{row.group_name}}</h4>
                                         {% autoescape false %}
                                       <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
-                                        {% endautoescape %}                                        
+                                        {% endautoescape %}
                                       </div>
-                                      <div class="modal-footer">
-                                        
-                                      </div>                           
                                 </div>
                                 
                             <ul class="collection ">
-                                <li class="collection-item">{{row.sub_name}}</li>                                
-                                <li class="collection-item">Student Limit: {{row.student_limit}}</li>
-                                <li class="collection-item">Teacher Limit: {{row.teacher_limit}}</li>
-                                <li class="collection-item">Test Limit: {{row.test_limit}}</li>
+                                <!--<li class="collection-item">{{row.sub_name}}</li>-->
+                                <li class="collection-item">Student Limit: <strong>{{row.student_limit}}</strong></li>
+                                <li class="collection-item">Teacher Limit: <strong>{{row.teacher_limit}}</strong></li>
+                                <li class="collection-item">Test Limit: <strong>{{row.test_limit}}</strong></li>
                             </ul>
                                 <ul class="collapsible">
                                 {%for row2 in subscriptionRow%}
                                 {%if row2.group_name==row.group_name%}
                                 <li>
                                     {%if row2.sub_duration_months!=None%}
-                                        <div class="collapsible-header">{{row2.sub_duration_months}}  months - {{ "₹{:,.2f}".format(row2.monthly_charge) }}</div>
+                                        <div class="collapsible-header">{{row2.sub_duration_months}}  month <br/> {{ "₹{:,.2f}".format(row2.monthly_charge) }}</div>
                                         {%else%}
                                         <div class="collapsible-header">Always Free</div>
                                         {%endif%}
                                         <div class="collapsible-body"><span><button class="waves-effect waves-light green btn">Select Plan</button></span></div>
                                       </li>
                                 {%endif%}
-                                {%endfor%}                        
+                                {%endfor%}
                             </ul>
                         </div>
                         <div class="card-action center-align">
