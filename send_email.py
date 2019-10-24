@@ -44,13 +44,13 @@ def send_password_reset_email(user):
     send_email(email, name, subject, message)
 
 def welcome_email(email, name):
-
     subject = "Welcome to Alllearn"
-    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn." % name
-    message = message + " Our goal at Alllearn is to ensure we uplift the performance of every child in our country, no matter how small the school."
-    message = message + "If you have any queries or concerns, please feel free to write back to us and we'll do the best we can to answer you at the earliest.</p>"
-    message = message + "<br> <br> Let's make our schools better! <br><br>Thanks, <br>Alllearn "
-
+    message = "<p>Hi %s, <br><br> Thanks for registering with Alllearn</p>." % name
+    message = message + " <p>We're so happy to welcome to the family. Our goal at Alllearn is to help school teachers uplift their students' performance and deliver effective classes.</p>"
+    message = message + "<p>For the next step, simply login to the account and choose from the following options:"
+    message = message + "<br>1. If you're a school principal or admin you can register your school <br>2. if you are a teacher you can request access to your school's dashboard from your school admin. </p>"
+    message = message + "<p>If you have any queries or concerns, please let us know on email(contact@alllearn.in) or whatsapp(+91 991-036-8828) and we'll get back to you at the earliest.</p>"
+    message = message + "<br> <br> Welcome once again! <br><br>Thanks, <br>Alllearn "
     send_email(email, name, subject, message)
 
 def teacher_access_request_email(email,name, school, requestFrom,adminUsername):
@@ -66,4 +66,13 @@ def access_granted_email(email,name, school):
 def guardian_access_request_email(email,name, school, requestFrom):
     subject = "Alllearn - Guardian access request for %s" % requestFrom
     message = render_template('guardian_access_req_email.html', name=name, school=school)
+    send_email(email, name, subject, message)
+
+
+
+def new_school_reg_email(school):
+    subject = "Alllearn - New School Registered %s" % school
+    name = "Alllearn Team"
+    email = "contact@alllearn.in"
+    message = render_template('new_school_reg_email.html', school=school, name=name)
     send_email(email, name, subject, message)

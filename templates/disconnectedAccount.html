@@ -51,6 +51,9 @@
 <div id="accessRequestedAlreadyDiv" style="display: none;">
     <h2>Access requested</h2><p> You will receive a notification in your email once access has been granted</p>
 </div>
+<div id="invalidSchoolIdDiv" style="display: none">
+  <p class="red-text">Invalid school id</p>
+</div>
 </div>
 <script>
    $(document).ready(function(){
@@ -68,9 +71,14 @@
                   url: "/requestUserAccess?username="+ username+"&school_id="+school_id+"&about_me="+about_me,
                   type: "get",
                   data: data,
-                  success: function(response) {                      
+                  success: function(response) {
+                    if (response=='0'){
                     $("#mainDiv").hide();
                     $("#accessRequestedAlreadyDiv").show();
+                    }
+                    else{
+                      $('#invalidSchoolIdDiv').show();
+                    }
                   },
                   error: function(xhr) {
                     window.alert("error occurred while requesting access");
