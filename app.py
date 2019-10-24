@@ -862,8 +862,8 @@ def testBuilderFileUpload():
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
     #naming file here
-    file_name=str(teacher_id.school_id)+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
-    
+    file_name=str(teacher_id.school_id)+str(session.get('class_val',"0"))+str(session.get('sub_name',"0"))+str(session.get('test_type_val',"0"))+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+    file_name = file_name.replace(" ", "")
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
     document.save('tempdocx/'+file_name)
