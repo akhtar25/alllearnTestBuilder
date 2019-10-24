@@ -35,11 +35,12 @@ from miscFunctions import subjects,topics,subjectPerformance,signs3Folder
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
-from io import StringIO
+from io import StringIO, BytesIO
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
+
 #from flask_material import Material
 
 app=Flask(__name__)
@@ -850,12 +851,24 @@ def testBuilderFileUpload():
     document.add_heading("Subject : "+session.get('sub_name',None),2)
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
+    #For every selected question add the question description
     for question in question_list:
         data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
+        
+        #for every question add it's options
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        #add question desc
         document.add_paragraph(
             data.question_description, style='List Number'
         )    
-        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+    #Add the image associated with the question
+        if data.reference_link!='' and data.reference_link!=None:
+            image_from_url = urlopen(data.reference_link)
+            io_url = BytesIO()
+            io_url.write(image_from_url.read())
+            io_url.seek(0)
+            document.add_picture(io_url ,width=Inches(1.5))                
+
         for option in options:
             if option.option_desc is not None:
                 document.add_paragraph(
@@ -2684,6 +2697,8 @@ def studentProfile():
     form.test_type1.choices=test_type_list
     form.student_name1.choices = ''
     # student_list
+    # create document for downloading QR codes
+
     return render_template('studentProfileNew.html',School_Name=school_name(),form=form)
 
 
