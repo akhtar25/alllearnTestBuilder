@@ -2666,10 +2666,11 @@ def indivStudentProfile():
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()    
 
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
-    
+    qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
+
     #print("reached indiv student ")
     #print(studentProfileRow)
-    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows)
+    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrRows=qrRows)
 
 
 @app.route('/studentProfile')

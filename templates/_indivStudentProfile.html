@@ -25,8 +25,7 @@
           
             <h4>Roll Number:</b> {{studentProfileRow.roll_number}}</h4>
             <h4>Admission Number:</b> {{studentProfileRow.school_adm_number}}</h4>
-        </div>
-        <div class="col s4 m6 l6">
+        
             {% if guardianRows | length != 0 %}
             <h4><u>Guardian Details</u> </h4>
             {%endif%}
@@ -41,6 +40,24 @@
             {%endif%}
             <h4><b>Phone:</b> {{guardian.phone}}</h4>
             {%endfor%}
+
+        {%if qrRows  | length != 0 %}     
+                    
+           
+            <h4><u>QR Codes for feedback sessions</u></h4>
+            <p>Please print the qr codes in full size on A4 sheets </p>
+            <ul>
+            {% for qrRow in qrRows%}
+
+            <li>
+            <a href="{{qrRow.qr_link}}" target="_blank">Option: {{qrRow.option}}</a>
+        </li>
+            {%endfor%}
+        </ul>        
+        
+        {%endif%}
+        
+
         </div>
     </div>            
     </div>
