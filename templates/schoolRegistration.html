@@ -37,7 +37,9 @@
                             {% else %}
                             {{ form.board(class='form-control') }}
                             {% endif %}
+                           
                         </div>
+                        <p class="grey-text">Currently we're only working with NCERT/CBSE curriculum. <br>We'll be setting up other curriculums soon and will send a notification out when ready. </p>
                     </div>
                     <div class="row">
                         <h4 class="grey-text">Address Details</h4>
@@ -218,7 +220,7 @@
                                             <div class="collapsible-header">Always Free</div>
                                             {%endif%}
                                             <div class="collapsible-body selectPlanClass" name="{{row2.sub_name}}" id="{{row.group_name}}<br><h3>Charge: {{ '₹{:,.2f}'.format(row2.monthly_charge) }}</h3> every {{row2.sub_duration_months}} months" ><span><a class="waves-effect waves-light green btn">Select Plan</a></span></div>
-                                            <input type="hidden" id="" value="{{row2.sub_id}}"> 
+                                            <input type="hidden" id="selected_sub_id" value="{{row2.sub_id}}"> 
                                           </li>
                                     {%endif%}
                                     {%endfor%}
@@ -253,6 +255,9 @@
 <!--End of subscription plans-->
 
 <script>
+
+
+
   $(".selectPlanClass").click(function () {
       var selectedPlan = this.id;
         $('#showPlanSelected').html('<h5 class="">'+selectedPlan+'</h5>');

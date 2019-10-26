@@ -235,7 +235,7 @@ def schoolRegistration():
         flash('Successful Registration!')
         new_school_reg_email(form.schoolName.data)
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
-    return render_template('schoolRegistration.html',form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
+    return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
@@ -595,7 +595,9 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data)
+        print('Validated form submit')
+        #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
+        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -605,7 +607,7 @@ def register():
             checkTeacherProf.user_id=user.id
             db.session.commit()
         flash('Congratulations, you are now a registered user!')
-        welcome_email(str(form.email.data), str(form.username.data))
+        welcome_email(str(form.email.data), str(form.email.data))
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -642,9 +644,9 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user=User.query.filter_by(username=form.username.data).first()
+        user=User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash("Invalid username or password")
+            flash("Invalid email or password")
             return redirect(url_for('login'))
         login_user(user,remember=form.remember_me.data)
         next_page = request.args.get('next')
