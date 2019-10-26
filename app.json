@@ -39,7 +39,13 @@
     },
 	"EMAIL_API_KEY": {
       "required": true
-    }
+    },
+    "GOOGLE_CLIENT_ID": {
+        "required": true
+      },
+      "GOOGLE_CLIENT_SECRET": {
+          "required": true
+        }
   },
   "formation": {
     "web": {
