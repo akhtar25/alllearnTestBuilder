@@ -845,7 +845,7 @@ def testBuilderFileUpload():
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
     #naming file here
-    file_name=str(teacher_id.school_id)+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+".docx"    
+    file_name=str(teacher_id.school_id)+str(session.get('class_val',"0"))+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+".docx"    
     
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
@@ -1763,8 +1763,11 @@ def testPerformance():
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
     
     #setting up testperformance form
-    form=testPerformanceForm()        
-
+    form=testPerformanceForm()    
+    test_date = "select distinct m.description as type,p.date as date,m.msg_id as id,c.class_val as class,c.section as section from performance_detail p,message_detail m,class_section c where c.school_id='"+str(teacher.school_id)+"' and p.school_id='"+str(teacher.school_id)+"' and p.test_type=m.msg_id and c.class_sec_id=p.class_sec_id order by date desc fetch next 10 rows only"  
+    datelist = db.session.execute(text(test_date)).fetchall()
+    for date in datelist:
+        print(str(date.date.date())+' '+str(date.type))
     available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
     available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
     available_test_type=MessageDetails.query.filter_by(category='Test type').all()
@@ -1793,7 +1796,7 @@ def testPerformance():
     section_list=[(i.section,i.section) for i in available_section]    
     test_type_list=[(i.msg_id,i.description) for i in available_test_type]
     student_list=[(i.student_id,i.full_name) for i in available_student_list]
-    resultSet = db.session.execute(text("Select * from fn_overall_performance_summary(1) where class='All' and section='All'"))
+    resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'"))
     avg_scores = []
     print('Type of Resultset:'+str(type(resultSet)))
     #selectfield choices
@@ -1802,27 +1805,26 @@ def testPerformance():
     # section_list    
     form1.test_type1.choices=test_type_list
     form1.student_name1.choices = ''
-        # avg_scores.append(marks.highest_mark)
-        # avg_scores.append(marks.lowest_mark)
-        # avg_scores.append(marks.no_of_students_above_90)
-        # avg_scores.append(marks.no_of_students_80_90)
-        # avg_scores.append(marks.no_of_students_70_80)
-        # avg_scores.append(marks.no_of_students_50_70)
-        # avg_scores.append(marks.no_of_students_below_50)
-        # avg_scores.append(marks.no_of_students_cross_50)
-    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet)
+    findStudentData = "select p.full_name as full_name,p.student_id as student_id,c.class_val as class  from student_profile as p,class_section as c where p.school_id='"+str(teacher.school_id)+"' and c.school_id='"+str(teacher.school_id)+"' and p.class_sec_id=c.class_sec_id"
+    print('Query:'+str(findStudentData))
+    students = db.session.execute(text(findStudentData))
+    print(students)
+    print('Inside Test Performance')
+    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet,datelist=datelist,students=students)
 
 
 @app.route('/testPerformanceGraph')
 @login_required
-def testPerformanceGraph():    
+def testPerformanceGraph():  
+    print('Inside testPerformanceGraph')  
     class_val=request.args.get('class_val')
     section=request.args.get('section')
     section = section.strip()    
     test_type=request.args.get('test_type')
+    print('class:'+class_val+'section:'+section+'test_type:'+test_type)
     #print('here is the class_val '+ str(class_val))
     dateVal = request.args.get('date')
-    
+    print('Date:'+dateVal)
     if dateVal ==None or dateVal=="":
         dateVal= datetime.today()
 
@@ -1849,14 +1851,6 @@ def testPerformanceGraph():
         
     if len(testPerformanceRecords) !=0:
 
-        #result = defaultdict(list)
-        #for obj in testPerformanceRecords:
-        #    instance = inspect(obj)
-        #    for key, x in instance.attrs.items():
-        #        result[key].append(x.value)
-        #
-        #df = pd.DataFrame(result)
-
         df = pd.DataFrame( [[ij for ij in i] for i in testPerformanceRecords])
         df.rename(columns={0: 'full_name', 1: 'student_score', 2: 'subject'}, inplace=True)
 
@@ -1865,9 +1859,7 @@ def testPerformanceGraph():
         subject= list(df['subject'])    
 
         distinct_subjects= df['subject'].unique()
-        ##print(dateRange)
-        ###Class 1
-        #print(distinct_subjects)
+        
         subLevelData=[]
         i=0
         for subVal in distinct_subjects:
@@ -1890,13 +1882,17 @@ def testPerformanceGraph():
 
 @app.route('/studentPerformanceGraph')
 @login_required
-def studentPerformanceGraph():    
+def studentPerformanceGraph(): 
+    print('Inside Student performance graph')
+      
     class_val=request.args.get('class_val')
     section=request.args.get('section')
+    print('Class:'+class_val+'section:'+section)
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
     student_id=request.args.get('student_id')
+    print('Test_type_id:'+test_type+'Student_id:'+student_id)
     #print('here is the class_val '+ str(class_val))
     dateVal = request.args.get('date')
     
@@ -1905,11 +1901,16 @@ def studentPerformanceGraph():
     
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     fromTestPerformance=0
-    if class_val!=None:
+    if class_val!='All' and section!='All':
         fromTestPerformance=1
         classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+    elif class_val=='All' and section!='All':
+        classSectionRows=ClassSection.query.filter_by(section=section, school_id=teacher.school_id).first()
+    elif class_val!='All' and section=='All':
+        classSectionRows=ClassSection.query.filter_by(class_val=int(class_val), school_id=teacher.school_id).first()
+    else:
+        classSectionRows=ClassSection.query.filter_by(school_id=teacher.school_id).first()
 
-    
     
     #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
     #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
@@ -2048,9 +2049,89 @@ def section(class_val):
     else:
         return "return"
 
+
+@app.route('/fetchStudentsName')
+def fetchStudentsName():
+    print('Inside fetchStudentsName')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    print('class_val:'+class_val)
+    query = "select p.full_name as name,p.student_id as id  from student_profile as p,class_section as c where p.school_id='"+str(teacher_id.school_id)+"' and c.school_id='"+str(teacher_id.school_id)+"' and p.class_sec_id="
+    if class_val!='All' and section=='All': 
+        query =query + "(select class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' and class_val='"+str(class_val)+"')"
+    if section!='All' and class_val=='All':
+        query = query +"(select class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' and section='"+str(section)+"')"
+    if class_val=='All' and section=='All':
+        query = query + "c.class_sec_id"
+    if class_val!='All' and section!='All':
+        query = query + "(select class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' and class_val='"+str(class_val)+"' and section='"+str(section)+"')"
+    print('Fetch Student Query:'+query)
+    studentList = db.session.execute(text(query))
     
+    studentArray = []
+    for student in studentList:
+        studentObject = {}
+        studentObject['student_name'] = str(student[0])
+        studentObject['student_id'] = str(student[1])
+        studentArray.append(studentObject)
+    return jsonify({'studentData':studentArray})
 
 
+
+
+@app.route('/fetchTestDates')
+def fetchTestDates():
+    print('Inside fetchTestDates')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    query = "select distinct m.description as type,p.date as date,m.msg_id as id,c.class_val as class,c.section as section from performance_detail p,message_detail m,class_section c where c.school_id='"+str(teacher_id.school_id)+"' and p.school_id='"+str(teacher_id.school_id)+"'" 
+    print(class_val+' '+section)
+    if(class_val!='All'):
+        query = query + "and c.class_val='"+str(class_val)+"'"
+    if(section!='All'): 
+        query = query + "and c.section='"+str(section)+"'" 
+    query = query + "and p.test_type=m.msg_id and c.class_sec_id=p.class_sec_id order by date desc fetch next 10 rows only"
+    print(query)
+    dateData = db.session.execute(text(query))
+    dateArray = []
+    # for data1 in dateData:
+    #     print('dateData:'+str(data1)+'Type:'+str(data1[0])+str(data1[1].date())+str(data1[2]))
+    for data in dateData:
+        print('Inside for')
+        dateObject = {}
+        dateObject['type'] = str(data[0])
+        dateObject['date'] = str(data[1].date())
+        dateObject['id'] = str(data[2])
+        dateObject['class'] = str(data[3])
+        dateObject['section'] = str(data[4])
+        print(str(data[0])+' '+str(data[1].date())+' '+str(data[2])+' '+str(data[3])+' '+str(data[4]))
+        dateArray.append(dateObject)
+    # for arr in dateArray:
+    #     print('Inside arr loop')
+    #     print(arr[i][0])
+    #     print(arr[i][1])
+    #     print(arr[i][2])
+    #     i=i+1
+    return jsonify({'dateData':dateArray})
+
+
+@app.route('/scoreGraph')
+def scoreGraph():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_value = request.args.get('class_val')
+    section = request.args.get('section')
+    query = "select *from fn_overall_attendance_summary('"+str(teacher_id.school_id)+"') where class='"+str(class_value)+"' and section='"+str(section)+"'"
+    attendance = db.session.execute(text(query))
+    resultArray = []
+
+    for result in attendance:
+        Array = {}
+        Array['present'] = str(result.no_of_student_present)
+        Array['absent'] = str(result.no_of_student_absent)
+        resultArray.append(Array)
+    return jsonify({'result':resultArray})
 
 @app.route('/performanceSummary')
 def performanceSummary():

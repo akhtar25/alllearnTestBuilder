@@ -65,67 +65,42 @@
                   </div>
               </div>
               </div>
-              {% for percentage in resultSet %}
-              <h3 class="grey-text darken-5">Average percentage last week: <strong id="avg_score">{{ "%.2f"|format(percentage.avg_score | float) }}%</strong><br><br>
-          Highest marks: <strong id="highest_mark">{{ percentage.highest_mark }}%</strong>&nbsp;&nbsp;&nbsp;&nbsp;Lowest marks: <strong id="lowest_mark"> {{percentage.lowest_mark }}%</strong><br><br></h3>
-          <h4 class="grey-text">
-          Student above 90%: <strong id="no_of_students_above_90">{{percentage.no_of_students_above_90}}</strong>    | 80%-90%: <strong id="no_of_students_80_90">{{percentage.no_of_students_80_90}}</strong>  |  70%-80% : <strong id="no_of_students_70_80">{{percentage.no_of_students_70_80}}</strong>   |   50% -70%: <strong id="no_of_students_50_70">{{percentage.no_of_students_50_70}}</strong> |
-Below 50%: <strong id="no_of_students_below_50">{{percentage.no_of_students_below_50}}</strong><br><br>
-Number of students expected to score above 50% this year: <strong id="no_of_students_cross_50">{{percentage.no_of_students_cross_50}}</strong></h4>
-            {% endfor %}
+                
+            <div id="testAttendanceGraph" style="overflow:none;top:-30px;">
+              </div>
+            
       </div>
     </section>
-    <section class="col-lg-5">
-      <div class="box-header with-border">
-        <h3 class="box-title grey-text">Test attendance</h3>
-      </div>
-      <div class="row">
-          <div class="col-sm-3">
-              <div>
-                  {{ form.class_val.label(class='labelsize') }}
-                  <br>
-                  {% if form.class_val.errors %}
-                  {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                  <div class="invalid-feedback">
-                      {% for error in form.class_val.errors %}
-                      <span>{{ error }}</span>
-                      {% endfor %}
-                  </div>
-                  {% else %}
-                  {{ form.class_val(class='form-control',id='classIdForAttend') }}
-                  {% endif %}
-              </div>
-          </div>
-          <div class="col-sm-3" id="sectionDiv">
-              <div>
-                  {{ form.section.label(class='labelsize') }}
-                  <div id='loaderAttendSection' style='display: none; float: right;'>
-                      <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                  </div>
-                  <br>
-                  {% if form.section.errors %}
-                  {{ form.section(class="form-control form-control-lg is-invalid") }}
-                  <div class="invalid-feedback">
-                      {% for error in form.section.errors %}
-                      <span>{{ error }}</span>
-                      {% endfor %}
-                  </div>
-                  {% else %}
-                  {{ form.section(class='form-control',id='sectionIdForAttend') }}
-                  {% endif %}
-              </div>
-          </div>
-          </div>
-      <div id="testAttendanceGraph" style="overflow:none;top:-30px;">
-      </div>
+    <section class="col-lg-5"> 
+       <div class="box-header with-border" style="margin-top: 20px;">
+         <!-- <h3 class="box-title grey-text">Test attendance</h3>  -->
+      </div> 
+      <div style="margin-top: 150px;">
+      {% for percentage in resultSet %}
+      <h3 class="box-title grey-text" style="font-size: 18px;">Average percentage last week: <strong id="avg_score">{{ "%.2f"|format(percentage.avg_score | float) }}%</strong><br><br>
+    Highest marks: <strong id="highest_mark">{{ percentage.highest_mark }}%</strong>&nbsp;&nbsp;&nbsp;&nbsp;Lowest marks: <strong id="lowest_mark"> {{percentage.lowest_mark }}%</strong><br><br>
+    Students expected to score above 50% this year: <strong id="no_of_students_cross_50">{{percentage.no_of_students_cross_50}}</strong></h3>
+    <h4 class="grey-text">
+        <h3 class="box-title grey-text">Score Range</h3>
+      <ul>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">Students above 90%: <strong class="box-title grey-text" id="no_of_students_above_90">{{percentage.no_of_students_above_90}}</strong> </li>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">80%-90%: <strong class="box-title grey-text" id="no_of_students_80_90">{{percentage.no_of_students_80_90}}</strong></li>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">70%-80% :<strong class="box-title grey-text" id="no_of_students_70_80">{{percentage.no_of_students_70_80}}</strong></li>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">50% -70%: <strong class="box-title grey-text" id="no_of_students_50_70">{{percentage.no_of_students_50_70}}</strong></li>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">Above 50%: <strong class="box-title grey-text" id="no_of_students_cross_50">{{percentage.no_of_students_cross_50}}</strong></li>
+        <li style="display: flex;font-size: 18px;" class="box-title grey-text">Below 50%: <strong class="box-title grey-text" id="no_of_students_below_50">{{percentage.no_of_students_below_50}}</strong></li>
+      </ul></h4> 
+      {% endfor %} 
+    </div>
     </section>
   </div>
 
-<!--This is the start of test performance input form-->
 <div class="row">
+    <div class="box-header with-border">
 <h4 class="grey-text">Test Level Report </h4>
 </div>
- <div class="row">
+
+ <!-- <div class="row">
                         <div class="col-sm-2">
                                 <div>
                                         {{ form.class_val.label(class='labelsize') }}
@@ -151,7 +126,7 @@ Number of students expected to score above 50% this year: <strong id="no_of_stud
                                         <br>
                                                 {% if form.section.errors %}
                                                 {{ form.section(class="form-control form-control-lg is-invalid") }}
-                                                <div class="invalid-feedback">
+                                        <div class="invalid-feedback">
                                                 {% for error in form.section.errors %}
                                                  <span>{{ error }}</span>
                                                 {% endfor %}
@@ -182,36 +157,63 @@ Number of students expected to score above 50% this year: <strong id="no_of_stud
                         <div class="col-sm-2" style="margin-top:25px;">						
                 <input type="button"  class="btn"  style="height:35px; width:100px;" id="loadTestPerfBTN" value="Load Data">                
                 </div>              
-						</div>
-<span id="message" style="color:Red;display: none;float:left;"></span>
-<div class="row">       
+            </div> -->
+  <div class="row">
+    <div class="col-sm-3" style="overflow-y: auto;margin-top: 105px;height:290px;" id="previous">
+    <ul>
+      {% for testDateList in datelist %}
+      <li><a href="#" name="{{testDateList.id}}" class="load" title="{{testDateList.date.date()}}">{{testDateList.class}}{{testDateList.section}}&nbsp;&nbsp;{{testDateList.type}}&nbsp;&nbsp;&nbsp;&nbsp;{{testDateList.date.date()}}
+      <input type="text" class="class" value="{{testDateList.class}}" style="display:none;">
+      <input type="text" class="section" value="{{testDateList.section}}" style="display:none;">
+      <input type="text" class="date" value="{{testDateList.date.date()}}" style="display:none;">
+      <input type="text" class="id" value="{{testDateList.id}}" style="display:none;"></a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <!-- <div id="next" style="display:none;"></div> -->
+  <div class="col-sm-3" id="next" style="display:none;overflow-y: auto;margin-top: 105px;height:290px;">
+  </div>
+  <div class="col-sm-9 connectedSortable">
+      <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;margin-top: 50px;" id="loaderDivTest">    
+      <div id="feedbackReportDiv" style="display:none;">
+      </div>
+      <div id="testPerformanceGraphDiv" style="display:none;">
+          <!-- Plotly chart will be drawn inside this DIV -->
+        </div>
+  </div>
+  </div>
+<!-- <span id="message" style="color:Red;display: none;float:left;"></span>
+<div class="row" style="margin-top: -217px;">       
         <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivTest">    
         <div id="feedbackReportDiv" style="display:none;">
         </div>
-		</div>   
+		</div>    -->
   
 <!--This is the end of the test performance input form -->
-  <div class="row">
+  <!-- <div class="row">
   <section class="col-lg-12 connectedSortable">
-    <!--<div id="stackedStudentPerformance" style="display:none;">-->
-    <div id="testPerformanceGraphDiv" style="display:none;">
+    <div id="stackedStudentPerformance" style="display:none;">-->
+    <!-- <div id="testPerformanceGraphDiv" style="display:none;"> -->
       <!-- Plotly chart will be drawn inside this DIV -->
-    </div>
+    <!-- </div>
     </section>
-  </div>
+  </div>  -->
 
 
 
 
-
+</div>
 <!--This is the start of student performance input form-->
 <div class="row">
   <section>
+      <div class="box-header with-border">
 <h4 class="grey-text">Student Level Report </h4>
+      </div>
 </section>
 </div>
  <div class="row">
-                        <div class="col-sm-2">
+                        <!-- <div class="col-sm-2">
                                 <div>
                                         {{ form1.class_val1.label(class='labelsize') }}
                                         <br>
@@ -282,22 +284,45 @@ Number of students expected to score above 50% this year: <strong id="no_of_stud
 
                         <div class="col-sm-2" style="margin-top:25px;">						
                 <input type="button"  class="btn"  style="height:35px; width:180px;" id="loadStudentPerfBTN" value="Load Student Data">                
-                </div>              
-						</div>
-<span id="messageStudent" style="color:Red;display: none;float:left;"></span>
-<div class="row">       
-        <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivStud">    
+                </div>   
+                  -->
+      <div class="col-sm-3" id="previousStudents" style="overflow-y: auto;margin-top: 105px;height:290px;">
+        <ul>
+          {% for student in students %}
+          <li style="margin-bottom: 12px;"><a href="#" name="{{student.student_id}}" class="loadStudentData">{{student.full_name}}
+            <input type="text" style="display:none;" class="studentId" value="{{student.student_id}}">
+          </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-sm-3" id="nextStudents" style="overflow-y: auto;margin-top: 105px;height:290px;display:none;">
+      </div>
+      <div class="col-sm-9">
+          <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivStud">    
+          <div id="feedbackReportDiv" style="display:none;">
+          </div>
+        <section class="col-lg-12 connectedSortable">
+          <!--<div id="stackedStudentPerformance" style="display:none;">-->
+          <div id="studentPerformanceGraphDiv" style="display:none;">
+            <!-- Plotly chart will be drawn inside this DIV -->
+          </div>
+          </section>
+      </div>
+		</div>
+<!-- <div class="row">        -->
+        <!-- <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDivStud">    
         <div id="feedbackReportDiv" style="display:none;">
-        </div>
-		</div>   
-  <div class="row">
-  <section class="col-lg-12 connectedSortable">
-    <!--<div id="stackedStudentPerformance" style="display:none;">-->
-    <div id="studentPerformanceGraphDiv" style="display:none;">
+        </div> -->
+		<!-- </div>    -->
+  <!-- <div class="row"> -->
+  <!-- <section class="col-lg-12 connectedSortable">
+    <div id="stackedStudentPerformance" style="display:none;">-->
+    <!-- <div id="studentPerformanceGraphDiv" style="display:none;"> -->
       <!-- Plotly chart will be drawn inside this DIV -->
-    </div>
-    </section>
-  </div>
+    <!-- </div>
+    </section>  -->
+  <!-- </div> -->
 
 <!--<script>
   $(document).ready(function () {
@@ -307,18 +332,116 @@ Number of students expected to score above 50% this year: <strong id="no_of_stud
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>  
-var class_for_attend = document.getElementById("classIdForAttend");
-var section_for_attend = document.getElementById("classIdForAttend");
+
+$('.loadStudentData').click(function(){
+  var studentId = $(this).attr('name');
+  var classValue = $('#classId').val();
+  var section = $('#sectionId').val();
+  var id = $('.id').val();
+  $("#studentPerformanceGraphDiv").hide(); 
+  $('#loaderDivStud').show();
+              var data="";
+                $.ajax({
+                  url: "/studentPerformanceGraph?class_val="+ classValue+"&section="+section+"&student_id="+studentId+"&test_type="+id ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      $('#loaderDivStud').hide();
+                    $("#studentPerformanceGraphDiv").show(); 
+                    $("#studentPerformanceGraphDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });  
+});
+function loadStudentData1(name){
+  var studentId = name;
+  var classValue = $('#classId').val();
+  var section = $('#sectionId').val();
+  var id = $('.id').val();
+  $("#studentPerformanceGraphDiv").hide(); 
+  $('#loaderDivStud').show();
+              var data="";
+                $.ajax({
+                  url: "/studentPerformanceGraph?class_val="+ classValue+"&section="+section+"&student_id="+studentId+"&test_type="+id ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      $('#loaderDivStud').hide();
+                    $("#studentPerformanceGraphDiv").show(); 
+                    $("#studentPerformanceGraphDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });  
+};
+
+
+$('.load').click(function(){
+  var id = $(this).attr('name');
+  var date = $(this).attr('title');
+  console.log('id:'+id+'date:'+date);
+  $("#testPerformanceGraphDiv").html('');   
+              var class_val = $('.class').val();              
+              var section = $('.section').val();  
+                                      
+              console.log('Class:'+class_val+'Section:'+section);
+              $('#loaderDivTest').show();
+              var data="";
+                $.ajax({
+                  url: "/testPerformanceGraph?class_val="+ class_val+"&section="+section+"&test_type="+id+"&date="+date ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      $('#loaderDivTest').hide();
+                    $("#testPerformanceGraphDiv").show(); 
+                    $("#testPerformanceGraphDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });
+});
+
+function load1(){
+  var date = $('.getDate').val();
+  var id = $('.getId').val();
+  console.log('Present Date:'+date+' and id:'+id);
+  $("#testPerformanceGraphDiv").html('');   
+              var class_val = $('.class').val();              
+              var section = $('.section').val();  
+                                      
+              console.log('Class:'+class_val+'Section:'+section);
+              $('#loaderDivTest').show();
+              var data="";
+                $.ajax({
+                  url: "/testPerformanceGraph?class_val="+ class_val+"&section="+section+"&test_type="+id+"&date="+date ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                      $('#loaderDivTest').hide();
+                    $("#testPerformanceGraphDiv").show(); 
+                    $("#testPerformanceGraphDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });
+};
+
+
 var section_val = document.getElementById("sectionId");
 var class_value = document.getElementById("classId");
 var subject_value = document.getElementById("subjectId");
-var class_select = document.getElementById("class_val");
-    var section_select = document.getElementById("section");
-    var test_type_select = document.getElementById("test_type");
-    var class_select_student = document.getElementById("class_val1");
-    var section_select_student = document.getElementById("section1");
-    var student_name_select = document.getElementById("student_name1");
-    var test_type_select_student = document.getElementById("test_type1");
+// var class_select = document.getElementById("class_val");
+    // var section_select = document.getElementById("section");
+    // // var test_type_select = document.getElementById("test_type");
+    // var class_select_student = document.getElementById("class_val1");
+    // var section_select_student = document.getElementById("section1");
+    // var student_name_select = document.getElementById("student_name1");
+    // var test_type_select_student = document.getElementById("test_type1");
     var optionHTMLClass = '';
     var optionHTMLSection = '';
     var optionHTMLTestType = '';
@@ -331,35 +454,36 @@ var class_select = document.getElementById("class_val");
     var optionHTMLsubject = '';
     var optionAttendHTMLclass = '';
     var optionAttendHTMLsection = '';
+    
     $(document).ready(function(){
         $('#class_val').val("na");
         $('#class_val1').val("na");
         $('#classId').val("All");
-        optionAttendHTMLclass += '<option value="All"  selected > All </option>';
-        class_for_attend.innerHTML = optionAttendHTMLclass + class_for_attend.innerHTML;
-        optionAttendHTMLsection += '<option value="All"  selected disabled> All </option>';
-        section_for_attend.innerHTML = optionAttendHTMLsection + section_for_attend.innerHTML;
+        // optionAttendHTMLclass += '<option value="All"  selected > All </option>';
+        // class_for_attend.innerHTML = optionAttendHTMLclass + class_for_attend.innerHTML;
+        // optionAttendHTMLsection += '<option value="All"  selected disabled> All </option>';
+        // section_for_attend.innerHTML = optionAttendHTMLsection + section_for_attend.innerHTML;
         optionHTMLsubject += '<option value="All"  selected disabled> All </option>';
         subject_value.innerHTML = optionHTMLsubject + subject_value.innerHTML;
         optionHTMLclass += '<option value="All"  selected > All </option>';
         class_value.innerHTML = optionHTMLclass + class_value.innerHTML;
         optionHTMLsection += '<option value="All"  selected disabled> All </option>';
         section_val.innerHTML = optionHTMLsection + section_val.innerHTML;
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-        optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
-        section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
-        optionHTMLTestType += '<option value="na"  selected disabled> Select Test Type </option>';
-        test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
+        // optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        // class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+        // optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
+        // section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
+        // optionHTMLTestType += '<option value="na"  selected disabled> Select Test Type </option>';
+        // test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
 
-        optionHTMLClassStudent += '<option value="na"  selected disabled> Select Class </option>';
-        class_select_student.innerHTML = optionHTMLClassStudent + class_select_student.innerHTML;
-        optionHTMLSectionStudent += '<option value="na"  selected disabled> Select Section </option>';
-        section_select_student.innerHTML = optionHTMLSectionStudent + section_select_student.innerHTML;
-        optionHTMLTestTypeStudent += '<option value="na"  selected disabled> Select Test Type </option>';
-        test_type_select_student.innerHTML = optionHTMLTestTypeStudent + test_type_select_student.innerHTML;
-        optionHTMLNameStudent += '<option value="na"  selected disabled> Select Student Name </option>';
-        student_name_select.innerHTML = optionHTMLNameStudent + student_name_select.innerHTML;
+        // optionHTMLClassStudent += '<option value="na"  selected disabled> Select Class </option>';
+        // class_select_student.innerHTML = optionHTMLClassStudent + class_select_student.innerHTML;
+        // optionHTMLSectionStudent += '<option value="na"  selected disabled> Select Section </option>';
+        // section_select_student.innerHTML = optionHTMLSectionStudent + section_select_student.innerHTML;
+        // optionHTMLTestTypeStudent += '<option value="na"  selected disabled> Select Test Type </option>';
+        // test_type_select_student.innerHTML = optionHTMLTestTypeStudent + test_type_select_student.innerHTML;
+        // optionHTMLNameStudent += '<option value="na"  selected disabled> Select Student Name </option>';
+        // student_name_select.innerHTML = optionHTMLNameStudent + student_name_select.innerHTML;
     });
 
 </script>
@@ -403,8 +527,8 @@ $(document).ready(function(){
             {
                 $('#message').hide();
             $("#testPerformanceGraphDiv").html('');     
-              var class_val = $('#class_val').val();              
-              var section = $('#section').val();                            
+              var class_val = $('#classId').val();              
+              var section = $('#sectionId').val();                            
               var test_type = $('#test_type').val();   
               var selected_date=$('#testdate').val();
               $('#loaderDivTest').show();
@@ -465,15 +589,90 @@ $(document).ready(function(){
             }else
             {
                 $('#messageStudent').hide();
+                 
+            }
+    });
+});
+
+</script>
+
+<!--Attendance graph js-->
+<script>
+$(document).ready(function(){
+  console.log('Inside Ready Function');
+  var clas = document.getElementById('classId').value;
+  var sec = document.getElementById('sectionId').value;
+  var subj = document.getElementById('subjectId').value;
+  var id = $('.id').val();
+  var date = $('.date').val();
+  var class_val = $('.class').val();              
+  var section = $('.section').val(); 
+  $.ajax({  
+            url: "/performanceSummary?class_val="+clas+"&section="+sec+"&subject="+subj,
+            type: "get",
+            data: "",   
+            success: function (response) {
+              for(var result of response.result){
+                $('#avg_score').html(result.avg_score+'%');
+                $('#highest_mark').html(result.highest_mark+'%');
+                $('#lowest_mark').html(result.lowest_mark+'%');
+                $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('Avg score:'+result.avg_score+'Highest:'+result.highest_mark+'Lowest:'+result.lowest_mark+'above 90:'+result.no_of_students_above_90+'between 70-80:'+result.no_of_students_70_80+'between 50-70'+result.no_of_students_50_70+'Below 50:'+result.no_of_students_below_50+'above 50:'+result.no_of_students_cross_50);
+                var data = [{
+                    values: [result.no_of_students_above_90,result.no_of_students_80_90,result.no_of_students_70_80,result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // labels: ['Above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','No of Students Above 50%'],
+                    labels: ['No of students above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','Above 50%'],
+                    // 
+                    type: 'pie'
+                    }];
+
+                    var layout = {
+                    height: 400,
+                    width: 500
+            };
+
+            Plotly.newPlot('testAttendanceGraph', data, layout);
+                console.log('Average Marks:'+result.avg_score);
+              } 
+              console.log('success');
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+
+
+        
+              var data="";
+                $.ajax({
+                  url: "/testPerformanceGraph?class_val="+ class_val+"&section="+section+"&test_type="+id+"&date="+date ,
+                  type: "get",
+                  data: data,
+                  success: function(response) {
+                    $("#testPerformanceGraphDiv").show(); 
+                    $("#testPerformanceGraphDiv").html(response);                            
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while submitting data");
+                  }
+                });
+
+
+                var studentId = $('.studentId').val();
+                console.log('StudentId:'+studentId)
                 $("#studentPerformanceGraphDiv").html('');     
-              var class_val = $('#class_val1').val();              
-              var section = $('#section1').val();                            
-              var student = $('#student_name1').val();   
-              var test_type=$('#test_type1').val();
+              var class_val = $('#classId').val();              
+              var section = $('#sectionId').val(); 
               $('#loaderDivStud').show();
               var data="";
                 $.ajax({
-                  url: "/studentPerformanceGraph?class_val="+ class_val+"&section="+section+"&student_id="+student+"&test_type="+test_type ,
+                  url: "/studentPerformanceGraph?class_val="+ class_val+"&section="+section+"&student_id="+studentId+"&test_type="+id ,
                   type: "get",
                   data: data,
                   success: function(response) {
@@ -484,88 +683,47 @@ $(document).ready(function(){
                   error: function(xhr) {
                     window.alert("error occurred while submitting data");
                   }
-                });   
-            }
-    });
+                });  
 });
-
-</script>
-
-<!--Attendance graph js-->
-<script>
-  
-var data = [{
-  values: [20, 5],
-  labels: ['Present', 'Absent'],
-  type: 'pie'
-}];
-
-var layout = {
-  height: 400,
-  width: 500
-};
-
-Plotly.newPlot('testAttendanceGraph', data, layout);
 
 </script>
 
       <script>
         
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-        if(dd<10){
-                dd='0'+dd
-        } 
-        if(mm<10){
-                mm='0'+mm
-        } 
+        // var today = new Date();
+        // var dd = today.getDate();
+        // var mm = today.getMonth()+1; //January is 0!
+        // var yyyy = today.getFullYear();
+        // if(dd<10){
+        //         dd='0'+dd
+        // } 
+        // if(mm<10){
+        //         mm='0'+mm
+        // } 
 
-        today = yyyy+'-'+mm+'-'+dd;
-        document.getElementById("testdate").setAttribute("max", today);
+        // today = yyyy+'-'+mm+'-'+dd;
+        // document.getElementById("testdate").setAttribute("max", today);
 
-        class_for_attend.onchange = function(){
-          var class_value = class_for_attend.value;
-          $('#loaderAttendSection').show();
-          fetch('/resultUpload/' + class_value).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loaderAttendSection").hide();    
-                        var optionHTML = '';
-                        optionHTML += '<option value="All"  selected > All </option>';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_for_attend.innerHTML = optionHTML;
-                })
-            });
-        }
 
-        section_for_attend.onchange = function(){
-          var class_value = class_for_attend.value;
-          var section_value = section_for_attend.value;
-
-        }
-
-        var class_select = document.getElementById("class_val");
-        var section_select = document.getElementById("section");
-        class_select.onchange = function()  {
+        // var class_select = document.getElementById("class_val");
+        // var section_select = document.getElementById("section");
+        // class_select.onchange = function()  {
              
-            class_val = class_select.value;
-            $("#loader").show();
+        //     class_val = class_select.value;
+        //     $("#loader").show();
             
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader").hide();    
-                        var optionHTML = '';
-                        optionHTML += '<option value="na"  selected > Select Section </option>';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_select.innerHTML = optionHTML;
-                })
-            });
-        }
+        //     fetch('/resultUpload/' + class_val).then(function(response) {
+        //         response.json().then(function(data) {
+        //                 $("#loader").hide();    
+        //                 var optionHTML = '';
+        //                 optionHTML += '<option value="na"  selected > Select Section </option>';
+        //                 for (var section of data.sections) {
+        //                 optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+        //             }
+        //             section_select.innerHTML = optionHTML;
+        //         })
+        //     });
+        // }
 
 
 
@@ -573,9 +731,10 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
         var selected_section = document.getElementById("sectionId");
         var selected_subject = document.getElementById("subjectId");
         console.log('Value:'+class_v.value);
+        var selected_class = class_v.value;
         class_v.onchange = function(){
           console.log('Inside class change');
-          var selected_class = class_v.value;
+          
           
           if(selected_class!='All'){
             $('#loaderSection').show();
@@ -606,11 +765,11 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
              
          });
         }
-
+          clas = document.getElementById('classId').value;
           var sec = selected_section.value;
           var subj = selected_subject.value;
           $.ajax({  
-            url: "/performanceSummary?class_val="+selected_class+"&section="+sec+"&subject="+subj,
+            url: "/performanceSummary?class_val="+clas+"&section="+sec+"&subject="+subj,
             type: "get",
             data: "",   
             success: function (response) {
@@ -624,6 +783,21 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 $('#no_of_students_50_70').html(result.no_of_students_50_70);
                 $('#no_of_students_below_50').html(result.no_of_students_below_50);
                 $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('Avg score:'+result.avg_score+'Highest:'+result.highest_mark+'Lowest:'+result.lowest_mark+'above 90:'+result.no_of_students_above_90+'between 70-80:'+result.no_of_students_70_80+'between 50-70'+result.no_of_students_50_70+'Below 50:'+result.no_of_students_below_50+'above 50:'+result.no_of_students_cross_50);
+                var data = [{
+                  values: [result.no_of_students_above_90,result.no_of_students_80_90,result.no_of_students_70_80,result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // labels: ['Above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','No of Students Above 50%'],
+                    labels: ['No of students above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','Above 50%'],
+                    type: 'pie'
+                    }];
+
+                    var layout = {
+                    height: 400,
+                    width: 500
+            };
+
+            Plotly.newPlot('testAttendanceGraph', data, layout);
                 console.log('Average Marks:'+result.avg_score);
               } 
               console.log('success');
@@ -633,6 +807,50 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
             }
         });
 
+
+        var dataload = '';
+        var ids = '';
+        $.ajax({
+          url:"/fetchTestDates?class_val="+clas+"&section="+sec,
+          type:"get",
+          data:"",
+          success: function(response){
+            $('#previous').hide();
+            $('#next').show();
+            console.log('ResponseData:'+response.dateData);
+            $('#next').empty();
+            for(var data of response.dateData){
+              console.log('Data:'+data.id+' '+data.date+' '+data.type+' '+data.class+' '+data.section)
+              var mydate = new Date(data.date);
+              var d = data.date;
+              $('#next').append("<ul style='margin-bottom:2px;'><li><a href='#' name='"+data.id+"' onclick='load1();' title='"+data.date+"'>"+data.class+" "+data.section+"&nbsp;&nbsp;"+data.type+"&nbsp;&nbsp;&nbsp;&nbsp;"+mydate.toDateString()+"<input type='text' class='getDate' style='display:none;' value='"+d+"'><input type='text' class='getId' style='display:none;' value='"+data.id+"'><input type='text' class='class' value='"+data.class+"' style='display:none;'><input type='text' class='section' value='"+data.section+"' style='display:none;'><input type='text' class='date' value='"+data.date+"' style='display:none;'><input type='text' class='id' value='"+data.id+"' style='display:none;'></a></li></ul>");
+            }
+            console.log('DataLoad:'+dataload+' '+ids);
+          },
+          error: function (xhr){
+            window.alert("error occured while loading test dates");
+          }
+        });
+
+        $.ajax({
+          url:"/fetchStudentsName?class_val="+clas+"&section="+sec,
+          type:"get",
+          data:"",
+          success: function(response){
+            $('#previousStudents').hide();
+            $('#nextStudents').show();
+            console.log('ResponseData:'+response.studentData);
+            $('#nextStudents').empty();
+            for(var data of response.studentData){
+              console.log('StudentName:'+data.student_name+'StudentId:'+data.student_id);
+              $('#nextStudents').append("<ul><li><a href='#' name='"+data.student_name+"' onclick='loadStudentData1("+data.student_id+");'>"+data.student_name+"<input type='text' style='display:none;' class='"+data.student_id+"' value='"+data.student_id+"'></a></li></ul>");
+              // $('#next').append("<ul style='margin-bottom:2px;'><li><a href='#' name='"+data.id+"' onclick='load1();' title='"+data.date+"'>"+data.class+" "+data.section+"&nbsp;&nbsp;"+data.type+"&nbsp;&nbsp;&nbsp;&nbsp;"+mydate.toDateString()+"<input type='text' class='getDate' style='display:none;' value='"+d+"'><input type='text' class='getId' style='display:none;' value='"+data.id+"'><input type='text' class='class' value='"+data.class+"' style='display:none;'><input type='text' class='section' value='"+data.section+"' style='display:none;'><input type='text' class='date' value='"+data.date+"' style='display:none;'><input type='text' class='id' value='"+data.id+"' style='display:none;'></a></li></ul>");
+            }
+          },
+          error: function (xhr){
+            window.alert("error occured while loading test dates");
+          }
+        });
         
         }
 
@@ -650,6 +868,7 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
             data: "",   
             success: function (response) {
               for(var result of response.result){
+
                 $('#avg_score').html(result.avg_score+'%');
                 $('#highest_mark').html(result.highest_mark+'%');
                 $('#lowest_mark').html(result.lowest_mark+'%');
@@ -659,7 +878,22 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 $('#no_of_students_50_70').html(result.no_of_students_50_70);
                 $('#no_of_students_below_50').html(result.no_of_students_below_50);
                 $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
-                console.log('Average Marks:'+result.avg_score);
+                console.log('Avg score:'+result.avg_score+'Highest:'+result.highest_mark+'Lowest:'+result.lowest_mark+'above 90:'+result.no_of_students_above_90+'between 70-80:'+result.no_of_students_70_80+'between 50-70'+result.no_of_students_50_70+'Below 50:'+result.no_of_students_below_50+'above 50:'+result.no_of_students_cross_50);
+                var data = [{
+                  values: [result.no_of_students_above_90,result.no_of_students_80_90,result.no_of_students_70_80,result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // labels: ['Above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','No of Students Above 50%'],
+                    labels: ['No of students above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','Above 50%'],
+                    // 
+                    type: 'pie'
+                    }];
+
+                    var layout = {
+                    height: 400,
+                    width: 500
+            };
+
+            Plotly.newPlot('testAttendanceGraph', data, layout);
               } 
               console.log('success');
             },
@@ -681,6 +915,7 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
             data: "",   
             success: function (response) {
               for(var result of response.result){
+                
                 $('#avg_score').html(result.avg_score+'%');
                 $('#highest_mark').html(result.highest_mark+'%');
                 $('#lowest_mark').html(result.lowest_mark+'%');
@@ -690,13 +925,48 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
                 $('#no_of_students_50_70').html(result.no_of_students_50_70);
                 $('#no_of_students_below_50').html(result.no_of_students_below_50);
                 $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
-                console.log('Average Marks:'+result.avg_score);
+                console.log('Avg score:'+result.avg_score+'Highest:'+result.highest_mark+'Lowest:'+result.lowest_mark+'above 90:'+result.no_of_students_above_90+'between 70-80:'+result.no_of_students_70_80+'between 50-70'+result.no_of_students_50_70+'Below 50:'+result.no_of_students_below_50+'above 50:'+result.no_of_students_cross_50);
+                var data = [{
+                  values: [result.no_of_students_above_90,result.no_of_students_80_90,result.no_of_students_70_80,result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // result.no_of_students_50_70,result.no_of_students_below_50,result.no_of_students_cross_50],
+                    // labels: ['Above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','No of Students Above 50%'],
+                    labels: ['No of students above 90%','Between 80%-90%','Between 70%-80%','Between 50%-70%','Below 50%','Above 50%'],
+                    // 
+                    type: 'pie'
+                    }];
+
+                    var layout = {
+                    height: 400,
+                    width: 500
+            };
+
+            Plotly.newPlot('testAttendanceGraph', data, layout);
               } 
               console.log('success');
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");
             }
+        });
+        
+        $.ajax({
+          url:"/fetchTestDates?class_val="+selected_class+"&section="+sec,
+          type:"get",
+          data:"",
+          success: function(response){
+            $('#previous').hide();
+            $('#next').show();
+            console.log('ResponseData:'+response.dateData);
+            $('#next').empty();
+            for(var data of response.dateData){
+              console.log('Data:'+data.id+' '+data.date+' '+data.type+' '+data.class+' '+data.section)
+
+              $('#next').append("<ul><li><a href='#'' name='"+data.id+"' onclick='load1();' title='"+data.date+"'>"+data.class+" "+data.section+"&nbsp;&nbsp;"+data.type+"&nbsp;&nbsp;&nbsp;&nbsp;"+data.date+"<input type='text' class='class' value='"+data.class+"' style='display:none;'><input type='text' class='section' value='"+data.section+"' style='display:none;'><input type='text' class='date' value='"+data.date+"' style='display:none;'><input type='text' class='id' value='"+data.id+"' style='display:none;'></a></li></ul>");
+            }
+          },
+          error: function (xhr){
+            window.alert("error occured while loading test dates");
+          }
         });
         }
 
@@ -709,61 +979,61 @@ Plotly.newPlot('testAttendanceGraph', data, layout);
     <!--Section for Student level form - dynamic-->
     
       <script>
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-        if(dd<10){
-                dd='0'+dd
-        } 
-        if(mm<10){
-                mm='0'+mm
-        } 
+        // var today = new Date();
+        // var dd = today.getDate();
+        // var mm = today.getMonth()+1; //January is 0!
+        // var yyyy = today.getFullYear();
+        // if(dd<10){
+        //         dd='0'+dd
+        // } 
+        // if(mm<10){
+        //         mm='0'+mm
+        // } 
 
-        today = yyyy+'-'+mm+'-'+dd;
-        document.getElementById("testdate").setAttribute("max", today);
+        // today = yyyy+'-'+mm+'-'+dd;
+        // document.getElementById("testdate").setAttribute("max", today);
 
-        var class_select1 = document.getElementById("class_val1");
-        var section_select1 = document.getElementById("section1");
-        var student_select1 = document.getElementById("student_name1")
+        // var class_select1 = document.getElementById("class_val1");
+        // var section_select1 = document.getElementById("section1");
+        // var student_select1 = document.getElementById("student_name1")
 
-        class_select1.onchange = function()  {
+        // class_select1.onchange = function()  {
              
-            class_val = class_select1.value;
-            $("#loader1").show();
+        //     class_val = class_select1.value;
+        //     $("#loader1").show();
             
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader1").hide();    
-                        var optionHTML = '';
-                        optionHTML += '<option value="na"  selected disabled> Select Section </option>';
-                        for (var section1 of data.sections) {
-                        optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
-                    }
-                    section_select1.innerHTML = optionHTML;
-                })
-            });
-        }
+        //     fetch('/resultUpload/' + class_val).then(function(response) {
+        //         response.json().then(function(data) {
+        //                 $("#loader1").hide();    
+        //                 var optionHTML = '';
+        //                 optionHTML += '<option value="na"  selected disabled> Select Section </option>';
+        //                 for (var section1 of data.sections) {
+        //                 optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
+        //             }
+        //             section_select1.innerHTML = optionHTML;
+        //         })
+        //     });
+        // }
 
 
 
-            section_select1.onchange=function()  {
-            class_val1 = class_select1.value;
-            section_val1 = section_select1.value;
-            $("#loader2").show();
+        //     section_select1.onchange=function()  {
+        //     class_val1 = class_select1.value;
+        //     section_val1 = section_select1.value;
+        //     $("#loader2").show();
             
-            fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
-                response.json().then(function(data) {  
-                        $("#loader2").hide();    
-                        var optionHTML = '';
-                        optionHTML += '<option value="na" selected disabled> Select Student </option>';
-                        for (var student of data.students) {
-                        optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
-                    }
-                    student_select1.innerHTML = optionHTML;
-                })
-            });
-        };
+        //     fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
+        //         response.json().then(function(data) {  
+        //                 $("#loader2").hide();    
+        //                 var optionHTML = '';
+        //                 optionHTML += '<option value="na" selected disabled> Select Student </option>';
+        //                 for (var student of data.students) {
+        //                 optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
+        //             }
+        //             student_select1.innerHTML = optionHTML;
+        //         })
+        //     });
+        // };
 
 
 
