@@ -4,11 +4,21 @@
         
         <div class='input-field col s12' style="text-align: left;">
 <h2 style="color:Green">Sign In</h2>
+<!--
+<div class="btn white  col s4 m4 right ">
+    <a href="#" style="text-transform:none" class="">
+        <div class="left ">
+            <img width="20px" style="border: grey" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+        </div>
+        Login with Google
+    </a>
+</div>
+-->
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
-        {{ form.username.label }}
-        <br> {{ form.username(size=32) }} {% for error in form.username.errors %}
+        {{ form.email.label }}
+        <br> {{ form.email(size=64) }} {% for error in form.email.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
@@ -25,8 +35,10 @@
             </label>
         </p>    
     
-    <p> <button class="btn-large waves-effect waves-light green white-text" type="submit">Sign In</button></p>
-</form>
+    <p> <button class="btn-large waves-effect waves-light green white-text" type="submit">Sign In</button>
+    </p>
+ 
+</form><br>
 <p>
         <a href="{{ url_for('reset_password_request') }}">Forgot Your Password?</a>
     </p>

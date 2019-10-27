@@ -33,13 +33,10 @@
         <!-------------------------------------------------------------------------------------------  -->
         <div class="content-wrapper" style="background-color: white;">
         <section class="content">
-        
-        
-
+                
         <!-- Start Result Table -->
 
-        {% if student_list %}
-
+        {% if student_list | length !=0%}
         <div class="box">
         <div class="box-header">
         <h3 class="box-title">Result Upload</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
@@ -120,6 +117,9 @@
       <p style="padding-left:395px;"><input type="button" class="btn waves-light green lighten-1 white-text" id="upload" name="upload" value="upload" style="width:100px;height: 35px;"></p>
       
       </form>
+      {%else%}
+      <h3 class="grey-text">No students present under Class: {{qclass_val}} | Section: {{qsection}}</h3>
+      <h5>To register new students, please go to <a href="{{url_for('studentRegistration')}}">Student Registration</a></h5>
       {% endif %}
         <!-- End Result Upload Table -->
         <div class="fixed-action-btn">

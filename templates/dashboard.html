@@ -49,7 +49,8 @@
                   </div>
                   {% endfor %}
                   {% else %}
-                  <h2 class="grey-text lighten-3">No Data yet </h2>
+                  <h3 class="grey-text">No course data </h3>
+                  <h5>Please add classes to see data here</h5>
                   {% endif %}
                   <!-- /.progress-group -->
                 </div>
@@ -66,6 +67,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body no-padding" style="overflow-y:auto;height:300px">
+                  {%if topStudentsRows | length!=0%}
                   <ul class="users-list clearfix">
                     {% for student in topStudentsRows%}
                     <li>
@@ -74,6 +76,9 @@
                     </li>                   
                     {%endfor%}
                   </ul>
+                  {%else%}
+                  <h3 class="grey-text">No performance data</h3>                  
+                  {%endif%}
                 </div>
               </div>
               <div class="box-footer text-right">
@@ -96,6 +101,7 @@
                 <div class="box-body">
                   <div>
                     <div class="table-responsive" style="overflow: auto;height:300px;">
+                        {%if EventDetailRows | length!=0%}
                       <table class="table no-margin">
                         <thead>
                           <tr>
@@ -106,8 +112,8 @@
                             <th>End Date</th>
                             <th>Category</th>
                           </tr>
-                        </thead>
-                        <tbody>
+                        </thead>                        
+                        <tbody>                          
                           {% for eventRow in EventDetailRows %}
                           <tr>
                             <td>{{eventRow.event_date}}</td>
@@ -118,10 +124,14 @@
                             <td>
                               {{eventRow.event_category}}
                             </td>
-                          </tr>
+                          </tr>                        
                           {% endfor %}
                         </tbody>
                       </table>
+                          {%else%}
+                          <h3 class="grey-text">No events added yet</h3>
+                          <h5>Please click on 'Add Event' button to update event details</h5>
+                          {%endif%}                                              
                     </div>
                   </div>
                 </div>
@@ -139,6 +149,10 @@
 </div>
 <script>
   var graphData = {{graphJSON | safe}};
+  if (graphData=="1"){
+    $('#graphDiv').html('<h3 class="grey-text">No performance data</h3>')
+  }
+  else{
   for (key in graphData) {
     value1 = graphData[key].data1[0];
     value2 = graphData[key].data2[0];
@@ -156,5 +170,6 @@
     showlegend: true,
     displayModeBar: false
   });
+}
 </script>
 {%endblock%}

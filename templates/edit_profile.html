@@ -8,33 +8,41 @@
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.username.label }}
-        <br> {{ form.username(size=32) }}
-        <br> {% for error in form.username.errors %}
+        {{ form.first_name.label }}
+        <br> {{ form.first_name(size=32) }}
+        <br> {% for error in form.first_name.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
     <p>
-        {{ form.about_me.label }}
-        <br> {{ form.about_me(cols=50, rows=4) }}
-        <br> {% for error in form.about_me.errors %}
+            {{ form.last_name.label }}
+            <br> {{ form.last_name(size=32) }}
+            <br> {% for error in form.last_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+    <p>
+        {{ form.phone.label }}
+        <br> {{ form.phone(cols=50, rows=4) }}
+        <br> {% for error in form.phone.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
-   <!-- <p>
+    <p>
+            {{ form.about_me.label }}
+            <br> {{ form.about_me(cols=50, rows=4) }}
+            <br> {% for error in form.about_me.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+   <p>
             {{ form.email.label }}
             <br> {{ form.email(size=100) }}
             <br> {% for error in form.email.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
-        </p>
-        <p>
-                {{ form.full_name.label }}
-                <br> {{ form.full_name(size=100) }}
-                <br> {% for error in form.email.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>-->
+        </p>        
     <!--<p>{{ form.submit() }}</p>-->
     <button class="btn waves-effect waves-light green" type="submit" name="action">Submit
         <i class="material-icons right">send</i>

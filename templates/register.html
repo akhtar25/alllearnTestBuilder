@@ -9,46 +9,60 @@
 <h2 style="color:Green">Register</h2>
 <form action="" method="post">
     {{ form.hidden_tag() }}
+    <!--<p>
+        form.username.label 
+        <br>  form.username(size=32) 
+        <br> for error in form.username.errors 
+        <span style="color: red;">[ error ]</span>
+         endfor 
+    </p>-->
     <p>
-       {{ form.username.label }}
-        <br> {{ form.username(size=32) }}
-        <br> {% for error in form.username.errors %}
-        <span style="color: red;">[{{ error }}]</span>
+        {{ form.first_name.label }}
+        <br> {{ form.first_name(size=64) }}
+        <br> {% for error in form.first_name.errors %}
+        <span style="color: red;">{{ error }}</span>
+        {% endfor %}
+    <!--above is first name below is last name-->
+        {{ form.last_name.label }}
+        <br> {{ form.last_name(size=64) }}
+        <br> {% for error in form.last_name.errors %}
+        <span style="color: red;">{{ error }}</span>
         {% endfor %}
     </p>
+    
     <p>
         {{ form.email.label }}
         <br> {{ form.email(size=64) }}
         <br> {% for error in form.email.errors %}
-        <span style="color: red;">[{{ error }}]</span>
+        <span style="color: red;">{{ error }}</span>
         {% endfor %}
     </p>
     <p>
             {{ form.phone.label }}
             <br> {{ form.phone(size=12) }}
             <br> {% for error in form.phone.errors %}
-            <span style="color: red;">[{{ error }}]</span>
+            <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
     <p>
         {{ form.password.label }}
         <br> {{ form.password(size=32) }}
         <br> {% for error in form.password.errors %}
-        <span style="color: red;">[{{ error }}]</span>
+        <span style="color: red;">{{ error }}</span>
         {% endfor %}
     </p>
     <p>
         {{ form.password2.label }}
         <br> {{ form.password2(size=32) }}
         <br> {% for error in form.password2.errors %}
-        <span style="color: red;">[{{ error }}]</span>
+        <span style="color: red;">{{ error }}</span>
         {% endfor %}
     </p>
-    <p><button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Register</button></p>    
+    <p><button class="btn-large waves-effect waves-light green lighten-1 white-text" type="submit">Sign Up</button></p>    
 </form>
 </div>
 <div>
-    <p>By clicking Sign Up, you agree to our <a href="../static/docs/termsAndConditions.pdf" target="_blank">Terms</a> and <a href="{{url_for('privacyPolicy')}}" target="_blank">Privacy Policy</a>. <br>You may receive SMS or email notifications from us and can opt out at any time.</p>    
+    <h6>By clicking Sign Up, you agree to our <a href="../static/docs/termsAndConditions.pdf" target="_blank">Terms</a> and <a href="{{url_for('privacyPolicy')}}" target="_blank">Privacy Policy</a>. <br>You may receive SMS or email notifications from us and can opt out at any time.</h6>    
 </div>
 </div>
 </div>
