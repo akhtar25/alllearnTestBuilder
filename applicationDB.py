@@ -66,7 +66,9 @@ db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    username = db.Column(db.String(120), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     about_me = db.Column(db.String(140))
@@ -499,6 +501,7 @@ class SubscriptionDetail(db.Model):
     sub_name = db.Column(db.String(100),nullable=True)  # plan for different durations (annual, quarter etc) should also be created separately
     sub_desc = db.Column(db.String(500), nullable=True)
     sub_duration_months = db.Column(db.Integer, nullable=True)
+    group_name = db.Column(db.String(100), nullable=True)
     monthly_charge = db.Column(db.Integer,nullable=True)    
     start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=True)

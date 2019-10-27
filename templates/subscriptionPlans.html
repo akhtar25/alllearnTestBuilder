@@ -1,0 +1,88 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container">  
+    <div class="row">
+        <div class="section">
+        <h3>Subscription Plans</h3>
+    </div>
+    </div>
+        <div class="row">
+                <div class="section">
+            <section class="plans-container" id="plans">                
+                {%for row in distinctSubsQuery%}
+                <article class="col s12 m6 l2 "> <!--cyan here-->
+                    <div class="card  z-depth-4">
+                        <div class="card-image">                            
+                        </div>
+                        <div class="card-content ">
+                                <div class="card-title">{{row.group_name}}</div>
+                                <a class="modal-trigger" href="#{{row.group_name}}">More Details</a>
+
+                                <!-- Modal Structure -->
+                                <div id="{{row.group_name}}" class="modal" style="width:338px;">
+                                  <!--<div class="modal-footer">
+                                        <p>{{row.sub_desc}}</p>                                    
+                                  </div>       -->
+
+                                  <div class="modal-content">
+                                        <h4>{{row.group_name}}</h4>
+                                        {% autoescape false %}
+                                      <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
+                                        {% endautoescape %}
+                                      </div>
+                                </div>
+                                
+                            <ul class="collection ">
+                                <!--<li class="collection-item">{{row.sub_name}}</li>-->
+                                <li class="collection-item">Student Limit: <strong>{{row.student_limit}}</strong></li>
+                                <li class="collection-item">Teacher Limit: <strong>{{row.teacher_limit}}</strong></li>
+                                <li class="collection-item">Test Limit: <strong>{{row.test_limit}}</strong></li>
+                            </ul>
+                                <ul class="collapsible">
+                                {%for row2 in subscriptionRow%}
+                                {%if row2.group_name==row.group_name%}
+                                <li>
+                                    {%if row2.sub_duration_months!=None%}
+                                        <div class="collapsible-header">{{row2.sub_duration_months}}  month <br/> {{ "₹{:,.2f}".format(row2.monthly_charge) }}</div>
+                                        {%else%}
+                                        <div class="collapsible-header">Always Free</div>
+                                        {%endif%}
+                                        <div class="collapsible-body"><span><button class="waves-effect waves-light green btn">Select Plan</button></span></div>
+                                      </li>
+                                {%endif%}
+                                {%endfor%}
+                            </ul>
+                        </div>
+                        <div class="card-action center-align">
+                            
+                        </div>
+                    </div>
+                </article>  
+                {%endfor%}
+            </section>
+        
+        </div>
+        <!-- Floating Action Button -->
+    </div>
+</div>
+<script>
+  const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2
+})
+$(document).ready(function(){
+var charge_val = $('.charge').val();
+$(this).val(formatter.format(charge_val));
+});
+
+$(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+        
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
+     
+</script>
+{% endblock %}
