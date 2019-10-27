@@ -464,16 +464,27 @@ def testingOtherVideo():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
-        current_user.username = form.username.data
+        #both email and username is the same 
+        current_user.username = form.email.data
+        current_user.email=form.email.data
         current_user.about_me = form.about_me.data
+        ##
+        current_user.first_name= form.first_name.data
+        current_user.last_name= form.last_name.data
+        current_user.phone=form.phone.data        
+        ##
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('user', username=current_user.username))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
+    elif request.method == 'GET':        
         form.about_me.data = current_user.about_me
+        form.first_name.data = current_user.first_name
+        form.last_name.data = current_user.last_name
+        form.phone.data = current_user.phone
+        form.email.data = current_user.email
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name())
 
@@ -655,7 +666,7 @@ def user(username):
         accessRequestListRows=""
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
-        return render_template('user.html', user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows)
+        return render_template('user.html', user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -737,10 +748,10 @@ def grantUserAccess():
     print("we're in grant access request ")
     userTableDetails = User.query.filter_by(username=username).first()
     userTableDetails.access_status='145'
-    
+    userFullName = userTableDetails.first_name + " "+ userTableDetails.last_name
     checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
     if checkTeacherProfile==None:
-        teacherData=TeacherProfile(teacher_name=username,school_id=school_id, registration_date=datetime.utcnow(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
+        teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.utcnow(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
         db.session.add(teacherData)    
         db.session.commit()
     access_granted_email(userTableDetails.email,userTableDetails.username,school )

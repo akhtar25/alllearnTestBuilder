@@ -29,11 +29,27 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" height="45px" width="170px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name != none %}| {{ School_Name }} {%endif%}{% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name != none %}| {{ School_Name }} {%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-      <ul class="sidenav" id="mobile-demo">        
+      <ul class="sidenav" id="mobile-demo">
+          {% if current_user.is_anonymous %}
+          <li style="color: green;">
+            <a style="color: green;" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li style="color: green;">
+            <a style="color: green;" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% elif current_user.is_anonymous or disconn == 1 %}
+          <li>
+              <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+            </li>
+          <li>
+              <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+              </li>      
+          
+          {% else %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>   
@@ -54,24 +70,31 @@
                 <a style="color: green;" href="{{url_for('resultUploadHistory')}}">Result History</a>
               </li>  
             <li>
-                <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Class Performance</a>
+                <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
               </li>
               <li>
-                <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Test Performance</a>
+                <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
+              </li>
+              <li>
+                  <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
               </li>
               <li>
                   <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
                 </li>
           <li>
               <a style="color: green;" href="{{url_for('studentProfile')}}">Student Directory</a>
-            </li>
-           
-   
+            </li>              
+            <li>
+                <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
+              </li>
             <li>
               <a style="color: green;" href="{{url_for('help')}}">Help</a>
             </li>
-        </ul>
-        
+            <li>
+                <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {%endif%}
+        </ul>        
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}

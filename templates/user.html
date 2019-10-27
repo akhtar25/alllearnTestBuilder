@@ -4,9 +4,9 @@
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>My Profile</h3>
             
         </div>        
-        <div class="right col s4 m8 l2">
+        <!--<div class="right col s4 m8 l2">
                 <a class="waves-effect waves-light btn" href="{{url_for('edit_profile')}}"><i class="material-icons">edit</i> Edit Profile</a>
-            </div>  
+            </div>  -->
         
            <div class="col s4 m4 l4 center" >               
                {% if teacher.profile_picture != none %}
@@ -14,17 +14,21 @@
             {%else%}
             <img class="responsive-img " src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
             {%endif%}
-            <h4 style="font-weight: bold;">{{teacher.teacher_name}}</h4>            
-        </div>
-        
+            <h4 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h4>
+        </div>        
             <div class="col s4 m4 l6">            
             <h4><b>Email:</b> {{user.email}}</h4>
             <h4><b>Phone:</b> {{teacher.phone}}</h4>
-            <h4><b>Device Preference:</b> {{teacher.device_preference}}</h4> 
+            {%if teacher.device_preference==78%}
+            <h4><b>Device Preference:</b> Integrated Camera(eg. Tablet)</h4> 
+            {%else%}
+            <h4><b>Device Preference:</b>External Web Camera(eg. PC+ Mobile)</h4> 
+            {%endif%}
             <h4><b>Main Subjects:</b> {{teacher.subject_name}}</h4>
             <h4><b>Assigned Class:</b> {{teacher.class_sec_id}}</h4>
-            <h4><b>Registration Date:</b> {{teacher.registration_date}}</h4>
-            <h4><b>About Me:</b> {{user.about_me}}</h4>                                  
+            <h4><b>Registration Date:</b> {{teacher.registration_date.strftime('%d %B-%Y')}}</h4>
+            <h4><b>About Me:</b> {{user.about_me}}</h4> 
+            <h4><b>School ID:</b>{{school_id}}</h4>
         </div>
 
         {% if accessRequestListRows | length > 0 %}
