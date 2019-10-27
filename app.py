@@ -230,6 +230,25 @@ def schoolRegistration():
         newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()        
         newSchool.school_admin = newTeacherRow.teacher_id
+
+        #adding records to topic tracker while registering school
+        #insert into topic_tracker
+        #(subject_id,
+        #class_sec_id,
+        #is_covered,
+        #topic_id,
+        #school_id,reteach_count,
+        #last_modified_date)
+        #(select subject_id, '39', 'N', topic_id, '1', 0,current_date from 
+        #Topic_detail where class_val=’1’)
+
+        #(select subject_id, <class sec id for that class val>, 'N', topic_id, <class val from same records >, 0,current_date from Topic_detail where class_val=’1’)
+        classSecRows = ClassSection.query.filter_by(school_id=newSchool.school_id).all()
+        for classRow in classSecRows:
+            insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(newSchool.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
+            db.session.execute(text(insertRow))
+
+        #end of inser to topic tracker hahahahaha
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('Successful Registration!')
@@ -510,7 +529,7 @@ def index():
 
             graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
         else:
-            graphJSON="No data found"
+            graphJSON="1"
     #####Fetch Top Students infor##########        
         topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
         
@@ -597,7 +616,8 @@ def register():
     if form.validate_on_submit():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
-        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data)
+        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data,
+            first_name = form.first_name.data,last_name= form.last_name.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -606,8 +626,9 @@ def register():
         if checkTeacherProf!=None:
             checkTeacherProf.user_id=user.id
             db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        welcome_email(str(form.email.data), str(form.email.data))
+        full_name = str(form.first_name.data)+ ' '+str(form.last_name.data)
+        flash('Congratulations '+full_name+', you are now a registered user!')
+        welcome_email(str(form.email.data), full_name)
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -695,12 +716,12 @@ def requestUserAccess():
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
-        userTableDetails.access_status='143'    
+        userTableDetails.access_status='143'
         userTableDetails.user_type='140'
         userTableDetails.about_me=about_me
         db.session.commit()
         #Send email section
-        teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, requestorUsername, adminEmail.username)
+        teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username)
         return jsonify(["0"])
     else:
         return jsonify(["1"])
@@ -989,16 +1010,27 @@ def classCon():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-        qclass_val = request.args.get('class_val',1)
-        qsection=request.args.get('section','A')
+        qclass_val = request.args.get('class_val')
+        qsection=request.args.get('section')
 
         #db query
 
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+        count = 0
         for section in classSections:
             print("Class Section:"+section.section)
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+            #this section is to load the page for the first class section if no query value has been provided
+            if count==0:
+                getClassVal = section.class_val
+                getSection = section.section
+                count+=1
 
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+        #if no value has been passed for class and section in query string then use the values fetched from db
+        if qclass_val==None:
+            qclass_val = getClassVal
+            qsection=getSection
+            
         selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
 
         topicTrackerQuery = "with cte_total_topics as "
