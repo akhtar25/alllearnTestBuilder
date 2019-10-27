@@ -150,6 +150,7 @@ class LeaderBoardQueryForm(FlaskForm):
     subject_name=SelectField('Subject')
     test_type=SelectField('Test Type')
     section=SelectField('Section') 
+    testdate=SelectField('Test Date')
 
 class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
@@ -275,6 +276,7 @@ class testPerformanceForm(FlaskForm):
     class_val=SelectField('Select Class')
     section=SelectField('Select Section')    
     test_type=SelectField('Select Test Type')
+    subject_name = SelectField('Select Subject')
 
 
 class studentPerformanceForm(FlaskForm):

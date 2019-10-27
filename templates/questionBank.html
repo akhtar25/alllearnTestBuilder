@@ -146,7 +146,7 @@
                 var optionHTML = '';
                 optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
                 for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num + ' - ' +chapterNo.chapter_name + '</option>';
                   }
                   chapter_num_select.innerHTML =  optionHTML;
             })
