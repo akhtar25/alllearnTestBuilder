@@ -787,9 +787,13 @@ def questionBankQuestions():
         questionList = QuestionDetails.query.filter_by(topic_id=int(topic),archive_status='N').all()
         questions.append(questionList)
         for q in questionList:
-            print("Question List"+str(q))
-    print("Inside questionBankquestions")
-    return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
+            print("Question List"+str(q))    
+    if len(questionList)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        print('returning template'+ str(questionList))
+        return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
 
 @app.route('/questionBankFileUpload',methods=['GET','POST'])
 def questionBankFileUpload():

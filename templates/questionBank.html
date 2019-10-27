@@ -218,7 +218,12 @@
             success: function (response) {
                 $("#questionloader").hide();
                 $("#questionEditorDiV").show();
-                $("#questions").html(response);
+                if(response==1){
+                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+                }
+                else{
+                    $("#questions").html(response);
+                }                                
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");

@@ -339,7 +339,7 @@
             success: function (response) {
                 $("#loaderDiv").hide();
                 if (response=="NA"){
-                    $("#contentDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No content available.</p></span>');
+                    $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
                 }
                 else{
                 $("#contentDiv").html(response);
