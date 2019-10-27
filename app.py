@@ -40,7 +40,7 @@ from collections import defaultdict
 from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
-
+import string
 
 #from flask_material import Material
 
@@ -2699,9 +2699,20 @@ def indivStudentProfile():
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
 
+    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="
+    #3-3-Aditi%20Semwal-C nanananana
+
+    qrArray=[]
+    x = range(4)    
+
+    for n in x:                        
+        optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+        qrArray.append(optionURL)
+        print(optionURL)
+         
     #print("reached indiv student ")
     #print(studentProfileRow)
-    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrRows=qrRows)
+    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray)
 
 
 @app.route('/studentProfile')

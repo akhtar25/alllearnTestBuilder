@@ -41,14 +41,13 @@
             <h4><b>Phone:</b> {{guardian.phone}}</h4>
             {%endfor%}
 
-        {%if qrRows  | length != 0 %}                                    
+        {%if qrArray  | length != 0 %}                                    
             <h4><u>QR Codes for feedback sessions</u></h4>
             <p>Please print the qr codes in full size on A4 sheets </p>
             <ul>
-            {% for qrRow in qrRows%}
-
+            {% for qrRow in qrArray%}
             <li>
-            <a href="{{qrRow.qr_link}}" target="_blank">Option: {{qrRow.option}}</a>
+            <a href="{{qrRow}}" target="_blank">Option: {{ qrRow[-1] }}</a>
         </li>
             {%endfor%}
         </ul>        
