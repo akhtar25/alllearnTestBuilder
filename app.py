@@ -860,7 +860,12 @@ def testBuilderQuestions():
     for topic in topicList:
         questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
         questions.append(questionList)
-    return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
+    if len(questionList)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        print('returning template'+ str(questionList))
+        return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
@@ -2089,21 +2094,35 @@ def classPerformance():
 @login_required
 def resultUpload():
     #selectfield choices list
+    qclass_val = request.args.get('class_val')
+    qsection=request.args.get('section')
+
     user = User.query.filter_by(username=current_user.username).first_or_404()    
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
-    qclass_val = request.args.get('class_val',1)
-    qsection=request.args.get('section','A')
+
+    count = 0
+    #this section is to load the page for the first class section if no query value has been provided
+    if qclass_val==None:
+        for section in classSections:                
+            if count==0:
+                getClassVal = section.class_val
+                getSection = section.section          
+                print('set class and section values for first load')      
+        #if no value has been passed for class and section in query string then use the values fetched from db
+                qclass_val = getClassVal
+                qsection=getSection
+                count+=1
+            
     test_type = MessageDetails.query.filter_by(category='Test type').all()
     test_details = TestDetails.query.distinct().filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
     for section in classSections:
             print("Class Section:"+section.section)
     subject_name = []
     if current_user.is_authenticated:
-
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         class_sec_id=ClassSection.query.filter_by(class_val=int(qclass_val),school_id=teacher_id.school_id).first()
         print(class_sec_id.class_sec_id)
@@ -2115,17 +2134,9 @@ def resultUpload():
         subject_name = db.session.execute(queryForSubjectName).fetchall()
         print('No of Subjects:'+str(len(subject_name)))
         for subjects in subject_name:
-            print('Subjects Name:'+subjects[0])
-        if student_list:
-                return render_template('resultUpload.html',test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
-
-        else:
-            flash('No Student list for the given class and section')
-                   
-            return render_template('resultUpload.html',test_details=test_details,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,School_Name=school_name())
-
-            # me())
-    
+            print('Subjects Name:'+subjects[0])        
+        return render_template('resultUpload.html',test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
+        
 
 @app.route('/resultUpload/<class_val>')
 def section(class_val):

@@ -148,7 +148,12 @@
            },
             success: function (response) {
                 $("#questionloader").hide();
-                $("#questions").html(response);
+                if(response==1){
+                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3>');
+                }
+                else{
+                    $("#questions").html(response);
+                }                
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");
