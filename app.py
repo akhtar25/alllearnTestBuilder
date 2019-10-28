@@ -257,7 +257,7 @@ def schoolRegistration():
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('Successful Registration!')
         new_school_reg_email(form.schoolName.data)
-        return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name())
+        return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name(),school_id=school_id.school_id)
     return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
@@ -1887,7 +1887,11 @@ def testPerformance():
     student_list=[(i.student_id,i.full_name) for i in available_student_list]
     resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'"))
     avg_scores = []
-    print('Type of Resultset:'+str(type(resultSet)))
+    resultSetCount = 0
+    for resultNum in resultSet:
+        resultSetCount+=1
+    print('Type of Resultset:'+str(resultSetCount))
+
     #selectfield choices
     form1.class_val1.choices = class_list
     form1.section1.choices= ''
@@ -1899,7 +1903,7 @@ def testPerformance():
     students = db.session.execute(text(findStudentData))
     print(students)
     print('Inside Test Performance')
-    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet,datelist=datelist,students=students)
+    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSetCount=resultSetCount,resultSet=resultSet,datelist=datelist,students=students)
 
 
 @app.route('/testPerformanceGraph')
