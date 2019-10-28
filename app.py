@@ -204,6 +204,7 @@ def schoolRegistration():
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
     if form.validate_on_submit():
+        selected_sub_id = request.form.get('selected_sub_id')        
         address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         if address_id is None:
             address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
@@ -212,7 +213,7 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input']       
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now())
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
@@ -223,6 +224,7 @@ def schoolRegistration():
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
+
         for i in range(len(class_val)):
             class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=int(student_count[i]),school_id=school_id.school_id)
             db.session.add(class_data)

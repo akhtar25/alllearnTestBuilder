@@ -219,8 +219,9 @@
                                             {%else%}
                                             <div class="collapsible-header">Always Free</div>
                                             {%endif%}
-                                            <div class="collapsible-body selectPlanClass" name="{{row2.sub_name}}" id="{{row.group_name}}<br><h3>Charge: {{ '₹{:,.2f}'.format(row2.monthly_charge) }}</h3> every {{row2.sub_duration_months}} months" ><span><a class="waves-effect waves-light green btn">Select Plan</a></span></div>
-                                            <input type="hidden" id="selected_sub_id" value="{{row2.sub_id}}"> 
+                                            <div class="collapsible-body selectPlanClass" name="{{row2.sub_id}}" id="{{row.group_name}}<br><h3>Charge: {{ '₹{:,.2f}'.format(row2.monthly_charge) }}</h3> every {{row2.sub_duration_months}} months" ><span><a class="waves-effect waves-light green btn">Select Plan</a></span></div>
+                                            
+                                           
                                           </li>
                                     {%endif%}
                                     {%endfor%}
@@ -238,7 +239,7 @@
 
     <div class="row">
         <h4 class="grey-text">Plan Selected </h4> <span id="showPlanSelected"> No Plan Selected</span>
-
+        <input type="hidden" id="selected_sub_id" name="selected_sub_id"> 
     </div>
 
         <p><!--<button class="btn waves-light green lighten-1 white-text"
@@ -259,9 +260,10 @@
 
 
   $(".selectPlanClass").click(function () {
+    $("#submit").attr("disabled", false); 
       var selectedPlan = this.id;
         $('#showPlanSelected').html('<h5 class="">'+selectedPlan+'</h5>');
-        $(this).attr("name");
+        $('#selected_sub_id').val($(this).attr("name"));
     });
 
         const formatter = new Intl.NumberFormat('en-US', {
@@ -270,17 +272,13 @@
         minimumFractionDigits: 2
       })
       $(document).ready(function(){
+        $("#submit").attr("disabled", true); 
       var charge_val = $('.charge').val();
       $(this).val(formatter.format(charge_val));
+      $('.collapsible').collapsible();
+      $('.modal').modal();
       });
-      
-      $(document).ready(function(){
-          $('.collapsible').collapsible();
-        });
-              
-        $(document).ready(function(){
-          $('.modal').modal();
-        });
+   
            
     var classbox_data = '';
     var count = 0;
