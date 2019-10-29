@@ -45,6 +45,9 @@
           <li>
               <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
+            <li>
+                <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
+              </li>
           <li>
               <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
               </li>      
@@ -69,15 +72,16 @@
             <li>
                 <a style="color: green;" href="{{url_for('resultUploadHistory')}}">Result History</a>
               </li>  
-            <li>
-                <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
-              </li>
+
               <li>
                 <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
               </li>
               <li>
                   <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
               </li>
+              <li>
+                  <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
+                </li>
               <li>
                   <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
                 </li>
@@ -87,6 +91,9 @@
             <li>
                 <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
               </li>
+              <li>
+                  <a style="color: green;" href="{{url_for('classRegistration')}}">Add Class</a>
+                </li>
               <li>
                   <a style="color: green;" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
                 </li>
@@ -113,6 +120,9 @@
             <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
           </li>
           <li>
+              <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
+            </li>
+          <li>
           <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
           </li>
           {% endif %}
@@ -128,6 +138,9 @@
           <li>
             <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
           </li>
+          <li>
+              <a style="color: green;" href="{{url_for('classRegistration')}}">Add Class</a>
+            </li>
           <li>
               <a style="color: green;" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
             </li>
@@ -154,14 +167,14 @@
 
         <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
           <li>
-            <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
-          </li>
-          <li>
             <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
           </li>
           <li>
               <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
+          <li>
+              <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
+            </li>
         </ul>
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous or disconn == 1 %}
@@ -306,28 +319,35 @@ $(document).ready(function(){
                   <li>
                       <a  class="white-text" href="{{url_for('resultUploadHistory')}}">Result History</a>
                     </li>  
+                    <li>
+                        <a class="white-text"  href="{{url_for('classPerformance')}}">Feedback Report</a>
+                      </li>
           </ul>
         </div>
         <div class="col l2 s12">
             <ul>
+              
                 <li>
-                    <a class="white-text"  href="{{url_for('classPerformance')}}">Class Performance</a>
-                  </li>
-                <li>
-                  <a class="white-text" href="{{url_for('testPerformance')}}">Test Performance</a>
+                  <a class="white-text" href="{{url_for('testPerformance')}}">Performance Report</a>
                 </li>                    
           <li>
               <a class="white-text" href="{{url_for('contentManager')}}">Content Manager</a>
             </li>
             <li>
-                <a class="white-text" href="{{url_for('studentProfile')}}">Student Profile</a>
+                <a class="white-text" href="{{url_for('studentProfile')}}">Student Directory</a>
               </li>
+              <li>
+                  <a class="white-text" href="{{url_for('classRegistration')}}">Add Class</a>
+                </li>
               <li>
                   <a class="white-text" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
                 </li>
           <li>
             <a class="white-text" href="{{url_for('help')}}">Help</a>
           </li>
+          <li>
+              <a class="white-text" href="{{ url_for('schoolProfile') }}">School Profile</a>
+            </li>
           </ul>
           </div>      
           {% endif %}

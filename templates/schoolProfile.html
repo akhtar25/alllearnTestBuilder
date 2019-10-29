@@ -1,0 +1,123 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container ">
+    <div class="row">
+        <div class="col s8 offset-s2" style="background: whitesmoke">
+            <div  style="padding: 1px;margin-bottom: 20px;"  class="white-text center green z-depth-1 lighten-1">
+                <h3>School Profile</h3>
+            </div>
+
+            <div class="col s4 m4 l4 center">
+                {%if schoolProfileRow.school_picture!=None %}
+                <img class="responsive-img " src="{{schoolProfileRow.school_picture}}">
+                {%else%}
+                <img class="responsive-img "
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
+                {%endif%}
+                <h4 style="font-weight: bold;">{{schoolProfileRow.school_name}}</h4>
+            </div>
+
+            <div class="col s4 m4 l6">
+                <div id="schoolSummaryDiv">
+                    <table>
+                        <tr>
+                            <td>School ID</td>
+                            <td> {{schoolProfileRow.school_id}}</td>
+                        </tr>
+                        <tr>
+                            <td>Board</td>
+                            <td> CBSE</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>
+                                {{addressRow.address_1}}<br>
+                                {{addressRow.address_2}}<br>
+                                {{addressRow.locality}}<br>
+                                {{addressRow.city}}<br>
+                                {{addressRow.state}}<br>
+                                {{addressRow.country}}<br>
+                                {{addressRow.pin}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Registration Date</td>
+                            <td> {{schoolProfileRow.registration_date}}</td>
+                        </tr>
+                        <tr>
+                            <td>Number of registered Teachers </td>
+                            <td> {{registeredTeacherCount[0]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Number of registered students</td>
+                            <td> {{registeredStudentCount[0]}}</td>
+                        </tr>
+                        <tr>
+                            <td>School Admin</td>
+                            <td> {{schoolProfileRow.school_admin}}</td>
+                        </tr>
+                        <tr>
+                            <td>Subcription Chosen</td>
+                            <td> {{subscriptionRow.group_name}}</td>
+                        </tr>
+                        <tr>
+                            <td>Subcription Cost</td>
+                            <td> {{subscriptionRow.monthly_charge}} every {{subscriptionRow.sub_duration_months}}</td>
+                        </tr>
+                    </table>                    
+                </div>
+            </div>            
+            <div id="teacherRowsDiv">
+                <table>
+                    <thead>
+                        <th>Teacher</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Registration Date</th>
+                    </thead>
+                    <tbody>
+                        {%for teacherRow in allTeachers%}
+                        <tr>
+                            <td>{%if teacherRow.profile_picture!= None %}
+                                    <img class="responsive-img circle" src="{{teacherRow.profile_picture}}" width="100px">                            
+                                {%else%}
+                                <img class="responsive-img circle" width="50px" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+                                {%endif%}
+                                 {{teacherRow.teacher_name}}</td>
+                            <td>{{teacherRow.email}}</td>
+                            <td>{{teacherRow.phone}}</td>
+                            <td>{{teacherRow.registration_date.strftime('%d %B %Y')}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+                <a class="right" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
+            </div>
+            <br>
+            <br>
+            <div id="classSectionDiv">
+                <table>
+                    <thead>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Expected Student Count</th>
+                        <th>Class Teacher</th>
+                    </thead>
+                    <tbody>
+                        {%for classSecVal in classSectionRows%}
+                        <tr>
+                            <td>{{classSecVal.class_val}}</td>
+                            <td>{{classSecVal.section}}</td>
+                            <td>{{classSecVal.student_count}}</td>
+                            <td>{{classSecVal.class_teacher}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+                <a class="right" href="{{url_for('classRegistration')}}">Add Class</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
