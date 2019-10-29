@@ -5,7 +5,7 @@ from applicationDB import *
 from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
-from forms import createSubscriptionForm
+from forms import createSubscriptionForm,ClassRegisterForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -194,6 +194,19 @@ def reset_password(token):
     return render_template('reset_password_page.html', form=form)
 
 
+@app.route('/schoolProfile')
+@login_required
+def schoolProfile():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    registeredStudentCount = db.session.execute(text("select count(*) from student_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
+    registeredTeacherCount = db.session.execute(text("select count(*) from teacher_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
+    allTeachers = TeacherProfile.query.filter_by(school_id=teacherRow.school_id).all()
+    classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+    schoolProfileRow = SchoolProfile.query.filter_by(school_id = teacherRow.school_id).first()
+    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
+    subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
+    return render_template('schoolProfile.html', School_Name=school_name(), teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow)
+
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():
@@ -237,29 +250,59 @@ def schoolRegistration():
         newSchool.school_admin = newTeacherRow.teacher_id
 
         #adding records to topic tracker while registering school
-        #insert into topic_tracker
-        #(subject_id,
-        #class_sec_id,
-        #is_covered,
-        #topic_id,
-        #school_id,reteach_count,
-        #last_modified_date)
-        #(select subject_id, '39', 'N', topic_id, '1', 0,current_date from 
-        #Topic_detail where class_val=’1’)
-
-        #(select subject_id, <class sec id for that class val>, 'N', topic_id, <class val from same records >, 0,current_date from Topic_detail where class_val=’1’)
+        
         classSecRows = ClassSection.query.filter_by(school_id=newSchool.school_id).all()
         for classRow in classSecRows:
             insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(newSchool.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
             db.session.execute(text(insertRow))
 
-        #end of inser to topic tracker hahahahaha
+        #end of inser to topic tracker
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('Successful Registration!')
         new_school_reg_email(form.schoolName.data)
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name(),school_id=school_id.school_id)
     return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
+
+@app.route('/classRegistration', methods=['GET','POST'])
+@login_required
+def classRegistration():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+
+    form = ClassRegisterForm()
+    #if form.validate_on_submit():
+    if request.method == 'POST':
+        print('passed validation')
+        class_val=request.form.getlist('class_val')
+        class_section=request.form.getlist('section')
+        student_count=request.form.getlist('student_count')
+
+        for i in range(len(class_val)):
+            print('there is a range')
+            class_data=ClassSection(class_val=int(class_val[i]),section=class_section[i],student_count=int(student_count[i]),school_id=teacherRow.school_id)
+            db.session.add(class_data)
+        
+        db.session.commit()
+        #adding records to topic tracker while registering school
+        
+        classSecRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+
+        topicTrackerRows = "select distinct class_sec_id from topic_tracker where school_id='"+str(teacherRow.school_id)+"'"
+
+        classSecNotInTopicTracker = db.session.execute(text(topicTrackerRows)).fetchall()
+
+        for classRow in classSecRows:
+            if classRow.class_sec_id not in classSecNotInTopicTracker: 
+                insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(teacherRow.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
+                db.session.execute(text(insertRow))
+        db.session.commit()
+
+        flash('Classes added successfully!')
+    return render_template('classRegistration.html', School_Name=school_name(),classSectionRows=classSectionRows,form=form)    
+    
+
+
 
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required

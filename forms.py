@@ -198,33 +198,7 @@ class SchoolRegistrationForm(FlaskForm):
     pincode = StringField('Pincode',validators=[DataRequired(),Length(min=0, max=10)],widget=NumberInput())
     class_val=StringField('Class',validators=[DataRequired()],widget=NumberInput(min=1,max=10))
     section=StringField('Section',validators=[DataRequired(),Length(min=0, max=1)])
-    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))
-    
-    #teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
-    #teacher_subject = StringField('Subject (optional)')
-    #class_teacher = StringField('Teacher\'s Class(optional) ', validators=[NumberRange(min=0,max=10)],widget=NumberInput())
-    #class_teacher_section=StringField('Teacher\'s Section')
-    #teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
-    #paymentPlan = SelectField('Payment Plan',choices=[(c, c) for c in ['Free', 'Fixed', 'Dynamic']])
-
-   # def validate_class_val(self,schoolName):
-    #    if schoolName.data=='Select':
-     #       raise ValidationError('* Please enter the school name')
-    #def validate_section(self,board):
-     #   if board.data=='Select':
-      #      raise ValidationError('Please select a curriculum board')
-    #def validate_test_type(self,address1):
-     #   if address1.data=='Select':
-      #      raise ValidationError('Please enter the address')
-    #def validate_city(self,city):
-     #   if city.data=='Select':
-      #      raise ValidationError('Please enter the city')
-    #def validate_pincode(self,pincode):
-     #   if pincode.data=='Select':
-      #      raise ValidationError('Please enter the pinCode')
-    #def validate_state(self,state):
-     #   if state.data=='Select':
-      #      raise ValidationError('Please enter the state')
+    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))    
 
 class SchoolTeacherForm(FlaskForm):
     teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
@@ -236,6 +210,17 @@ class SchoolTeacherForm(FlaskForm):
     def validate_teacher_email(self,teacher_email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", teacher_email):
             raise ValidationError('Error in email')
+
+class ClassRegisterForm(FlaskForm):
+    class_val=StringField('Class',widget=NumberInput(min=1,max=10))
+    section=StringField('Section',validators=[Length(min=0, max=1)])
+    student_count=StringField('Expected Student Count',widget=NumberInput(min=1,max=100))
+
+    def validate_class_section(self, class_val, section):
+        classSecRow = ClassSection.query.filter_by(class_val=class_val.data,section=section.data).first()
+        if classSecRow is not None:
+            raise ValidationError('Class-Section already registered')
+
 
 class PaymentDetailsForm(FlaskForm):
     cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])
