@@ -42,6 +42,7 @@ from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
 import string
+import requests
 
 #from flask_material import Material
 
@@ -958,12 +959,13 @@ def testBuilderFileUpload():
     #Add the image associated with the question
         if data.reference_link!='' and data.reference_link!=None:
             #image_from_url = urlopen(data.reference_link)
-            user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
-            image_from_url = urlopen(Request(data.reference_link, data=None, headers={'User-Agent': user_agent}))
-            io_url = BytesIO()
-            io_url.write(image_from_url.read())
-            io_url.seek(0)
-            document.add_picture(io_url ,width=Inches(1.5))                
+            #user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
+            #image_from_url = urlopen(Request(data.reference_link, data=None, headers={'User-Agent': user_agent}))
+            response = requests.get(data.reference_link)
+            binary_img = BytesIO(response.content)
+            #io_url.write(image_from_url.read())
+            #io_url.seek(0)
+            document.add_picture(binary_img ,width=Inches(1.5))                
 
         for option in options:
             if option.option_desc is not None:
