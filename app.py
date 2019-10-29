@@ -957,7 +957,9 @@ def testBuilderFileUpload():
         )    
     #Add the image associated with the question
         if data.reference_link!='' and data.reference_link!=None:
-            image_from_url = urlopen(data.reference_link)
+            #image_from_url = urlopen(data.reference_link)
+            user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
+            image_from_url = urlopen(Request(data.reference_link, data=None, headers={'User-Agent': user_agent}))
             io_url = BytesIO()
             io_url.write(image_from_url.read())
             io_url.seek(0)
@@ -1390,7 +1392,7 @@ def questionDetails():
 def topperListAll():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where section='All' and subjects='All' order by marks desc fetch next 10 rows only"
     #print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -1408,7 +1410,7 @@ def leaderBoard():
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and test='All' and subjects='All' order by marks desc fetch next 10 rows only"
+        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and subjects='All' order by marks desc"
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
@@ -2584,13 +2586,13 @@ def questionFile():
 def topperList():
     classValue = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    test_type = request.args.get('test_type')
+    #test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
-    test_date = request.args.get('test_date')
-    print('Class Value:'+classValue+"Subject Value:"+subject_id+"Test Type:"+test_type+"Section value:"+section_val+"Test date:"+test_date)
+    #test_date = request.args.get('test_date')
+    #print('Class Value:'+classValue+"Subject Value:"+subject_id+"Test Type:"+test_type+"Section value:"+section_val+"Test date:"+test_date)
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+section_val+"' and subjects='"+subject_id+"' and test='"+test_type+"' and exam_date='"+test_date+"' order by marks desc"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+section_val+"' and subjects='"+subject_id+"' order by marks desc"
     #print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -2601,13 +2603,13 @@ def topperListBySubject():
     subjectValue = request.args.get('subject_id')
     test_type = request.args.get('test_type')
     section_val = request.args.get('section_val')
-    test_date = request.args.get('test_date')
-    print('old Date:'+test_date)
-    date = test_date
-    if test_date!='All':
-        datetime_object = datetime.strptime(test_date, '%d-%B-%Y')
-        print('New Date:'+str(datetime_object))
-        date = datetime_object
+    #test_date = request.args.get('test_date')
+    #print('old Date:'+test_date)
+    #date = test_date
+    #if test_date!='All':
+    #    datetime_object = datetime.strptime(test_date, '%d-%B-%Y')
+    #    print('New Date:'+str(datetime_object))
+    #    date = datetime_object
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     subjectName = ''
@@ -2621,9 +2623,9 @@ def topperListBySubject():
     else:
         sub = subjectName.description
     if classValue!='':
-        query = query + "class='"+classValue+"' and subjects='"+sub+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+str(date) +"' order by marks desc"
+        query = query + "class='"+classValue+"' and subjects='"+sub+"' and section='"+section_val+"' order by marks desc"
     else:
-        query = query + "subjects='"+sub+"' and test='"+ test_type +"' and section='"+section_val+"' and exam_date='"+str(date) +"' order by marks desc"
+        query = query + "subjects='"+sub+"' and section='"+section_val+"' order by marks desc"
     print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
