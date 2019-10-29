@@ -81,4 +81,4 @@ def new_school_reg_email(school):
 def new_teacher_invitation(email,name,school, inviteFrom):
     subject = "Alllearn - Invitation to %s's dashboard for %s" % (school, name)
     message = render_template('new_teacher_invitation_email.html', name=name, school=school, inviteFrom=inviteFrom)
-    send_email('parag@alllearn.in', name, subject, message)
+    send_email(email, name, subject, message)
