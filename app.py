@@ -958,9 +958,12 @@ def testBuilderFileUpload():
         )    
     #Add the image associated with the question
         if data.reference_link!='' and data.reference_link!=None:
-            response = requests.get(data.reference_link, stream=True)
-            image = BytesIO(response.content)
-            document.add_picture(image, width=Inches(1.25))              
+            try:
+                response = requests.get(data.reference_link, stream=True)
+                image = BytesIO(response.content)
+                document.add_picture(image, width=Inches(1.25))
+            except:
+                pass
 
         for option in options:
             if option.option_desc is not None:
