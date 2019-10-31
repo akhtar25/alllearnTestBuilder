@@ -24,17 +24,18 @@ class SearchForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    #username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     #submit = SubmitField('Sign In')
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
-    phone = StringField('Phone', validators=[DataRequired()])
+    #username = StringField('Username', validators=[DataRequired()])
+    phone = StringField('Phone', validators=[DataRequired(), Length(min=0, max=12)])    
+    first_name = StringField('First Name', validators=[DataRequired()])    
+    last_name = StringField('Last Name', validators=[DataRequired()])    
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
@@ -42,32 +43,41 @@ class RegistrationForm(FlaskForm):
                                        EqualTo('password')])
     #submit = SubmitField('Register')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('Please use a different username.')
+    #def validate_username(self, username):
+    #    user = User.query.filter_by(username=username.data).first()
+    #    if user is not None:
+    #        raise ValidationError('Please use a different username.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError('Please use a different email address.')
+            raise ValidationError('Email already registered')
 
 class EditProfileForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    #username = StringField('Username', validators=[DataRequired()])
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
-    full_name =StringField('Username', validators=[DataRequired()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name =StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    phone=StringField('Phone No',validators=[Length(max=12)])
+    #main_subjects = StringField('Main Subjects',validators=[Length(max=100)])
+    #assigned_class = StringField('Assigned Class',validators=[Length(max=50)])
     submit = SubmitField('Submit')
 
-    def __init__(self, original_username, *args, **kwargs):
+    def __init__(self, original_email, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
-        self.original_username = original_username
+        self.original_email = original_email
 
-    def validate_username(self, username):
-        if username.data != self.original_username:
-            user = User.query.filter_by(username=self.username.data).first()
+    #def validate_username(self, username):
+    #    if username.data != self.original_username:
+    #        user = User.query.filter_by(username=self.username.data).first()
+    #        if user is not None:
+    #            raise ValidationError('Please use a different username.')
+    def validate_email(self, email):
+        if email.data != self.email:
+            user = User.query.filter_by(username=self.email.data).first()
             if user is not None:
-                raise ValidationError('Please use a different username.')
+                raise ValidationError('Please use a different email.')
 
 
 class ResetPasswordRequestForm(FlaskForm):
@@ -181,39 +191,14 @@ class SchoolRegistrationForm(FlaskForm):
     board = SelectField('Board')
     address1 = TextAreaField('Address Line 1', validators=[DataRequired(),Length(min=0, max=200)])
     address2 = TextAreaField('Address Line 2', validators=[Length(min=0, max=200)])
-    locality = StringField('Locality', validators=[DataRequired()])
-    city = StringField('City', validators=[DataRequired()])
-    state = StringField('State', validators=[DataRequired()])
-    country = StringField('Country', validators=[DataRequired()])
-    pincode = StringField('Pincode',validators=[DataRequired()],widget=NumberInput())
+    locality = StringField('Locality', validators=[DataRequired(),Length(min=0, max=50)])
+    city = StringField('City', validators=[DataRequired(),Length(min=0, max=50)])
+    state = StringField('State', validators=[DataRequired(),Length(min=0, max=50)])
+    country = StringField('Country', validators=[DataRequired(),Length(min=0, max=50)])
+    pincode = StringField('Pincode',validators=[DataRequired(),Length(min=0, max=10)],widget=NumberInput())
     class_val=StringField('Class',validators=[DataRequired()],widget=NumberInput(min=1,max=10))
-    section=StringField('Section',validators=[DataRequired()])
-    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))
-    #teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
-    #teacher_subject = StringField('Subject (optional)')
-    #class_teacher = StringField('Teacher\'s Class(optional) ', validators=[NumberRange(min=0,max=10)],widget=NumberInput())
-    #class_teacher_section=StringField('Teacher\'s Section')
-    #teacher_email = StringField('Email', validators=[DataRequired(),NumberRange(min=0,max=100)])
-    #paymentPlan = SelectField('Payment Plan',choices=[(c, c) for c in ['Free', 'Fixed', 'Dynamic']])
-
-   # def validate_class_val(self,schoolName):
-    #    if schoolName.data=='Select':
-     #       raise ValidationError('* Please enter the school name')
-    #def validate_section(self,board):
-     #   if board.data=='Select':
-      #      raise ValidationError('Please select a curriculum board')
-    #def validate_test_type(self,address1):
-     #   if address1.data=='Select':
-      #      raise ValidationError('Please enter the address')
-    #def validate_city(self,city):
-     #   if city.data=='Select':
-      #      raise ValidationError('Please enter the city')
-    #def validate_pincode(self,pincode):
-     #   if pincode.data=='Select':
-      #      raise ValidationError('Please enter the pinCode')
-    #def validate_state(self,state):
-     #   if state.data=='Select':
-      #      raise ValidationError('Please enter the state')
+    section=StringField('Section',validators=[DataRequired(),Length(min=0, max=1)])
+    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))    
 
 class SchoolTeacherForm(FlaskForm):
     teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
@@ -225,6 +210,17 @@ class SchoolTeacherForm(FlaskForm):
     def validate_teacher_email(self,teacher_email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", teacher_email):
             raise ValidationError('Error in email')
+
+class ClassRegisterForm(FlaskForm):
+    class_val=StringField('Class',widget=NumberInput(min=1,max=10))
+    section=StringField('Section',validators=[Length(min=0, max=1)])
+    student_count=StringField('Expected Student Count',widget=NumberInput(min=1,max=100))
+
+    def validate_class_section(self, class_val, section):
+        classSecRow = ClassSection.query.filter_by(class_val=class_val.data,section=section.data).first()
+        if classSecRow is not None:
+            raise ValidationError('Class-Section already registered')
+
 
 class PaymentDetailsForm(FlaskForm):
     cardNumber = StringField('Card Number', validators=[Length(min=0,max=16)])

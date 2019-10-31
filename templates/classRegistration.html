@@ -1,0 +1,104 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+        <div id="classSectionDiv">
+        <table>
+            <thead>
+                <th>Class</th>
+                <th>Section</th>
+                <th>Expected Student Count</th>
+                <th>Class Teacher</th>
+            </thead>
+            <tbody>
+                {%for classSecVal in classSectionRows%}
+                <tr style="font-size: 18px">
+                    <td>{{classSecVal.class_val}}</td>
+                    <td>{{classSecVal.section}}</td>
+                    <td>{{classSecVal.student_count}}</td>
+                    <td>{{classSecVal.class_teacher}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>        
+    </div>
+
+
+
+
+    <form action="" method="POST" enctype="multipart/form-data">
+    <div>
+            <div id="teacherbox" name="teacherbox"> 
+                </div>
+                <p><input class="right btn green" type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;" onclick="addClass();" value="Add Class"></p>
+    </div>
+    <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
+    </div>
+</form>
+</div>
+    <script>
+        var teacherbox_data='';
+        var count = 0;
+          function addClass(){
+          const div = document.createElement('div');
+          var row_id=document.getElementById('teacherbox');
+          count+=1  
+          header='<h4>Add new class</h4>'
+          //var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+          teacherbox_data=`
+          <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom:5px;'>
+          <div class='row'>
+          <div class='col-sm-3'>
+              {{ form.class_val.label(class='labelsize') }}
+                    <br>
+                    {% if form.class_val.errors %}
+                    {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.class_val.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_val(class='form-control') }}
+                    {% endif %}
+          </div>
+          <div class='col-sm-2'>
+              {{ form.section.label(class='labelsize') }}
+                    <br>
+                    {% if form.section.errors %}
+                    {{ form.section(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.section.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.section(class='form-control') }}
+                    {% endif %}
+              </div>
+              <div class='col-sm-2'>
+              {{ form.student_count.label(class='labelsize') }}
+                    <br>
+                    {% if form.student_count.errors %}
+                    {{ form.student_count(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.student_count.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.student_count(class='form-control') }}
+                    {% endif %}
+                    </div>
+                        
+       </div></div>`;
+       if (count==1){
+          div.innerHTML=header+teacherbox_data;
+          $('#buttonbox').show();
+       }
+        else {
+            div.innerHTML=teacherbox_data;
+        }
+        row_id.appendChild(div);
+          }
+    </script>
+{% endblock %}
