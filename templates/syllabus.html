@@ -232,16 +232,13 @@
                 for (var i = 0; i < responseArr.length; i++) {
                     //alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
-                    var chapterName = responseArr[i].toString().split(':')[1];
-                    
-                    var parameters = "\"" + chapterName + "\"" + ',' +chapterNum+ ',' + "\"" + selectedSubjectVal +
-                        "\"," + selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID;
+                    var chapterName = '"'+responseArr[i].toString().split(':')[1]+'"';
+                    alert(chapterNum + " and " + chapterName);
+                    var parameters = chapterName + ',' +chapterNum+ ',' + '"' + selectedSubjectVal +
+                        '",'+ + selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID;
                         chapterHTMLRecords = chapterHTMLRecords +
                         '<a href="#"><li class="collection-item chapterItem" onClick=loadTopics(' +
-                        parameters + '); name=' +
-
-                        selectedBoardID + 'id=' + chapterNum + '>' + chapterName +
-                        '</li></a>';
+                        parameters + ');>' + chapterName +'</li></a>';
                 }
                 $("#chapterDiv").html(chapterHTMLRecords);
             },
@@ -256,7 +253,7 @@
 
     //$('.chapterItem').click(function () {
     function loadTopics(selectedChapterName, selectedChapterNum, selectedSubjectVal,  selectedSubjectID, selectedClassVal, selectedBoardID) {
-        selectedChapterName = this.id;
+        alert(selectedChapterName + " and "+ selectedChapterNum);
         //$('#selected_sub_id').val($(this).attr("name"));
         $.ajax({
             url: "/syllabusTopics?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
