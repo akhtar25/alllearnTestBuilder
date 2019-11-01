@@ -789,7 +789,93 @@ def requestUserAccess():
         return jsonify(["1"])
 
 
-    
+
+@app.route('/syllabus')
+@login_required
+def syllabus():
+    boardRows = MessageDetails.query.filter_by(category='Board').all()
+    return render_template('syllabus.html',School_Name=school_name(), boardRows=boardRows)
+
+
+@app.route('/syllabusClasses')
+@login_required
+def syllabusClasses():
+    board_id=request.args.get('board_id')
+    classArray = []
+    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+board_id+"' order by class_val ")).fetchall()
+    for val in distinctClasses:
+        print(val.class_val)
+        classArray.append(val.class_val)
+    return jsonify([classArray])
+
+
+@app.route('/syllabusSubjects')
+@login_required
+def syllabusSubjects():
+    board_id=request.args.get('board_id')
+    class_val=request.args.get('class_val')
+    subjectQuery = "select distinct t1.subject_id, t2.description from topic_detail t1  inner join  message_detail t2 on "
+    subjectQuery = subjectQuery+ "t1.subject_id=t2.msg_id where board_id='"+board_id+"' and class_val='"+class_val+"' order by subject_id"
+    distinctSubjects = db.session.execute(text(subjectQuery)).fetchall()
+    sujectArray=[]
+    for val in distinctSubjects:
+        print(val.description)
+        sujectArray.append(str(val.subject_id)+":"+str(val.description))
+    return jsonify([sujectArray])    
+
+
+@app.route('/syllabusBooks')
+@login_required
+def syllabusBooks():
+    subject_name=request.args.get('subject_name')
+    class_val=request.args.get('class_val')
+    #distinctBookQuery = "select distinct book_id, book_name from book_details where subject_id='"+subject_id+"'and class_val='"+class_val+"'"
+    distinctBookQuery ="select distinct replace(book_name , ' ', '') as book_name from book_details t1  inner join  message_detail t2 on "
+    distinctBookQuery=distinctBookQuery+"t1.subject_id=t2.msg_id and t2.description='"+subject_name+"' and t1.class_val='"+class_val+"'"
+    distinctBooks = db.session.execute(text(distinctBookQuery)).fetchall()
+    bookArray=[]
+    for val in distinctBooks:
+        print(val.book_name)
+        bookArray.append(val.book_name)
+    return jsonify([bookArray])  
+
+
+@app.route('/syllabusChapters')
+@login_required
+def syllabusChapters():
+    book_name=request.args.get('book_name')
+    class_val=request.args.get('class_val')
+    board_id=request.args.get('board_id')
+    subject_id=request.args.get('subject_id')
+    #distinctChapterQuery="select distinct chapter_num, chapter_name from topic_detail where book_name= '"+book_name+"'and class_val ='"+class_val+"' and board_id='"+board_id+"' and subject_id='"+subject_id+"'"
+    distinctChapterQuery="select distinct t1.chapter_num, t1.chapter_name from topic_detail t1 inner join book_details t2 "
+    distinctChapterQuery=distinctChapterQuery+ "on t1.book_id=t2.book_id where t2.book_name= '"+book_name+"' and t1.class_val ='"+class_val+"' and board_id='"+board_id+"' and t1.subject_id='"+subject_id+"'"
+    distinctChapters = db.session.execute(text(distinctChapterQuery)).fetchall()
+    chapterArray=[]
+    for val in distinctChapters:
+        print(val.chapter_num)
+        chapterArray.append(str(val.chapter_num)+":"+str(val.chapter_name))
+    return jsonify([chapterArray]) 
+
+
+@app.route('/syllabusTopics')
+@login_required
+def syllabusTopics():
+    subject_id=request.args.get('subject_id')
+    board_id=request.args.get('board_id')
+    chapter_num=request.args.get('chapter_num')
+    chapter_name=request.args.get('chapter_name')
+    class_val = request.args.get('class_val')
+
+    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+subject_id+"' and board_id='"+board_id+"' and chapter_num='"+chapter_num+"' and chapter_name='"+chapter_name+"' and class_val='"+class_val+"'"
+    distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
+    topicArray=[]
+    for val in distinctTopics:
+        print(val.topic_id)
+        topicArray.append(val.topic_id+":"+val.topic_name)
+    return jsonify([topicArray]) 
+
+
 
 @app.route('/grantUserAccess')
 def grantUserAccess():
