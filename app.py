@@ -1929,6 +1929,7 @@ def testPerformance():
     resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'"))
     avg_scores = []
     resultSetCount = 0
+    # print('Length of Result Set:'+len(resultSet))
     for resultNum in resultSet:
         resultSetCount+=1
         print('Type of Resultset:'+str(resultSetCount))
