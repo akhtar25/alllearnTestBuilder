@@ -1385,7 +1385,7 @@ def questionDetails():
 def topperListAll():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where section='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where class='All' and section='All' and subjects='All' order by marks desc fetch next 10 rows only"
     #print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -1403,7 +1403,7 @@ def leaderBoard():
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and subjects='All' order by marks desc"
+        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='All' and section='All' and subjects='All' order by marks desc"
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
@@ -1931,7 +1931,11 @@ def testPerformance():
     resultSetCount = 0
     for resultNum in resultSet:
         resultSetCount+=1
-    print('Type of Resultset:'+str(resultSetCount))
+        print('Type of Resultset:'+str(resultSetCount))
+
+    for resultNum in resultSet:
+        resultSetCount+=1
+        print('Type of Resultset:'+str(resultSetCount))
 
     #selectfield choices
     form1.class_val1.choices = class_list
