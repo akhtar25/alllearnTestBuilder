@@ -5,7 +5,7 @@ from applicationDB import *
 from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm
-from forms import createSubscriptionForm,ClassRegisterForm
+from forms import createSubscriptionForm,ClassRegisterForm,postJobForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -67,11 +67,11 @@ if not app.debug and not app.testing:
         stream_handler.setLevel(logging.INFO)
         app.logger.addHandler(stream_handler)        
     else:
-        dateVal= datetime.today().strftime("%d%m%Y")
+        dateVal= datetime.today()
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler(
-            'logs/alllearn.log'+str(dateVal), maxBytes=10240, backupCount=10)
+            'logs/alllearn'+str(dateVal).replace(' ','').replace(':','').replace('.','')+'.log', maxBytes=10240, backupCount=10)
         file_handler.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -618,6 +618,60 @@ def disconnectedAccount():
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
     else:
         return redirect(url_for('index'))
+
+
+@app.route('/postJob',methods=['POST','GET'])
+@login_required
+def postJob():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form = postJobForm()
+    
+    availableCategories=MessageDetails.query.filter_by(category='Job Category').all()
+    availableStayOptions=MessageDetails.query.filter_by(category='Stay Option').all()
+    availableFoodOptions=MessageDetails.query.filter_by(category='Food Option').all()
+    availableTeachingTermOption=MessageDetails.query.filter_by(category='Teaching Term Option').all()
+
+    form.category.choices = [(str(i.description),str(i.description)) for i in availableCategories]
+    form.stay.choices = [(str(i.description),str(i.description)) for i in availableStayOptions]
+    form.food.choices = [(str(i.description),str(i.description)) for i in availableFoodOptions]
+    form.term.choices = [(str(i.description),str(i.description)) for i in availableTeachingTermOption]
+
+
+    if request.method == 'POST' and form.validate():
+        jobData=JobDetail(category=form.category.data,
+            posted_by =teacherRow.teacher_id,school_id=teacherRow.school_id,description=form.description.data,min_pay=form.min_pay.data,max_pay=form.max_pay.data,
+            start_date=form.start_date.data,subject=form.subject.data, 
+            classes= form.classes.data, language= form.language.data,timings= form.timings.data,stay= form.stay.data, 
+            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data ,last_modified_date= datetime.utcnow())
+        db.session.add(jobData)
+        db.session.commit()
+        flash('New job posted created!')
+    else:
+        flash('Please fix the errors to submit')
+        for fieldName, errorMessages in form.errors.items():
+            for err in errorMessages:
+                print(err)
+    return render_template('postJob.html',title='Post Job',form=form,School_Name=school_name())
+
+
+@app.route('/openJobs')
+@login_required
+def openJobs():
+    return render_template('openJobs.html',title='Look for Jobs')
+
+
+@app.route('/jobDetail')
+@login_required
+def jobDetail():
+    return render_template('jobDetail.html',title='Job detail')
+
+
+@app.route('/appliedJobs')
+@login_required
+def appliedJobs():
+    return render_template('appliedJobs.html',title='Applied jobs')
+
+
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required

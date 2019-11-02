@@ -319,6 +319,47 @@ class Address(db.Model):
     pin = db.Column(db.String(10), nullable=True)
 
 
+class JobDetail(db.Model):
+    __tablename__ = "job_detail"
+    job_id = db.Column(db.Integer,primary_key=True)
+    category = db.Column(db.String(100),nullable=True)
+    posted_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
+    description = db.Column(db.String(500), nullable=True)
+    min_pay = db.Column(db.Integer,nullable=True)
+    max_pay = db.Column(db.Integer,nullable=True)
+    start_date = db.Column(db.DateTime,nullable=True)
+    end_date = db.Column(db.DateTime,nullable=True)
+    subject = db.Column(db.String(100),nullable=True)
+    classes = db.Column(db.String(10),nullable=True)
+    recomm_letter = db.Column(db.Integer, nullable=True) # 1 for true; 0 for false
+    language = db.Column(db.String(100), nullable=True)
+    timings = db.Column(db.String(100),nullable=True)
+    stay = db.Column(db.String(100),nullable=True)
+    fooding = db.Column(db.String(100),nullable=True)
+    term  = db.Column(db.String(100),nullable=True)
+    status  = db.Column(db.String(100),nullable=True)
+    num_of_openings = db.Column(db.Integer,nullable=True)
+    last_modified_date=db.Column(db.DateTime,nullable=True)
+
+
+
+class JobApplication(db.Model):
+    __tablename__="job_application"
+    app_id = db.Column(db.Integer,primary_key=True)
+    seeker_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    applied_on =db.Column(db.DateTime,nullable=True)
+    status = db.Column(db.Integer, nullable=True) #accepted - 1 or rejected - 2
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
+    available_from = db.Column(db.DateTime,nullable=True)
+    available_till =db.Column(db.DateTime,nullable=True)
+    last_modified_date=db.Column(db.DateTime,nullable=True)
+
+
+#should create training table
+# should create teacher - training table to related which teacher has completed what trainings
+# should create pages to test teachers on trainings
+
 class StudentProfile(db.Model):
     __tablename__ = "student_profile"
     student_id=db.Column(db.Integer,primary_key=True)

@@ -294,4 +294,19 @@ class createSubscriptionForm(FlaskForm):
     sub_duration = StringField('Duration',validators=[DataRequired()])
 
 
+class postJobForm(FlaskForm):
+    category = SelectField('Category')
+    description =TextAreaField('Job Description', validators=[Length(min=0, max=500)])        
+    min_pay = IntegerField('Min Pay',widget=NumberInput(min=1000,step=1))
+    max_pay = IntegerField('Max Pay',widget=NumberInput(min=1000,step=1))
+    start_date = DateField('Start Date', validators=[DataRequired()])
+    #end_date = DateField('End Date - optional')
+    subject = StringField('Subjects',validators=[DataRequired()])
+    classes = StringField('Classes',validators=[DataRequired()])    
+    language = StringField('Preferred Language',validators=[DataRequired()])
+    timings = StringField('Timings',validators=[DataRequired()])
+    stay = SelectField('Place to Stay')
+    food = SelectField('Food')
+    term = SelectField('Short/Long term')
+    num_of_openings = IntegerField('Number of Openings',widget=NumberInput(min=0,max=100,step=1))
     
