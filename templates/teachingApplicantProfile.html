@@ -3,9 +3,7 @@
     <div class="col s8 offset-s2">
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
             <h3>Profile</h3><br>
-
-        </div>
-        
+        </div>        
         <div class="col s4 m4 l4 center">
             <h3 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h3>
             <h4>{{user.city}} , {{user.state}}</h4>
@@ -14,18 +12,23 @@
             {%if user.id==current_user.id%}
                 <a class="btn right" href="{{url_for('edit_profile')}}">Edit Profile</a>
                 {%endif%}
-            <table style="font-size: 18px; line-height: 40px;" class='highlight'>
-                <tr>
-                    <td> About </td>
-                    <td>{{user.about_me}}</td>
+            <table style="font-size: 15px; line-height: 40px;" class='highlight'>
+                <tr>                                        
+                        <div class="section">
+                            <h3>About</h3>
+                            <span style="white-space: pre-line">{{user.about_me}}</span>
+                    </div>                    
                 </tr>
                 <tr>
-                    <td> Education </td>
-                    <td>{{user.education}}</td>
+                     <div class='section'><h3>Education </h3>
+                        <span style="white-space: pre-line">{{user.education}}</span>
+                </div>
                 </tr>
                 <tr>
-                    <td> Experience </td>
-                    <td>{{user.experience}}</td>
+                    <div class='section'>
+                    <h3> Experience </h3>
+                    <span style="white-space: pre-line">{{user.experience}}</span>
+                </div>
                 </tr>
                 <tr>
                     <td> Email </td>
@@ -36,12 +39,17 @@
                     <td>{{user.phone}}</td>
                 </tr>
                 <tr>
-                    <td> Address </td>
-                    <td>{{user.address}}</td>
+                    <div class='section'>
+                        <h3>Address </h3>
+                        <span style="white-space: pre-line">{{user.address}}</span>
+                </div>
                 </tr>
                 <tr>
+                    <td></td>
                     <td>
+                        {%if user.resume!=None%}
                 <h4><a href='{{user.resume}}' target="_blank">See Resume</h4>
+                    {%endif%}
                 </td>
                 </tr>
             </table>

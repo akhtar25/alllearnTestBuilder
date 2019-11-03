@@ -31,21 +31,21 @@
                 </p>
                 <p>
                     {{ form.about_me.label }}
-                    <br> {{ form.about_me(cols=50, rows=100, placeholder="Write a short intro about yourself and what are you good at") }}
+                    <br> {{ form.about_me(cols=50, rows="10",placeholder="Write a short intro about yourself and what are you good at") }}
                     <br> {% for error in form.about_me.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
                 <p>
                     {{ form.education.label }}
-                    <br> {{ form.education(cols=50, rows=100, placeholder="College/School Name \n Graduation Year \n Percentage/GPA ") }}
+                    <br> {{ form.education(cols="50", rows="100", placeholder="College/School Name \n Graduation Year \n Percentage/GPA ") }}
                     <br> {% for error in form.education.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
                 <p>
                     {{ form.experience.label }}
-                    <br> {{ form.experience(cols=50, rows=100, placeholder="Mention your experiences ") }}
+                    <br> {{ form.experience(cols=50, rows="10", placeholder="Mention your experiences ") }}
                     <br> {% for error in form.experience.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
@@ -85,23 +85,9 @@
     </div>
 </div>
 <script>
-var placeholder = 'This is a line \nthis should be a new line';
-$('textarea').attr('value', placeholder);
-
-$('textarea').focus(function(){
-    if($(this).val() === placeholder){
-        $(this).attr('value', '');
-    }
+$( document ).ready(function() {
+    $('textarea').attr('rows', 20);
 });
-
-$('textarea').blur(function(){
-    if($(this).val() ===''){
-        $(this).attr('value', placeholder);
-    }    
-});
-$(document).ready(function() {
-    $('input#input_text, textarea#textarea2').characterCounter();
-  });
 </script>
 
 {% endblock %}

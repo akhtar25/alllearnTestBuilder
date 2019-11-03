@@ -20,7 +20,7 @@
         {% for eachRow in jobApplications%}
         <tr style="margin-top:5px;">
             <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
-          <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>          
+          <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
           <td>{{eachRow.city}}</td>
           <td>{{eachRow.available_from}}</td>
           <td>{{eachRow.available_till}}</td>
