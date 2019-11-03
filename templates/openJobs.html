@@ -1,78 +1,51 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Result History</h3>
-    <div id="uploadHistDiv">
-        <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
-        <div class="box-body table-responsive no-padding">
-            <table class="table table-hover">
-              <tr>
-               <th>Class</th>
-               <th>Section</th>
-                <th>Test Type</th>
-                <th>Subject</th>                
-                <th>Upload Date</th>
-                <th>Exam Date</th>
-                <th>Details</th>          
-              </tr>
-              {%if uploadHistoryRecords | length !=0%}
-              {% for eachRow in uploadHistoryRecords%}
-              <tr style="margin-top:5px;">
-                <td>{{eachRow.class_val}}</td>                
-                <td>{{eachRow.section}}</td>
-                <td>{{eachRow.test_type}}</td>
-                <td>{{eachRow.subject}}</td>
-                <td>{{eachRow.upload_date}}</td>                
-                <td>{{eachRow.exam_date}}</td>  
-                <td><button class="uploadHistoryDetBTN btn green lighten-1" id="uploadDetailsButton" name="{{eachRow.upload_id}}">Details</button></td>
-              </tr>
-                   {% endfor %}
-                   {%else%}
-                   <td>
-                     <h3 class="grey-text">No test results uploaded yet.</h3>
-                     <h5>To upload test results please go to <a href="{{url_for('resultUpload')}}">Result Upload</a></h5>
-                   </td>
-                   {%endif%}
-            </table>
-          </div>
-    </div>    
-                  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
-                  <div class="section">
-<div id="uploadHistDetailDiv" style="display: none; padding-bottom: 50px;"></div>
-<div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeResultDetBTN" style="margin-top: 10px;">Back</button></div>   
+    <h3 class="grey-text">Open Jobs</h3>  
+      <div>
+        <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;">
+          <table>
+            {%for content in openJobsDataRows %}
+            <div class="row z-depth-2 " style="margin-top: -15px;">
+              <div class="col m6 l3 center-align">                
+                  {%if content.school_picture!=None %}
+                  <img height="120px" src="{{content.school_picture}}">
+                  {%else%}
+                  <img height="120px"
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
+                  {%endif%}
+                </div>
+              
+              <div class="col m6 l3">
+                    <h4><span> <a href="#" target="_blank"></a>{{content.school_name}}</span></h4>
+                    <h5>{{content.city}}</h5>
+                    <h5>{{content.term}}</h5>
+                    <h5>{{content.category}}</h5>
+                    <h5>{{content.Subjects}}</h5>
+                    {%if posted_on | length!=0%}
+                    <h5>Posted On:{{content.posted_on.strftime('%d %B %Y')}}</h5>
+                    {%else%}
+                    <h5>Posted On:{{content.posted_on}}</h5>
+                    {%endif%}                                  
+              </div>
+              <div class="col  m6 l2">
+                <h3 class="grey-text">₹{{content.min_pay}} - ₹{{content.max_pay}}</h3><br>
+                <h5><a href="{{url_for('jobDetail',job_id=content.job_id, school_id=content.school_id)}}">See Detail</a></h5>
+              </div>
+            </div>
+            {% endfor %}
+          </table>
+        </div>
+      </div>    
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Previous</a>
+    {% endif %} {% if next_url %}
+    <a href="{{ next_url }}">Next</a>
+    {% endif %}
+
+  
 </div>
-                </div>               
-
-
 <script>
-$('.uploadHistoryDetBTN').click(function(){
-  var upload_id_val = $(this).attr('name');
-  $("#loaderDiv").show();
-  $("#uploadHistDiv").hide();
-$.ajax({
-            url: "/uploadHistoryDetail?upload_id="+ upload_id_val,
-            type: "POST",
-            contentType: "application/json",
-            data: "",            
-            success: function (response) {
-                $("#loaderDiv").hide();
-                $("#uploadHistDetailDiv").html(response);
-                $("#uploadHistDetailDiv").show();
-                $("#backButton").show();
-                $("#uploadHistDiv").hide();
-                
-            },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
-            }
-        });
-      });
 
-      $('#closeResultDetBTN').click(function(){    
-    $('#uploadHistDiv').show();
-    $('#uploadHistDetailDiv').hide();
-    $('#backButton').hide();
-
-})      
 </script>
 
 

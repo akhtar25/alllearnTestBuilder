@@ -2,31 +2,45 @@
 <div class="container">
   {%if userDetailRow.access_status!=143%}
   <div id="mainDiv">
-  <h3>You're not connected to any school yet. </h3>
-  <p>You can register a new school or request access for an existing one </p>
-
-<div class="col s6 offset-s4" id="accessAndNewSchoolDiv">
-  <ul class="collapsible  z-depth-0">
-    <li>
-      <a href="{{url_for('schoolRegistration')}}" ><div class="collapsible-header"><i class="material-icons">school</i><h4>Register New School</h4> Post jobs and Performance tool</div></a>
-      
-    </li>
-    <li>
-      <div class="collapsible-header"><i class="material-icons">person_add</i>Request access as a teacher</div>
-      <div class="collapsible-body">
-          <div class="input-field">
+    <h3>Choose the next step</h3>
+    <p>You can register a new school, request access for an existing one or look for teaching jobs</p>
+    <div class="col s6 offset-s6" id="accessAndNewSchoolDiv">
+      <ul class="collapsible  z-depth-0">
+        <li>
+          <a href="{{url_for('schoolRegistration')}}" title="Post jobs and Track Student Performance">
+            <div class="collapsible-header"><i class="material-icons">school</i>
+              <h4>Register New School </h4><br>
+              <h6> Post jobs and Track Student Performance</h6>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="{{url_for('openJobs',first_login=1)}}" target="_blank" title="See Volunteer or Long term jobs">
+            <div class="collapsible-header"><i class="material-icons">work</i>
+              <h4>Look for teaching jobs </h4>
+              <h6 class="right"> Volunteer or Long term </h6>
+            </div>
+          </a>
+        </li>
+        <li>
+          <div class="collapsible-header" title="Request access to a registered school"><i class="material-icons">person_add</i>
+            <h4>Request access as a teacher</h4>
+            
+          </div>
+          <div class="collapsible-body">
+            <div class="input-field">
               <input placeholder="School ID" id="reqAccessTeacher" type="text" class="validate">
-              <label for="reqAccessTeacher">Enter School ID</label>              
+              <label for="reqAccessTeacher">Enter School ID</label>
             </div>
             <div class="input-field">
-                <input placeholder="Introduce yourself in 5 words" id="reqAccessTeacherMSG" type="text" class="validate">
-                <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>              
-              </div>
+              <input placeholder="Introduce yourself in 5 words" id="reqAccessTeacherMSG" type="text" class="validate">
+              <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>
+            </div>
             <a class="waves-effect waves-light btn" id="requestAccessTeacherBTNID">Submit</a>
-            
-      </div>
-    </li>
-    <!--<li>
+
+          </div>
+        </li>
+        <!--<li>
       <div class="collapsible-header"><i class="material-icons">home</i>Request access as a guardian</div>
       <div class="collapsible-body">
           <div class="input-field">
@@ -41,54 +55,53 @@
       </div>
     </li>-->
 
-    <li>
-      <a href="{{url_for('openJobs')}}" ><div class="collapsible-header"><i class="material-icons">work</i>Look for jobs</div></a>
-  </li>
-  </ul>
-</div>
+
+      </ul>
+    </div>
+  </div>
 </div>
 {%else%}
 <div id="alreadyRequestedDiv">
-    <h2>Access requested</h2><p> You will receive a notification in your email once access has been granted</p>
+  <h2>Access requested</h2>
+  <p> You will receive a notification in your email once access has been granted</p>
 </div>
 {%endif%}
 <div id="accessRequestedAlreadyDiv" style="display: none;">
-    <h2>Access requested</h2><p> You will receive a notification in your email once access has been granted</p>
+  <h2>Access requested</h2>
+  <p> You will receive a notification in your email once access has been granted</p>
 </div>
 <div id="invalidSchoolIdDiv" style="display: none">
   <p class="red-text">Invalid school id</p>
 </div>
 </div>
 <script>
-   $(document).ready(function(){
+  $(document).ready(function () {
     $('.collapsible').collapsible();
   });
-  
 
-  $('#requestAccessTeacherBTNID').click(function(){
-                var username = "{{current_user.username}}";
-                var school_id = $('#reqAccessTeacher').val();
-                about_me= $('#reqAccessTeacherMSG').val();
-                console.log(username);
-                var data="";
-                $.ajax({
-                  url: "/requestUserAccess?username="+ username+"&school_id="+school_id+"&about_me="+about_me,
-                  type: "get",
-                  data: data,
-                  success: function(response) {
-                    if (response=='0'){
-                    $("#mainDiv").hide();
-                    $("#accessRequestedAlreadyDiv").show();
-                    }
-                    else{
-                      $('#invalidSchoolIdDiv').show();
-                    }
-                  },
-                  error: function(xhr) {
-                    window.alert("error occurred while requesting access");
-                  }
-                });                             
-            });        
-        
-  </script>
+
+  $('#requestAccessTeacherBTNID').click(function () {
+    var username = "{{current_user.username}}";
+    var school_id = $('#reqAccessTeacher').val();
+    about_me = $('#reqAccessTeacherMSG').val();
+    console.log(username);
+    var data = "";
+    $.ajax({
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me,
+      type: "get",
+      data: data,
+      success: function (response) {
+        if (response == '0') {
+          $("#mainDiv").hide();
+          $("#accessRequestedAlreadyDiv").show();
+        } else {
+          $('#invalidSchoolIdDiv').show();
+        }
+      },
+      error: function (xhr) {
+        window.alert("error occurred while requesting access");
+      }
+    });
+  });
+</script>
 {%endblock%}

@@ -78,6 +78,13 @@ class User(UserMixin, db.Model):
     access_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True) #when an access request is raised the status is updated here: Requested, Not Requested, Granted
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     phone = db.Column(db.String(12), nullable=True)
+    address = db.Column(db.String(200),nullable=True)
+    city = db.Column(db.String(100),nullable=True)
+    state = db.Column(db.String(100),nullable=True)
+    #the 4 cols below have been added to record applicant information for jobs
+    education = db.Column(db.String(500), nullable=True)
+    experience = db.Column(db.String(1000), nullable=True)
+    resume = db.Column(db.String(200),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
     def __repr__(self):
@@ -324,6 +331,7 @@ class JobDetail(db.Model):
     job_id = db.Column(db.Integer,primary_key=True)
     category = db.Column(db.String(100),nullable=True)
     posted_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    posted_on = db.Column(db.DateTime, nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     description = db.Column(db.String(500), nullable=True)
     min_pay = db.Column(db.Integer,nullable=True)
@@ -347,9 +355,10 @@ class JobDetail(db.Model):
 class JobApplication(db.Model):
     __tablename__="job_application"
     app_id = db.Column(db.Integer,primary_key=True)
-    seeker_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    job_id=db.Column(db.ForeignKey('job_detail.job_id'),nullable=True)
+    applier_user_id = db.Column(db.ForeignKey('user.id'),nullable=True)
     applied_on =db.Column(db.DateTime,nullable=True)
-    status = db.Column(db.Integer, nullable=True) #accepted - 1 or rejected - 2
+    status = db.Column(db.String(100), nullable=True) #accepted - 1 or rejected - 2
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     available_from = db.Column(db.DateTime,nullable=True)
     available_till =db.Column(db.DateTime,nullable=True)
@@ -418,6 +427,7 @@ class SchoolProfile(db.Model):
     school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     sub_id =  db.Column(db.ForeignKey('subscription_detail.sub_id'), nullable=True)
     next_bill_due = db.Column(db.DateTime, nullable=True)
+    how_to_reach = db.Column(db.String(500),nullable=True)
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
     last_modified_date=db.Column(db.DateTime)
 

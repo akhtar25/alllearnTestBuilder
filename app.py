@@ -550,6 +550,9 @@ def index():
 
     school_name_val = school_name()
     
+    if user.user_type=='161':
+        return redirect(url_for('openJobs'))
+
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
@@ -614,8 +617,12 @@ def index():
 def disconnectedAccount():    
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    if teacher==None:
+
+
+    if teacher==None and userDetailRow.user_type!=161:
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
+    elif userDetailRow.user_type==161:
+        return redirect(url_for('openJobs'))
     else:
         return redirect(url_for('index'))
 
@@ -642,7 +649,7 @@ def postJob():
             posted_by =teacherRow.teacher_id,school_id=teacherRow.school_id,description=form.description.data,min_pay=form.min_pay.data,max_pay=form.max_pay.data,
             start_date=form.start_date.data,subject=form.subject.data, 
             classes= form.classes.data, language= form.language.data,timings= form.timings.data,stay= form.stay.data, 
-            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data ,last_modified_date= datetime.utcnow())
+            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data ,posted_on = datetime.today(),last_modified_date= datetime.today())
         db.session.add(jobData)
         db.session.commit()
         flash('New job posted created!')
@@ -657,19 +664,97 @@ def postJob():
 @app.route('/openJobs')
 @login_required
 def openJobs():
-    return render_template('openJobs.html',title='Look for Jobs')
+    page=request.args.get('page',0, type=int)
+    first_login = request.args.get('first_login','0').strip()
+    if first_login=='1':
+        print('this is the first login section')
+        userRecord = User.query.filter_by(id=current_user.id).first()
+        userRecord.user_type= '161'
+        db.session.commit()
+    else:
+        print('first login not registered')
+    recordsOnPage = 10
+    offsetVal = page *recordsOnPage
+    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t3.city, t1.category, t1.term, t1.subject,t1.posted_on, t1.job_id "
+    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' "
+    openJobsQuery = openJobsQuery + "inner  join address_detail t3 on t2.address_id=t3.address_id order by posted_by desc OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
+    #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+    openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+    
+    next_page=page+1
+
+    if page!=0:
+        prev_page=page-1
+    else:
+        prev_page=None
+
+    prev_url=None
+    next_url=None
+    
+
+    if len(openJobsDataRows)==recordsOnPage:
+        next_url = url_for('openJobs', page = next_page)
+        prev_url = url_for('openJobs', page=prev_page)
+    elif len(openJobsDataRows)<recordsOnPage:
+        next_url = None
+        if prev_page!=None:
+            prev_url = url_for('openJobs', page=prev_page)
+        else:
+            prev_url==None
+    else:
+        next_url=None
+        prev_url=None
+    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val='161')
 
 
 @app.route('/jobDetail')
 @login_required
 def jobDetail():
-    return render_template('jobDetail.html',title='Job detail')
+    job_id = request.args.get('job_id')
+    school_id=request.args.get('school_id')    
+    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+    jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+    if jobApplicationRow!=None:
+        applied=1
+    else:
+        applied=0
+    return render_template('jobDetail.html', title='Job Detail',School_Name=school_name(), 
+        schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied, user_type_val=str(current_user.user_type))
 
+
+
+@app.route('/sendJobApplication',methods=['POST','GET'])
+@login_required
+def sendJobApplication():
+    print('We are in the right place')    
+    if request.method=='POST':
+        job_id_form = request.form.get('job_id_form')
+        available_from=request.form.get("available_from")
+        available_till=request.form.get("available_till")
+        school_id=request.form.get("school_id")
+        #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
+                applied_on =datetime.today(),status='Applied',school_id=school_id,available_from=available_from,available_till=available_till,
+                last_modified_date=date.today())                
+        db.session.add(jobApplyData)
+        db.session.commit()
+        flash('Job application submitted!')
+        return redirect(url_for('openJobs'))
 
 @app.route('/appliedJobs')
 @login_required
 def appliedJobs():
-    return render_template('appliedJobs.html',title='Applied jobs')
+    appliedQuery = "select applied_on, t3.school_id,school_name, category, subject, t2.job_id, "
+    appliedQuery = appliedQuery + "t1.status as application_status, t2.status as job_status "
+    appliedQuery = appliedQuery + "from job_application t1 inner join job_detail t2 on "
+    appliedQuery = appliedQuery + "t1.job_id=t2.job_id inner join school_profile t3 on "
+    appliedQuery = appliedQuery + "t3.school_id=t1.school_id where t1.applier_user_id='"+str(current_user.id)+"'"
+    appliedRows = db.session.execute(text(appliedQuery)).fetchall()
+    return render_template('appliedJobs.html',title='Applied jobs', user_type_val='161',appliedRows=appliedRows)
 
 
 
@@ -755,13 +840,25 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/teachingApplicantProfile/<user_id>')
+@login_required
+def teachingApplicantProfile(user_id):
+    user = User.query.filter_by(id=user_id).first_or_404()
+    return render_template('teachingApplicantProfile.html',user=user, user_type_val='161')
+
 @app.route('/user/<username>')
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_name_val = school_name()
+    school_name_val = school_name()        
     
+    if user.user_type==161:
+        print('Are we not getting here at all?')
+        return redirect(url_for('teachingApplicantProfile',id=user.id))
+    else:
+        print('Nope we are not')
+
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
@@ -777,7 +874,10 @@ def user(username):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        if current_user.user_type=='161':
+            return redirect(url_for('openJobs'))
+        else:
+            return redirect(url_for('index'))
 
     form = LoginForm()
     if form.validate_on_submit():

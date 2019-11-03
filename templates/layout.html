@@ -45,13 +45,14 @@
           <li>
               <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
+            {%if user_type_val!='161'%}
             <li>
                 <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
               </li>
+              {%endif%}
           <li>
               <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
-              </li>      
-          
+              </li>
           {% else %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
@@ -105,6 +106,9 @@
                 </li>
                 {%endif%}
         </ul>        
+
+
+
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}
@@ -115,13 +119,19 @@
           <li style="color: green;">
             <a style="color: green;" href="{{ url_for('register') }}">Register</a>
           </li>
-          {% else %}
+          {% else %}          
+          {%if user_type_val!='161'%}
           <li>
-            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>
+              <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+            </li>
           <li>
               <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
             </li>
+            {%else%}
+            <li>
+                <a style="color: green;" href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>
+              </li>
+            {%endif%}
           <li>
           <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
           </li>
@@ -183,8 +193,21 @@
                 <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
                   <i class="material-icons right" style="font-size: 40px">account_circle </i>
                 </a>
-              </li>             
-            {% else %}            
+              </li>                 
+            {% else %}
+            {%if user_type_val=='161'%}
+            <li>
+                <a style="color: green; font-size:15px;" href="{{url_for('openJobs')}}">Jobs</a>
+              </li>   
+              <li>
+                  <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+                </li>     
+                  <li>
+                    <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
+                      <i class="material-icons right" style="font-size: 40px">account_circle </i>
+                    </a>
+                  </li>
+            {%else%}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>   
@@ -213,6 +236,7 @@
               <i class="material-icons">search</i>
             </a>
           </li>-->
+          {%endif%}
           {% endif %}
         </ul>
   
@@ -345,9 +369,11 @@ $(document).ready(function(){
           <li>
             <a class="white-text" href="{{url_for('help')}}">Help</a>
           </li>
+          {%if user_type_val!='161'%}
           <li>
               <a class="white-text" href="{{ url_for('schoolProfile') }}">School Profile</a>
             </li>
+            {%endif%}
           </ul>
           </div>      
           {% endif %}

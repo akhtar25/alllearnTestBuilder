@@ -1,10 +1,11 @@
 {% extends "layout.html" %} {% block content %}
 
 <div class="container ">
+        {%if jobDetailRow%}
     <div class="row">
-        <div class="col s8 offset-s2" style="background: whitesmoke">
-            <div  style="padding: 1px;margin-bottom: 20px;"  class="white-text center green z-depth-1 lighten-1">
-                <h3>School Profile</h3>
+        <div class="col s8 offset-s2">
+            <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+                <h3>Job Detail</h3>
             </div>
 
             <div class="col s4 m4 l4 center">
@@ -15,15 +16,12 @@
                     src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
                 {%endif%}
                 <h4 style="font-weight: bold;">{{schoolProfileRow.school_name}}</h4>
+                <h4 style="font-weight: bold;">{{addressRow.city}}</h4>
             </div>
 
             <div class="col s4 m4 l6">
                 <div id="schoolSummaryDiv">
-                    <table>
-                        <tr>
-                            <td>School ID</td>
-                            <td> {{schoolProfileRow.school_id}}</td>
-                        </tr>
+                    <table class="striped">
                         <tr>
                             <td>Board</td>
                             <td> CBSE</td>
@@ -34,90 +32,166 @@
                                 {{addressRow.address_1}}<br>
                                 {{addressRow.address_2}}<br>
                                 {{addressRow.locality}}<br>
-                                {{addressRow.city}}<br>
+                                {{addressRow.city}},
                                 {{addressRow.state}}<br>
-                                {{addressRow.country}}<br>
                                 {{addressRow.pin}}<br>
+                                <a href="https://www.google.com/maps/search/
+            {{addressRow.address_1}}+
+            {{addressRow.address_2}}+
+            {{addressRow.locality}}+
+            {{addressRow.city}}+
+            {{addressRow.state}}+
+            {{addressRow.pin}}" target="_blank">
+                                    <h4>See on google map</h4>
+                                </a>
                             </td>
                         </tr>
                         <tr>
-                            <td>Registration Date</td>
-                            <td> {{schoolProfileRow.registration_date}}</td>
+                            <td>How to get there</td>
+                            <td>{{schoolProfileRow.how_to_reach}}</td>
                         </tr>
-                        <tr>
-                            <td>Number of registered Teachers </td>
-                            <td> {{registeredTeacherCount[0]}}</td>
-                        </tr>
-                        <tr>
-                            <td>Number of registered students</td>
-                            <td> {{registeredStudentCount[0]}}</td>
-                        </tr>
-                        <tr>
-                            <td>School Admin</td>
+                        <!--<tr>
+                            <td>School Admin/Principal</td>
                             <td> {{schoolProfileRow.school_admin}}</td>
-                        </tr>
-                        <tr>
-                            <td>Subcription Chosen</td>
-                            <td> {{subscriptionRow.group_name}}</td>
-                        </tr>
-                        <tr>
-                            <td>Subcription Cost</td>
-                            <td> {{subscriptionRow.monthly_charge}} every {{subscriptionRow.sub_duration_months}}</td>
-                        </tr>
-                    </table>                    
+                        </tr>-->
+                    </table>
                 </div>
-            </div>            
-            <div id="teacherRowsDiv">
-                <table>
-                    <thead>
-                        <th>Teacher</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Registration Date</th>
-                    </thead>
-                    <tbody>
-                        {%for teacherRow in allTeachers%}
-                        <tr>
-                            <td>{%if teacherRow.profile_picture!= None %}
-                                    <img class="responsive-img circle" src="{{teacherRow.profile_picture}}" width="100px">                            
-                                {%else%}
-                                <img class="responsive-img circle" width="50px" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
-                                {%endif%}
-                                 {{teacherRow.teacher_name}}</td>
-                            <td>{{teacherRow.email}}</td>
-                            <td>{{teacherRow.phone}}</td>
-                            <td>{{teacherRow.registration_date.strftime('%d %B %Y')}}</td>
-                        </tr>
-                        {%endfor%}
-                    </tbody>
-                </table>
-                <a class="right" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
             </div>
             <br>
             <br>
-            <div id="classSectionDiv">
-                <table>
-                    <thead>
-                        <th>Class</th>
-                        <th>Section</th>
-                        <th>Expected Student Count</th>
-                        <th>Class Teacher</th>
-                    </thead>
-                    <tbody>
-                        {%for classSecVal in classSectionRows%}
-                        <tr>
-                            <td>{{classSecVal.class_val}}</td>
-                            <td>{{classSecVal.section}}</td>
-                            <td>{{classSecVal.student_count}}</td>
-                            <td>{{classSecVal.class_teacher}}</td>
-                        </tr>
-                        {%endfor%}
-                    </tbody>
-                </table>
-                <a class="right" href="{{url_for('classRegistration')}}">Add Class</a>
-            </div>
 
+            <div row="jobDetailDiv" class="col s8 m8 l12">
+                <div class="divider"></div>
+                <span style='font-size:25px' class='grey-text'>Job Details 
+                </span>
+                {%if applied==1%}
+                 <span class="appliedClass badge green white-text"  id="{{applied}}" style='font-size: 10px; font-family: Arial;'>Applied</span>
+                 {%endif%}
+                <br><strong>{{jobDetailRow.category}}</strong>
+                |{{jobDetailRow.term}}
+                {%if jobDetailRow.status=='Open'%}
+                <span class="right green-text"> {{jobDetailRow.status}} </span>
+                {%else%}
+                <span class="right red-text"> {{jobDetailRow.status}} </span>
+                {%endif%}
+                <table style="font-size: 15px;font-family: Arial; line-height: 40px" class="striped ">
+
+                    <tr>
+                        <td>Subjects</td>
+                        <td>{{jobDetailRow.subject}}</td>
+                    </tr>
+                    <tr>
+                        <td>Pay Range</td>
+                        <td><strong>₹{{jobDetailRow.min_pay}} - ₹{{jobDetailRow.max_pay}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Expected Start Date</td>
+                        <td>{{jobDetailRow.start_date.strftime('%d %B %Y')}}</td>
+                    </tr>
+                    <tr>
+                        <td>Classes to teach</td>
+                        <td>{{jobDetailRow.classes}}</td>
+                    </tr>
+                    <tr>
+                        <td>Job Timings</td>
+                        <td>{{jobDetailRow.timings}}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{jobDetailRow.description}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Peferred language for teaching</td>
+                        <td>{{jobDetailRow.language}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Recommendation Letter</td>
+                        <td> <i class="large material-icons icon-green" style="font-size: 30px;">check</i> </td>
+                    </tr>
+                    </tr>
+                    <tr>
+                        <td>Experience Certificate</td>
+                        <td><i class="large material-icons icon-green" style="font-size: 30px;">check</i> </td>
+                    </tr>
+
+                    <tr>
+                        <td>Support with stay</td>
+                        {%if jobDetailRow.stay=='None' %}
+                        <td><i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> </td>
+                        {%else%}
+                        <td>{{jobDetailRow.stay=='None'}}</td>
+                        {%endif%}
+                    </tr>
+                    <tr>
+                        <td>Food options</td>
+                        {%if jobDetailRow.fooding=='None' %}
+                        <td><i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> </td>
+                        {%else%}
+                        <td>{{jobDetailRow.fooding}}</td>
+                        {%endif%}
+                    </tr>
+                    <tr>
+                        <td>Numer of Openings</td>
+                        <td>{{jobDetailRow.num_of_openings}}</td>
+                    </tr>
+                    <tr>
+                        <td>Job ID</td>
+                        <td>{{jobDetailRow.job_id}}</td>
+                    </tr>
+                </table>
+                {%if jobDetailRow.status=='Open'%}
+                <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
+                {%endif%}
+                <!-- Modal Structure -->
+                <div id="fillApplyDetail" class="modal" >
+                        <form action="/sendJobApplication" method="post">
+                            <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
+                            <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
+
+                    <div class="modal-content">
+                        <h4>Available From </h4>
+                        <input type="text" class="datepicker" id="availableFromID">
+                        <h4>Available Till </h4>
+                        <input type="text" class="datepicker" id="availableTillID" placeholder="Optional">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class='btn green' id='mainApplyBTN'>Submit</button>
+                    </div>
+                </form>
+                </div>
+            </div>
         </div>
     </div>
+    {%else%}
+<h3 class="grey-text">No details found for the selected job id</h3>
+{%endif%}
 </div>
+<script>
+    $(document).ready(function () {        
+        if ({{applied}}!=0){            
+            $('#applyBTN').attr('disabled', true);
+        }
+        
+        $('.modal').modal();
+        $('#mainApplyBTN').attr('disabled', true);
+        $('.datepicker').datepicker();
+
+        $('#availableFromID').change(function () {
+            if ($(this).val().length != 0) {
+                $('#mainApplyBTN').attr('disabled', false);
+            } else {
+                $('#mainApplyBTN').attr('disabled', true);
+            }
+        })
+
+    });
+
+
+    $('#mainApplyBTN').click(function () {
+
+    });
+</script>
+
 {% endblock %}
