@@ -515,29 +515,36 @@ def testingOtherVideo():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form = EditProfileForm(current_user.username)
-    if form.validate_on_submit():
-        #both email and username is the same 
-        current_user.username = form.email.data
-        current_user.email=form.email.data
-        current_user.about_me = form.about_me.data
-        ##
+    if form.validate_on_submit():        
+        current_user.about_me = form.about_me.data        
         current_user.first_name= form.first_name.data
-        current_user.last_name= form.last_name.data
-        current_user.phone=form.phone.data        
+        current_user.last_name= form.last_name.data                
+        current_user.education = form.education.data
+        current_user.experience = form.experience.data
+        current_user.phone=form.phone.data
+        current_user.address=form.address.data
+        current_user.city=form.city.data
+        current_user.state=form.state.data
+        current_user.resume=form.resume.data
         ##
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('user', username=current_user.username))
     elif request.method == 'GET':        
         form.about_me.data = current_user.about_me
         form.first_name.data = current_user.first_name
         form.last_name.data = current_user.last_name
         form.phone.data = current_user.phone
-        form.email.data = current_user.email
+        form.education.data = current_user.education
+        form.experience.data = current_user.experience
+        form.address.data = current_user.address
+        form.city.data = current_user.city
+        form.state.data = current_user.state
+        form.resume.data = current_user.resume
+
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name())
+        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name(),user_type_val=str(current_user.user_type))
 
 
 @app.route('/')

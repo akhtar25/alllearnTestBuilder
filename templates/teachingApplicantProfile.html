@@ -2,16 +2,19 @@
 <div class="row col s12 m6 offset-m3 ">
     <div class="col s8 offset-s2">
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
-            <h3>Profile</h3>
+            <h3>Profile</h3><br>
 
         </div>
+        
         <div class="col s4 m4 l4 center">
             <h3 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h3>
             <h4>{{user.city}} , {{user.state}}</h4>
         </div>
         <div class="col s4 m4 l6">
-            <table style="font-size: 18px" class='highlight'>
-                <tr >
+                <a class="btn right" href="{{url_for('edit_profile')}}">Edit Profile</a>
+
+            <table style="font-size: 18px; line-height: 40px;" class='highlight'>
+                <tr>
                     <td> About </td>
                     <td>{{user.about_me}}</td>
                 </tr>
@@ -29,7 +32,7 @@
                 </tr>
                 <tr>
                     <td> Phone </td>
-                    <td>{{user.Phone}}</td>
+                    <td>{{user.phone}}</td>
                 </tr>
                 <tr>
                     <td> Address </td>

@@ -1,55 +1,107 @@
 {% extends "layout.html" %} {% block content %}
-<div class="row col s12 m6 offset-m3 ">
-        <div class="col s8 offset-s2" style="background: whitesmoke">    
-                <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>Edit Profile</h3>
-            
-                </div>        
-<div class="col s12 m8 l8" >      
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.first_name.label }}
-        <br> {{ form.first_name(size=32) }}
-        <br> {% for error in form.first_name.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-            {{ form.last_name.label }}
-            <br> {{ form.last_name(size=32) }}
-            <br> {% for error in form.last_name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-    <p>
-        {{ form.phone.label }}
-        <br> {{ form.phone(cols=50, rows=4) }}
-        <br> {% for error in form.phone.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-            {{ form.about_me.label }}
-            <br> {{ form.about_me(cols=50, rows=4) }}
-            <br> {% for error in form.about_me.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
+<div class="row col s10 m6 offset-m3 ">
+    <div class="col s8 offset-s2">
+        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+            <h3>Edit Profile</h3>
 
-   <p>
-            {{ form.email.label }}
-            <br> {{ form.email(size=100) }}
-            <br> {% for error in form.email.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>        
-    <!--<p>{{ form.submit() }}</p>-->
-    <button class="btn waves-effect waves-light green" type="submit" name="action">Submit
-        <i class="material-icons right">send</i>
-      </button>
-</form>
+        </div>
+        <div class="col s12 m8 l8">
+            <form action="/edit_profile" method="post">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.first_name.label }}
+                    <br> {{ form.first_name(size=32) }}
+                    <br> {% for error in form.first_name.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.last_name.label }}
+                    <br> {{ form.last_name(size=32) }}
+                    <br> {% for error in form.last_name.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.phone.label }}
+                    <br> {{ form.phone(type="tel", class="validate") }}
+                    <br> {% for error in form.phone.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.about_me.label }}
+                    <br> {{ form.about_me(cols=50, rows=100, placeholder="Write a short intro about yourself and what are you good at") }}
+                    <br> {% for error in form.about_me.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.education.label }}
+                    <br> {{ form.education(cols=50, rows=100, placeholder="College/School Name \n Graduation Year \n Percentage/GPA ") }}
+                    <br> {% for error in form.education.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.experience.label }}
+                    <br> {{ form.experience(cols=50, rows=100, placeholder="Mention your experiences ") }}
+                    <br> {% for error in form.experience.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>                
+                <p>
+                    {{ form.address.label }}
+                    <br> {{ form.address(placeholder="Optional") }}
+                    <br> {% for error in form.address.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.city.label }}
+                    <br> {{ form.city }}
+                    <br> {% for error in form.city.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+
+                    {{ form.state.label }}
+                    <br> {{ form.state }}
+                    <br> {% for error in form.state.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                        {{ form.resume.label }}
+                        <br> {{ form.resume(placeholder="Please paste a google drive link to your resume") }}
+                        <br> {% for error in form.resume.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                <!--<p>{{ form.submit() }}</p>-->
+                <button class="btn waves-effect waves-light green right" type="submit" name="action">Save                    
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
-</div>
-</div>
+<script>
+var placeholder = 'This is a line \nthis should be a new line';
+$('textarea').attr('value', placeholder);
+
+$('textarea').focus(function(){
+    if($(this).val() === placeholder){
+        $(this).attr('value', '');
+    }
+});
+
+$('textarea').blur(function(){
+    if($(this).val() ===''){
+        $(this).attr('value', placeholder);
+    }    
+});
+$(document).ready(function() {
+    $('input#input_text, textarea#textarea2').characterCounter();
+  });
+</script>
 
 {% endblock %}
