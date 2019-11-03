@@ -718,7 +718,7 @@ def openJobs():
     else:
         next_url=None
         prev_url=None
-    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val=str(current_user.id))
+    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val=str(current_user.user_type))
 
 
 @app.route('/jobDetail')
