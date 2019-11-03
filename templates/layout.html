@@ -29,7 +29,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name != none %}| {{ School_Name }} {%endif%}{% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name != none %}<span style='font-size: 15px'> {{ School_Name }} </span>{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -41,18 +41,23 @@
           <li style="color: green;">
             <a style="color: green;" href="{{ url_for('register') }}">Register</a>
           </li>
-          {% elif current_user.is_anonymous or disconn == 1 %}
+          {% elif disconn == 1 %}
           <li>
               <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
-            {%if user_type_val!='161'%}
             <li>
-                <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
+                <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {%elif user_type_val=='161'%}
+            <li>
+                <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
               </li>
-              {%endif%}
-          <li>
-              <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
-              </li>
+              <li>
+                  <a style="color: green; font-size:15px;" href="{{url_for('openJobs')}}">Jobs</a>
+                </li>   
+                <li>
+                    <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+                  </li>
           {% else %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
@@ -321,7 +326,7 @@ $(document).ready(function(){
                     </li>
           </ul>
               </div>
-              {%if (disconn != 1) and (current_user.username) %} 
+              {%if (disconn != 1) and (current_user.username) and user_type_val!='161' %} 
               <div class="col l2 s12">
                   <ul>    
               <li>
@@ -368,12 +373,10 @@ $(document).ready(function(){
                 </li>
           <li>
             <a class="white-text" href="{{url_for('help')}}">Help</a>
-          </li>
-          {%if user_type_val!='161'%}
+          </li>        
           <li>
               <a class="white-text" href="{{ url_for('schoolProfile') }}">School Profile</a>
-            </li>
-            {%endif%}
+            </li>        
           </ul>
           </div>      
           {% endif %}
