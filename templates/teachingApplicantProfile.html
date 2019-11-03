@@ -11,8 +11,9 @@
             <h4>{{user.city}} , {{user.state}}</h4>
         </div>
         <div class="col s4 m4 l6">
+            {%if user.id==current_user.id%}
                 <a class="btn right" href="{{url_for('edit_profile')}}">Edit Profile</a>
-
+                {%endif%}
             <table style="font-size: 18px; line-height: 40px;" class='highlight'>
                 <tr>
                     <td> About </td>

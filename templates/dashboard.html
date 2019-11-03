@@ -90,6 +90,70 @@
           <div class="row">
             <!-- right col -->
           </div>
+          <!--Job Post Details-->
+          <div class="row">
+          <section class="col-lg-12 connectedSortable">
+            <div class="box box-info">
+              <div class="box-header with-border">
+                <h3 class="box-title">Job Posts</h3>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+                <div>
+                  <div class="table-responsive" style="overflow: auto;height:300px;">
+                      {%if jobPosts | length!=0%}
+                    <table class="table no-margin">
+                      <thead>
+                        <tr>
+                          <th>Posted On</th>
+                          <th>Subjects</th>
+                          <th>Classes</th>
+                          <th>Category</th>
+                          <th>Status</th>
+                          <th>Term Duration</th>
+                          <th>Details</th>
+                          <th>See Applications</th>
+                        </tr>
+                      </thead>                        
+                      <tbody>                          
+                        {% for jobRow in jobPosts %}
+                        <tr>
+                          {%if jobRow.posted_on!=None%}
+                          <td>{{jobRow.posted_on.strftime('%d %B %Y')}}</td>
+                          {%else%}
+                          <td>NA</td>
+                          {%endif%}
+                          <td>{{jobRow.subject}}</td>
+                          <td>{{jobRow.classes}}</td>
+                          <td>{{jobRow.category}}</td>
+                          <td>{{jobRow.status}}</td>
+                          <td>{{jobRow.term}}</td>                          
+                          <td><a href="{{url_for('jobDetail',job_id=jobRow.job_id, school_id=school_id)}}">Details</a></td>
+                          <td><a href="{{url_for('jobApplications')}}" class="btn green">See Applications</a></td>
+                          <td>
+                            {{jobRow.event_category}}
+                          </td>
+                        </tr>                        
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                        {%else%}
+                        <h3 class="grey-text">No jobs posted yet</h3>
+                        <h5>Please click on 'Post Job' button to get started</h5>
+                        {%endif%}                                              
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="box-footer text-right">
+              <a href="{{url_for('postJob')}}" class="uppercase">Post Job</a>
+            </div>
+          </section>
+        </div>
+
+
+          <!--End of job post details-->
           <div class="row">
             <section class="col-lg-12 connectedSortable">
 

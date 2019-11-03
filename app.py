@@ -615,7 +615,11 @@ def index():
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
         #print(topicToCoverDetails)
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(), 
+
+    ##################Fetch Job post details################################
+        jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
+
+        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
@@ -632,6 +636,8 @@ def disconnectedAccount():
         return redirect(url_for('openJobs'))
     else:
         return redirect(url_for('index'))
+
+
 
 
 @app.route('/postJob',methods=['POST','GET'])
@@ -712,7 +718,7 @@ def openJobs():
     else:
         next_url=None
         prev_url=None
-    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val='161')
+    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val=str(current_user.id))
 
 
 @app.route('/jobDetail')
@@ -764,6 +770,16 @@ def appliedJobs():
     return render_template('appliedJobs.html',title='Applied jobs', user_type_val='161',appliedRows=appliedRows)
 
 
+@app.route('/jobApplications')
+@login_required
+def jobApplications():
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
+    jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, "
+    jobAppQuery=jobAppQuery+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id order by applied_on desc"
+    jobApplications = db.session.execute(text(jobAppQuery)).fetchall()
+    return render_template('jobApplications.html', title='Job Applications', School_Name = school_name(),jobApplications=jobApplications)
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -851,7 +867,7 @@ def logout():
 @login_required
 def teachingApplicantProfile(user_id):
     user = User.query.filter_by(id=user_id).first_or_404()
-    return render_template('teachingApplicantProfile.html',user=user, user_type_val='161')
+    return render_template('teachingApplicantProfile.html',user=user, user_type_val=str(user.user_type))
 
 @app.route('/user/<username>')
 @login_required

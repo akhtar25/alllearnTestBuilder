@@ -1,0 +1,47 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+  <h3>Job Applications</h3>
+  <h4>{{job_id}}</h4>
+  <div id="uploadHistDiv">
+    <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <tr>
+            <th>Name</th>
+          <th>Applied Date</th>          
+          <th>City</th>
+          <th>Available From</th>
+          <th>Available Till</th>
+          <th>Experience</th>
+          <th>Education</th>
+          <th>See Full Profile</th>
+        </tr>
+        {%if jobApplications | length !=0%}
+        {% for eachRow in jobApplications%}
+        <tr style="margin-top:5px;">
+            <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
+          <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>          
+          <td>{{eachRow.city}}</td>
+          <td>{{eachRow.available_from}}</td>
+          <td>{{eachRow.available_till}}</td>
+          <td>{{eachRow.experience}}</td>
+          <td>{{eachRow.Education}}</td>
+          <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id)}}" target="_blank" class="btn green lighten-1">See
+              Full Profile</a></td>
+        </tr>
+        {% endfor %}
+        {%else%}
+        <td>
+          <h3 class="grey-text">No applied to any jobs yet.</h3>
+          <h5>Please check the <a href="{{url_for('openJobs')}}">Jobs</a> page to apply</h5>
+        </td>
+        {%endif%}
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+</script>
+
+
+{%endblock%}
