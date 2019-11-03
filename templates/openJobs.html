@@ -1,4 +1,5 @@
 {%extends "layout.html"%} {%block content%}
+{%if first_login==1%}
 <div class="row" id="alert_box">
     <div class="col s12 m12">
       <div class="card green lighten-1">
@@ -15,6 +16,7 @@
      </div>
     </div>
   </div>
+  {%endif%}
 <div class="container">
     <h3 class="grey-text">Open Jobs</h3>  
       <div>
