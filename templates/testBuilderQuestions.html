@@ -1,8 +1,9 @@
 {% if questions %}
+<div id="testBuilderQuestions">
 <h3>Select questions</h3>
 <div class="card id">
     <div class="card-body">
-        <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
+        <div id="table" class="table-editable" style="overflow-y: auto; height:600px;">
             <table class="table table-bordered table-responsive-md table-striped text-center">
                 <thead>
                     <tr>
@@ -16,14 +17,51 @@
                     {% for q in questions %}
                     {% for question in q %}
                     <tr>
-                        <td>{{ question.question_description }}</td>
+                        <td>
+                            {% if question.question_type=='MCQ1' %}
+                            <!-- <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a> -->
+                            <!-- <ul> -->
+                                    <ul>
+                                            <li>
+                                              <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>
+                                              <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
+
+                                            <!-- Modal Structure -->
+                                             
+                                            <div id="modal2" class="modal" style="background-color:white;">
+                                                    <div id="questionloader1" style="display: none;">
+                                                            <img src="../static/images/loader.gif">
+                                                        </div>
+                                                <div class="modal-content" id="content" style="display:none;">
+                                                <p><div id="questionDataList"></div> </p> 
+                                                
+                                                </div>
+                                            </div> 
+                                              <div class="collapse" class="optDiv" style="margin-left: 180px;" id="{{ question.question_id }}" ></div>
+                                            </li>
+                                    </ul>
+                            <!-- <div class="optDiv" id="{{ question.question_id }}">
+                          
+                            </div> -->
+                            <!-- </ul> -->
+                            {% else %}
+                                <h5>
+                                    {{ question.question_description }}
+                                </h5>
+                            {% endif %}
+                            <!-- {% for qp in quesOption %}
+                            {% for quesOption in qp %} -->
+                            
+                            <!-- {% endfor %}   -->
+                            <!-- {% endfor %}  -->
+                        </td>
                         <td> {{ question.question_type }} </td>
                         <td><label for="{{ question.question_id }}">
                                 <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
                                     value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
                             </label></td>
 
-                        <td>{{ question.weightage }}<input type="hidden" value="{{ question.weightage }}"
+                        <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
                                 id="{{ question.question_id }}select"></td>
                     </tr>
                     {% endfor %}
@@ -41,4 +79,84 @@
 <div id='questionSubmitLoader' style='display: none;'>
     <img src='../static/images/spinner.gif' width='50px' height='50px'>
 </div>
+</div>
+<div id="questionloader" style="display: none;padding-left: 300px;">
+    <img src="../static/images/loader.gif">
+    </div>
 {% endif %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, options);
+  });
+
+  
+
+  
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
+
+
+
+  $('.questionData').click(function(){
+    $('#questionloader1').show();
+    $('#modal2').hide();
+    $('#content').hide();
+    $('#questionDataList').html('');
+    (function () {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+
+                    var config = 'MathJax.Hub.Config({' +
+                                    'extensions: ["tex2jax.js"],' +
+                                    'jax: ["input/TeX","output/HTML-CSS"]' +
+                                '});' +
+                                'MathJax.Hub.Startup.onload();';
+                                
+
+                    if (window.opera) {script.innerHTML = config}
+                                else {script.text = config}
+
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                    })();
+    var question_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/questionAllDetails?question_id="+question_id,
+            type: "get",
+            data: data,
+            success: function(response){
+                $('#questionloader1').hide();
+                $('#modal2').show();
+                $('#content').show();
+                $('#questionDataList').html(response);
+            }
+        })
+  });
+
+  (function () {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+
+                    var config = 'MathJax.Hub.Config({' +
+                                    'extensions: ["tex2jax.js"],' +
+                                    'jax: ["input/TeX","output/HTML-CSS"]' +
+                                '});' +
+                                'MathJax.Hub.Startup.onload();';
+                                
+
+                    if (window.opera) {script.innerHTML = config}
+                                else {script.text = config}
+
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                    })();
+</script>

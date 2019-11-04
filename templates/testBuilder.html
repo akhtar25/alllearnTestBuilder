@@ -143,10 +143,11 @@
             contentType: "application/json",
             data: checkboxesChecked,
             beforeSend: function() {
-                $("#questions").show();  
+              $("#testBuilderQuestions").hide();  
               $("#questionloader").show();
            },
             success: function (response) {
+                $("#testBuilderQuestions").show(); 
                 $("#questionloader").hide();
                 if(response==1){
                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
@@ -268,6 +269,16 @@ $(document).ready(function(){
     $('#test_date').attr('min', maxDate);
 
 });
+
+window.onbeforeunload = function() {
+    localStorage.setItem("date", $('#test_date').val());
+    
+    // ...
+}
+window.onload = function() {
+    var date = localStorage.getItem("date");
+    if (date !== null) $('#test_date').val("date");
+}
 
 </script>
 
