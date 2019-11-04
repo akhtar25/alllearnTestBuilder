@@ -820,22 +820,26 @@ def processApplication():
     applier_user_id = request.args.get('applier_user_id')
     job_id = request.args.get('job_id')
     process_type = request.args.get('process_type')
-    try:
-        jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
-        if process_type=='Shortlist':
-            jobApplicationRow.status= 'Shortlisted'
-        elif process_type=='Reject':
-            jobApplicationRow.status= 'Rejected'
-        elif process_type =='Hire':
-            jobApplicationRow.status= 'Hired'
-        else:
-            flash('Error processing application')
-        db.session.commit()
+    #try:
+    jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
+    print(process_type)
+    if process_type=='shortlist':
+        jobApplicationRow.status= 'Shortlisted'
         flash('Application Shortlisted')
-        return redirect(url_for('jobApplications',job_id=job_id))
-    except:
-        flash('Error processing application')
-        return redirect(url_for('jobApplications',job_id=job_id))
+    elif process_type=='Reject':
+        jobApplicationRow.status= 'reject'
+        flash('Application Rejected')
+    elif process_type =='hire':
+        jobApplicationRow.status= 'Hired'
+        flash('Application Hired')
+    else:
+        flash('Error processing application idk')
+    db.session.commit()
+    
+    return redirect(url_for('jobApplications',job_id=job_id))
+    #except:
+    flash('Error processing application')
+    return redirect(url_for('jobApplications',job_id=job_id))
 
 
 @app.route('/submitPost', methods=['GET', 'POST'])

@@ -9,9 +9,9 @@
             <h4>{{user.city}} , {{user.state}}</h4>
             {%if job_id%}
             <br><br><br><br><br>
-            <a href="{{url_for('processApplication',applier_user_id=applier_user_id, job_id=job_id,process_type='hire')}}" class='btn processBTN green lighten-1' style='width: 150px' name='hire' id='hire'>Hire</a><br><br>            
-            <a href="{{url_for('processApplication',applier_user_id=applier_user_id, job_id=job_id,process_type='shortlist')}}" class='btn processBTN cyan' style='width: 150px' name='shortlist' id='shortlist'>Shortlist</a><br><br>
-            <a href="{{url_for('processApplication',applier_user_id=applier_user_id, job_id=job_id,process_type='reject')}}" class='btn processBTN red lighten-1' style='width: 150px' name='reject' id='reject'>Reject</a>
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='hire')}}" class='btn processBTN green lighten-1' style='width: 150px' name='hire' id='hire'>Hire</a><br><br>            
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='shortlist')}}" class='btn processBTN cyan' style='width: 150px' name='shortlist' id='shortlist'>Shortlist</a><br><br>
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='reject')}}" class='btn processBTN red lighten-1' style='width: 150px' name='reject' id='reject'>Reject</a>
             {%endif%}
         </div>
         <div class="col s4 m4 l6">
