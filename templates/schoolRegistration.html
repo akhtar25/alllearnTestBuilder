@@ -146,6 +146,23 @@
                         </div>
 
                     </div>
+                    <div class='row'>
+                            <div class="col-sm-6">
+                                    {{ form.how_to_reach.label(class='labelsize',placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    <br>
+                                    {% if form.how_to_reach.errors %}
+                                    {{ form.how_to_reach(class="form-control form-control-lg is-invalid",placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.how_to_reach.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.how_to_reach(class='form-control',placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    {% endif %}
+                                </div>
+                                <p class="grey-text">Details on how to reach the school will help guide any new teacher/volunteer <br>Especially if the school is located in difficult to reach areas</p>
+                    </div>
 
                 </div>
                 <div class="col-sm-4">
@@ -165,6 +182,7 @@
             <br>
             <p><button type='button' id="addClassbtn"
                     onclick="addClass();"class="waves-effect waves-light green btn">Add Class Details</button></p>            
+                    <p class='grey-text'>Class details can be added/modified later on as well</p> 
         </div>
 <br>
 <br>

@@ -1,39 +1,49 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-<h3 class="card-header text-center font-weight-bold py-4">Classes Registered Summary</h3>
-<div class="card-body">
-  <div id="table" class="table-editable">
-    <table class="table table-bordered table-responsive-md table-striped text-center">
-            <thead>
+    <h3 class="card-header text-center font-weight-bold py-4">Classes Registered Summary</h3>
+    <div class="card-body">
+        <div id="table" class="table-editable">
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+                <thead>
                     <tr>
                         <th scope="col">Class</th>
                         <th scope="col">Section</th>
                         <th scope="col">Student Count</th>
                     </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                     {% for class_data in data %}
-                        <tr>
-                            <td> {{ class_data.class_val }} </td>
-                            <td> {{ class_data.section }} </td>
-                            <td> {{ class_data.student_count }} </td>
-                        
-                        </tr>
+                    <tr>
+                        <td> {{ class_data.class_val }} </td>
+                        <td> {{ class_data.section }} </td>
+                        <td> {{ class_data.student_count }} </td>
+
+                    </tr>
                     {% endfor %}
-            </tbody>
-    </table>
-</div>
-</div>
-<div class="row">
-        
-    <div class="col-sm-3">
-        <p><a href="{{ url_for('teacherRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Teacher Registration</button></a></p>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="col-sm-3">
-        <p><a href="{{ url_for('studentRegistration') }}"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text">Student Registration</button></a></p>
+    <div class="row">
+
+        <div class="col-sm-3">
+            <p><a href="{{ url_for('teacherRegistration') }}"><button style="margin-top:22px; margin-left:5px;"
+                        class="btn waves-light green lighten-1 white-text">Invite Teachers</button></a></p>
+        </div>
+        <div class="col-sm-3">
+            <p><a href="{{ url_for('studentRegistration') }}"><button style="margin-top:22px; margin-left:5px;"
+                        class="btn waves-light green lighten-1 white-text">Add Students</button></a></p>
+        </div>
+
     </div>
-    <div><h5>Other teachers at your school can now register themselves and use the school id <h4>{{school_id}}</h4>h5> to request access to the dashboard </h5></div>
-</div>
+    <div class='row'>
+        <h5>Other teachers at your school can now register themselves and use the school id <h4>{{school_id}}</h4>
+            <h5> to request access to the dashboard </h5>
+    </div>
+    <div class='row'>
+        <a href="url_for('postJob')">Post Jobs</a>
+        <h5>to hire new volunteer or permanent teachers</h5>
+    </div>
 </div>
 
 {% endblock %}
