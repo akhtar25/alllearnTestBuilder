@@ -260,7 +260,7 @@ def schoolRegistration():
         #end of inser to topic tracker
         db.session.commit()
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
-        flash('Successful Registration!')
+        flash('School Registered Successfully!')
         new_school_reg_email(form.schoolName.data)
         return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name(),school_id=school_id.school_id)
     return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
@@ -667,7 +667,7 @@ def postJob():
         db.session.commit()
         flash('New job posted created!')
     else:
-        flash('Please fix the errors to submit')
+        #flash('Please fix the errors to submit')
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 print(err)
