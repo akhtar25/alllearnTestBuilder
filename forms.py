@@ -202,9 +202,9 @@ class SchoolRegistrationForm(FlaskForm):
     state = StringField('State', validators=[DataRequired(),Length(min=0, max=50)])
     country = StringField('Country', validators=[DataRequired(),Length(min=0, max=50)])
     pincode = StringField('Pincode',validators=[DataRequired(),Length(min=0, max=10)],widget=NumberInput())
-    class_val=StringField('Class',validators=[DataRequired()],widget=NumberInput(min=1,max=10))
-    section=StringField('Section',validators=[DataRequired(),Length(min=0, max=1)])
-    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))    
+    class_val=StringField('Class',widget=NumberInput(min=1,max=10))
+    section=StringField('Section',validators=[Length(min=0, max=1)])
+    student_count=StringField('Student Count',widget=NumberInput(min=1,max=100))    
 
 class SchoolTeacherForm(FlaskForm):
     teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
