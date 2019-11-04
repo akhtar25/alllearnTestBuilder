@@ -83,6 +83,12 @@
                 <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
               </li>
               <li>
+                  <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
+                </li>
+                <li>
+                    <a style="color: green; font-size: 15px;" href="{{url_for('postJob')}}">Post New Job</a>
+                </li>
+              <li>
                   <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
               </li>
               <li>
@@ -191,6 +197,16 @@
               <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
             </li>
         </ul>
+
+        <ul id="dropdown6" class="dropdown-content green-text" style="color: green;">
+            <li>
+              <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
+            </li>
+            <li>
+                <a style="color: green; font-size: 15px;" href="{{url_for('postJob')}}">Post New Job</a>
+            </li>
+          </ul>
+
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous or disconn == 1 %}
 
@@ -225,7 +241,9 @@
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown5">Performance</a>
           </li>
-  
+          <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown6">Hiring</a>
+            </li>
           <li item-width="100px">
             <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown1">More
               <i class="material-icons right" style="font-size: 40px">menu </i>
@@ -351,6 +369,12 @@ $(document).ready(function(){
                     <li>
                         <a class="white-text"  href="{{url_for('classPerformance')}}">Feedback Report</a>
                       </li>
+                      <li>
+                          <a class="white-text" href="{{url_for('jobPosts')}}">Job Posts</a>
+                        </li>
+                        <li>
+                            <a class="white-text" href="{{url_for('postJob')}}">Post New Job</a>
+                        </li>
           </ul>
         </div>
         <div class="col l2 s12">
@@ -358,7 +382,7 @@ $(document).ready(function(){
               
                 <li>
                   <a class="white-text" href="{{url_for('testPerformance')}}">Performance Report</a>
-                </li>                    
+                </li>                                    
           <li>
               <a class="white-text" href="{{url_for('contentManager')}}">Content Manager</a>
             </li>

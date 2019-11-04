@@ -4,7 +4,15 @@
   <h4>{{job_id}}</h4>
   <div id="uploadHistDiv">
     <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
-    <div class="box-body table-responsive no-padding">
+    <ul class="tabs ">
+        <li class="tab col s3"><a class="active" href="#pending">Pending Decision</a></li>
+        <li class="tab col s3 "><a class='' href="#hired">Hired</a></li>
+        <li class="tab col s3 "><a href="#shortlisted">Shortlisted</a></li>
+        <li class="tab col s3 "><a href="#rejected">Rejected</a></li>
+      </ul>
+
+    
+    <div class="box-body table-responsive no-padding" id="pending">
       <table class="table table-hover">
         <tr>
             <th>Name</th>
@@ -12,8 +20,8 @@
           <th>City</th>
           <th>Available From</th>
           <th>Available Till</th>
-          <th>Experience</th>
-          <th>Education</th>
+          <!--<th>Experience</th>-->          
+          <th>Education</th> <th>Experience</th>
           <th>See Full Profile</th>
         </tr>
         {%if jobApplications | length !=0%}
@@ -24,23 +32,157 @@
           <td>{{eachRow.city}}</td>
           <td>{{eachRow.available_from}}</td>
           <td>{{eachRow.available_till}}</td>
-          <td>{{eachRow.experience}}</td>
-          <td>{{eachRow.Education}}</td>
-          <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id)}}" target="_blank" class="btn green lighten-1">See
+          <!--<td>{{eachRow.experience}}}</td>-->
+          <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
+          <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
               Full Profile</a></td>
         </tr>
         {% endfor %}
         {%else%}
         <td>
-          <h3 class="grey-text">No applied to any jobs yet.</h3>
-          <h5>Please check the <a href="{{url_for('openJobs')}}">Jobs</a> page to apply</h5>
+          <h3 class="grey-text">No applications pending descisions</h3>          
         </td>
         {%endif%}
       </table>
     </div>
+
+    
+    <div class="box-body table-responsive no-padding" id='hired'>
+    <table class="table table-hover">
+      <tr>
+          <th>Name</th>
+        <th>Applied Date</th>          
+        <th>City</th>
+        <th>Available From</th>
+        <th>Available Till</th>
+        <!--<th>Experience</th>-->          
+        <th>Education</th> <th>Experience</th>
+        <th>See Full Profile</th>
+      </tr>
+      {%if jobApplicationsHired | length !=0%}
+      {% for eachRow in jobApplicationsHired%}
+      <tr style="margin-top:5px;">
+          <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
+        <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
+        <td>{{eachRow.city}}</td>
+        <td>{{eachRow.available_from}}</td>
+        <td>{{eachRow.available_till}}</td>
+        <!--<td>{{eachRow.experience}}}</td>-->
+        <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
+        <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
+            Full Profile</a></td>
+      </tr>
+      {% endfor %}
+      {%else%}
+      <td>
+        <h3 class="grey-text">No applications hired yet</h3>          
+      </td>
+      {%endif%}
+    </table>
+  </div>
+
+  
+
+  
+
+<div class="box-body table-responsive no-padding" id='shortlisted'>
+    <table class="table table-hover">
+      <tr>
+          <th>Name</th>
+        <th>Applied Date</th>          
+        <th>City</th>
+        <th>Available From</th>
+        <th>Available Till</th>
+        <!--<th>Experience</th>-->          
+        <th>Education</th> <th>Experience</th>
+        <th>See Full Profile</th>
+      </tr>
+      {%if jobApplicationsShortlisted | length !=0%}
+      {% for eachRow in jobApplicationsShortlisted%}
+      <tr style="margin-top:5px;">
+          <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
+        <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
+        <td>{{eachRow.city}}</td>
+        <td>{{eachRow.available_from}}</td>
+        <td>{{eachRow.available_till}}</td>
+        <!--<td>{{eachRow.experience}}}</td>-->
+        <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
+        <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
+            Full Profile</a></td>
+      </tr>
+      {% endfor %}
+      {%else%}
+      <td>
+        <h3 class="grey-text">No applications shortlisted yet</h3>          
+      </td>
+      {%endif%}
+    </table>
+  </div>
+
+
+  <div class="box-body table-responsive no-padding" id='rejected'>
+      <table class="table table-hover">
+        <tr>
+            <th>Name</th>
+          <th>Applied Date</th>          
+          <th>City</th>
+          <th>Available From</th>
+          <th>Available Till</th>
+          <!--<th>Experience</th>-->          
+          <th>Education</th> <th>Experience</th>
+          <th>See Full Profile</th>
+        </tr>
+        {%if jobApplicationsRejected | length !=0%}
+        {% for eachRow in jobApplicationsRejected%}
+        <tr style="margin-top:5px;">
+            <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
+          <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
+          <td>{{eachRow.city}}</td>
+          <td>{{eachRow.available_from}}</td>
+          <td>{{eachRow.available_till}}</td>
+          <!--<td>{{eachRow.experience}}}</td>-->
+          <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
+          <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
+              Full Profile</a></td>
+        </tr>
+        {% endfor %}
+        {%else%}
+        <td>
+          <h3 class="grey-text">No applications rejected yet</h3>          
+        </td>
+        {%endif%}
+      </table>
+    </div>
+<!--
+
+    <div class="row">
+        <div class="col s12">
+          <ul class="tabs">
+            <li class="tab col s3"><a href="#test1">Test 1</a></li>
+            <li class="tab col s3"><a class="active" href="#test2">Test 2</a></li>
+            <li class="tab col s3 disabled"><a href="#test3">Disabled Tab</a></li>
+            <li class="tab col s3"><a href="#test4">Test 4</a></li>
+          </ul>
+        </div>
+        <div id="test1" class="col s12">Test 1</div>
+        <div id="test2" class="col s12">Test 2</div>
+        <div id="test3" class="col s12">Test 3</div>
+        <div id="test4" class="col s12">Test 4</div>
+      </div>
+-->
+
+
+
+
+
+
   </div>
 </div>
 <script>
+   $(document).ready(function(){
+    $('.tabs').tabs();
+  });
+        
 </script>
 
 

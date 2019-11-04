@@ -62,7 +62,7 @@ class EditProfileForm(FlaskForm):
     phone=StringField('Phone No',validators=[Length(max=12)])
     education = TextAreaField('Education', validators=[Length(min=0, max=500)])
     experience = TextAreaField('Experience', validators=[Length(min=0, max=1000)])
-    address = TextAreaField('Address', validators=[Length(min=0, max=1000)])
+    #address = TextAreaField('Address', validators=[Length(min=0, max=1000)])
     city = StringField('City', validators=[DataRequired(), Length(min=0, max=100)])
     state = StringField('State', validators=[DataRequired(), Length(min=0, max=100)])
     resume = StringField('Resume', validators=[Length(min=0, max=200)])
@@ -205,7 +205,7 @@ class SchoolRegistrationForm(FlaskForm):
     class_val=StringField('Class',widget=NumberInput(min=1,max=10))
     section=StringField('Section',validators=[Length(min=0, max=1)])
     student_count=StringField('Student Count',widget=NumberInput(min=1,max=100))    
-    how_to_reach = TextAreaField('How To Reach', validators=[DataRequired(),Length(min=0, max=200)])
+    how_to_reach = TextAreaField('How To Reach', validators=[DataRequired(),Length(min=0, max=500)])
 
 class SchoolTeacherForm(FlaskForm):
     teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  

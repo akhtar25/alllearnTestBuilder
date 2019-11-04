@@ -228,7 +228,7 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input']       
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id)
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
@@ -524,7 +524,7 @@ def edit_profile():
         current_user.education = form.education.data
         current_user.experience = form.experience.data
         current_user.phone=form.phone.data
-        current_user.address=form.address.data
+        #current_user.address=form.address.data
         current_user.city=form.city.data
         current_user.state=form.state.data
         current_user.resume=form.resume.data
@@ -538,7 +538,7 @@ def edit_profile():
         form.phone.data = current_user.phone
         form.education.data = current_user.education
         form.experience.data = current_user.experience
-        form.address.data = current_user.address
+        #form.address.data = current_user.address
         form.city.data = current_user.city
         form.state.data = current_user.state
         form.resume.data = current_user.resume
@@ -758,7 +758,7 @@ def sendJobApplication():
         flash('Job application submitted!')
         return redirect(url_for('openJobs'))
 
-@app.route('/appliedJobs')
+@app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
 @login_required
 def appliedJobs():
     appliedQuery = "select applied_on, t3.school_id,school_name, category, subject, t2.job_id, "
@@ -767,19 +767,76 @@ def appliedJobs():
     appliedQuery = appliedQuery + "t1.job_id=t2.job_id inner join school_profile t3 on "
     appliedQuery = appliedQuery + "t3.school_id=t1.school_id where t1.applier_user_id='"+str(current_user.id)+"'"
     appliedRows = db.session.execute(text(appliedQuery)).fetchall()
-    return render_template('appliedJobs.html',title='Applied jobs', user_type_val='161',appliedRows=appliedRows)
+    return render_template('appliedJobs.html',title='Applied jobs', user_type_val=str(current_user.user_type),appliedRows=appliedRows)
 
 
-@app.route('/jobApplications')
+@app.route('/jobApplications')  # this page shows all the applications received by the job poster for any specifc job post
 @login_required
 def jobApplications():
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    job_id=request.args.get('job_id')
     #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
-    jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, "
+    #pending descision
+    jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
     jobAppQuery=jobAppQuery+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
-    jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id order by applied_on desc"
+    jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQuery=jobAppQuery+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Applied' order by applied_on desc"
     jobApplications = db.session.execute(text(jobAppQuery)).fetchall()
-    return render_template('jobApplications.html', title='Job Applications', School_Name = school_name(),jobApplications=jobApplications)
+
+    #hired descision
+    jobAppQueryHired = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryHired=jobAppQueryHired+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryHired=jobAppQueryHired+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryHired=jobAppQueryHired+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Hired' order by applied_on desc"
+    jobApplicationsHired = db.session.execute(text(jobAppQueryHired)).fetchall()
+
+    #shortlist descision
+    jobAppQueryShortlisted = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Shortlisted' order by applied_on desc"
+    jobApplicationsShortlisted = db.session.execute(text(jobAppQueryShortlisted)).fetchall()
+
+    #rejected descision
+    jobAppQueryRejected = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryRejected=jobAppQueryRejected+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryRejected=jobAppQueryRejected+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
+    jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
+    
+    return render_template('jobApplications.html', title='Job Applications', School_Name = school_name(),jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
+
+
+@app.route('/jobPosts')
+@login_required
+def jobPosts():
+    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
+    return render_template('jobPosts.html',jobPosts=jobPosts, school_id=teacher.school_id)
+
+@app.route('/processApplication')
+@login_required
+def processApplication():
+    applier_user_id = request.args.get('applier_user_id')
+    job_id = request.args.get('job_id')
+    process_type = request.args.get('process_type')
+    try:
+        jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
+        if process_type=='Shortlist':
+            jobApplicationRow.status= 'Shortlisted'
+        elif process_type=='Reject':
+            jobApplicationRow.status= 'Rejected'
+        elif process_type =='Hire':
+            jobApplicationRow.status= 'Hired'
+        else:
+            flash('Error processing application')
+        db.session.commit()
+        flash('Application Shortlisted')
+        return redirect(url_for('jobApplications',job_id=job_id))
+    except:
+        flash('Error processing application')
+        return redirect(url_for('jobApplications',job_id=job_id))
+
 
 @app.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -866,8 +923,10 @@ def logout():
 @app.route('/teachingApplicantProfile/<user_id>')
 @login_required
 def teachingApplicantProfile(user_id):
+    job_id = request.args.get('job_id')
     user = User.query.filter_by(id=user_id).first_or_404()
-    return render_template('teachingApplicantProfile.html',user=user, user_type_val=str(user.user_type))
+    accessingUser = User.query.filter_by(id=current_user.id).first_or_404()
+    return render_template('teachingApplicantProfile.html',user=user, user_type_val=str(accessingUser.user_type),job_id=job_id)
 
 @app.route('/user/<username>')
 @login_required
