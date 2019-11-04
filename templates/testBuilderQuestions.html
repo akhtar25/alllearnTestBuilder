@@ -19,13 +19,11 @@
                     <tr>
                         <td>
                             {% if question.question_type=='MCQ1' %}
-                            <!-- <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a> -->
-                            <!-- <ul> -->
+                        
                                     <ul>
                                             <li>
                                               <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>
-                                              <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
-
+                            
                                             <!-- Modal Structure -->
                                              
                                             <div id="modal2" class="modal" style="background-color:white;">
@@ -40,26 +38,18 @@
                                               <div class="collapse" class="optDiv" style="margin-left: 180px;" id="{{ question.question_id }}" ></div>
                                             </li>
                                     </ul>
-                            <!-- <div class="optDiv" id="{{ question.question_id }}">
-                          
-                            </div> -->
-                            <!-- </ul> -->
                             {% else %}
                                 <h5>
                                     {{ question.question_description }}
                                 </h5>
                             {% endif %}
-                            <!-- {% for qp in quesOption %}
-                            {% for quesOption in qp %} -->
-                            
-                            <!-- {% endfor %}   -->
-                            <!-- {% endfor %}  -->
                         </td>
                         <td> {{ question.question_type }} </td>
                         <td><label for="{{ question.question_id }}">
                                 <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
                                     value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
-                            </label></td>
+                            </label>
+                        </td>
 
                         <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
                                 id="{{ question.question_id }}select"></td>
