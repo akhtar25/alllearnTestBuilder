@@ -68,7 +68,7 @@
                  <span class="appliedClass badge green white-text"  id="{{applied}}" style='font-size: 10px; font-family: Arial;'>Applied</span>
                  {%endif%}
                 <br><strong>{{jobDetailRow.category}}</strong>
-                |{{jobDetailRow.term}}
+                |{{jobDetailRow.term}} | {{jobDetailRow.job_type}}
                 {%if jobDetailRow.status=='Open'%}
                 <span class="right green-text"> {{jobDetailRow.status}} </span>
                 {%else%}
@@ -141,7 +141,7 @@
                         <td>{{jobDetailRow.job_id}}</td>
                     </tr>
                 </table>
-                {%if jobDetailRow.status=='Open'%}
+                {%if jobDetailRow.status=='Open' and user_type_val=='161'%}
                 <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
                 {%endif%}
                 <!-- Modal Structure -->

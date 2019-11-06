@@ -85,6 +85,8 @@ class User(UserMixin, db.Model):
     education = db.Column(db.String(500), nullable=True)
     experience = db.Column(db.String(1000), nullable=True)
     resume = db.Column(db.String(200),nullable=True)
+    willing_to_travel = db.Column(db.Boolean,nullable=True)
+    intro_link = db.Column(db.String(200),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
     def __repr__(self):
@@ -348,6 +350,9 @@ class JobDetail(db.Model):
     term  = db.Column(db.String(100),nullable=True)
     status  = db.Column(db.String(100),nullable=True)
     num_of_openings = db.Column(db.Integer,nullable=True)
+    job_type = db.Column(db.String(50), nullable=True) # part time or full time 
+    benefits = db.Column(db.String(200),nullable=True)
+    city = db.Column(db.String(50),nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
@@ -428,6 +433,8 @@ class SchoolProfile(db.Model):
     sub_id =  db.Column(db.ForeignKey('subscription_detail.sub_id'), nullable=True)
     next_bill_due = db.Column(db.DateTime, nullable=True)
     how_to_reach = db.Column(db.String(500),nullable=True)
+    school_type = db.Column(db.String(50),nullable=True) #ngo, budget, elite, government
+    location_type = db.Column(db.String(50),nullable=True) # urban  , remote
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
     last_modified_date=db.Column(db.DateTime)
 

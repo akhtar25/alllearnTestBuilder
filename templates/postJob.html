@@ -141,7 +141,21 @@
                     {% else %}
                     {{ form.language(class='form-control',placeholder="Eg.Any or English") }}
                     {% endif %}
-                </div>
+                </div>     
+                <div class="col-sm-3">
+                        {{ form.num_of_openings.label(class='labelsize') }}
+                        <br>
+                        {% if form.num_of_openings.errors %}
+                        {{ form.num_of_openings(class="form-control form-control-lg is-invalid",placeholder="Eg.3") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.num_of_openings.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.num_of_openings(class='form-control',placeholder="Eg.3") }}
+                        {% endif %}
+                    </div>           
             </div>
             <div class="row">
                 <div class="col-sm-3">
@@ -173,6 +187,21 @@
                     {% endif %}
                 </div>
                 <div class="col-sm-3">
+                        {{ form.job_type.label(class='labelsize') }}
+                        <br>
+                        {% if form.job_type.errors %}
+                        {{ form.job_type(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.job_type.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.job_type(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    
+                <div class="col-sm-3">
                     {{ form.term.label(class='labelsize') }}
                     <br>
                     {% if form.term.errors %}
@@ -186,20 +215,8 @@
                     {{ form.term(class='form-control') }}
                     {% endif %}
                 </div>
-                <div class="col-sm-3">
-                    {{ form.num_of_openings.label(class='labelsize') }}
-                    <br>
-                    {% if form.num_of_openings.errors %}
-                    {{ form.num_of_openings(class="form-control form-control-lg is-invalid",placeholder="Eg.3") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.num_of_openings.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.num_of_openings(class='form-control',placeholder="Eg.3") }}
-                    {% endif %}
-                </div>
+
+
             </div>
             <div class="row">
             <button class="btn waves-effect waves-light green right" type="submit" name="action">Submit</button>

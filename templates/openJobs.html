@@ -6,7 +6,7 @@
         <div class="row">
           <div class="col s12 m10">
             <div class="card-content white-text">
-            <h4>Please update your profile  before applying for any of the jobs </h4>
+            <h4>Please <a href="{{url_for('edit_profile')}}">update your profile</a>  before applying for any of the jobs </h4>
           </div>
         </div>
         <div class="col s12 m2">
@@ -20,53 +20,133 @@
 <div class="container">
     <h3 class="grey-text">Open Jobs</h3>  
       <div>
-        <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;">
-          <table>
-            {%for content in openJobsDataRows %}
-            <div class="row z-depth-2 " style="margin-top: -15px;">
-              <div class="col m6 l3 center-align">                
-                  {%if content.school_picture!=None %}
-                  <img height="120px" src="{{content.school_picture}}">
-                  {%else%}
-                  <img height="120px"
-                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
-                  {%endif%}
-                </div>
+          <div class="row">
               
-              <div class="col m6 l3">
-                    <h4><span> <a href="#" target="_blank"></a>{{content.school_name}}</span></h4>
-                    <h5>{{content.city}}</h5>
-                    <h5>{{content.term}}</h5>
-                    <h5>{{content.category}}</h5>
-                    <h5>{{content.Subjects}}</h5>
-                    {%if posted_on | length!=0%}
-                    <h5>Posted On:{{content.posted_on.strftime('%d %B %Y')}}</h5>
-                    {%else%}
-                    <h5>Posted On:{{content.posted_on}}</h5>
-                    {%endif%}                                  
+              <div class="col-sm-3">
+                  <h3>Filters</h3>
+                  <div id="filterBox" style="overflow-y: auto; overflow-x:hidden; height:300px; position: relative;">
+                      <h5>Job Term</h5>
+                      <p>
+                          <label>
+                            <input name="jobTerm" type="radio" checked class='jobTermClass' value="All"/>
+                            <span>All</span>
+                          </label>
+                        </p>
+                        {%for row in jobTermOptions%}
+                        <p>
+                            <label>
+                              <input name="jobTerm" type="radio" class='jobTermClass' value="{{row.description}}"/>
+                              <span>{{row.description}}</span>
+                            </label>
+                          </p>
+                          {%endfor%}                    
+                        <h5>Job Type</h5>                        
+                        <p>
+                            <label>
+                              <input name="jobType" type="radio" class='jobTypeClass' value="All" checked/>
+                              <span>All</span>
+                            </label>
+                          </p>
+                          {%for row2 in jobTypeOptions%}
+                        <p>
+                            <label>
+                              <input name="jobType" type="radio"  class='jobTypeClass' value="{{row2.description}}"/>
+                              <span>{{row2.description}}</span>
+                            </label>
+                          </p>
+                          {%endfor%}
+                          <h5>City</h5>
+                          <p>
+                              <label>
+                                <input name="city" type="radio" checked class='cityClass' value="All"/>
+                                <span>All</span>
+                              </label>
+                            </p>
+                            <p>
+                              <label>
+                                <input name="city" type="radio" class='cityClass' value="{{current_user.city}}"/>
+                                <span>{{current_user.city}}</span>
+                              </label>
+                            </p>                      
+                  </div>
+                  <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text" id='filterListBTN'
+                          >Filter List</button></p>
+                  
               </div>
-              <div class="col  m6 l2">
-                <h3 class="grey-text">₹{{content.min_pay}} - ₹{{content.max_pay}}</h3><br>
-                <h5><a href="{{url_for('jobDetail',job_id=content.job_id, school_id=content.school_id)}}">See Detail</a></h5>
-              </div>
-            </div>
-            {% endfor %}
-          </table>
-        </div>
+              <span id="message" style="color:Red;display: none;float:left;"></span>
+              <div class="col-sm-9" id="jobListDiv">
+                                     
+              </div>                
+              <div id="loader" class='center' style="display: none;">
+                  <img src="../static/images/loader.gif">
+                  </div>
       </div>    
-    {% if prev_url %}
-    <a href="{{ prev_url }}">Previous</a>
-    {% endif %} {% if next_url %}
-    <a href="{{ next_url }}">Next</a>
-    {% endif %}
+    </div>
 
   
 </div>
 <script>
+  var qjobTerm='';
+  var qjobType='';
+  var qcity= '';
+
+$(document).ready(function () {
+  loadJobs('All','All','All');
+  alert($('.jobTermClass').val());
+  alert('not her');
+});
+
 $('#alert_close').click(function(){
     $( "#alert_box" ).fadeOut( "slow", function() {
     });
   });
+
+
+
+  $('.jobTermClass').click(function(){
+    qjobTerm = $(this).val();    
+    alert(qjobTerm);
+  });
+  $('.jobTypeClass').click(function(){
+    qjobType = $(this).val();    
+    alert(qjobType);
+  });
+  $('.cityClass').click(function(){
+    qcity = $(this).val();
+    alert(qcity);
+  });
+
+
+  $('#filterListBTN').click(function(){    
+    loadJobs(qjobTerm,qjobType,qcity);
+  });
+
+  function loadJobs(qjobTerm,qjobType,qcity){    
+    alert(qcity + ' and '+qjobTerm + ' and '+qjobType);
+  $.ajax({
+            url: "/openJobsFilteredList?job_term=" + qjobTerm + "&job_type=" + qjobType +"&city="+qcity,
+            type: "get",
+            contentType: "application/json",
+            data: '',
+            beforeSend: function() {  
+              $("#loader").show();  
+              $("#jobListDiv").hide();
+           },
+            success: function (response) {
+                $("#loader").hide();
+                $("#jobListDiv").show();
+                if(response==1){                  
+                    $("#jobListDiv").html('<h3 class="grey-text">No jobs found');
+                }
+                else{
+                    $("#jobListDiv").html(response);
+                }                
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+      }
 </script>
 
 

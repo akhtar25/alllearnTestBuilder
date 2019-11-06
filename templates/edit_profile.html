@@ -31,56 +31,70 @@
                 </p>
                 <p>
                     {{ form.about_me.label }}
-                    <br> {{ form.about_me(cols=50, rows="10",placeholder="Write a short intro about yourself and what are you good at") }}
+                    <br>
+                    {{ form.about_me(class="form-control form-control-lg is-invalid", cols=50, rows="10",placeholder="Write a short intro about yourself and what are you good at") }}
                     <br> {% for error in form.about_me.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
                 <p>
                     {{ form.education.label }}
-                    <br> {{ form.education(cols="50", rows="100", placeholder="College/School Name \n Graduation Year \n Percentage/GPA ") }}
+                    <br>
+                    {{ form.education(class="form-control form-control-lg is-invalid", cols="50", rows="10", placeholder="List down your educational qualifications in the following format:\n-College/School Name \n-Graduation Year \n-Percentage/GPA ") }}
                     <br> {% for error in form.education.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
                 <p>
                     {{ form.experience.label }}
-                    <br> {{ form.experience(cols=50, rows="10", placeholder="Mention your experiences ") }}
+                    <br>
+                    {{ form.experience(class="form-control form-control-lg is-invalid",cols=50, rows="10", placeholder="List down your experiences in the following format:\n-Company/Organisation Name \n-Start and End Dates \n-Brief description of your role ") }}
                     <br> {% for error in form.experience.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
-                </p>                
+                </p>
                 <p>
                     {{ form.city.label }}
-                    <br> {{ form.city }}
+                    <br> {{ form.city(id="cityID") }}
                     <br> {% for error in form.city.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
 
                     {{ form.state.label }}
-                    <br> {{ form.state }}
+                    <br> {{ form.state(id="stateID") }}
                     <br> {% for error in form.state.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
                 <p>
-                        {{ form.resume.label }}
-                        <br> {{ form.resume(placeholder="Please paste a google drive link to your resume") }}
-                        <br> {% for error in form.resume.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
+                    {{ form.resume.label }}
+                    <br> {{ form.resume(placeholder="Please paste a google drive link to your resume") }}
+                    <br> {% for error in form.resume.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.intro_link.label }}
+                    <br>
+                    {{ form.intro_link(placeholder="Please record a short 1 min video or audio about yourself and paste the link here") }}
+                    <br> {% for error in form.intro_link.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <label>
+                    <input id="willing_to_travel" name="willing_to_travel" type="checkbox" {{'checked="checked"' if willing_to_travel else ""}}>
+                    <span style="font-family: Arial;" class='grey-text'>Willing to travel if stay is
+                        provided/arranged</span>
+                </label>
+                </p>
                 <!--<p>{{ form.submit() }}</p>-->
-                <button class="btn waves-effect waves-light green right" type="submit" name="action">Save                    
+                <button class="btn waves-effect waves-light green right" type="submit" name="action">Save
                 </button>
             </form>
         </div>
     </div>
 </div>
 <script>
-$( document ).ready(function() {
-    $('textarea').attr('rows', 20);
-});
 </script>
 
 {% endblock %}

@@ -108,6 +108,26 @@ def school_name():
         return None
 
 
+def stateList():
+    with open('stateList.txt', 'r') as f:
+        stateListVal = f.readlines()
+        stateListVal = str(stateListVal).split(',')
+        return stateListVal
+
+
+def cityList():
+    with open('cityList.txt', 'r') as f:
+        cityListVal = f.readlines()
+        cityListVal = str(cityListVal)
+        cityListVal = cityListVal.replace('[','').replace(']','').replace('\'','').replace(',',':null,')
+        cityListVal = cityListVal.split(',')
+        cityListVal[-1]=cityListVal[-1]+ ':null'
+        cityListDict = dict(item.split(':') for item in cityListVal)
+        #cityListVal = cityListVal.split(',')
+        return cityListDict
+
+
+
 @app.route("/loaderio-ad2552628971ece0389988c13933a170/")
 def performanceTestLoaderFunction():
     return render_template("loaderio-ad2552628971ece0389988c13933a170.html")
@@ -516,6 +536,11 @@ def testingOtherVideo():
 @login_required
 def edit_profile():
     #teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #cityList()
+
+    #cityJSON = json.dumps(cityList())
+    #stateJSON = json.dumps(stateList())
+
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():        
         current_user.about_me = form.about_me.data        
@@ -528,6 +553,7 @@ def edit_profile():
         current_user.city=form.city.data
         current_user.state=form.state.data
         current_user.resume=form.resume.data
+        current_user.willing_to_travel = form.willing_to_travel.data
         ##
         db.session.commit()
         flash('Your changes have been saved.')
@@ -542,9 +568,11 @@ def edit_profile():
         form.city.data = current_user.city
         form.state.data = current_user.state
         form.resume.data = current_user.resume
+        form.intro_link.data = current_user.intro_link
+        
 
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name(),user_type_val=str(current_user.user_type))
+        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name(),user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
 
 @app.route('/')
@@ -644,14 +672,18 @@ def disconnectedAccount():
 @login_required
 def postJob():
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    schoolCityQuery = "select city from address_detail where address_id =(select address_id from school_profile where school_id ="+str(teacherRow.school_id)+")"
+    schoolCity = db.session.execute(text(schoolCityQuery)).first()
     form = postJobForm()
     
     availableCategories=MessageDetails.query.filter_by(category='Job Category').all()
+    availableJobTypes=MessageDetails.query.filter_by(category='Job Type').all()
     availableStayOptions=MessageDetails.query.filter_by(category='Stay Option').all()
     availableFoodOptions=MessageDetails.query.filter_by(category='Food Option').all()
     availableTeachingTermOption=MessageDetails.query.filter_by(category='Teaching Term Option').all()
 
     form.category.choices = [(str(i.description),str(i.description)) for i in availableCategories]
+    form.job_type.choices = [(str(i.description),str(i.description)) for i in availableJobTypes]
     form.stay.choices = [(str(i.description),str(i.description)) for i in availableStayOptions]
     form.food.choices = [(str(i.description),str(i.description)) for i in availableFoodOptions]
     form.term.choices = [(str(i.description),str(i.description)) for i in availableTeachingTermOption]
@@ -662,7 +694,8 @@ def postJob():
             posted_by =teacherRow.teacher_id,school_id=teacherRow.school_id,description=form.description.data,min_pay=form.min_pay.data,max_pay=form.max_pay.data,
             start_date=form.start_date.data,subject=form.subject.data, 
             classes= form.classes.data, language= form.language.data,timings= form.timings.data,stay= form.stay.data, 
-            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data ,posted_on = datetime.today(),last_modified_date= datetime.today())
+            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data,city =schoolCity.city,
+            job_type =form.job_type.data,posted_on = datetime.today(),last_modified_date= datetime.today())
         db.session.add(jobData)
         db.session.commit()
         flash('New job posted created!')
@@ -677,48 +710,108 @@ def postJob():
 @app.route('/openJobs')
 @login_required
 def openJobs():
-    page=request.args.get('page',0, type=int)
+    page=request.args.get('page',0, type=int)    
     first_login = request.args.get('first_login','0').strip()
+
+    jobTermOptions = MessageDetails.query.filter_by(category='Teaching Term Option').all()
+    jobTypeOptions = MessageDetails.query.filter_by(category='Job Type').all()
+
     if first_login=='1':
         print('this is the first login section')
         userRecord = User.query.filter_by(id=current_user.id).first()
         userRecord.user_type= '161'
         db.session.commit()
     else:
-        print('first login not registered')
-    recordsOnPage = 10
+        print('first login not registered')    
+    return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+
+
+@app.route('/openJobsFilteredList')
+@login_required
+def openJobsFilteredList():
+    page=request.args.get('page',0, type=int)
+    recordsOnPage = 5
     offsetVal = page *recordsOnPage
+    
+    whereClause = ""
+    qjob_term = request.args.get('job_term') #all /short term / long term
+    qjob_type = request.args.get('job_type') #all /part time/ full time
+    qcity =  request.args.get('city')       # all/ home city
+
+    print("qterm is "+str(qjob_term))
+    print("qtype is "+str(qjob_type))
+    print("qcity is "+str(qcity))
+
+    whJobTerm=''
+    whJobType=''
+    whCity=''
+
+    if qjob_term=='All' or qjob_term==None or qjob_term=='':
+        whJobTerm=None
+    else:
+        whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
+        whereClause = 'where ' + whJobTerm
+
+    
+    if qjob_type=='All' or qjob_type==None or qjob_type=='':
+        whJobType=None
+    else:
+        whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whJobType
+        else:
+            whereClause =  whereClause + ' and '+whJobType
+    
+    if qcity=='All' or qcity==None or qcity=='':
+        whCity=None
+    else:
+        whCity=" t1.city=\'"+ str(qcity)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whCity
+        else:
+            whereClause = whereClause + ' and '+whCity
+    
+    print('this is the where clause' + whereClause)
+    #if whJobTerm!=None and whJobType!=None and whCity!=None:
+    #    whereClause = "where " + whJobTerm + "and "+whJobType + "and "+whCity
+
+
     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t3.city, t1.category, t1.term, t1.subject,t1.posted_on, t1.job_id "
-    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' "
-    openJobsQuery = openJobsQuery + "inner  join address_detail t3 on t2.address_id=t3.address_id order by posted_by desc OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
-    #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.term, t1.subject,t1.posted_on, t1.job_id "
+    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
+    openJobsQuery = openJobsQuery + " order by t1.posted_on desc OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
+    #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()    
     openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
     
-    next_page=page+1
-
-    if page!=0:
-        prev_page=page-1
+    if len(openJobsDataRows)==0:
+        print('returning 1')
+        return jsonify(['1'])
     else:
-        prev_page=None
+        next_page=page+1
 
-    prev_url=None
-    next_url=None
-    
-
-    if len(openJobsDataRows)==recordsOnPage:
-        next_url = url_for('openJobs', page = next_page)
-        prev_url = url_for('openJobs', page=prev_page)
-    elif len(openJobsDataRows)<recordsOnPage:
-        next_url = None
-        if prev_page!=None:
-            prev_url = url_for('openJobs', page=prev_page)
+        if page!=0:
+            prev_page=page-1
         else:
-            prev_url==None
-    else:
-        next_url=None
+            prev_page=None
+
         prev_url=None
-    return render_template('openJobs.html',title='Look for Jobs',openJobsDataRows=openJobsDataRows, next_url=next_url, prev_url=prev_url, user_type_val=str(current_user.user_type),first_login=first_login)
+        next_url=None
+
+
+        if len(openJobsDataRows)==recordsOnPage:
+            next_url = url_for('openJobs', page = next_page)
+            prev_url = url_for('openJobs', page=prev_page)
+        elif len(openJobsDataRows)<recordsOnPage:
+            next_url = None
+            if prev_page!=None:
+                prev_url = url_for('openJobs', page=prev_page)
+            else:
+                prev_url==None
+        else:
+            next_url=None
+            prev_url=None
+        return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
+
 
 
 @app.route('/jobDetail')
@@ -941,7 +1034,7 @@ def user(username):
     
     if user.user_type==161:
         print('Are we not getting here at all?')
-        return redirect(url_for('teachingApplicantProfile',id=user.id))
+        return redirect(url_for('teachingApplicantProfile',user_id=user.id))
     else:
         print('Nope we are not')
 

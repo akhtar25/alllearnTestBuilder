@@ -91,14 +91,14 @@
                             {{ form.city.label(class='labelsize') }}
                             <br>
                             {% if form.city.errors %}
-                            {{ form.city(class="form-control form-control-lg is-invalid") }}
+                            {{ form.city(class="form-control form-control-lg is-invalid", id="cityID") }}
                             <div class="invalid-feedback">
                                 {% for error in form.city.errors %}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.city(class='form-control') }}
+                            {{ form.city(class='form-control',id="cityID") }}
                             {% endif %}
                         </div>
 
@@ -106,14 +106,14 @@
                             {{ form.state.label(class='labelsize') }}
                             <br>
                             {% if form.state.errors %}
-                            {{ form.state(class="form-control form-control-lg is-invalid") }}
+                            {{ form.state(class="form-control form-control-lg is-invalid",id='stateID') }}
                             <div class="invalid-feedback">
                                 {% for error in form.state.errors %}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.state(class='form-control') }}
+                            {{ form.state(class='form-control',id='stateID') }}
                             {% endif %}
                         </div>
                         <div class="col-sm-3">

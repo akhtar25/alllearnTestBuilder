@@ -66,6 +66,8 @@ class EditProfileForm(FlaskForm):
     city = StringField('City', validators=[DataRequired(), Length(min=0, max=100)])
     state = StringField('State', validators=[DataRequired(), Length(min=0, max=100)])
     resume = StringField('Resume', validators=[Length(min=0, max=200)])
+    intro_link = StringField('Introduction Link', validators=[Length(min=0, max=200)])
+    willing_to_travel = BooleanField('Remember Me')
     #main_subjects = StringField('Main Subjects',validators=[Length(max=100)])
     #assigned_class = StringField('Assigned Class',validators=[Length(max=50)])
     submit = SubmitField('Submit')
@@ -315,5 +317,7 @@ class postJobForm(FlaskForm):
     stay = SelectField('Place to Stay')
     food = SelectField('Food')
     term = SelectField('Short/Long term')
+    job_type = SelectField('Part Time/Full Time')
     num_of_openings = IntegerField('Number of Openings',widget=NumberInput(min=0,max=100,step=1))
+    
     
