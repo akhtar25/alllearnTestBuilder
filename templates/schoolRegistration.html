@@ -191,7 +191,7 @@
 
         <div class="row">
             <div class="section">
-            <h4 class="grey-text">Choose Subscription Plans</h4>
+            <h4 class="grey-text">Choose Subscription Plans </h4><h6>Introductory Pricing</h6>
             <p>No credit card/ account details needed. </p>
             <p>The first month is free. We'll send the payment link 5 days before renewal date if you opt for a paid subscription.</p>
         </div>
@@ -212,16 +212,14 @@
                                     <div id="{{row.group_name}}" class="modal" style="width:338px;">
                                       <!--<div class="modal-footer">
                                             <p>{{row.sub_desc}}</p>                                    
-                                      </div>       -->
-    
+                                      </div>       -->    
                                       <div class="modal-content">
                                             <h4>{{row.group_name}}</h4>
                                             {% autoescape false %}
                                           <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
                                             {% endautoescape %}
                                           </div>
-                                    </div>
-                                    
+                                    </div>                                    
                                 <ul class="collection ">
                                     <!--<li class="collection-item">{{row.sub_name}}</li>-->
                                     <li class="collection-item">Student Limit: <strong>{{row.student_limit}}</strong></li>

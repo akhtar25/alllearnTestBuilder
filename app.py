@@ -127,6 +127,17 @@ def cityList():
         return cityListDict
 
 
+def classSecCheck():
+    teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSecRow = ClassSection.query.filter_by(school_id=teacherProfile.school_id).all()
+    print(classSecRow)
+    if len(classSecRow)==0:
+        return 'N'
+        print('returning N')
+    else:
+        return 'Y'
+
+    
 
 @app.route("/loaderio-ad2552628971ece0389988c13933a170/")
 def performanceTestLoaderFunction():
@@ -208,7 +219,7 @@ def reset_password(token):
         return redirect(url_for('index'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        user.set_password(form.password.data)        
+        user.set_password(form.password.data)
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
@@ -582,6 +593,7 @@ def edit_profile():
 def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    classSecCheckVal = classSecCheck()
 
     school_name_val = school_name()
     
@@ -648,7 +660,7 @@ def index():
         jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
 
         return render_template('dashboard.html',title='Home Page',School_Name=school_name(),school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
 @app.route('/disconnectedAccount')
@@ -704,7 +716,7 @@ def postJob():
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 print(err)
-    return render_template('postJob.html',title='Post Job',form=form,School_Name=school_name())
+    return render_template('postJob.html',title='Post Job',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
 
 
 @app.route('/openJobs')
@@ -723,7 +735,7 @@ def openJobs():
         db.session.commit()
     else:
         print('first login not registered')    
-    return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+    return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
 
 
 @app.route('/openJobsFilteredList')
@@ -830,7 +842,7 @@ def jobDetail():
     else:
         applied=0
     return render_template('jobDetail.html', title='Job Detail',School_Name=school_name(), 
-        schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied, user_type_val=str(current_user.user_type))
+        schoolProfileRow=schoolProfileRow,classSecCheckVal=classSecCheck(),addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied, user_type_val=str(current_user.user_type))
 
 
 
@@ -898,7 +910,7 @@ def jobApplications():
     jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
     jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
     
-    return render_template('jobApplications.html', title='Job Applications', School_Name = school_name(),jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
+    return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications', School_Name = school_name(),jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
 
 
 @app.route('/jobPosts')
@@ -906,7 +918,7 @@ def jobApplications():
 def jobPosts():
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
-    return render_template('jobPosts.html',jobPosts=jobPosts, school_id=teacher.school_id)
+    return render_template('jobPosts.html',jobPosts=jobPosts, classSecCheckVal=classSecCheck(),school_id=teacher.school_id)
 
 @app.route('/processApplication')
 @login_required
@@ -1048,7 +1060,7 @@ def user(username):
         accessRequestListRows=""
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
-        return render_template('user.html', user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
+        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1257,7 +1269,7 @@ def questionBank():
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('questionBank.html',form=form,School_Name=school_name(),topics=topic_list)
-    return render_template('questionBank.html',form=form,School_Name=school_name())
+    return render_template('questionBank.html',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
 
 @app.route('/questionBankQuestions',methods=['GET','POST'])
 def questionBankQuestions():
@@ -1337,7 +1349,7 @@ def testBuilder():
         session['test_type_val']=form.test_type.data
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
-    return render_template('testBuilder.html',form=form,School_Name=school_name())
+    return render_template('testBuilder.html',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])  
 def testBuilderQuestions():
@@ -1421,7 +1433,7 @@ def testPapers():
     #for val in testPaperData:
     #    for row in val.message_detail:
     #        print(row.description)
-    return render_template('testPapers.html',School_Name=school_name(),testPaperData=testPaperData,subjectNames=subjectNames)
+    return render_template('testPapers.html',School_Name=school_name(),testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck())
 
 @app.route('/calendar')
 @login_required
@@ -1549,7 +1561,7 @@ def classCon():
         #endOfQueries  
         #db.session.execute(text('call sp_performance_detail_load_feedback()'))
         db.session.commit()      
-        return render_template('class.html', classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
+        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
     else:
         return redirect(url_for('login'))    
 
@@ -1834,7 +1846,7 @@ def leaderBoard():
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
-    return render_template('leaderBoard.html',form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,School_Name=school_name())
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,School_Name=school_name())
 
 @app.route('/classDelivery')
 @login_required
@@ -1904,7 +1916,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData,subName=subName)
+    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData,subName=subName)
 
 
 
@@ -1937,7 +1949,7 @@ def contentManager():
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
         return render_template('contentManager.html',form=form,School_Name=school_name(),formContent=formContent,topics=topic_list)
-    return render_template('contentManager.html',form=form,formContent=formContent,School_Name=school_name())
+    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,School_Name=school_name())
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -2048,9 +2060,9 @@ def feedbackCollection():
             # topic_id, question_id, question_status, resp_session_id
 
         if teacherProfile.device_preference==78:        
-            return render_template('feedbackCollection.html', subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name(), resp_session_id = responseSessionID)
+            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name(), resp_session_id = responseSessionID)
         else:
-            return render_template('feedbackCollectionExternalCam.html', responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
     else:
         return redirect(url_for('classCon'))
 
@@ -2133,11 +2145,6 @@ def questionAllDetails():
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
     
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
-
-
-
-
-
 
 
 
@@ -2286,7 +2293,7 @@ def feedbackReport():
         print("Error collecting data from ajax request. Some values could be null")
 
     if responseResultRowCount>0:
-        return render_template('_feedbackReport.html', responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+        return render_template('_feedbackReport.html', classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,classAverage =classAverage,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
     else:
          return jsonify(['NA'])
          
@@ -2311,7 +2318,7 @@ def studentFeedbackReport():
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow, School_Name=school_name())
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow, School_Name=school_name())
 
 @app.route('/testPerformance')
 @login_required
@@ -2371,7 +2378,7 @@ def testPerformance():
     students = db.session.execute(text(findStudentData))
     print(students)
     print('Inside Test Performance')
-    return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSetCount=resultSetCount,resultSet=resultSet,datelist=datelist,students=students)
+    return render_template('testPerformance.html',classSecCheckVal=classSecCheck(),form=form,form1=form1,School_Name=school_name(),resultSetCount=resultSetCount,resultSet=resultSet,datelist=datelist,students=students)
 
 
 @app.route('/testPerformanceGraph')
@@ -2548,7 +2555,7 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    return render_template('classPerformance.html',form=form,School_Name=school_name(), school_id=teacher_id.school_id)
+    return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form,School_Name=school_name(), school_id=teacher_id.school_id)
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -2596,7 +2603,7 @@ def resultUpload():
         print('No of Subjects:'+str(len(subject_name)))
         for subjects in subject_name:
             print('Subjects Name:'+subjects[0])        
-        return render_template('resultUpload.html',test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
+        return render_template('resultUpload.html',classSecCheckVal=classSecCheck(),test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
         
 
 @app.route('/resultUpload/<class_val>')
