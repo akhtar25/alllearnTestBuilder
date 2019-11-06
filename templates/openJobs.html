@@ -116,15 +116,21 @@ $('#alert_close').click(function(){
     alert(qcity);
   });
 
-
-  $('#filterListBTN').click(function(){    
-    loadJobs(qjobTerm,qjobType,qcity);
+var page = 0;
+  $('#filterListBTN').click(function(){
+    loadJobs(qjobTerm,qjobType,qcity,page);
   });
 
-  function loadJobs(qjobTerm,qjobType,qcity){    
+  $('#loadMoreBTN').click(function(){
+    alert('are we getting here');
+    page=page+1;
+    loadJobs(qjobTerm,qjobType,qcity,page);
+  });
+
+  function loadJobs(qjobTerm,qjobType,qcity,page){    
     alert(qcity + ' and '+qjobTerm + ' and '+qjobType);
   $.ajax({
-            url: "/openJobsFilteredList?job_term=" + qjobTerm + "&job_type=" + qjobType +"&city="+qcity,
+            url: "/openJobsFilteredList?job_term=" + qjobTerm + "&job_type=" + qjobType +"&city="+qcity+"&page="+page,
             type: "get",
             contentType: "application/json",
             data: '',

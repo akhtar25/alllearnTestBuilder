@@ -777,9 +777,10 @@ def openJobsFilteredList():
 
 
     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.term, t1.subject,t1.posted_on, t1.job_id "
+    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
     openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
-    openJobsQuery = openJobsQuery + " order by t1.posted_on desc OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
+    openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
+    #openJobsQuery = openJobsQuery +" OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
     #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()    
     openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
     
@@ -799,12 +800,12 @@ def openJobsFilteredList():
 
 
         if len(openJobsDataRows)==recordsOnPage:
-            next_url = url_for('openJobs', page = next_page)
-            prev_url = url_for('openJobs', page=prev_page)
+            next_url = url_for('openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+            prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
         elif len(openJobsDataRows)<recordsOnPage:
             next_url = None
             if prev_page!=None:
-                prev_url = url_for('openJobs', page=prev_page)
+                prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
             else:
                 prev_url==None
         else:
