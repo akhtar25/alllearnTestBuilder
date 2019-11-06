@@ -91,9 +91,7 @@
   var qcity= '';
 
 $(document).ready(function () {
-  loadJobs('All','All','All');
-  alert($('.jobTermClass').val());
-  alert('not her');
+  loadJobs('All','All','All');    
 });
 
 $('#alert_close').click(function(){
@@ -104,16 +102,13 @@ $('#alert_close').click(function(){
 
 
   $('.jobTermClass').click(function(){
-    qjobTerm = $(this).val();    
-    alert(qjobTerm);
+    qjobTerm = $(this).val();        
   });
   $('.jobTypeClass').click(function(){
-    qjobType = $(this).val();    
-    alert(qjobType);
+    qjobType = $(this).val();        
   });
   $('.cityClass').click(function(){
-    qcity = $(this).val();
-    alert(qcity);
+    qcity = $(this).val();    
   });
 
 var page = 0;
@@ -121,14 +116,12 @@ var page = 0;
     loadJobs(qjobTerm,qjobType,qcity,page);
   });
 
-  $('#loadMoreBTN').click(function(){
-    alert('are we getting here');
+  $('#loadMoreBTN').click(function(){    
     page=page+1;
     loadJobs(qjobTerm,qjobType,qcity,page);
   });
 
   function loadJobs(qjobTerm,qjobType,qcity,page){    
-    alert(qcity + ' and '+qjobTerm + ' and '+qjobType);
   $.ajax({
             url: "/openJobsFilteredList?job_term=" + qjobTerm + "&job_type=" + qjobType +"&city="+qcity+"&page="+page,
             type: "get",
@@ -149,7 +142,7 @@ var page = 0;
                 }                
             },
             error: function (xhr) {
-                window.alert("error occurred while loading question");
+                window.alert("error occurred while loading jobs");
             }
         });
       }
