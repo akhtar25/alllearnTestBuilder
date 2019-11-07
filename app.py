@@ -946,7 +946,7 @@ def processApplication():
     #try:
     jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
-    applierRow = User.quer.filter_by(id=applier_user_id).first()
+    applierRow = User.query.filter_by(id=applier_user_id).first()
     schoolRow = SchoolProfile.query.filter_by(school_id=jobApplicationRow.school_id).first()
 
     print(process_type)
