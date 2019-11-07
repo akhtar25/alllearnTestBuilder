@@ -29,8 +29,16 @@
             <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
           <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
           <td>{{eachRow.city}}</td>
-          <td>{{eachRow.available_from}}</td>
-          <td>{{eachRow.available_till}}</td>
+          {%if eachRow.available_from!=None %}
+          <td>{{eachRow.available_from.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
+          {%if eachRow.available_till!=None %}
+          <td>{{eachRow.available_till.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
           <!--<td>{{eachRow.experience}}}</td>-->
           <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
           <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
@@ -64,8 +72,16 @@
           <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
         <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
         <td>{{eachRow.city}}</td>
-        <td>{{eachRow.available_from}}</td>
-        <td>{{eachRow.available_till}}</td>
+        {%if eachRow.available_from!=None %}
+        <td>{{eachRow.available_from.strftime('%d %B %Y')}}</td>
+        {%else%}
+        <td>None</td>
+        {%endif%}
+        {%if eachRow.available_till!=None %}
+        <td>{{eachRow.available_till.strftime('%d %B %Y')}}</td>
+        {%else%}
+        <td>None</td>
+        {%endif%}
         <!--<td>{{eachRow.experience}}}</td>-->
         <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
         <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
@@ -102,8 +118,16 @@
           <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
         <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
         <td>{{eachRow.city}}</td>
-        <td>{{eachRow.available_from}}</td>
-        <td>{{eachRow.available_till}}</td>
+        {%if eachRow.available_from!=None %}
+          <td>{{eachRow.available_from.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
+          {%if eachRow.available_till!=None %}
+          <td>{{eachRow.available_till.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
         <!--<td>{{eachRow.experience}}}</td>-->
         <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
         <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See
@@ -126,7 +150,7 @@
           <th>Applied Date</th>          
           <th>City</th>
           <th>Available From</th>
-          <th>Available Till</th>
+        <th>Available Till</th>
           <!--<th>Experience</th>-->          
           <th>Education</th> <th>Experience</th>
           <th>See Full Profile</th>
@@ -137,8 +161,16 @@
             <td><h4>{{eachRow.first_name}} {{eachRow.last_name}}</h4></td>
           <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
           <td>{{eachRow.city}}</td>
-          <td>{{eachRow.available_from}}</td>
-          <td>{{eachRow.available_till}}</td>
+          {%if eachRow.available_from!=None %}
+          <td>{{eachRow.available_from.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
+          {%if eachRow.available_till!=None %}
+          <td>{{eachRow.available_till.strftime('%d %B %Y')}}</td>
+          {%else%}
+          <td>None</td>
+          {%endif%}
           <!--<td>{{eachRow.experience}}}</td>-->
           <td>{{eachRow.education}}</td><td>{{eachRow.experience}}</td>
           <td><a href="{{url_for('teachingApplicantProfile',user_id = eachRow.applier_user_id, job_id=eachRow.job_id)}}" target="_blank" class="btn green lighten-1">See

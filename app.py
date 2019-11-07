@@ -92,12 +92,12 @@ def before_request():
     
 
 #helper methods
-def school_name():
+def schoolNameVal():
     if current_user.is_authenticated:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         if teacher_id != None:
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            if school_name!=None:
+            if school_name_row!=None:
                 name=school_name_row.school_name            
                 return name
             else:
@@ -140,7 +140,7 @@ def classSecCheck():
         else:
             return 'Y'
 
-    
+
 
 @app.route("/loaderio-ad2552628971ece0389988c13933a170/")
 def performanceTestLoaderFunction():
@@ -149,7 +149,7 @@ def performanceTestLoaderFunction():
 @app.route("/account/")
 @login_required
 def account():
-    return render_template('account.html',School_Name=school_name())
+    return render_template('account.html')
 
 @app.route('/sign-s3')
 def sign_s3():
@@ -240,7 +240,7 @@ def schoolProfile():
     schoolProfileRow = SchoolProfile.query.filter_by(school_id = teacherRow.school_id).first()
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
-    return render_template('schoolProfile.html', School_Name=school_name(), teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow)
+    return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow)
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
@@ -296,8 +296,8 @@ def schoolRegistration():
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('School Registered Successfully!')
         new_school_reg_email(form.schoolName.data)
-        return render_template('schoolRegistrationSuccess.html',data=data,School_Name=school_name(),school_id=school_id.school_id)
-    return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
+        return render_template('schoolRegistrationSuccess.html',data=data,school_id=school_id.school_id)
+    return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=schoolNameVal())
 
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
@@ -334,7 +334,7 @@ def classRegistration():
         db.session.commit()
 
         flash('Classes added successfully!')
-    return render_template('classRegistration.html', School_Name=school_name(),classSectionRows=classSectionRows,form=form)    
+    return render_template('classRegistration.html', classSectionRows=classSectionRows,form=form)    
     
 
 
@@ -342,7 +342,7 @@ def classRegistration():
 @app.route('/teacherRegistration',methods=['GET','POST'])
 @login_required
 def teacherRegistration():
-    school_name_val = school_name()
+    school_name_val = schoolNameVal()
     
     if school_name_val ==None:
         print('did we reach here')
@@ -379,8 +379,8 @@ def teacherRegistration():
                 new_teacher_invitation(teacher_email[i],teacher_name[i],school_name_val, str(teacher_id.teacher_name))
             db.session.commit()
             flash('Successful registration !')
-            return render_template('teacherRegistration.html',form=form,School_Name=school_name())
-        return render_template('teacherRegistration.html',form=form,School_Name=school_name())
+            return render_template('teacherRegistration.html',form=form)
+        return render_template('teacherRegistration.html',form=form)
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -448,7 +448,7 @@ def studentRegistration():
                 db.session.add(guardian_data)
             db.session.commit()
             flash('Successful upload !')
-            return render_template('studentRegistration.html',School_Name=school_name())
+            return render_template('studentRegistration.html')
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
@@ -458,7 +458,7 @@ def studentRegistration():
                 if row['first_name']=='' and row['gender']=='' and row['dob']=='' and row['phone'] and row['address_1'] and row['locality'] and row['city'] and row['state'] and row['country'] and row['pin'] and row['class_val'] and row['section'] and row['roll_number'] and row['school_adm_number'] and row['guardian1_first_name'] and row['guardian1_email'] and row['guardian1_phone'] and row['guardian1_relation']:
                     message = Markup("<h5>(a)Enter first name <br/>(b)Enter gender<br/> (c)Enter date of birth <br/> (d)Enter phone number<br/> (e)Enter address 1 <br/>(f)Enter locality<br/> (g)Enter city<br/> (h)Enter state <br/>(i)Enter country<br/>(j)Enter pin code<br/> (k)Enter class<br/> (l)Enter section<br/> (m)Enter roll number<br/> (n)Enter school admission number<br/>(o)Enter guardian first name<br/> (p)Enter guardian email<br/>(q)Enter guardian phone<br/> (r)Enter guardian relation </h5>")
                     flash(message)
-                    return render_template('studentRegistration.html',School_Name=school_name())
+                    return render_template('studentRegistration.html')
                 address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
@@ -470,7 +470,7 @@ def studentRegistration():
                 print('Date'+str(row['dob']))
                 if int(li[1])>12 or int(li[0])>31:
                     flash('Invalid Date formate use dd/mm/yyyy')
-                    return render_template('studentRegistration.html',School_Name=school_name())
+                    return render_template('studentRegistration.html')
                 if row['dob']!='':
                     date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
                 else:
@@ -509,8 +509,8 @@ def studentRegistration():
                 
             db.session.commit()
             flash('Successful upload !')
-            return render_template('studentRegistration.html',School_Name=school_name())
-    return render_template('studentRegistration.html',School_Name=school_name())
+            return render_template('studentRegistration.html')
+    return render_template('studentRegistration.html')
 
 
 '''camera section'''
@@ -586,7 +586,7 @@ def edit_profile():
         
 
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form,School_Name=school_name(),user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
+        'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
 
 @app.route('/')
@@ -598,7 +598,7 @@ def index():
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
     classSecCheckVal = classSecCheck()
 
-    school_name_val = school_name()
+    school_name_val = schoolNameVal()
     
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
@@ -662,7 +662,7 @@ def index():
     ##################Fetch Job post details################################
         jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
 
-        return render_template('dashboard.html',title='Home Page',School_Name=school_name(),school_id=teacher.school_id, jobPosts=jobPosts,
+        return render_template('dashboard.html',title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
 
 
@@ -674,7 +674,7 @@ def disconnectedAccount():
 
 
     if teacher==None and userDetailRow.user_type!=161:
-        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1,School_Name=school_name(), userDetailRow=userDetailRow)
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     else:
@@ -723,7 +723,7 @@ def postJob():
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 print(err)
-    return render_template('postJob.html',title='Post Job',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
+    return render_template('postJob.html',title='Post Job',form=form,classSecCheckVal=classSecCheck())
 
 
 @app.route('/openJobs')
@@ -848,7 +848,7 @@ def jobDetail():
         applied=1
     else:
         applied=0
-    return render_template('jobDetail.html', title='Job Detail',School_Name=school_name(), 
+    return render_template('jobDetail.html', title='Job Detail', 
         schoolProfileRow=schoolProfileRow,classSecCheckVal=classSecCheck(),addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied, user_type_val=str(current_user.user_type))
 
 
@@ -927,7 +927,7 @@ def jobApplications():
     jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
     jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
     
-    return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications', School_Name = school_name(),jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
+    return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications',jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
 
 
 @app.route('/jobPosts')
@@ -957,7 +957,7 @@ def processApplication():
             application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
         except:
             pass
-    elif process_type=='Reject':
+    elif process_type=='reject':
         jobApplicationRow.status= 'reject'
         flash('Application Rejected')
         try:
@@ -1003,7 +1003,7 @@ def submitPost():
         'body': 'The Avengers movie was so cool!'
     }]
     return render_template(
-        "submitPost.html", title='Submit Post', form=form, posts=posts,School_Name=school_name())
+        "submitPost.html", title='Submit Post', form=form, posts=posts)
 
 
 @app.route('/explore')
@@ -1029,7 +1029,7 @@ def explore():
         'body': 'The Avengers movie was so cool!'
     }]
 
-    return render_template('explore.html', title='Explore', posts=posts,School_Name=school_name())
+    return render_template('explore.html', title='Explore', posts=posts)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -1076,7 +1076,7 @@ def teachingApplicantProfile(user_id):
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_name_val = school_name()        
+    school_name_val = schoolNameVal()        
     
     if user.user_type==161:
         print('Are we not getting here at all?')
@@ -1093,7 +1093,7 @@ def user(username):
         accessRequestListRows=""
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
-        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,School_Name=school_name(),accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
+        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1106,7 +1106,8 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user=User.query.filter_by(email=form.email.data).first()
+        user=User.query.filter_by(email=form.email.data).first()                
+
         if user is None or not user.check_password(form.password.data):
             flash("Invalid email or password")
             return redirect(url_for('login'))
@@ -1114,7 +1115,13 @@ def login():
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
-        return redirect(next_page)
+        
+        #setting global variables
+        g.classSecCheckVal = classSecCheck()
+        g.schoolName = schoolNameVal()
+        print(g.schoolName)
+
+        return redirect(next_page)        
         #return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
 
@@ -1138,12 +1145,12 @@ def success():
 @app.route('/feeManagement')
 @login_required
 def feeManagement():
-    return render_template('feeManagement.html',School_Name=school_name())
+    return render_template('feeManagement.html')
 
 
 @app.route('/privacyPolicy')
 def privacyPolicy():
-    return render_template('privacyPolicy.html',School_Name=school_name())
+    return render_template('privacyPolicy.html')
 
 
 @app.route('/requestUserAccess')
@@ -1173,7 +1180,7 @@ def requestUserAccess():
 @login_required
 def syllabus():
     boardRows = MessageDetails.query.filter_by(category='Board').all()
-    return render_template('syllabus.html',School_Name=school_name(), boardRows=boardRows)
+    return render_template('syllabus.html', boardRows=boardRows)
 
 
 @app.route('/syllabusClasses')
@@ -1260,7 +1267,7 @@ def syllabusTopics():
 def grantUserAccess():
     username=request.args.get('username')    
     school_id=request.args.get('school_id')        
-    school=school_name()
+    school=schoolNameVal()
     print("we're in grant access request ")
     userTableDetails = User.query.filter_by(username=username).first()
     userTableDetails.access_status='145'
@@ -1292,7 +1299,7 @@ def questionBank():
         # if request.form['chapter_num']=='':
         #     flash('Select Chapter')
         #     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        #     return render_template('questionBank.html',form=form,School_Name=school_name())
+        #     return render_template('questionBank.html',form=form)
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
@@ -1301,8 +1308,8 @@ def questionBank():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        return render_template('questionBank.html',form=form,School_Name=school_name(),topics=topic_list)
-    return render_template('questionBank.html',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
+        return render_template('questionBank.html',form=form,topics=topic_list)
+    return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck())
 
 @app.route('/questionBankQuestions',methods=['GET','POST'])
 def questionBankQuestions():
@@ -1320,7 +1327,7 @@ def questionBankQuestions():
         return jsonify(['1'])
     else:
         print('returning template'+ str(questionList))
-        return render_template('questionBankQuestions.html',questions=questions,School_Name=school_name())
+        return render_template('questionBankQuestions.html',questions=questions)
 
 @app.route('/questionBankFileUpload',methods=['GET','POST'])
 def questionBankFileUpload():
@@ -1329,7 +1336,7 @@ def questionBankFileUpload():
     question_list=data[0]
     count_marks=data[1]
     document = Document()
-    document.add_heading(school_name(), 0)
+    document.add_heading(schoolNameVal(), 0)
     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
     document.add_heading("Subject : "+session.get('sub_name',None),2)
     document.add_heading("Total Marks : "+str(count_marks),3)
@@ -1372,7 +1379,7 @@ def testBuilder():
         if request.form['test_date']=='':
             # flash('Select Date')
             # form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-            return render_template('testBuilder.html',form=form,School_Name=school_name())
+            return render_template('testBuilder.html',form=form)
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
@@ -1381,8 +1388,8 @@ def testBuilder():
         session['sub_id']=form.subject_name.data
         session['test_type_val']=form.test_type.data
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        return render_template('testBuilder.html',form=form,School_Name=school_name(),topics=topic_list)
-    return render_template('testBuilder.html',form=form,School_Name=school_name(),classSecCheckVal=classSecCheck())
+        return render_template('testBuilder.html',form=form,topics=topic_list)
+    return render_template('testBuilder.html',form=form,classSecCheckVal=classSecCheck())
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])  
 def testBuilderQuestions():
@@ -1396,7 +1403,7 @@ def testBuilderQuestions():
         return jsonify(['1'])
     else:
         print('returning template'+ str(questionList))
-        return render_template('testBuilderQuestions.html',questions=questions,School_Name=school_name())
+        return render_template('testBuilderQuestions.html',questions=questions)
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
@@ -1406,7 +1413,7 @@ def testBuilderFileUpload():
     question_list=data[0]
     count_marks=data[1]
     document = Document()
-    document.add_heading(school_name(), 0)
+    document.add_heading(schoolNameVal(), 0)
     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
     document.add_heading("Subject : "+session.get('sub_name',None),2)
     document.add_heading("Total Marks : "+str(count_marks),3)
@@ -1466,28 +1473,28 @@ def testPapers():
     #for val in testPaperData:
     #    for row in val.message_detail:
     #        print(row.description)
-    return render_template('testPapers.html',School_Name=school_name(),testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck())
+    return render_template('testPapers.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck())
 
 @app.route('/calendar')
 @login_required
 def calendar():
-    return render_template('calendar.html',School_Name=school_name())
+    return render_template('calendar.html')
 
 @app.route('/schoolPerformanceRanking')
 @login_required
 def schoolPerformanceRanking():
-    return render_template('schoolPerformanceRanking.html',School_Name=school_name())
+    return render_template('schoolPerformanceRanking.html')
 
 @app.route('/recommendations')
 @login_required
 def recommendations():
-    return render_template('recommendations.html',School_Name=school_name())
+    return render_template('recommendations.html')
 
 
 @app.route('/attendance')
 @login_required
 def attendance():
-    return render_template('attendance.html',School_Name=school_name())
+    return render_template('attendance.html')
 
 @app.route('/guardianDashboard')
 @login_required
@@ -1497,7 +1504,7 @@ def guardianDashboard():
     for g in guardian:
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student,School_Name=school_name())
+    return render_template('guardianDashboard.html',students=student)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
@@ -1532,14 +1539,14 @@ def performanceDetails(student_id):
         date=request.form['performace_date']        
 
 
-        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student,School_Name=school_name())
-    return render_template('performanceDetails.html',students=student,School_Name=school_name(), student_id=student_id,form1=form1)
+        return render_template('studentPerfDetails.html',date=date,subjects=subject,students=student)
+    return render_template('performanceDetails.html',students=student, student_id=student_id,form1=form1)
 
 
 @app.route('/studentfeedbackreporttemp')
 def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
-    return render_template('studentfeedbackreporttemp.html',student_name=student_name,School_Name=school_name())
+    return render_template('studentfeedbackreporttemp.html',student_name=student_name)
 
 @app.route('/class')
 @login_required
@@ -1594,7 +1601,7 @@ def classCon():
         #endOfQueries  
         #db.session.execute(text('call sp_performance_detail_load_feedback()'))
         db.session.commit()      
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,School_Name=school_name())
+        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails)
     else:
         return redirect(url_for('login'))    
 
@@ -1879,7 +1886,7 @@ def leaderBoard():
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,School_Name=school_name())
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData)
 
 @app.route('/classDelivery')
 @login_required
@@ -1949,7 +1956,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,School_Name=school_name(),contentData=contentData,subName=subName)
+    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName)
 
 
 
@@ -1981,8 +1988,8 @@ def contentManager():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        return render_template('contentManager.html',form=form,School_Name=school_name(),formContent=formContent,topics=topic_list)
-    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,School_Name=school_name())
+        return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list)
+    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -2025,7 +2032,7 @@ def contentManagerDetails():
         print(len(contents))
         for c in contents:
             print("Content List"+str(c))    
-        return render_template('_contentManagerDetails.html',contents=contents,School_Name=school_name())
+        return render_template('_contentManagerDetails.html',contents=contents)
 
 
 
@@ -2093,9 +2100,9 @@ def feedbackCollection():
             # topic_id, question_id, question_status, resp_session_id
 
         if teacherProfile.device_preference==78:        
-            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name(), resp_session_id = responseSessionID)
+            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
         else:
-            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize,School_Name=school_name())
+            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
     else:
         return redirect(url_for('classCon'))
 
@@ -2351,7 +2358,7 @@ def studentFeedbackReport():
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow, School_Name=school_name())
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
 
 @app.route('/testPerformance')
 @login_required
@@ -2411,7 +2418,7 @@ def testPerformance():
     students = db.session.execute(text(findStudentData))
     print(students)
     print('Inside Test Performance')
-    return render_template('testPerformance.html',classSecCheckVal=classSecCheck(),form=form,form1=form1,School_Name=school_name(),resultSetCount=resultSetCount,resultSet=resultSet,datelist=datelist,students=students)
+    return render_template('testPerformance.html',classSecCheckVal=classSecCheck(),form=form,form1=form1,resultSetCount=resultSetCount,resultSet=resultSet,datelist=datelist,students=students)
 
 
 @app.route('/testPerformanceGraph')
@@ -2588,7 +2595,7 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form,School_Name=school_name(), school_id=teacher_id.school_id)
+    return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id)
 
 
 @app.route('/resultUpload',methods=['POST','GET'])
@@ -2636,7 +2643,7 @@ def resultUpload():
         print('No of Subjects:'+str(len(subject_name)))
         for subjects in subject_name:
             print('Subjects Name:'+subjects[0])        
-        return render_template('resultUpload.html',classSecCheckVal=classSecCheck(),test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list, School_Name=school_name())
+        return render_template('resultUpload.html',classSecCheckVal=classSecCheck(),test_details=test_details,test_type=test_type,qclass_val=qclass_val,subject_name=subject_name,qsection=qsection, distinctClasses=distinctClasses, classsections=classSections,student_list=student_list)
         
 
 @app.route('/resultUpload/<class_val>')
@@ -2773,7 +2780,7 @@ def performanceSummary():
         Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
         resultArray.append(Array)
     return jsonify({'result' : resultArray})
-    # return render_template('testPerformance.html',form=form,form1=form1,School_Name=school_name(),resultSet=resultSet)
+    # return render_template('testPerformance.html',form=form,form1=form1,resultSet=resultSet)
 
 
 @app.route('/testDateSearch/<class_val>')
@@ -2815,7 +2822,7 @@ def resultUploadHistory():
     uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by exam_date desc"
     
     uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
-    return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords, School_Name=school_name())
+    return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords)
 
 
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
@@ -2842,7 +2849,7 @@ def uploadHistoryDetail():
             question_paper_ref = value.question_paper_ref
         runcount+1
 
-    return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,question_paper_ref=question_paper_ref,School_Name=school_name())
+    return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,question_paper_ref=question_paper_ref)
 
 @app.route('/studentList/<class_val>/<section>/')
 def studentList(class_val,section):
@@ -2878,13 +2885,13 @@ def questionBuilder():
                 db.session.add(options)
                 db.session.commit()
                 flash('Success')
-                return render_template('questionBuilder.html',School_Name=school_name())
+                return render_template('questionBuilder.html')
             else:
                 option_list=request.form.getlist('option_desc')
                 question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
                 if request.form['correct']=='':
                     flash('Correct option not seleted !')
-                    return render_template('questionBuilder.html',School_Name=school_name())
+                    return render_template('questionBuilder.html')
                 for i in range(len(option_list)):
                     if int(request.form['option'])==i+1:
                         correct='Y'
@@ -2906,7 +2913,7 @@ def questionBuilder():
                     db.session.add(options)
                 db.session.commit()
                 flash('Success')
-                return render_template('questionBuilder.html',School_Name=school_name())
+                return render_template('questionBuilder.html')
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
@@ -2950,8 +2957,8 @@ def questionBuilder():
                     db.session.add(question)
             db.session.commit()
             flash('Successfully Uploaded !')
-            return render_template('questionBuilder.html',School_Name=school_name())
-    return render_template('questionBuilder.html',School_Name=school_name())
+            return render_template('questionBuilder.html')
+    return render_template('questionBuilder.html')
 
 
 
@@ -3199,7 +3206,7 @@ def addEvent():
 @app.route('/studentProfileOld')
 @login_required
 def studentProfileOld():
-    return render_template('studentProfile.html',School_Name=school_name())
+    return render_template('studentProfile.html')
 
 @app.route('/indivStudentProfile')
 @login_required
@@ -3226,7 +3233,7 @@ def indivStudentProfile():
          
     #print("reached indiv student ")
     #print(studentProfileRow)
-    return render_template('_indivStudentProfile.html',School_Name=school_name(),studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray)
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray)
 
 
 @app.route('/studentProfile')
@@ -3256,7 +3263,7 @@ def studentProfile():
     # student_list
     # create document for downloading QR codes
 
-    return render_template('studentProfileNew.html',School_Name=school_name(),form=form)
+    return render_template('studentProfileNew.html',form=form)
 
 
 @app.route('/performance')
@@ -3270,7 +3277,7 @@ def performance():
 @app.route('/help')
 @login_required
 def help():
-    return render_template('help.html',School_Name=school_name())
+    return render_template('help.html')
 
 
 @app.route('/search')
@@ -3289,7 +3296,7 @@ def search():
         title='Search',
         posts=posts,
         next_url=next_url,
-        prev_url=prev_url,School_Name=school_name())
+        prev_url=prev_url)
 
 
 
@@ -3352,14 +3359,14 @@ def createSubscription():
         db.session.add(subcription_data)
         db.session.commit()
         flash('New subscription plan created.')
-    return render_template('createSubscription.html',form=form,School_Name=school_name())
+    return render_template('createSubscription.html',form=form)
 
 
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
-    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=school_name())
+    return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 def format_currency(value):
     return "₹{:,.2f}".format(value)
