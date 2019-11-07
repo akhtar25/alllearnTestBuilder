@@ -857,6 +857,10 @@ def sendJobApplication():
         job_id_form = request.form.get('job_id_form')
         available_from=request.form.get("availableFromID")
         available_till=request.form.get("availableTillID")
+        if available_from=='':
+            available_from=None
+        if available_till=='':
+            available_till=None
         school_id=request.form.get("school_id")
         #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
