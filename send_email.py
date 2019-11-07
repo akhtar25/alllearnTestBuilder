@@ -83,7 +83,7 @@ def new_teacher_invitation(email,name,school, inviteFrom):
     message = render_template('new_teacher_invitation_email.html', name=name, school=school, inviteFrom=inviteFrom)
     send_email(email, name, subject, message)
 
-def new_applicant_for_job(email,adminName,applicantName, school,jobName):
+def new_applicant_for_job(email,adminName,applicantName,jobName):
     subject = 'Alllearn - Received new application for the job %s' % (jobName)
     message = render_template('new_applicant_for_job.html', adminName = adminName, applicantName=applicantName, jobName=jobName)
     name = "Alllearn"

@@ -353,6 +353,7 @@ class JobDetail(db.Model):
     job_type = db.Column(db.String(50), nullable=True) # part time or full time 
     benefits = db.Column(db.String(200),nullable=True)
     city = db.Column(db.String(50),nullable=True)
+    school_admin_email = db.Column(db.String(100),nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
@@ -367,6 +368,7 @@ class JobApplication(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     available_from = db.Column(db.DateTime,nullable=True)
     available_till =db.Column(db.DateTime,nullable=True)
+    applicant_email = db.Column(db.String(100),nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 

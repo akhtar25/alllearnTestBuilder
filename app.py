@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email, new_school_reg_email
-from send_email import new_teacher_invitation
+from send_email import new_teacher_invitation,new_applicant_for_job
 from applicationDB import *
 from qrReader import *
 from config import Config
@@ -865,7 +865,12 @@ def sendJobApplication():
         db.session.add(jobApplyData)
         db.session.commit()
         flash('Job application submitted!')
-        new_applicant_for_job()
+        #try:            
+        jobDetailRow = JobDetail.query.filter_by(job_id=job_id_form).first()
+        teacherRow = TeacherProfile.query.filter_by(teacher_id=jobApplyData.posted_by).first()
+        new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
+        #except:
+        #    pass
         return redirect(url_for('openJobs'))
 
 @app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
