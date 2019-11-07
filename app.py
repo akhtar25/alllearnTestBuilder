@@ -861,10 +861,11 @@ def sendJobApplication():
         #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
                 applied_on =datetime.today(),status='Applied',school_id=school_id,available_from=available_from,available_till=available_till,
-                last_modified_date=date.today())                
+                last_modified_date=date.today())
         db.session.add(jobApplyData)
         db.session.commit()
         flash('Job application submitted!')
+        new_applicant_for_job()
         return redirect(url_for('openJobs'))
 
 @app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
