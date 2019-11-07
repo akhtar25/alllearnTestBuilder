@@ -855,8 +855,8 @@ def sendJobApplication():
     print('We are in the right place')    
     if request.method=='POST':
         job_id_form = request.form.get('job_id_form')
-        available_from=request.form.get("available_from")
-        available_till=request.form.get("available_till")
+        available_from=request.form.get("availableFromID")
+        available_till=request.form.get("availableTillID")
         school_id=request.form.get("school_id")
         #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
