@@ -1117,9 +1117,9 @@ def login():
             next_page = url_for('index')
         
         #setting global variables
-        g.classSecCheckVal = classSecCheck()
-        g.schoolName = schoolNameVal()
-        print(g.schoolName)
+        session['classSecVal'] = classSecCheck()
+        session['schoolName'] = schoolNameVal()
+        print(session['schoolName'])
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
