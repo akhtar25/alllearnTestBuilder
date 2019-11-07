@@ -2076,7 +2076,7 @@ def feedbackCollection():
 
         questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
         questionListSize = len(questionList)
-
+        dateVal= datetime.today().strftime("%d%m%Y")
         responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
         #changes for use with PC+ mobile cam combination hahaha
