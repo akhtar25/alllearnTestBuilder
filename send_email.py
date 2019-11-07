@@ -94,8 +94,8 @@ def new_applicant_for_job(email,adminName,applicantName,jobName):
     send_email(email, name, subject, message)
 
 
-def job_posted_email(email,name, school,jobName):
-    subject = "Alllearn - New job posted for %s" % (school)
+def job_posted_email(email,name,jobName):
+    subject = "Alllearn - New job posted for %s" % (jobName)
     message = "<p>Hi %s, <br><br> The new job you posted for %s is now live.</p>" % (name,jobName)
     message = message + " <p>You should start receiving applications right away.</p>"
     message = message + "<p>In case you wish to edit or close the job or have any queries please let us know at contact@alllearn.in"

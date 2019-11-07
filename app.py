@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email, new_school_reg_email
-from send_email import new_teacher_invitation,new_applicant_for_job
+from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
 from config import Config
@@ -714,6 +714,10 @@ def postJob():
         db.session.add(jobData)
         db.session.commit()
         flash('New job posted created!')
+        try:
+            job_posted_email(teacherRow.email,teacherRow.teacher_name,form.category.data)
+        except:
+            pass
     else:
         #flash('Please fix the errors to submit')
         for fieldName, errorMessages in form.errors.items():
@@ -941,16 +945,23 @@ def processApplication():
     process_type = request.args.get('process_type')
     #try:
     jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
+    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+    applierRow = User.quer.filter_by(id=applier_user_id).first()
+    schoolRow = SchoolProfile.query.filter_by(school_id=jobApplicationRow.school_id).first()
+
     print(process_type)
     if process_type=='shortlist':
         jobApplicationRow.status= 'Shortlisted'
         flash('Application Shortlisted')
+        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
     elif process_type=='Reject':
         jobApplicationRow.status= 'reject'
         flash('Application Rejected')
+        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
     elif process_type =='hire':
         jobApplicationRow.status= 'Hired'
         flash('Application Hired')
+        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Hired')
     else:
         flash('Error processing application idk')
     db.session.commit()
