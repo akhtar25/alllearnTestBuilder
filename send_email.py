@@ -85,7 +85,11 @@ def new_teacher_invitation(email,name,school, inviteFrom):
 
 def new_applicant_for_job(email,adminName,applicantName,jobName):
     subject = 'Alllearn - Received new application for the job %s' % (jobName)
-    message = render_template('new_applicant_for_job.html', adminName = adminName, applicantName=applicantName, jobName=jobName)
+    message = message = "<p>Hi %s, <br><br> You have received a new application for the %s .</p>" % (adminName,jobName)
+    message = message + " <p>You may contact the applicant on the Hiring page.</p>"
+    message = message + "<p>In case you have any queries please let us know at contact@alllearn.in"
+    message = message + " <br><br>Thanks, <br>Alllearn team"
+    #message = render_template('new_applicant_for_job.html', adminName = adminName, applicantName=applicantName, jobName=jobName)
     name = "Alllearn"
     send_email(email, name, subject, message)
 
