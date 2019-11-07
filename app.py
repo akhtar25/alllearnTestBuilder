@@ -2393,17 +2393,17 @@ def testPerformance():
     section_list=[(i.section,i.section) for i in available_section]    
     test_type_list=[(i.msg_id,i.description) for i in available_test_type]
     student_list=[(i.student_id,i.full_name) for i in available_student_list]
-    resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'"))
+    resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'")).fetchall()
     avg_scores = []
     resultSetCount = 0
     # print('Length of Result Set:'+len(resultSet))
     for resultNum in resultSet:
         resultSetCount+=1
-        print('Type of Resultset:'+str(resultSetCount))
+        print('#######################first  Resultset:'+str(resultSetCount))
 
-    for resultNum in resultSet:
-        resultSetCount+=1
-        print('Type of Resultset:'+str(resultSetCount))
+    #for resultNum in resultSet:
+    #    #resultSetCount+=1
+    #    print('#######################second  Resultset:'+str(resultSetCount))
 
     #selectfield choices
     form1.class_val1.choices = class_list
