@@ -1935,9 +1935,9 @@ def testPerformance():
         resultSetCount+=1
         print('Type of Resultset:'+str(resultSetCount))
 
-    for resultNum in resultSet:
-        resultSetCount+=1
-        print('Type of Resultset:'+str(resultSetCount))
+    # for resultNum in resultSet:
+    #     resultSetCount+=1
+    #     print('Type of Resultset:'+str(resultSetCount))
 
     #selectfield choices
     form1.class_val1.choices = class_list

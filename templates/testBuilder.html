@@ -147,8 +147,9 @@
               $("#questionloader").show();
            },
             success: function (response) {
-                $("#testBuilderQuestions").show(); 
                 $("#questionloader").hide();
+                $("#testBuilderQuestions").show(); 
+                
                 if(response==1){
                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
                 }
@@ -167,6 +168,24 @@
         $("#questionSubmitLoader").show();
         var questions_list = document.getElementsByName('questionsCheckbox');
         var checkboxesChecked = [];
+        (function () {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+
+                    var config = 'MathJax.Hub.Config({' +
+                                    'extensions: ["tex2jax.js"],' +
+                                    'jax: ["input/TeX","output/HTML-CSS"]' +
+                                '});' +
+                                'MathJax.Hub.Startup.onload();';
+                                
+
+                    if (window.opera) {script.innerHTML = config}
+                                else {script.text = config}
+
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                    })();
         for (var i = 0; i < questions_list.length; i++) {
             // And stick the checked ones onto an array...
             if (questions_list[i].checked) {
@@ -272,6 +291,7 @@ window.onload = function() {
     var date = localStorage.getItem("date");
     if (date !== null) $('#test_date').val("date");
 }
+
 
 </script>
 
