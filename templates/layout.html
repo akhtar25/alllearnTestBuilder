@@ -29,7 +29,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="/static/images/LogoAlllearnBig.png" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if School_Name != none %}| {{ School_Name }} {%endif%}{% endif %}
+          <img src="/static/images/LogoAlllearnBig.png" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -39,110 +39,133 @@
             <a style="color: green;" href="{{ url_for('login') }}">Login</a>
           </li>
           <li style="color: green;">
-            <a style="color: green;" href="{{ url_for('register') }}">Register</a>
+            <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
           </li>
-          {% elif current_user.is_anonymous or disconn == 1 %}
+          {% elif disconn == 1 %}
           <li>
-              <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+              <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
             <li>
-                <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
+                <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {%elif user_type_val=='161'%}
+            <li>
+                <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
               </li>
-          <li>
-              <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
-              </li>      
-          
+              <li>
+                  <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
+                </li>   
+                <li>
+                    <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+                  </li>
           {% else %}
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
           </li>   
           <li>
-              
-            <a style="color: green; font-size:15px;" href="{{url_for('classCon')}}">Class</a>
+              <a style="color: green; font-size: 15px;"  href="{{url_for('jobPosts')}}">Job Posts</a>
+            </li>
+            <li>
+                <a style="color: green; font-size: 15px;"  href="{{url_for('postJob')}}">Post New Job</a>
+            </li>
+          
+          <li>              
+            <a class='classSecLinks' style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('classCon')}}">Class</a>
           </li>
           <li>
-              <a style="color: green;font-size: 15px;" href="{{url_for('testBuilder')}}">Test Builder</a>
+              <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
             </li>
             <li>
-              <a style="color: green; font-size: 15px;" href="{{url_for('testPapers')}}">Test Papers</a>
+              <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
             </li>
             <li>
-              <a style="color: green;" href="{{url_for('resultUpload')}}">Result Upload</a>
+              <a style="color: green;" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
             </li>
             <li>
-                <a style="color: green;" href="{{url_for('resultUploadHistory')}}">Result History</a>
+                <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
               </li>  
-
               <li>
-                <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
+                <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
+              </li>
+              
+              <li>
+                  <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('leaderBoard')}}">Leaderboard</a>
               </li>
               <li>
-                  <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
-              </li>
-              <li>
-                  <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
+                  <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
                 </li>
               <li>
-                  <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+                  <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
                 </li>
           <li>
-              <a style="color: green;" href="{{url_for('studentProfile')}}">Student Directory</a>
+              <a style="color: green;" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
             </li>              
             <li>
-                <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
-              </li>
+                <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
+              </li>             
+              
+              
               <li>
-                  <a style="color: green;" href="{{url_for('classRegistration')}}">Add Class</a>
+                  <a style="color: green;"  href="{{url_for('classRegistration')}}">Add Class</a>
                 </li>
               <li>
-                  <a style="color: green;" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
+                  <a style="color: green;"  href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
                 </li>
             <li>
-              <a style="color: green;" href="{{url_for('help')}}">Help</a>
+              <a style="color: green;"  href="{{url_for('help')}}">Help</a>
             </li>
             <li>
                 <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
                 </li>
                 {%endif%}
         </ul>        
+
+
+
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}
           <li style="color: green;">
-            <a style="color: green;" href="{{ url_for('login') }}">Login</a>
+            <a style="color: green;"  href="{{ url_for('login') }}">Login</a>
           </li>
 
           <li style="color: green;">
-            <a style="color: green;" href="{{ url_for('register') }}">Register</a>
+            <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
           </li>
-          {% else %}
+          {% else %}          
+          {%if user_type_val!='161'%}
           <li>
-            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>
-          <li>
-              <a style="color: green;" href="{{ url_for('schoolProfile') }}">School Profile</a>
+              <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
           <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+              <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
+            </li>
+            {%else%}
+            <li>
+                <a style="color: green;"  href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>
+              </li>
+            {%endif%}
+          <li>
+          <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
           </li>
           {% endif %}
         </ul>
 
         <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">          
             <li>
-                <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+                <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
               </li>
           <li>
-            <a style="color: green;" href="{{url_for('studentProfile')}}">Student Directory</a>
+            <a style="color: green;" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
           </li>
           <li>
-            <a style="color: green;" href="{{url_for('questionBank')}}">Question Bank</a>
+            <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
           </li>
           <li>
-              <a style="color: green;" href="{{url_for('classRegistration')}}">Add Class</a>
+              <a style="color: green;"  href="{{url_for('classRegistration')}}">Add Class</a>
             </li>
           <li>
-              <a style="color: green;" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
+              <a style="color: green;"  href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
             </li>
  
           <li>
@@ -152,67 +175,93 @@
 
         <ul id="dropdown4" class="dropdown-content green-text" style="color: green;">
           <li>
-            <a style="color: green;font-size: 15px;" href="{{url_for('testBuilder')}}">Test Builder</a>
+            <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
           </li>
           <li>
-            <a style="color: green; font-size: 15px;" href="{{url_for('testPapers')}}">Test Papers</a>
+            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
           </li>
           <li>
-            <a style="color: green;" href="{{url_for('resultUpload')}}">Result Upload</a>
+            <a style="color: green;" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
           </li>
           <li>
-              <a style="color: green;" href="{{url_for('resultUploadHistory')}}">Result History</a>
+              <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
             </li>          
         </ul>
 
         <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
           <li>
-            <a style="color: green; font-size: 15px;" href="{{url_for('testPerformance')}}">Performance Report</a>
+            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
           </li>
           <li>
-              <a style="color: green; font-size: 15px;" href="{{url_for('leaderBoard')}}">Leaderboard</a>
+              <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
           <li>
-              <a style="color: green;font-size: 15px;" href="{{url_for('classPerformance')}}">Feedback Report</a>
+              <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
             </li>
         </ul>
+
+        <ul id="dropdown6" class="dropdown-content green-text" style="color: green;">
+            <li>
+              <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
+            </li>
+            <li>
+                <a style="color: green; font-size: 15px;"  href="{{url_for('postJob')}}">Post New Job</a>
+            </li>
+          </ul>
+
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous or disconn == 1 %}
 
             <li>
-                <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
+                <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
                   <i class="material-icons right" style="font-size: 40px">account_circle </i>
                 </a>
-              </li>             
-            {% else %}            
+              </li>                 
+            {% else %}
+            {%if user_type_val=='161'%}
+            <li>
+                <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
+              </li>   
+              <li>
+                  <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+                </li>     
+                  <li>
+                    <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
+                      <i class="material-icons right" style="font-size: 40px">account_circle </i>
+                    </a>
+                  </li>
+            {%else%}
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
           </li>   
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('classCon')}}">Class</a>
+            <a class='classSpecLink' style="color: green; font-size:15px;"  href="{{url_for('classCon')}}">Class</a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown4">Tests</a>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown4">Tests</a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown5">Performance</a>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown5">Performance</a>
           </li>
-  
+          <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown6">Hiring</a>
+            </li>
           <li item-width="100px">
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown1">More
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown1">More
               <i class="material-icons right" style="font-size: 40px">menu </i>
             </a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" href="#!" data-target="dropdown2">
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
           <!--<li>
-            <a style="color: green; font-size:15px;" id="hiddenSearch" href="javascript: void (0);">
+            <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink' href="javascript: void (0);">
               <i class="material-icons">search</i>
             </a>
           </li>-->
+          {%endif%}
           {% endif %}
         </ul>
   
@@ -259,9 +308,10 @@
 <script src="../static/js/adminlte.min.js"></script>
 <script src="../static/js/websiteJS.js"></script>
 <script>
-$(document).ready(function(){
-  $('.sidenav').sidenav();
-});
+//$(document).ready(function(){
+//  $('.sidenav').sidenav();
+//  
+//});
 </script>
   
 
@@ -281,73 +331,79 @@ $(document).ready(function(){
         <div class="col l2 s12">
           <ul>
             <li>
-              <a class="white-text" href="http://www.fb.me/alllearn.in">Facebook</a>
+              <a class="white-text" class='classSpecLink' href="http://www.fb.me/alllearn.in">Facebook</a>
             </li>
             <li>
-                <a class="white-text" href="https://www.instagram.com/alllearn_/">Instagram</a>
+                <a class="white-text" class='classSpecLink' href="https://www.instagram.com/alllearn_/">Instagram</a>
               </li>
               <li>
-                  <a class="white-text" href="https://www.youtube.com/channel/UCva7EZtfhlSGgYDQ7yPavvQ">YouTube</a>
+                  <a class="white-text" class='classSpecLink' href="https://www.youtube.com/channel/UCva7EZtfhlSGgYDQ7yPavvQ">YouTube</a>
                 </li>
                 <li>
-                    <a class="white-text" href="{{url_for('privacyPolicy')}}">Privacy Policy</a>
+                    <a class="white-text" class='classSpecLink' href="{{url_for('privacyPolicy')}}">Privacy Policy</a>
                   </li>
                   <li>
-                      <a class="white-text" href="../static/docs/termsAndConditions.pdf">Terms and Conditions</a>
+                      <a class="white-text" class='classSpecLink' href="../static/docs/termsAndConditions.pdf">Terms and Conditions</a>
                     </li>
           </ul>
               </div>
-              {%if (disconn != 1) and (current_user.username) %} 
+              {%if (disconn != 1) and (current_user.username) and user_type_val!='161' %} 
               <div class="col l2 s12">
                   <ul>    
               <li>
-                <a class="white-text" href="{{url_for('index')}}">Dashboard</a>
+                <a class="white-text" class='classSpecLink' href="{{url_for('index')}}">Dashboard</a>
               </li>
 
               <li>
-                <a class="white-text" href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
+                <a class="white-text" class='classSpecLink' href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
               </li>
               <li>
-                  <a class="white-text"  href="{{url_for('testBuilder')}}">Test Builder</a>
+                  <a class="white-text"  class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
                 </li>              
                 <li>
-                  <a class="white-text"  href="{{url_for('testPapers')}}">Test Papers</a>
+                  <a class="white-text"  class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
                 </li>   
                 <li>
-                    <a class="white-text" href="{{url_for('resultUpload')}}">Result Upload</a>
+                    <a class="white-text" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
                   </li>                        
                   <li>
-                      <a  class="white-text" href="{{url_for('resultUploadHistory')}}">Result History</a>
+                      <a  class="white-text" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
                     </li>  
                     <li>
-                        <a class="white-text"  href="{{url_for('classPerformance')}}">Feedback Report</a>
+                        <a class="white-text"  class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
                       </li>
+                      <li>
+                          <a class="white-text" class='classSpecLink' href="{{url_for('jobPosts')}}">Job Posts</a>
+                        </li>
+                        <li>
+                            <a class="white-text" class='classSpecLink' href="{{url_for('postJob')}}">Post New Job</a>
+                        </li>
           </ul>
         </div>
         <div class="col l2 s12">
             <ul>
               
                 <li>
-                  <a class="white-text" href="{{url_for('testPerformance')}}">Performance Report</a>
-                </li>                    
+                  <a class="white-text" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
+                </li>                                    
           <li>
-              <a class="white-text" href="{{url_for('contentManager')}}">Content Manager</a>
+              <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
             </li>
             <li>
-                <a class="white-text" href="{{url_for('studentProfile')}}">Student Directory</a>
+                <a class="white-text" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
               </li>
               <li>
-                  <a class="white-text" href="{{url_for('classRegistration')}}">Add Class</a>
+                  <a class="white-text" class='classSpecLink' href="{{url_for('classRegistration')}}">Add Class</a>
                 </li>
               <li>
-                  <a class="white-text" href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
+                  <a class="white-text" class='classSpecLink' href="{{url_for('teacherRegistration')}}">Invite Teachers</a>
                 </li>
           <li>
-            <a class="white-text" href="{{url_for('help')}}">Help</a>
-          </li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('help')}}">Help</a>
+          </li>        
           <li>
-              <a class="white-text" href="{{ url_for('schoolProfile') }}">School Profile</a>
-            </li>
+              <a class="white-text" class='classSpecLink' href="{{ url_for('schoolProfile') }}">School Profile</a>
+            </li>        
           </ul>
           </div>      
           {% endif %}
@@ -355,10 +411,35 @@ $(document).ready(function(){
     </div>
     <div class="footer-copyright">
       <div class="container">        
-        <span><a class="yellow-text text-lighten-5" href="http://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
-          <span class="pull-right">1.2.1.0 Beta</span>
+        <span><a class="yellow-text text-lighten-5" class='classSpecLink' href="http://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
+          <span class="pull-right">1.2.2.0 Beta</span>
       </div>
     </div>
   </footer>
+  <script src="../static/js/autoComplete.js"></script>
+  <script>
 
+$(document).ready(function(){
+  $('.sidenav').sidenav();
+  //alert('1');
+if ('{{session["classSecVal"]}}'=='N'){
+  //alert('1');
+  DisableLinks();
+}
+//else{
+//  EnableLinks();
+//}
+  
+});
+
+    function DisableLinks() {
+      //alert('2');
+    $('.classSpecLink').attr('href','#');
+    $('.classSpecLink').attr('title','Enter class details to access this link');
+    //$('.classSpecLink').addClass("classSpecLink disabled");
+}
+function EnableLinks() {
+  //$('a.' + 'classSpecLink').attr('href','#')
+}
+  </script>
 </html>

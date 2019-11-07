@@ -1,0 +1,48 @@
+<div id="table" class="table-bordered" style="overflow-y: auto;overflow-x: hidden; height:600px; position: relative;">
+    <table>
+        {%for content in openJobsDataRows %}
+        <div class="row z-depth-2 " style="margin-top: -15px;">
+            <div class="col m6 l3 center-align">
+                {%if content.school_picture!=None %}
+                <img height="120px" src="{{content.school_picture}}">
+                {%else%}
+                <img height="120px"
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
+                {%endif%}
+            </div>
+
+            <div class="col m6 l3">
+                <h3 class='grey-text'><span> <a href="#" target="_blank"></a>{{content.school_name}}</span></h3>
+                <h5>{{content.term}}</h5>
+                <h5>{{content.category}}</h5>
+                <h5>{{content.subject}}</h5>                
+            </div>
+            <div class="col  m6 l3">
+                <h3 class="grey-text">₹{{content.min_pay}} - ₹{{content.max_pay}}</h3>
+                <h5>{{content.job_type}}</h5>
+                <h5>{{content.city}}</h5>
+                {%if content.posted_on%}
+                <h5>Posted On:{{content.posted_on.strftime('%d %B %Y')}}</h5>
+                {%endif%}
+            </div>
+            <div class="col  m7 l3 valign-wrapper">
+                <div class='row'>
+                    <div class='section'>
+<br><br>
+                        <h4><a href="{{url_for('jobDetail',job_id=content.job_id, school_id=content.school_id)}}">See
+                                Details</a></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!--<a href='#'>
+            <h3 class="center-align" id='loadMoreBTN'>Load More</h3>
+        </a>-->
+    </table>
+</div>
+{% if prev_url %}
+<a href="{{ prev_url }}">Previous</a>
+{% endif %} {% if next_url %}
+<a href="{{ next_url }}">Next</a>
+{% endif %}

@@ -43,10 +43,10 @@ class RegistrationForm(FlaskForm):
                                        EqualTo('password')])
     #submit = SubmitField('Register')
 
-    #def validate_username(self, username):
-    #    user = User.query.filter_by(username=username.data).first()
-    #    if user is not None:
-    #        raise ValidationError('Please use a different username.')
+    def validate_username(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different email address.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
@@ -55,11 +55,19 @@ class RegistrationForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     #username = StringField('Username', validators=[DataRequired()])
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=500)])
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name =StringField('Last Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    #email = StringField('Email', validators=[DataRequired(), Email()])
     phone=StringField('Phone No',validators=[Length(max=12)])
+    education = TextAreaField('Education', validators=[Length(min=0, max=500)])
+    experience = TextAreaField('Experience', validators=[Length(min=0, max=1000)])
+    #address = TextAreaField('Address', validators=[Length(min=0, max=1000)])
+    city = StringField('City', validators=[DataRequired(), Length(min=0, max=100)])
+    state = StringField('State', validators=[DataRequired(), Length(min=0, max=100)])
+    resume = StringField('Resume', validators=[Length(min=0, max=200)])
+    intro_link = StringField('Introduction Link', validators=[Length(min=0, max=200)])
+    willing_to_travel = BooleanField('Remember Me')
     #main_subjects = StringField('Main Subjects',validators=[Length(max=100)])
     #assigned_class = StringField('Assigned Class',validators=[Length(max=50)])
     submit = SubmitField('Submit')
@@ -192,13 +200,14 @@ class SchoolRegistrationForm(FlaskForm):
     address1 = TextAreaField('Address Line 1', validators=[DataRequired(),Length(min=0, max=200)])
     address2 = TextAreaField('Address Line 2', validators=[Length(min=0, max=200)])
     locality = StringField('Locality', validators=[DataRequired(),Length(min=0, max=50)])
-    city = StringField('City', validators=[DataRequired(),Length(min=0, max=50)])
-    state = StringField('State', validators=[DataRequired(),Length(min=0, max=50)])
+    city = StringField('City', validators=[DataRequired(),Length(min=0, max=30)])
+    state = StringField('State', validators=[DataRequired(),Length(min=0, max=  30)])
     country = StringField('Country', validators=[DataRequired(),Length(min=0, max=50)])
     pincode = StringField('Pincode',validators=[DataRequired(),Length(min=0, max=10)],widget=NumberInput())
-    class_val=StringField('Class',validators=[DataRequired()],widget=NumberInput(min=1,max=10))
-    section=StringField('Section',validators=[DataRequired(),Length(min=0, max=1)])
-    student_count=StringField('Student Count',validators=[DataRequired()],widget=NumberInput(min=1,max=100))    
+    class_val=StringField('Class',widget=NumberInput(min=1,max=10))
+    section=StringField('Section',validators=[Length(min=0, max=1)])
+    student_count=StringField('Student Count',widget=NumberInput(min=1,max=100))    
+    how_to_reach = TextAreaField('How To Reach', validators=[DataRequired(),Length(min=0, max=500)])
 
 class SchoolTeacherForm(FlaskForm):
     teacher_name = StringField('Teacher\'s Name', validators=[DataRequired()])  
@@ -294,4 +303,21 @@ class createSubscriptionForm(FlaskForm):
     sub_duration = StringField('Duration',validators=[DataRequired()])
 
 
+class postJobForm(FlaskForm):
+    category = SelectField('Category')
+    description =TextAreaField('Job Description', validators=[Length(min=0, max=500)])        
+    min_pay = IntegerField('Min Pay',widget=NumberInput(min=1000,max = 999999,step=1))
+    max_pay = IntegerField('Max Pay',widget=NumberInput(min=1000,max = 999999,step=1))
+    start_date = DateField('Start Date', validators=[DataRequired()])
+    #end_date = DateField('End Date - optional')
+    subject = StringField('Subject(s)',validators=[DataRequired(),Length(min=0, max=50)])
+    classes = StringField('Class(es)',validators=[DataRequired(),Length(min=0, max=10)])
+    language = StringField('Preferred Language',validators=[DataRequired(),Length(min=0, max=20)])
+    timings = StringField('Timings',validators=[DataRequired(),Length(min=0, max=30)])
+    stay = SelectField('Place to Stay')
+    food = SelectField('Food')
+    term = SelectField('Short/Long term')
+    job_type = SelectField('Part Time/Full Time')
+    num_of_openings = IntegerField('Number of Openings',widget=NumberInput(min=0,max=100,step=1))
+    
     

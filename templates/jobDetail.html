@@ -1,0 +1,197 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container ">
+        {%if jobDetailRow%}
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+                <h3>Job Detail</h3>
+            </div>
+
+            <div class="col s4 m4 l4 center">
+                {%if schoolProfileRow.school_picture!=None %}
+                <img class="responsive-img " src="{{schoolProfileRow.school_picture}}">
+                {%else%}
+                <img class="responsive-img "
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
+                {%endif%}
+                <h4 style="font-weight: bold;">{{schoolProfileRow.school_name}}</h4>
+                <h4 style="font-weight: bold;">{{addressRow.city}}</h4>
+            </div>
+
+            <div class="col s4 m4 l6">
+                <div id="schoolSummaryDiv">
+                    <table class="striped">
+                        <tr>
+                            <td>Board</td>
+                            <td> CBSE</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>
+                                {{addressRow.address_1}}<br>
+                                {{addressRow.address_2}}<br>
+                                {{addressRow.locality}}<br>
+                                {{addressRow.city}},
+                                {{addressRow.state}}<br>
+                                {{addressRow.pin}}<br>
+                                <a href="https://www.google.com/maps/search/
+            {{addressRow.address_1}}+
+            {{addressRow.address_2}}+
+            {{addressRow.locality}}+
+            {{addressRow.city}}+
+            {{addressRow.state}}+
+            {{addressRow.pin}}" target="_blank">
+                                    <h4>See on google map</h4>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>How to get there</td>
+                            <td>{{schoolProfileRow.how_to_reach}}</td>
+                        </tr>
+                        <!--<tr>
+                            <td>School Admin/Principal</td>
+                            <td> {{schoolProfileRow.school_admin}}</td>
+                        </tr>-->
+                    </table>
+                </div>
+            </div>
+            <br>
+            <br>
+
+            <div row="jobDetailDiv" class="col s8 m8 l12">
+                <div class="divider"></div>
+                <span style='font-size:25px' class='grey-text'>Job Details 
+                </span>
+                {%if applied==1%}
+                 <span class="appliedClass badge green white-text"  id="{{applied}}" style='font-size: 10px; font-family: Arial;'>Applied</span>
+                 {%endif%}
+                <br><strong>{{jobDetailRow.category}}</strong>
+                |{{jobDetailRow.term}} | {{jobDetailRow.job_type}}
+                {%if jobDetailRow.status=='Open'%}
+                <span class="right green-text"> {{jobDetailRow.status}} </span>
+                {%else%}
+                <span class="right red-text"> {{jobDetailRow.status}} </span>
+                {%endif%}
+                <table style="font-size: 15px;font-family: Arial; line-height: 40px" class="striped ">
+
+                    <tr>
+                        <td>Subjects</td>
+                        <td>{{jobDetailRow.subject}}</td>
+                    </tr>
+                    <tr>
+                        <td>Pay Range</td>
+                        <td><strong>₹{{jobDetailRow.min_pay}} - ₹{{jobDetailRow.max_pay}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Expected Start Date</td>
+                        <td>{{jobDetailRow.start_date.strftime('%d %B %Y')}}</td>
+                    </tr>
+                    <tr>
+                        <td>Classes to teach</td>
+                        <td>{{jobDetailRow.classes}}</td>
+                    </tr>
+                    <tr>
+                        <td>Job Timings</td>
+                        <td>{{jobDetailRow.timings}}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{jobDetailRow.description}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Peferred language for teaching</td>
+                        <td>{{jobDetailRow.language}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Recommendation Letter</td>
+                        <td> <i class="large material-icons icon-green" style="font-size: 30px;">check</i> </td>
+                    </tr>
+                    </tr>
+                    <tr>
+                        <td>Experience Certificate</td>
+                        <td><i class="large material-icons icon-green" style="font-size: 30px;">check</i> </td>
+                    </tr>
+
+                    <tr>
+                        <td>Support with stay</td>
+                        {%if jobDetailRow.stay=='None' %}
+                        <td><i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> </td>
+                        {%else%}
+                        <td>{{jobDetailRow.stay=='None'}}</td>
+                        {%endif%}
+                    </tr>
+                    <tr>
+                        <td>Food options</td>
+                        {%if jobDetailRow.fooding=='None' %}
+                        <td><i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> </td>
+                        {%else%}
+                        <td>{{jobDetailRow.fooding}}</td>
+                        {%endif%}
+                    </tr>
+                    <tr>
+                        <td>Numer of Openings</td>
+                        <td>{{jobDetailRow.num_of_openings}}</td>
+                    </tr>
+                    <tr>
+                        <td>Job ID</td>
+                        <td>{{jobDetailRow.job_id}}</td>
+                    </tr>
+                </table>
+                {%if jobDetailRow.status=='Open' and user_type_val=='161'%}
+                <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
+                {%endif%}
+                <!-- Modal Structure -->
+                <div id="fillApplyDetail" class="modal" >
+                        <form action="/sendJobApplication" method="post">
+                            <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
+                            <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
+
+                    <div class="modal-content">
+                        <h4>Available From </h4>
+                        <input type="text" class="datepicker" id="availableFromID" name='availableFromID'>
+                        <h4>Available Till </h4>
+                        <input type="text" class="datepicker" id="availableTillID" name='availableTillID' placeholder="Optional">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class='btn green' id='mainApplyBTN'>Submit</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%else%}
+<h3 class="grey-text">No details found for the selected job id</h3>
+{%endif%}
+</div>
+<script>
+    $(document).ready(function () {        
+        if ({{applied}}!=0){            
+            $('#applyBTN').attr('disabled', true);
+        }
+        
+        $('.modal').modal();
+        $('#mainApplyBTN').attr('disabled', true);
+        $('.datepicker').datepicker();
+
+        $('#availableFromID').change(function () {
+            if ($(this).val().length != 0) {
+                $('#mainApplyBTN').attr('disabled', false);
+            } else {
+                $('#mainApplyBTN').attr('disabled', true);
+            }
+        })
+
+    });
+
+
+    $('#mainApplyBTN').click(function () {
+
+    });
+</script>
+
+{% endblock %}
