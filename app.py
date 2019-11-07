@@ -867,7 +867,7 @@ def sendJobApplication():
         flash('Job application submitted!')
         #try:            
         jobDetailRow = JobDetail.query.filter_by(job_id=job_id_form).first()
-        teacherRow = TeacherProfile.query.filter_by(teacher_id=jobApplyData.posted_by).first()
+        teacherRow = TeacherProfile.query.filter_by(teacher_id=jobDetailRow.posted_by).first()
         new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
         #except:
         #    pass
