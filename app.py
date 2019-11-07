@@ -953,15 +953,24 @@ def processApplication():
     if process_type=='shortlist':
         jobApplicationRow.status= 'Shortlisted'
         flash('Application Shortlisted')
-        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
+        try:
+            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
+        except:
+            pass
     elif process_type=='Reject':
         jobApplicationRow.status= 'reject'
         flash('Application Rejected')
-        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
+        try:
+            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
+        except:
+            pass
     elif process_type =='hire':
         jobApplicationRow.status= 'Hired'
         flash('Application Hired')
-        application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Hired')
+        try:
+            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Hired')
+        except:
+            pass
     else:
         flash('Error processing application idk')
     db.session.commit()
