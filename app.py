@@ -958,7 +958,7 @@ def processApplication():
         except:
             pass
     elif process_type=='reject':
-        jobApplicationRow.status= 'reject'
+        jobApplicationRow.status= 'Rejected'
         flash('Application Rejected')
         try:
             application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
