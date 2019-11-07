@@ -1291,19 +1291,12 @@ def questionBank():
     form=QuestionBankQueryForm()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
-#  [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.chapter_num.choices= ''
-    # [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
-        # if request.form['chapter_num']=='':
-        #     flash('Select Chapter')
-        #     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        #     return render_template('questionBank.html',form=form)
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
-        # session['date']=request.form['test_date']
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
@@ -1864,7 +1857,7 @@ def questionDetails():
 def topperListAll():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where section='All' and subjects='All' order by marks desc fetch next 10 rows only"
+    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where class='All' and section='All' and subjects='All' order by marks desc fetch next 10 rows only"
     #print('Query:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
@@ -1882,7 +1875,7 @@ def leaderBoard():
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where section='All' and subjects='All' order by marks desc"
+        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='All' and section='All' and subjects='All' order by marks desc"
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')        
@@ -2403,9 +2396,14 @@ def testPerformance():
     resultSet = db.session.execute(text("Select * from fn_overall_performance_summary('"+str(teacher.school_id)+"') where class='All' and section='All'"))
     avg_scores = []
     resultSetCount = 0
+    # print('Length of Result Set:'+len(resultSet))
     for resultNum in resultSet:
         resultSetCount+=1
-    print('Type of Resultset:'+str(resultSetCount))
+        print('Type of Resultset:'+str(resultSetCount))
+
+    for resultNum in resultSet:
+        resultSetCount+=1
+        print('Type of Resultset:'+str(resultSetCount))
 
     #selectfield choices
     form1.class_val1.choices = class_list
