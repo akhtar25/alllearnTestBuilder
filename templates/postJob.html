@@ -1,0 +1,231 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+    <h3>Post a Job</h3>
+
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group col-sm-10" style="padding-top:5px;">
+            <div class="row">
+                <div class="col-sm-10">
+                    {{ form.category.label(class='labelsize') }}
+                    <br>
+                    {% if form.category.errors %}
+                    {{ form.category(class="form-control form-control-lg is-invalid" ) }}
+                    <div class="invalid-feedback">
+                        {% for error in form.category.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.category(class='form-control') }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-10">
+                    {{ form.description.label(class='labelsize') }}
+                    <br>
+                    {% if form.description.errors %}                    
+                    {{form.description(rows='50', cols='100', placeholder="Tasks, expectations and other details")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.description.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.description(class='form-control', placeholder="Tasks, expectations and other details") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    {{ form.min_pay.label(class='labelsize') }}
+                    <br>
+                    {% if form.min_pay.errors %}
+                    {{ form.min_pay(class="form-control form-control-lg is-invalid",placeholder="Eg.₹7000") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.min_pay.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.min_pay(class='form-control',placeholder="Eg.₹7000") }}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    {{ form.max_pay.label(class='labelsize',placeholder="Eg.₹20,000") }}
+                    <br>
+                    {% if form.max_pay.errors %}
+                    {{ form.max_pay(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.max_pay.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.max_pay(class='form-control',placeholder="Eg.₹20,000") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    {{ form.start_date.label(class='labelsize') }}
+                    <br>
+                    {% if form.start_date.errors %}
+                    {{ form.start_date(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.start_date.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.start_date(class='form-control') }}
+                    {% endif %}
+                </div>
+
+                <div class="col-sm-3">
+                    {{ form.timings.label(class='labelsize') }}
+                    <br>
+                    {% if form.timings.errors %}
+                    {{ form.timings(class="form-control form-control-lg is-invalid",placeholder="Eg.12PM to 5PM") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.timings.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.timings(class='form-control',placeholder="Eg.12PM to 5PM") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    {{ form.subject.label(class='labelsize') }}
+                    <br>
+                    {% if form.subject.errors %}
+                    {{ form.subject(class="form-control form-control-lg is-invalid",placeholder="Eg.English and Math") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.subject.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.subject(class='form-control',placeholder="Eg.English and Math") }}
+                    {% endif %}
+                </div>
+                <div class="col-sm-3">
+                    {{ form.classes.label(class='labelsize') }}
+                    <br>
+                    {% if form.classes.errors %}
+                    {{ form.classes(class="form-control form-control-lg is-invalid",placeholder="Eg.8 and 9") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.classes.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.classes(class='form-control',placeholder="Eg.8 and 9") }}
+                    {% endif %}
+                </div>
+
+                <div class="col-sm-3">
+                    {{ form.language.label(class='labelsize') }}
+                    <br>
+                    {% if form.language.errors %}
+                    {{ form.language(class="form-control form-control-lg is-invalid",placeholder="Eg.Any or English") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.language.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.language(class='form-control',placeholder="Eg.Any or English") }}
+                    {% endif %}
+                </div>     
+                <div class="col-sm-3">
+                        {{ form.num_of_openings.label(class='labelsize') }}
+                        <br>
+                        {% if form.num_of_openings.errors %}
+                        {{ form.num_of_openings(class="form-control form-control-lg is-invalid",placeholder="Eg.3") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.num_of_openings.errors %}
+                            <span class='red-text'>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.num_of_openings(class='form-control',placeholder="Eg.3") }}
+                        {% endif %}
+                    </div>           
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    {{ form.stay.label(class='labelsize') }}
+                    <br>
+                    {% if form.stay.errors %}
+                    {{ form.stay(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.stay.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.stay(class='form-control') }}
+                    {% endif %}
+                </div>
+                <div class="col-sm-3">
+                    {{ form.food.label(class='labelsize') }}
+                    <br>
+                    {% if form.food.errors %}
+                    {{ form.food(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.food.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.food(class='form-control') }}
+                    {% endif %}
+                </div>
+                <div class="col-sm-3">
+                        {{ form.job_type.label(class='labelsize') }}
+                        <br>
+                        {% if form.job_type.errors %}
+                        {{ form.job_type(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.job_type.errors %}
+                            <span class='red-text'>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.job_type(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    
+                <div class="col-sm-3">
+                    {{ form.term.label(class='labelsize') }}
+                    <br>
+                    {% if form.term.errors %}
+                    {{ form.term(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.term.errors %}
+                        <span class='red-text'>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.term(class='form-control') }}
+                    {% endif %}
+                </div>
+
+
+            </div>
+            <div class="row">
+            <button class="btn waves-effect waves-light green right" type="submit" name="action">Submit</button>
+        </div>
+        </div>
+
+
+    </form>
+</div>
+<br>
+<br>
+{%endblock%}

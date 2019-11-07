@@ -91,14 +91,14 @@
                             {{ form.city.label(class='labelsize') }}
                             <br>
                             {% if form.city.errors %}
-                            {{ form.city(class="form-control form-control-lg is-invalid") }}
+                            {{ form.city(class="form-control form-control-lg is-invalid", id="cityID") }}
                             <div class="invalid-feedback">
                                 {% for error in form.city.errors %}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.city(class='form-control') }}
+                            {{ form.city(class='form-control',id="cityID") }}
                             {% endif %}
                         </div>
 
@@ -106,14 +106,14 @@
                             {{ form.state.label(class='labelsize') }}
                             <br>
                             {% if form.state.errors %}
-                            {{ form.state(class="form-control form-control-lg is-invalid") }}
+                            {{ form.state(class="form-control form-control-lg is-invalid",id='stateID') }}
                             <div class="invalid-feedback">
                                 {% for error in form.state.errors %}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.state(class='form-control') }}
+                            {{ form.state(class='form-control',id='stateID') }}
                             {% endif %}
                         </div>
                         <div class="col-sm-3">
@@ -146,6 +146,23 @@
                         </div>
 
                     </div>
+                    <div class='row'>
+                            <div class="col-sm-6">
+                                    {{ form.how_to_reach.label(class='labelsize',placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    <br>
+                                    {% if form.how_to_reach.errors %}
+                                    {{ form.how_to_reach(class="form-control form-control-lg is-invalid",placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.how_to_reach.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.how_to_reach(class='form-control',placeholder='Eg. Take a cab or auto from Huda City Centre if coming from Delhi') }}
+                                    {% endif %}
+                                </div>
+                                <p class="grey-text">Details on how to reach the school will help guide any new teacher/volunteer <br>Especially if the school is located in difficult to reach areas</p>
+                    </div>
 
                 </div>
                 <div class="col-sm-4">
@@ -165,6 +182,7 @@
             <br>
             <p><button type='button' id="addClassbtn"
                     onclick="addClass();"class="waves-effect waves-light green btn">Add Class Details</button></p>            
+                    <p class='grey-text'>Class details can be added/modified later on as well</p> 
         </div>
 <br>
 <br>
@@ -173,7 +191,7 @@
 
         <div class="row">
             <div class="section">
-            <h4 class="grey-text">Choose Subscription Plans</h4>
+            <h4 class="grey-text">Choose Subscription Plans </h4><h6>Introductory Pricing</h6>
             <p>No credit card/ account details needed. </p>
             <p>The first month is free. We'll send the payment link 5 days before renewal date if you opt for a paid subscription.</p>
         </div>
@@ -194,16 +212,14 @@
                                     <div id="{{row.group_name}}" class="modal" style="width:338px;">
                                       <!--<div class="modal-footer">
                                             <p>{{row.sub_desc}}</p>                                    
-                                      </div>       -->
-    
+                                      </div>       -->    
                                       <div class="modal-content">
                                             <h4>{{row.group_name}}</h4>
                                             {% autoescape false %}
                                           <h5 class="green-text">  {{ row.sub_desc | replace("\n", "<br/><br/>") }}</h5>
                                             {% endautoescape %}
                                           </div>
-                                    </div>
-                                    
+                                    </div>                                    
                                 <ul class="collection ">
                                     <!--<li class="collection-item">{{row.sub_name}}</li>-->
                                     <li class="collection-item">Student Limit: <strong>{{row.student_limit}}</strong></li>

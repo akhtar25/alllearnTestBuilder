@@ -1,0 +1,79 @@
+{% extends "layout.html" %} {% block content %}
+<div class="row col s12 m6 offset-m3 ">
+    <div class="col s8 offset-s2">
+        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+            <h3>Profile</h3><br>
+        </div>        
+        <div class="col s4 m4 l4 center">
+            <h3 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h3>
+            <h4>{{user.city}} , {{user.state}}</h4>
+            {%if job_id%}
+            <br><br><br><br><br>
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='hire')}}" class='btn processBTN green lighten-1' style='width: 150px' name='hire' id='hire'>Hire</a><br><br>            
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='shortlist')}}" class='btn processBTN cyan' style='width: 150px' name='shortlist' id='shortlist'>Shortlist</a><br><br>
+            <a href="{{url_for('processApplication',applier_user_id=user.id, job_id=job_id,process_type='reject')}}" class='btn processBTN red lighten-1' style='width: 150px' name='reject' id='reject'>Reject</a>
+            {%endif%}
+        </div>
+        <div class="col s4 m4 l6">
+            {%if user.id==current_user.id%}
+                <a class="btn right" href="{{url_for('edit_profile')}}">Edit Profile</a>
+                {%endif%}
+            <table style="font-size: 15px; line-height: 40px;" class='highlight'>
+                <tr>                                        
+                        <div class="section">
+                            <h3>About</h3>
+                            <span style="white-space: pre-line">{{user.about_me}}</span>
+                    </div>                    
+                </tr>
+                <tr>
+                     <div class='section'><h3>Education </h3>
+                        <span style="white-space: pre-line">{{user.education}}</span>
+                </div>
+                </tr>
+                <tr>
+                    <div class='section'>
+                    <h3> Experience </h3>
+                    <span style="white-space: pre-line">{{user.experience}}</span>
+                </div>
+                </tr>
+                <tr>
+                    <td> Email </td>
+                    <td>{{user.email}}</td>
+                </tr>
+                <tr>
+                    <td> Phone </td>
+                    <td>{{user.phone}}</td>
+                </tr>                
+                <tr>
+                    <td></td>
+                    <td>
+                        {%if user.resume!=None%}
+                <h4><a href='{{user.resume}}' target="_blank">See Resume</h4>
+                    {%endif%}
+                </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+ //     $('.processBTN').click(function(){
+ //               //$('#loaderDiv').show();                
+ //               $.ajax({
+ //                 url: "/processApplication?job_id="+ {{job_id}} +"&applier_user_id="+ {{user.id}}+"&process_type="+ this.id,
+ //                 type: "get",
+ //                 data: '',
+ //                 success: function(response) {
+ //                     location.reload();
+ //                 },
+ //                 error: function(xhr) {
+ //                   window.alert("error occurred while processing application");
+ //                 }
+ //               });      
+ //                      
+ //           });
+ //           
+</script>
+{% endblock %}

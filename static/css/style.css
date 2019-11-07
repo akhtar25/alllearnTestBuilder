@@ -5,6 +5,24 @@
  *
  * Made By MaterializeCSS.com
  */
+ .tabs .tab a{
+  color:green;
+} /*Black color to the text*/
+
+.tabs .tab a:hover {
+  background-color:white;
+  color:seagreen;
+} /*Text color on hover*/
+
+.tabs .tab a.active {
+  background-color:white;
+  color:green;
+} /*Background and text color when a tab is active*/
+
+.tabs .indicator {
+  background-color:green;
+} /*Color of underline*/
+
 
  #search-2{
    display: none;

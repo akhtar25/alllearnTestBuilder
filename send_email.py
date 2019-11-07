@@ -82,3 +82,32 @@ def new_teacher_invitation(email,name,school, inviteFrom):
     subject = "Alllearn - Invitation to %s's dashboard for %s" % (school, name)
     message = render_template('new_teacher_invitation_email.html', name=name, school=school, inviteFrom=inviteFrom)
     send_email(email, name, subject, message)
+
+def new_applicant_for_job(email,adminName,applicantName,jobName):
+    subject = 'Alllearn - Received new application for the job %s' % (jobName)
+    message = message = "<p>Hi %s, <br><br> You have received a new application for the %s .</p>" % (adminName,jobName)
+    message = message + " <p>You may contact the applicant on the Hiring page.</p>"
+    message = message + "<p>In case you have any queries please let us know at contact@alllearn.in"
+    message = message + " <br><br>Thanks, <br>Alllearn team"
+    #message = render_template('new_applicant_for_job.html', adminName = adminName, applicantName=applicantName, jobName=jobName)
+    name = "Alllearn"
+    send_email(email, name, subject, message)
+
+
+def job_posted_email(email,name,jobName):
+    subject = "Alllearn - New job posted for %s" % (jobName)
+    message = "<p>Hi %s, <br><br> The new job you posted for %s is now live.</p>" % (name,jobName)
+    message = message + " <p>You should start receiving applications right away.</p>"
+    message = message + "<p>In case you wish to edit or close the job or have any queries please let us know at contact@alllearn.in"
+    message = message + " <br><br>Thanks, <br>Alllearn team"
+    name = 'Alllearn'
+    send_email(email, name, subject, message)
+
+
+def application_processed(email,applicantName, school,jobName, process_type):
+    subject = "Alllearn - Application %s for %s role at %s" % (process_type, jobName, school)
+    message = "<p>Hi %s, <br><br> Your application for the role of %s at %s has been <b>%s</b>.</p>" % (applicantName,jobName,school,process_type)
+    message = message + "<p>For any queries please write to us at contact@alllearn.in"
+    message = message + " <br><br>Thanks, <br>Alllearn team"
+    name = 'Alllearn'
+    send_email(email, name, subject, message)

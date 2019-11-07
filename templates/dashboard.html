@@ -16,20 +16,86 @@
         </section>
         <section class="content">
           <div class="row">
+            <section class="col-lg-12 connectedSortable" >
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Average School Performance</h3>
+                </div>
+
+                <div id='graphDiv' style="overflow: auto;top:-30px;overflow: auto;height:300px;"></div>
+                <div class="box-footer text-right">
+                  <a href="{{url_for('testPerformance')}}" class="uppercase">See Performance</a>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="row">
             <section class="col-lg-12 connectedSortable">
-              <div class="box-header with-border">
-                <h3 class="box-title">Average School Performance</h3>
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Job Posts</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <div>
+                    <div class="table-responsive" style="overflow: auto;height:300px;">
+                      {%if jobPosts | length!=0%}
+                      <table class="table no-margin">
+                        <thead>
+                          <tr>
+                            <th>Posted On</th>
+                            <th>Subjects</th>
+                            <th>Classes</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Term Duration</th>
+                            <th>Details</th>
+                            <th>See Applications</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for jobRow in jobPosts %}
+                          <tr>
+                            {%if jobRow.posted_on!=None%}
+                            <td>{{jobRow.posted_on.strftime('%d %B %Y')}}</td>
+                            {%else%}
+                            <td>NA</td>
+                            {%endif%}
+                            <td>{{jobRow.subject}}</td>
+                            <td>{{jobRow.classes}}</td>
+                            <td>{{jobRow.category}}</td>
+                            <td>{{jobRow.status}}</td>
+                            <td>{{jobRow.term}}</td>
+                            <td><a href="{{url_for('jobDetail',job_id=jobRow.job_id, school_id=school_id)}}">Details</a>
+                            </td>
+                            <td><a href="{{url_for('jobApplications', job_id=jobRow.job_id)}}" class="btn green">See
+                                Applications</a></td>
+                            <td>
+                              {{jobRow.event_category}}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                      {%else%}
+                      <h3 class="grey-text">No jobs posted yet</h3>
+                      <h5>Please click on 'Post Job' button to get started</h5>
+                      {%endif%}
+                    </div>
+                  </div>
+                </div>
+                
+              <div class="box-footer text-right">
+                  <a href="{{url_for('postJob')}}" class="uppercase">Post Job</a>
+                </div>
               </div>
 
-              <div id='graphDiv' style="overflow: auto;top:-30px;"></div>
-              <div class="box-footer text-right">
-                <a href="{{url_for('classPerformance')}}" class="uppercase">See Class Performance</a>
-              </div>
             </section>
           </div>
           <div class="row">
             <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
-              <div class="box box-danger">
+              <div class="box box-info">
                 <div style="overflow-y:auto;height:300px">
                   <div class="box-header with-border">
                     <p class="text-center">
@@ -61,7 +127,7 @@
             </section>
             <section class="col-lg-5 connectedSortable">
 
-              <div class="box box-danger" style="overflow-y:auto;height:300px">
+              <div class="box box-info" style="overflow-y:auto;">
                 <div class="box-header with-border">
                   <h3 class="box-title">Top Students Last Month</h3>
                 </div>
@@ -72,24 +138,29 @@
                     {% for student in topStudentsRows%}
                     <li>
                       <img src="{{student.profile_picture}}" alt="User Image">
-                      <span class="users-list-name" >{{student.class}}{{student.section}}-{{student.student_name}}</span>                      
-                    </li>                   
+                      <span class="users-list-name">{{student.class}}{{student.section}}-{{student.student_name}}</span>
+                    </li>
                     {%endfor%}
                   </ul>
                   {%else%}
-                  <h3 class="grey-text">No performance data</h3>                  
+                  <h3 class="grey-text">No performance data</h3>
                   {%endif%}
                 </div>
-              </div>
+              
               <div class="box-footer text-right">
                 <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
               </div>
+            </div>
               <!-- /.box -->
             </section>
           </div>
           <div class="row">
             <!-- right col -->
           </div>
+          <!--Job Post Details-->
+
+
+          <!--End of job post details-->
           <div class="row">
             <section class="col-lg-12 connectedSortable">
 
@@ -101,7 +172,7 @@
                 <div class="box-body">
                   <div>
                     <div class="table-responsive" style="overflow: auto;height:300px;">
-                        {%if EventDetailRows | length!=0%}
+                      {%if EventDetailRows | length!=0%}
                       <table class="table no-margin">
                         <thead>
                           <tr>
@@ -112,8 +183,8 @@
                             <th>End Date</th>
                             <th>Category</th>
                           </tr>
-                        </thead>                        
-                        <tbody>                          
+                        </thead>
+                        <tbody>
                           {% for eventRow in EventDetailRows %}
                           <tr>
                             <td>{{eventRow.event_date}}</td>
@@ -124,14 +195,14 @@
                             <td>
                               {{eventRow.event_category}}
                             </td>
-                          </tr>                        
+                          </tr>
                           {% endfor %}
                         </tbody>
                       </table>
-                          {%else%}
-                          <h3 class="grey-text">No events added yet</h3>
-                          <h5>Please click on 'Add Event' button to update event details</h5>
-                          {%endif%}                                              
+                      {%else%}
+                      <h3 class="grey-text">No events added yet</h3>
+                      <h5>Please click on 'Add Event' button to update event details</h5>
+                      {%endif%}
                     </div>
                   </div>
                 </div>
@@ -149,27 +220,28 @@
 </div>
 <script>
   var graphData = {{graphJSON | safe}};
-  if (graphData=="1"){
-    $('#graphDiv').html('<h3 class="grey-text">No performance data</h3>')
+  if (graphData == "1") {
+    $('#graphDiv').html(
+      '<h3 class="grey-text">No performance data yet</h3><h5> The graph will load once performance data has been entered through Result Upload or Class modules</h5>'
+      )
+  } else {
+    for (key in graphData) {
+      value1 = graphData[key].data1[0];
+      value2 = graphData[key].data2[0];
+      value3 = graphData[key].data3[0];
+      value4 = graphData[key].data4[0];
+      value5 = graphData[key].data5[0];
+      value6 = graphData[key].data6[0];
+      value7 = graphData[key].data7[0];
+      value8 = graphData[key].data8[0];
+      value9 = graphData[key].data9[0];
+      value10 = graphData[key].data10[0];
+    }
+    var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
+    Plotly.newPlot('graphDiv', data, {}, {
+      showlegend: true,
+      displayModeBar: false
+    });
   }
-  else{
-  for (key in graphData) {
-    value1 = graphData[key].data1[0];
-    value2 = graphData[key].data2[0];
-    value3 = graphData[key].data3[0];
-    value4 = graphData[key].data4[0];
-    value5 = graphData[key].data5[0];
-    value6 = graphData[key].data6[0];
-    value7 = graphData[key].data7[0];
-    value8 = graphData[key].data8[0];
-    value9 = graphData[key].data9[0];
-    value10 = graphData[key].data10[0];
-  }
-  var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
-  Plotly.newPlot('graphDiv', data, {}, {
-    showlegend: true,
-    displayModeBar: false
-  });
-}
 </script>
 {%endblock%}
