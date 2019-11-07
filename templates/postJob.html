@@ -13,7 +13,7 @@
                     {{ form.category(class="form-control form-control-lg is-invalid" ) }}
                     <div class="invalid-feedback">
                         {% for error in form.category.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -29,7 +29,7 @@
                     {{form.description(rows='50', cols='100', placeholder="Tasks, expectations and other details")}}
                     <div class="invalid-feedback">
                         {% for error in form.description.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -45,7 +45,7 @@
                     {{ form.min_pay(class="form-control form-control-lg is-invalid",placeholder="Eg.₹7000") }}
                     <div class="invalid-feedback">
                         {% for error in form.min_pay.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -59,7 +59,7 @@
                     {{ form.max_pay(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
                         {% for error in form.max_pay.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -75,7 +75,7 @@
                     {{ form.start_date(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
                         {% for error in form.start_date.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -90,7 +90,7 @@
                     {{ form.timings(class="form-control form-control-lg is-invalid",placeholder="Eg.12PM to 5PM") }}
                     <div class="invalid-feedback">
                         {% for error in form.timings.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -106,7 +106,7 @@
                     {{ form.subject(class="form-control form-control-lg is-invalid",placeholder="Eg.English and Math") }}
                     <div class="invalid-feedback">
                         {% for error in form.subject.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -120,7 +120,7 @@
                     {{ form.classes(class="form-control form-control-lg is-invalid",placeholder="Eg.8 and 9") }}
                     <div class="invalid-feedback">
                         {% for error in form.classes.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -135,7 +135,7 @@
                     {{ form.language(class="form-control form-control-lg is-invalid",placeholder="Eg.Any or English") }}
                     <div class="invalid-feedback">
                         {% for error in form.language.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -149,7 +149,7 @@
                         {{ form.num_of_openings(class="form-control form-control-lg is-invalid",placeholder="Eg.3") }}
                         <div class="invalid-feedback">
                             {% for error in form.num_of_openings.errors %}
-                            <span>{{ error }}</span>
+                            <span class='red-text'>{{ error }}</span>
                             {% endfor %}
                         </div>
                         {% else %}
@@ -165,7 +165,7 @@
                     {{ form.stay(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
                         {% for error in form.stay.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -179,7 +179,7 @@
                     {{ form.food(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
                         {% for error in form.food.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -193,7 +193,7 @@
                         {{ form.job_type(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.job_type.errors %}
-                            <span>{{ error }}</span>
+                            <span class='red-text'>{{ error }}</span>
                             {% endfor %}
                         </div>
                         {% else %}
@@ -208,7 +208,7 @@
                     {{ form.term(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
                         {% for error in form.term.errors %}
-                        <span>{{ error }}</span>
+                        <span class='red-text'>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
