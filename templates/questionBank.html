@@ -97,6 +97,8 @@
     </div>
 </div>
 <script type="text/javascript">
+
+
     var count_marks = 0;
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
@@ -114,6 +116,8 @@
         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
         chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
     });
+
+    
     
     class_select.onchange = function()  {
         class_val = class_select.value;
@@ -270,9 +274,7 @@
         $("#marks").text(count_marks);
     }
 }
-    //for (i = 0; i < 20; i++) {
-    //$('#topiclist').append('<input type="radio" name="radio_name" />');
-//}     
+
 </script>
 
 {%endblock%}
