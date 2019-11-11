@@ -1188,7 +1188,7 @@ def syllabus():
 def syllabusClasses():
     board_id=request.args.get('board_id')
     classArray = []
-    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+board_id+"' order by class_val ")).fetchall()
+    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+str(board_id)+"' order by class_val ")).fetchall()
     for val in distinctClasses:
         print(val.class_val)
         classArray.append(val.class_val)
@@ -1208,6 +1208,15 @@ def syllabusSubjects():
         print(val.description)
         sujectArray.append(str(val.subject_id)+":"+str(val.description))
     return jsonify([sujectArray])    
+
+@app.route('/addSubject')
+@login_required
+def addSubject():
+    subjectVal = request.args.get('subjectVal')
+    board_id=request.args.get('board_id')
+    class_val=request.args.get('class_val')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    insertSubject = db.session.execute(text("insert into class_section()"))
 
 
 @app.route('/syllabusBooks')
@@ -1244,6 +1253,7 @@ def syllabusChapters():
     return jsonify([chapterArray]) 
 
 
+
 @app.route('/syllabusTopics')
 @login_required
 def syllabusTopics():
@@ -1254,11 +1264,12 @@ def syllabusTopics():
     class_val = request.args.get('class_val')
 
     distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+subject_id+"' and board_id='"+board_id+"' and chapter_num='"+chapter_num+"' and chapter_name='"+chapter_name+"' and class_val='"+class_val+"'"
+    print('Fetch Topics:'+str(distinctTopicQuery))
     distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
     topicArray=[]
     for val in distinctTopics:
         print(val.topic_id)
-        topicArray.append(val.topic_id+":"+val.topic_name)
+        topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
     return jsonify([topicArray]) 
 
 
