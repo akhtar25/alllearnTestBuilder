@@ -2614,7 +2614,7 @@ def resultUpload():
     #selectfield choices list
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    print('Section:'+qsection)
+    print('Section:'+str(qsection))
 
     user = User.query.filter_by(username=current_user.username).first_or_404()    
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
