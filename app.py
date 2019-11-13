@@ -2608,6 +2608,7 @@ def classPerformance():
     return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id)
 
 
+
 @app.route('/resultUpload',methods=['POST','GET'])
 @login_required
 def resultUpload():
