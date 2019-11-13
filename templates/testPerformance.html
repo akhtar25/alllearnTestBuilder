@@ -642,6 +642,7 @@
       type: "get",
       data: "",
       success: function (response) {
+        
         for (var result of response.result) {
           $('#avg_score').html(result.avg_score + '%');
           $('#highest_mark').html(result.highest_mark + '%');
@@ -813,6 +814,7 @@
       type: "get",
       data: "",
       success: function (response) {
+        console.log('Response in Performance summary for change in class :'+jQuery.isEmptyObject({response}));
         for (var result of response.result) {
           $('#avg_score').html(result.avg_score + '%');
           $('#highest_mark').html(result.highest_mark + '%');
@@ -928,6 +930,7 @@
       type: "get",
       data: "",
       success: function (response) {
+        console.log('Response in Performance summary for change in Subject :'+jQuery.isEmptyObject({response}));
         for (var result of response.result) {
 
           $('#avg_score').html(result.avg_score + '%');
@@ -983,6 +986,8 @@
       type: "get",
       data: "",
       success: function (response) {
+        console.log('Response in Performance summary for change in section :'+jQuery.isEmptyObject({response}));
+
         for (var result of response.result) {
 
           $('#avg_score').html(result.avg_score + '%');

@@ -1188,7 +1188,7 @@ def syllabus():
 def syllabusClasses():
     board_id=request.args.get('board_id')
     classArray = []
-    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+board_id+"' order by class_val ")).fetchall()
+    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+str(board_id)+"' order by class_val ")).fetchall()
     for val in distinctClasses:
         print(val.class_val)
         classArray.append(val.class_val)
@@ -1208,6 +1208,15 @@ def syllabusSubjects():
         print(val.description)
         sujectArray.append(str(val.subject_id)+":"+str(val.description))
     return jsonify([sujectArray])    
+
+@app.route('/addSubject')
+@login_required
+def addSubject():
+    subjectVal = request.args.get('subjectVal')
+    board_id=request.args.get('board_id')
+    class_val=request.args.get('class_val')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    insertSubject = db.session.execute(text("insert into class_section()"))
 
 
 @app.route('/syllabusBooks')
@@ -1244,6 +1253,7 @@ def syllabusChapters():
     return jsonify([chapterArray]) 
 
 
+
 @app.route('/syllabusTopics')
 @login_required
 def syllabusTopics():
@@ -1254,11 +1264,12 @@ def syllabusTopics():
     class_val = request.args.get('class_val')
 
     distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+subject_id+"' and board_id='"+board_id+"' and chapter_num='"+chapter_num+"' and chapter_name='"+chapter_name+"' and class_val='"+class_val+"'"
+    print('Fetch Topics:'+str(distinctTopicQuery))
     distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
     topicArray=[]
     for val in distinctTopics:
         print(val.topic_id)
-        topicArray.append(val.topic_id+":"+val.topic_name)
+        topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
     return jsonify([topicArray]) 
 
 
@@ -1389,7 +1400,8 @@ def testBuilderQuestions():
     questions=[]
     topicList=request.get_json()
     for topic in topicList:
-        questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
+        # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
+        questionList = QuestionDetails.query.filter_by(topic_id = int(topic),archive_status='N').all()
         questions.append(questionList)
     if len(questionList)==0:
         print('returning 1')
@@ -1461,7 +1473,7 @@ def testBuilderFileUpload():
 def testPapers():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).join(MessageDetails,MessageDetails.msg_id==TestDetails.subject_id).all()
-    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).all()
+    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_test,TestDetails.date_of_creation).all()
     subjectNames=MessageDetails.query.filter_by(category='Subject')
     #for val in testPaperData:
     #    for row in val.message_detail:
@@ -2829,7 +2841,7 @@ def uploadHistoryDetail():
     resultDetailQuery = "select distinct sp.full_name, sp.profile_picture, ru.total_marks, ru.marks_scored as marks_scored, md.description as test_type, ru.exam_date,cs.class_val, cs.section, ru.question_paper_ref "
     resultDetailQuery = resultDetailQuery + "from result_upload ru inner join student_profile sp on sp.student_id=ru.student_id "
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
-    resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id order by marks_scored" 
+    resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id order by marks_scored desc" 
     resultUploadRows = db.session.execute(text(resultDetailQuery)).fetchall()
 
     runcount=0
