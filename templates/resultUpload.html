@@ -264,6 +264,18 @@
                         $('#uploadBtn').hide();  
                 }
         });
+        var a = '#test_id'+num;
+        var b = 'test_id'+num;
+        $('#test_id1').change(function(){
+          console.log('Num:'+num);
+          var testId = document.getElementById('test_id1').value;
+          var c = '#uploadBtn'+num;
+                if(testId==''){
+                        $('#uploadBtn1').show();
+                }else{
+                        $('#uploadBtn1').hide();  
+                }
+        });
 
 
         $('#upload').click(function(){
