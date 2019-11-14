@@ -2609,12 +2609,14 @@ def classPerformance():
     return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id)
 
 
+
 @app.route('/resultUpload',methods=['POST','GET'])
 @login_required
 def resultUpload():
     #selectfield choices list
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
+    print('Section:'+str(qsection))
 
     user = User.query.filter_by(username=current_user.username).first_or_404()    
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
@@ -2643,12 +2645,18 @@ def resultUpload():
     subject_name = []
     if current_user.is_authenticated:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        class_sec_id=ClassSection.query.filter_by(class_val=int(qclass_val),school_id=teacher_id.school_id).first()
-        print(class_sec_id.class_sec_id)
+        print('Class value:'+str(qclass_val))
+        print('school_id:'+str(teacher_id.school_id))
+        class_sec_id=ClassSection.query.filter_by(class_val=int(qclass_val),school_id=teacher_id.school_id,section=qsection).all()
+        
         print(teacher_id.school_id)
         class_value = int(qclass_val)
         print('Class Value:'+str(class_value))
-        student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
+        for section in class_sec_id:
+            print('Section Id:'+str(section.class_sec_id))
+        student_list = []
+        for section in class_sec_id:
+            student_list = StudentProfile.query.filter_by(class_sec_id=section.class_sec_id,school_id=teacher_id.school_id).all()
         queryForSubjectName = "select description,msg_id from message_detail where msg_id in (select distinct subject_id from topic_detail where class_val='"+ str(class_value) +"' and board_id='"+ str(board_id[0]) +"')"
         subject_name = db.session.execute(queryForSubjectName).fetchall()
         print('No of Subjects:'+str(len(subject_name)))
@@ -2673,6 +2681,7 @@ def section(class_val):
         return jsonify({'sections' : sectionArray})
     else:
         return "return"
+
 
 
 @app.route('/fetchStudentsName')
