@@ -32,7 +32,7 @@ import pandas as pd
 import numpy as np
 import plotly
 import pprint
-from miscFunctions import subjects,topics,subjectPerformance,signs3Folder
+from miscFunctions import subjects,topics,subjectPerformance,signs3Folder,chapters
 from docx import Document
 from docx.shared import Inches
 from urllib.request import urlopen,Request
@@ -1302,8 +1302,9 @@ def questionBank():
     form=QuestionBankQueryForm()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= [(str(i.chapter_num),str(i.chapter_name)+" - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().order_by(Topic.chapter_num).all()]
-    form.chapter_num.choices= [(str(i.chapter_num),str(i.chapter_name)+" - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().order_by(Topic.chapter_num).all()]
+    # form.subject_name.choices= ''
+    form.chapter_num.choices= ''
+    # [(str(i.chapter_num),"Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).filter_by().all()]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
@@ -1313,6 +1314,8 @@ def questionBank():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        # print('class:'+int(form.class_val.data)+' subject Id:'+int(form.subject_name.data))
+        # form.chapter_num.choices= [(str(i['chapter_num']),str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
         return render_template('questionBank.html',form=form,topics=topic_list)
     return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck())
 
@@ -1984,7 +1987,7 @@ def contentManager():
     form=QuestionBankQueryForm() # resusing form used in question bank 
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
-    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num,Topic).distinct().order_by(Topic.chapter_num).all()]
+    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
@@ -3019,6 +3022,11 @@ def uploadMarks():
     test_type = request.args.get('test_type')
     marks = marks.split(",")
     count = 0
+    now = datetime.now()
+ 
+    print("now =", now)
+
+    dt_string = now.strftime("%d/%m/%Y/%H:%M:%S")
     num = 1
     list_id = []
     for student_id in student_list:
@@ -3030,7 +3038,7 @@ def uploadMarks():
         else:
             is_present=MessageDetails.query.filter_by(description='Present').first()
         #print('Marks:'+marksSubjectWise)
-        upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + str(testdate)
+        upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + dt_string
         upload_id=upload_id.replace('-','')
         if testId=='':
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
