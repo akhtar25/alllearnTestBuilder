@@ -1293,18 +1293,15 @@ def grantUserAccess():
 
 
 
-
 @app.route('/questionBank',methods=['POST','GET'])
 @login_required
 def questionBank():
     topic_list=None
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form=QuestionBankQueryForm()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    # form.subject_name.choices= ''
+    form.subject_name.choices= ''
     form.chapter_num.choices= ''
-    # [(str(i.chapter_num),"Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).filter_by().all()]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
@@ -1314,8 +1311,7 @@ def questionBank():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        # print('class:'+int(form.class_val.data)+' subject Id:'+int(form.subject_name.data))
-        # form.chapter_num.choices= [(str(i['chapter_num']),str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
+        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
         return render_template('questionBank.html',form=form,topics=topic_list)
     return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck())
 
@@ -1987,7 +1983,7 @@ def contentManager():
     form=QuestionBankQueryForm() # resusing form used in question bank 
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
-    form.chapter_num.choices= [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    form.chapter_num.choices= ''
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
@@ -1997,6 +1993,7 @@ def contentManager():
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
         return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list)
     return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent)
 

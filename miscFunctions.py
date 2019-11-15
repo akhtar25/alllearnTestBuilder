@@ -51,11 +51,12 @@ def subjects(class_val):
 def chapters(class_val,subject_id):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    chapter_id = Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().filter_by(class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+    chapter_id = Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().filter_by(class_val=class_val,subject_id=subject_id,board_id=board_id).order_by(Topic.chapter_num).all()
+    print('Class value:'+str(class_val)+' Subject ID:'+str(subject_id))
     chapterArray = []
     for ids in  chapter_id:
         chapterObj = {}
-        print('Chapter Num:'+ids.chapter_num+' Chapter Name:'+ids.chapter_name)
+        print('Chapter Num:'+str(ids.chapter_num)+' Chapter Name:'+str(ids.chapter_name))
         chapterObj['chapter_num'] = ids.chapter_num
         chapterObj['chapter_name'] = ids.chapter_name
         chapterArray.append(chapterObj)
