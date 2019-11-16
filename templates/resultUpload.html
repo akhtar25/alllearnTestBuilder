@@ -264,6 +264,18 @@
                         $('#uploadBtn').hide();  
                 }
         });
+        var a = '#test_id'+num;
+        var b = 'test_id'+num;
+        $('#test_id1').change(function(){
+          console.log('Num:'+num);
+          var testId = document.getElementById('test_id1').value;
+          var c = '#uploadBtn'+num;
+                if(testId==''){
+                        $('#uploadBtn1').show();
+                }else{
+                        $('#uploadBtn1').hide();  
+                }
+        });
 
 
         $('#upload').click(function(){
@@ -440,7 +452,7 @@
           }
           else{
             window.alert("this is where the problem is");
-            alert('Could not upload file.');
+            
           }
         }
       };
@@ -461,6 +473,7 @@
     function getSignedRequest(file){
         console.log('Inside getSignedURL');
       const xhr = new XMLHttpRequest();
+      console.log('File Name:'+file.name+' File Type:'+file.type)
       xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=test_papers/nonTestBuilder`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){

@@ -98,8 +98,7 @@
 </div>
 <script type="text/javascript">
 
-
-    var count_marks = 0;
+var count_marks = 0;
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
     var chapter_num_select = document.getElementById("chapno");
@@ -116,8 +115,6 @@
         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
         chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
     });
-
-    
     
     class_select.onchange = function()  {
         class_val = class_select.value;
@@ -136,6 +133,7 @@
              })
              
          });
+         
      }
     
      
@@ -150,14 +148,24 @@
                 var optionHTML = '';
                 optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
                 for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num + ' - ' +chapterNo.chapter_name + '</option>';
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
                   }
                   chapter_num_select.innerHTML =  optionHTML;
             })
         });
      }
 
-        $('#topic').click(function(){
+     $(document).ready(function(){      
+        var optionHTMLChapter='';
+        classValue = document.getElementById('classVal').value;
+        if(classValue=='na'){
+            var val = 'na';
+            optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        chapter_num_select.innerHTML = optionHTMLChapter;
+        }
+     });
+
+     $('#topic').click(function(){
             classValue = document.getElementById('classVal').value;
             subjectValue = document.getElementById('subId').value;
             chapterValue = document.getElementById('chapno').value;
@@ -186,7 +194,6 @@
             }
             
         });
-
      
 
 
@@ -276,5 +283,6 @@
 }
 
 </script>
+
 
 {%endblock%}
