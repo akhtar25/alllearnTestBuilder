@@ -1,6 +1,7 @@
 {%extends "layout.html"%}
 {%block content%}
-<div class="container">
+{%if not qstudent_id %}
+<div class="container">    
     <h3>Student Directory</h3>
     <div id="studentProfileDiv">
         <!--This is the start of student performance input form-->
@@ -74,24 +75,6 @@
     </div>
 </div>
 <!--Student level graph loader-->
-<script>
-    // $('#loadStudentProfBTN').click(function(){                    
-    //     var data="";
-    //     var student_id = $('#student_name1').val();   
-    //     $.ajax({
-    //         url: "/indivStudentProfile?student_id="+student_id ,
-    //         type: "get",
-    //         data: data,
-    //         success: function(response) {                            
-    //             $("#studentProfileData").html(response);                     
-    //         },
-    //         error: function(xhr) {
-    //             window.alert("error occurred while submitting data");
-    //         }
-    //     });              
-    // });
-</script>
-
 <!--Section for Student level form - dynamic-->
 
 <script>        
@@ -200,4 +183,26 @@
         });
     });
 </script>
+{%else%}
+<div class='container'>    
+        <div class="row">
+                <div id="studentProfileData"></div>
+            </div>
+</div>
+    <script>
+  $('#loadStudentProfBTN').click(function () {
+      $.ajax({
+        url: "/indivStudentProfile?student_id=" + {{qstudent_id}},
+        type: "get",
+        data: data,
+        success: function (response) {
+          $("#studentProfileData").html(response);
+        },
+        error: function (xhr) {
+          window.alert("error occurred while submitting data");
+        }
+      });  
+  });
+</script>
+{%endif%}
 {%endblock%}
