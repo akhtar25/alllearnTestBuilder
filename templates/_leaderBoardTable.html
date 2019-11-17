@@ -17,9 +17,13 @@
           {% for eachRow in leaderBoardData%}
           <tr style="margin-top:5px;">
                 {% if profile_pic %}
-                <td style="width:250px;"><img src="{{ profile_pic }}" height="50" width="50"> {{eachRow.student_name}}</td>    
+                <td style="width:250px;"><img src="{{ profile_pic }}" height="50" width="50"> 
+                  <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
+                </td>    
                 {% else %} 
-                <td style="width:250px;"><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"> {{eachRow.student_name}}</td>    
+                <td style="width:250px;"><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"> 
+                  <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
+                </td>    
                 {% endif %}                 
             <td>{{eachRow.class}}</td>
             <td>{{eachRow.section}}</td>
