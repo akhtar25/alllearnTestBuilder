@@ -97,7 +97,8 @@
     </div>
 </div>
 <script type="text/javascript">
-    var count_marks = 0;
+
+var count_marks = 0;
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
     var chapter_num_select = document.getElementById("chapno");
@@ -132,6 +133,7 @@
              })
              
          });
+         
      }
     
      
@@ -146,14 +148,24 @@
                 var optionHTML = '';
                 optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
                 for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num + ' - ' +chapterNo.chapter_name + '</option>';
+                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
                   }
                   chapter_num_select.innerHTML =  optionHTML;
             })
         });
      }
 
-        $('#topic').click(function(){
+     $(document).ready(function(){      
+        var optionHTMLChapter='';
+        classValue = document.getElementById('classVal').value;
+        if(classValue=='na'){
+            var val = 'na';
+            optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+        chapter_num_select.innerHTML = optionHTMLChapter;
+        }
+     });
+
+     $('#topic').click(function(){
             classValue = document.getElementById('classVal').value;
             subjectValue = document.getElementById('subId').value;
             chapterValue = document.getElementById('chapno').value;
@@ -182,7 +194,6 @@
             }
             
         });
-
      
 
 
@@ -270,9 +281,8 @@
         $("#marks").text(count_marks);
     }
 }
-    //for (i = 0; i < 20; i++) {
-    //$('#topiclist').append('<input type="radio" name="radio_name" />');
-//}     
+
 </script>
+
 
 {%endblock%}
