@@ -1,61 +1,151 @@
 <div class="row">
-        <div class="col s8 offset-s2" style="background: whitesmoke">    
-        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>Student Details</h3></div>        
-        
-           <div class="col s4 m4 l4 center" >
-               {%if studentProfileRow.profile_picture!="" %}
+    <div class="col s8 offset-s2">
+        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+            <h3>Student Details</h3>
+        </div>
+
+        <div class="col s4 m4 l4 center">
+            {%if studentProfileRow.profile_picture!="" %}
             <img class="responsive-img " src="{{studentProfileRow.profile_picture}}">
             {%else%}
-            <img class="responsive-img " src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+            <img class="responsive-img "
+                src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
             {%endif%}
             <h4 style="font-weight: bold;">{{studentProfileRow.full_name}}</h4>
             <h4>Class {{studentProfileRow.class_val}} - {{studentProfileRow.section}}</h4>
+            <br><br>
+            <table class='responsive-table'>
+                <tr>
+                    <td><b>Email</b> </td>
+                    <td>{{studentProfileRow.email}}</td>
+                </tr>
+                <tr>
+                    <td><b>Phone</b> </td>
+                    <td>{{studentProfileRow.phone}}</td>
+                </tr>
+                <tr>
+                    <td><b>Date of Birth</b> </td>
+                    <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
+                </tr>
+                {% if studentProfileRow.dob == '16'%}
+                <tr>
+                    <td><b>Gender</b> </td>
+                    <td>Male</td>
+                </tr>
+                {%else%}
+                <tr>
+                    <td><b>Gender</b> </td>
+                    <td>Female</td>
+                </tr>
+                {%endif%}
+
+                <tr>
+                    <td><b>Roll Number</b></td>
+                    <td> {{studentProfileRow.roll_number}}</td>
+                </tr>
+                <tr>
+                    <td><b>Admission Number</b></td>
+                    <td> {{studentProfileRow.school_adm_number}}</td>
+                </tr>
+            </table>
         </div>
-        
-            <div class="col s4 m4 l6">
-                
-            <h4><b>Email:</b> {{studentProfileRow.email}}</h4>
-            <h4><b>Phone:</b> {{studentProfileRow.phone}}</h4>
-            <h4><b>Date of Birth:</b> {{studentProfileRow.dob}}</h4>
-            <h4><b>{% if studentProfileRow.dob == '16'%}</h4>
-            <h4><b>Gender:</b> Male</h4>
-            <h4><b>{%else%}</h4>
-            <h4><b>Gender:</b> Female</h4>
-            <h4><b>{%endif%}</h4>
-          
-            <h4>Roll Number:</b> {{studentProfileRow.roll_number}}</h4>
-            <h4>Admission Number:</b> {{studentProfileRow.school_adm_number}}</h4>
-        
+        <div class="col s4 m4 l6">
+            <div id="performanceDiv">
+                <table class='responsive-table'>
+                    <td>
+                        <h4>Overall Performance Average</h4>
+                    </td>
+                    <td>
+                        {%if overallPerfValue > 49 %}
+                        <h3 class='green-text'>{{overallPerfValue}}%  </h3> ({{testCount.testcountval}} tests)
+                        {%else%}
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> ({{testCount.testcountval}} tests)
+                        {%endif%}
+                    </td>
+                </table>
+                <br>            
+                <h4 class='grey-text'>Subject Level Performance</h4>
+                <table class='responsive-table' style='font-size: 18px;'>
+                    <thead>
+                        {%for rows in perfRows%}
+                        <th>{{rows.subject}}</th>
+                        {%endfor%}
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {%for rows in perfRows%}
+                            {%if rows.student_score > 49%}
+                            <td class='green-text'>{{rows.student_score}}</td>
+                            {%else%}
+                            <td class='red-text'>{{rows.student_score}}</td>
+                            {%endif%}
+                            {%endfor%}
+                        </tr>                       
+                    </tbody>
+                </table>
+
+            </div>            
+            <br>
             {% if guardianRows | length != 0 %}
-            <h4><u>Guardian Details</u> </h4>
+            <h4 class='grey-text'>Parent/Guardian Details</h4>
             {%endif%}
-            {% for guardian in guardianRows %}
-            <h4 style="font-weight: bold;">{{guardian.first_name}} {{guardian.last_name}} </h4>
-            {% if guardian.relation==44 %}
-            <h4><b>Relation:</b> Father</h4>
-            {%elif guardian.relation==45%}
-            <h4><b>Relation:</b> Mother</h4>
-            {%else%}
-            <h4><b>Relation:</b> Other</h4>
-            {%endif%}
-            <h4><b>Phone:</b> {{guardian.phone}}</h4>
-            {%endfor%}
-
-        {%if qrArray  | length != 0 %}                                    
-            <h4><u>QR Codes for feedback sessions</u></h4>
-            <p>Please print the qr codes in full size on A4 sheets </p>
+            <table class='responsive-table'>
+                {% for guardian in guardianRows %}
+                <tr>
+                    <td> <b>{{guardian.first_name}} {{guardian.last_name}}</b></td>
+                </tr>
+                <tr>
+                    <td> Relation</td>
+                    {% if guardian.relation==44 %}
+                    <td> Father</td>
+                    {%elif guardian.relation==45%}
+                    <td> Mother</td>
+                    {%else%}
+                    <td> Other</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td>{{guardian.phone}}</td>
+                </tr>
+                {%endfor%}
+            </table>
+            <br>
+            {%if qrArray  | length != 0 %}
+            <h4 class='grey-text'>QR Codes for feedback sessions</h4>
+            <p><i>Please print the qr codes in full size on A4 sheets </i></p>
             <ul>
-            {% for qrRow in qrArray%}
-            <li>
-            <a href="{{qrRow}}" target="_blank">Option: {{ qrRow[-1] }}</a>
-        </li>
-            {%endfor%}
-        </ul>        
-        
-        {%endif%}
-        
-
+                {% for qrRow in qrArray%}
+                <li>
+                    <a href="{{qrRow}}" target="_blank">Option: {{ qrRow[-1] }}</a>
+                </li>
+                {%endfor%}
+            </ul>
+            {%endif%}
         </div>
-    </div>            
     </div>
+    
+    <div class="col s8 offset-s2">
+            <div class="divider"></div>
+        <h4 class='grey-text'>Overall Performance Graph</h4>
+    <div id='studentPerformanceGraphDiv'> Loading graph...</div>
 </div>
+</div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    $(document).ready(function () {        
+        var data = "";
+        $.ajax({
+            url: "/studentPerformanceGraph?student_id=" + {{student_id}},
+            type: "get",
+            data: data,
+            success: function (response) {                
+                $("#studentPerformanceGraphDiv").show();
+                $("#studentPerformanceGraphDiv").html(response);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching graph");
+            }
+        });
+    });
+</script>

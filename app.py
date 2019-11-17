@@ -2506,13 +2506,11 @@ def studentPerformanceGraph():
       
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-    print('Class:'+class_val+'section:'+section)
+    
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
-    student_id=request.args.get('student_id')
-    print('Test_type_id:'+test_type+'Student_id:'+student_id)
-    #print('here is the class_val '+ str(class_val))
+    student_id=request.args.get('student_id')        
     dateVal = request.args.get('date')
     
     if dateVal ==None or dateVal=="":
@@ -2520,31 +2518,28 @@ def studentPerformanceGraph():
     
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     fromTestPerformance=0
-    if class_val!='All' and section!='All':
-        fromTestPerformance=1
-        classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
-    elif class_val=='All' and section!='All':
-        classSectionRows=ClassSection.query.filter_by(section=section, school_id=teacher.school_id).first()
-    elif class_val!='All' and section=='All':
-        classSectionRows=ClassSection.query.filter_by(class_val=int(class_val), school_id=teacher.school_id).first()
-    else:
-        classSectionRows=ClassSection.query.filter_by(school_id=teacher.school_id).first()
 
-    
-    #testPerformanceRecords = db.session.query(StudentProfile.full_name,PerformanceDetail.student_score,
-    #    MessageDetails.description)).join(StudentProfile).join(MessageDetails, MessageDetails.msg_id==PerformanceDetail.subject_id).filter_by(class_sec_id=classSectionRows.class_sec_id, date=dateVal,test_type=test_type).all()
-    
+    #if class_val!='All' and section!='All':
+    #    fromTestPerformance=1
+    #    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val),section=section, school_id=teacher.school_id).first()
+    #elif class_val=='All' and section!='All':
+    #    classSectionRows=ClassSection.query.filter_by(section=section, school_id=teacher.school_id).first()
+    #elif class_val!='All' and section=='All':
+    #    classSectionRows=ClassSection.query.filter_by(class_val=int(class_val), school_id=teacher.school_id).first()
+    #else:
+    #    classSectionRows=ClassSection.query.filter_by(school_id=teacher.school_id).first()
+          
     studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
     studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
     studPerformanceQuery = studPerformanceQuery + "inner join "
     studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
     studPerformanceQuery = studPerformanceQuery + "and "
-    if fromTestPerformance==1:
-        studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "
-        studPerformanceQuery = studPerformanceQuery + "and "
-    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' "
-    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "' order by date"  
-
+    #if fromTestPerformance==1:
+    #    print("We are in the wrong spot")
+    #    studPerformanceQuery = studPerformanceQuery + "pd.class_sec_id='"+str(classSectionRows.class_sec_id) +"' "        
+    #    studPerformanceQuery = studPerformanceQuery + "and test_type='"+ str(test_type)+ "' and "
+    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"
+    
 
     studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
         
@@ -2557,24 +2552,19 @@ def studentPerformanceGraph():
         subject= list(df['subject'])
 
         distinct_subjects= df['subject'].unique()
-        ##print(dateRange)
-        ###Class 1
-        #print(distinct_subjects)
         subLevelData=[]
         i=0
         for subVal in distinct_subjects:
             filtered_df=df[df.subject==subVal]
             filtered_df_date = list(filtered_df['date'])
             filtered_df_student_scored = list(filtered_df['student_score'])
-            #subLevelData.append(data=[dict(y=filtered_df_student,x=filtered_df_student_scored,type='bar', name=subVal,orientation='h')])
             tempDict = dict(y=filtered_df_student_scored,x=filtered_df_date,mode= 'lines+markers',type='scatter',name=subVal,line_shape="spline", smoothing= '1.5')
             subLevelData.append(tempDict)
         print(str(subLevelData))
 
         graphData=[dict()]
 
-        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)
-        #return str(graphJSON)
+        graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)        
         return render_template('_studentPerformanceGraph.html',graphJSON=graphJSON)
     else:
         return jsonify(['No records found for the selected values'])
@@ -3243,6 +3233,25 @@ def indivStudentProfile():
     studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()    
 
+    #performanceData
+    performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"
+    #overallPerfAverage = "SELECT ROUND(AVG(student_score) ,2) from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"
+
+    perfRows = db.session.execute(text(performanceQuery)).fetchall()
+    
+    testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(student_id)+ "'"
+
+    testCount = db.session.execute(text(testCountQuery)).first()
+
+    overallSum = 0
+    overallPerfValue = 0
+
+    for rows in perfRows:
+        overallSum = overallSum + int(rows.student_score)
+        print(overallSum)
+
+    overallPerfValue = round(overallSum/(len(perfRows)),2)    
+    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
 
@@ -3257,39 +3266,44 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
-    #print("reached indiv student ")
-    #print(studentProfileRow)
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray)
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount)
 
 
 @app.route('/studentProfile')
 @login_required
 def studentProfile():    
-    form=studentPerformanceForm()
-    user = User.query.filter_by(username=current_user.username).first_or_404()        
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    qstudent_id=request.args.get('student_id')
+
+    if qstudent_id==None or qstudent_id=='':
+        form=studentPerformanceForm()
+        user = User.query.filter_by(username=current_user.username).first_or_404()        
+        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+
+        available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+        available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+        available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+
+
+        class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
+        section_list=[(i.section,i.section) for i in available_section]    
+        test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+        student_list=[(i.student_id,i.full_name) for i in available_student_list]
+
+        #selectfield choices
+        form.class_val1.choices = class_list
+        form.section1.choices= ''
+        # section_list    
+        form.test_type1.choices=test_type_list
+        form.student_name1.choices = ''
+        print('we are in the form one')
+        return render_template('studentProfileNew.html',form=form)
+    else:
+        print(qstudent_id)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id)
+
+
     
-    available_class=ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
-    available_test_type=MessageDetails.query.filter_by(category='Test type').all()
-    available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
-
-
-    class_list=[(str(i.class_val), "Class "+str(i.class_val)) for i in available_class]
-    section_list=[(i.section,i.section) for i in available_section]    
-    test_type_list=[(i.msg_id,i.description) for i in available_test_type]
-    student_list=[(i.student_id,i.full_name) for i in available_student_list]
-
-    #selectfield choices
-    form.class_val1.choices = class_list
-    form.section1.choices= ''
-    # section_list    
-    form.test_type1.choices=test_type_list
-    form.student_name1.choices = ''
-    # student_list
-    # create document for downloading QR codes
-
-    return render_template('studentProfileNew.html',form=form)
 
 
 @app.route('/performance')
