@@ -57,13 +57,13 @@
                     </td>
                     <td>
                         {%if overallPerfValue > 49 %}
-                        <h3 class='green-text'>{{overallPerfValue}}%</h3>
+                        <h3 class='green-text'>{{overallPerfValue}}%  </h3> ({{testCount.testcountval}} tests)
                         {%else%}
-                        <h3 class='red-text'>{{overallPerfValue}}%</h3>
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> ({{testCount.testcountval}} tests)
                         {%endif%}
                     </td>
                 </table>
-                <br>
+                <br>            
                 <h4 class='grey-text'>Subject Level Performance</h4>
                 <table class='responsive-table' style='font-size: 18px;'>
                     <thead>
@@ -80,9 +80,10 @@
                             <td class='red-text'>{{rows.student_score}}</td>
                             {%endif%}
                             {%endfor%}
-                        </tr>
+                        </tr>                       
                     </tbody>
                 </table>
+
             </div>            
             <br>
             {% if guardianRows | length != 0 %}

@@ -3238,7 +3238,11 @@ def indivStudentProfile():
     #overallPerfAverage = "SELECT ROUND(AVG(student_score) ,2) from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"
 
     perfRows = db.session.execute(text(performanceQuery)).fetchall()
-    #overallPerfValue = db.session.execute(text(overallPerfAverage)).first()
+    
+    testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(student_id)+ "'"
+
+    testCount = db.session.execute(text(testCountQuery)).first()
+
     overallSum = 0
     overallPerfValue = 0
 
@@ -3246,7 +3250,7 @@ def indivStudentProfile():
         overallSum = overallSum + int(rows.student_score)
         print(overallSum)
 
-    overallPerfValue = overallSum/(len(perfRows))
+    overallPerfValue = round(overallSum/(len(perfRows)),2)    
     
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
@@ -3262,9 +3266,7 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
-    #print("reached indiv student ")
-    #print(studentProfileRow)
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id)
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount)
 
 
 @app.route('/studentProfile')
@@ -3272,7 +3274,7 @@ def indivStudentProfile():
 def studentProfile():    
     qstudent_id=request.args.get('student_id')
 
-    if qstudent_id==None:
+    if qstudent_id==None or qstudent_id=='':
         form=studentPerformanceForm()
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    

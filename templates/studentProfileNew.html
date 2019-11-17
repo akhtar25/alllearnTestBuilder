@@ -190,11 +190,11 @@
             </div>
 </div>
     <script>
-  $('#loadStudentProfBTN').click(function () {
+ $( document ).ready(function() {
       $.ajax({
         url: "/indivStudentProfile?student_id=" + {{qstudent_id}},
         type: "get",
-        data: data,
+        data: '',
         success: function (response) {
           $("#studentProfileData").html(response);
         },
