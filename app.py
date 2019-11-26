@@ -299,6 +299,24 @@ def schoolRegistration():
         return render_template('schoolRegistrationSuccess.html',data=data,school_id=school_id.school_id)
     return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=schoolNameVal())
 
+@app.route('/admin')
+@login_required
+def admin():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    query = "select count(*) from public.user where user_type='161'"
+    query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 10;"
+    count = db.session.execute(text(query)).fetchall()
+    count2 = db.session.execute(text(query2)).fetchall()
+    num = ''
+    num2 = ''
+    for c in count:
+        num = c.count
+    for c2 in count2:
+        num2 = c2.count
+    print('Count'+str(num))
+    print('Count2:'+str(num2))
+    return render_template('admin.html',count=num,number = num2)
+
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
 def classRegistration():
