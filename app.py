@@ -1522,12 +1522,38 @@ def attendance():
 @app.route('/guardianDashboard')
 @login_required
 def guardianDashboard():
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_name = SchoolProfile.query.with_entities(SchoolProfile.school_name).filter_by(school_id=teacher.school_id).first()
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
     student=[]
+    class_va = ''
+    section = ''
+    schoolName = school_name.school_name
+    Subject1 = ''
+    Subject2 = ''
     for g in guardian:
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first() 
+        print('Student_id:'+str(g.student_id))
+        Scores = db.session.execute(text("select *from public.fn_performance_leaderboard("+str(teacher.school_id)+") where student_id='"+str(g.student_id)+"' and subjects='All'")).first() 
+        subjects = db.session.execute(text("select distinct subjects,marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where  student_id="+str(g.student_id)+" and subjects!='All' order by marks desc limit 2")).fetchall()
+        print('Length of list:'+str(len(Scores)))
+        print('Length of Subjects list:'+str(len(subjects)))
+        if len(Scores)==0:
+            Overallscore = 'NA'
+        else:
+            Overallscore = Scores.marks
+        i=1
+        for subject in subjects:
+            if i==1:
+                Subject1 = subject.subjects
+            else:
+                Subject2 = subject.subjects
+            i=i+1
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student)
+        class_va = class_value.class_val
+        section = class_value.section
+    return render_template('guardianDashboard.html',students=student,class_va=class_va,section=section,schoolName=schoolName,Overallscore=Overallscore,Subject2=Subject2,Subject1=Subject1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
