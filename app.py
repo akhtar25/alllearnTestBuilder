@@ -588,7 +588,10 @@ def edit_profile():
         current_user.willing_to_travel = form.willing_to_travel.data
         ##
         db.session.commit()
-        flash('Your changes have been saved.')
+        flash('Your changes have been saved')        
+        if current_user.user_type==161:
+            return redirect(url_for('openJobs'))
+
     elif request.method == 'GET':        
         form.about_me.data = current_user.about_me
         form.first_name.data = current_user.first_name
@@ -758,9 +761,11 @@ def openJobs():
         userRecord = User.query.filter_by(id=current_user.id).first()
         userRecord.user_type= '161'
         db.session.commit()
+        flash('Please complete your profile before applying for jobs')
+        return redirect('edit_profile')
     else:
         print('first login not registered')    
-    return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
+        return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
 
 
 @app.route('/openJobsFilteredList')
