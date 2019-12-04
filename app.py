@@ -618,12 +618,16 @@ def index():
 
     school_name_val = schoolNameVal()
     
-    if user.user_type=='161':
+    if user.user_type==161:
         return redirect(url_for('openJobs'))
 
     if school_name_val ==None:
         print('did we reach here')
-        return redirect(url_for('disconnectedAccount'))
+        print('User Type:'+str(current_user.user_type))
+        if current_user.user_type==72:
+            return redirect(url_for('guardianDashboard'))
+        else:
+            return redirect(url_for('disconnectedAccount'))
     else:
     #####Fetch school perf graph information##########
         performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
@@ -1176,14 +1180,14 @@ def requestUserAccess():
     requestorUsername=request.args.get('username')    
     school_id=request.args.get('school_id')    
     about_me=request.args.get('about_me')    
-
+    userType=request.args.get('user_type')
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
         userTableDetails.access_status='143'
-        userTableDetails.user_type='140'
+        userTableDetails.user_type=userType
         userTableDetails.about_me=about_me
         db.session.commit()
         #Send email section
@@ -1299,14 +1303,23 @@ def grantUserAccess():
     school=schoolNameVal()
     print("we're in grant access request ")
     userTableDetails = User.query.filter_by(username=username).first()
+    userType = User.query.with_entities(User.user_type).filter_by(username=username).first()
     userTableDetails.access_status='145'
     userFullName = userTableDetails.first_name + " "+ userTableDetails.last_name
-    checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
-    if checkTeacherProfile==None:
-        teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.utcnow(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
-        db.session.add(teacherData)    
-        db.session.commit()
-    access_granted_email(userTableDetails.email,userTableDetails.username,school )
+    if userType == 71:
+        checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkTeacherProfile==None:
+            teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.utcnow(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
+            db.session.add(teacherData)    
+            db.session.commit()
+        access_granted_email(userTableDetails.email,userTableDetails.username,school )
+    else:
+        checkGuardianProfile=GuardianProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkGuardianProfile==None:
+            guardianData=GuardianProfile(user_id=userTableDetails.id)
+            db.session.add(guardianData)
+            db.session.commit()
+        access_granted_email(userTableDetails.email,userTableDetails.username,school )
     return jsonify(["0"])
 
 
