@@ -43,10 +43,18 @@ import hashlib
 from random import randint
 import string
 import requests
+from flask_talisman import Talisman, ALLOW_FROM
 
 #from flask_material import Material
 
 app=Flask(__name__)
+#csp = {
+# 'default-src': [
+#        '\'self\'',
+#        '*.*.com'
+#    ]
+#}
+talisman = Talisman(app, content_security_policy=None)
 #Material(app)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
@@ -55,6 +63,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 login_manager.init_app(app)
 moment = Moment(app)
+
 
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
@@ -89,6 +98,12 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
     g.search_form = SearchForm()
+    #scheme = request.headers.get('X-Forwarded-Proto')        
+    #if scheme and scheme == 'http' and request.url.startswith('http://'):        
+    #    url = request.url.replace('http://', 'https://', 1)
+    #    code = 301
+    #    return redirect(url, code=code)
+    
     
 
 #helper methods
@@ -140,7 +155,14 @@ def classSecCheck():
         else:
             return 'Y'
 
+@app.route('/normal')
+def normal():
+    return 'Normal'
 
+@app.route('/embeddable')
+@talisman(frame_options=ALLOW_FROM, frame_options_allow_from='*')
+def embeddable():
+    return 'Embeddable'
 
 @app.route("/loaderio-ad2552628971ece0389988c13933a170/")
 def performanceTestLoaderFunction():
@@ -3435,11 +3457,14 @@ def format_currency(value):
     return "₹{:,.2f}".format(value)
 
 if __name__=="__main__":
-    app.debug=True
+    app.debug=True    
     app.jinja_env.filters['zip'] = zip
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000)))
+        port=int(os.getenv('PORT', 8000)),
+        ssl_context='adhoc'
+        #ssl_context=context_prod
+        )
     #app.run()
 
