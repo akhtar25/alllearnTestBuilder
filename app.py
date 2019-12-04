@@ -1523,37 +1523,38 @@ def attendance():
 @login_required
 def guardianDashboard():
     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_name = SchoolProfile.query.with_entities(SchoolProfile.school_name).filter_by(school_id=teacher.school_id).first()
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
     student=[]
     class_va = ''
     section = ''
-    schoolName = school_name.school_name
     Subject1 = ''
     Subject2 = ''
+    Overallscore=''
+    i=1
     for g in guardian:
+        Overallscore='NA'
+        Subject1 = ''
+        Subject2 = ''
+        print('Inside guardian loop')
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        school_name = SchoolProfile.query.with_entities(SchoolProfile.school_name).filter_by(school_id=student_data.school_id).first()
+        
+        print('School Name:'+str(school_name.school_name))
+            
         class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first() 
         print('Student_id:'+str(g.student_id))
-        Scores = db.session.execute(text("select *from public.fn_performance_leaderboard("+str(teacher.school_id)+") where student_id='"+str(g.student_id)+"' and subjects='All'")).first() 
+        Scores = db.session.execute(text("select marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where student_id='"+str(g.student_id)+"' and subjects='All' limit 1")).fetchall() 
         subjects = db.session.execute(text("select distinct subjects,marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where  student_id="+str(g.student_id)+" and subjects!='All' order by marks desc limit 2")).fetchall()
         print('Length of list:'+str(len(Scores)))
         print('Length of Subjects list:'+str(len(subjects)))
-        if len(Scores)==0:
-            Overallscore = 'NA'
-        else:
-            Overallscore = Scores.marks
-        i=1
-        for subject in subjects:
-            if i==1:
-                Subject1 = subject.subjects
-            else:
-                Subject2 = subject.subjects
-            i=i+1
         student.append(student_data)
+        student.append(school_name)
+        student.append(class_value)
         class_va = class_value.class_val
+        print('Class:'+str(class_va))
         section = class_value.section
-    return render_template('guardianDashboard.html',students=student,class_va=class_va,section=section,schoolName=schoolName,Overallscore=Overallscore,Subject2=Subject2,Subject1=Subject1)
+        print('Section:'+str(section))
+    return render_template('guardianDashboard.html',students=student,class_va=class_va,section=section,Scores=Scores,subjects=subjects,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
@@ -2859,6 +2860,21 @@ def testDate(class_val):
         testdateArray.append(testdateObj)
     return jsonify({'testdates' : testdateArray})
 
+@app.route('/indivResultHistory')
+@login_required
+def indivResultHistory():
+    student_id=request.args.get('student_id')
+    student_name = StudentProfile.query.with_entities(StudentProfile.full_name).filter_by(student_id=student_id).first()
+    print('Student Name:'+str(student_name.full_name))
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('Student Id:'+str(student_id))
+    query = "select distinct upload_id, cs.class_val, cs.section, "  
+    query = query + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date, date(ru.exam_date) as exam_date " 
+    query = query + "from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id and cs.school_id="+str(teacher_id.school_id)+" and ru.student_id='"+str(student_id)+"' "
+    query = query + "inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by exam_date desc"
+    indivHistoryRecords = db.session.execute(text(query)).fetchall()
+    return render_template('_indivResultHistory.html',indivHistoryRecords=indivHistoryRecords,student_name=student_name)
+
 @app.route('/resultUploadHistory')
 def resultUploadHistory():
 
@@ -2868,15 +2884,22 @@ def resultUploadHistory():
 
     #print(datetime.now())
     #print(date_N_days_ago)
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    qstudent_id=request.args.get('student_id')
 
-    uploadHistoryQuery = "select distinct upload_id, cs.class_val, cs.section, "
-    uploadHistoryQuery = uploadHistoryQuery + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date, date(ru.exam_date) as exam_date "
-    uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id and cs.school_id='"+str(teacher_id.school_id)+"' "
-    uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by exam_date desc"
+    if qstudent_id==None or qstudent_id=='':
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+
+        uploadHistoryQuery = "select distinct upload_id, cs.class_val, cs.section, "
+        uploadHistoryQuery = uploadHistoryQuery + "md.description as test_type, md2.description as subject, date(ru.last_modified_date) as upload_date, date(ru.exam_date) as exam_date "
+        uploadHistoryQuery = uploadHistoryQuery +"from result_upload ru inner join  class_section cs on  cs.class_sec_id=ru.class_sec_id and cs.school_id='"+str(teacher_id.school_id)+"' "
+        uploadHistoryQuery = uploadHistoryQuery +"inner join message_detail md on md.msg_id=ru.test_type inner join message_detail md2 on md2.msg_id=ru.subject_id order by exam_date desc"
+        
+        uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
     
-    uploadHistoryRecords = db.session.execute(text(uploadHistoryQuery)).fetchall()
-    return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords)
+        return render_template('resultUploadHistory.html',uploadHistoryRecords=uploadHistoryRecords)
+    else:
+        print(qstudent_id)
+        return render_template('resultUploadHistory.html',qstudent_id=qstudent_id)
 
 
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
@@ -3270,8 +3293,12 @@ def studentProfileOld():
 
 @app.route('/indivStudentProfile')
 @login_required
-def indivStudentProfile():    
+def indivStudentProfile():  
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()  
     student_id=request.args.get('student_id')
+    flag = 0
+    if teacher_id!='':
+        flag = 1
     print(student_id)
     studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
     studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
@@ -3293,9 +3320,11 @@ def indivStudentProfile():
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         print(overallSum)
-
-    overallPerfValue = round(overallSum/(len(perfRows)),2)    
-    
+    School_id = StudentProfile.query.with_entities(StudentProfile.school_id).filter_by(student_id=student_id).first()
+    print('School_id:'+str(School_id.school_id))
+    Scores = db.session.execute(text("select *from public.fn_performance_leaderboard("+str(School_id.school_id)+") where student_id='"+str(student_id)+"' and subjects='All' limit 1")).fetchall()  
+    for scores in Scores:
+        overallPerfValue = scores.marks
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
 
@@ -3310,7 +3339,7 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount)
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,flag=flag)
 
 
 @app.route('/studentProfile')

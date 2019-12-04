@@ -14,41 +14,56 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-5">
-                        <h4>School Name : <span style="font-size: 20px;">{{schoolName}}</span></h4>
+                        <h4>School Name : <span style="font-size: 20px;">{{student.school_name}}</span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Class : <span style="font-size: 20px;">{{ class_va }}<sup>th</sup></span></h4>
+                        <h4>Class : <span style="font-size: 20px;">{{ student.class_val }}<sup>th</sup></span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Section : <span style="font-size: 20px;">A</span></h4>
+                        <h4>Section : <span style="font-size: 20px;">{{student.Section}}</span></h4>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                        <h4>Overallmarks Percentage : <span class="text-green" style="font-size: 20px;">{{Overallscore}}</span></h4>
+                    {% if Scores | length ==0 %}
+                    {{class_va}}
+                    {% for scores in Scores%}
+                    
+                        {% if scores.marks == '' %}
+                        <h4>Overallmarks Percentage :  <span class="text-green" style="font-size: 20px;">NA</span></h4>  
+                        {% elif scores.marks > 49  %}
+                        <h4>Overallmarks Percentage : <span class="text-green" style="font-size: 20px;">{{scores.marks}}%</span></h4>
+                        {% else %}
+                        <h4>Overallmarks Percentage : <span class="text-red" style="font-size: 20px;">{{scores.marks}}%</span></h4>
+                        {% endif %}
+                    {% endfor %}
+                    {% endif %}
                     </div>
                     
                     <div class="col-sm-6">
                         
                         <h4 >Strengths:
-                        {% if Subject1!='' and Subject2!='' %}
+                        {% for sub in subjects %}
+                        {% if sub.subjects!='' %}
                         <span class="text-green">
                                 <!-- {% for subject in subjects %}
                                 {{subject.subjects}}
                                 {% endfor %} -->
-                                <span style="font-size: 20px;">{{Subject1}}&nbsp;&nbsp;and&nbsp;&nbsp;{{Subject2}}</span>
+                                <span style="font-size: 20px;">{{sub.subjects}}</span>
                         </span></h4>
                         
                         {% else %}
                         <span class="text-green">NA</span></h4>
                         {% endif %}
+                        &nbsp;&nbsp;and&nbsp;&nbsp;
+                        {% endfor %}
                     </div>
                     
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                        <a href="{{url_for('studentProfile')}}">
-                            <p><button class="btn waves-light green lighten-1 white-text">Profile Details</button></p>
+                        <a href="{{url_for('studentProfile',student_id=student.student_id)}}" target="_blank">
+                            <p><button class="btn waves-light green lighten-1 white-text" onclick="">Profile Details</button></p>
                         </a>
                     </div>                    
                 </div>                

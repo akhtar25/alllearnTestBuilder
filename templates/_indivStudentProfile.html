@@ -54,13 +54,20 @@
                 <table class='responsive-table'>
                     <td>
                         <h4>Overall Performance Average</h4>
-                    </td>
-                    <td>
+                    </td>{{studentProfileRow.student_id}}
+                    <td>{% if flag == 1 %}
                         {%if overallPerfValue > 49 %}
-                        <h3 class='green-text'>{{overallPerfValue}}%  </h3> ({{testCount.testcountval}} tests)
+                        <h3 class='green-text'>{{overallPerfValue}}% {{studentProfileRow.student_id}} </h3> (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{testCount.testcountval}} tests</a>)
                         {%else%}
-                        <h3 class='red-text'>{{overallPerfValue}}%</h3> ({{testCount.testcountval}} tests)
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{testCount.testcountval}} tests</a>)
                         {%endif%}
+                        {% else %}
+                        {%if overallPerfValue > 49 %}
+                        <h3 class='green-text'>{{overallPerfValue}}%  </h3> (<a href="">{{testCount.testcountval}} tests</a>)
+                        {%else%}
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="">{{testCount.testcountval}} tests</a>)
+                        {%endif%}
+                        {% endif %}
                     </td>
                 </table>
                 <br>            
