@@ -622,6 +622,7 @@ class SessionDetail(db.Model):
     session_status = db.Column(db.Integer,nullable=True)   # open, in_progress, closed
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
+    test_id = db.Column(db.ForeignKey('test_details.test_id'),nullable=True) # this will only have a value when test has been configured before taking the feedback
     current_question = db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
 

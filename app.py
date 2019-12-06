@@ -2106,8 +2106,6 @@ def contentManagerDetails():
             print("Content List"+str(c))    
         return render_template('_contentManagerDetails.html',contents=contents)
 
-
-
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
