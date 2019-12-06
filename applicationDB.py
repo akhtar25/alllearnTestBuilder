@@ -248,7 +248,7 @@ class QuestionOptions(db.Model):
     weightage=db.Column(db.Integer)
     last_modified_date=db.Column(db.DateTime)
 
-class testQuestions(db.Model):
+class TestQuestions(db.Model):
     __tablename__ = "test_questions"
     tq_id = db.Column(db.Integer,primary_key=True)
     test_id = db.Column(db.ForeignKey('test_details.test_id'), nullable=True)

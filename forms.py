@@ -55,13 +55,13 @@ class RegistrationForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     #username = StringField('Username', validators=[DataRequired()])
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=500)])
+    about_me = TextAreaField('About me', validators=[DataRequired(),Length(min=0, max=500)])
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name =StringField('Last Name', validators=[DataRequired()])
     #email = StringField('Email', validators=[DataRequired(), Email()])
     phone=StringField('Phone No',validators=[Length(max=12)])
-    education = TextAreaField('Education', validators=[Length(min=0, max=500)])
-    experience = TextAreaField('Experience', validators=[Length(min=0, max=1000)])
+    education = TextAreaField('Education', validators=[DataRequired(),Length(min=0, max=500)])
+    experience = TextAreaField('Experience', validators=[DataRequired(),Length(min=0, max=1000)])
     #address = TextAreaField('Address', validators=[Length(min=0, max=1000)])
     city = StringField('City', validators=[DataRequired(), Length(min=0, max=100)])
     state = StringField('State', validators=[DataRequired(), Length(min=0, max=100)])
