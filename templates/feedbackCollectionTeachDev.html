@@ -3,8 +3,7 @@
         
     
     <div class="skin-blue sidebar-mini">            
-        <aside class="main-sidebar" style="margin-top:15px;">
-            <!-- sidebar: style can be found in sidebar.less -->            
+        <!--<aside class="main-sidebar" style="margin-top:15px;">            
             <section class="sidebar">                     
               <ul class="sidebar-menu" data-widget="tree">
                   {% for singleClass in distinctClasses %}
@@ -27,7 +26,7 @@
                          {% endfor %}                
          <ul>                  
         </section>                
-            </aside>                
+            </aside>              -->  
             <!--------------------------------------------------------------------------------------------->
             <div class="content-wrapper" style="background-color: white;">
     <section class="content">
@@ -52,7 +51,52 @@
                       <span class="grey-text text-lighten-1"> <p style="font-size: 24px;">Scan QR or enter the below id on phone</p><br><br><p style="font-size: 48px;">{{resp_session_id}}</p></span>
                       <br><br>
                       <img src={{responseSessionIDQRCode}}>
-                    
+                      <div class="divider"></div>
+                        <table class="table table-bordered table-responsive-md table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Question</th>                                                                        
+                                    <th scope="col">Type</th>  
+                                    <th scope="col">Weightage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for q in questions %}
+                                {% for question in q %}
+                                <tr>
+                                    <td>
+                                            {% if question.question_type=='MCQ1' %}                                    
+                                            <ul>
+                                                    <li>
+                                                      <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                                    
+                                                     <!-- Modal Structure  -->                                                     
+                                                    <div id="modal2" class="modal" style="background-color:white;">
+                                                            <div id="questionloader1" style="display: none;">
+                                                                    <img src="../static/images/loader.gif">
+                                                                </div>
+                                                        <div class="modal-content" id="content" style="display:none;">
+                                                        <p><div id="questionDataList"></div> </p> 
+                                                        
+                                                        </div>
+                                                    </div> 
+                                                    </li>
+                                            </ul>
+                                    {% else %}
+                                        <h5>
+                                            {{ question.question_description }}
+                                        </h5>
+                                    {% endif %}
+                                        
+                                    </td>
+                                    <td> {{ question.question_type }} </td>            
+                                    <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
+                                            id="{{ question.question_id }}select"></td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
                       {%else %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
                       {% endif %}
@@ -112,7 +156,7 @@
         </script>
 
 
-        <script>
+        <!--<script>
           var subject_id = {{subject_id}};
               var questionIDListJS = [];
               var flag=true;
@@ -201,7 +245,7 @@
                   }
                 });
             }
-            </script>            
+            </script>       -->     
 
 {%endblock%}
         

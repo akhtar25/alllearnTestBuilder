@@ -2111,28 +2111,37 @@ def contentManagerDetails():
 def feedbackCollection():    
     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()    
     teacherProfile = teacher
+    #using today's date to build response session id
+    dateVal= datetime.today().strftime("%d%m%Y")
     if request.method=='GET':
         qtest_id = request.args.get('test_id')
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
         qsubject_id = request.args.get('subject_id')
-        #using today's date to build response session id
-        dateVal= datetime.today().strftime("%d%m%Y")
-
+        print("this is the section, class_val and teacher"+ str(qsection) + ' ' + str(qclass_val) + ' '+ str(teacher.school_id))
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
-            currClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
+            currClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),func.lower(section)=func.lower(str(qsection).strip())).first()
+            if currClassSecRow is None:
+                flash('Class and section value not valid')
+                return redirect(url_for('testPapers'))
             #building response session ID
-            responseSessionID = str(dateVal).strip() + str(qsubject_id).strip() + str(currClassSecRow.class_Sec_id).strip()
+            print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
+            responseSessionID = str(dateVal).strip() + str(qsubject_id).strip() + str(currClassSecRow.class_sec_id).strip()
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+
+            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()            
+            questionListSize = len(questionList)
+
+            questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionIDList)).all()            
 
             if questionListSize >0:
                 sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_Sec_id)
+                        class_sec_id=currClassSecRow.class_sec_id)
                 db.session.add(sessionDetailRowInsert)
                 db.session.commit()
 
             if teacherProfile.device_preference==195:
-                return render_template('feedbackCollectionStudDev.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=subject_id, class_val = class_val, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID)
 
     elif request.method == 'POST':
         allCoveredTopics = request.form.getlist('topicCheck')
