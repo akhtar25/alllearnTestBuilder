@@ -1,9 +1,11 @@
 {%extends "layout.html"%} {%block content%}
-<div class="container" height=100% >
-        
-    
-    <div class="skin-blue sidebar-mini">            
-        <!--<aside class="main-sidebar" style="margin-top:15px;">            
+<!--<link type="text/css" rel="stylesheet" href="../static/css/styles.css">-->
+<!--<link type="text/css" rel="stylesheet" href="..static/js/jquery.timepicker.css">-->
+<div class="container" height=100%>
+
+
+  <div>
+    <!--<aside class="main-sidebar" style="margin-top:15px;">            
             <section class="sidebar">                     
               <ul class="sidebar-menu" data-widget="tree">
                   {% for singleClass in distinctClasses %}
@@ -26,137 +28,291 @@
                          {% endfor %}                
          <ul>                  
         </section>                
-            </aside>              -->  
-            <!--------------------------------------------------------------------------------------------->
-            <div class="content-wrapper" style="background-color: white;">
+            </aside>              -->
+    <!--------------------------------------------------------------------------------------------->
+
     <section class="content">
+      <div class="row">
         <div class="row">
-                <div class="row">
-                <div class="col-xs-8"  >
-                  <div class="box" id="feedbackQuestionDiv">
-                    <div class="box-header" >
-                      <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>                              
-                    </div>                                           
-                    <span id="questionList" style="display: none;">{{ questionList }}</span>
-                    <input id="currrent_question_id" style="display: none;">
-                    <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
-                    <input id="section_ip" style="display: none;"type="text" value="{{section}}">
-                    <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
-                    <div id = "questionSection">        
-                      <div id="questionPlaceholder">
-                        <br>
-                        <br>
-                        <br>
-                        {% if questionList|length > 0 %}
-                      <span class="grey-text text-lighten-1"> <p style="font-size: 24px;">Scan QR or enter the below id on phone</p><br><br><p style="font-size: 48px;">{{resp_session_id}}</p></span>
-                      <br><br>
-                      <img src={{responseSessionIDQRCode}}>
-                      <div class="divider"></div>
-                        <table class="table table-bordered table-responsive-md table-striped text-center">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Question</th>                                                                        
-                                    <th scope="col">Type</th>  
-                                    <th scope="col">Weightage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for q in questions %}
-                                {% for question in q %}
-                                <tr>
-                                    <td>
-                                            {% if question.question_type=='MCQ1' %}                                    
-                                            <ul>
-                                                    <li>
-                                                      <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                                    
-                                                     <!-- Modal Structure  -->                                                     
-                                                    <div id="modal2" class="modal" style="background-color:white;">
-                                                            <div id="questionloader1" style="display: none;">
-                                                                    <img src="../static/images/loader.gif">
-                                                                </div>
-                                                        <div class="modal-content" id="content" style="display:none;">
-                                                        <p><div id="questionDataList"></div> </p> 
-                                                        
-                                                        </div>
-                                                    </div> 
-                                                    </li>
-                                            </ul>
-                                    {% else %}
-                                        <h5>
-                                            {{ question.question_description }}
-                                        </h5>
-                                    {% endif %}
-                                        
-                                    </td>
-                                    <td> {{ question.question_type }} </td>            
-                                    <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
-                                            id="{{ question.question_id }}select"></td>
-                                </tr>
-                                {% endfor %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
+          <div class="col-xs-7">
+            <div class="box" id="feedbackQuestionDiv">
+              <div class="box-header">
+                <h3 class="box-title">{{testType}}</h3><span style="padding-left: 10px;"> Class: {{ class_val }} |
+                  Section: {{ section }} | Subject: {{subjectName}} | Total Marks: {{totalMarks}}</span>
+              </div>
+              <span id="questionList" style="display: none;">{{ questionList }}</span>
+              <input id="currrent_question_id" style="display: none;">
+              <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
+              <input id="section_ip" style="display: none;" type="text" value="{{section}}">
+              <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
+              <div id="questionSection">
+                <div id="questionPlaceholder">
 
-                      {%else %}
-                      <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected topic(s)</p>
-                      {% endif %}
-                    </div>
-                    </div>  
-                    <div id="questionButtons">
-                     {% if questionList|length > 0 %}
-                    <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
-                     {% endif %}
-                    <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
-                      <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
-                    <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
-                  </div>
-                  </div>
-                  <div  class="box" id="feedbackReportDiv" style="display: none;">                  
-                  </div>   
-                  <a class="btn btn-primary" id="completeClassBTN" href="{{url_for('classCon')}}" style="display: none;">Complete Class</a>
-                </div>              
-                  <div class="col-md-3" style="margin-top:20px;">
-                    <div id="answerCounter" style="overflow-y: auto; height:200px;">
-                    <h4>Response Summary</h4> 
-                    <div id="errorMsgElement"></div>
+                  {% if questionListSize > 0 %}
+                  
+                    
+                    <br><br>
+                    <table class="table table-bordered table-responsive-md table-striped text-center">
+                      <thead>
+                        <tr>
+                          <th scope="col">Question</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Weightage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for question in questions %}
 
-                    <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>                    
-                </div>                
-                
-                
-                <div >  
-              <!--  <div class="select">
-                    <label for="videoSource"></label><select id="videoSource"></select>
-                </div>-->                                                       
-                  </div>            
+                        <tr>
+                          <td>
+                            {% if question.question_type=='MCQ1' %}
+                            <ul>
+                              <li>
+                                <div><a href="#modal2" name="{{ question.question_id }}"
+                                    class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a>
+                                </div>
+                                <!-- Modal Structure  -->
+                                <div id="modal2" class="modal" style="background-color:white;">
+                                  <div id="questionloader1" style="display: none;">
+                                    <img src="../static/images/loader.gif">
+                                  </div>
+                                  <div class="modal-content" id="content" style="display:none;">
+                                    <p>
+                                      <div id="questionDataList"></div>
+                                    </p>
+
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                            {% else %}
+                            <h5>
+                              {{ question.question_description }}
+                            </h5>
+                            {% endif %}
+
+                          </td>
+                          <td> {{ question.question_type }} </td>
+                          <td>{{ question.suggested_weightage }}<input type="hidden"
+                              value="{{ question.suggested_weightage }}" id="{{ question.question_id }}select"></td>
+                        </tr>
+
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                    {%else %}
+                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected
+                      topic(s)</p>
+                    {% endif %}
                 </div>
               </div>
-        </div>        
-    </section>
-</div>
-    </div>
-        </div>    
-        <!--New Div for the updated camera mechanism-->
-        <div id="container">            
-            <div class="">
-                <label for="audioSource"></label><select id="audioSource"></select>
-            </div>            
-            <!--<canvas id="piccanvas" class="drawingBuffer" style="display:none !important"></canvas>-->
-           
-            <br clear="all">
-        </div>            
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-           <!-- <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>                 -->
+              <div id="questionButtons">
+                {% if questionList|length > 0 %}
+                <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
+                {% endif %}
+                <input type="button" value="Start Timer" class="btn green btn-primary" id="startrecordResponsesBTN"
+                  style="height: 40px; ">
+                <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN"
+                  style="height: 40px; display: none; ">
+                <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN"
+                  style="height: 40px; width: 200px;display: none;">
+              </div>
+            </div>
+            <div class="box" id="feedbackReportDiv" style="display: none;">
+            </div>
+            <a class="btn btn-primary" id="completeClassBTN" href="{{url_for('classCon')}}"
+              style="display: none;">Complete Class</a>
+          </div>
+          <div class="col-xs-3" style="margin-top:20px;">
+            <div id="answerCounter" >
+              <h4>To write this test</h4>
+              <ol>
+                <li>
+                  Logon to this URL: {{url_for('qrSessionScannerStudent')}} </li><br>
+                <li>
+                  <p>Scan the QR or enter this test id: <br><span style="font-size: 40px;">{{resp_session_id}}</span>
+                  </p>
+                </li>
+              </ol><br>
+
+              <div id='qrIMGDiv' class='center' style="z-index: 1000000000;"><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
+              <div class="divider"></div>
+              <!--This is the section for timer-->
+<!--
+              <div class="wrapper">
+
+                <header class="switch-clocks z-depth-1">
+                  <a class="alarm waves-effect">Alarm</a>
+                  <a class="stopwatch waves-effect">Stopwatch</a>
+                  <a class="timer waves-effect">Timer</a>
+                </header>
+
+                <div class="app">
+
+                  <div class="container alarm hidden">
+                    <form>
+
+                      <div class="control input-field">
+                        <input id="alarm-input" type="text" class="validate">
+                        <label for="alarm-input">Set Time</label>
+                      </div>
+
+                      <div class="control switch">
+                        <label>
+                          Off
+                          <input type="checkbox" disabled id="alarm-btn">
+                          <span class="lever"></span>
+                          On
+                        </label>
+                      </div>
+
+                      <div class="control checkbox">
+                        <input type="checkbox" id="alarm-sounds" />
+                        <label for="alarm-sounds">Sounds</label>
+                      </div>
+
+                    </form>
+
+                    <div class="clock z-depth-1 inactive">
+                      <span>Not Set</span>
+                      <div class="overlay waves-effect"></div>
+                    </div>
+                  </div>
+
+                  <div class="container stopwatch">
+                    <form>
+                      <a id="stopwatch-btn-start" class="waves-effect waves-teal btn-flat">Start</a>
+                      <a id="stopwatch-btn-pause" class="waves-effect waves-teal btn-flat">Pause</a>
+                      <a id="stopwatch-btn-reset" class="waves-effect waves-teal btn-flat">Reset</a>
+                    </form>
+
+                    <div class="clock inactive z-depth-1">
+                      <span>0:00:00.0</span>
+                      <div class="overlay waves-effect"></div>
+                    </div>
+                  </div>
+
+                  <div class="container timer hidden">
+                    <form>
+                      <div class="control input-field">
+                        <input id="timer-input" type="number">
+                        <label for="timer-input">Minutes</label>
+                      </div>
+
+                      <a class="timer-btn start waves-effect"><i class="mdi-av-play-arrow"></i></a>
+                      <a class="timer-btn pause waves-effect"><i class="mdi-av-pause"></i></a>
+                      <a class="timer-btn reset waves-effect"><i class="mdi-av-replay"></i></a>
+
+                      <div class="control checkbox">
+                        <input type="checkbox" id="timer-sounds" />
+                        <label for="timer-sounds">Sounds</label>
+                      </div>
+
+                    </form>
+
+                    <div class="clock inactive z-depth-1 waves-effect">0:00</div>
+                  </div>
+
+
+                </div>
+
+                <div id="times-up-modal" class="modal">
+                  <div class="modal-content">
+                    <h3>Time's Up!</h3>
+                  </div>
+                  <div class="modal-footer">
+                    <a href="#!" class="dismiss-alarm-sounds modal-action waves-effect waves-red btn-flat">Dismiss
+                      Alarm</a>
+                  </div>
+                </div>
+
+              </div>-->
+
+              <!--End of timer section-->
+              <div id="errorMsgElement"></div>
+
+              <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>
+            </div>
+
+
+            <div>
+              <!--  <div class="select">
+                    <label for="videoSource"></label><select id="videoSource"></select>
+                </div>-->
+            </div>
+          </div>
         </div>
-        <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+  $(document).ready(function () {
+    $('.modal').modal();
+  });
+  $(document).ready(function(){
+    $('.materialboxed').materialbox();
+  });
 
 
-        <script>
-        
-        </script>
+
+  $('.questionData').click(function () {
+    $('#questionloader1').show();
+    $('#modal2').hide();
+    $('#content').hide();
+    $('#questionDataList').html('');
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+      var config = 'MathJax.Hub.Config({' +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        '});' +
+        'MathJax.Hub.Startup.onload();';
 
 
-        <!--<script>
+      if (window.opera) {
+        script.innerHTML = config
+      } else {
+        script.text = config
+      }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    })();
+    var question_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data = "";
+    $.ajax({
+      url: "/questionAllDetails?question_id=" + question_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $('#questionloader1').hide();
+        $('#modal2').show();
+        $('#content').show();
+        $('#questionDataList').html(response);
+      }
+    })
+  });
+</script>
+<script src="../static/js/jquery.timepicker.min.js"></script>
+<script src="../static/js/hammer.js"></script>
+<script src="../static/js/script.js"></script>
+<script src="../static/js/js/alarm.js"></script>
+<script src="../static/js/stopwatch.js"></script>
+<script src="../static/js/timer.js"></script>
+
+<!--<script>
           var subject_id = {{subject_id}};
               var questionIDListJS = [];
               var flag=true;
@@ -245,7 +401,6 @@
                   }
                 });
             }
-            </script>       -->     
+            </script>       -->
 
 {%endblock%}
-        
