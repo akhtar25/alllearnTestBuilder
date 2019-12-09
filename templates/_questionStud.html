@@ -1,0 +1,88 @@
+<div class="content">
+<div class="row">
+
+<label id="currQuestionLabel" style="width: 100%;">     
+    {% if totalQCount!=''%}   
+    {% set qnum = qnum | int %}
+    {% set qnum = qnum + 1 %}
+            Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>             
+    </label>
+    {% endif %}
+    <h3>Q: {{ question.question_description }}</h3>
+    {%if question.reference_link !=None %}
+<aside class="right">    
+    <img src="{{ question.reference_link }}" height="210px" width="300px" style="margin-top: 20px;">
+</aside>
+{% endif %}
+ 
+ <br>
+    {% for optionVal in questionOp %}    
+    {% if  optionVal.option_desc %}    
+    <!--<li style="display:flex;"></li>    -->
+    <p>
+        <label>
+          <input name="group1" type="radio" />
+        <span style="font-size: 15px;" >({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
+        </label>
+      </p>
+    {% endif %}
+    {% endfor %}
+ <!--<ul>
+    {% for optionVal in questionOp %}    
+    {% if  optionVal.option_desc %}
+    {% if optionVal.is_correct=='Y' %}
+    {% if qnum %}
+    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 30px;margin-top: 3px;display:none;">check</i></li>
+    {% else %}
+    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 30px;margin-top: -5px;display:none;">check</i></li>
+    {% endif %}
+    {% else %}    
+    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+ </ul>-->
+ <!--
+ {% if qnum %}
+ <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;">Show Answer</a>
+ <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;display:none;">Hide Answer</a>
+ {% else %}
+ <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top:140px;">Show Answer</a>
+ <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 140px;display:none;">Hide Answer</a>
+ {% endif %}-->
+</div>
+</div>
+
+<script>
+$('#showAns').click(function(){
+    $('#solution').show();
+    $('#showAns').hide();
+    $('#hideAns').show();
+  });
+
+$('#hideAns').click(function(){
+    $('#solution').hide();
+    $('#showAns').show();
+    $('#hideAns').hide();
+});
+
+(function () {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+
+                    var config = 'MathJax.Hub.Config({' +
+                                    'extensions: ["tex2jax.js"],' +
+                                    'jax: ["input/TeX","output/HTML-CSS"]' +
+                                '});' +
+                                'MathJax.Hub.Startup.onload();';
+                                
+
+                    if (window.opera) {script.innerHTML = config}
+                                else {script.text = config}
+
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                    })();
+</script>
+           

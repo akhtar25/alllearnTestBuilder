@@ -148,7 +148,7 @@ def classSecCheck():
         return 'N'
     else:
         classSecRow = ClassSection.query.filter_by(school_id=teacherProfile.school_id).all()
-        print(classSecRow)
+        #print(classSecRow)
         if len(classSecRow)==0:
             print('returning N')
             return 'N'            
@@ -1725,34 +1725,16 @@ def feedbackCollectionStudDev():
             sessionDetailRow.session_status='81'        
             db.session.commit()    
         classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
-        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=str(resp_session_id)).all()
-        if respSessionQuestionRow!=None:
-            questionListSize = len(respSessionQuestionRow)
-        return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=str(resp_session_id))
+        testQuestions = TestQuestions.query.filter_by(test_id=sessionDetailRow.test_id).all()
+
+        if testQuestions!=None:
+            questionListSize = len(testQuestions)
+        return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
+            section=classSectionRow.section,questionListSize=questionListSize,
+            resp_session_id=str(resp_session_id), questionList=testQuestions)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScannerStudent.html')
-
-
-
-#
-#@app.route('/mobQuestion')
-#def mobQuestion():
-#    return render_template('_mobQuestion.html')
-#
-#
-#@app.route('/mobResponseCapture')
-#def mobResponseCapture():
-#    return render_template('_mobResponseCapture.html')
-#
-#@app.route('/mobResponseResult')
-#def mobResponseResult():
-#    return render_template('_mobResponseResult.html')
-
-#end of mobile specific pages
-
-
-
 
 
 @app.route('/updateQuestion')
@@ -2115,11 +2097,11 @@ def contentManagerDetails():
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    teacherProfile = teacher
-    #using today's date to build response session id
-    dateVal= datetime.today().strftime("%d%m%Y")
     if request.method=='GET':
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+        teacherProfile = teacher
+        #using today's date to build response session id
+        dateVal= datetime.today().strftime("%d%m%Y")
         qtest_id = request.args.get('test_id')
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
@@ -2128,6 +2110,8 @@ def feedbackCollection():
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
             qsection = str(qsection).upper()
             currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
+
+
             #queryCurrClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),section=qsection)
             #print("Here's the query: "+str(queryCurrClassSecRow))
             if currClassSecRow is None:
@@ -2138,10 +2122,21 @@ def feedbackCollection():
             responseSessionID = str(dateVal).strip() + str(qsubject_id).strip() + str(currClassSecRow.class_sec_id).strip()
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
 
+
+
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
 
             questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()            
             questionListSize = len(questionIDList)
+
+            #creating a record in the session detail table  
+            if questionListSize !=0:
+                sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
+                db.session.add(sessionDetailRowInsert)
+                print('Adding to the db')
+                db.session.commit()
+
             questionList = []
             for questValue in questionIDList:
                 questionList.append(questValue.question_id)
@@ -2155,12 +2150,6 @@ def feedbackCollection():
             totalMarks = 0
             for eachQuest in questions:
                 totalMarks = totalMarks + int(eachQuest.suggested_weightage)
-
-            if questionListSize >0:
-                sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip())
-                db.session.add(sessionDetailRowInsert)
-                db.session.commit()
 
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
@@ -2294,6 +2283,34 @@ def loadQuestion():
     #for option in questionOp:
     #    print(option.option_desc)
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+
+@app.route('/loadQuestionStud')
+@login_required
+def loadQuestionStud():
+    question_id = request.args.get('question_id')
+    print(question_id)
+    totalQCount = request.args.get('total')
+    qnum= request.args.get('qnum')
+    #resp_session_id=request.args.get('resp_session_id')
+    #print(resp_session_id)
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
+    #if question_id!=None:
+    #    respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
+    #    if respSessionQuestionRow!=None:
+    #        respSessionQuestionRow.question_status='87'
+    #        db.session.commit()
+    #    sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
+    #    sessionDetRow.current_question=question_id
+    #    sessionDetRow.load_new_question='Y'
+    #    db.session.commit()    
+    return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
+
+
 
 @app.route('/questionAllDetails')
 def questionAllDetails():
@@ -3456,7 +3473,8 @@ def format_currency(value):
     return "₹{:,.2f}".format(value)
 
 if __name__=="__main__":
-    app.debug=True    
+    app.debug=True  
+    #app.use_reloader=False  
     app.jinja_env.filters['zip'] = zip
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))

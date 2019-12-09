@@ -47,7 +47,7 @@
                         <br>
                         <br>
                         <br>
-                        {% if respSessionQuestionRow|length > 0 %}
+                        {% if questionList|length > 0 %}
                       <p style="font-size: 48px;" class="grey-text text-lighten-1">Click Start to load questions</p>                      
                       <br><br><br><br><br><br><br><br>
                     
@@ -57,11 +57,11 @@
                     </div>
                     </div>  
                     <div id="questionButtons">
-                     {% if respSessionQuestionRow|length > 0 %}
+                     {% if questionList|length > 0 %}
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
                      {% endif %}
                     <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a> 
-                    <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">  
+                    <!--<input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">  -->
                       <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN" style="height: 40px; display: none; ">                                 
                     <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN" style="height: 40px; width: 200px;display: none;">
                   </div>
@@ -112,12 +112,19 @@
         </div>
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
         <script>
-          var subject_id = {{subject_id}};
+          //var subject_id = {{subject_id}};
               var questionIDListJS = [];
-              {%  for question in questionList%}              
+              {%  for question in questionList%}
+              // this is my name
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
+
               var questionListSize = {{ questionListSize }};
+
+              //for (var i=0;i<questionListSize;i++) {
+              //  alert(questionIDListJS[i]);
+              //}              
+
               var tempCountVar = 0;
             $("#startrecordResponsesBTN").click(function(){
               $("#skipButton").hide();
@@ -128,14 +135,16 @@
             });
             
             $("#startAndNextBTN").click(function(){                
-              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
-              document.getElementById("result_strip").innerHTML="";
-              keepRecording = true;   
+              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
+
+              //document.getElementById("result_strip").innerHTML="";
+              //keepRecording = true;   
+              //alert(currQuestion);
                 if(tempCountVar<questionListSize){
                 $.ajax({
-                  url: "/loadQuestion?qnum="+ tempCountVar+"&total="+questionListSize ,
+                  url: "/loadQuestionStud?qnum="+ tempCountVar+"&total="+questionListSize+ "&question_id="+ questionIDListJS[tempCountVar] ,
                   type: "get",
-                  data: {question_id: questionIDListJS[tempCountVar]},
+                  data: '',
                   success: function(response) {       
                     $("#questionSection").html(response);                    
                     tempCountVar= tempCountVar+1;                
@@ -147,7 +156,7 @@
                       });                  
                     }
                     else{
-                      $("#startAndNextBTN").attr('value','Next');       
+                      $("#startAndNextBTN").attr('value','Submit and Next');       
                       $("#startAndNextBTN").hide();
                       $("#startrecordResponsesBTN").show();   
                       $("#skipButton").show();
@@ -162,36 +171,36 @@
               else{
               }
             });
-            $('#submitAndFinishBTN').click(function(){     
-              var class_val = $('#class_val_ip').val();
-              console.log('This is the class_val in js: ' + class_val);
-              var section = $('#section_ip').val();
-              console.log('This is the section: ' + section);
-              questionIDListStr  = JSON.stringify(questionIDListJS);     
-              var resp_session_id={{resp_session_id}};
-                $.ajax({
-                  url: "/feedbackReport?resp_session_id="+resp_session_id,
-                  type: "get",
-                  data: "",
-                  success: function(response) {
-                    if (response!="NA"){
-                    $("#feedbackReportDiv").html(response);
-                    }
-                    else{
-                      $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
-                    }    
-                    $("#feedbackReportDiv").show(); 
-                    $("#feedbackQuestionDiv").hide();
-                    $("#video-field").hide();                    
-                    $("#ResponseList").hide();                    
-                    $("#allResponsesSubmitted").show(); 
-                    $("#completeClassBTN").show();                     
-                  },
-                  error: function(xhr) {
-                    window.alert("error occurred while submittig data");
-                  }
-                });              
-            });
+            //$('#submitAndFinishBTN').click(function(){
+            //  var class_val = $('#class_val_ip').val();
+            //  console.log('This is the class_val in js: ' + class_val);
+            //  var section = $('#section_ip').val();
+            //  console.log('This is the section: ' + section);
+            //  questionIDListStr  = JSON.stringify(questionIDListJS);     
+            //  var resp_session_id={{resp_session_id}};
+            //    $.ajax({
+            //      url: "/feedbackReport?resp_session_id="+resp_session_id,
+            //      type: "get",
+            //      data: "",
+            //      success: function(response) {
+            //        if (response!="NA"){
+            //        $("#feedbackReportDiv").html(response);
+            //        }
+            //        else{
+            //          $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
+            //        }    
+            //        $("#feedbackReportDiv").show(); 
+            //        $("#feedbackQuestionDiv").hide();
+            //        $("#video-field").hide();                    
+            //        $("#ResponseList").hide();                    
+            //        $("#allResponsesSubmitted").show(); 
+            //        $("#completeClassBTN").show();                     
+            //      },
+            //      error: function(xhr) {
+            //        window.alert("error occurred while submittig data");
+            //      }
+            //    });              
+            //});
             </script>
             <script src="../static/js/qrReader_zbar-main.js"></script>
              <script type="text/javascript" src="../static/js/zbar-processor.js"></script>

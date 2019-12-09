@@ -41,9 +41,9 @@
               href="#modal2{{eachRow.test_id}}" name='{{eachRow.test_id}}'
               class='btn green modal-trigger'>Conduct Test</a></td>
           <!-- Modal structure-->
-          <div id="modal2{{eachRow.test_id}}" class="modal" style="background-color:white;">
+          <div id="modal2{{eachRow.test_id}}" class="modal" style="background-color:white; height: 250px;" >
             <form action="/feedbackCollection" method="GET">
-              <div class="modal-content">
+              <div class="modal-content" >
                 <h4>Class</h4>
                 <h3>{{eachRow.class_val}}</h3>
                 <h4>Which <b>section</b> do you want to run the test for?</h4>
