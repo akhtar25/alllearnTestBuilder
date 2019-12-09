@@ -2,6 +2,7 @@
 <div class="container">
     <div class="container">
         {% if students %}
+        {% set a = 0 %}
         {% for student in students %}
         
         <div class="container z-depth-1">                                        
@@ -9,18 +10,18 @@
                 <div class="row">
                     <div class="col-sm-5">
                         
-                        <h3><span>{{ student.full_name }}</span></h3>
+                        <h3><span>{{ student[a] }}</span></h3>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-5">
-                        <h4>School Name : <span style="font-size: 20px;">{{student.school_name}}</span></h4>
+                        <h4>School Name : <span style="font-size: 20px;"></span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Class : <span style="font-size: 20px;">{{ student.class_val }}<sup>th</sup></span></h4>
+                        <h4>Class : <span style="font-size: 20px;">{{ student[a] }}<sup>th</sup></span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Section : <span style="font-size: 20px;">{{student.Section}}</span></h4>
+                        <h4>Section : <span style="font-size: 20px;">{{student[a]}}</span></h4>
                     </div>
                 </div>
                 <div class="row">
@@ -70,7 +71,7 @@
             </div>
             <div class="col-sm-3">
                 <div class="profile_pic" style="margin-top: 20px;">
-                {% if student.profile_picture!='' %}
+                {% if student[a]!='' %}
                 <img src="{{student.profile_picture}}" class="circle responsive-img" style="width:130px; height:130px;">
                 {% else %}
                 <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle responsive-img" style="width: 130px; height: 130px;">
@@ -78,6 +79,7 @@
                 </div>
             </div>                                
         </div>
+        {% set a=a+1 %}
         <br><br>
         {% endfor %}
         

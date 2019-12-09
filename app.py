@@ -1531,6 +1531,11 @@ def guardianDashboard():
     Subject2 = ''
     Overallscore=''
     i=1
+    sName = []
+    sClass = []
+    sSection = []
+    sSchool = []
+    sPicture = []
     for g in guardian:
         Overallscore='NA'
         Subject1 = ''
@@ -1540,7 +1545,7 @@ def guardianDashboard():
         school_name = SchoolProfile.query.with_entities(SchoolProfile.school_name).filter_by(school_id=student_data.school_id).first()
         
         print('School Name:'+str(school_name.school_name))
-            
+        schoolName = school_name.school_name
         class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first() 
         print('Student_id:'+str(g.student_id))
         Scores = db.session.execute(text("select marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where student_id='"+str(g.student_id)+"' and subjects='All' limit 1")).fetchall() 
@@ -1550,11 +1555,20 @@ def guardianDashboard():
         student.append(student_data)
         student.append(school_name)
         student.append(class_value)
+        sName.append(student_data.full_name)
+        sPicture.append(student_data.profile_picture)
+        sClass.append(class_value.class_val)
+        sSection.append(class_value.section)
+        sSchool.append(school_name.school_name)
         class_va = class_value.class_val
         print('Class:'+str(class_va))
         section = class_value.section
         print('Section:'+str(section))
-    return render_template('guardianDashboard.html',students=student,class_va=class_va,section=section,Scores=Scores,subjects=subjects,disconn = 1)
+    zipped = zip(sName,sPicture,sClass,sSection,sSchool)
+    students = list(zipped)
+    for s in students:
+        print('data:'+str(s[0]))
+    return render_template('guardianDashboard.html',students=students,class_va=class_va,section=section,Scores=Scores,subjects=subjects,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
