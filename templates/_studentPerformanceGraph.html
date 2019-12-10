@@ -6,7 +6,10 @@
 
 <script>
   var graphData = {{graphJSON | safe}};
-   Plotly.plot('indivStudentPerformance',graphData,{showlegend: true,displayModeBar: false});   
+  var layout = {  
+  yaxis: {range: [0, 100], autorange: true}
+};
+   Plotly.plot('indivStudentPerformance',graphData,{showlegend: true,displayModeBar: false}, layout);   
 
  // var data = [trace1, trace2, trace3, trace4, trace5];
 //
