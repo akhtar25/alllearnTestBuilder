@@ -1910,17 +1910,19 @@ def questionDetails():
     
     return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
 
-@app.route('/topperListAll')
-def topperListAll():
-    user = User.query.filter_by(username=current_user.username).first_or_404()
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id)+"') where  subjects='All' and section<>'All' order by marks desc, student_name "
-    #print('Query:'+query)
-    leaderBoardData = db.session.execute(text(query)).fetchall()
-    return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+# @app.route('/topperListAll')
+# def topperListAll():
+#     user = User.query.filter_by(username=current_user.username).first_or_404()
+#     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
+#     query = "select  * from fn_performance_leaderboard_detail('"+ str(teacher.school_id)+"') order by marks desc, student_name "
+#     #print('Query:'+query)
+#     leaderBoardData = db.session.execute(text(query)).fetchall()
+#     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
 @app.route('/leaderBoard')
 def leaderBoard():
     form = LeaderBoardQueryForm()
+    qclass_val = request.args.get("class_val")
+    print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
@@ -1932,11 +1934,21 @@ def leaderBoard():
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='All' and section<>'All' order by marks desc, student_name "
+        # query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='All' and section<>'All' order by marks desc, student_name "
+        query = "select  * from fn_performance_leaderboard_detail('"+str(teacher.school_id)+"')"
+
+        if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
+            where = " where class='"+str(qclass_val)+"'"
+        else:
+            where = ""
+        query = query + where
+        print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-        #print('Inside leaderboard')        
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData)
+        #print('Inside leaderboard')    
+        for data in leaderBoardData:
+            print('count:'+str(data.mathematics_test_count))    
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData, qclass_val=qclass_val)
 
 @app.route('/classDelivery')
 @login_required
@@ -3113,14 +3125,14 @@ def questionFile():
 @app.route('/topperList')
 def topperList():
     classValue = request.args.get('class_val')
-    subject_id = request.args.get('subject_id')
+    # subject_id = request.args.get('subject_id')
     #test_type = request.args.get('test_type')
-    section_val = request.args.get('section_val')
+    # section_val = request.args.get('section_val')
     #test_date = request.args.get('test_date')
     #print('Class Value:'+classValue+"Subject Value:"+subject_id+"Test Type:"+test_type+"Section value:"+section_val+"Test date:"+test_date)
     user = User.query.filter_by(username=current_user.username).first_or_404()
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where class='"+classValue+"' and section='"+section_val+"' and subjects='"+subject_id+"' order by marks desc"
+    query = "select  * from fn_performance_leaderboard_detail('"+ str(teacher.school_id) +"') where class='"+classValue+"' order by marks desc"
     #print('Query topperList:'+query)
     leaderBoardData = db.session.execute(text(query)).fetchall()
     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
