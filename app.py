@@ -3286,14 +3286,24 @@ def indivStudentProfile():
 
     testCount = db.session.execute(text(testCountQuery)).first()
 
+    testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
+    testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
+    testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
+    testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
+    print(testResultQuery)
+    testResultRows = db.session.execute(text(testResultQuery)).fetchall()
+
+
     overallSum = 0
     overallPerfValue = 0
 
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         print(overallSum)
-
-    overallPerfValue = round(overallSum/(len(perfRows)),2)    
+    try:
+        overallPerfValue = round(overallSum/(len(perfRows)),2)    
+    except:
+        overallPerfValue=0
     
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
@@ -3309,7 +3319,9 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount)
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+        qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
+        testResultRows = testResultRows)
 
 
 @app.route('/studentProfile')
