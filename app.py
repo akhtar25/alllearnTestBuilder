@@ -1947,7 +1947,8 @@ def leaderBoard():
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
         #print('Inside leaderboard')    
         for data in leaderBoardData:
-            print('count:'+str(data.mathematics_test_count))    
+            print('count:'+str(data.section))
+            print('marks:'+str(data.marks))
     return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData, qclass_val=qclass_val)
 
 @app.route('/classDelivery')
