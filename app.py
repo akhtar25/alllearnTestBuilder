@@ -3367,19 +3367,11 @@ def indivStudentProfile():
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         print(overallSum)
-<<<<<<< HEAD
     School_id = StudentProfile.query.with_entities(StudentProfile.school_id).filter_by(student_id=student_id).first()
     print('School_id:'+str(School_id.school_id))
     Scores = db.session.execute(text("select *from public.fn_performance_leaderboard("+str(School_id.school_id)+") where student_id='"+str(student_id)+"' and subjects='All' limit 1")).fetchall()  
     for scores in Scores:
         overallPerfValue = scores.marks
-=======
-    try:
-        overallPerfValue = round(overallSum/(len(perfRows)),2)    
-    except:
-        overallPerfValue=0
-    
->>>>>>> master
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
 
@@ -3394,13 +3386,7 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
-<<<<<<< HEAD
     return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,flag=flag)
-=======
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
-        qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows)
->>>>>>> master
 
 
 @app.route('/studentProfile')
