@@ -2,62 +2,49 @@
 <div class="container">
     <div class="container">
         {% if students %}
-        {% set a = 0 %}
         {% for student in students %}
-        
+        {% for detail in studentdetails %}
         <div class="container z-depth-1">                                        
             <div class="col-sm-9">
                 <div class="row">
                     <div class="col-sm-5">
                         
-                        <h3><span>{{ student[a] }}</span></h3>
+                        <h3><span>{{detail.student_name}} </span></h3>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-5">
-                        <h4>School Name : <span style="font-size: 20px;"></span></h4>
+                        <h4>School Name : <span style="font-size: 20px;">{{detail.school}}</span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Class : <span style="font-size: 20px;">{{ student[a] }}<sup>th</sup></span></h4>
+                        <h4>Class : <span style="font-size: 20px;">{{detail.class}} <sup>th</sup></span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Section : <span style="font-size: 20px;">{{student[a]}}</span></h4>
+                        <h4>Section : <span style="font-size: 20px;">{{detail.section}} </span></h4>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                    {% if Scores | length ==0 %}
-                    {{class_va}}
-                    {% for scores in Scores%}
                     
-                        {% if scores.marks == '' %}
-                        <h4>Overallmarks Percentage :  <span class="text-green" style="font-size: 20px;">NA</span></h4>  
-                        {% elif scores.marks > 49  %}
-                        <h4>Overallmarks Percentage : <span class="text-green" style="font-size: 20px;">{{scores.marks}}%</span></h4>
+                        {% if detail.score == '' %}
+                        <h4>Overallmarks %age :  <span class="text-green" style="font-size: 20px;">NA</span></h4>  
+                        {% elif detail.score > 49  %}
+                        <h4>Overallmarks %age : <span class="text-green" style="font-size: 20px;">{{detail.score}}%</span></h4>
                         {% else %}
-                        <h4>Overallmarks Percentage : <span class="text-red" style="font-size: 20px;">{{scores.marks}}%</span></h4>
+                        <h4>Overallmarks %age : <span class="text-red" style="font-size: 20px;">{{detail.score}}%</span></h4>
                         {% endif %}
-                    {% endfor %}
-                    {% endif %}
                     </div>
                     
                     <div class="col-sm-6">
                         
                         <h4 >Strengths:
-                        {% for sub in subjects %}
-                        {% if sub.subjects!='' %}
+                        {% if detail.strong_2_subjects!='' %}
                         <span class="text-green">
-                                <!-- {% for subject in subjects %}
-                                {{subject.subjects}}
-                                {% endfor %} -->
-                                <span style="font-size: 20px;">{{sub.subjects}}</span>
+                                <span style="font-size: 20px;">{{detail.strong_2_subjects}}</span>
                         </span></h4>
-                        
                         {% else %}
                         <span class="text-green">NA</span></h4>
                         {% endif %}
-                        &nbsp;&nbsp;and&nbsp;&nbsp;
-                        {% endfor %}
                     </div>
                     
                 </div>
@@ -71,7 +58,7 @@
             </div>
             <div class="col-sm-3">
                 <div class="profile_pic" style="margin-top: 20px;">
-                {% if student[a]!='' %}
+                {% if student.profile_picture!='' %}
                 <img src="{{student.profile_picture}}" class="circle responsive-img" style="width:130px; height:130px;">
                 {% else %}
                 <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle responsive-img" style="width: 130px; height: 130px;">
@@ -79,8 +66,8 @@
                 </div>
             </div>                                
         </div>
-        {% set a=a+1 %}
         <br><br>
+        {% endfor %}
         {% endfor %}
         
         {% endif %}

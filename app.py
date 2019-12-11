@@ -1549,53 +1549,16 @@ def attendance():
 @app.route('/guardianDashboard')
 @login_required
 def guardianDashboard():
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    student=[]
-    class_va = ''
-    section = ''
-    Subject1 = ''
-    Subject2 = ''
-    Overallscore=''
-    i=1
-    sName = []
-    sClass = []
-    sSection = []
-    sSchool = []
-    sPicture = []
+    students=[]
     for g in guardian:
-        Overallscore='NA'
-        Subject1 = ''
-        Subject2 = ''
+        
         print('Inside guardian loop')
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
-        school_name = SchoolProfile.query.with_entities(SchoolProfile.school_name).filter_by(school_id=student_data.school_id).first()
-        
-        print('School Name:'+str(school_name.school_name))
-        schoolName = school_name.school_name
-        class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first() 
-        print('Student_id:'+str(g.student_id))
-        Scores = db.session.execute(text("select marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where student_id='"+str(g.student_id)+"' and subjects='All' limit 1")).fetchall() 
-        subjects = db.session.execute(text("select distinct subjects,marks from public.fn_performance_leaderboard("+str(teacher.school_id)+") where  student_id="+str(g.student_id)+" and subjects!='All' order by marks desc limit 2")).fetchall()
-        print('Length of list:'+str(len(Scores)))
-        print('Length of Subjects list:'+str(len(subjects)))
-        student.append(student_data)
-        student.append(school_name)
-        student.append(class_value)
-        sName.append(student_data.full_name)
-        sPicture.append(student_data.profile_picture)
-        sClass.append(class_value.class_val)
-        sSection.append(class_value.section)
-        sSchool.append(school_name.school_name)
-        class_va = class_value.class_val
-        print('Class:'+str(class_va))
-        section = class_value.section
-        print('Section:'+str(section))
-    zipped = zip(sName,sPicture,sClass,sSection,sSchool)
-    students = list(zipped)
-    for s in students:
-        print('data:'+str(s[0]))
-    return render_template('guardianDashboard.html',students=students,class_va=class_va,section=section,Scores=Scores,subjects=subjects,disconn = 1)
+        students.append(student_data)
+        query = "select *from fn_guardian_dashboard_summary('"+str(student_data.school_id)+"')"
+        studentdetails = db.session.execute(text(query)).fetchall()
+    return render_template('guardianDashboard.html',students=students,disconn = 1,studentdetails=studentdetails)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
