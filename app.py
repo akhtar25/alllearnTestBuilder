@@ -1529,7 +1529,7 @@ def testBuilderFileUpload():
 @login_required
 def testPapers():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_test,TestDetails.date_of_creation).all()
+    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
     subjectNames=MessageDetails.query.filter_by(category='Subject')
 
     return render_template('testPapers.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck())

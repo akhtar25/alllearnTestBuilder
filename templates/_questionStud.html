@@ -1,95 +1,58 @@
 <div class="content">
-<div class="row">
+  <div class="row">
 
-<label id="currQuestionLabel" style="width: 100%;">     
-    {% if totalQCount!=''%}   
-    {% set qnum = qnum | int %}
-    {% set qnum = qnum + 1 %}
-            Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>             
+    <label id="currQuestionLabel" style="width: 100%;">
+      {% if totalQCount!=''%}
+      {% set qnum = qnum | int %}
+      {% set qnum = qnum + 1 %}
+      Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
     </label>
     {% endif %}
     <h3>Q: {{ question.question_description }}</h3>
     {%if question.reference_link !=None %}
-<aside class="right">    
-    <img src="{{ question.reference_link }}" height="210px" width="300px" style="margin-top: 20px;">
-</aside>
-{% endif %}
- 
- <br>
-    {% for optionVal in questionOp %}    
-    {% if  optionVal.option_desc %}    
+    <aside class="right">
+      <img src="{{ question.reference_link }}" height="210px" width="300px" style="margin-top: 20px;">
+    </aside>
+    {% endif %}
+
+    <br>
+    {% for optionVal in questionOp %}
+    {% if  optionVal.option_desc %}
     <!--<li style="display:flex;"></li>    -->
     <p>
-        <label>
-          <input name="group1" type="radio" />
-        <span style="font-size: 15px;" >({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
-        </label>
-      </p>
+      <label>
+        <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}"/>
+        <span style="font-size: 15px;">({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
+      </label>
+    </p>
     {% endif %}
     {% endfor %}
 
-</div>
-<a href='#' class='btn green' id='submitAndNextBTN'>Submit and Next</a>
+  </div>
+
 </div>
 
 <script>
-$('#submitAndNextBTN').click(function(){
-    //alert('aha');
-    $.ajax({
-        url: "/responseStudUpdate?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar],
-        type: "get",
-        data: '',
-        success: function (response) {
-            if (response=='0'){
-                alert('Updated response DB');
-            }
-            else{
-                alert('Error updating database for response');
-            }                    
-          if (tempCountVar == questionListSize) {
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src =
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
 
-            $("#startAndNextBTN").hide();
-            $("#startrecordResponsesBTN").show();
-            $("#skipButton").click(function () {
-              document.getElementById("submitAndFinishBTN").click();
-            });
+    var config = 'MathJax.Hub.Config({' +
+      'extensions: ["tex2jax.js"],' +
+      'jax: ["input/TeX","output/HTML-CSS"]' +
+      '});' +
+      'MathJax.Hub.Startup.onload();';
 
 
-          } else {
+    if (window.opera) {
+      script.innerHTML = config
+    } else {
+      script.text = config
+    }
 
-            
-            $("#startAndNextBTN").attr('value', 'Submit and Next');
-            $("#startAndNextBTN").hide();
-            $("#startrecordResponsesBTN").show();
-            $("#skipButton").show();
-
-          }
-        },
-        error: function (xhr) {
-          window.alert("error occurred while loading question");
-        }
-      });
-  });
-
-
-(function () {
-                    var script = document.createElement("script");
-                    script.type = "text/javascript";
-                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
-
-                    var config = 'MathJax.Hub.Config({' +
-                                    'extensions: ["tex2jax.js"],' +
-                                    'jax: ["input/TeX","output/HTML-CSS"]' +
-                                '});' +
-                                'MathJax.Hub.Startup.onload();';
-                                
-
-                    if (window.opera) {script.innerHTML = config}
-                                else {script.text = config}
-
-                    document.getElementsByTagName("head")[0].appendChild(script);
-                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-                    })();
+    document.getElementsByTagName("head")[0].appendChild(script);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+  })();
 </script>
-           

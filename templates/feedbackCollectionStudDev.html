@@ -60,10 +60,11 @@
                 </div>
                 <div id="questionButtons">
                   {% if questionList|length > 0 %}
-                  <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN"
+                  <input type="button" value="Start" class="btn btn-primary pull-right green" id="startAndNextBTN"
                     style="height: 40px; width: 200px;">
                   {% endif %}
                   <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a>
+
                   <!--<input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">  -->
                   <!--<input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN"
                     style="height: 40px; display: none; ">-->
@@ -126,12 +127,26 @@
     document.getElementById("startAndNextBTN").click();
   });
 
+  $("#skipButton").click(function () {
+    document.getElementById("startAndNextBTN").click();
+  });
+
+  //$(".ansOption").click(function () {
+  //  alert('This is the option');
+  //});
+
+
+
+
   $("#startAndNextBTN").click(function () {
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
+    
+    
+            var radioValue = $("input[name='ansOption']:checked").val();
+            if(radioValue){
+                alert("Your are a - " + radioValue);
+            }    
 
-    //document.getElementById("result_strip").innerHTML="";
-    //keepRecording = true;   
-    //alert(currQuestion);
     if (tempCountVar < questionListSize) {
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
@@ -143,19 +158,16 @@
           tempCountVar = tempCountVar + 1;
           if (tempCountVar == questionListSize) {
 
-            $("#startAndNextBTN").hide();
-            $("#startrecordResponsesBTN").show();
-            $("#skipButton").click(function () {
-              document.getElementById("submitAndFinishBTN").click();
-            });
-
-
-          } else {
-
-            
+            //$("#startAndNextBTN").hide();
+            //$("#startrecordResponsesBTN").show();
+            //$("#skipButton").click(function () {
+            //  document.getElementById("submitAndFinishBTN").click();
+            //});
+          } else {            
             $("#startAndNextBTN").attr('value', 'Submit and Next');
-            $("#startAndNextBTN").hide();
-            $("#startrecordResponsesBTN").show();
+            $("#startAndNextBTN").attr('class', 'btn btn-primary left green');
+            //$("#startAndNextBTN").hide();
+            //$("#startrecordResponsesBTN").show();
             $("#skipButton").show();
 
           }

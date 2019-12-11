@@ -29,7 +29,7 @@
           {%endif%}
           {%endfor%}
           <td>{{eachRow.total_marks}}</td>
-          <td>{{eachRow.date_of_creation.strftime('%Y-%m-%d')}}</td>
+          <td>{{eachRow.date_of_creation.strftime('%d-%B-%Y')}}</td>
           <td><a href="#">Chapters and Topics</a></td>
           <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
           <!--      qtest_id = request.args.get('test_id')
