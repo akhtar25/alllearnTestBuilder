@@ -63,11 +63,45 @@
                         {%endif%}
                         {% else %}
                         {%if overallPerfValue > 49 %}
+<<<<<<< HEAD
                         <h3 class='green-text'>{{overallPerfValue}}%  </h3> (<a href="">{{testCount.testcountval}} tests</a>)
                         {%else%}
                         <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="">{{testCount.testcountval}} tests</a>)
                         {%endif%}
                         {% endif %}
+=======
+                        <h3 class='green-text'>{{overallPerfValue}}%  </h3> (<a href="#modal1" data-target="modal1" class="modal-trigger">{{testCount.testcountval}} tests</a>)                                               
+                        {%else%}
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="#modal1" data-target="modal1" class="modal-trigger">{{testCount.testcountval}} tests</a>)
+                        {%endif%}
+                        <div id="modal1" class="modal" style="background-color: white;">
+                            <div class="modal-content" >
+                              <h4>Tests details</h4>
+                              <table class="table table-hover" style='overflow-x:auto'>
+                                  <thead>
+                                      <tr>
+                                          <th>Exam date</th>
+                                          <th>Test Type</th>
+                                          <th>Subject</th>
+                                          <th>Marks Scored</th>
+                                          <th>Total Marks</th>
+                                      </tr>                                      
+                                  </thead>
+                                  <tbody>
+                                      {%for dataRows in testResultRows%}
+                                      <tr>
+                                          <td>{{dataRows.exam_date.strftime('%d %B %Y')}}</td>
+                                          <td>{{dataRows.test_type}}</td>
+                                          <td>{{dataRows.subject}}</td>
+                                          <td>{{dataRows.marks_scored}}</td>
+                                          <td>{{dataRows.total_marks}}</td>
+                                      </tr>
+                                      {%endfor%}
+                                  </tbody>
+                              </table>
+                          </div>  
+                          </div>
+>>>>>>> master
                     </td>
                 </table>
                 <br>            
@@ -155,4 +189,12 @@
             }
         });
     });
+
+//$('#testCountValLink').click(function(){
+//    $("#studentPerformanceGraphDiv").show();
+//});
+$(document).ready(function(){
+    console.log('Inside model');
+    $('.modal').modal();
+  });
 </script>

@@ -43,10 +43,18 @@ import hashlib
 from random import randint
 import string
 import requests
+from flask_talisman import Talisman, ALLOW_FROM
 
 #from flask_material import Material
 
 app=Flask(__name__)
+#csp = {
+# 'default-src': [
+#        '\'self\'',
+#        '*.*.com'
+#    ]
+#}
+talisman = Talisman(app, content_security_policy=None)
 #Material(app)
 #csrf = CSRFProtect()
 #csrf.init_app(app)
@@ -55,6 +63,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 login_manager.init_app(app)
 moment = Moment(app)
+
 
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
@@ -89,6 +98,12 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
     g.search_form = SearchForm()
+    #scheme = request.headers.get('X-Forwarded-Proto')        
+    #if scheme and scheme == 'http' and request.url.startswith('http://'):        
+    #    url = request.url.replace('http://', 'https://', 1)
+    #    code = 301
+    #    return redirect(url, code=code)
+    
     
 
 #helper methods
@@ -140,7 +155,14 @@ def classSecCheck():
         else:
             return 'Y'
 
+@app.route('/normal')
+def normal():
+    return 'Normal'
 
+@app.route('/embeddable')
+@talisman(frame_options=ALLOW_FROM, frame_options_allow_from='*')
+def embeddable():
+    return 'Embeddable'
 
 @app.route("/loaderio-ad2552628971ece0389988c13933a170/")
 def performanceTestLoaderFunction():
@@ -588,7 +610,10 @@ def edit_profile():
         current_user.willing_to_travel = form.willing_to_travel.data
         ##
         db.session.commit()
-        flash('Your changes have been saved.')
+        flash('Your changes have been saved')        
+        if current_user.user_type==161:
+            return redirect(url_for('openJobs'))
+
     elif request.method == 'GET':        
         form.about_me.data = current_user.about_me
         form.first_name.data = current_user.first_name
@@ -758,9 +783,11 @@ def openJobs():
         userRecord = User.query.filter_by(id=current_user.id).first()
         userRecord.user_type= '161'
         db.session.commit()
+        flash('Please complete your profile before applying for jobs')
+        return redirect('edit_profile')
     else:
         print('first login not registered')    
-    return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
+        return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
 
 
 @app.route('/openJobsFilteredList')
@@ -2099,8 +2126,6 @@ def contentManagerDetails():
             print("Content List"+str(c))    
         return render_template('_contentManagerDetails.html',contents=contents)
 
-
-
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():
@@ -2151,7 +2176,7 @@ def feedbackCollection():
         dateVal= datetime.today().strftime("%d%m%Y")
         responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-        #changes for use with PC+ mobile cam combination hahaha
+        #changes for use with PC+ mobile cam combination
         if questionListSize >0:
             sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                         class_sec_id=curr_class_sec_id)
@@ -3328,17 +3353,33 @@ def indivStudentProfile():
 
     testCount = db.session.execute(text(testCountQuery)).first()
 
+    testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
+    testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
+    testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
+    testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
+    print(testResultQuery)
+    testResultRows = db.session.execute(text(testResultQuery)).fetchall()
+
+
     overallSum = 0
     overallPerfValue = 0
 
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         print(overallSum)
+<<<<<<< HEAD
     School_id = StudentProfile.query.with_entities(StudentProfile.school_id).filter_by(student_id=student_id).first()
     print('School_id:'+str(School_id.school_id))
     Scores = db.session.execute(text("select *from public.fn_performance_leaderboard("+str(School_id.school_id)+") where student_id='"+str(student_id)+"' and subjects='All' limit 1")).fetchall()  
     for scores in Scores:
         overallPerfValue = scores.marks
+=======
+    try:
+        overallPerfValue = round(overallSum/(len(perfRows)),2)    
+    except:
+        overallPerfValue=0
+    
+>>>>>>> master
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
 
@@ -3353,7 +3394,13 @@ def indivStudentProfile():
         qrArray.append(optionURL)
         print(optionURL)
          
+<<<<<<< HEAD
     return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,flag=flag)
+=======
+    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+        qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
+        testResultRows = testResultRows)
+>>>>>>> master
 
 
 @app.route('/studentProfile')
@@ -3499,11 +3546,13 @@ def format_currency(value):
     return "₹{:,.2f}".format(value)
 
 if __name__=="__main__":
-    app.debug=True
+    app.debug=True    
     app.jinja_env.filters['zip'] = zip
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000)))
+        port=int(os.getenv('PORT', 8000)),
+        #ssl_context='adhoc'
+        )
     #app.run()
 
