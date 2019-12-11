@@ -27,44 +27,51 @@
       </p>
     {% endif %}
     {% endfor %}
- <!--<ul>
-    {% for optionVal in questionOp %}    
-    {% if  optionVal.option_desc %}
-    {% if optionVal.is_correct=='Y' %}
-    {% if qnum %}
-    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 30px;margin-top: 3px;display:none;">check</i></li>
-    {% else %}
-    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 30px;margin-top: -5px;display:none;">check</i></li>
-    {% endif %}
-    {% else %}    
-    <li style="display:flex;"><h4>({{ optionVal.option }}) </h4><h4>&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
-    {% endif %}
-    {% endif %}
-    {% endfor %}
- </ul>-->
- <!--
- {% if qnum %}
- <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;">Show Answer</a>
- <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 100px;display:none;">Hide Answer</a>
- {% else %}
- <a id="showAns" style="cursor: pointer;font-size: 16px;float:left;margin-top:140px;">Show Answer</a>
- <a id="hideAns" style="cursor: pointer;font-size: 16px;float:left;margin-top: 140px;display:none;">Hide Answer</a>
- {% endif %}-->
+
 </div>
+<a href='#' class='btn green' id='submitAndNextBTN'>Submit and Next</a>
 </div>
 
 <script>
-$('#showAns').click(function(){
-    $('#solution').show();
-    $('#showAns').hide();
-    $('#hideAns').show();
+$('#submitAndNextBTN').click(function(){
+    //alert('aha');
+    $.ajax({
+        url: "/responseStudUpdate?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
+          questionIDListJS[tempCountVar],
+        type: "get",
+        data: '',
+        success: function (response) {
+            if (response=='0'){
+                alert('Updated response DB');
+            }
+            else{
+                alert('Error updating database for response');
+            }                    
+          if (tempCountVar == questionListSize) {
+
+            $("#startAndNextBTN").hide();
+            $("#startrecordResponsesBTN").show();
+            $("#skipButton").click(function () {
+              document.getElementById("submitAndFinishBTN").click();
+            });
+
+
+          } else {
+
+            
+            $("#startAndNextBTN").attr('value', 'Submit and Next');
+            $("#startAndNextBTN").hide();
+            $("#startrecordResponsesBTN").show();
+            $("#skipButton").show();
+
+          }
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading question");
+        }
+      });
   });
 
-$('#hideAns').click(function(){
-    $('#solution').hide();
-    $('#showAns').show();
-    $('#hideAns').hide();
-});
 
 (function () {
                     var script = document.createElement("script");

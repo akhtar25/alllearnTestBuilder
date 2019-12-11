@@ -2309,7 +2309,36 @@ def loadQuestionStud():
     return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 
+@app.route('/responseStudUpdate')
+@login_required
+def responseStudUpdate():        
+    question_id = request.args.get('question_id')
+    response_option = request.args.get('response_option')
+    resp_session_id = request.args.get('resp_session_id')
+    subject_id =  request.args.get('subject_id')
 
+    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
+    teacherID = sessionDetailRow.teacher_id
+
+    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=response_option).first()                    
+
+    #print('this is optionCheckRow'+ str(optionCheckRow))
+    ansCheck = ''
+    if (optionCheckRow==None):
+        ansCheck='N'
+    elif (optionCheckRow.is_correct=='Y'):
+        ansCheck='Y'
+    else:
+        ansCheck='N'
+
+    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+        question_id= question_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+        class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
+    db.session.add(responseStudUpdateQuery)
+    db.session.commit()
+    return jsonify(['0'])
 
 
 @app.route('/questionAllDetails')
