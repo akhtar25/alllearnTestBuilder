@@ -40,8 +40,8 @@
 
           </div>
         </li>
-        <!--<li>
-      <div class="collapsible-header"><i class="material-icons">home</i>Request access as a guardian</div>
+        <li>
+      <div class="collapsible-header"><i class="material-icons">home</i><h4>Request access as a guardian</h4></div>
       <div class="collapsible-body">
           <div class="input-field">
               <input placeholder="School ID" id="reqAccessGuardian" type="text" class="validate">
@@ -53,7 +53,7 @@
               </div>
             <a class="waves-effect waves-light btn" id="requestAccessGuardianBTNID">Submit</a>
       </div>
-    </li>-->
+    </li>
 
 
       </ul>
@@ -84,10 +84,38 @@
     var username = "{{current_user.username}}";
     var school_id = $('#reqAccessTeacher').val();
     about_me = $('#reqAccessTeacherMSG').val();
+    user_type= 71;
     console.log(username);
     var data = "";
     $.ajax({
-      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me,
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me + "&user_type=" + user_type,
+      type: "get",
+      data: data,
+      success: function (response) {
+        if (response == '0') {
+          $("#mainDiv").hide();
+          $("#accessRequestedAlreadyDiv").show();
+        } else {
+          $('#invalidSchoolIdDiv').show();
+        }
+      },
+      error: function (xhr) {
+        window.alert("error occurred while requesting access");
+      }
+    });
+  });
+
+  // for Guardian grant access
+
+  $('#requestAccessGuardianBTNID').click(function () {
+    var username = "{{current_user.username}}";
+    var school_id = $('#reqAccessGuardian').val();
+    about_me = $('#reqAccessGuardianMSG').val();
+    user_type= 72;
+    console.log(username);
+    var data = "";
+    $.ajax({
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me + "&user_type=" + user_type,
       type: "get",
       data: data,
       success: function (response) {
