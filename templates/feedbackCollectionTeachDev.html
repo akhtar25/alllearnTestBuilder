@@ -111,8 +111,8 @@
                 {% if questionList|length > 0 %}
                 <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
                 {% endif %}
-                <input type="button" value="Start Timer" class="btn green btn-primary" id="startrecordResponsesBTN"
-                  style="height: 40px; ">
+              <!--  <input type="button" value="Start Timer" class="btn green btn-primary" id="startrecordResponsesBTN"
+                  style="height: 40px; ">-->
                 <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN"
                   style="height: 40px; display: none; ">
                 <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN"
@@ -136,7 +136,7 @@
                 </li>
               </ol><br>
 
-              <div id='qrIMGDiv' class='center' style="z-index: 1000000000;"><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
+              <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
               <div class="divider"></div>
               <!--This is the section for timer-->
 <!--
