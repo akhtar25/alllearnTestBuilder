@@ -134,12 +134,12 @@
                   {% for eachRow in leaderBoardData%}
                 <tr style="height: 60px;">
                     {% if profile_pic %}
-                    <td style="text-align: center;width:250px;" ><img src="{{ profile_pic }}" height="50" width="50"><span style="text-align: center;font-size: 14px;"> 
+                    <td style="text-align: center;width:250px;" ><img src="../static/images/alllearnImageWatermark.png" height="50" width="50"><span style="text-align: center;font-size: 14px;"> 
                      <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
                     </span></td>    
                     {% else %} 
                     <td style="width: 250px;">
-                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">
+                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">     
                       <span style="text-align: center;font-size: 14px;"> 
                           <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
                       </span>
@@ -202,7 +202,7 @@
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="5"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
+                    <td colspan="14"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
                   </tr>
                     {% endif %}
               </tbody>
