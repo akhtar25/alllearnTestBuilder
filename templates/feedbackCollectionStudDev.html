@@ -142,8 +142,9 @@
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
 
     var radioValue = $("input[name='ansOption']:checked").val();
+    var respOption = '';
     if (radioValue) {
-      alert("Your are a - " + radioValue);
+      respOption =radioValue; 
     }
     //question_id = request.args.get('question_id')
     //totalQCount = request.args.get('total')
@@ -156,8 +157,8 @@
     if (tempCountVar < questionListSize) {
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar] + "&response_option="+ radioValue+ "&resp_session_id="+ {{resp_session_id}}+
-          "subject_id="+ {{subject_id}},
+          questionIDListJS[tempCountVar] + "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
+          "&subject_id="+ {{subject_id}},
         type: "get",
         data: '',
         success: function (response) {

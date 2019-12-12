@@ -2124,8 +2124,6 @@ def feedbackCollection():
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
             qsection = str(qsection).upper()
             currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
-
-
             #queryCurrClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),section=qsection)
             #print("Here's the query: "+str(queryCurrClassSecRow))
             if currClassSecRow is None:
@@ -2136,8 +2134,6 @@ def feedbackCollection():
             responseSessionID = str(dateVal).strip() + str(qsubject_id).strip() + str(currClassSecRow.class_sec_id).strip()
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
 
-
-
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
 
             questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()            
@@ -2145,11 +2141,13 @@ def feedbackCollection():
 
             #creating a record in the session detail table  
             if questionListSize !=0:
-                sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
-                db.session.add(sessionDetailRowInsert)
-                print('Adding to the db')
-                db.session.commit()
+                sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+                if sessionDetailRowCheck==None:
+                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                            class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
+                    db.session.add(sessionDetailRowInsert)
+                    print('Adding to the db')
+                    db.session.commit()
 
             questionList = []
             for questValue in questionIDList:
@@ -2311,12 +2309,16 @@ def loadQuestionStud():
     resp_session_id = request.args.get('resp_session_id')
     subject_id =  request.args.get('subject_id')
 
+    print('This is the response session id in: ' + str(resp_session_id) )
     studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
+    print('########### Session details have been fetched')
+
     teacherID = sessionDetailRow.teacher_id
 
     if response_option!='':
-        optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=response_option).first()                    
+        print('###############Response option is not null###############. This is it' + str(response_option)+ '-')
+        optionCheckRow = QuestionOptions.query.filter_by(question_id=question_id, option=response_option).first()                    
 
         #print('this is optionCheckRow'+ str(optionCheckRow))
         ansCheck = ''
