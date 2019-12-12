@@ -35,7 +35,7 @@
             <div class="col-xs-8">
               <div class="box" id="feedbackQuestionDiv">
                 <div class="box-header">
-                  <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;"> Class:
+                  <h3 class="box-title">{{test_type}} </h3><span style="padding-left: 10px;"> Class:
                     {{ class_val }} | Section: {{ section }}</span>
                 </div>
                 <span id="questionList" style="display: none;">{{ questionList }}</span>
@@ -130,6 +130,7 @@
     document.getElementById("startAndNextBTN").click();
   });
 
+
   //$(".ansOption").click(function () {
   //  alert('This is the option');
   //});
@@ -138,6 +139,7 @@
 
 
   $("#startAndNextBTN").click(function () {
+    $("#startAndNextBTN").attr("disabled", true);
 
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
 
@@ -146,18 +148,14 @@
     if (radioValue) {
       respOption =radioValue; 
     }
-    //question_id = request.args.get('question_id')
-    //totalQCount = request.args.get('total')
-    //qnum= request.args.get('qnum')
-    //######################################################
-    //response_option = request.args.get('response_option')
-    //resp_session_id = request.args.get('resp_session_id')
-    //subject_id =  request.args.get('subject_id')
-    //
-    if (tempCountVar < questionListSize) {
+    if (tempCountVar <= questionListSize) {      
+      var lastQIDVal = $("#lastQIDVal").val();      
+      //alert("qnum:" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
+      //    questionIDListJS[tempCountVar] + "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
+      //    "&subject_id="+ {{subject_id}}+"&last_q_id="+lastQIDVal);
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar] + "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
+          questionIDListJS[tempCountVar] + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
           "&subject_id="+ {{subject_id}},
         type: "get",
         data: '',
@@ -165,17 +163,17 @@
           $("#questionSection").html(response);
           tempCountVar = tempCountVar + 1;
           if (tempCountVar == questionListSize) {
-
-            $("#startAndNextBTN").attr('value', 'Submit and Finish');            
-            //$("#startrecordResponsesBTN").show();
-            //$("#skipButton").click(function () {
-            //  document.getElementById("submitAndFinishBTN").click();
-            //});
-          } else {
+            $("#startAndNextBTN").attr('value', 'Submit and Finish');
+            //$("#skipButton").hide();
+            //$("#startAndNextBTN").hide();
+          } 
+          else if(tempCountVar > questionListSize){
+            $("#skipButton").hide();
+            $("#startAndNextBTN").hide();
+          }
+          else {
             $("#startAndNextBTN").attr('value', 'Submit and Next');
             $("#startAndNextBTN").attr('class', 'btn btn-primary left green');
-            //$("#startAndNextBTN").hide();
-            //$("#startrecordResponsesBTN").show();
             $("#skipButton").show();
 
           }
@@ -184,7 +182,7 @@
           window.alert("error occurred while loading question");
         }
       });
-    } else {}
+    } 
   });
   //$('#submitAndFinishBTN').click(function(){
   //  var class_val = $('#class_val_ip').val();

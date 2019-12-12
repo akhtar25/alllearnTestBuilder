@@ -1732,7 +1732,7 @@ def feedbackCollectionStudDev():
             questionListSize = len(testQuestions)
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScannerStudent.html')
@@ -2308,17 +2308,19 @@ def loadQuestionStud():
     response_option = request.args.get('response_option')
     resp_session_id = request.args.get('resp_session_id')
     subject_id =  request.args.get('subject_id')
+    last_q_id =  request.args.get('last_q_id')    
 
     print('This is the response session id in: ' + str(resp_session_id) )
     studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    #print('#######this is the current user id'+ str(current_user.id))
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
-    print('########### Session details have been fetched')
+    #print('########### Session details have been fetched')
 
     teacherID = sessionDetailRow.teacher_id
 
     if response_option!='':
-        print('###############Response option is not null###############. This is it' + str(response_option)+ '-')
-        optionCheckRow = QuestionOptions.query.filter_by(question_id=question_id, option=response_option).first()                    
+        #print('###############Response option is not null###############. This is it' + str(response_option)+ '-')
+        optionCheckRow = QuestionOptions.query.filter_by(question_id=last_q_id, option=response_option).first()                    
 
         #print('this is optionCheckRow'+ str(optionCheckRow))
         ansCheck = ''
@@ -2329,54 +2331,74 @@ def loadQuestionStud():
         else:
             ansCheck='N'
 
-
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-            question_id= question_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+            question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
             class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
         db.session.add(responseStudUpdateQuery)
         db.session.commit()
+
+        
         ######################################################
 
-    if totalQCount!=qnum:
+    if int(qnum)< int(totalQCount):
+        print('###############q number LESS THAN TOTAL Q COUNT###############')
         question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
         questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
-        return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
-    else:
-        return redirect(url_for('feedbackReport', resp_session_id=resp_session_id))
+        print('this is the last q id#################:'+last_q_id)
+        return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount, last_q_id=question_id)
+    else:        
+        print('###############q number MORE THAN TOTAL Q COUNT###############')
+        totalMarksQuery = "select sum(suggested_weightage) as total_marks, count(*) as num_of_questions  from question_details where question_id in "
+        totalMarksQuery =  totalMarksQuery +"(select distinct question_id from test_questions t1 inner join session_detail t2 on "
+        totalMarksQuery =  totalMarksQuery +"t1.test_id=t2.test_id and t2.resp_session_id='"+str(resp_session_id)+"') "
+
+        totalMarksVal = db.session.execute(text(totalMarksQuery)).first()
+
+        marksScoredQuery =  "select sum(suggested_weightage) as marks_scored, count(*) as correct_ans from question_details where question_id "
+        marksScoredQuery=marksScoredQuery+"in (select distinct question_id from response_capture where is_correct='Y' and "
+        marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+")"
+        marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
+
+        try:
+            marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
+        except:
+            marksPercentage=0
+
+        return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
 
-@app.route('/responseStudUpdate')
-@login_required
-def responseStudUpdate():        
-    question_id = request.args.get('question_id')
-    response_option = request.args.get('response_option')
-    resp_session_id = request.args.get('resp_session_id')
-    subject_id =  request.args.get('subject_id')
-
-    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
-
-    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
-    teacherID = sessionDetailRow.teacher_id
-
-    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=response_option).first()                    
-
-    #print('this is optionCheckRow'+ str(optionCheckRow))
-    ansCheck = ''
-    if (optionCheckRow==None):
-        ansCheck='N'
-    elif (optionCheckRow.is_correct=='Y'):
-        ansCheck='Y'
-    else:
-        ansCheck='N'
-
-    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-        question_id= question_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-        class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
-    db.session.add(responseStudUpdateQuery)
-    db.session.commit()
-    return jsonify(['0'])
-
+#@app.route('/responseStudUpdate')
+#@login_required
+#def responseStudUpdate():        
+#    question_id = request.args.get('question_id')
+#    response_option = request.args.get('response_option')
+#    resp_session_id = request.args.get('resp_session_id')
+#    subject_id =  request.args.get('subject_id')
+#
+#    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+#
+#    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
+#    teacherID = sessionDetailRow.teacher_id
+#
+#    optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=response_option).first()                    
+#
+#    #print('this is optionCheckRow'+ str(optionCheckRow))
+#    ansCheck = ''
+#    if (optionCheckRow==None):
+#        ansCheck='N'
+#    elif (optionCheckRow.is_correct=='Y'):
+#        ansCheck='Y'
+#    else:
+#        ansCheck='N'
+#
+#    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+#        question_id= question_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+#        class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
+#    db.session.add(responseStudUpdateQuery)
+#    db.session.commit()
+#    return jsonify(['0'])
+#
 
 @app.route('/questionAllDetails')
 def questionAllDetails():
@@ -2556,7 +2578,7 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  student_id + "' and and rc.resp_session_id='"+resp_session_id+ "'"
+    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 

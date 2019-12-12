@@ -23,6 +23,7 @@
       <label>
         <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}"/>
         <span style="font-size: 15px;">({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
+        <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
       </label>
     </p>
     {% endif %}
@@ -33,6 +34,10 @@
 </div>
 
 <script>
+    $(".ansOption").click(function (){
+    $("#startAndNextBTN").attr("disabled", false);
+});
+
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
