@@ -1,4 +1,4 @@
-<div class="box-body table-responsive no-padding" style="height:500px;">
+<!-- <div class="box-body table-responsive no-padding" style="height:500px;">
       
         <table class="table table-hover">
             
@@ -38,4 +38,117 @@
           {% endif %}
         </tbody>
         </table>    
-      </div>
+      </div> -->
+
+
+      <div class="row">
+          <div id="admin" class="col s12">
+            <div class="card material-table">
+              <div class="table-header">
+                <span class="table-title" style="display: flex;">
+                    <!-- <h3 class="box-title">Leaderboard for</h3><span style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: <span id="classNo">1</span></span>  -->
+                </span>
+                <div class="actions">
+                  <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>
+                </div>
+              </div>
+              <table id="datatable">
+                <thead>
+                  <tr>
+                      <th style="font-size: 15px;width: 180px;">Student</th>
+                      <th style="font-size: 15px;width: 70px;">Class</th>
+                       <th style="font-size: 15px;width: 65px;">Section</th>
+                       <th style="font-size: 15px;width: 120px;">Marks %</th>
+                       <th style="font-size: 15px;width: 120px;">Mathematics</th>
+                       <th style="font-size: 15px;width: 120px;">Science</th>
+                       <th style="font-size: 15px;width: 120px;">Social Science</th>
+                       <th style="font-size: 15px;width: 120px;">History</th>
+                       <th style="font-size: 15px;width: 120px;">Geography</th>
+                       <th style="font-size: 15px;width: 120px;">Civics</th>
+                       <th style="font-size: 15px;width: 120px;">Economics</th>
+                       <th style="font-size: 15px;width: 120px;">Hindi</th>
+                       <th style="font-size: 15px;width: 140px;">English</th>
+                       <th style="font-size: 15px;width: 120px;">EVS</th>                
+                  </tr>
+                </thead>
+                <tbody>
+                    {% if leaderBoardData %}  
+                    {% for eachRow in leaderBoardData%}
+                  <tr style="height: 60px;">
+                      {% if profile_pic %}
+                      <td style="text-align: center;width:250px;" ><img src="{{ profile_pic }}" height="50" width="50"><span style="text-align: center;font-size: 14px;"> 
+                       <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
+                      </span></td>    
+                      {% else %} 
+                      <td style="width: 250px;">
+                        <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">
+                        <span style="text-align: center;font-size: 14px;"> 
+                            <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
+                        </span>
+                      </td>    
+                      {% endif %} 
+                      <td style="font-size: 15px;">{{eachRow.class}}</td>
+                      <td style="font-size: 15px;">{{eachRow.section}}</td>
+                      <td style="font-size: 15px;">{{eachRow.marks}}</td> 
+                      {% if eachRow.mathematics_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.mathematics}}({{eachRow.mathematics_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.science_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.science}}({{eachRow.science_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.social_science_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.social_science}}({{eachRow.social_science_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.history_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.history}}({{eachRow.history_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.geography_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.geography}}({{eachRow.geography_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.civics_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.civics}}({{eachRow.civics_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.economics_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.economics}}({{eachRow.economics_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.hindi_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.hindi}}({{eachRow.hindi_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.english_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.english}}({{eachRow.english_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                      {% if eachRow.evs_test_count != 0%}
+                      <td style="font-size: 15px;">{{eachRow.evs}}({{eachRow.evs_test_count}})</td>
+                      {% else %}
+                      <td style="font-size: 15px;">No Test</td>
+                      {% endif %}
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                      <td colspan="5"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
+                    </tr>
+                      {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
