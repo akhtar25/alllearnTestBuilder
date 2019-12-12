@@ -1724,14 +1724,15 @@ def feedbackCollectionStudDev():
         if sessionDetailRow.session_status=='80':
             sessionDetailRow.session_status='81'        
             db.session.commit()    
-        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
+        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()        
+        testDetailRow = TestDetails.query.filter_by(test_id = sessionDetailRow.test_id).first()
         testQuestions = TestQuestions.query.filter_by(test_id=sessionDetailRow.test_id).all()
 
         if testQuestions!=None:
             questionListSize = len(testQuestions)
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScannerStudent.html')
@@ -2298,28 +2299,49 @@ def loadQuestion():
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 
-
+# route for fetching next question and updating db for each response from student - tablet assessment process
 @app.route('/loadQuestionStud')
 @login_required
 def loadQuestionStud():
     question_id = request.args.get('question_id')
-    print(question_id)
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
-    #resp_session_id=request.args.get('resp_session_id')
-    #print(resp_session_id)
-    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
-    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
-    #if question_id!=None:
-    #    respSessionQuestionRow=RespSessionQuestion.query.filter_by(resp_session_id=resp_session_id,question_status='86').first()
-    #    if respSessionQuestionRow!=None:
-    #        respSessionQuestionRow.question_status='87'
-    #        db.session.commit()
-    #    sessionDetRow=SessionDetail.query.filter_by(resp_session_id=str(resp_session_id).strip()).first()        
-    #    sessionDetRow.current_question=question_id
-    #    sessionDetRow.load_new_question='Y'
-    #    db.session.commit()    
-    return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+    ######################################################
+    response_option = request.args.get('response_option')
+    resp_session_id = request.args.get('resp_session_id')
+    subject_id =  request.args.get('subject_id')
+
+    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
+    teacherID = sessionDetailRow.teacher_id
+
+    if response_option!='':
+        optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=response_option).first()                    
+
+        #print('this is optionCheckRow'+ str(optionCheckRow))
+        ansCheck = ''
+        if (optionCheckRow==None):
+            ansCheck='N'
+        elif (optionCheckRow.is_correct=='Y'):
+            ansCheck='Y'
+        else:
+            ansCheck='N'
+
+
+        responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+            question_id= question_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
+        db.session.add(responseStudUpdateQuery)
+        db.session.commit()
+        ######################################################
+
+    if totalQCount!=qnum:
+        question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
+        questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
+        return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+    else:
+        return redirect(url_for('feedbackReport', resp_session_id=resp_session_id))
+    
 
 
 @app.route('/responseStudUpdate')

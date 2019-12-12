@@ -111,12 +111,11 @@
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
   //var subject_id = {{subject_id}};
-  var questionIDListJS = []; 
-  {%for question in questionList %}
+  var questionIDListJS = []; {%for question in questionList %}
   // this is my name
   questionIDListJS.push({{question.question_id}}); 
   {% endfor %}
-  var questionListSize = {{questionListSize}};     
+  var questionListSize = {{questionListSize}};
 
   var tempCountVar = 0;
   $("#startrecordResponsesBTN").click(function () {
@@ -139,18 +138,26 @@
 
 
   $("#startAndNextBTN").click(function () {
-    $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
-    
-    
-            var radioValue = $("input[name='ansOption']:checked").val();
-            if(radioValue){
-                alert("Your are a - " + radioValue);
-            }    
 
+    $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
+
+    var radioValue = $("input[name='ansOption']:checked").val();
+    if (radioValue) {
+      alert("Your are a - " + radioValue);
+    }
+    //question_id = request.args.get('question_id')
+    //totalQCount = request.args.get('total')
+    //qnum= request.args.get('qnum')
+    //######################################################
+    //response_option = request.args.get('response_option')
+    //resp_session_id = request.args.get('resp_session_id')
+    //subject_id =  request.args.get('subject_id')
+    //
     if (tempCountVar < questionListSize) {
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar],
+          questionIDListJS[tempCountVar] + "&response_option="+ radioValue+ "&resp_session_id="+ {{resp_session_id}}+
+          "subject_id="+ {{subject_id}},
         type: "get",
         data: '',
         success: function (response) {
@@ -158,12 +165,12 @@
           tempCountVar = tempCountVar + 1;
           if (tempCountVar == questionListSize) {
 
-            //$("#startAndNextBTN").hide();
+            $("#startAndNextBTN").attr('value', 'Submit and Finish');            
             //$("#startrecordResponsesBTN").show();
             //$("#skipButton").click(function () {
             //  document.getElementById("submitAndFinishBTN").click();
             //});
-          } else {            
+          } else {
             $("#startAndNextBTN").attr('value', 'Submit and Next');
             $("#startAndNextBTN").attr('class', 'btn btn-primary left green');
             //$("#startAndNextBTN").hide();
