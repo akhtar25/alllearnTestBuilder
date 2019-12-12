@@ -1,7 +1,7 @@
 (function(window, document, undefined) {
-
+  
   var factory = function($, DataTable) {
-
+    
     "use strict";
 
 
@@ -134,6 +134,7 @@
      * Required TableTools 2.1+
      */
     if (DataTable.TableTools) {
+      
       // Set the classes that TableTools uses to something suitable for Bootstrap
       $.extend(true, DataTable.TableTools.classes, {
         "container": "DTTT btn-group",
@@ -184,6 +185,7 @@
 
 
 $(document).ready(function() {
+  
   $('#datatable').dataTable({
     "oLanguage": {
       "scrollX": true,
@@ -214,7 +216,7 @@ $(document).ready(function() {
                    .prepend(
                        '<h4>Title Test</h4>',
                        //  Background table picture in print version is here
-                       '<img src="http://i.imgur.com/w931ov4.png" style="position: fixed;  top: 50%;  left: 50%;  transform: translate(-50%, -50%);" />'	
+                       '<img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnImageWatermark.png" style="position: fixed;margin-left:360px; margin-top:800px;float:left;"  height="150" width="350" style="opacity:0.5" />'	
                    );
 
                $(win.document.body).find( 'table' )
