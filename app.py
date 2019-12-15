@@ -1567,11 +1567,18 @@ def guardianDashboard():
     for g in guardian:
         
         print('Inside guardian loop')
-        student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
-        students.append(student_data)
-        query = "select *from fn_guardian_dashboard_summary('"+str(student_data.school_id)+"')"
-        studentdetails = db.session.execute(text(query)).fetchall()
-    return render_template('guardianDashboard.html',students=students,disconn = 1,studentdetails=studentdetails)
+        student_data=StudentProfile.query.with_entities(StudentProfile.school_id,StudentProfile.student_id).filter_by(student_id=g.student_id).first()
+        # 
+        print('Student ids:'+str(student_data.student_id))
+        query = "select *from fn_guardian_dashboard_summary('"+str(student_data.school_id)+"') where studentid='"+str(g.student_id)+"'"
+        studentdetails = db.session.execute(text(query)).first()
+        students.append(studentdetails)
+        
+        print('Query:'+query)
+        # print('data:'+str(studentdetails.student_name))
+        # for data in students:
+        #     print('name:'+str(data.student_name))
+    return render_template('guardianDashboard.html',students=students,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
