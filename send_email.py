@@ -53,9 +53,9 @@ def welcome_email(email, name):
     message = message + "<br> <br> Welcome once again! <br><br>Thanks, <br>Alllearn "
     send_email(email, name, subject, message)
 
-def teacher_access_request_email(email,name, school, requestFrom,adminUsername):
-    subject = "Alllearn - Teacher access request for %s" % requestFrom
-    message = render_template('teacher_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
+def teacher_access_request_email(email,name, school, requestFrom,adminUsername, user_type):
+    subject = "Alllearn - %s access request for %s" % user_type, requestFrom
+    message = render_template('user_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
     send_email(email, name, subject, message)
 
 def access_granted_email(email,name, school):

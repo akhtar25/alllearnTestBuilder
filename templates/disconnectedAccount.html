@@ -33,10 +33,10 @@
               <label for="reqAccessTeacher">Enter School ID</label>
             </div>
             <div class="input-field">
-              <input placeholder="Introduce yourself in 5 words" id="reqAccessTeacherMSG" type="text" class="validate">
-              <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>
+              <input placeholder="Short Introduction" id="reqAccessTeacherMSG" type="text" class="validate">
+              <label for="reqAccessTeacherMSG">Introduce yourself</label>
             </div>
-            <a class="waves-effect waves-light btn" id="requestAccessTeacherBTNID">Submit</a>
+            <a class="waves-effect waves-light btn requestAccessBTNClass" id="requestAccessTeacherBTNID" name='71'>Submit</a>
 
           </div>
         </li>
@@ -54,8 +54,23 @@
             <a class="waves-effect waves-light btn" id="requestAccessGuardianBTNID">Submit</a>
       </div>
     </li>-->
-
-
+    <li>
+        <div class="collapsible-header" title="Request access to a registered school"><i class="material-icons">person_add</i>
+          <h4>Request access as a student</h4>
+          
+        </div>
+        <div class="collapsible-body">
+          <div class="input-field">
+            <input placeholder="School ID" id="reqAccessStudent" type="text" class="validate">
+            <label for="reqAccessStudent">Enter School ID</label>
+          </div>
+          <div class="input-field">
+            <input placeholder="Short Introduction" id="reqAccessStudentMSG" type="text" class="validate">
+            <label for="reqAccessStudentMSG">Introduce yourself </label>
+          </div>
+          <a class="waves-effect waves-light btn requestAccessBTNClass" id="requestAccessStudentBTNID" name='134'>Submit</a>
+        </div>
+      </li>
       </ul>
     </div>
   </div>
@@ -80,14 +95,16 @@
   });
 
 
-  $('#requestAccessTeacherBTNID').click(function () {
+  $('.requestAccessBTNClass').click(function () {
     var username = "{{current_user.username}}";
     var school_id = $('#reqAccessTeacher').val();
-    about_me = $('#reqAccessTeacherMSG').val();
+    var about_me = $('#reqAccessTeacherMSG').val();
+    var user_type = $(this).attr('name');
+
     console.log(username);
     var data = "";
     $.ajax({
-      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me,
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me+ "&user_type="+user_type,
       type: "get",
       data: data,
       success: function (response) {

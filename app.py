@@ -1090,11 +1090,20 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value
+        #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
         checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
+        #if a student has already been added during school registration then simply add the new user's id to it's student profile value
+        checkStudentProf = StudentProfile.query.filter_by(email=form.email.data).first()
+
         if checkTeacherProf!=None:
             checkTeacherProf.user_id=user.id
+            db.session.commit()        
+        elif checkStudentProf!=None:
+            checkStudentProf.user_id=user.id
             db.session.commit()
+        else:
+            pass
+
         full_name = str(form.first_name.data)+ ' '+str(form.last_name.data)
         flash('Congratulations '+full_name+', you are now a registered user!')
         welcome_email(str(form.email.data), full_name)
@@ -1123,8 +1132,7 @@ def user(username):
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_name_val = schoolNameVal()        
     
-    if user.user_type==161:
-        print('Are we not getting here at all?')
+    if user.user_type==161:        
         return redirect(url_for('teachingApplicantProfile',user_id=user.id))
     else:
         print('Nope we are not')
@@ -1203,18 +1211,18 @@ def requestUserAccess():
     requestorUsername=request.args.get('username')    
     school_id=request.args.get('school_id')    
     about_me=request.args.get('about_me')    
-
+    quser_type = request.args.get('user_type')        
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
         userTableDetails.access_status='143'
-        userTableDetails.user_type='140'
+        userTableDetails.user_type=quser_type
         userTableDetails.about_me=about_me
         db.session.commit()
         #Send email section
-        teacher_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username)
+        user_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username, quser_type)
         return jsonify(["0"])
     else:
         return jsonify(["1"])
@@ -1322,17 +1330,24 @@ def syllabusTopics():
 @app.route('/grantUserAccess')
 def grantUserAccess():
     username=request.args.get('username')    
-    school_id=request.args.get('school_id')        
+    school_id=request.args.get('school_id')
     school=schoolNameVal()
     print("we're in grant access request ")
     userTableDetails = User.query.filter_by(username=username).first()
     userTableDetails.access_status='145'
     userFullName = userTableDetails.first_name + " "+ userTableDetails.last_name
-    checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
-    if checkTeacherProfile==None:
-        teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
-        db.session.add(teacherData)    
-        db.session.commit()
+    if userTableDetails.user_type=='71':        
+        checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkTeacherProfile==None:
+            teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
+            db.session.add(teacherData)    
+            db.session.commit()
+    elif userTableDetails.user_type=='134':
+        checkStudentProfile=StudentProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkStudentProfile==None:
+            studentData=StudentProfile(full_name=userFullName,school_id=school_id, registration_date=datetime.now(), last_modified_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, user_id=userTableDetails.id)
+            db.session.add(studentData)    
+            db.session.commit()
     access_granted_email(userTableDetails.email,userTableDetails.username,school )
     return jsonify(["0"])
 

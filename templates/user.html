@@ -77,10 +77,12 @@
                       
                     $(".accessRequestDiv").html("");
                     if (response=='0'){
-                    $(".accessRequestDiv").html("<p>Access Granted to: "+ username+"</p>");
+                        $(this).html("<p>Access Granted to: "+ username+"</p>");
+                   // $(".accessRequestDiv").html("<p>Access Granted to: "+ username+"</p>");
                 }
                 else{
-                    $(".accessRequestDiv").html("<p>Error granting access. Please message customer service");
+                    $(this).html("<p>Error granting access. Please message customer service");
+                    //$(".accessRequestDiv").html("<p>Error granting access. Please message customer service");
                 }
                   },
                   error: function(xhr) {
