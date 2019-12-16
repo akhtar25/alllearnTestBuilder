@@ -73,15 +73,8 @@
                   url: "/grantUserAccess?username="+ username+"&school_id="+school_id,
                   type: "get",
                   data: data,
-                  success: function(response) {                                          
-                    if (response=='0'){
-                        $(this).html("<p>Access Granted to: "+ username+"</p>");
-                   // $(".accessRequestDiv").html("<p>Access Granted to: "+ username+"</p>");
-                }
-                else{
-                    $(this).html("<p>Error granting access. Please message customer service");
-                    //$(".accessRequestDiv").html("<p>Error granting access. Please message customer service");
-                }
+                  success: function(response) {                                                              
+                        $(this).html("<p>Access Granted to: "+ username+"</p>");                                   
                   },
                   error: function(xhr) {
                     window.alert("error occurred while granting access");

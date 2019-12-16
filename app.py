@@ -1332,22 +1332,28 @@ def grantUserAccess():
     username=request.args.get('username')    
     school_id=request.args.get('school_id')
     school=schoolNameVal()
-    print("we're in grant access request ")
+    print("we're in grant access request. ")
     userTableDetails = User.query.filter_by(username=username).first()
+    print("#######User Type: "+ str(userTableDetails.user_type))
     userTableDetails.access_status='145'
     userFullName = userTableDetails.first_name + " "+ userTableDetails.last_name
-    if userTableDetails.user_type=='71':
+    if userTableDetails.user_type==71:
+        print('#########Gotten into 71')
         checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
         if checkTeacherProfile==None:
             teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
             db.session.add(teacherData)    
             db.session.commit()
-    elif userTableDetails.user_type=='134':
+    elif userTableDetails.user_type==134:
+        print('#########Gotten into 134')
         checkStudentProfile=StudentProfile.query.filter_by(user_id=userTableDetails.id).first()
         if checkStudentProfile==None:
             studentData=StudentProfile(full_name=userFullName,school_id=school_id, registration_date=datetime.now(), last_modified_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, user_id=userTableDetails.id)
             db.session.add(studentData)    
             db.session.commit()
+    else:
+        print('#########Gotten into else')
+        pass
     access_granted_email(userTableDetails.email,userTableDetails.username,school )
     return jsonify(["0"])
 
