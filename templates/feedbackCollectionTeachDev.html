@@ -1,36 +1,6 @@
 {%extends "layout.html"%} {%block content%}
-<!--<link type="text/css" rel="stylesheet" href="../static/css/styles.css">-->
-<!--<link type="text/css" rel="stylesheet" href="..static/js/jquery.timepicker.css">-->
 <div class="container" height=100%>
-
-
   <div>
-    <!--<aside class="main-sidebar" style="margin-top:15px;">            
-            <section class="sidebar">                     
-              <ul class="sidebar-menu" data-widget="tree">
-                  {% for singleClass in distinctClasses %}
-                         <li class="treeview">
-                           <a href="#">
-                             <i class="glyphicon glyphicon-education"></i>
-                             <span>Class {{singleClass[0]}}</span>
-                             <span class="pull-right-container">
-                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-                             </span>
-                           </a>                                                      
-                           <ul class="treeview-menu">                            
-                              {% for classsection in classSections %}
-                                 {% if classsection.class_val==singleClass[0] %}
-                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
-                              {% endif %}
-                             {% endfor %}
-                           </ul>                                                      
-                         </li>
-                         {% endfor %}                
-         <ul>                  
-        </section>                
-            </aside>              -->
-    <!--------------------------------------------------------------------------------------------->
-
     <section class="content">
       <div class="row">
         <div class="row">
@@ -48,9 +18,7 @@
               <div id="questionSection">
                 <div id="questionPlaceholder">
 
-                  {% if questionListSize > 0 %}
-                  
-                    
+                  {% if questionListSize > 0 %}                                      
                     <br><br>
                     <table class="table table-bordered table-responsive-md table-striped text-center">
                       <thead>
@@ -62,7 +30,6 @@
                       </thead>
                       <tbody>
                         {% for question in questions %}
-
                         <tr>
                           <td>
                             {% if question.question_type=='MCQ1' %}
@@ -100,29 +67,31 @@
                         {% endfor %}
                       </tbody>
                     </table>
-
+                    <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;">
                     {%else %}
                     <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected
                       topic(s)</p>
                     {% endif %}
+                    
                 </div>
               </div>
               <div id="questionButtons">
                 {% if questionList|length > 0 %}
                 <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
-                {% endif %}
-              <!--  <input type="button" value="Start Timer" class="btn green btn-primary" id="startrecordResponsesBTN"
-                  style="height: 40px; ">-->
-                <input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN"
-                  style="height: 40px; display: none; ">
-                <input type="button" value="Finish" class="btn btn-primary pull-right" id="submitAndFinishBTN"
-                  style="height: 40px; width: 200px;display: none;">
+                
+                
+                {% endif %}           
               </div>
             </div>
             <div class="box" id="feedbackReportDiv" style="display: none;">
             </div>
-            <a class="btn btn-primary" id="completeClassBTN" href="{{url_for('classCon')}}"
-              style="display: none;">Complete Class</a>
+            <input class="btn btn-primary left" id="backToQuestions" 
+              style="height: 40px; width: 200px;display: none;" type="button" value="Back">
+              <input class="btn green pull-right" id="refreshReport" 
+              style="height: 40px; width: 200px;display: none;" type="button" value="Refresh">
+              <div id='loaderDiv'style='display: none; float: right;'>
+                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                  </div>
           </div>
           <div class="col-xs-3" style="margin-top:20px;">
             <div id="answerCounter" >
@@ -137,98 +106,7 @@
               </ol><br>
 
               <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
-              <div class="divider"></div>
-              <!--This is the section for timer-->
-<!--
-              <div class="wrapper">
-
-                <header class="switch-clocks z-depth-1">
-                  <a class="alarm waves-effect">Alarm</a>
-                  <a class="stopwatch waves-effect">Stopwatch</a>
-                  <a class="timer waves-effect">Timer</a>
-                </header>
-
-                <div class="app">
-
-                  <div class="container alarm hidden">
-                    <form>
-
-                      <div class="control input-field">
-                        <input id="alarm-input" type="text" class="validate">
-                        <label for="alarm-input">Set Time</label>
-                      </div>
-
-                      <div class="control switch">
-                        <label>
-                          Off
-                          <input type="checkbox" disabled id="alarm-btn">
-                          <span class="lever"></span>
-                          On
-                        </label>
-                      </div>
-
-                      <div class="control checkbox">
-                        <input type="checkbox" id="alarm-sounds" />
-                        <label for="alarm-sounds">Sounds</label>
-                      </div>
-
-                    </form>
-
-                    <div class="clock z-depth-1 inactive">
-                      <span>Not Set</span>
-                      <div class="overlay waves-effect"></div>
-                    </div>
-                  </div>
-
-                  <div class="container stopwatch">
-                    <form>
-                      <a id="stopwatch-btn-start" class="waves-effect waves-teal btn-flat">Start</a>
-                      <a id="stopwatch-btn-pause" class="waves-effect waves-teal btn-flat">Pause</a>
-                      <a id="stopwatch-btn-reset" class="waves-effect waves-teal btn-flat">Reset</a>
-                    </form>
-
-                    <div class="clock inactive z-depth-1">
-                      <span>0:00:00.0</span>
-                      <div class="overlay waves-effect"></div>
-                    </div>
-                  </div>
-
-                  <div class="container timer hidden">
-                    <form>
-                      <div class="control input-field">
-                        <input id="timer-input" type="number">
-                        <label for="timer-input">Minutes</label>
-                      </div>
-
-                      <a class="timer-btn start waves-effect"><i class="mdi-av-play-arrow"></i></a>
-                      <a class="timer-btn pause waves-effect"><i class="mdi-av-pause"></i></a>
-                      <a class="timer-btn reset waves-effect"><i class="mdi-av-replay"></i></a>
-
-                      <div class="control checkbox">
-                        <input type="checkbox" id="timer-sounds" />
-                        <label for="timer-sounds">Sounds</label>
-                      </div>
-
-                    </form>
-
-                    <div class="clock inactive z-depth-1 waves-effect">0:00</div>
-                  </div>
-
-
-                </div>
-
-                <div id="times-up-modal" class="modal">
-                  <div class="modal-content">
-                    <h3>Time's Up!</h3>
-                  </div>
-                  <div class="modal-footer">
-                    <a href="#!" class="dismiss-alarm-sounds modal-action waves-effect waves-red btn-flat">Dismiss
-                      Alarm</a>
-                  </div>
-                </div>
-
-              </div>-->
-
+              <div class="divider"></div>              
               <!--End of timer section-->
               <div id="errorMsgElement"></div>
 
@@ -252,6 +130,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+<script>
+
+$("#backToQuestions").click(function(){          
+          $("#feedbackQuestionDiv").show();
+          $("#feedbackReportDiv").hide();         
+          $("#backToQuestions").hide(); 
+          $("#refreshReport").hide();           
+});
+
+$("#refreshReport").click(function(){
+  document.getElementById("seeTestReport").click();
+});
+
+  $("#seeTestReport").click(function () {
+      $.ajax({
+        url: "/feedbackReport?resp_session_id=" +{{resp_session_id}},
+        type: "get",
+        data: '',   
+        beforeSend: function() {                           
+                            $("#loaderDiv").show();
+                        },
+        success: function (response) {
+          $("#feedbackReportDiv").html(response);
+          $("#feedbackQuestionDiv").hide();
+          $("#feedbackReportDiv").show();         
+          $("#backToQuestions").show();         
+          $("#refreshReport").show();   
+          $("#loaderDiv").hide();      
+          
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading report");
+        }
+      });    
+  });
+</script>
 <script>
   $(document).ready(function () {
     $('.modal').modal();
@@ -259,9 +174,6 @@
   $(document).ready(function(){
     $('.materialboxed').materialbox();
   });
-
-
-
   $('.questionData').click(function () {
     $('#questionloader1').show();
     $('#modal2').hide();
@@ -305,101 +217,7 @@
     })
   });
 </script>
-<script src="../static/js/jquery.timepicker.min.js"></script>
-<script src="../static/js/hammer.js"></script>
-<script src="../static/js/script.js"></script>
-<script src="../static/js/stopwatch.js"></script>
-<script src="../static/js/timer.js"></script>
 
-<!--<script>
-          var subject_id = {{subject_id}};
-              var questionIDListJS = [];
-              var flag=true;
-              {%  for question in questionList%}              
-              questionIDListJS.push({{question.question_id}});
-              {% endfor %}
-              var questionListSize = {{ questionListSize }};
-              var tempCountVar = 0;
-              var resp_session_id = '{{resp_session_id}}';
-              var loaded_question = "";
-              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
-              //document.getElementById("result_strip").innerHTML="";
-              //keepRecording = true;   
-              checkQuestionChange();
 
-            //$("#startAndNextBTN").click(function(){
-              function checkQuestionChange(){
-                console.log(resp_session_id);
-                setInterval(function(){ 
-                  if (flag==true){
-                  $.ajax({
-                  url: "/checkQuestionChange?resp_session_id="+ resp_session_id,
-                  type: "get",
-                  data: "",
-                  success: function(checkValue) {                         
-                    if (checkValue=="Y"){
-                      tempCountVar=tempCountVar+1;
-                      loadNewQuestion();
-                      
-                    }
-                    else if (checkValue=="FR"){
-                      loadFeedbackReport();
-                      flag=false;
-                    }
-                    else{
-                      flag=true;
-                    }
-                  },
-                  error: function(xhr) {
-                    window.alert("error occurred while loading question--");
-                  }
-                });                
-            }}, 3000);
-            }
-            
-
-            function loadNewQuestion(){              
-            $.ajax({
-                  url: "/loadQuestionExtCam?qnum="+ tempCountVar+"&total="+questionListSize+"&resp_session_id="+resp_session_id ,
-                  type: "get",
-                  data: "",
-                  success: function(response) {       
-                    $("#questionSection").html(response);                                            
-                  },
-                  error: function(xhr) {
-                    window.alert("error occurred while loading question-!");
-                  }
-                });
-              }
-
-            function loadFeedbackReport(){     
-              var class_val = $('#class_val_ip').val();
-              console.log('This is the class_val in js: ' + class_val);
-              var section = $('#section_ip').val();
-              console.log('This is the section: ' + section);
-              questionIDListStr  = JSON.stringify(questionIDListJS);                       
-                $.ajax({
-                  url: "/feedbackReport?resp_session_id="+resp_session_id,
-                  type: "get",
-                  data: "",
-                  success: function(response) {
-                    if (response!="NA"){
-                    $("#feedbackReportDiv").html(response);
-                    }
-                    else{
-                      $("#feedbackReportDiv").html('<span class="grey-text text-lighten-1"> <p style="font-size: 36px;">No feedback data for this session.</p></span>');
-                    }
-                    $("#feedbackReportDiv").show();
-                    
-                    $("#feedbackQuestionDiv").hide();
-                    $("#allResponsesSubmitted").show();
-                    $("#completeClassBTN").show();
-                  },
-                  error: function(xhr) {
-                    window.alert("error occurred while submitting data");
-                  }
-                });
-            }
-            </script>       -->
 
 {%endblock%}

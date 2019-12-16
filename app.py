@@ -2511,29 +2511,19 @@ def feedbackReport():
 
     if responseSessionID!=None:
         #
-        print('Here is response session id in feedback report: ' + responseSessionID)
-
-        responseResultQuery = "WITH sum_cte AS ( "
-        responseResultQuery = responseResultQuery + "select sum(weightage) as total_weightage  from  "
-        responseResultQuery = responseResultQuery + "question_options where question_id in  "
-        responseResultQuery = responseResultQuery + "(select distinct question_id from response_capture where resp_session_id='" + responseSessionID + "')) "
+        print('Here is response session id in feedback report: ' + responseSessionID)   
+        responseResultQuery = "with total_marks_cte as ( "
+        responseResultQuery = responseResultQuery + "select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
+        responseResultQuery = responseResultQuery + "(select distinct question_id from test_questions t1 inner join session_detail t2 on "
+        responseResultQuery = responseResultQuery + "t1.test_id=t2.test_id and t2.resp_session_id='"+str(responseSessionID)+"') ) "
         responseResultQuery = responseResultQuery + "select distinct sp.roll_number, sp.full_name, sp.student_id, "
-        responseResultQuery = responseResultQuery + "SUM(qo.weightage) as points_scored, "
-        responseResultQuery = responseResultQuery + "sum_cte.total_weightage "
-        responseResultQuery = responseResultQuery + "from  "
-        responseResultQuery = responseResultQuery + "student_profile sp  "
-        responseResultQuery = responseResultQuery + "inner join  "
-        responseResultQuery = responseResultQuery + "response_capture rc on sp.student_id=rc.student_id  "
-        responseResultQuery = responseResultQuery + "inner join  "
-        responseResultQuery = responseResultQuery + "question_options qo on rc.question_id=qo.question_id  "
-        responseResultQuery = responseResultQuery + "and rc.response_option = qo.option "
-        responseResultQuery = responseResultQuery + "inner join  "
-        responseResultQuery = responseResultQuery + "question_options qo2 on  "
-        responseResultQuery = responseResultQuery + "rc.question_id=qo2.question_id "
-        responseResultQuery = responseResultQuery + "and qo2.is_correct='Y', "        
-        responseResultQuery = responseResultQuery + "sum_cte "
-        responseResultQuery = responseResultQuery + "where resp_session_id = '" + responseSessionID + "' "
-        responseResultQuery = responseResultQuery + "group by  sp.roll_number, sp.full_name, sp.student_id, rc.response_option, qo2.weightage, sum_cte.total_weightage"
+        responseResultQuery = responseResultQuery + "SUM(qd.suggested_weightage) as points_scored, total_marks_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "from response_capture rc inner join student_profile sp on "
+        responseResultQuery = responseResultQuery + "rc.student_id=sp.student_id "
+        responseResultQuery = responseResultQuery + "inner join question_details qd on "
+        responseResultQuery = responseResultQuery + "qd.question_id=rc.question_id and rc.is_correct='Y' "
+        responseResultQuery = responseResultQuery + "and rc.resp_session_id='"+str(responseSessionID)+"', total_marks_cte "
+        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage "
 
 
         responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
