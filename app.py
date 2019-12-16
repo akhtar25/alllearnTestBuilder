@@ -1145,7 +1145,8 @@ def user(username):
         print(schoolAdminRow[0][0])
         accessRequestListRows=""
         if schoolAdminRow[0][0]==teacher.teacher_id:
-            accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
+            accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status=143"
+            accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
         return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
 
 
