@@ -1222,7 +1222,7 @@ def requestUserAccess():
         userTableDetails.user_type=quser_type
         userTableDetails.about_me=about_me
         db.session.commit()
-        #Send email section
+        
         user_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username, quser_type)
         return jsonify(["0"])
     else:

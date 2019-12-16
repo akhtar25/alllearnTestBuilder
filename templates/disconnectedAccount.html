@@ -23,9 +23,10 @@
           </a>
         </li>
         <li>
-          <div class="collapsible-header" title="Request access to a registered school"><i class="material-icons">person_add</i>
+          <div class="collapsible-header" title="Request access to a registered school"><i
+              class="material-icons">person_add</i>
             <h4>Request access to a school</h4>
-            
+
           </div>
           <div class="collapsible-body">
             <div class="input-field">
@@ -35,9 +36,14 @@
             <div class="input-field">
               <input placeholder="Short Introduction" id="reqAccessTeacherMSG" type="text" class="validate">
               <label for="reqAccessTeacherMSG">Introduce yourself</label>
+              <a class="waves-effect waves-light btn requestAccessBTNClass left" id="requestAccessTeacherBTNID"
+                name='71'>Request as a Teacher</a>
+              <a class="waves-effect waves-light btn requestAccessBTNClass right" id="requestAccessStudentBTNID"
+                name='134'>Request as a Student</a>
+              <br>
+              <br>
             </div>
-            <a class="waves-effect waves-light btn requestAccessBTNClass left" id="requestAccessTeacherBTNID" name='71'>Request as a Teacher</a>
-            <a class="waves-effect waves-light btn requestAccessBTNClass right" id="requestAccessStudentBTNID" name='134'>Request as a Student</a>
+
 
           </div>
         </li>
@@ -75,20 +81,19 @@
       </ul>
     </div>
   </div>
-</div>
-{%else%}
-<div id="alreadyRequestedDiv">
-  <h2>Access requested</h2>
-  <p> You will receive a notification in your email once access has been granted</p>
-</div>
-{%endif%}
-<div id="accessRequestedAlreadyDiv" style="display: none;">
-  <h2>Access requested</h2>
-  <p> You will receive a notification in your email once access has been granted</p>
-</div>
-<div id="invalidSchoolIdDiv" style="display: none">
-  <p class="red-text">Invalid school id</p>
-</div>
+  {%else%}
+  <div id="alreadyRequestedDiv">
+    <h2>Access requested</h2>
+    <p> You will receive a notification in your email once access has been granted</p>
+  </div>
+  {%endif%}
+  <div id="accessRequestedAlreadyDiv" style="display: none;">
+    <h2>Access requested</h2>
+    <p> You will receive a notification in your email once access has been granted</p>
+  </div>
+  <div id="invalidSchoolIdDiv" style="display: none">
+    <p class="red-text">Invalid school id</p>
+  </div>
 </div>
 <script>
   $(document).ready(function () {
@@ -105,7 +110,8 @@
     console.log(username);
     var data = "";
     $.ajax({
-      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me+ "&user_type="+user_type,
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me +
+        "&user_type=" + user_type,
       type: "get",
       data: data,
       success: function (response) {
