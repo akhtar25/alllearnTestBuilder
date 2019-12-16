@@ -73,9 +73,7 @@
                   url: "/grantUserAccess?username="+ username+"&school_id="+school_id,
                   type: "get",
                   data: data,
-                  success: function(response) {
-                      
-                    $(".accessRequestDiv").html("");
+                  success: function(response) {                                          
                     if (response=='0'){
                         $(this).html("<p>Access Granted to: "+ username+"</p>");
                    // $(".accessRequestDiv").html("<p>Access Granted to: "+ username+"</p>");

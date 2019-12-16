@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, teacher_access_request_email, access_granted_email, new_school_reg_email
+from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
@@ -1336,7 +1336,7 @@ def grantUserAccess():
     userTableDetails = User.query.filter_by(username=username).first()
     userTableDetails.access_status='145'
     userFullName = userTableDetails.first_name + " "+ userTableDetails.last_name
-    if userTableDetails.user_type=='71':        
+    if userTableDetails.user_type=='71':
         checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
         if checkTeacherProfile==None:
             teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='78', user_id=userTableDetails.id)
@@ -3609,4 +3609,3 @@ if __name__=="__main__":
         ssl_context='adhoc'
         )
     #app.run()
-
