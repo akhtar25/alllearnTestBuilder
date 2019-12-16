@@ -1,7 +1,7 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h2>Class - Feedback Report</h2>
-    <div class="box-body table-responsive no-padding">
+    <h2>Class Test Reports</h2>
+    <div class="box-body table-responsive no-padding" id="testReportsDiv">
 
         <table class="table table-hover">
             <tr>
@@ -22,7 +22,7 @@
                 <td>{{eachRow.subject}}</td>
                 <td>{{eachRow.test_date.strftime('%d %B %Y')}}</td>
                 <td>{{eachRow.conducted_by}}</td>
-                <td><input type="button" class="seeTestReportClass btn btn-primary"   style="height: 40px; width: 200px;"></td>
+                <td><input type="button" class="seeTestReportClass btn green" value="See Report" name="{{eachRow.resp_session_id}}"  style="height: 40px; width: 200px;"></td>                
             </tr>
             {% endfor %}
 
@@ -38,7 +38,7 @@
     </div>
     <div id="feedbackReportDiv" style="display: none;">        
     </div>
-            <input class="btn btn-primary left" id="backToQuestions" 
+            <input class="btn btn-primary pull-right green" id="backToQuestions" 
     style="height: 40px; width: 200px;display: none;" type="button" value="Back">
 </div>
 
@@ -46,22 +46,31 @@
     
 $("#backToQuestions").click(function(){                    
           $("#feedbackReportDiv").hide();         
-          $("#backToQuestions").hide();     
-          $("#feedbackReportDiv").html('');         
+          $("#backToQuestions").hide();               
+          $("#testReportsDiv").show();         
 });
 
   $(".seeTestReportClass").click(function () {
+    var resp_session_id = $(this).attr('name');
       $.ajax({
-        url: "/feedbackReport?resp_session_id=" +{{resp_session_id}},
+        url: "/feedbackReport?resp_session_id=" +resp_session_id,
         type: "get",
         data: '',   
         beforeSend: function() {                           
                             $("#loaderDiv").show();
                         },
         success: function (response) {
+            if (response!='NA'){
           $("#feedbackReportDiv").html(response);          
-          $("#feedbackReportDiv").show();         
-          $("#backToQuestions").show();                                       
+          
+        }
+        else{
+            $("#feedbackReportDiv").html("<h4 class='grey-text'>No report available for the selection</h4>");
+        }
+        $("#feedbackReportDiv").show();         
+          $("#backToQuestions").show();  
+          $("#testReportsDiv").hide();  
+                                               
         },
         error: function (xhr) {
           window.alert("error occurred while loading report");
