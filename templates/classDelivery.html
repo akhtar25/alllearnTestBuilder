@@ -2,8 +2,7 @@
 <div class="container">
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
-      <!-- sidebar: style can be found in sidebar.less -->
-      
+      <!-- sidebar: style can be found in sidebar.less -->      
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           {% for singleClass in distinctClasses %}
@@ -62,7 +61,7 @@
       <section class="col-md-4">
         <form method="POST" action="/feedbackCollection">
           <ul data-widget="tree">
-              <li class="treeview">
+              <!--<li class="treeview">
                 <a href="#"><div class="box box-info"><h3 id="topicBtn">Topics</h3></div></a>
               <ul class="treeview-menu">
                  <li>
@@ -75,8 +74,7 @@
                               </ul>
                                 <ul class="treeview-menu">
                                     <li>
-                              {% for topic in topicTrackerDetails %}
-                              
+                              {% for topic in topicTrackerDetails %}                              
                               <a><tr>
                                 <label>
                                   {% if topic.is_covered=='Y' %}
@@ -90,8 +88,7 @@
                                 <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
                               </tr></a>
                               {% endfor %}
-                              </li>
-                              <!-- <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled> -->
+                              </li>                              
                               </ul>
                             </tbody>
                           </table>
@@ -100,10 +97,10 @@
                       </div>
                   </li>
               </ul>
-            </li>
+            </li>-->
+         
             <li class="treeview">
-
-              <a href="#"><div class="box box-info"><h3>Reference</h3></div></a>
+              <a href="#"><div class="box box-info"><h3>Reference Content</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
                       <div style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
@@ -163,6 +160,10 @@
                                   </div>
                   </li>
               </ul>
+            </li>
+            <br>
+            <li >
+                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;">Conduct Test</a>
             </li>
           </ul>
           <div class="box-footer">

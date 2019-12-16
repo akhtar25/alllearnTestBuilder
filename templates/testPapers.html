@@ -1,7 +1,11 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-  <h3>Test Papers</h3>
-  <div id="testDiv">
+
+  <div class="col-md-12">
+    <h3>Test Papers</h3>
+    <a href="{{url_for('testBuilder')}}" class='btn-primary btn pull-right'>Create New Test</a><br>
+  </div>
+  <div id="testDiv" class="col-md-12">
     <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
     <div class="box-body table-responsive no-padding">
 
@@ -30,24 +34,32 @@
           {%endfor%}
           <td>{{eachRow.total_marks}}</td>
           <td>{{eachRow.date_of_creation.strftime('%d-%B-%Y')}}</td>
-          <td><a href="#">Chapters and Topics</a></td>
-          <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
-          <!--      qtest_id = request.args.get('test_id')
-        qclass_val = request.args.get('class_val')
-        qsection = request.args.get('section')
-        qsubject_id = request.args.get('subject_id')-->
+          <td><a href="#chapterModal" name='{{eachRow.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a></td>
 
-          <td><a
-              href="#modal2{{eachRow.test_id}}" name='{{eachRow.test_id}}'
-              class='btn green modal-trigger'>Conduct Test</a></td>
+          <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
+          <div id="chapterModal" class="modal" style="background-color:white;">
+            <div id="questionloader1" style="display: none;">
+              <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="content" style="display:none;">
+              <p>
+                <div id="chapterListDiv"></div>
+              </p>
+            </div>
+          </div>
+          <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
+          {% if eachRow.test_type =='Class Feedback' %}
+          <td><a href="#modal2{{eachRow.test_id}}" name='{{eachRow.test_id}}' class='btn green modal-trigger'>Conduct
+              Test</a></td>
+              {%endif %}
           <!-- Modal structure-->
-          <div id="modal2{{eachRow.test_id}}" class="modal" style="background-color:white; height: 250px;" >
+          <div id="modal2{{eachRow.test_id}}" class="modal" style="background-color:white; height: 250px;">
             <form action="/feedbackCollection" method="GET">
-              <div class="modal-content" >
-                <h4>Class</h4>
-                <h3>{{eachRow.class_val}}</h3>
-                <h4>Which <b>section</b> do you want to run the test for?</h4>
-                <input type="text" name='section'>
+              <div class="modal-content">
+                <p> Starting Test</p>
+                <h4>Class: {{eachRow.class_val}}</h4>
+                <h4>Enter <b>section</b> for which you want to run the test</h4>
+                <input type="text" name='section' placeholder="eg. A">
                 <input type="hidden" name='class_val' value="{{eachRow.class_val}}">
                 <input type="hidden" name='subject_id' value="{{eachRow.subject_id}}">
                 <input type="hidden" name='test_id' value="{{eachRow.test_id}}">
@@ -72,10 +84,30 @@
   </div>
 </div>
 <script>
-
-$(document).ready(function(){
+  $(document).ready(function () {
     $('.modal').modal();
   });
 
+
+  $('.chapterClass').click(function(){
+    $('#questionloader1').show();
+    //$('#modal2').hide();
+    //$('#content').hide();
+    $('#chapterListDiv').html('');
+    var test_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/getChapterDetails?test_id="+test_id,
+            type: "get",
+            data: data,
+            success: function(response){
+                $('#questionloader1').hide();
+                $('#modal2').show();
+                $('#content').show();
+                $('#chapterListDiv').html(response);
+            }
+        })
+      });
 </script>
 {%endblock%}

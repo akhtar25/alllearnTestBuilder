@@ -1534,6 +1534,19 @@ def testPapers():
 
     return render_template('testPapers.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck())
 
+@app.route('/getChapterDetails')
+def getChapterDetails():
+    qtest_id=request.args.get('test_id')
+    getChapterQuery = "select distinct topic_name, chapter_name, chapter_num from test_questions tq "
+    getChapterQuery= getChapterQuery+ "inner join question_details qd  on "
+    getChapterQuery= getChapterQuery+ " qd.question_id=tq.question_id inner join "
+    getChapterQuery= getChapterQuery+ " topic_detail td on td.topic_id=qd.topic_id "
+    getChapterQuery= getChapterQuery+ "where tq.test_id='"+str(qtest_id)+"'"
+
+    getChapterRows = db.session.execute(text(getChapterQuery)).fetchall()
+
+    return render_template('_getChapterDetails.html', getChapterRows=getChapterRows)
+
 @app.route('/calendar')
 @login_required
 def calendar():
@@ -2783,7 +2796,15 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id)
+    testDetailQuery = "select distinct t1.resp_session_id, t1.last_modified_Date as test_date, t5.teacher_name as conducted_by,t4.class_val, t4.section, "
+    testDetailQuery = testDetailQuery+ "t3.description as subject "
+    testDetailQuery = testDetailQuery+ " from session_detail t1 "
+    testDetailQuery = testDetailQuery+ " inner join test_details t2 on t2.test_id=t1.test_id "
+    testDetailQuery = testDetailQuery+ " inner join message_detail t3 on t2.subject_id=t3.msg_id "
+    testDetailQuery = testDetailQuery+ " inner join class_section t4 on t1.class_Sec_id=t4.class_sec_id "
+    testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"'"
+    testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
+    return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows)
 
 
 

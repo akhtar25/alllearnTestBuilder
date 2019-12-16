@@ -69,18 +69,15 @@
                     </table>
                     <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;">
                     {%else %}
-                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions under <br><br>the selected
-                      topic(s)</p>
+                    <div class='section'>
+                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions found for this test</p>
+                  </div>
                     {% endif %}
                     
                 </div>
               </div>
               <div id="questionButtons">
-                {% if questionList|length > 0 %}
-                <!--<input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              -->
-                
-                
-                {% endif %}           
+          
               </div>
             </div>
             <div class="box" id="feedbackReportDiv" style="display: none;">
@@ -93,12 +90,13 @@
                   <img src='../static/images/spinner.gif' width='25px' height='25px'>
                   </div>
           </div>
-          <div class="col-xs-3" style="margin-top:20px;">
+          {% if questionListSize > 0 %} 
+          <div class="col-xs-3" style="margin-top:20px;">            
             <div id="answerCounter" >
               <h4>To write this test</h4>
               <ol>
                 <li>
-                  Logon to this URL: {{url_for('qrSessionScannerStudent')}} </li><br>
+                  Logon to this URL: <a href="{{url_for('qrSessionScannerStudent')}}">http://www.school.alllearn.in/qrSessionScannerStudent</a> </li><br>
                 <li>
                   <p>Scan the QR or enter this test id: <br><span style="font-size: 40px;">{{resp_session_id}}</span>
                   </p>
@@ -106,24 +104,16 @@
               </ol><br>
 
               <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
-              <div class="divider"></div>              
-              <!--End of timer section-->
-              <div id="errorMsgElement"></div>
-
-              <div id="allResponsesSubmitted" style="display: none;">All Responses Submitted</div>
+              <div class="divider"></div>                            
             </div>
-
-
             <div>
-              <!--  <div class="select">
-                    <label for="videoSource"></label><select id="videoSource"></select>
-                </div>-->
             </div>
           </div>
+{%endif%}
+
         </div>
       </div>
     </section>
-
   </div>
 </div>
 
