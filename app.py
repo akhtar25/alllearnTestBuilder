@@ -638,13 +638,17 @@ def edit_profile():
 @login_required
 def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-    classSecCheckVal = classSecCheck()
+
 
     school_name_val = schoolNameVal()
     
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
+    if user.user_type=='134':        
+        return redirect(url_for('qrSessionScannerStudent'))
+
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    classSecCheckVal = classSecCheck()
 
     if school_name_val ==None:
         print('did we reach here')
@@ -716,10 +720,12 @@ def disconnectedAccount():
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
 
-    if teacher==None and userDetailRow.user_type!=161:
+    if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
+    elif userDetailRow.user_type==134:
+        return redirect(url_for('qrSessionScannerStudent'))
     else:
         return redirect(url_for('index'))
 
