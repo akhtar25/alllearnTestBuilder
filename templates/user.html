@@ -43,7 +43,9 @@
                 <p>Phone: {{row.phone}}</p>
                 <p>Requested Access as: {{row.user_type}}</p>                
                 <p>About requestor:{{row.about_me}}</p>
+                <div id='grantAccessDiv'>
                 <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}" id="{{row.school_id}}">Grant Access</a>
+            </div>
             </div>
         </li>
             {%endfor%}
@@ -74,7 +76,7 @@
                   type: "get",
                   data: data,
                   success: function(response) {                                                              
-                        $(this).html("<p>Access Granted to: "+ username+"</p>");                                   
+                        $('#grantAccessDiv').html("<p style:'green-text'>Access Granted</p>");
                   },
                   error: function(xhr) {
                     window.alert("error occurred while granting access");
