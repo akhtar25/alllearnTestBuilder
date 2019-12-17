@@ -644,7 +644,7 @@ def index():
     
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
-    if user.user_type=='134':        
+    if user.user_type=='134' and user.access_status=='145':        
         return redirect(url_for('qrSessionScannerStudent'))
 
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
@@ -724,7 +724,7 @@ def disconnectedAccount():
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
-    elif userDetailRow.user_type==134:
+    elif userDetailRow.user_type==134 and userDetailRow.access_type==145:
         return redirect(url_for('qrSessionScannerStudent'))
     else:
         return redirect(url_for('index'))
