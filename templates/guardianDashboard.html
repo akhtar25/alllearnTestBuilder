@@ -1,55 +1,58 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
     <div class="container">
-        {% if students %}
-        {% for student in students %}
+        {% if data %}
+        {% for student in data %}
+        
         <div class="container z-depth-1">                                        
             <div class="col-sm-9">
                 <div class="row">
                     <div class="col-sm-5">
                         
-                        <h3><span>{{student.student_name}} </span></h3>
+                        <h3><span>{{student[0][0]}} </span></h3>
                     </div>
                 </div>
                 <div class="row">
+                    
                     <div class="col-sm-5">
-                        <h4>School Name : <span style="font-size: 20px;">{{student.school}}</span></h4>
+                        <h4>School Name : <span style="font-size: 20px;">{{student[0][1]}}</span></h4>
                     </div>
                     <div class="col-sm-2">
-                        <h4>Class : <span style="font-size: 20px;">{{student.class}} <sup>th</sup></span></h4>
+                        <h4>Class : <span style="font-size: 20px;">{{student[0][2]}} <sup>th</sup></span></h4>
                     </div>
+                    
                     <div class="col-sm-2">
-                        <h4>Section : <span style="font-size: 20px;">{{student.section}} </span></h4>
+                        <h4>Section : <span style="font-size: 20px;">{{student[0][3]}} </span></h4>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                    
-                        {% if student.score == '' %}
+                        <!-- If score is none -->
                         <h4>Overallmarks %age :  <span class="text-green" style="font-size: 20px;">NA</span></h4>  
-                        {% elif student.score > 49  %}
-                        <h4>Overallmarks %age : <span class="text-green" style="font-size: 20px;">{{student.score}}%</span></h4>
-                        {% else %}
-                        <h4>Overallmarks %age : <span class="text-red" style="font-size: 20px;">{{student.score}}%</span></h4>
-                        {% endif %}
+                        <!-- IF score is greater then 49 -->
+                        <!-- <h4>Overallmarks %age : <span class="text-green" style="font-size: 20px;">%</span></h4> -->
+                        <!-- Else -->
+                        <!-- <h4>Overallmarks %age : <span class="text-red" style="font-size: 20px;">%</span></h4> -->
+                        <!-- End if -->
                     </div>
                     
                     <div class="col-sm-6">
                         
                         <h4 >Strengths:
-                        {% if student.strong_2_subjects!='' %}
-                        <span class="text-green">
-                                <span style="font-size: 20px;">{{student.strong_2_subjects}}</span>
-                        </span></h4>
-                        {% else %}
-                        <span class="text-green">NA</span></h4>
-                        {% endif %}
+                            <span class="text-green"><span style="font-size: 20px;">NA</span></span></h4>
+                        <!-- {% if student.strong_2_subjects!='' %} -->
+                        <!-- <span class="text-green">
+                                <span style="font-size: 20px;"></span>
+                        </span> -->
+                        <!-- {% else %} -->
+                        <!-- <span class="text-green"><span style="font-size: 20px;">NA</span></span></h4> -->
+                        <!-- {% endif %} -->
                     </div>
                     
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                        <a href="{{url_for('studentProfile',student_id=student.studentid)}}" target="_blank">
+                        <a href="{{url_for('studentProfile',student_id=student.student_id)}}" target="_blank">
                             <p><button class="btn waves-light green lighten-1 white-text" onclick="">Profile Details</button></p>
                         </a>
                     </div>                    
@@ -57,8 +60,8 @@
             </div>
             <div class="col-sm-3">
                 <div class="profile_pic" style="margin-top: 20px;">
-                {% if student.profile_pic!='' %}
-                <img src="{{student.profile_pic}}" class="circle responsive-img" style="width:130px; height:130px;">
+                {% if student[0][4]!='' %}
+                <img src="{{student[0][4]}}" class="circle responsive-img" style="width:130px; height:130px;">
                 {% else %}
                 <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle responsive-img" style="width: 130px; height: 130px;">
                 {% endif %}

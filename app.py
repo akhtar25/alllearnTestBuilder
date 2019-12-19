@@ -427,15 +427,27 @@ def bulkStudReg():
     return render_template('_bulkStudReg.html')
 
 
-@app.route('/singleStudReg')
+@app.route('/singleStudReg',methods=['POST','GET'])
 def singleStudReg():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-    section_list=[(i.section,i.section) for i in available_section]
-    form=SingleStudentRegistration()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-    form.section.choices= section_list
-    return render_template('_singleStudReg.html',form=form)
+    flag = request.args.get('flag')
+    print(flag)
+    if flag=='edit':
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+        section_list=[(i.section,i.section) for i in available_section]
+        form=SingleStudentRegistration()
+        form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+        form.section.choices= section_list
+        # studentProfileData = 
+        return render_template('_singleStudReg.html',form=form,flag=flag)
+    else:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+        section_list=[(i.section,i.section) for i in available_section]
+        form=SingleStudentRegistration()
+        form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+        form.section.choices= section_list
+        return render_template('_singleStudReg.html',form=form)
 
 
 @app.route('/studentRegistration', methods=['GET','POST'])
@@ -1563,22 +1575,23 @@ def attendance():
 @login_required
 def guardianDashboard():
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    students=[]
+    data=[]
+    student_data=''
     for g in guardian:
-        
-        print('Inside guardian loop')
-        student_data=StudentProfile.query.with_entities(StudentProfile.school_id,StudentProfile.student_id).filter_by(student_id=g.student_id).first()
-        # 
-        print('Student ids:'+str(student_data.student_id))
-        query = "select *from fn_guardian_dashboard_summary('"+str(student_data.school_id)+"') where studentid='"+str(g.student_id)+"'"
-        studentdetails = db.session.execute(text(query)).first()
-        students.append(studentdetails)
-        
-        print('Query:'+query)
-        # print('data:'+str(studentdetails.student_name))
-        # for data in students:
-        #     print('name:'+str(data.student_name))
-    return render_template('guardianDashboard.html',students=students,disconn = 1)
+        # print('Inside guardian loop')
+        # student_data=StudentProfile.query.with_entities(StudentProfile.school_id,StudentProfile.student_id,StudentProfile.full_name,StudentProfile.profile_picture,StudentProfile.class_sec_id).filter_by(student_id=g.student_id).first() 
+        # print('Student ids:'+str(student_data.student_id))
+        # print(student_data)
+        # class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first()
+        # print('Student Data:')
+        # students.append(student_data)
+        # students.append(class_value)
+        student_data = "select sp.full_name as name,schp.school_name as school,cs.class_val as class_value,cs.section as section, sp.profile_picture as pic from student_profile sp inner join class_section cs on sp.class_sec_id=cs.class_sec_id inner join school_profile schp on schp.school_id=sp.school_id and student_id='"+str(g.student_id)+"'"
+        students = db.session.execute(text(student_data)).fetchall()
+        data.append(students)
+        for s in data:
+            print(s[0])
+    return render_template('guardianDashboard.html',data=data,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
