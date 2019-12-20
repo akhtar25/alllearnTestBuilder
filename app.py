@@ -1567,9 +1567,13 @@ def guardianDashboard():
     students = []
     for g in guardian:
         student_data = "select *from fn_guardian_dashboard_summary('"+str(teacher_id.school_id)+"') where studentid='"+str(g.student_id)+"'"
-        print(student_data)
-        studentsdetails = db.session.execute(text(student_data)).fetchall()
+        # print(student_data)
+        studentsdetails = db.session.execute(text(student_data)).first()
         students.append(studentsdetails)
+        for student in students:
+            print(student_data)
+            print(student.student_name)
+            print(student.score)
     return render_template('guardianDashboard.html',students=students,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
