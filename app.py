@@ -1562,24 +1562,15 @@ def attendance():
 @app.route('/guardianDashboard')
 @login_required
 def guardianDashboard():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    data=[]
-    student_data=''
+    students = []
     for g in guardian:
-        # print('Inside guardian loop')
-        # student_data=StudentProfile.query.with_entities(StudentProfile.school_id,StudentProfile.student_id,StudentProfile.full_name,StudentProfile.profile_picture,StudentProfile.class_sec_id).filter_by(student_id=g.student_id).first() 
-        # print('Student ids:'+str(student_data.student_id))
-        # print(student_data)
-        # class_value = ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).filter_by(class_sec_id=student_data.class_sec_id).first()
-        # print('Student Data:')
-        # students.append(student_data)
-        # students.append(class_value)
-        student_data = "select sp.full_name as name,schp.school_name as school,cs.class_val as class_value,cs.section as section, sp.profile_picture as pic from student_profile sp inner join class_section cs on sp.class_sec_id=cs.class_sec_id inner join school_profile schp on schp.school_id=sp.school_id and student_id='"+str(g.student_id)+"'"
-        students = db.session.execute(text(student_data)).fetchall()
-        data.append(students)
-        for s in data:
-            print(s[0])
-    return render_template('guardianDashboard.html',data=data,disconn = 1)
+        student_data = "select *from fn_guardian_dashboard_summary('"+str(teacher_id.school_id)+"') where studentid='"+str(g.student_id)+"'"
+        print(student_data)
+        studentsdetails = db.session.execute(text(student_data)).fetchall()
+        students.append(studentsdetails)
+    return render_template('guardianDashboard.html',students=students,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
