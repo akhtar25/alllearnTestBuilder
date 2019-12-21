@@ -724,7 +724,7 @@ def disconnectedAccount():
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
-    elif userDetailRow.user_type==134 and userDetailRow.access_type==145:
+    elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
         return redirect(url_for('qrSessionScannerStudent'))
     else:
         return redirect(url_for('index'))
