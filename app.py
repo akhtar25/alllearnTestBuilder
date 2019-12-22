@@ -459,7 +459,7 @@ def singleStudReg():
 
 @app.route('/studentRegistration', methods=['GET','POST'])
 @login_required
-def studentRegistration():
+def studentRegistration():cr5td
     form=SingleStudentRegistration()
     if request.method=='POST':
         if form.submit.data:
@@ -483,7 +483,7 @@ def studentRegistration():
             for i in range(4):
                 if i==0:
                     option='A'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 elif i==1:
                     option='B'
                     qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
