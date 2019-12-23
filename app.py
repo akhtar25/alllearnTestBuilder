@@ -1569,7 +1569,6 @@ def attendance():
 @login_required
 def guardianDashboard():
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
     students = []
     data = []
     score = 0
@@ -1577,7 +1576,7 @@ def guardianDashboard():
         student_data=StudentProfile.query.with_entities(StudentProfile.full_name,StudentProfile.profile_picture,StudentProfile.class_sec_id,StudentProfile.school_id,StudentProfile.student_id).filter_by(student_id=g.student_id).first()
         query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
         query = query +"inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
-        query = query +"left join fn_guardian_dashboard_summary('61') fn on fn.student_name=sp.full_name "
+        query = query +"left join fn_guardian_dashboard_summary('"+str(student_data.school_id)+"') fn on fn.student_name=sp.full_name "
         query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(student_data.student_id)+"' order by marks desc"
         data = db.session.execute(text(query)).first()
         students.append(data)
