@@ -28,24 +28,27 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
-                        <!-- {{data[0][4]}}
-                        {% set number = data[0][4] | int %}
-                        {% if number==0 %} -->
-                        <h4>Overallmarks %age :  <span class="text-green" style="font-size: 20px;">NA</span></h4> 
-                        <!-- {% endif %} 
-                        {% if number > 49 %}
-                        <h4>Overallmarks %age : <span class="text-green" style="font-size: 20px;">{{data[0][4]}}%</span></h4>
+                        
+                        {% if  student.marks%}
+                        {% if student.marks > 49 %}
+                        <h4>Overallmarks %age : <span class="text-green" style="font-size: 20px;">{{student.marks}}%</span></h4>
                         {% else %}
-                        <h4>Overallmarks %age : <span class="text-red" style="font-size: 20px;">{{data[0][4]}}%</span></h4>
-                         {% endif %}  -->
+                        <h4>Overallmarks %age : <span class="text-red" style="font-size: 20px;">{{student.marks}}%</span></h4>
+                         {% endif %} 
+                         {% else %}
+                         <h4>Overallmarks %age :  <span class="text-green" style="font-size: 20px;">NA</span></h4>
+                         {% endif %}
                     </div>
                     
                     <div class="col-sm-6">
                         
                         <h4 >Strengths:
+                        {% if student.subjects %}
                         
+                        <span class="text-green" style="font-size: 20px;">{{student.subjects}}</span>
+                        {% else  %}
                         <span class="text-green"><span style="font-size: 20px;">NA</span></span></h4>
-                        
+                        {% endif %}
                     </div>
                     
                 </div>
@@ -72,5 +75,5 @@
         {% endfor %}
         {% endif %}
     </div>
-    
+   </div> 
     {% endblock %}
