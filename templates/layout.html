@@ -140,6 +140,10 @@
           <li>
               <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
             </li>
+            {% elif user_type_val!='72'%}
+            <li>
+                <a style="color: green;"  href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>
+              </li>
             {%else%}
             <li>
                 <a style="color: green;"  href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>

@@ -1580,7 +1580,8 @@ def guardianDashboard():
         query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(student_data.student_id)+"' order by marks desc"
         data = db.session.execute(text(query)).first()
         students.append(data)
-    return render_template('guardianDashboard.html',students=students,data=data,disconn = 1)
+        print('User type:'+str(current_user.user_type))
+    return render_template('guardianDashboard.html',students=students,data=data,disconn = 1, user_type_val=str(current_user.user_type))
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
