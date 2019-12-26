@@ -459,7 +459,7 @@ def singleStudReg():
 
 @app.route('/studentRegistration', methods=['GET','POST'])
 @login_required
-def studentRegistration():cr5td
+def studentRegistration():
     form=SingleStudentRegistration()
     if request.method=='POST':
         if form.submit.data:
@@ -1573,7 +1573,7 @@ def guardianDashboard():
     for g in guardian:
         student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student)
+    return render_template('guardianDashboard.html',students=student,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
