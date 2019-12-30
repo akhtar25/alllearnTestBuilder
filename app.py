@@ -3220,7 +3220,6 @@ def uploadMarks():
     class_section = request.args.get('class_section')
     class_sec_id=ClassSection.query.filter_by(class_val=int(classValue),school_id=teacher_id.school_id,section=class_section).first()
     student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
-    
     paperUrl = request.args.get('paperUrl')
     subject_id = request.args.get('subject_id')
     marks = request.args.get('marks')
