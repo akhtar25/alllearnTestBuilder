@@ -254,7 +254,11 @@ def reset_password(token):
 @app.route('/schoolProfile')
 @login_required
 def schoolProfile():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('User Type Id:'+str(current_user.user_type))
+    if current_user.user_type==134:
+        teacherRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     registeredStudentCount = db.session.execute(text("select count(*) from student_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
     registeredTeacherCount = db.session.execute(text("select count(*) from teacher_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
     allTeachers = TeacherProfile.query.filter_by(school_id=teacherRow.school_id).all()
@@ -1731,7 +1735,8 @@ def qrSessionScanner():
 @app.route('/qrSessionScannerStudent')
 @login_required
 def qrSessionScannerStudent():
-    return render_template('qrSessionScannerStudent.html')
+    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    return render_template('qrSessionScannerStudent.html',disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 
 @app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
@@ -1773,10 +1778,10 @@ def feedbackCollectionStudDev():
             questionListSize = len(testQuestions)
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
         flash('This is not a valid id')
-        return render_template('qrSessionScannerStudent.html')
+        return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
 @app.route('/updateQuestion')
@@ -2613,7 +2618,7 @@ def studentFeedbackReport():
 
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow)
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
 
 @app.route('/testPerformance')
 @login_required
@@ -3416,11 +3421,13 @@ def studentProfileOld():
 @login_required
 def indivStudentProfile():    
     student_id=request.args.get('student_id')
-    print(student_id)
-    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
-    studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
-    studentProfileRow = db.session.execute(text(studentProfileQuery)).first()    
-
+    
+    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val,section,roll_number,school_adm_number,profile_picture from student_profile sp "
+    studentProfileQuery = studentProfileQuery + "left join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id "
+    studentProfileQuery = studentProfileQuery + "where sp.student_id='"+str(student_id)+"'" 
+        
+    studentProfileRow = db.session.execute(text(studentProfileQuery)).first()
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
@@ -3458,11 +3465,10 @@ def indivStudentProfile():
     qrArray=[]
     x = range(4)    
 
-    for n in x:                        
+    for n in x:               
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         print(optionURL)
-         
     return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows)
@@ -3498,8 +3504,12 @@ def studentProfile():
         print('we are in the form one')
         return render_template('studentProfileNew.html',form=form)
     else:
+        if current_user.user_type==134:
+            disconn=1
+        else:
+            disconn=0
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn)
 
 
     
