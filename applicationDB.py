@@ -196,6 +196,48 @@ class Topic(db.Model):
     book_id= db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
 
 
+class BoardDetail(db.Model):
+    __tablename__ = "board_detail"
+    board_det_id = db.Column(db.Integer,primary_key=True)
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    board_name = db.Column(db.String(100),nullable=True)
+    description = db.Column(db.String(200),nullable=True)
+    country = db.Column(db.String(200),nullable=True)
+    board_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    last_modified_date=db.Column(db.DateTime, nullable=True)
+
+# New tables added for Syllabus Page to relate board - class - subject - chapter - topic
+class BoardClass(db.Model):
+    __tablename__ = "board_class"
+    board_class_id = db.Column(db.Integer,primary_key=True)
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
+    class_val = db.Column(db.Integer, nullable=True)
+    last_modified_date=db.Column(db.DateTime, nullable=True)
+
+
+class BoardClassSubject(db.Model):
+    __tablename__ = "board_class_subject"
+    bcs_id = db.Column(db.Integer,primary_key=True)
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
+    class_val = class_val = db.Column(db.Integer, nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    #subject_name = db.Column(db.ForeignKey('message_detail.description'),nullable=True)
+    last_modified_date=db.Column(db.DateTime, nullable=True)
+
+class ChapterDetail(db.Model):
+    __tablename__="chapter_detail"
+    chapter_id = db.Column(db.Integer,primary_key=True)
+    chapter_num = db.Column(db.Integer,nullable=True)
+    chapter_name= db.Column(db.String(120), nullable=True)
+    subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_id'),nullable=True)
+    bcs_id = db.Column(db.ForeignKey('board_class_subject.bcs_id'),nullable=True)
+    book_name = db.Column(db.String(200), nullable=True)
+    last_modified_date=db.Column(db.DateTime, nullable=True)
+
 class TopicTracker(db.Model):
     __tablename__ = "topic_tracker"    
     topic_track_id = db.Column(db.Integer, primary_key=True)
@@ -203,6 +245,7 @@ class TopicTracker(db.Model):
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)      
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'))
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    chapter_id = db.Column(db.ForeignKey('chapter_detail.chapter_id'),nullable=True) # this new column relates to the chapter detail table
     #last_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     is_covered = db.Column(db.String(1), nullable=True) # this will only contain Y or N values
     #cover_Date = db.Column(db.DateTime, nullable=True)
@@ -218,7 +261,12 @@ class BookDetails(db.Model):
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
     book_link= db.Column(db.String(500))
+    board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_id'),nullable=True)
+    book_level = db.Column(db.String(1),nullable=True)  #S=Subject level book ; T=Topic Level Book
     last_modified_date=db.Column(db.DateTime)
+
+#End of changes for Syllabus Page
 
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
@@ -439,6 +487,7 @@ class SchoolProfile(db.Model):
     school_type = db.Column(db.String(50),nullable=True) #ngo, budget, elite, government
     location_type = db.Column(db.String(50),nullable=True) # urban  , remote
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
+    school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
