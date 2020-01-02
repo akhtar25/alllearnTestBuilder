@@ -437,16 +437,18 @@ def singleStudReg():
         form=SingleStudentRegistration()
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
-        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,sp.dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number,gp.first_name as g_first_name,gp.last_name as g_last_name,gp.phone as g_phone,gp.email as g_email,md2.description as relation from student_profile sp " 
+        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,sp.dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp " 
         query = query + "inner join address_detail ad on ad.address_id=sp.address_id "
         query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id " 
-        query = query + "inner join message_detail md on md.msg_id=sp.gender "
-        query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
-        query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
+        query = query + "inner join message_detail md on md.msg_id=sp.gender where sp.student_id='"+str(student_id)+"'"
+        # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
+        # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
         studentDetailRow = db.session.execute(text(query)).first()
+        queryGuardian = "select first_name,last_name,email,phone,relation from guardian_profile where student_id='"+str(student_id)+"'"
+        guardianDetail = db.session.execute(text(queryGuardian)).fetchall()
         print('Name:'+str(studentDetailRow.first_name))
         print('Gender:'+str(studentDetailRow.gender))
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow)
+        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail=guardianDetail)
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
@@ -483,7 +485,7 @@ def studentRegistration():
             for i in range(4):
                 if i==0:
                     option='A'
-                    qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
                 elif i==1:
                     option='B'
                     qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
@@ -1222,14 +1224,14 @@ def requestUserAccess():
     requestorUsername=request.args.get('username')    
     school_id=request.args.get('school_id')    
     about_me=request.args.get('about_me')    
-    user_type=request.args.get('user_type')
+
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
         userTableDetails.access_status='143'
-        userTableDetails.user_type=user_type
+        userTableDetails.user_type='140'
         userTableDetails.about_me=about_me
         db.session.commit()
         #Send email section
@@ -1569,19 +1571,11 @@ def attendance():
 @login_required
 def guardianDashboard():
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    students = []
-    data = []
-    score = 0
+    student=[]
     for g in guardian:
-        student_data=StudentProfile.query.with_entities(StudentProfile.full_name,StudentProfile.profile_picture,StudentProfile.class_sec_id,StudentProfile.school_id,StudentProfile.student_id).filter_by(student_id=g.student_id).first()
-        query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
-        query = query +"inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
-        query = query +"left join fn_guardian_dashboard_summary('"+str(student_data.school_id)+"') fn on fn.student_name=sp.full_name "
-        query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(student_data.student_id)+"' order by marks desc"
-        data = db.session.execute(text(query)).first()
-        students.append(data)
-        print('User type:'+str(current_user.user_type))
-    return render_template('guardianDashboard.html',students=students,data=data,disconn = 1, user_type_val=str(current_user.user_type))
+        student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        student.append(student_data)
+    return render_template('guardianDashboard.html',students=student,disconn = 1)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
