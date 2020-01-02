@@ -663,7 +663,7 @@ def index():
     classSecCheckVal = classSecCheck()
 
     school_name_val = schoolNameVal()
-    
+    print('User Type Value:'+str(user.user_type))
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
 
@@ -1224,14 +1224,14 @@ def requestUserAccess():
     requestorUsername=request.args.get('username')    
     school_id=request.args.get('school_id')    
     about_me=request.args.get('about_me')    
-
+    quser_type=request.args.get('user_type')
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
         userTableDetails.access_status='143'
-        userTableDetails.user_type='140'
+        userTableDetails.user_type=quser_type
         userTableDetails.about_me=about_me
         db.session.commit()
         #Send email section
