@@ -437,16 +437,18 @@ def singleStudReg():
         form=SingleStudentRegistration()
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
-        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,sp.dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number,gp.first_name as g_first_name,gp.last_name as g_last_name,gp.phone as g_phone,gp.email as g_email,md2.description as relation from student_profile sp " 
+        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,sp.dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp " 
         query = query + "inner join address_detail ad on ad.address_id=sp.address_id "
         query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id " 
-        query = query + "inner join message_detail md on md.msg_id=sp.gender "
-        query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
-        query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
+        query = query + "inner join message_detail md on md.msg_id=sp.gender where sp.student_id='"+str(student_id)+"'"
+        # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
+        # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
         studentDetailRow = db.session.execute(text(query)).first()
+        queryGuardian = "select first_name,last_name,email,phone,relation from guardian_profile where student_id='"+str(student_id)+"'"
+        guardianDetail = db.session.execute(text(queryGuardian)).fetchall()
         print('Name:'+str(studentDetailRow.first_name))
         print('Gender:'+str(studentDetailRow.gender))
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow)
+        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail=guardianDetail)
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
