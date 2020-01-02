@@ -658,15 +658,18 @@ def edit_profile():
 @app.route('/dashboard')
 @login_required
 def index():
+    print('Inside index')
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
     classSecCheckVal = classSecCheck()
 
     school_name_val = schoolNameVal()
     print('User Type Value:'+str(user.user_type))
+    if user.user_type==72:
+        print('Inside guardian')
+        return redirect(url_for('disconnectedAccount'))
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
-
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
@@ -733,15 +736,17 @@ def index():
 @app.route('/disconnectedAccount')
 @login_required
 def disconnectedAccount():    
+    print('Inside disconnected Account')
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-
-    if teacher==None and userDetailRow.user_type!=161:
+    print('User Type in disconnected account'+str(userDetailRow.user_type))
+    if userDetailRow.user_type!=161:
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     else:
+        print('Inside else')
         return redirect(url_for('index'))
 
 
@@ -1164,6 +1169,7 @@ def user(username):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print('Inside login')
     if current_user.is_authenticated:
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
