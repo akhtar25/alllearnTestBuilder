@@ -266,7 +266,10 @@ def schoolProfile():
     schoolProfileRow = SchoolProfile.query.filter_by(school_id = teacherRow.school_id).first()
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
-    return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow)
+    value=0
+    if current_user.user_type==134:
+        value=1
+    return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
@@ -2178,7 +2181,7 @@ def feedbackCollection():
                 return redirect(url_for('testPapers'))
             #building response session ID
             print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-            responseSessionID = str(dateVal).strip() + str(qsubject_id).strip() + str(currClassSecRow.class_sec_id).strip()
+            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
 
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
@@ -2360,9 +2363,10 @@ def loadQuestionStud():
     print('This is the response session id in: ' + str(resp_session_id) )
     studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
-    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_session_id).first()
+    resp_id = str(resp_session_id)
+    sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
     #print('########### Session details have been fetched')
-
+    print(sessionDetailRow)
     teacherID = sessionDetailRow.teacher_id
 
     if response_option!='':
