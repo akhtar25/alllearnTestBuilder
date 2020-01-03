@@ -62,10 +62,10 @@
             </div>
             <div class="col-sm-3">
                 <div class="profile_pic" style="margin-top: 20px;">
-                {% if student.pic!='' %}
-                <img src="{{student.pic}}" class="circle responsive-img" style="width:130px; height:130px;">
-                {% else %}
+                {% if student.pic=='' %}
                 <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle responsive-img" style="width: 130px; height: 130px;">
+                {% else %}
+                <img src="{{student.pic}}" class="circle responsive-img" style="width:130px; height:130px;">
                 {% endif %}
                 </div>
             </div>                                

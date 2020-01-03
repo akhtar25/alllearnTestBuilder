@@ -1162,9 +1162,12 @@ def user(username):
         schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
         print(schoolAdminRow[0][0])
         accessRequestListRows=""
+        value=0
+        if current_user.user_type==72:
+            value=1
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessRequestListRows = db.session.execute(text("select *from public.user where school_id='"+ str(teacher.school_id) +"' and access_status=143")).fetchall()
-        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
+        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=value,user_type_val=current_user.user_type)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1577,9 +1580,14 @@ def attendance():
 @login_required
 def guardianDashboard():
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
     student=[]
     for g in guardian:
-        student_data=StudentProfile.query.filter_by(student_id=g.student_id).first()
+        query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
+        query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
+        query = query + "left join fn_guardian_dashboard_summary('"+str(teacher.school_id)+"') fn on fn.student_name=sp.full_name "
+        query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(g.student_id)+"' order by marks desc limit 1"
+        student_data = db.session.execute(text(query)).first()
         student.append(student_data)
     return render_template('guardianDashboard.html',students=student,disconn = 1)
 
