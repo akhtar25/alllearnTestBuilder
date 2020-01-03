@@ -742,7 +742,7 @@ def disconnectedAccount():
 
     print('User Type in disconnected account'+str(userDetailRow.user_type))
     if userDetailRow.user_type!=161:
-        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow,user_type_val=current_user.user_type)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     else:
