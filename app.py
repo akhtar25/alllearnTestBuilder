@@ -3366,10 +3366,9 @@ def indivStudentProfile():
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         print(optionURL)
-         
     return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows)
+        testResultRows = testResultRows,disconn=1)
 
 
 @app.route('/studentProfile')
@@ -3402,8 +3401,11 @@ def studentProfile():
         print('we are in the form one')
         return render_template('studentProfileNew.html',form=form)
     else:
+        value=0
+        if current_user.user_type==72:
+            value=1
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type)
 
 
     
