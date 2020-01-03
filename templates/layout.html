@@ -48,7 +48,7 @@
             </li>
             <li>
                 <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
-                </li> 
+                </li>
             {%elif user_type_val=='161'%}
             <li>
                 <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
@@ -132,11 +132,14 @@
           <li style="color: green;">
             <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
           </li>
-          {% else %}   
-          {%if user_type_val==72%}
+          {% else %}
+          {%if user_type_val=='134'%}
             <li>
-                <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-              </li>       
+                <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
+              </li>
+            <li>
+                <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
+              </li>        
           {%elif user_type_val!='161'%}
           <li>
               <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
@@ -146,7 +149,7 @@
             </li>
             {%else%}
             <li>
-                <a style="color: green;"  href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>
+                <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
               </li>
             {%endif%}
           <li>
