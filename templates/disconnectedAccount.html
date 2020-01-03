@@ -105,6 +105,7 @@
 
   $('.requestAccessBTNClass').click(function () {
     var username = "{{current_user.username}}";
+    var email = "{{current_user.email}}";
     var school_id = $('#reqAccessTeacher').val();
     var about_me = $('#reqAccessTeacherMSG').val();
     var user_type = $(this).attr('name');
