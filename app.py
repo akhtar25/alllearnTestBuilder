@@ -501,11 +501,13 @@ def studentRegistration():
             last_name=request.form.getlist('guardian_last_name')
             phone=request.form.getlist('guardian_phone')
             email=request.form.getlist('guardian_email')
+            
             relation=request.form.getlist('relation')
             for i in range(len(first_name)):
+                guardian_userid = User.query.filter_by(email=email[i]).first()
                 relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
                 guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                email=email[i],phone=phone[i],student_id=student_data.student_id)
+                email=email[i],phone=phone[i],student_id=student_data.student_id,user_id=guardian_userid.id)
                 db.session.add(guardian_data)
             db.session.commit()
             flash('Successful upload !')
