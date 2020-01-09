@@ -117,16 +117,17 @@
                     <th style="font-size: 15px;width: 70px;">Class</th>
                      <th style="font-size: 15px;width: 65px;">Section</th>
                      <th style="font-size: 15px;width: 120px;">Marks %</th>
-                     <th style="font-size: 15px;width: 120px;">Mathematics</th>
-                     <th style="font-size: 15px;width: 120px;">Science</th>
-                     <th style="font-size: 15px;width: 120px;">Social Science</th>
-                     <th style="font-size: 15px;width: 120px;">History</th>
-                     <th style="font-size: 15px;width: 120px;">Geography</th>
-                     <th style="font-size: 15px;width: 120px;">Civics</th>
-                     <th style="font-size: 15px;width: 120px;">Economics</th>
-                     <th style="font-size: 15px;width: 120px;">Hindi</th>
-                     <th style="font-size: 15px;width: 140px;">English</th>
-                     <th style="font-size: 15px;width: 120px;">EVS</th>                
+                     <th style="font-size: 15px;width: 120px;">Maths(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">Science(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">social(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">History(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">Geography(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">Civics(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">Economics(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">Hindi(tests)</th>
+                     <th style="font-size: 15px;width: 140px;">English(tests)</th>
+                     <th style="font-size: 15px;width: 120px;">EVS(tests)</th>  
+                     <th style="font-size: 15px;width: 120px;text-align: center;">Total Tests</th>              
                 </tr>
               </thead>
               <tbody>
@@ -198,6 +199,7 @@
                     {% else %}
                     <td style="font-size: 15px;">No Test</td>
                     {% endif %}
+                    <td style="font-size: 15px;text-align: center;">{% set total = 0 %}{% set total = eachRow.mathematics_test_count+eachRow.evs_test_count+eachRow.english_test_count+eachRow.hindi_test_count+eachRow.economics_test_count+eachRow.civics_test_count+eachRow.geography_test_count+eachRow.history_test_count+eachRow.science_test_count+eachRow.social_science_test_count %}{{total}}</td>
                 </tr>
                 {% endfor %}
                 {% else %}
