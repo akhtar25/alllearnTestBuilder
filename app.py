@@ -437,6 +437,7 @@ def singleStudReg():
         form=SingleStudentRegistration()
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
+        guardianDetail2 = ''
         query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,sp.dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp " 
         query = query + "inner join address_detail ad on ad.address_id=sp.address_id "
         query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id " 
@@ -444,11 +445,16 @@ def singleStudReg():
         # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
         # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
         studentDetailRow = db.session.execute(text(query)).first()
-        queryGuardian = "select first_name,last_name,email,phone,relation from guardian_profile where student_id='"+str(student_id)+"'"
-        guardianDetail = db.session.execute(text(queryGuardian)).fetchall()
+        queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
+        guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
+        if guardianDetail1:
+            queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
+            guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
+        print(guardianDetail1)
+        print(guardianDetail2)
         print('Name:'+str(studentDetailRow.first_name))
-        print('Gender:'+str(studentDetailRow.gender))
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail=guardianDetail)
+        print('Gender:'+str(studentDetailRow.class_val))
+        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
@@ -464,7 +470,9 @@ def singleStudReg():
 def studentRegistration():
     form=SingleStudentRegistration()
     if request.method=='POST':
+        print('Inside Student Registration')
         if form.submit.data:
+            print('Inside Student Registration')
             address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
             if address_id is None:
                 address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
@@ -504,10 +512,9 @@ def studentRegistration():
             
             relation=request.form.getlist('relation')
             for i in range(len(first_name)):
-                guardian_userid = User.query.filter_by(email=email[i]).first()
                 relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
                 guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                email=email[i],phone=phone[i],student_id=student_data.student_id,user_id=guardian_userid.id)
+                email=email[i],phone=phone[i],student_id=student_data.student_id)
                 db.session.add(guardian_data)
             db.session.commit()
             flash('Successful upload !')

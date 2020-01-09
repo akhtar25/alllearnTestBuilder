@@ -245,10 +245,10 @@
 <div id="guardianbox" name="guardianbox">
   </div>
 
-  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();val();" value="Add Guardian"></p>
+  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuar();val();" value="Add Guardian"></p>
   <div id="buttonbox">
       <span id="message" style="color:Red;display: none;float:left;"></span>
-        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top:5px; margin-right:550px;float:right;margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Update</button></p>
+        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top:5px; margin-right:550px;float:right;margin-bottom: 5px;" type="submit" id="submit" name="submit">Update</button></p>
 </div>
 </div>
 </div>
@@ -366,15 +366,118 @@ var class_select = document.getElementById("class_val");
   var guardian_email2 = 'na';
   var guardian_phone2 = 'na';
   var relation2 = 'na';
-  var guardian_name = "{{studentDetailRow.relation}}";
   $(document).ready(function(){
-    const div = document.createElement('div');
-  var row_id=document.getElementById('guardianbox');
-  $('#relationId1').val(guardian_name);
-    console.log('First Name:'+guardian_name);
-    if(guardian_name!=''){
-      count=1;
-      guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+    const div1 = document.createElement('div');
+  var row_id1=document.getElementById('guardianbox');
+        count=1;
+        {% if guardianDetail1 %}
+      console.log('Inside for loop of first guardian');
+      guardian_first_name = "{{guardianDetail1.first_name}}";
+      guardian_last_name = "{{guardianDetail1.last_name}}";
+      guardian_email = "{{guardianDetail1.email}}";
+      guardian_phone = "{{guardianDetail1.phone}}";
+      guardian_relation = "{{guardianDetail1.relation}}";
+      guardianbox_data=`<h4 style="text-weight:Bold;">Guardian 1</h4>
+  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+  <div class='row'>
+  <div class='col-sm-3'>
+      {{ form.guardian_first_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_first_name.errors %}
+            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_first_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_first_name(class='form-control',value=studentDetailRow.g_first_name,id='guardian_first_name1') }}
+            {% endif %}
+  </div>
+  <div class='col-sm-3'>
+      {{ form.guardian_last_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_last_name.errors %}
+            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_last_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_last_name(class='form-control',value=studentDetailRow.g_last_name,id='guardian_last_name1') }}
+            {% endif %}
+      </div>
+      <div class='col-sm-3'>
+      {{ form.guardian_email.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_email.errors %}
+            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_email.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_email(class='form-control',value=studentDetailRow.g_email,id='guardian_email1') }}
+            {% endif %}
+            </div>
+  </div>
+  <div class='row'>
+      <div class='col-sm-3'>
+      {{ form.guardian_phone.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_phone.errors %}
+            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_phone.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_phone(class='form-control',value=studentDetailRow.g_phone, id='guardian_phone1') }}
+            {% endif %}</div>
+<div class='col-sm-2'>
+    <div style="width:250px;">
+        {{ form.relation.label(class='labelsize') }}
+            <br>
+        {% if form.relation.errors %}
+        {{ form.relation(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+        {% for error in form.relation.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+        {% else %}
+        {{ form.relation(class='form-control',id='relation1') }}
+        {% endif %}
+    </div>
+  </div></div></div>`;
+        div1.innerHTML=guardianbox_data;
+        row_id1.appendChild(div1);
+        {% if guardianDetail2%}
+        $("#addGuardianbtn").hide();
+        {% else %}
+        $('#buttonbox').show();
+        {% endif %}
+        $('#guardian_first_name1').val(guardian_first_name);
+      $('#guardian_last_name1').val(guardian_last_name);
+      $('#guardian_email1').val(guardian_email);
+      $('#guardian_phone1').val(guardian_phone);
+      $('#relation1').val(guardian_relation);
+     {% endif %}
+
+
+     {% if guardianDetail2 %}
+     const div2 = document.createElement('div');
+  var row_id2=document.getElementById('guardianbox');
+      console.log('Inside for loop');
+      guardian_first_name = "{{guardianDetail2.first_name}}";
+      guardian_last_name = "{{guardianDetail2.last_name}}";
+      guardian_email = "{{guardianDetail2.email}}";
+      guardian_phone = "{{guardianDetail2.phone}}";
+      guardian_relation = "{{guardianDetail2.relation}}";
+      guardianbox_data=`<h4 style="text-weight:Bold;">Guardian 2</h4>
   <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
   <div class='row'>
   <div class='col-sm-3'>
@@ -446,15 +549,106 @@ var class_select = document.getElementById("class_val");
         {% endfor %}
         </div>
         {% else %}
-        {{ form.relation(class='form-control',id='relationId1') }}
+        {{ form.relation(class='form-control') }}
         {% endif %}
     </div>
   </div></div></div>`;
-        div.innerHTML=guardianbox_data;
-        row_id.appendChild(div);
-        $('#buttonbox').show();
-    }
+        div2.innerHTML=guardianbox_data;
+        row_id2.appendChild(div2);
+        $('#guardian_first_name').val(guardian_first_name);
+      $('#guardian_last_name').val(guardian_last_name);
+      $('#guardian_email').val(guardian_email);
+      $('#guardian_phone').val(guardian_phone);
+      $('#relation').val(guardian_relation);
+      {% endif %}
+     
   });
+
+  function addGuar(){
+    const div2 = document.createElement('div');
+  var row_id2=document.getElementById('guardianbox');
+      console.log('Inside for loop of addGuar');
+      
+      guardianbox_data=`<h4 style="text-weight:Bold;">Guardian 2</h4>
+  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+  <div class='row'>
+  <div class='col-sm-3'>
+      {{ form.guardian_first_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_first_name.errors %}
+            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_first_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_first_name(class='form-control',value=studentDetailRow.g_first_name) }}
+            {% endif %}
+  </div>
+  <div class='col-sm-3'>
+      {{ form.guardian_last_name.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_last_name.errors %}
+            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_last_name.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_last_name(class='form-control',value=studentDetailRow.g_last_name) }}
+            {% endif %}
+      </div>
+      <div class='col-sm-3'>
+      {{ form.guardian_email.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_email.errors %}
+            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_email.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_email(class='form-control',value=studentDetailRow.g_email) }}
+            {% endif %}
+            </div>
+  </div>
+  <div class='row'>
+      <div class='col-sm-3'>
+      {{ form.guardian_phone.label(class='labelsize') }}
+            <br>
+            {% if form.guardian_phone.errors %}
+            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+            {% for error in form.guardian_phone.errors %}
+             <span>{{ error }}</span>
+            {% endfor %}
+            </div>
+            {% else %}
+            {{ form.guardian_phone(class='form-control',value=studentDetailRow.g_phone) }}
+            {% endif %}</div>
+<div class='col-sm-2'>
+    <div style="width:250px;">
+        {{ form.relation.label(class='labelsize') }}
+            <br>
+        {% if form.relation.errors %}
+        {{ form.relation(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+        {% for error in form.relation.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+        {% else %}
+        {{ form.relation(class='form-control') }}
+        {% endif %}
+    </div>
+  </div></div></div>`;
+        div2.innerHTML=guardianbox_data;
+        row_id2.appendChild(div2);
+        $("#addGuardianbtn").hide();
+  }
   
   function addGuardian(){
   const div = document.createElement('div');
@@ -715,17 +909,17 @@ function val(){
       section = document.getElementById('section').value;
       roll_number = document.getElementById('roll_number').value;
       school_admn_no = document.getElementById('school_admn_no').value;
-      guardian_first_name = document.getElementById('guardian_first_name').value;
-      guardian_email = document.getElementById('guardian_email').value;
-      guardian_phone = document.getElementById('guardian_phone').value;
-      relation = document.getElementById('relation').value;
-      var c = val();
-      if(c==2){
-        guardian_first_name2 = document.getElementById('guardianfname').value;
-        guardian_email2 = document.getElementById('guardianemail').value;
-        guardian_phone2 = document.getElementById('guardianphone').value;
-        relation2 = document.getElementById('guardianrelation').value;
-      }
+      // guardian_first_name = document.getElementById('guardian_first_name').value;
+      // guardian_email = document.getElementById('guardian_email').value;
+      // guardian_phone = document.getElementById('guardian_phone').value;
+      // relation = document.getElementById('relation').value;
+      // var c = val();
+      // if(c==2){
+      //   guardian_first_name2 = document.getElementById('guardianfname').value;
+      //   guardian_email2 = document.getElementById('guardianemail').value;
+      //   guardian_phone2 = document.getElementById('guardianphone').value;
+      //   relation2 = document.getElementById('guardianrelation').value;
+      // }
       if(first_name==''){
         console.log('Inside message');
         tag = document.getElementById('message');
@@ -890,6 +1084,20 @@ function val(){
       // else
       {
         $('#message').hide();
+        // Student update code
+        // path = "/updateStudentProfile?"
+        // var data="";
+        //               $.ajax({
+        //                 url: "/updateStudentProfile?question_id="+ question_id,
+        //                 type: "get",
+        //                 data: data,
+        //                 success: function(response) {       
+        //                   //  window.location.reload(); 
+        //                 },
+        //                 error: function(xhr) {
+        //                   window.alert("error occurred while loading question");
+        //                 }
+        //               }); 
       }
     });
 
