@@ -1940,6 +1940,33 @@ def questionDetails():
     
     return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
 
+
+@app.route('/updateStudentProfile')
+def updateStudentProfile():
+    first_name = request.args.get('first_name')
+    last_name = request.args.get('last_name')
+    gender = request.args.get('gender')
+    birthdate = request.args.get('birthdate')
+    phone = request.args.get('phone')
+    address2 = request.args.get('address2')
+    address1 = request.args.get('address1')
+    locality = request.args.get('locality')
+    city = request.args.get('city')
+    state = request.args.get('state')
+    country = request.args.get('country')
+    pincode = request.args.get('pincode')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    school_admn_no = request.args.get('school_admn_no')
+    roll_number = request.args.get('roll_number')
+    preview = request.args.get('preview')
+    student_id = request.args.get('student_id')
+    url = request.args.get('preview')
+
+    # query = "update student_profile set g"
+    print('StudentId:'+str(student_id)+"fName:"+str(first_name)+"lName:"+str(last_name)+"gender:"+str(gender)+"bdate:"+str(birthdate)+"phone:"+str(phone)+"add1:"+str(address1)+"add2:"+str(address2)+"loc:"+str(locality)+"city:"+str(city)+"state:"+str(state)+"country:"+str(country)+"pincode:"+str(pincode)+"class:"+str(class_val)+"sect:"+str(section)+"Sch_num:"+str(school_admn_no)+"roll:"+str(roll_number)+"url:"+str(url))
+    form=SingleStudentRegistration()
+    return render_template('studentRegistration.html',form=form)
 # @app.route('/topperListAll')
 # def topperListAll():
 #     user = User.query.filter_by(username=current_user.username).first_or_404()

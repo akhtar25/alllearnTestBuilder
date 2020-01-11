@@ -1085,19 +1085,39 @@ function val(){
       {
         $('#message').hide();
         // Student update code
-        // path = "/updateStudentProfile?"
-        // var data="";
-        //               $.ajax({
-        //                 url: "/updateStudentProfile?question_id="+ question_id,
-        //                 type: "get",
-        //                 data: data,
-        //                 success: function(response) {       
-        //                   //  window.location.reload(); 
-        //                 },
-        //                 error: function(xhr) {
-        //                   window.alert("error occurred while loading question");
-        //                 }
-        //               }); 
+        student_id = "{{student_id}}";
+        first_name = $('#first_name').val();
+        last_name = $('#last_name').val();
+        gender = $('#gender').val();
+        birthdate = $('#birthdate').val();
+        phone = $('#phone').val();
+        address2 = $('#address2').val();
+        address1 = $('#address1').val();
+        locality = $('#locality').val();
+        city = $('#city').val();
+        state = $('#state').val();
+        country = $('#country').val();
+        pincode = $('#pincode').val();
+        class_val = $('#class_val').val();
+        section = $('#section').val();
+        school_admn_no = $('#school_admn_no').val();
+        roll_number = $('#roll_number').val();
+        preview = document.getElementById('preview').getAttribute('src');
+        guardian_first_name1 = $('#guardian_first_name1').val();
+        
+        path = "/updateStudentProfile?"
+        var data="";
+                      $.ajax({
+                        url: "/updateStudentProfile?student_id="+ student_id+"&first_name="+first_name+"&last_name="+last_name+"&gender="+gender+"&birthdate="+birthdate+"&phone="+phone+"&address2="+address2+"&address1="+address1+"&locality="+locality+"&city="+city+"&state="+state+"&country="+country+"&pincode="+pincode+"&class_val="+class_val+"&section="+section+"&school_admn_no="+school_admn_no+"&roll_number="+roll_number+"&preview="+preview,
+                        type: "get",
+                        data: data,
+                        success: function(response) {       
+                          //  window.location.reload(); 
+                        },
+                        error: function(xhr) {
+                          window.alert("error occurred while updating details");
+                        }
+                      }); 
       }
     });
 
