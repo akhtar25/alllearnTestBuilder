@@ -1938,9 +1938,9 @@ def leaderBoard():
         query = "select  * from fn_performance_leaderboard_detail('"+str(teacher.school_id)+"')"
 
         if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
-            where = " where class='"+str(qclass_val)+"'"
+            where = " where class='"+str(qclass_val)+"' order by marks desc"
         else:
-            where = ""
+            where = " order by marks desc"
         query = query + where
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
