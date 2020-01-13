@@ -23,8 +23,7 @@
                         
                         <th>Chapter</th>
                         <th>Topic</th>
-                        <th>Covered</th>
-                        <th>Class Average</th>
+                        <th>Covered</th>                        
                         <th> &nbsp; &nbsp; &nbsp; Start Class</th>                       
                       </tr>
                     </thead>
@@ -35,16 +34,13 @@
                       
                       <tr class="{{row.is_covered}} list">
                         <td>{{row.subject_name}}</td>
-                        <td>{{row.book_name}}</td>
-                                           
+                        <td>{{row.book_name}}</td>                                           
                         <td>{{row.chapter_num}}</td>
                         <td>{{row.topic_name}}</td>
                         <td>{{row.is_covered}}</td>                        
-                        {% if row.is_covered == 'Y'%}
-                        <td>80%</td>
+                        {% if row.is_covered == 'Y'%}                        
                         <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span class=" label label-success ">Retake Class</span></a></td>
-                        {% else %}
-                        <td>-</td>
+                        {% else %}                        
                         <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span class=" label label-success ">Start Class</span></a></td>
                         {% endif %}
                       </tr>                    

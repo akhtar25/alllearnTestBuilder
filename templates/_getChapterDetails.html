@@ -1,0 +1,26 @@
+
+{%if getChapterRows%}
+<h4>Chapter details</h4>
+                              <table class="table table-hover" style='overflow-x:auto'>
+                                  <thead>
+                                      <tr>
+                                          <th>Topic Name</th>
+                                          <th>Chapter Number</th>
+                                          <th>Chapter Name</th>                                          
+                                      </tr>                                      
+                                  </thead>
+                                  <tbody>
+                                  
+                                      {%for dataRows in getChapterRows%}
+                                      <tr>
+                                          <td>{{dataRows.topic_name}}</td>
+                                          <td>{{dataRows.chapter_num}}</td>
+                                          <td>{{dataRows.chapter_name}}</td>
+                                      </tr>
+                                      {%endfor%}
+                                     
+                                  </tbody>
+                              </table>
+                              {%else%}
+                              <h4>No chapter data found</h4>
+                              {%endif%}

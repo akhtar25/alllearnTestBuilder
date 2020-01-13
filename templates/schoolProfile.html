@@ -83,7 +83,12 @@
                                 {%else%}
                                 <img class="responsive-img circle" width="50px" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
                                 {%endif%}
-                                 {{teacherRow.teacher_name}}</td>
+                                {% if teacherRow.teacher_name!= None %}
+                                 {{teacherRow.teacher_name}}
+                                {%else%}
+                                 {{teacherRow.full_name}}
+                                {% endif %}
+                                </td>
                             <td>{{teacherRow.email}}</td>
                             <td>{{teacherRow.phone}}</td>
                             <td>{{teacherRow.registration_date.strftime('%d %B %Y')}}</td>

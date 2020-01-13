@@ -12,13 +12,10 @@
                         <th>Option Selected</th>
                         <th>Correct Option</th>
                         <th>Result</th>                        
-                      </tr>                      
-                      {% set qnum = 0  %}
-                      {% for respRow in responseCaptureRow %}
-                      
-                      {% set qnum = qnum + 1 %}
+                      </tr>                                            
+                      {% for respRow in responseCaptureRow %}                                            
                       <tr> 
-                        <td> {{ qnum }}</td>
+                        <td> {{ loop.index }}</td>
                         <td> {{ respRow.question_id }}</td>
                         <td>{{ respRow.question_description}}</td>
                         <td> {{respRow.response_option }} : {{ respRow.option_desc}}</td>

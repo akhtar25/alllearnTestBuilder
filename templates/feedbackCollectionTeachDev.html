@@ -1,0 +1,213 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container" height=100%>
+  <div>
+    <section class="content">
+      <div class="row">
+        <div class="row">
+          <div class="col-xs-7">
+            <div class="box" id="feedbackQuestionDiv">
+              <div class="box-header">
+                <h3 class="box-title">{{testType}}</h3><span style="padding-left: 10px;"> Class: {{ class_val }} |
+                  Section: {{ section }} | Subject: {{subjectName}} | Total Marks: {{totalMarks}}</span>
+              </div>
+              <span id="questionList" style="display: none;">{{ questionList }}</span>
+              <input id="currrent_question_id" style="display: none;">
+              <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
+              <input id="section_ip" style="display: none;" type="text" value="{{section}}">
+              <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
+              <div id="questionSection">
+                <div id="questionPlaceholder">
+
+                  {% if questionListSize > 0 %}                                      
+                    <br><br>
+                    <table class="table table-bordered table-responsive-md table-striped text-center">
+                      <thead>
+                        <tr>
+                          <th scope="col">Question</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Weightage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for question in questions %}
+                        <tr>
+                          <td>
+                            {% if question.question_type=='MCQ1' %}
+                            <ul>
+                              <li>
+                                <div><a href="#modal2" name="{{ question.question_id }}"
+                                    class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a>
+                                </div>
+                                <!-- Modal Structure  -->
+                                <div id="modal2" class="modal" style="background-color:white;">
+                                  <div id="questionloader1" style="display: none;">
+                                    <img src="../static/images/loader.gif">
+                                  </div>
+                                  <div class="modal-content" id="content" style="display:none;">
+                                    <p>
+                                      <div id="questionDataList"></div>
+                                    </p>
+
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                            {% else %}
+                            <h5>
+                              {{ question.question_description }}
+                            </h5>
+                            {% endif %}
+
+                          </td>
+                          <td> {{ question.question_type }} </td>
+                          <td>{{ question.suggested_weightage }}<input type="hidden"
+                              value="{{ question.suggested_weightage }}" id="{{ question.question_id }}select"></td>
+                        </tr>
+
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;">
+                    {%else %}
+                    <div class='section'>
+                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions found for this test</p>
+                  </div>
+                    {% endif %}
+                    
+                </div>
+              </div>
+              <div id="questionButtons">
+          
+              </div>
+            </div>
+            <div class="box" id="feedbackReportDiv" style="display: none;">
+            </div>
+            <input class="btn btn-primary left" id="backToQuestions" 
+              style="height: 40px; width: 200px;display: none;" type="button" value="Back">
+              <input class="btn green pull-right" id="refreshReport" 
+              style="height: 40px; width: 200px;display: none;" type="button" value="Refresh">
+              <div id='loaderDiv'style='display: none; float: right;'>
+                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                  </div>
+          </div>
+          {% if questionListSize > 0 %} 
+          <div class="col-xs-3" style="margin-top:20px;">            
+            <div id="answerCounter" >
+              <h4>To write this test</h4>
+              <ol>
+                <li>
+                  Logon to this URL: <a href="{{url_for('qrSessionScannerStudent')}}">http://www.school.alllearn.in/qrSessionScannerStudent</a> </li><br>
+                <li>
+                  <p>Scan the QR or enter this test id: <br><span style="font-size: 40px;">{{resp_session_id}}</span>
+                  </p>
+                </li>
+              </ol><br>
+
+              <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
+              <div class="divider"></div>                            
+            </div>
+            <div>
+            </div>
+          </div>
+{%endif%}
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+<script>
+
+$("#backToQuestions").click(function(){          
+          $("#feedbackQuestionDiv").show();
+          $("#feedbackReportDiv").hide();         
+          $("#backToQuestions").hide(); 
+          $("#refreshReport").hide();           
+});
+
+$("#refreshReport").click(function(){
+  document.getElementById("seeTestReport").click();
+});
+
+  $("#seeTestReport").click(function () {
+      $.ajax({
+        url: "/feedbackReport?resp_session_id=" +{{resp_session_id}},
+        type: "get",
+        data: '',   
+        beforeSend: function() {                           
+                            $("#loaderDiv").show();
+                        },
+        success: function (response) {
+          $("#feedbackReportDiv").html(response);
+          $("#feedbackQuestionDiv").hide();
+          $("#feedbackReportDiv").show();         
+          $("#backToQuestions").show();         
+          $("#refreshReport").show();   
+          $("#loaderDiv").hide();      
+          
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading report");
+        }
+      });    
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('.modal').modal();
+  });
+  $(document).ready(function(){
+    $('.materialboxed').materialbox();
+  });
+  $('.questionData').click(function () {
+    $('#questionloader1').show();
+    $('#modal2').hide();
+    $('#content').hide();
+    $('#questionDataList').html('');
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+      var config = 'MathJax.Hub.Config({' +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        '});' +
+        'MathJax.Hub.Startup.onload();';
+
+
+      if (window.opera) {
+        script.innerHTML = config
+      } else {
+        script.text = config
+      }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    })();
+    var question_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data = "";
+    $.ajax({
+      url: "/questionAllDetails?question_id=" + question_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $('#questionloader1').hide();
+        $('#modal2').show();
+        $('#content').show();
+        $('#questionDataList').html(response);
+      }
+    })
+  });
+</script>
+
+
+
+{%endblock%}
