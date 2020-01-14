@@ -2402,16 +2402,19 @@ def loadQuestionStud():
         totalMarksQuery = "select sum(suggested_weightage) as total_marks, count(*) as num_of_questions  from question_details where question_id in "
         totalMarksQuery =  totalMarksQuery +"(select distinct question_id from test_questions t1 inner join session_detail t2 on "
         totalMarksQuery =  totalMarksQuery +"t1.test_id=t2.test_id and t2.resp_session_id='"+str(resp_session_id)+"') "
-
+        print('Total Marks Query:'+totalMarksQuery)
         totalMarksVal = db.session.execute(text(totalMarksQuery)).first()
 
         marksScoredQuery =  "select sum(suggested_weightage) as marks_scored, count(*) as correct_ans from question_details where question_id "
         marksScoredQuery=marksScoredQuery+"in (select distinct question_id from response_capture where is_correct='Y' and "
         marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+")"
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
-
+        print('Marks Scored Query:'+marksScoredQuery)
         try:
             marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
+            print('Marks Scored:'+marksScoredVal.marks_scored)
+            print('Total Marks:'+totalMarksVal.total_marks)
+            print(marksPercentage)
         except:
             marksPercentage=0
 
