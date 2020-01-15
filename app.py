@@ -2381,10 +2381,12 @@ def loadQuestionStud():
             ansCheck='Y'
         else:
             ansCheck='N'
-
+        print('Class:'+str(studentRow.class_sec_id))
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
             class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
+        print('Question numbering')
+        print(responseStudUpdateQuery)
         db.session.add(responseStudUpdateQuery)
         db.session.commit()
 
@@ -2410,13 +2412,21 @@ def loadQuestionStud():
         marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+")"
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         print('Marks Scored Query:'+marksScoredQuery)
-        try:
-            marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
-            print('Marks Scored:'+marksScoredVal.marks_scored)
-            print('Total Marks:'+totalMarksVal.total_marks)
-            print(marksPercentage)
-        except:
-            marksPercentage=0
+        print('Marks Scored:'+str(marksScoredVal.marks_scored))
+        print('Total Marks:'+str(totalMarksVal.total_marks))
+        marksPercentage=0
+        marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        print('Marks Percentage:'+str(marksPercentage))
+        # try:
+        #     print('Inside try')
+        #     print('Marks Scored:'+marksScoredVal.marks_scored)
+        #     print('Total Marks:'+totalMarksVal.total_marks)
+        #     marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
+        #     print('Marks Scored:'+marksScoredVal.marks_scored)
+        #     print('Total Marks:'+totalMarksVal.total_marks)
+        #     print(marksPercentage)
+        # except:
+        #     marksPercentage=0
 
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
@@ -2623,7 +2633,7 @@ def studentFeedbackReport():
     responseCaptureQuery = responseCaptureQuery +"inner join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
     responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
     responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
-
+    print('Response Capture Query:'+str(responseCaptureQuery))
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
     return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
