@@ -299,7 +299,38 @@ $(document).ready(function(){
     $('#roll_number').val(roll);
     $('#school_admn_no').val(school_num);
     }
-    
+    guarDetail1 = "{{guardianDetail1}}";
+    if(guarDetail1){
+      addGuardian();
+      val();
+      var guardian_first_name = "{{guardianDetail1.first_name}}";
+      var guardian_last_name = "{{guardianDetail1.last_name}}";
+      var email = "{{guardianDetail1.email}}";
+      var phone = "{{guardianDetail1.phone}}";
+      var relation = "{{guardianDetail1.relation}}";
+      $('#guardian_first_name').val(guardian_first_name);
+      $('#guardian_last_name').val(guardian_last_name);
+      $('#guardian_email').val(email);
+      $('#guardian_phone').val(phone);
+      $('#relation').val(relation);
+      guarDetail2 = "{{guardianDetail2}}";
+      console.log('guardian 2:'+guarDetail2);
+      if(guarDetail2!='None'){
+        console.log('Inside second guardian');
+        addGuardian();
+        val();
+        var guardian_first_name2 = "{{guardianDetail2.first_name}}";
+        var guardian_last_name2 = "{{guardianDetail2.last_name}}";
+        var email2 = "{{guardianDetail2.email}}";
+        var phone2 = "{{guardianDetail2.phone}}";
+        var relation2 = "{{guardianDetail2.relation}}";
+        $('#guardianfname').val(guardian_first_name2);
+        $('#guardianlname').val(guardian_last_name2);
+        $('#guardianemail').val(email2);
+        $('#guardianphone').val(phone2);
+        $('#guardianrelation').val(relation2);
+      }
+    }
   });
 
 var fileReader = new FileReader();
@@ -514,7 +545,7 @@ var class_select = document.getElementById("class_val");
             {% endfor %}
             </div>
             {% else %}
-            {{ form.guardian_last_name(class='form-control') }}
+            {{ form.guardian_last_name(class='form-control',id='guardianlname') }}
             {% endif %}
       </div>
       <div class='col-sm-3'>

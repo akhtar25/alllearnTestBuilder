@@ -516,7 +516,6 @@ def studentRegistration():
                 last_name=request.form.getlist('guardian_last_name')
                 phone=request.form.getlist('guardian_phone')
                 email=request.form.getlist('guardian_email')
-                
                 relation=request.form.getlist('relation')
                 for i in range(len(first_name)):
                     relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
@@ -532,6 +531,10 @@ def studentRegistration():
                 class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+                if address_id is None:
+                    address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+                    db.session.add(address_data)
+                    address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
                 print(studentDetails)
                 print('DOB:'+str(request.form['birthdate']))
@@ -548,6 +551,58 @@ def studentRegistration():
                 studentDetails.roll_number=int(form.roll_number.data)
                 studentDetails.school_adm_number=form.school_admn_no.data
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
+
+                first_name=request.form.getlist('guardian_first_name')
+                last_name=request.form.getlist('guardian_last_name')
+                phone=request.form.getlist('guardian_phone')
+                email=request.form.getlist('guardian_email')
+                relation=request.form.getlist('relation')
+                gId = ''
+                for i in range(len(first_name)):
+                    if i==0:
+                        relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                        # query = "select first_name,last_name,full_name,relation,email,phone from guardian_profile where student_id='"+str(student_id)+"' limit 1"
+                        # guardianData = db.session.execute(text(query))
+                        guardianData = GuardianProfile.query.filter_by(student_id=student_id).first()
+                        # print('Query:'+query)
+                        print(guardianData.first_name)
+                        guardianData.first_name = first_name[i]
+                        guardianData.last_name = last_name[i]
+                        guardianData.full_name = first_name[i] + ' ' + last_name[i]
+                        guardianData.relation = relation_id.msg_id
+                        guardianData.phone = phone[i]
+                        guardianData.email = email[i]
+                        gId = guardianData.guardian_id
+                        # gId = int(gId)+1 
+                        print('Gid:'+str(guardianData.guardian_id))
+                        print('Gid:'+str(gId))
+                        print('Guardian First Name:'+str(first_name[i]))
+                        db.session.commit()
+                    if i==1:
+                        query = "select *from guardian_profile where student_id='"+str(student_id)+"' and guardian_id!='"+str(gId)+"'"
+                        print('Query:'+str(query))
+                        guardian_id = db.session.execute(text(query)).fetchall()
+                        
+                        if guardian_id:
+                            guarId = guardian_id.guardian_id
+                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                            guardianData = GuardianProfile.query.filter_by(student_id=student_id,guardian_id=guarId).first()
+                            print('Second guardian first name:'+str(guardianData.first_name))
+                            guardianData.first_name = first_name[i]
+                            guardianData.last_name = last_name[i]
+                            guardianData.full_name = first_name[i] + ' ' + last_name[i]
+                            guardianData.relation = relation_id.msg_id
+                            guardianData.phone = phone[i]
+                            guardianData.email = email[i]
+                            print(guardianData)
+                            print('Second Guardian First Name:'+str(first_name[i]))
+                        else:
+                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                            email=email[i],phone=phone[i],student_id=student_id)
+                            db.session.add(guardian_data)
+                # guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                # email=email[i],phone=phone[i],student_id=student_data.student_id)
                 db.session.commit()
                 flash('Data Updated Successfully!')
                 return render_template('studentRegistration.html',studentId=student_id)
