@@ -489,6 +489,7 @@ def studentRegistration():
             #print('Query:'+student)
             db.session.add(student)
             db.session.commit()
+            print('School adm no:'+str(form.school_admn_no.data))
             student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
             for i in range(4):
                 if i==0:
