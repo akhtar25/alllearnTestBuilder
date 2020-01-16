@@ -488,6 +488,7 @@ def studentRegistration():
             roll_number=int(form.roll_number.data))
             #print('Query:'+student)
             db.session.add(student)
+            db.session.commit()
             student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
             for i in range(4):
                 if i==0:
@@ -752,7 +753,9 @@ def disconnectedAccount():
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
-
+    if userDetailRow.user_type==72:
+        print('Inside Guardian condition')
+        return redirect(url_for('guardianDashboard'))
     if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
     elif userDetailRow.user_type==161:
@@ -1397,11 +1400,18 @@ def grantUserAccess():
             studentData=StudentProfile(full_name=userFullName,school_id=school_id, registration_date=datetime.now(), last_modified_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, user_id=userTableDetails.id)
             db.session.add(studentData)    
             db.session.commit()
+    elif userTableDetails.user_type==72:
+        print('#########Gotten into 72')
+        checkGuardianProfile=GuardianProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkGuardianProfile==None:
+            guardianData=GuardianProfile(full_name=userFullName,first_name=userTableDetails.first_name, last_name=userTableDetails.last_name,email=userTableDetails.email,phone=userTableDetails.phone, user_id=userTableDetails.id)
+            db.session.add(guardianData)    
+            db.session.commit()
     else:
         print('#########Gotten into else')
         pass
     access_granted_email(userTableDetails.email,userTableDetails.username,school )
-    return jsonify(["0"])
+    return jsonify(["String"])
 
 
 
@@ -1638,13 +1648,16 @@ def attendance():
 @app.route('/guardianDashboard')
 @login_required
 def guardianDashboard():
+    print('Id:'+str(current_user.id))
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print(guardian)
+    print('Id:'+str(current_user.id))
+    school= User.query.filter_by(id=current_user.id).first()
     student=[]
     for g in guardian:
         query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
         query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
-        query = query + "left join fn_guardian_dashboard_summary('"+str(teacher.school_id)+"') fn on fn.student_name=sp.full_name "
+        query = query + "left join fn_guardian_dashboard_summary('"+str(school.school_id)+"') fn on fn.student_name=sp.full_name "
         query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(g.student_id)+"' order by marks desc limit 1"
         student_data = db.session.execute(text(query)).first()
         student.append(student_data)
