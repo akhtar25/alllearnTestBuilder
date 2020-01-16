@@ -43,7 +43,7 @@
                 <p>Phone: {{row.phone}}</p>
                 <p>Requested Access as: {{row.user_type}}</p>                
                 <p>About requestor:{{row.about_me}}</p>
-                <div id='grantAccessDiv'>
+                <div class='grantAccessDiv'>
                 <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}" id="{{row.school_id}}">Grant Access</a>
             </div>
             </div>
@@ -75,9 +75,11 @@
                   url: "/grantUserAccess?username="+ username+"&school_id="+school_id,
                   type: "get",
                   data: data,
-                  success: function(response) {  
-                        console.log('Inside success');                                                            
-                        $('#grantAccessDiv').html("<p style:'green-text'>Access Granted</p>");
+                  success: function(response) { 
+                        $('.grantAccessDiv').html("<p style:'green-text'>Access Granted</p>"); 
+                        console.log('Inside success'); 
+                                                                                  
+                        
                   },
                   error: function(xhr) {
                     window.alert("error occurred while granting access");
