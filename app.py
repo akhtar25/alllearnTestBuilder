@@ -513,9 +513,20 @@ def studentRegistration():
             relation=request.form.getlist('relation')
             for i in range(len(first_name)):
                 relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                email=email[i],phone=phone[i],student_id=student_data.student_id)
-                db.session.add(guardian_data)
+                checkGuardianDetail = GuardianProfile.query.filter_by(email=email[i]).first()
+                print(checkGuardianDetail)
+                print('Email:'+str(email[i]))
+                if checkGuardianDetail:            
+                    print('Inside if'+str(relation_id.msg_id))
+                    # checkGuardianDetail.relation = relation_id.msg_id
+                    # checkGuardianDetail.student_id = student_data.student_id
+                    update = db.session.execute(text("update guardian_profile set student_id='"+str(student_data.student_id)+"',relation='"+str(relation_id.msg_id)+"' where email='"+str(email[i])+"'"))
+                    db.session.commit()
+                else: 
+                    print('Inside else')
+                    guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                    email=email[i],phone=phone[i],student_id=student_data.student_id)
+                    db.session.add(guardian_data)
             db.session.commit()
             flash('Successful upload !')
             return render_template('studentRegistration.html')
@@ -1403,10 +1414,15 @@ def grantUserAccess():
             db.session.commit()
     elif userTableDetails.user_type==72:
         print('#########Gotten into 72')
+        print('Email:'+str(userTableDetails.email))
         checkGuardianProfile=GuardianProfile.query.filter_by(user_id=userTableDetails.id).first()
+        
         if checkGuardianProfile==None:
             guardianData=GuardianProfile(full_name=userFullName,first_name=userTableDetails.first_name, last_name=userTableDetails.last_name,email=userTableDetails.email,phone=userTableDetails.phone, user_id=userTableDetails.id)
             db.session.add(guardianData)    
+            db.session.commit()
+        else:
+            checkGuardianProfile.user_id=userTableDetails.id
             db.session.commit()
     else:
         print('#########Gotten into else')
