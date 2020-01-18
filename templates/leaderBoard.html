@@ -72,21 +72,31 @@
             <table id="datatable">
               <thead>
                 <tr>
-                    <th style="font-size: 15px;width: 200px;" class="sorting" >Student</th>
-                    <th style="font-size: 15px;width: 50px;padding-left: 0px;">Class</th>
-                     <th style="font-size: 15px;width: 65px;padding-left: 0px;">Section</th>
-                     <th style="font-size: 15px;width: 68px;padding-left: 0px;" class="sorting_asc">Marks %</th>
-                     <th style="font-size: 15px;width: 82px;padding-left: 0px;">Total Tests</th>
-                     <th style="font-size: 15px;width: 104px;padding-left: 0px;">Maths%(tests)</th>
-                     <th style="font-size: 15px;width: 95px;padding-left: 0px;">Sci.%(tests)</th>
-                     <th style="font-size: 15px;width: 100px;padding-left: 0px;">S.St.%(tests)</th>
-                     <th style="font-size: 15px;width: 90px;padding-left: 0px;">His.%(tests)</th>
-                     <th style="font-size: 15px;width: 104px;padding-left: 0px;">Geog.%(tests)</th>
-                     <th style="font-size: 15px;width: 80px;padding-left: 0px;">Civ.%(tests)</th>
-                     <th style="font-size: 15px;width: 81px;padding-left: 0px;">Eco.%(tests)</th>
-                     <th style="font-size: 15px;width: 102px;padding-left: 0px;">Hindi%(tests)</th>
-                     <th style="font-size: 15px;width: 95px;padding-left: 0px;">Eng.%(tests)</th>
-                     <th style="font-size: 15px;width: 93px;padding-left: 0px;">EVS%(tests)</th>                
+                    <th style="font-size: 15px;width:180px;" id="st">Student</th>
+                    <th style="font-size: 15px;width:120px;">Class</th>
+                     <th style="font-size: 15px;width:120px;">Section</th>
+                     <th style="font-size: 15px;width:120px;" id="marks">Total Marks %</th>
+                     <th style="font-size: 15px;width:120px;">Total Tests</th>
+                     <th style="font-size: 15px;width:120px;">Maths%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Maths)</th>
+                     <th style="font-size: 15px;width:120px;">Sci.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Sci.)</th>
+                     <th style="font-size: 15px;width:120px;">S.St.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(S.St.)</th>
+                     <th style="font-size: 15px;width:120px;">His.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(His.)</th>
+                     <th style="font-size: 15px;width:120px;">Geog.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Geog.)</th>
+                     <th style="font-size: 15px;width:120px;">Civ.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Civ.)</th>
+                     <th style="font-size: 15px;width:120px;">Eco.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Eco.)</th>
+                     <th style="font-size: 15px;width:120px;">Hindi%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Hindi)</th>
+                     <th style="font-size: 15px;width:120px;">Eng.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Tests(Eng.)</th>
+                     <th style="font-size: 15px;width:120px;" id="evs">EVS%(tests)</th> 
+                     <th style="font-size: 15px;width:120px;" id="tests">Tests(EVS)</th>               
                 </tr>
               </thead>
               <tbody>
@@ -105,59 +115,79 @@
                       </span>
                     </td>    
                     {% endif %} 
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.class}}</td>
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.section}}</td>
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.marks}}</td> 
-                    <td style="font-size: 15px;padding-left: 0px;">{% set total = 0 %}{% set total = eachRow.mathematics_test_count+eachRow.evs_test_count+eachRow.english_test_count+eachRow.hindi_test_count+eachRow.economics_test_count+eachRow.civics_test_count+eachRow.geography_test_count+eachRow.history_test_count+eachRow.science_test_count+eachRow.social_science_test_count %}{{total}}</td>
+                    <td style="font-size: 15px;">{{eachRow.class}}</td>
+                    <td style="font-size: 15px;">{{eachRow.section}}</td>
+                    <td style="font-size: 15px;">{{eachRow.marks}}</td> 
+                    <td style="font-size: 15px;">{% set total = 0 %}{% set total = eachRow.mathematics_test_count+eachRow.evs_test_count+eachRow.english_test_count+eachRow.hindi_test_count+eachRow.economics_test_count+eachRow.civics_test_count+eachRow.geography_test_count+eachRow.history_test_count+eachRow.science_test_count+eachRow.social_science_test_count %}{{total}}</td>
                     {% if eachRow.mathematics_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.mathematics}}({{eachRow.mathematics_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.mathematics}}</td>
+                    <td style="font-size: 15px;">{{eachRow.mathematics_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.science_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.science}}({{eachRow.science_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.science}}</td>
+                    <td style="font-size: 15px;">{{eachRow.science_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.social_science_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.social_science}}({{eachRow.social_science_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.social_science}}</td>
+                    <td style="font-size: 15px;">{{eachRow.social_science_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.history_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.history}}({{eachRow.history_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.history}}</td>
+                    <td style="font-size: 15px;">{{eachRow.history_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.geography_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.geography}}({{eachRow.geography_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.geography}}</td>
+                    <td style="font-size: 15px;">{{eachRow.geography_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.civics_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.civics}}({{eachRow.civics_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.civics}}</td>
+                    <td style="font-size: 15px;">{{eachRow.civics_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.economics_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.economics}}({{eachRow.economics_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.economics}}</td>
+                    <td style="font-size: 15px;">
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.hindi_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.hindi}}({{eachRow.hindi_test_count}})</td>
+                    <td style="font-size: 15px;">
+                    <td style="font-size: 15px;">
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.english_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.english}}({{eachRow.english_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.english}}</td>
+                    <td style="font-size: 15px;">{{eachRow.english_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.evs_test_count != 0%}
-                    <td style="font-size: 15px;padding-left: 0px;">{{eachRow.evs}}({{eachRow.evs_test_count}})</td>
+                    <td style="font-size: 15px;">{{eachRow.evs}}</td>
+                    <td style="font-size: 15px;">{{eachRow.evs_test_count}}</td>
                     {% else %}
-                    <td style="font-size: 15px;padding-left: 0px;">No Test</td>
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                 </tr>
                 {% endfor %}
@@ -187,6 +217,19 @@
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
+$(document).ready(function(){
+  document.getElementById("marks").width="120px";
+$('#datatable').dataTable( {
+    "order": [ 3, 'desc' ]
+} );
+$("TH").css("width",120);
+$("#st").css("width",180);
+$("#evs").css("width",160);
+$("#tests").css("width",100);
+// $("#st").removeClass("sorting_asc");
+});
+
+
 
        
 </script>
