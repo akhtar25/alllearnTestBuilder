@@ -35,7 +35,7 @@
       {% endif %}
         </span></span>
     </div>
-    <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 60px;">
+    <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
       {{ form.hidden_tag() }}
       <div class="form-group ">
         <div class="row" id="classDetailsDiv">
@@ -77,25 +77,25 @@
                      <th style="font-size: 15px;width:120px;">Section</th>
                      <th style="font-size: 15px;width:120px;" id="marks">Total Marks %</th>
                      <th style="font-size: 15px;width:120px;">Total Tests</th>
-                     <th style="font-size: 15px;width:120px;">Maths%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Maths%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Maths)</th>
-                     <th style="font-size: 15px;width:120px;">Sci.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Science%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Sci.)</th>
-                     <th style="font-size: 15px;width:120px;">S.St.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Social Science%</th>
                      <th style="font-size: 15px;width:120px;">Tests(S.St.)</th>
-                     <th style="font-size: 15px;width:120px;">His.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">History%</th>
                      <th style="font-size: 15px;width:120px;">Tests(His.)</th>
-                     <th style="font-size: 15px;width:120px;">Geog.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Geography%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Geog.)</th>
-                     <th style="font-size: 15px;width:120px;">Civ.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Civics%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Civ.)</th>
-                     <th style="font-size: 15px;width:120px;">Eco.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Economics%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Eco.)</th>
-                     <th style="font-size: 15px;width:120px;">Hindi%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">Hindi%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Hindi)</th>
-                     <th style="font-size: 15px;width:120px;">Eng.%(tests)</th>
+                     <th style="font-size: 15px;width:120px;">English%</th>
                      <th style="font-size: 15px;width:120px;">Tests(Eng.)</th>
-                     <th style="font-size: 15px;width:120px;" id="evs">EVS%(tests)</th> 
+                     <th style="font-size: 15px;width:120px;" id="evs">EVS%</th> 
                      <th style="font-size: 15px;width:120px;" id="tests">Tests(EVS)</th>               
                 </tr>
               </thead>
@@ -228,6 +228,17 @@ $("#evs").css("width",160);
 $("#tests").css("width",100);
 // $("#st").removeClass("sorting_asc");
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, options);
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
 
 
 
