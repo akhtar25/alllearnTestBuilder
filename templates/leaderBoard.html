@@ -35,6 +35,15 @@
       {% endif %}
         </span></span>
     </div>
+    <div class="input-field col s6" style="width: 50%;">
+        <select id="subjects" multiple>
+          <option value="" disabled selected> Select Subjects</option>
+          {% for sub in subject %}
+          <option value="{{sub.msg_id}}">{{sub.description}}</option>
+          {% endfor %}
+        </select>
+        <label>Select Subjects</label>
+      </div>
     <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
       {{ form.hidden_tag() }}
       <div class="form-group ">
@@ -169,8 +178,8 @@
                     <td style="font-size: 15px;">(No Test)</td>
                     {% endif %}
                     {% if eachRow.hindi_test_count != 0%}
-                    <td style="font-size: 15px;">
-                    <td style="font-size: 15px;">
+                    <td style="font-size: 15px;">(No Test)</td>
+                    <td style="font-size: 15px;">(No Test)</td>
                     {% else %}
                     <td style="font-size: 15px;">(No Test)</td>
                     <td style="font-size: 15px;">(No Test)</td>
@@ -229,20 +238,42 @@ $("#tests").css("width",100);
 // $("#st").removeClass("sorting_asc");
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems, options);
-  });
 
-  // Or with jQuery
 
   $(document).ready(function(){
     $('select').formSelect();
   });
 
+  subject = document.getElementById('subjects');
 
+  subject.click(function(){
+    console.log('Inside Ready');
+$('#subjects').onchange=function(){
+  console.log('Inside Each function');
+ thevalue += $(this).val() + ",";
+ console.log('Values:'+thevalue);
+//your code here
+};
 
-       
+});
+$('#subjects').click(function(){
+function getSelectValues(select) {
+  var result = [];
+  var options = select && select.options;
+  var opt;
+
+  for (var i=0, iLen=options.length; i<iLen; i++) {
+    opt = options[i];
+
+    if (opt.selected) {
+      result.push(opt.value || opt.text);
+    }
+  }
+  return result;
+}
+var el = document.getElementsByTagName('select')[0];
+  alert(getSelectValues(el));
+});
 </script>
 
 {% endblock %}

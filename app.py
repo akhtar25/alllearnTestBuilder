@@ -1925,22 +1925,24 @@ def leaderBoard():
     print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
-        teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()    
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher_id.school_id)+" group by class_val order by class_val")).fetchall()    
         form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-        class_sec_id=ClassSection.query.filter_by(class_val=int(1),school_id=teacher.school_id).first()
+        class_sec_id=ClassSection.query.filter_by(class_val=int(1),school_id=teacher_id.school_id).first()
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
 
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
-        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()  
+        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
         # query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='All' and section<>'All' order by marks desc, student_name "
-        query = "select  * from fn_performance_leaderboard_detail('"+str(teacher.school_id)+"')"
+        query = "select  * from fn_performance_leaderboard_detail('"+str(teacher_id.school_id)+"')"
 
         if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
             where = " where class='"+str(qclass_val)+"' order by marks desc"
         else:
             where = " order by marks desc"
+
+        
         query = query + where
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
@@ -1949,7 +1951,10 @@ def leaderBoard():
         for data in leaderBoardData:
             print('count:'+str(data.section))
             print('marks:'+str(data.marks))
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData, qclass_val=qclass_val)
+        subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
+        print(subject)
+        print('Inside subjects')
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData, qclass_val=qclass_val,subject=subject)
 
 @app.route('/classDelivery')
 @login_required
