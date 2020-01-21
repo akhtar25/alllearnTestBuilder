@@ -536,6 +536,9 @@ def studentRegistration():
                     db.session.add(address_data)
                     address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
+                studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
+                print('Query:'+str(studProfile))
+                profileImg = db.session.execute(text(studProfile))
                 print(studentDetails)
                 print('DOB:'+str(request.form['birthdate']))
                 print('Student id:'+str(student_id))
@@ -552,7 +555,7 @@ def studentRegistration():
                 studentDetails.roll_number=int(form.roll_number.data)
                 studentDetails.school_adm_number=form.school_admn_no.data
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
-
+                db.session.commit()
                 first_name=request.form.getlist('guardian_first_name')
                 last_name=request.form.getlist('guardian_last_name')
                 phone=request.form.getlist('guardian_phone')
