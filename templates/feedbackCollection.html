@@ -122,8 +122,10 @@
         <script>
           var subject_id = {{subject_id}};
               var questionIDListJS = [];
-              {%  for question in questionList%}              
-              questionIDListJS.push({{question.question_id}});
+              {%  for question in questionList%} 
+              var quesId =  "{{question.question_id}}";
+              console.log('Inside question ID:'+quesId);            
+              questionIDListJS.push(quesId);
               {% endfor %}
               var questionListSize = {{ questionListSize }};
               var tempCountVar = 0;
@@ -136,7 +138,8 @@
             });
             
             $("#startAndNextBTN").click(function(){                
-              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);                      
+              $("#currrent_question_id").val(questionIDListJS[tempCountVar]);  
+              console.log('Question Id List:'+questionIDListJS[tempCountVar]);                    
               document.getElementById("result_strip").innerHTML="";
               keepRecording = true;   
                 if(tempCountVar<questionListSize){
@@ -146,10 +149,13 @@
                   data: {question_id: questionIDListJS[tempCountVar]},
                   success: function(response) {       
                     $("#questionSection").html(response);                    
-                    tempCountVar= tempCountVar+1;                
+                    tempCountVar= tempCountVar+1; 
+                    console.log('Question count:'+tempCountVar);
+                    console.log('Question List Size:'+questionListSize);               
                     if(tempCountVar==questionListSize){
                       $("#startAndNextBTN").hide();                                            
                       $("#startrecordResponsesBTN").show();  
+                      $("#skipButton").show();
                       $("#skipButton").click(function(){
                         document.getElementById("submitAndFinishBTN").click();
                       });                  
@@ -177,6 +183,7 @@
               console.log('This is the section: ' + section);
               questionIDListStr  = JSON.stringify(questionIDListJS);     
               var resp_session_id={{resp_session_id}};
+              console.log('Response session Id:'+resp_session_id);
                 $.ajax({
                   url: "/feedbackReport?resp_session_id="+resp_session_id,
                   type: "get",

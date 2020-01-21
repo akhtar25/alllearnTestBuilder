@@ -97,7 +97,8 @@ stopRecordingBTN.addEventListener('click', function(ev1){
     if (currQnum == parseInt(totalQCount)){
       $('#submitAndFinishBTN').show();
     }
-    else{          
+    else{    
+
     $("#startAndNextBTN").show();
   }                 
     ev1.preventDefault();
@@ -121,8 +122,9 @@ function submitResponseData(){
   console.log("This is the form Data: "+formData);
  
   var responseForm = $("#responseForm").value;
- 
+  console.log('resultArray Length:'+resultArray.length)
   if(resultArray.length!=0){
+    console.log('resultArray Length inside if:'+resultArray.length)
     $.ajax({
       url: "/responseDBUpdate",
       type: "POST",
@@ -169,6 +171,7 @@ function processCapture(){
     var obj = codes[i][2];
     /////////////////
     var splitInput = obj.toString().split('@');
+    console.log('Split Input:'+splitInput);
     if (answerReceived.includes(splitInput[0]))
     {
       //do nothing

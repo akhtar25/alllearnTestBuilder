@@ -2180,13 +2180,20 @@ def feedbackCollection():
 
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
 
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()            
+            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()  
+            print('Inside question id list')
+            print(questionIDList)          
             questionListSize = len(questionIDList)
-
+            print('Question list size:'+str(questionListSize))
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-                if sessionDetailRowCheck==None:
+                print('Response Session ID:'+str(responseSessionID))
+                print('If Question list size is not zero')
+                print(sessionDetailRowCheck)
+                if sessionDetailRowCheck=='':
+                    print('if sessionDetailRowCheck is none')
+                    print(sessionDetailRowCheck)
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                             class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
                     db.session.add(sessionDetailRowInsert)
@@ -2195,7 +2202,9 @@ def feedbackCollection():
 
             questionList = []
             for questValue in questionIDList:
+                print('Question ID:'+str(questValue.question_id))
                 questionList.append(questValue.question_id)
+            
 
             testDetailRow = TestDetails.query.filter_by(test_id=qtest_id).first()
             testType = testDetailRow.test_type
@@ -2212,7 +2221,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=totalMarks, testType=testType)
             else:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
 
     elif request.method == 'POST':
         allCoveredTopics = request.form.getlist('topicCheck')
@@ -2251,6 +2260,7 @@ def feedbackCollection():
         responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
         #changes for use with PC+ mobile cam combination
+        print('Question list size:'+str(questionListSize))
         if questionListSize >0:
             sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                         class_sec_id=curr_class_sec_id)
@@ -2324,6 +2334,7 @@ def loadQuestion():
     totalQCount = request.args.get('total')
     qnum= request.args.get('qnum')
     resp_session_id=request.args.get('resp_session_id')
+    print('Question Id:'+str(question_id))
     print(resp_session_id)
     question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).all()
@@ -2482,7 +2493,8 @@ def decodeAjax():
         return jsonify(['NO BarCode Found'])
 
 @app.route('/responseDBUpdate', methods=['POST'])
-def responseDBUpdate():        
+def responseDBUpdate():   
+    print('Inside Response DB Update')     
     responseList=request.json
     responseArray = {}
     if responseList:
@@ -2501,7 +2513,7 @@ def responseDBUpdate():
                     #print('Response split is: '+ str(responseSplit ))
                     
                     teacherIDRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                    
+                    print('Class Section Id in Response DB Update:'+str(responseSplit[0]))
                     studentDetailQuery = "select class_sec_id from student_profile where student_id=" + responseSplit[0]
                     studentDetailRow = db.session.execute(text(studentDetailQuery)).first()
 
@@ -2510,7 +2522,8 @@ def responseDBUpdate():
                     
                     dateVal= datetime.today().strftime("%d%m%Y")
 
-                    responseSessionID = str(dateVal) + str(questionDetailRow.subject_id) + str(studentDetailRow.class_sec_id)
+                    responseSessionID =  str(questionDetailRow.subject_id) + str(dateVal) + str(studentDetailRow.class_sec_id)
+                    print('Class section Id in response DB Update:'+str(studentDetailRow.class_sec_id))
                     print('this is the response session id: ' + responseSessionID)
                     #the response session id is a combination of today's date, subject id and the class section id
 
@@ -2547,7 +2560,7 @@ def feedbackReport():
         section=request.args.get('section')
         section = section.strip()
         dateVal = request.args.get('date')
-    
+    print('Class Perf:'+str(fromClassPerf))
     
     #print('here is the section '+ str(section))
     #if (questionListJson != None) and (class_val != None) and (section != None):
@@ -2565,25 +2578,28 @@ def feedbackReport():
         else:
             tempDate=dt.datetime.strptime(dateVal,'%Y-%m-%d').date()
             dateVal= tempDate.strftime("%d%m%Y")
+            print('Date:'+str(dateVal)+'Subject Id:'+str(subject_id)+'Class Section Id:'+str(classSecRow.class_sec_id))
         responseSessionID = str(dateVal) + str(subject_id) + str(classSecRow.class_sec_id)
 
     if responseSessionID!=None:
         #
+        # print('Class Section Id in feedbackReport:'+str(classSecRow.class_sec_id))
         print('Here is response session id in feedback report: ' + responseSessionID)   
         responseResultQuery = "with total_marks_cte as ( "
         responseResultQuery = responseResultQuery + "select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
         responseResultQuery = responseResultQuery + "(select distinct question_id from test_questions t1 inner join session_detail t2 on "
         responseResultQuery = responseResultQuery + "t1.test_id=t2.test_id and t2.resp_session_id='"+str(responseSessionID)+"') ) "
         responseResultQuery = responseResultQuery + "select distinct sp.roll_number, sp.full_name, sp.student_id, "
-        responseResultQuery = responseResultQuery + "SUM(qd.suggested_weightage) as points_scored, total_marks_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "CASE WHEN rc.is_correct='Y' THEN SUM(qd.suggested_weightage) ELSE '0' END AS  points_scored , "
+        responseResultQuery = responseResultQuery + "total_marks_cte.total_weightage "
         responseResultQuery = responseResultQuery + "from response_capture rc inner join student_profile sp on "
         responseResultQuery = responseResultQuery + "rc.student_id=sp.student_id "
         responseResultQuery = responseResultQuery + "inner join question_details qd on "
-        responseResultQuery = responseResultQuery + "qd.question_id=rc.question_id and rc.is_correct='Y' "
+        responseResultQuery = responseResultQuery + "qd.question_id=rc.question_id "
         responseResultQuery = responseResultQuery + "and rc.resp_session_id='"+str(responseSessionID)+"', total_marks_cte "
-        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage "
+        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage , rc.is_correct"
 
-
+        print('Query:'+str(responseResultQuery))
         responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
 
         if responseResultRow != None:
