@@ -540,6 +540,7 @@ def studentRegistration():
                 print('DOB:'+str(request.form['birthdate']))
                 print('Student id:'+str(student_id))
                 print('First Name:'+str(studentDetails.first_name))
+                print('Image url:'+str(request.form['profile_image']))
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
@@ -581,7 +582,7 @@ def studentRegistration():
                     if i==1:
                         query = "select *from guardian_profile where student_id='"+str(student_id)+"' and guardian_id!='"+str(gId)+"'"
                         print('Query:'+str(query))
-                        guardian_id = db.session.execute(text(query)).fetchall()
+                        guardian_id = db.session.execute(text(query)).first()
                         
                         if guardian_id:
                             guarId = guardian_id.guardian_id
