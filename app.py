@@ -1970,14 +1970,6 @@ def questionDetails():
     
     return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
 
-# @app.route('/topperListAll')
-# def topperListAll():
-#     user = User.query.filter_by(username=current_user.username).first_or_404()
-#     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-#     query = "select  * from fn_performance_leaderboard_detail('"+ str(teacher.school_id)+"') order by marks desc, student_name "
-#     #print('Query:'+query)
-#     leaderBoardData = db.session.execute(text(query)).fetchall()
-#     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
 @app.route('/leaderBoard')
 def leaderBoard():
     form = LeaderBoardQueryForm()
@@ -2162,7 +2154,9 @@ def contentManagerDetails():
 @login_required
 def feedbackCollection():    
     if request.method=='GET':
-        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
+        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y")
@@ -2218,7 +2212,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=totalMarks, testType=testType)
             else:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
 
     elif request.method == 'POST':
         allCoveredTopics = request.form.getlist('topicCheck')
