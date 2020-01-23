@@ -11,7 +11,7 @@
                     <div class="box-header" >
                       <h3 class="box-title">Feedback questions </h3><span style="padding-left: 10px;">    Class: {{ class_val }} | Section: {{ section }}</span>                              
                     </div>                                           
-                    <span id="respSessionQuestionRow" style="display: none;">{{ respSessionQuestionRow }}</span>
+                    <span id="respSessionQuestionRow" style="display: none;">{{ questionList }}</span>
                     <input id="currrent_question_id" style="display: none;">
                     <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
                     <input id="section_ip" style="display: none;"type="text" value="{{section}}">
@@ -21,7 +21,7 @@
                         <br>
                         <br>
                         <br>
-                        {% if questionListSize > 0 %}
+                        {% if questionList|length > 0 %}
                       <p style="font-size: 24px;" class="grey-text text-lighten-1">Click Start to load questions</p>
                       <br><br><br><br><br><br><br><br>
                     
@@ -31,7 +31,7 @@
                     </div>
                     </div>  
                     <div id="questionButtons">
-                     {% if respSessionQuestionRow|length > 0 %}
+                     {% if questionList|length > 0 %}
                     <input type="button" value="Start" class="btn btn-primary pull-right" id="startAndNextBTN" style="height: 40px; width: 200px;">              
                      {% endif %}
                     <input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">                                        
@@ -65,7 +65,7 @@
                   
                 </div>
                 <div class="video-field" id="video-field">                
-                        <video id="video" height="640" autoplay="true" style="display: block"></video>      
+                        <video id="video" width="390" autoplay="true" style="display: block"></video>      
                         <canvas id="piccanvas" width="640" height="480" style="display:none !important"></canvas>
                         </div> 
 
@@ -96,7 +96,7 @@
         <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
         <script>
               var questionIDListJS = [];
-              {%  for question in respSessionQuestionRow%}              
+              {%  for question in questionList%}              
               questionIDListJS.push({{question.question_id}});
               {% endfor %}
               var questionListSize = {{ questionListSize }};

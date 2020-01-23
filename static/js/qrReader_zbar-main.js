@@ -7,6 +7,7 @@ var videoSelect = document.querySelector('select#videoSource');
 var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
+var ResponseSessionId = $('#RespSessionID').val();
 var hiddenInputList = $("#questionListSizeDiv");
 var errorMsgElement = $("#errorMsgElement");
 var resultArray = [];
@@ -125,8 +126,9 @@ function submitResponseData(){
   console.log('resultArray Length:'+resultArray.length)
   if(resultArray.length!=0){
     console.log('resultArray Length inside if:'+resultArray.length)
+    console.log('Response Session ID in Response DB update :'+ResponseSessionId);
     $.ajax({
-      url: "/responseDBUpdate",
+      url: "/responseDBUpdate?resp_session_id="+ResponseSessionId,
       type: "POST",
       data: formData ,
       contentType: 'application/json;charset=UTF-8',

@@ -1493,6 +1493,7 @@ def testBuilderQuestions():
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
+    print('Inside Test builder file upload Test Type value:'+str(session.get('test_type_val',None)))
     #question_list=request.get_json()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     data=request.get_json()
@@ -1558,8 +1559,8 @@ def testBuilderFileUpload():
     #except:
     #    print('error inserting values into the test questions table')
     #### End of section ####
-
-    return render_template('testPaperDisplay.html',file_name=file_name_val)
+    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id).order_by(TestDetails.date_of_creation.desc()).first()
+    return render_template('testPaperDisplay.html',file_name=file_name_val,testPaperData=testPaperData)
 
 @app.route('/testPapers')
 @login_required
@@ -1747,18 +1748,21 @@ def qrSessionScannerStudent():
 def mobQuestionLoader():
 
     resp_session_id=request.args.get('resp_session_id')
-    print('Response Session Id:'+str(resp_session_id))
+    print('Response Session Id in mobFeedbackCollection:'+str(resp_session_id))
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
-    if sessionDetailRow!=None:
-        print("This is the session status - "+str(sessionDetailRow.session_status))
+    if sessionDetailRow:
         if sessionDetailRow.session_status=='80':
             sessionDetailRow.session_status='81'        
             db.session.commit()    
-        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()
-        respSessionQuestionRow = RespSessionQuestion.query.filter_by(resp_session_id=str(resp_session_id)).all()
-        if respSessionQuestionRow!=None:
-            questionListSize = len(respSessionQuestionRow)
-        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, section=classSectionRow.section,questionListSize=questionListSize,respSessionQuestionRow=respSessionQuestionRow,resp_session_id=str(resp_session_id))
+        classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()        
+        testDetailRow = TestDetails.query.filter_by(test_id = sessionDetailRow.test_id).first()
+        testQuestions = TestQuestions.query.filter_by(test_id=sessionDetailRow.test_id).all()
+
+        if testQuestions!=None:
+            questionListSize = len(testQuestions)
+        return render_template('mobFeedbackCollection.html',class_val = classSectionRow.class_val, 
+            section=classSectionRow.section,questionListSize=questionListSize,
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
         flash('This is not a valid id')
         return render_template('qrSessionScanner.html')
@@ -2159,8 +2163,9 @@ def feedbackCollection():
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
-        dateVal= datetime.today().strftime("%d%m%Y")
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
         qtest_id = request.args.get('test_id')
+        print('Test Id:'+str(qtest_id))
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
         qsubject_id = request.args.get('subject_id')
@@ -2184,18 +2189,20 @@ def feedbackCollection():
             print('Inside question id list')
             print(questionIDList)          
             questionListSize = len(questionIDList)
+
             print('Question list size:'+str(questionListSize))
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+                print('Date:'+str(print (dateVal)))
                 print('Response Session ID:'+str(responseSessionID))
                 print('If Question list size is not zero')
                 print(sessionDetailRowCheck)
-                if sessionDetailRowCheck=='':
+                if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
                     print(sessionDetailRowCheck)
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                            class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
+                    class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
                     db.session.commit()
@@ -2211,17 +2218,22 @@ def feedbackCollection():
             #testTypeNameRow = MessageDetails.query.filter_by(msg_id=testTypeID).first()
 
 
-            questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()            
+            questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()  
+            for  question in questions:
+                print('Question:'+str(question.question_description))         
             totalMarks = 0
             for eachQuest in questions:
                 totalMarks = totalMarks + int(eachQuest.suggested_weightage)
-
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=totalMarks, testType=testType)
-            else:
+            elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+            else:
+                print('the device preference is external webcame' + str(teacherProfile.device_preference))
+                return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
 
     elif request.method == 'POST':
         allCoveredTopics = request.form.getlist('topicCheck')
@@ -2364,7 +2376,7 @@ def loadQuestionStud():
     resp_session_id = request.args.get('resp_session_id')
     subject_id =  request.args.get('subject_id')
     last_q_id =  request.args.get('last_q_id')    
-
+    print('Before String conversion:'+resp_session_id)
     print('This is the response session id in: ' + str(resp_session_id) )
     studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
@@ -2496,6 +2508,7 @@ def decodeAjax():
 def responseDBUpdate():   
     print('Inside Response DB Update')     
     responseList=request.json
+    responseSessionID=request.args.get('resp_session_id')
     responseArray = {}
     if responseList:
         #print(responseList)        
@@ -2522,9 +2535,9 @@ def responseDBUpdate():
                     
                     dateVal= datetime.today().strftime("%d%m%Y")
 
-                    responseSessionID =  str(questionDetailRow.subject_id) + str(dateVal) + str(studentDetailRow.class_sec_id)
-                    print('Class section Id in response DB Update:'+str(studentDetailRow.class_sec_id))
-                    print('this is the response session id: ' + responseSessionID)
+                    # responseSessionID =  str(questionDetailRow.subject_id) + str(dateVal) + str(studentDetailRow.class_sec_id)
+                    # print('Class section Id in response DB Update:'+str(studentDetailRow.class_sec_id))
+                    print('this is the response session id: ' + str(responseSessionID))
                     #the response session id is a combination of today's date, subject id and the class section id
 
                     optionCheckRow = QuestionOptions.query.filter_by(question_id=splitVal[0], option=responseSplit[3]).first()
@@ -2552,6 +2565,7 @@ def responseDBUpdate():
 def feedbackReport():    
     fromClassPerf = request.args.get('fromClassPerf')
     responseSessionID=request.args.get('resp_session_id')
+    print('Response Session Id in FeedBack Report route'+str(responseSessionID))
     if fromClassPerf!=None:
     #questionListJson=request.args.get('question_id')
         class_val=request.args.get('class_val')
@@ -2604,7 +2618,9 @@ def feedbackReport():
 
         if responseResultRow != None:
             totalPointsScored =  0
-            totalPointsLimit = 0            
+            totalPointsLimit = 0   
+            print(responseResultRow)
+            print('ResultRow length:'+str(len(responseResultRow)))         
             for row in responseResultRow:
                 totalPointsScored = totalPointsScored + row.points_scored
                 totalPointsLimit = totalPointsLimit + row.total_weightage
