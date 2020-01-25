@@ -122,6 +122,17 @@ def schoolNameVal():
     else:
         return None
 
+def leaderboardContent():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    leaderboard_row = "select  * from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
+    leaderbrd_row = db.session.execute(text(leaderboard_row)).fetchall()
+    
+    leaderbrd_pivot = pd.pivot_table(leaderbrd_row,index=['student_name','class','section']
+                      , columns='subjectid', values='class'
+                      , aggfunc=np.mean).reset_index()
+    leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
+    return leaderbrd_pivot    
+
 
 def stateList():
     with open('stateList.txt', 'r') as f:
@@ -1942,7 +1953,9 @@ def leaderBoard():
         else:
             where = " order by marks desc"
 
-        
+        data = leaderboardContent()
+        print('LeaderBoard Data:')
+        print(data)
         query = query + where
         print('Query:'+query)
         leaderBoardData = db.session.execute(text(query)).fetchall()
