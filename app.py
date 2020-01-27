@@ -123,23 +123,43 @@ def schoolNameVal():
     else:
         return None
 
-def leaderboardContent():
+def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    leaderboard_row = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
-    leaderbrd_row = db.session.execute(text(leaderboard_row)).fetchall()
+    query = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
+    if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
+        where = " where class='"+str(qclass_val)+"' order by marks desc"
+    else:
+        where = " order by marks desc"
+    query = query + where
+    print('Query inside leaderboardContent:'+str(query))
+    leaderbrd_row = db.session.execute(text(query)).fetchall()
     df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
-    # df.columns = leaderbrd_row.keys()    
-    # leaderbrd_pivot = pd.pivot_table(df,index=['student_name','class_val','section','test_count']
-    #                   , columns='subjectid', values='marks'
-    #                   ,aggfunc='sum').reset_index()
-    # leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
-    # leaderbrd_pivot = leaderbrd_pivot.groupby(['student_name','class_val','section']).agg({'test_count':'sum'})
-    leaderbrd_pivot = pd.pivot_table(df,index=['student_name','class_val','section','test_count']
+    
+    leaderbrd_pivot = pd.pivot_table(df,index=['studentid','student_name','class_val','section']
                       , columns='subjectid', values='marks'
                       ,aggfunc='sum').reset_index()
     leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
-    # result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on='student_name')
-    return leaderbrd_pivot  
+    col_list= list(leaderbrd_pivot)
+    col_list.remove('studentid')
+    col_list.remove('student_name')
+    col_list.remove('class_val')
+    col_list.remove('section')
+    leaderbrd_pivot['total_marks%'] = leaderbrd_pivot[col_list].mean(axis=1)
+
+    # leaderbrd_pivot = leaderbrd_pivot.groupby(['studentid','student_name','class_val','section']).agg()
+    df2 = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
+    leaderbrd_pivot2 = pd.pivot_table(df2,index=['studentid','student_name','class_val','section']
+                      , columns='subjectid', values='test_count'
+                      ,aggfunc='sum').reset_index()
+    leaderbrd_pivot2 = leaderbrd_pivot2.rename_axis(None).rename_axis(None, axis=1)
+    col_list2= list(leaderbrd_pivot2)
+    col_list2.remove('studentid')
+    col_list2.remove('student_name')
+    col_list2.remove('class_val')
+    col_list2.remove('section')
+    leaderbrd_pivot2['total_tests'] = leaderbrd_pivot2[col_list2].sum(axis=1)
+    result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on='studentid')
+    return result  
 
 
 def stateList():
@@ -1954,24 +1974,36 @@ def leaderBoard():
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
         # query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='All' and section<>'All' order by marks desc, student_name "
-        query = "select  * from fn_performance_leaderboard_detail('"+str(teacher_id.school_id)+"')"
+        # query = "select  * from fn_performance_leaderboard_detail('"+str(teacher_id.school_id)+"')"
 
-        if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
-            where = " where class='"+str(qclass_val)+"' order by marks desc"
-        else:
-            where = " order by marks desc"
+        
 
-        data = leaderboardContent()
+        leaderBoardData = leaderboardContent(qclass_val)
         print('LeaderBoard Data:')
-        print(data)
-        query = query + where
-        print('Query:'+query)
-        leaderBoardData = db.session.execute(text(query)).fetchall()
+        print(list(leaderBoardData)[2])
+        data = []
+        
+        print(leaderBoardData.values.tolist())
+        # for row in leaderBoardData.itertuples():
+        #     print('Inside Row Iteration of DF')
+        #     print(row)
+        #     print(row.total_tests)
+        #     data.append(row.student_name_x)
+        #     data.append(row.class_val_x)
+        #     data.append(row.section_x)
+        # query = query + where
+        # print('Query:'+query)
+        # leaderBoardData = db.session.execute(text(query)).fetchall()
         # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-        #print('Inside leaderboard')    
-        for data in leaderBoardData:
-            print('count:'+str(data.section))
-            print('marks:'+str(data.marks))
+        #print('Inside leaderboard') 
+        # for d in data:
+        #     print('Inside Data loop')
+        #     print(d)
+        # for data in list(leaderBoardData):
+        #     print('Inside for loop')
+        #     print(data.values)
+            # print('class:'+str(data.class_val_x))
+            # print('Total Tests:'+str(data.total_tests))
         subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
         print(subject)
         print('Inside subjects')
