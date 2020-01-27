@@ -133,7 +133,11 @@
             <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
           </li>
           {% else %}
-          {%if user_type_val=='134'%}
+          {%if user_type_val==72 %}
+          <li>
+            <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+          </li>
+          {%elif user_type_val=='134'%}
             <li>
                 <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
               </li>

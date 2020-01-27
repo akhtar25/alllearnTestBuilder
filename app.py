@@ -1186,7 +1186,11 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()    
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_name_val = schoolNameVal()        
-    
+    disconn = ''
+    user_type_val = ''
+    if current_user.user_type==72:
+        disconn = 1
+        user_type_val = current_user.user_type
     if user.user_type==161:        
         return redirect(url_for('teachingApplicantProfile',user_id=user.id))
     else:
@@ -1205,7 +1209,7 @@ def user(username):
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status=143"
             accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
-        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id)
+        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=user_type_val)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1666,6 +1670,10 @@ def attendance():
 @login_required
 def guardianDashboard():
     print('Id:'+str(current_user.id))
+    user_type_val = ''
+    if current_user.user_type==72:
+        user_type_val = 72
+        print('User Type:'+str(user_type_val))
     guardian=GuardianProfile.query.filter_by(user_id=current_user.id).all()
     print(guardian)
     print('Id:'+str(current_user.id))
@@ -1678,7 +1686,7 @@ def guardianDashboard():
         query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(g.student_id)+"' order by marks desc limit 1"
         student_data = db.session.execute(text(query)).first()
         student.append(student_data)
-    return render_template('guardianDashboard.html',students=student,disconn = 1)
+    return render_template('guardianDashboard.html',students=student,disconn = 1,user_type_val=user_type_val)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
 @login_required
