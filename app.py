@@ -29,6 +29,7 @@ from sqlalchemy import func, distinct, text, update
 from sqlalchemy.sql import label
 import re
 import pandas as pd
+#from pandas import DataFrame
 import numpy as np
 import plotly
 import pprint
@@ -124,14 +125,21 @@ def schoolNameVal():
 
 def leaderboardContent():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    leaderboard_row = "select  * from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
+    leaderboard_row = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
     leaderbrd_row = db.session.execute(text(leaderboard_row)).fetchall()
-    
-    leaderbrd_pivot = pd.pivot_table(leaderbrd_row,index=['student_name','class','section']
-                      , columns='subjectid', values='class'
-                      , aggfunc=np.mean).reset_index()
+    df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
+    # df.columns = leaderbrd_row.keys()    
+    # leaderbrd_pivot = pd.pivot_table(df,index=['student_name','class_val','section','test_count']
+    #                   , columns='subjectid', values='marks'
+    #                   ,aggfunc='sum').reset_index()
+    # leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
+    # leaderbrd_pivot = leaderbrd_pivot.groupby(['student_name','class_val','section']).agg({'test_count':'sum'})
+    leaderbrd_pivot = pd.pivot_table(df,index=['student_name','class_val','section','test_count']
+                      , columns='subjectid', values='marks'
+                      ,aggfunc='sum').reset_index()
     leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
-    return leaderbrd_pivot    
+    # result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on='student_name')
+    return leaderbrd_pivot  
 
 
 def stateList():
