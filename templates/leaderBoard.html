@@ -39,7 +39,7 @@
         <select id="subjects" multiple>
           <option value="" disabled selected> Select Subjects</option>
           {% for sub in subject %}
-          <option value="{{sub.msg_id}}">{{sub.description}}</option>
+          <option value="{{sub.msg_id}}" id="{{sub.msg_id}}" style="display: none;">{{sub.description}}</option>
           {% endfor %}
         </select>
         <label>Select Subjects</label>
@@ -80,131 +80,27 @@
             </div>
             <table id="datatable">
               <thead>
-                <tr>
-                    <th style="font-size: 15px;width:180px;" id="st">Student</th>
-                    <th style="font-size: 15px;width:120px;">Class</th>
-                     <th style="font-size: 15px;width:120px;">Section</th>
-                     <th style="font-size: 15px;width:120px;" id="marks">Total Marks %</th>
-                     <th style="font-size: 15px;width:120px;">Total Tests</th>
-                     <th style="font-size: 15px;width:120px;">Maths%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Maths)</th>
-                     <th style="font-size: 15px;width:120px;">Science%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Sci.)</th>
-                     <th style="font-size: 15px;width:120px;">Social Science%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(S.St.)</th>
-                     <th style="font-size: 15px;width:120px;">History%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(His.)</th>
-                     <th style="font-size: 15px;width:120px;">Geography%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Geog.)</th>
-                     <th style="font-size: 15px;width:120px;">Civics%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Civ.)</th>
-                     <th style="font-size: 15px;width:120px;">Economics%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Eco.)</th>
-                     <th style="font-size: 15px;width:120px;">Hindi%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Hindi)</th>
-                     <th style="font-size: 15px;width:120px;">English%</th>
-                     <th style="font-size: 15px;width:120px;">Tests(Eng.)</th>
-                     <th style="font-size: 15px;width:120px;" id="evs">EVS%</th> 
-                     <th style="font-size: 15px;width:120px;" id="tests">Tests(EVS)</th>               
+                <tr>{% for columnName in columnNames %}
+                    {% if loop.index!=1 %}
+                    <th style="font-size: 15px;width:180px;" id="st">{{columnName}}</th>
+                    {% endif %}
+                    {% endfor %}
+                    {% for subCol in subColumn%}
+                    <th style="font-size: 15px;width:180px;display: none;" id="{{subCol}}">{{subCol}}</th>
+                    {% endfor %}
+                    
                 </tr>
               </thead>
               <tbody>
-                  <!-- {% if leaderBoardData %}  
-                  {% for eachRow in leaderBoardData%}
-                <tr style="height: 60px;">
-                    {% if profile_pic %}
-                    <td style="text-align: center;width:250px;"><img src="../static/images/alllearnImageWatermark.png" height="50" width="50"><span style="text-align: center;font-size: 14px;"> 
-                     <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
-                    </span></td>    
-                    {% else %} 
-                    <td style="width: 250px;">
-                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">     
-                      <span style="text-align: center;font-size: 14px;"> 
-                          <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
-                      </span>
-                    </td>    
-                    {% endif %} 
-                    <td style="font-size: 15px;">{{eachRow.class}}</td>
-                    <td style="font-size: 15px;">{{eachRow.section}}</td>
-                    <td style="font-size: 15px;">{{eachRow.marks}}</td> 
-                    <td style="font-size: 15px;">{% set total = 0 %}{% set total = eachRow.mathematics_test_count+eachRow.evs_test_count+eachRow.english_test_count+eachRow.hindi_test_count+eachRow.economics_test_count+eachRow.civics_test_count+eachRow.geography_test_count+eachRow.history_test_count+eachRow.science_test_count+eachRow.social_science_test_count %}{{total}}</td>
-                    {% if eachRow.mathematics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.mathematics}}</td>
-                    <td style="font-size: 15px;">{{eachRow.mathematics_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.science_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.science}}</td>
-                    <td style="font-size: 15px;">{{eachRow.science_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.social_science_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.social_science}}</td>
-                    <td style="font-size: 15px;">{{eachRow.social_science_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.history_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.history}}</td>
-                    <td style="font-size: 15px;">{{eachRow.history_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.geography_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.geography}}</td>
-                    <td style="font-size: 15px;">{{eachRow.geography_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.civics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.civics}}</td>
-                    <td style="font-size: 15px;">{{eachRow.civics_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.economics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.economics}}</td>
-                    <td style="font-size: 15px;">
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.hindi_test_count != 0%}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.english_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.english}}</td>
-                    <td style="font-size: 15px;">{{eachRow.english_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                    {% if eachRow.evs_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.evs}}</td>
-                    <td style="font-size: 15px;">{{eachRow.evs_test_count}}</td>
-                    {% else %}
-                    <td style="font-size: 15px;">(No Test)</td>
-                    <td style="font-size: 15px;">(No Test)</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="14"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
-                  </tr>
-                    {% endif %} -->
+                  {% for data in leaderBoardData %}
+                      <tr>
+                      {% for i in colAll %}
+                        {% set d = data[loop.index-1] %}
+                        <td style="font-size: 15px;">{{d}}</td>
+                      {% endfor %}
+                      
+                    </tr>
+                  {% endfor %}
               </tbody>
             </table>
           </div>
@@ -273,6 +169,46 @@ function getSelectValues(select) {
 }
 var el = document.getElementsByTagName('select')[0];
   alert(getSelectValues(el));
+});
+
+
+$("#subjects").change(function(){
+    var selectedValues = [];    
+    $("#subjects :selected").each(function(){
+        selectedValues.push($(this).val()); 
+    });
+    // alert(selectedValues);
+    // alert(selectedValues.length)
+    for(i=0;i<selectedValues.length;i++){
+      console.log('Inside for loop for selected Values');
+      {% for subcol in subColumn %}
+        console.log('Inside for loop for subject Column');
+      {% set list1 = subcol.split('_') %}
+        var subColid = "{{list1[0]}}";
+        console.log('Sub column id:'+subColid);
+        console.log('Selected sub id:'+selectedValues[i]);
+      if(selectedValues[i]== subColid){
+        console.log('Inside check if both ids are equal');
+        $('#{{subcol}}').show();
+        
+      } 
+      {% endfor %}
+    }
+    return false;
+});
+
+$(document).ready(function(){
+  console.log('Inside document Ready');
+  {% for subCol in subColumn%}
+  {% set list1 = subCol.split('_') %}
+    {% for sub in subject %}
+    var subid = "{{sub.msg_id}}";
+      if(list1==subid){
+        console.log('Inside if');
+        $('#{{sub.msg_id}}').show();
+      }
+    {% endfor %}
+  {% endfor %}
 });
 </script>
 

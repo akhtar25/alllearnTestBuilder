@@ -135,7 +135,7 @@ def leaderboardContent(qclass_val):
     leaderbrd_row = db.session.execute(text(query)).fetchall()
     df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
     
-    leaderbrd_pivot = pd.pivot_table(df,index=['studentid','student_name','class_val','section']
+    leaderbrd_pivot = pd.pivot_table(df,index=['studentid','profile_pic','student_name','class_val','section']
                       , columns='subjectid', values='marks'
                       ,aggfunc='sum').reset_index()
     leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
@@ -144,11 +144,12 @@ def leaderboardContent(qclass_val):
     col_list.remove('student_name')
     col_list.remove('class_val')
     col_list.remove('section')
+    col_list.remove('profile_pic')
     leaderbrd_pivot['total_marks%'] = leaderbrd_pivot[col_list].mean(axis=1)
 
     # leaderbrd_pivot = leaderbrd_pivot.groupby(['studentid','student_name','class_val','section']).agg()
     df2 = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
-    leaderbrd_pivot2 = pd.pivot_table(df2,index=['studentid','student_name','class_val','section']
+    leaderbrd_pivot2 = pd.pivot_table(df2,index=['studentid','profile_pic','student_name','class_val','section']
                       , columns='subjectid', values='test_count'
                       ,aggfunc='sum').reset_index()
     leaderbrd_pivot2 = leaderbrd_pivot2.rename_axis(None).rename_axis(None, axis=1)
@@ -157,8 +158,9 @@ def leaderboardContent(qclass_val):
     col_list2.remove('student_name')
     col_list2.remove('class_val')
     col_list2.remove('section')
+    col_list2.remove('profile_pic')
     leaderbrd_pivot2['total_tests'] = leaderbrd_pivot2[col_list2].sum(axis=1)
-    result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on='studentid')
+    result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on=('studentid','student_name','class_val','section','profile_pic'))
     return result  
 
 
@@ -1973,41 +1975,43 @@ def leaderBoard():
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
-        # query = "select *from public.fn_performance_leaderboard('"+ str(teacher.school_id) +"') where subjects='All' and section<>'All' order by marks desc, student_name "
-        # query = "select  * from fn_performance_leaderboard_detail('"+str(teacher_id.school_id)+"')"
-
         
 
         leaderBoardData = leaderboardContent(qclass_val)
+        df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+        df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+        leaderBoard = pd.merge(df1,df2,on=('studentid'))
+        df3 = leaderBoard.drop(['studentid'],axis=1)
+        print('DF3:')
+        print(df3)
+        print('print new dataframe')
+        print(df1)
+        print('Excluding columns')
+        print(df2)
         print('LeaderBoard Data:')
-        print(list(leaderBoardData)[2])
+        print(leaderBoardData)
         data = []
-        
-        print(leaderBoardData.values.tolist())
-        # for row in leaderBoardData.itertuples():
-        #     print('Inside Row Iteration of DF')
-        #     print(row)
-        #     print(row.total_tests)
-        #     data.append(row.student_name_x)
-        #     data.append(row.class_val_x)
-        #     data.append(row.section_x)
-        # query = query + where
-        # print('Query:'+query)
-        # leaderBoardData = db.session.execute(text(query)).fetchall()
-        # student_list=StudentProfile.query.filter_by(class_sec_id=session.get('class_sec_id',None),school_id=session.get('school_id',None)).all()
-        #print('Inside leaderboard') 
-        # for d in data:
-        #     print('Inside Data loop')
-        #     print(d)
-        # for data in list(leaderBoardData):
-        #     print('Inside for loop')
-        #     print(data.values)
-            # print('class:'+str(data.class_val_x))
-            # print('Total Tests:'+str(data.total_tests))
+        header = [df1.columns.values.tolist()]
+        headerAll = [df3.columns.values.tolist()]
+        colAll = ''
+        subjHeader = [df2.columns.values.tolist()]
+        columnNames = ''
+
+        for subhead in subjHeader:
+            subColumn = subhead
+
+        for h in header:
+            columnNames = h
+        for headAll in headerAll: 
+            colAll = headAll
+        print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+        for row in df3.values.tolist():
+            data.append(row)
+
         subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
         print(subject)
         print('Inside subjects')
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData, qclass_val=qclass_val,subject=subject)
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subject,subColumn=subColumn)
 
 @app.route('/classDelivery')
 @login_required
