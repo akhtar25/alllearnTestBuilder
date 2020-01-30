@@ -85,7 +85,14 @@
               <thead>
                 <tr>{% for columnName in columnNames %}
                     {% if loop.index!=1 %}
-                    <th style="font-size: 15px;width:180px;" id="st">{{columnName}}</th>
+                    {% if loop.index==2 %}
+                    <th style="font-size: 15px;width:90px;" id="st">{{columnName}}</th>
+                    {% elif loop.index==6 %}
+                    <th style="font-size: 15px;width:180px;" class = "sorting_desc">{{columnName}}</th>
+                    
+                    {% else %}
+                    <th style="font-size: 15px;width:180px;" id="st1">{{columnName}}</th>
+                    {% endif %}
                     {% endif %}
                     {% endfor %}
                     {% for subCol in subHeader%}
@@ -115,6 +122,10 @@
                             <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
                         </span>
                         </td>
+
+                        {%elif loop.index==6 %}
+                        {% set number = d | float %}
+                        <td style="font-size: 15px;width:180px;" id="st">{{number|round(2)}}</td>
                         {% else %}
                         <td style="font-size: 15px;">{{d}}</td>
                         {% endif %}
@@ -147,13 +158,19 @@
 $(document).ready(function(){
   document.getElementById("marks").width="120px";
 $('#datatable').dataTable( {
-    "order": [ 3, 'desc' ]
+    "order": [[ 4, 'desc' ]]
 } );
+var table = $('#datatable').DataTable();
+ 
+// Sort by columns 1 and 2 and redraw
+table
+    .order( [ 4, 'asc' ] )
+    .draw();
 $("TH").css("width",120);
 $("#st").css("width",180);
 $("#evs").css("width",160);
 $("#tests").css("width",100);
-// $("#st").removeClass("sorting_asc");
+$("#st").removeClass("sorting_asc");
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -173,7 +190,7 @@ $("#subjects").change(function(){
     $("#subjects :selected").each(function(){
         selectedValues.push($(this).val()); 
     });
-    alert(selectedValues);
+    // alert(selectedValues);
     // alert(selectedValues.length)
     for(i=0;i<selectedValues.length;i++){
       {% for subcol in subColumn %}

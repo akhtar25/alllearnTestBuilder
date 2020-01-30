@@ -2058,7 +2058,7 @@ def leaderBoard():
         subHead = [dat.columns.values.tolist()]
         for column in subHead:
             col = column
-        subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
+        subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
         print(subject)
         subj = []
 
