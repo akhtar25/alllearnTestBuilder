@@ -2018,6 +2018,7 @@ def leaderBoard():
         print('LeaderBoard Data:')
         print(leaderBoardData)
         data = []
+        
 
         header = [df1.columns.values.tolist()]
         headerAll = [df3.columns.values.tolist()]
