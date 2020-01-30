@@ -1999,8 +1999,9 @@ def leaderBoard():
         df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
         df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
         leaderBoard = pd.merge(df1,df2,on=('studentid'))
+        
+        d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
         df3 = leaderBoard.drop(['studentid'],axis=1)
-        d = df3[['profile_pic','student_name','class_val','section','total_marks%','total_tests']]
         print('DF3:')
         print(df3)
         print('print new dataframe')
@@ -2047,15 +2048,50 @@ def leaderBoard():
         print('New DF')
         dat = pd.concat([d,DFW], axis=1)
         print(dat)
+        subHeader = ''
         for row in dat.values.tolist():
             data.append(row)
+        subH = [DFW.columns.values.tolist()]
+
+        for s in subH:
+            subHeader = s
         subHead = [dat.columns.values.tolist()]
         for column in subHead:
             col = column
         subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
         print(subject)
+        subj = []
+
+        for d in data:
+            print('In data Student id')
+            print(data[0])
+        
+        for sub in subject:
+            li = []
+            i=0
+            for col in subColumn:
+                if i!=len(subColumn)/2:
+                    c = col.split('_')
+                    print(c[0])
+                    print(sub.msg_id)
+                    if(c[0]==str(sub.msg_id)):
+                        print(c[0])
+                        print(sub.msg_id)
+                        
+                        
+                        li.append(sub.msg_id)
+                        li.append(sub.description)
+                        subj.append(li)
+                        break
+                i=i+1
+                
+        print('List with Subjects')
+        print(subj)
+        for s in subj:
+            print(s[0])
+            print(s[1])
         print('Inside subjects')
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subject,subColumn=subColumn)
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
 
 @app.route('/classDelivery')
 @login_required

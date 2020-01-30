@@ -40,7 +40,8 @@
           <option value="" disabled selected> Select Subjects</option>
           {% for sub in subject %}
           
-          <option value="{{sub.msg_id}}" id="{{sub.msg_id}}">{{sub.description}}</option>
+          <option value="{{sub[0]}}" id="{{sub[0]}}" name="{{sub[1]}}">{{sub[1]}}</option>
+          <!-- <option type="text" style="display: none;" id="desc" name="{{sub[1]}}"> -->
           
           {% endfor %}
         </select>
@@ -87,18 +88,37 @@
                     <th style="font-size: 15px;width:180px;" id="st">{{columnName}}</th>
                     {% endif %}
                     {% endfor %}
-                    {% for subCol in subColumn%}
+                    {% for subCol in subHeader%}
+                    <!-- for Subject Name -->
                     <th style="font-size: 15px;width:180px;display: none;" id="{{subCol}}">{{subCol}}</th>
+                    <!-- End -->
                     {% endfor %}
-                    
                 </tr>
               </thead>
               <tbody>
                   {% for data in leaderBoardData %}
                       <tr>
-                      {% for i in colAll %}
-                        {% set d = data[loop.index-1] %}
+                          {% set studid = data[0] %}
+                          {% set lencol = colAll|length %}
+                      {% for i in range(lencol+1) %}
+                      {% if loop.index!=1 %}
+                      {% set d = data[loop.index-1] %}
+                        {% if loop.index==2 %}
+                          {% if d %}
+                          <td style="font-size: 15px;"><img src="{{d}}" height="50" width="50"></div>
+                          {% else %}
+                          <td style="font-size: 15px;"><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"></div>  
+                          {% endif %}
+                        {% elif loop.index==3 %}
+                        <td style="font-size: 15px;">
+                        <span style="text-align: center;font-size: 14px;"> 
+                            <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
+                        </span>
+                        </td>
+                        {% else %}
                         <td style="font-size: 15px;">{{d}}</td>
+                        {% endif %}
+                        {% endif %}
                       {% endfor %}
                       
                     </tr>
@@ -147,6 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 $("#subjects").change(function(){
+  desc = $('option').attr("name");
+  // console.log(desc);
     var selectedValues = [];    
     $("#subjects :selected").each(function(){
         selectedValues.push($(this).val()); 
@@ -154,17 +176,25 @@ $("#subjects").change(function(){
     alert(selectedValues);
     // alert(selectedValues.length)
     for(i=0;i<selectedValues.length;i++){
-      console.log('Inside for loop for selected Values');
       {% for subcol in subColumn %}
-        console.log('Inside for loop for subject Column');
       {% set list1 = subcol.split('_') %}
         var subColid = "{{list1[0]}}";
-        console.log('Sub column id:'+subColid);
-        console.log('Selected sub id:'+selectedValues[i]);
-      if(selectedValues[i]== subColid){
-        console.log('Inside check if both ids are equal');
+        var sec = "{{list1[1]}}";
+      if(selectedValues[i]== subColid&&sec=='x'){
+        {% for sub in subject %}
+          var id = "{{sub[0]}}";
+          if(subColid==id){
+            console.log('Inside second if'+id);
+            $("#{{subcol}}").html("{{sub[1]}}%");
+          }
+        {% endfor %}
         $('#{{subcol}}').show();
         
+      }else if(selectedValues[i]== subColid&&sec=='y'){
+        $("#{{subcol}}").html("Test count");
+        $('#{{subcol}}').show();
+      }else{
+        console.log('Else');
       } 
       {% endfor %}
     }
