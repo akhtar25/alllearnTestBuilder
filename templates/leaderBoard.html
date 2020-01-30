@@ -39,10 +39,12 @@
         <select id="subjects" multiple>
           <option value="" disabled selected> Select Subjects</option>
           {% for sub in subject %}
-          <option value="{{sub.msg_id}}" id="{{sub.msg_id}}" style="display: none;">{{sub.description}}</option>
+          
+          <option value="{{sub.msg_id}}" id="{{sub.msg_id}}">{{sub.description}}</option>
+          
           {% endfor %}
         </select>
-        <label>Select Subjects</label>
+        <label>Select Subjects</label> 
       </div>
     <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
       {{ form.hidden_tag() }}
@@ -134,42 +136,14 @@ $("#tests").css("width",100);
 // $("#st").removeClass("sorting_asc");
 });
 
-
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, options);
+  });
 
   $(document).ready(function(){
     $('select').formSelect();
   });
-
-  subject = document.getElementById('subjects');
-
-  subject.click(function(){
-    console.log('Inside Ready');
-$('#subjects').onchange=function(){
-  console.log('Inside Each function');
- thevalue += $(this).val() + ",";
- console.log('Values:'+thevalue);
-//your code here
-};
-
-});
-$('#subjects').click(function(){
-function getSelectValues(select) {
-  var result = [];
-  var options = select && select.options;
-  var opt;
-
-  for (var i=0, iLen=options.length; i<iLen; i++) {
-    opt = options[i];
-
-    if (opt.selected) {
-      result.push(opt.value || opt.text);
-    }
-  }
-  return result;
-}
-var el = document.getElementsByTagName('select')[0];
-  alert(getSelectValues(el));
-});
 
 
 $("#subjects").change(function(){
@@ -177,7 +151,7 @@ $("#subjects").change(function(){
     $("#subjects :selected").each(function(){
         selectedValues.push($(this).val()); 
     });
-    // alert(selectedValues);
+    alert(selectedValues);
     // alert(selectedValues.length)
     for(i=0;i<selectedValues.length;i++){
       console.log('Inside for loop for selected Values');
@@ -197,18 +171,38 @@ $("#subjects").change(function(){
     return false;
 });
 
+// $(document).ready(function(){
+//   console.log('Inside document Ready');
+//   {% for subCol in subColumn%}
+//   {% set list2 = subCol.split('_') %}
+//   var subColid = "{{list2[0]}}";
+//     {% for sub in subject %}
+//     var subid = "{{sub.msg_id}}";
+//       if(subColid==subid){
+//         console.log('Inside if');
+//         $('#{{sub.msg_id}}').show();
+//       }
+//     {% endfor %}
+//   {% endfor %}
+// });
+
 $(document).ready(function(){
-  console.log('Inside document Ready');
-  {% for subCol in subColumn%}
-  {% set list1 = subCol.split('_') %}
-    {% for sub in subject %}
-    var subid = "{{sub.msg_id}}";
-      if(list1==subid){
-        console.log('Inside if');
-        $('#{{sub.msg_id}}').show();
-      }
-    {% endfor %}
-  {% endfor %}
+  console.log('Inside doc');
+  {% for sub in subject %}
+          {% for subCol in subColumn%}
+          {% set list2 = subCol.split('_') %}
+            console.log('value:')
+            var li = "{{list2[0]}}";
+            var s = "{{sub.msg_id}}";
+            console.log(li);
+            console.log(s);
+           if(li==s){
+            console.log('Inside if');
+              console.log(s)
+              $('#{{sub.msg_id}}').show();
+            }
+          {% endfor %}
+        {% endfor %}
 });
 </script>
 

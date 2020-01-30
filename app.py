@@ -1959,6 +1959,24 @@ def questionDetails():
 #     #print('Query:'+query)
 #     leaderBoardData = db.session.execute(text(query)).fetchall()
 #     return render_template('_leaderBoardTable.html',leaderBoardData=leaderBoardData)
+def rename(dataframe):
+    subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
+    # df = df.drop(['studentid'],axis=1)
+    df = dataframe.columns.values.tolist()
+    i=0
+    for col in df:
+        if i!=0:
+            
+            c = col.split('_')
+            for sub in subject:
+                if c[0]==str(sub.msg_id) and c[1]=='x':
+                    dataframe.rename(columns = {col:sub.description}, inplace = True)
+                elif c[1]=='y':
+                    dataframe.rename(columns = {col:'Total Test'}, inplace = True)
+                else:
+                    print(col)
+        i = i +1
+    return dataframe
 @app.route('/leaderBoard')
 def leaderBoard():
     form = LeaderBoardQueryForm()
@@ -1982,32 +2000,57 @@ def leaderBoard():
         df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
         leaderBoard = pd.merge(df1,df2,on=('studentid'))
         df3 = leaderBoard.drop(['studentid'],axis=1)
+        d = df3[['profile_pic','student_name','class_val','section','total_marks%','total_tests']]
         print('DF3:')
         print(df3)
         print('print new dataframe')
+        
+        df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+        df1.rename(columns = {'student_name':'Student'}, inplace = True)
+        df1.rename(columns = {'class_val':'Class'}, inplace = True)
+        df1.rename(columns = {'section':'Section'}, inplace = True)
+        df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+        df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
         print(df1)
         print('Excluding columns')
         print(df2)
+        # rename(df2)
         print('LeaderBoard Data:')
         print(leaderBoardData)
         data = []
+
         header = [df1.columns.values.tolist()]
         headerAll = [df3.columns.values.tolist()]
         colAll = ''
         subjHeader = [df2.columns.values.tolist()]
         columnNames = ''
-
+        col = ''
+        subColumn = ''
+        print('Size of dataframe:'+str(len(subjHeader)))
         for subhead in subjHeader:
             subColumn = subhead
-
+            print('Header with Subject Name')
+            print(subhead)
         for h in header:
             columnNames = h
         for headAll in headerAll: 
             colAll = headAll
         print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
-        for row in df3.values.tolist():
+        n= int(len(subColumn)/2)
+        ndf = df2.drop(['studentid'],axis=1)
+        newDF = ndf.iloc[:,0:n]
+        new1DF = ndf.iloc[:,n:]
+        
+        df5 = pd.concat([newDF, new1DF], axis=1)
+        DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+        print('New DF')
+        dat = pd.concat([d,DFW], axis=1)
+        print(dat)
+        for row in dat.values.tolist():
             data.append(row)
-
+        subHead = [dat.columns.values.tolist()]
+        for column in subHead:
+            col = column
         subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').all()
         print(subject)
         print('Inside subjects')
