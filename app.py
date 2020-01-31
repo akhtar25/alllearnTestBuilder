@@ -2046,6 +2046,7 @@ def leaderBoard():
         df5 = pd.concat([newDF, new1DF], axis=1)
         DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
         print('New DF')
+        print(DFW)
         dat = pd.concat([d,DFW], axis=1)
         print(dat)
         subHeader = ''
