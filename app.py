@@ -1396,6 +1396,27 @@ def questionBank():
         return render_template('questionBank.html',form=form,topics=topic_list)
     return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck())
 
+@app.route('/visitedQuestions',methods=['GET','POST'])
+def visitedQuestions():
+    retake = request.args.get('retake')
+    questions=[]
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    topicList=request.get_json()
+    for topic in topicList:
+        print(str(retake)+'Retake')
+        if retake=='Y':
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
+            topicFromTracker.is_covered='N'
+            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+            db.session.commit()
+        else:
+            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
+            topicFromTracker.is_covered='Y'
+            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)-1
+            db.session.commit()
+
+    return jsonify(['1'])
+    
 @app.route('/questionBankQuestions',methods=['GET','POST'])
 def questionBankQuestions():
     questions=[]
@@ -2075,7 +2096,7 @@ def classDelivery():
 
 
         
-    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName)
+    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake)
 
 
 
