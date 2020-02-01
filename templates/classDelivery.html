@@ -163,7 +163,7 @@
             </li>
             <br>
             <li >
-                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;">Conduct Test</a>
+                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;margin-left: 13px;">Conduct Test</a>
             </li>
           </ul>
           <div class="box-footer">
@@ -877,7 +877,7 @@ $('html, body').animate({
                 //     $("#questions").html(response);
                 // }         
                 event.preventDefault()
-                M.toast({html: 'Topics completed successfully'});                       
+                M.toast({html: 'Topics completed'});                       
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");
