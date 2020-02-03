@@ -255,14 +255,17 @@ document.addEventListener('DOMContentLoaded', function() {
   // Or with jQuery
 
   $(document).ready(function(){
+    console.log('Inside datepicker');
     $('.datepicker').datepicker();
+
   });
 
-$(document).ready(function(){
+  $(document).ready(function(){
+  console.log('Inside function');
   studId = '{{student_id}}';
   console.log('Student Id:'+studId);
-    if(studId==''){
-    }else{
+    if(studId){
+    console.log('If you want to edit student details');
     var gender = "{{studentDetailRow.gender}}";
     var class_val = "{{studentDetailRow.class_val}}";
     var section = "{{studentDetailRow.section}}";
@@ -302,9 +305,12 @@ $(document).ready(function(){
     $('#pincode').val(pin);
     $('#roll_number').val(roll);
     $('#school_admn_no').val(school_num);
-    }
+    
     guarDetail1 = "{{guardianDetail1}}";
-    if(guarDetail1){
+    console.log('Guardian list length:'+guarDetail1.length);
+    console.log(guarDetail1)
+    {% if guardianDetail1 %}
+      console.log('Inside Detail1 of guardian if not empty');
       addGuardian();
       val();
       var guardian_first_name = "{{guardianDetail1.first_name}}";
@@ -319,7 +325,7 @@ $(document).ready(function(){
       $('#relation').val(relation);
       guarDetail2 = "{{guardianDetail2}}";
       console.log('guardian 2:'+guarDetail2);
-      if(guarDetail2!='None'){
+      {% if guardianDetail2 %}
         console.log('Inside second guardian');
         addGuardian();
         val();
@@ -333,7 +339,10 @@ $(document).ready(function(){
         $('#guardianemail').val(email2);
         $('#guardianphone').val(phone2);
         $('#guardianrelation').val(relation2);
-      }
+      {% endif %}
+    {% endif %}
+    }else{
+      console.log('If you want to add Student');
     }
   });
 
@@ -655,7 +664,7 @@ function val(){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
             uploadFile(file, response.data, response.url);
-          }
+          } 
           else{
             alert('Could not get signed URL.');
           }

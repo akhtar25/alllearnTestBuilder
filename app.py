@@ -439,7 +439,9 @@ def singleStudReg():
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
         studentDetailRow = []
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow)
+        guardianDetail1 = []
+        guardianDetail2 =[]
+        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
@@ -457,11 +459,15 @@ def singleStudReg():
         studentDetailRow = db.session.execute(text(query)).first()
         queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
         guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
-        if guardianDetail1:
+        print('Guardain Detail1 :')
+        print(guardianDetail1)
+        guardianDetail2 = ''
+        if guardianDetail1!=None:
+            print('If guardian Detail1 is not empty')
             queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
             guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
-        print(guardianDetail1)
-        print(guardianDetail2)
+        # print(guardianDetail1)
+        # print(guardianDetail2)
         print('Name:'+str(studentDetailRow.first_name))
         print('Gender:'+str(studentDetailRow.class_val))
         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
@@ -478,8 +484,8 @@ def studentRegistration():
     if request.method=='POST':
         print('Inside Student Registration')
         if form.submit.data:
-            if studentId=='':
-                print('Inside Student Registration')
+            if studentId==None:
+                print('Inside Student Registration when student id is empty')
                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 if address_id is None:
                     address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
@@ -526,6 +532,7 @@ def studentRegistration():
                 flash('Successful upload !')
                 return render_template('studentRegistration.html')
             else:
+                print('Inside Student update when student id is not empty')
                 student_id = request.form['tag']
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
