@@ -642,7 +642,7 @@ def edit_profile():
 @app.route('/')
 @app.route('/index')
 @app.route('/dashboard')
-@login_required
+@login_required 
 def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
 
