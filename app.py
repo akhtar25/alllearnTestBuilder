@@ -1641,7 +1641,7 @@ def studentfeedbackreporttemp():
 
 @app.route('/class')
 @login_required
-def classCon():
+def classCon(): 
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
