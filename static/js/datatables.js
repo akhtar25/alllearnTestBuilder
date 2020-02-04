@@ -208,7 +208,7 @@ $(document).ready(function() {
             text: '<span style="color:#4d4d4d; margin-right:15px;font-size:15px;">Print<span>',
            extend: 'print',
            className: '',
-           title: '',
+           title: '', 
           //  autoPrint: false,
            customize: function ( win ) {
                $(win.document.body)
@@ -216,7 +216,7 @@ $(document).ready(function() {
                    .prepend(
                        '<h4>Title Test</h4>',
                        //  Background table picture in print version is here
-                       '<img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnImageWatermark.png" style="position: fixed;margin-left:360px; margin-top:800px;float:left;"  height="150" width="350" style="opacity:0.5" />'	
+                       '<img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" style="position: fixed;margin-left:360px; margin-top:800px;float:left;" width="350" style="opacity:0.5" />'	
                    );
 
                $(win.document.body).find( 'table' )

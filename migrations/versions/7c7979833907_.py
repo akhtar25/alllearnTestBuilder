@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f75b801c6909
-Revises: bfd4e313f599
-Create Date: 2019-12-28 19:15:55.334083
+Revision ID: 7c7979833907
+Revises: e7a968b06de4
+Create Date: 2020-02-04 18:00:11.556864
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f75b801c6909'
-down_revision = 'bfd4e313f599'
+revision = '7c7979833907'
+down_revision = 'e7a968b06de4'
 branch_labels = None
 depends_on = None
 
@@ -23,9 +23,9 @@ def upgrade():
     op.add_column('board_class_subject', sa.Column('board_det_id', sa.Integer(), nullable=True))
     op.create_foreign_key(None, 'board_class_subject', 'board_detail', ['board_det_id'], ['board_det_id'])
     op.add_column('book_details', sa.Column('board_det_id', sa.Integer(), nullable=True))
-    op.create_foreign_key(None, 'book_details', 'board_detail', ['board_det_id'], ['board_id'])
+    op.create_foreign_key(None, 'book_details', 'board_detail', ['board_det_id'], ['board_det_id'])
     op.add_column('chapter_detail', sa.Column('board_det_id', sa.Integer(), nullable=True))
-    op.create_foreign_key(None, 'chapter_detail', 'board_detail', ['board_det_id'], ['board_id'])
+    op.create_foreign_key(None, 'chapter_detail', 'board_detail', ['board_det_id'], ['board_det_id'])
     # ### end Alembic commands ###
 
 

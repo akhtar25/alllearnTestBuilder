@@ -233,7 +233,7 @@ class ChapterDetail(db.Model):
     chapter_name= db.Column(db.String(120), nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    board_det_id = db.Column(db.ForeignKey('board_detail.board_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
     bcs_id = db.Column(db.ForeignKey('board_class_subject.bcs_id'),nullable=True)
     book_name = db.Column(db.String(200), nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
@@ -260,9 +260,9 @@ class BookDetails(db.Model):
     class_val = db.Column(db.Integer,nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
-    book_link= db.Column(db.String(500))
+    book_link= db.Column(db.String(500)) 
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    board_det_id = db.Column(db.ForeignKey('board_detail.board_id'),nullable=True)
+    board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
     book_level = db.Column(db.String(1),nullable=True)  #S=Subject level book ; T=Topic Level Book
     last_modified_date=db.Column(db.DateTime)
 
