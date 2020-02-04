@@ -1616,11 +1616,10 @@ def visitedQuestions():
     topicList=request.get_json()
     for topic in topicList:
         print(str(retake)+'Retake')
-        if retake=='N':
-            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
-            topicFromTracker.is_covered='Y'
-            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
-            db.session.commit()
+        topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
+        topicFromTracker.is_covered='Y'
+        topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+        db.session.commit()
 
     return jsonify(['1'])
     
