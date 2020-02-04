@@ -1613,7 +1613,7 @@ def visitedQuestions():
     retake = request.args.get('retake')
     questions=[]
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    topicList=request.get_json()
+    topicList=request.get_json() 
     for topic in topicList:
         print(str(retake)+'Retake')
         topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
