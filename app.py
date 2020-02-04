@@ -839,7 +839,7 @@ def index():
         return redirect(url_for('disconnectedAccount'))
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
-    if user.user_type=='134' and user.access_status=='145':        
+    if user.user_type==134 and user.access_status==145:        
         return redirect(url_for('disconnectedAccount'))
 
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
