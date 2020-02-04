@@ -7,6 +7,7 @@ var videoSelect = document.querySelector('select#videoSource');
 var canvas = document.querySelector('#canvas');
 var video= document.querySelector('#video');
 var Result = $("#result_strip");
+var ResponseSessionId = $('#RespSessionID').val();
 var hiddenInputList = $("#questionListSizeDiv");
 var errorMsgElement = $("#errorMsgElement");
 var resultArray = [];
@@ -97,7 +98,8 @@ stopRecordingBTN.addEventListener('click', function(ev1){
     if (currQnum == parseInt(totalQCount)){
       $('#submitAndFinishBTN').show();
     }
-    else{          
+    else{    
+
     $("#startAndNextBTN").show();
   }                 
     ev1.preventDefault();
@@ -121,10 +123,12 @@ function submitResponseData(){
   console.log("This is the form Data: "+formData);
  
   var responseForm = $("#responseForm").value;
- 
+  console.log('resultArray Length:'+resultArray.length)
   if(resultArray.length!=0){
+    console.log('resultArray Length inside if:'+resultArray.length)
+    console.log('Response Session ID in Response DB update :'+ResponseSessionId);
     $.ajax({
-      url: "/responseDBUpdate",
+      url: "/responseDBUpdate?resp_session_id="+ResponseSessionId,
       type: "POST",
       data: formData ,
       contentType: 'application/json;charset=UTF-8',
@@ -169,6 +173,7 @@ function processCapture(){
     var obj = codes[i][2];
     /////////////////
     var splitInput = obj.toString().split('@');
+    console.log('Split Input:'+splitInput);
     if (answerReceived.includes(splitInput[0]))
     {
       //do nothing

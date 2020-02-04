@@ -61,7 +61,7 @@
       <section class="col-md-4">
         <form method="POST" action="/feedbackCollection">
           <ul data-widget="tree">
-              <!--<li class="treeview">
+              <li class="treeview">
                 <a href="#"><div class="box box-info"><h3 id="topicBtn">Topics</h3></div></a>
               <ul class="treeview-menu">
                  <li>
@@ -93,11 +93,11 @@
                             </tbody>
                           </table>
                         </div>
-                        <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled>
+                        <input type="button" class="btn btn-primary" id="feedBackBtn" onclick="questions();" value="Mark Completed" style="height:40px;width:260px;background-color:green;" disabled>
                       </div>
                   </li>
               </ul>
-            </li>-->
+            </li>
          
             <li class="treeview">
               <a href="#"><div class="box box-info"><h3>Reference Content</h3></div></a>
@@ -163,7 +163,7 @@
             </li>
             <br>
             <li >
-                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;">Conduct Test</a>
+                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;margin-left: 13px;">Conduct Test</a>
             </li>
           </ul>
           <div class="box-footer">
@@ -841,5 +841,48 @@ $('html, body').animate({
     (() => {
       document.getElementById('file-input').onchange = initUpload;
     })();
+
+
+
+
+
+
+
+    function questions() {
+        
+        var retake = "{{retake}}";
+        var topic_list = document.getElementsByName('topicCheck');
+        var checkboxesChecked = [];
+        for (var i = 0; i < topic_list.length; i++) {
+            // And stick the checked ones onto an array...
+            if (topic_list[i].checked) {
+                checkboxesChecked.push(topic_list[i].value);
+            }
+        }
+        console.log(checkboxesChecked[0]);
+        checkboxesChecked = JSON.stringify(checkboxesChecked);
+        console.log(checkboxesChecked);
+        $.ajax({
+            url: "/visitedQuestions?retake="+retake,
+            type: "POST",
+            contentType: "application/json",
+            data: checkboxesChecked,
+            success: function (response) {
+                // $("#questionloader").hide();
+                // $("#questionEditorDiV").show();
+                // if(response==1){
+                //     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+                // }
+                // else{
+                //     $("#questions").html(response);
+                // }         
+                event.preventDefault()
+                M.toast({html: '<h2>Topics completed</h2>'});                       
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+    }
   </script>
 {%endblock%}

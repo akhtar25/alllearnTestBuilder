@@ -149,13 +149,16 @@
       respOption =radioValue; 
     }
     if (tempCountVar <= questionListSize) {      
-      var lastQIDVal = $("#lastQIDVal").val();      
+      var lastQIDVal = $("#lastQIDVal").val(); 
+      resp_sessId = "{{resp_session_id}}"; 
+      console.log('Resp_session_id:'+resp_sessId);  
+      var obj = JSON.parse('{ "resp_sessId":"{{resp_session_id}}"}');  
       //alert("qnum:" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
       //    questionIDListJS[tempCountVar] + "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
       //    "&subject_id="+ {{subject_id}}+"&last_q_id="+lastQIDVal);
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar] + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
+          questionIDListJS[tempCountVar] + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
           "&subject_id="+ {{subject_id}},
         type: "get",
         data: '',
