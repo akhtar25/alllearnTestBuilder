@@ -1,553 +1,323 @@
 {%extends "layout.html"%} {%block content%}
+
 <div class="container">
+
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar">
-      <!-- sidebar: style can be found in sidebar.less -->
-      
+
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
-          <li class="treeview menu-open" style="padding: 10px;">            
-                <i class="glyphicon glyphicon-education"></i>
-              <span style='font-size:15px'><a href="{{url_for('leaderBoard')}}" >All</a></span>
+          <li class="treeview menu-open" style="padding: 10px;">
+            <i class="glyphicon glyphicon-education"></i>
+            <span style='font-size:15px'><a href="{{url_for('leaderBoard')}}">All</a></span>
             </a>
           </li>
           {% for singleClass in distinctClasses %}
           <li class="treeview" style="padding: 10px;">
-            
-              <i class="glyphicon glyphicon-education"></i>
-              <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"  name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
-              <span class="pull-right-container">
-                <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-              </span>            
+
+            <i class="glyphicon glyphicon-education"></i>
+            <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"
+                name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
+            <span class="pull-right-container">
+              <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+            </span>
           </li>
           {% endfor %}
           <ul>
       </section>
-      <!-- /.sidebar -->
     </aside>
   </div>
-
+  {%if leaderBoardData==1222 %}
   <div class="content-wrapper" style="background-color: white;">
-  <div class="box">
-    <div class="box-header">
-      {% if qclass_val!=None %}
-        <h3 class="box-title">Leaderboard for</h3> <span style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: {{qclass_val}}<span id="classNo">
-      {% else %}
-        <h3 class="box-title">Leaderboard for</h3> <span style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: All<span id="classNo">
-      {% endif %}
-        </span></span>
-    </div>
-    <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 60px;">
-      {{ form.hidden_tag() }}
-      <div class="form-group ">
-        <div class="row" id="classDetailsDiv">
-          <div class="col-sm-2" style="width: 200px;display: none;">
-            <div>
+  <div>
+    <p style="font-size: 24px;" class="grey-text text-lighten-1">No Data Available</p>
+  </div>
+</div>
+  {% else %}
+  <div class="content-wrapper" style="background-color: white;">
+    <div class="box">
+      <div class="box-header">
+        {% if qclass_val!=None %}
+        <h3 class="box-title">Leaderboard for </h3> <span
+          style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: {{qclass_val}}<span
+            id="classNo">
+            {% else %}
+            <h3 class="box-title">Leaderboard for</h3> <span
+              style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: All<span
+                id="classNo">
+                {% endif %}
+              </span></span>
+      </div>
+      <div class="input-field col s6" style="width: 50%;">
+        <select id="subjects" multiple>
+          <option value="" disabled selected> Select Subjects</option>
+          {% for sub in subject %}
+
+          <option value="{{sub[0]}}" class="unselect" id="{{sub[0]}}" name="{{sub[1]}}">{{sub[1]}}</option>
+          <!-- <option type="text" style="display: none;" id="desc" name="{{sub[1]}}"> -->
+
+          {% endfor %}
+        </select>
+        <label>Select Subjects</label>
+      </div>
+      <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
+        {{ form.hidden_tag() }}
+        <div class="form-group ">
+          <div class="row" id="classDetailsDiv">
+            <div class="col-sm-2" style="width: 200px;display: none;">
+              <div>
                 {{ form.subject_name.label(class='labelsize') }}
                 <div id='loaderSubject' style='display: none; float: right;'>
-                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
                 </div>
                 <br>
                 {% if form.subject_name.errors %}
                 {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.subject_name.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
+                  {% for error in form.subject_name.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
                 </div>
                 {% else %}
                 {{ form.subject_name(class='form-control') }}
                 {% endif %}
-            </div>
-        </div>
-       <!-- <div class="col-sm-2" style="width: 200px;">
-          <div>
-              {{ form.test_type.label(class='labelsize') }}
-              <br>
-              {% if form.test_type.errors %}
-              {{ form.test_type(class="form-control form-control-lg is-invalid") }}
-              <div class="invalid-feedback">
-                  {% for error in form.test_type.errors %}
-                  <span>{{ error }}</span>
-                  {% endfor %}
-              </div>
-              {% else %}
-              {{ form.test_type(class='form-control') }}
-              {% endif %}
-          </div>
-      </div>-->
-      <!-- <div class="col-sm-2" id="sectionDiv" style="width: 200px;display:none;">
-        <div>
-            {{ form.section.label(class='labelsize') }}
-            <div id='loaderSection' style='display: none; float: right;'>
-                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-            </div>
-            <br>
-            {% if form.section.errors %}
-            {{ form.section(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-                {% for error in form.section.errors %}
-                <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-            {{ form.section(class='form-control') }}
-            {% endif %}
-        </div>
-    </div> -->
-
-   
-
-    <!-- Start -->
-    <div class="row">
-        <div id="admin" class="col s12">
-          <div class="card material-table" id="firstTable">
-            <div class="table-header">
-              <span class="table-title" style="display: flex;">
-                  
-              </span>
-              <div class="actions">
-                <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>
               </div>
             </div>
-            <table id="datatable">
-              <thead>
-                <tr>
-                    <th style="font-size: 15px;width: 180px;">Student</th>
-                    <th style="font-size: 15px;width: 70px;">Class</th>
-                     <th style="font-size: 15px;width: 65px;">Section</th>
-                     <th style="font-size: 15px;width: 120px;">Marks %</th>
-                     <th style="font-size: 15px;width: 120px;">Mathematics</th>
-                     <th style="font-size: 15px;width: 120px;">Science</th>
-                     <th style="font-size: 15px;width: 120px;">Social Science</th>
-                     <th style="font-size: 15px;width: 120px;">History</th>
-                     <th style="font-size: 15px;width: 120px;">Geography</th>
-                     <th style="font-size: 15px;width: 120px;">Civics</th>
-                     <th style="font-size: 15px;width: 120px;">Economics</th>
-                     <th style="font-size: 15px;width: 120px;">Hindi</th>
-                     <th style="font-size: 15px;width: 140px;">English</th>
-                     <th style="font-size: 15px;width: 120px;">EVS</th>                
-                </tr>
-              </thead>
-              <tbody>
-                  {% if leaderBoardData %}  
-                  {% for eachRow in leaderBoardData%}
-                <tr style="height: 60px;">
-                    {% if profile_pic %}
-                    <td style="text-align: center;width:250px;" ><img src="../static/images/alllearnImageWatermark.png" height="50" width="50"><span style="text-align: center;font-size: 14px;"> 
-                     <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
-                    </span></td>    
-                    {% else %} 
-                    <td style="width: 250px;">
-                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">     
-                      <span style="text-align: center;font-size: 14px;"> 
-                          <a href="{{url_for('studentProfile',student_id=eachRow.studentid)}}" target="_blank"> {{eachRow.student_name}}</a>
-                      </span>
-                    </td>    
-                    {% endif %} 
-                    <td style="font-size: 15px;">{{eachRow.class}}</td>
-                    <td style="font-size: 15px;">{{eachRow.section}}</td>
-                    <td style="font-size: 15px;">{{eachRow.marks}}</td> 
-                    {% if eachRow.mathematics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.mathematics}}({{eachRow.mathematics_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.science_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.science}}({{eachRow.science_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.social_science_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.social_science}}({{eachRow.social_science_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.history_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.history}}({{eachRow.history_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.geography_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.geography}}({{eachRow.geography_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.civics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.civics}}({{eachRow.civics_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.economics_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.economics}}({{eachRow.economics_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.hindi_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.hindi}}({{eachRow.hindi_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.english_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.english}}({{eachRow.english_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                    {% if eachRow.evs_test_count != 0%}
-                    <td style="font-size: 15px;">{{eachRow.evs}}({{eachRow.evs_test_count}})</td>
-                    {% else %}
-                    <td style="font-size: 15px;">No Test</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
+            <div class="row">
+              <div id="admin" class="col s12">
+                <div class="card material-table" id="firstTable">
+                  <div class="table-header">
+                    <span class="table-title" style="display: flex;">
+
+                    </span>
+                    <div class="actions">
+                      <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i
+                          class="material-icons">search</i></a>
+                    </div>
+                  </div>
+                  <table id="datatable">
+                    <thead>
+                      <tr>{% for columnName in columnNames %}
+                        {% if loop.index!=1 %}
+                        {% if loop.index==2 %}
+                        <th style="font-size: 15px;" id="profile">{{columnName}}</th>
+                        {% elif loop.index==3 %}
+                        <th style="font-size: 15px;" id="name">{{columnName}}</th>
+                        {% elif loop.index==4 %}
+                        <th style="font-size: 15px;" id="class">{{columnName}}</th>
+                        {% elif loop.index==5 %}
+                        <th style="font-size: 15px;" id="section">{{columnName}}</th>
+                        {% elif loop.index==6 %}
+                        <th style="font-size: 15px;" class="sorting_desc" id="marks">{{columnName}}</th>
+                        {% elif loop.index==7 %}
+                        <th style="font-size: 15px;" id="tests">{{columnName}}</th>
+                        <!-- {% else %}
+                    <th style="font-size: 15px;" class="st1">{{columnName}}</th> -->
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+
+                        {% for subCol in subHeader%}
+                        <!-- for Subject Name -->
+                        <th style="font-size: 15px;display: none;" class="st1" id="{{subCol}}">{{subCol}}</th>
+                        <!-- End -->
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for data in leaderBoardData %}
+                      <tr>
+                        {% set studid = data[0] %}
+                        {% set lencol = colAll|length %}
+                        {% for i in range(lencol+1) %}
+                        {% if loop.index!=1 %}
+                        {% set d = data[loop.index-1] %}
+                        {% if loop.index==2 %}
+                        {% if d %}
+                        <td style="font-size: 15px;"><img src="{{d}}" height="50" width="50">
+                </div>
                 {% else %}
-                <tr>
-                    <td colspan="14"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
-                  </tr>
-                    {% endif %}
+                <td style="font-size: 15px;"><img
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50"
+                    width="50">
+              </div>
+              {% endif %}
+              {% elif loop.index==3 %}
+              <td style="font-size: 15px;">
+                <span style="text-align: center;font-size: 14px;">
+                  <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
+                </span>
+              </td>
+
+              {%elif loop.index==6 %}
+              {% set number = d|float %}
+              <td style="font-size: 15px;width:180px;" id="st">{{number|round(2)}}</td>
+              {% else %}
+              {%set data = d|string %}
+              {% if data=='nan' %}
+              <td style="font-size: 15px;">(No Test)</td>
+              {% else %}
+              <td style="font-size: 15px;">{{d}}</td>
+              {% endif %}
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+
+              </tr>
+              {% endfor %}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-    <!-- End -->
-    <!-- Drop down for Test Date -->
-    <!--<div class="col-sm-2" id="testdateDiv" style="width: 200px;display:none;">
-        <div>
-            {{ form.testdate.label(class='labelsize') }}
-            <div id='loaderTestDate' style='display: none; float: right;'>
-                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-            </div>
-            <br>
-            {% if form.testdate.errors %}
-            {{ form.testdate(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-                {% for error in form.testdate.errors %}
-                <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-            {{ form.testdate(class='form-control') }}
-            {% endif %}
-        </div>
-    </div>-->
-      </div>
-      </form>
+    </div>
+    </form>
   </div>
-  <!-- <div id="firstTable" class="box-body table-responsive no-padding" style="height:500px;">
-      
-      <table class="table table-hover">
-          
-          <thead>
-        <tr>
-          
-         <th>Student</th>
-         <th>Class</th>
-          <th>Section</th>
-          <th>Subject</th>                
-          <th>Marks %</th>      
-        </tr>
-        </thead>
-        <tbody>
-        {% if leaderBoardData %}  
-        {% for eachRow in leaderBoardData%}
-        <tr style="margin-top:5px;">
-          {% if profile_pic %}
-          <td style="text-align: center;width:250px;" ><img src="{{ profile_pic }}" height="50" width="50"><span style="text-align: center;"> 
-           <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
-          </span></td>    
-          {% else %} 
-          <td style="width: 250px;">
-            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50">
-            <span style="text-align: center;"> 
-                <a href="{{url_for('studentProfile',student_id=eachRow.student_id)}}" target="_blank"> {{eachRow.student_name}}</a>
-            </span>
-          </td>    
-          {% endif %}       
-          <td>{{eachRow.class}}</td>
-          <td>{{eachRow.section}}</td>
-          <td>{{eachRow.subjects}}</td>
-          <td>{{eachRow.marks}}</td>                
-        </tr>
-        {% endfor %}
-        {% else %}
-        <tr>
-        <td colspan="5"><span class="grey-text text-lighten-1"><p style="font-size: 15px;text-align: center;">No data found</p></span></td>
-      </tr>
-        {% endif %}
-      </tbody>
-      </table>    
-    </div> -->
-    
-    <div class="tableDynamic">
+
+  <div class="tableDynamic">
     <div id="dynamicDataTable">
-        
+
     </div>
     <div id="loader" style="display: none;padding-left: 300px;padding-top: 150px;padding-bottom: 250px;">
-        <img src="../static/images/loader.gif">
+      <img src="../static/images/loader.gif">
     </div>
   </div>
-  </div>
-
+  {% endif %}
 </div>
+
+
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+
 <script>
+  $(document).ready(function () {
 
-// var subject_select = document.getElementById('subject_name');
-// var section_select = document.getElementById('section');
-//var test_type_select = document.getElementById('test_type');
-//var test_date_select = document.getElementById('testdate');
-// var optionHTMLTestType = '';
-// var optionHTMLSubject = '';
-// var optionHTMLSection = '';
-// var optionHTMLTestDate = '';
-    $(document).ready(function(){
-        // optionHTMLTestType += '<option value="All"  selected> All </option>';
-        //test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
-        // optionHTMLSubject += '<option value="All"  selected> All </option>';
-        // subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        // optionHTMLSection += '<option value="All"  selected> All </option>';
-        // section_select.innerHTML = optionHTMLSection + section_select.innerHTML;
-        //optionHTMLTestDate += '<option value="All"  selected> All </option>';
-        // test_date_select.innerHTML = optionHTMLTestDate + test_date_select.innerHTML;
-        // $('#classNo').html('All');
+    $('#datatable').dataTable({
+      "order": [[4, 'desc']]
     });
-// var classVal = '';
+
+    var table = $('#datatable').DataTable();
+
+    // table.columns.adjust().
+
+    console.log('inside datatable sorting');
+    $("#marks").width("130px");
+    $("#profile").width("130px");
+    $("#name").width("150px");
+    $("#class").width("50px");
+    $("#section").width("50px");
+    $("#tests").width("130px");
+    $(".st1").width("90px");
+  });
+  // var table = $('#datatable').DataTable();
+
+  // Sort by columns 1 and 2 and redraw
+
+  // $("#st").removeClass("sorting_asc");
+  // table
+  //     .order( [ 4, 'desc' ] )
+  //     .draw();
+  // });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, options);
+  });
+
+  $(document).ready(function () {
+    $('select').formSelect();
+  });
 
 
+  $("#subjects").change(function () {
+    M.toast({ html: '<h6>Leaderboard updated</h6>' })
+    desc = $('option').attr("name");
+    // console.log(desc);
+    var selectedValues = [];
+    $("#subjects :selected").each(function () {
+      selectedValues.push($(this).val());
+    });
+    // alert(selectedValues);
+    // alert(selectedValues.length)
+    if (selectedValues.length == 0) {
+      {% for subcol in subColumn %}
+      $('#{{subcol}}').hide();
+      {% endfor %}
+    }
+    {% for subcol in subColumn %}
+
+    $('#{{subcol}}').hide();
+    {% endfor %}
 
 
-// $('.class_div').click(function(){
-//   $('#sectionDiv').hide();
-//   $('#testdateDiv').hide();
-//   $('#classNo').html('All');
-  //document.getElementById('test_type').value = "All";
-  // document.getElementById('section').value = "All";
-  // document.getElementById('subject_name').value = "All";
-  //document.getElementById('testdate').value = "All";
-//   $.ajax({  
-//             url: "/topperListAll",
-//             type: "get",
-//             data: "",            
-//             beforeSend: function() { 
-//                 $('#firstTable').hide();
-//                 $('#dynamicDataTable').hide();
-//                 $('#loader').show();
-//            },
-//             success: function (response) {
-//               $('#loader').hide();
-//               $('#dynamicDataTable').html(response);
-//               $('#dynamicDataTable').show();
-//             },
-//             error: function (xhr) {
-//                 window.alert("error occurred while loading question");
-//             }
-//         });
-// });
-// $('.classDiv').click(function(){
-//     console.log('inside classDiv');
-//     $('#sectionDiv').show();
-//     $('#testdateDiv').show();
-    //document.getElementById('test_type').value = "All";
-    // document.getElementById('section').value = "All";
-    // document.getElementById('subject_name').value = "All";
-    //document.getElementById("testdate").value = "All";
-    //$('#test_type').val('All');
-    // $('#section').val('All');
-    // $('#subject_name').val('All');
-    // //$('#testdate').val('All');
-    // classVal = $(this).attr('name');
-    // var classNo =  classVal;
-    // $('#classNo').html(classNo)
-    // console.log('Class:'+classVal);
-    // class_val = classVal;
-        // $("#loaderSubject").show();
-        // console.log('Inside class value Onchange')
-        // fetch('/questionBuilder/' + class_val).then(function(response) {
-        //     response.json().then(function(data) {
-        //             $("#loaderSubject").hide();    
-        //             var optionHTML = '';
-        //             optionHTML += '<option value="All"  selected> All </option>';
-        //             for (var subject of data.subjects) {
-        //             optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-        //         }
-        //         subject_select.innerHTML = optionHTML;
-        //     })
-            
-        // });
+    for (i = 0; i < selectedValues.length; i++) {
 
-        // $("#loaderSection").show();
-        // console.log('Inside Section value Onchange')
-        // fetch('/resultUpload/' + class_val).then(function(response) {
-        //         response.json().then(function(data) {
-        //                 $("#loaderSection").hide();    
-        //                 var optionHTML = '';
-        //                 optionHTML += '<option value="All"  selected> All </option>';
-        //                 for (var section of data.sections) {
-        //                 optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-        //             }
-        //             section_select.innerHTML = optionHTML;
-        //         })
-        //     });
+      {% for subcol in subColumn %}
+      {% set list1 = subcol.split('_') %}
+      var subColid = "{{list1[0]}}";
+      var sec = "{{list1[1]}}";
+      if (selectedValues[i] == subColid && sec == 'x') {
+        {% for sub in subject %}
+        var id = "{{sub[0]}}";
+        if (subColid == id) {
+          console.log('Inside second if' + id);
+          $("#{{subcol}}").html("{{sub[1]}}%");
+        }
+        {% endfor %}
+        $('#{{subcol}}').show();
 
-        //     $("#loaderTestDate").show();
-        // console.log('Inside Test Date Onchange')
-        // fetch('/testDateSearch/' + class_val).then(function(response) {
-        //         response.json().then(function(data) {
-        //                 console.log('inside fetch data of test date');
-        //                 $("#loaderTestDate").hide();    
-        //                 var optionHTML = '';
-        //                 optionHTML += '<option value="All"  selected> All </option>';
-        //                 for (var testdate of data.testdates) {
-        //                 optionHTML += '<option value="' + testdate.date + '">' + testdate.date + '</option>';
-        //             }
-        //             test_date_select.innerHTML = optionHTML;
-        //         })
-        //     });
+      } else if (selectedValues[i] == subColid && sec == 'y') {
+        {% for sub in subject %}
+        var id = "{{sub[0]}}";
+        if (subColid == id) {
+          var desc = "{{sub[1]}}";
+          var s = desc.substring(0, 3);
+          $("#{{subcol}}").html("Tests In " + s);
+        }
+        {% endfor %}
+        $('#{{subcol}}').show();
+      } else {
+        // $('#{{subcol}}').hide();
+      }
+      {% endfor %}
+    }
+    return false;
+  });
 
+  // $(document).ready(function(){
+  //   console.log('Inside document Ready');
+  //   {% for subCol in subColumn%}
+  //   {% set list2 = subCol.split('_') %}
+  //   var subColid = "{{list2[0]}}";
+  //     {% for sub in subject %}
+  //     var subid = "{{sub.msg_id}}";
+  //       if(subColid==subid){
+  //         console.log('Inside if');
+  //         $('#{{sub.msg_id}}').show();
+  //       }
+  //     {% endfor %}
+  //   {% endfor %}
+  // });
 
-            // var subject_id = $('#subject_name').val();
-            //var test_type = $('#test_type').val();
-            // var section_val = $('#section').val();
-            //var test_date = $('#testdate').val();
-//             $.ajax({  
-//             url: "/leaderBoard?class_val="+classVal,
-//             type: "get",
-//             data: "",            
-//             beforeSend: function() { 
-//                 $('#firstTable').hide();
-//                 $('#dynamicDataTable').hide();
-//                 $('#loader').show();
-//            },
-//             success: function (response) {
-//               $('#loader').hide();
-//               $('#dynamicDataTable').html(response);
-//               $('#dynamicDataTable').show();
-//             },
-//             error: function (xhr) {
-//                 window.alert("error occurred while loading question");
-//             }
-//         });
-    
-// });
-
-
-//test_type_select.onchange=function()  {
-//    console.log('Inside test type change');
-//      class_val = classVal;
-//         test_date = test_date_select.value;
-//         subject_id = subject_select.value;
-//         section_val = section_select.value;
-//         test_type = test_type_select.value;
-//
-//         $.ajax({  
-//            url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val+'&test_date='+test_date,
-//            type: "get",
-//            data: "",            
-//            beforeSend: function() { 
-//                $('#dynamicDataTable').hide();
-//                $('#loader').show();
-//           },
-//            success: function (response) {
-//              $('#loader').hide();
-//              $('#dynamicDataTable').html(response);
-//              $('#dynamicDataTable').show();
-//            },
-//            error: function (xhr) {
-//                window.alert("error occurred while loading question");
-//            }
-//        });
-//}
-
-// subject_select.onchange=function()  {
-//       class_val = classVal;
- 
-//          subject_id = subject_select.value;
-//          section_val = section_select.value;
-//          //test_type = test_type_select.value;
-//          //test_date = test_date_select.value;
-//          $.ajax({  
-//             url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&section_val="+section_val,
-//             type: "get",
-//             data: "",            
-//             beforeSend: function() { 
-//                 $('#firstTable').hide();
-//                 $('#dynamicDataTable').hide();
-//                 $('#loader').show();
-//            },
-//             success: function (response) {
-//               $('#loader').hide();
-//               $('#dynamicDataTable').html(response);
-//               $('#dynamicDataTable').show();
-//             },
-//             error: function (xhr) {
-//                 window.alert("error occurred while loading question");
-//             }
-//         });
-// }
-
-// section_select.onchange=function()  {
-//          class_val = classVal;
- 
-//          subject_id = subject_select.value;
-
-//          //test_type = test_type_select.value;
-
-//          section_val = section_select.value;
-
-//          //test_date = test_date_select.value;
-
-//          $.ajax({  
-//             url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&section_val="+section_val,
-//             type: "get",
-//             data: "",            
-//             beforeSend: function() { 
-//                 $('#dynamicDataTable').hide();
-//                 $('#loader').show();
-//            },
-//             success: function (response) {
-//               $('#loader').hide();
-//               $('#dynamicDataTable').html(response);
-//               $('#dynamicDataTable').show();
-//             },
-//             error: function (xhr) {
-//                 window.alert("error occurred while loading question");
-//             }
-//         });
-// }
-
-//test_date_select.onchange=function()  {
-//         class_val = classVal;
-// 
-//         subject_id = subject_select.value;
-//
-//         test_type = test_type_select.value;
-//
-//         section_val = section_select.value;
-//
-//         test_date = test_date_select.value;
-//
-//         $.ajax({  
-//            url: "/topperListForAll?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&section_val="+section_val+"&test_date="+test_date,
-//            type: "get",
-//            data: "",            
-//            beforeSend: function() { 
-//                $('#dynamicDataTable').hide();
-//                $('#loader').show();
-//           },
-//            success: function (response) {
-//              $('#loader').hide();
-//              $('#dynamicDataTable').html(response);
-//              $('#dynamicDataTable').show();
-//            },
-//            error: function (xhr) {
-//                window.alert("error occurred while loading question");
-//            }
-//        });
-//}
-//
-
-         
+  $(document).ready(function () {
+    console.log('Inside doc');
+    {% for sub in subject %}
+    {% for subCol in subColumn %}
+    {% set list2 = subCol.split('_') %}
+    console.log('value:')
+    var li = "{{list2[0]}}";
+    var s = "{{sub.msg_id}}";
+    console.log(li);
+    console.log(s);
+    if (li == s) {
+      console.log('Inside if');
+      console.log(s)
+      $('#{{sub.msg_id}}').show();
+    }
+    {% endfor %}
+    {% endfor %}
+  });
 </script>
+
 
 {% endblock %}
