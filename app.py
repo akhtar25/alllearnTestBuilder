@@ -484,7 +484,7 @@ def studentRegistration():
     if request.method=='POST':
         print('Inside Student Registration')
         if form.submit.data:
-            if studentId==None:
+            if studentId=='':
                 print('Inside Student Registration when student id is empty')
                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 if address_id is None:
@@ -576,19 +576,25 @@ def studentRegistration():
                         # guardianData = db.session.execute(text(query))
                         guardianData = GuardianProfile.query.filter_by(student_id=student_id).first()
                         # print('Query:'+query)
-                        print(guardianData.first_name)
-                        guardianData.first_name = first_name[i]
-                        guardianData.last_name = last_name[i]
-                        guardianData.full_name = first_name[i] + ' ' + last_name[i]
-                        guardianData.relation = relation_id.msg_id
-                        guardianData.phone = phone[i]
-                        guardianData.email = email[i]
-                        gId = guardianData.guardian_id
-                        # gId = int(gId)+1 
-                        print('Gid:'+str(guardianData.guardian_id))
-                        print('Gid:'+str(gId))
-                        print('Guardian First Name:'+str(first_name[i]))
-                        db.session.commit()
+                        # print(guardianData.first_name)
+                        if guardianData:
+                            guardianData.first_name = first_name[i]
+                            guardianData.last_name = last_name[i]
+                            guardianData.full_name = first_name[i] + ' ' + last_name[i]
+                            guardianData.relation = relation_id.msg_id
+                            guardianData.phone = phone[i]
+                            guardianData.email = email[i]
+                            gId = guardianData.guardian_id
+                            # gId = int(gId)+1 
+                            print('Gid:'+str(guardianData.guardian_id))
+                            print('Gid:'+str(gId))
+                            print('Guardian First Name:'+str(first_name[i]))
+                            db.session.commit()
+                        else:
+                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                            email=email[i],phone=phone[i],student_id=student_id)
+                            db.session.add(guardian_data)    
                     if i==1:
                         query = "select *from guardian_profile where student_id='"+str(student_id)+"' and guardian_id!='"+str(gId)+"'"
                         print('Query:'+str(query))
