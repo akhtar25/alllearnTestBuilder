@@ -260,7 +260,7 @@ class BookDetails(db.Model):
     class_val = db.Column(db.Integer,nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
-    book_link= db.Column(db.String(500))
+    book_link= db.Column(db.String(500)) 
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_det_id = db.Column(db.ForeignKey('board_detail.board_id'),nullable=True)
     book_level = db.Column(db.String(1),nullable=True)  #S=Subject level book ; T=Topic Level Book
