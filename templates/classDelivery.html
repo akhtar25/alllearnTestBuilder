@@ -2,8 +2,7 @@
 <div class="container">
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
-      <!-- sidebar: style can be found in sidebar.less -->
-      
+      <!-- sidebar: style can be found in sidebar.less -->      
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           {% for singleClass in distinctClasses %}
@@ -75,8 +74,7 @@
                               </ul>
                                 <ul class="treeview-menu">
                                     <li>
-                              {% for topic in topicTrackerDetails %}
-                              
+                              {% for topic in topicTrackerDetails %}                              
                               <a><tr>
                                 <label>
                                   {% if topic.is_covered=='Y' %}
@@ -90,20 +88,19 @@
                                 <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
                               </tr></a>
                               {% endfor %}
-                              </li>
-                              <!-- <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled> -->
+                              </li>                              
                               </ul>
                             </tbody>
                           </table>
                         </div>
-                        <input class="btn btn-primary" id="feedBackBtn" type="submit" value="Collect Feedback" style="height:40px;width:260px;background-color:green;" disabled>
+                        <input type="button" class="btn btn-primary" id="feedBackBtn" onclick="questions();" value="Mark Completed" style="height:40px;width:260px;background-color:green;" disabled>
                       </div>
                   </li>
               </ul>
             </li>
+         
             <li class="treeview">
-
-              <a href="#"><div class="box box-info"><h3>Reference</h3></div></a>
+              <a href="#"><div class="box box-info"><h3>Reference Content</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
                       <div style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
@@ -163,6 +160,10 @@
                                   </div>
                   </li>
               </ul>
+            </li>
+            <br>
+            <li >
+                <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;margin-left: 13px;">Conduct Test</a>
             </li>
           </ul>
           <div class="box-footer">
@@ -840,5 +841,48 @@ $('html, body').animate({
     (() => {
       document.getElementById('file-input').onchange = initUpload;
     })();
+
+
+
+
+
+
+
+    function questions() {
+        
+        var retake = "{{retake}}";
+        var topic_list = document.getElementsByName('topicCheck');
+        var checkboxesChecked = [];
+        for (var i = 0; i < topic_list.length; i++) {
+            // And stick the checked ones onto an array...
+            if (topic_list[i].checked) {
+                checkboxesChecked.push(topic_list[i].value);
+            }
+        }
+        console.log(checkboxesChecked[0]);
+        checkboxesChecked = JSON.stringify(checkboxesChecked);
+        console.log(checkboxesChecked);
+        $.ajax({
+            url: "/visitedQuestions?retake="+retake,
+            type: "POST",
+            contentType: "application/json",
+            data: checkboxesChecked,
+            success: function (response) {
+                // $("#questionloader").hide();
+                // $("#questionEditorDiV").show();
+                // if(response==1){
+                //     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+                // }
+                // else{
+                //     $("#questions").html(response);
+                // }         
+                event.preventDefault()
+                M.toast({html: '<h2>Topics completed</h2>'});                       
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading question");
+            }
+        });
+    }
   </script>
 {%endblock%}

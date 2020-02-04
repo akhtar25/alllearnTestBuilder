@@ -1,0 +1,82 @@
+{% extends "layout.html" %} {% block content %}
+<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+<div class="container">
+    <div class="scanContent center">      
+        <div class="col-md-10">
+            <a class="waves-effect waves-light btn" id="startScanner"
+                style="margin-top: 170px;padding: 30px 60px 50px 60px;border-radius: 15px;background-color: #34A16E;">Enter
+                or Scan ID</a>
+        </div>
+    </div>
+    <div id="qrScannerDiv" class="col-md-10" style="display: none;">
+        <div id="textCodeEntry">
+            <input type="text" id="textRespCodeInput" placeholder="Enter ID and click submit">
+            <a class="waves-effect waves-light btn green pull-right" id="textRespIntputBTN" >Submit</a>
+        </div>
+        <div class="video-field" id="video-field">
+            <video id="preview" height="300" width="260"></video>
+            <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>
+        </div>
+        <!-- <a class="waves-effect waves-light btn green" id="stopScanner" >Stop Scanner</a> -->
+    </div>
+</div>
+<script type="text/javascript">
+    $('#startScanner').click(function () {
+        $('.scanContent').css('display', 'none');
+        $('#qrScannerDiv').show();
+    });
+    let scanner = new Instascan.Scanner({
+        video: document.getElementById('preview')
+    });
+    scanner.addListener('scan', function (content) {
+        alert(content);
+        console.log(content);
+        if (content != "None") {
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + content;
+        }
+    });
+    $('#startScanner').click(function () {
+        Instascan.Camera.getCameras().then(function (cameras) {
+
+            if (cameras.length > 0) {
+                var selectedCam = cameras[0];
+                $.each(cameras, (i, c) => {
+                    if (c.name.indexOf('back') != -1) {
+                        selectedCam = c;
+                        return false;
+                    }
+                });
+
+                scanner.start(selectedCam);
+            }
+            //if (cameras.length > 0) {
+            //  scanner.start(cameras[0]);
+            //} 
+            else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
+    });
+
+
+    $('#stopScanner').click(function () {
+        scanner.stop();
+    });
+
+    $('#textRespIntputBTN').click(function () {
+        var resp_session_code = $('#textRespCodeInput').val();
+        if (resp_session_code != "") {
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code;
+        }
+    });
+
+
+    $(document).ready(function () {
+        $('.menu-toggle').click(function () {
+            $('nav').toggleClass('active')
+        });
+    });
+</script>
+{% endblock%}

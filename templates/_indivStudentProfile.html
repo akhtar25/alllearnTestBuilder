@@ -25,7 +25,9 @@
                 </tr>
                 <tr>
                     <td><b>Date of Birth</b> </td>
+                    {% if studentProfileRow.dob %}
                     <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
+                    {% endif %}
                 </tr>
                 {% if studentProfileRow.dob == '16'%}
                 <tr>
@@ -47,6 +49,10 @@
                     <td><b>Admission Number</b></td>
                     <td> {{studentProfileRow.school_adm_number}}</td>
                 </tr>
+                <tr>
+                        <td><b>Student Id</b></td>
+                        <td> {{studentProfileRow.student_id}}</td>
+                </tr>
             </table>
         </div>
         <div class="col s4 m4 l6">
@@ -55,12 +61,19 @@
                     <td>
                         <h4>Overall Performance Average</h4>
                     </td>
-                    <td>
+                    <td>{% if flag == 1 %}
+                        {%if overallPerfValue > 49 %}
+                        <h3 class='green-text'>{{overallPerfValue}}%</h3> (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{testCount.testcountval}} tests</a>)
+                        {%else%}
+                        <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{testCount.testcountval}} tests</a>)
+                        {%endif%}
+                        {% else %}
                         {%if overallPerfValue > 49 %}
                         <h3 class='green-text'>{{overallPerfValue}}%  </h3> (<a href="#modal1" data-target="modal1" class="modal-trigger">{{testCount.testcountval}} tests</a>)                                               
                         {%else%}
                         <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="#modal1" data-target="modal1" class="modal-trigger">{{testCount.testcountval}} tests</a>)
                         {%endif%}
+                        {% endif %}
                         <div id="modal1" class="modal" style="background-color: white;">
                             <div class="modal-content" >
                               <h4>Tests details</h4>
@@ -151,7 +164,7 @@
             {%endif%}
         </div>
     </div>
-    
+
     <div class="col s8 offset-s2">
             <div class="divider"></div>
         <h4 class='grey-text'>Overall Performance Graph</h4>

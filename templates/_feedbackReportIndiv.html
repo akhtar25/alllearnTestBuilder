@@ -1,0 +1,44 @@
+<div class="box-title">
+  <h3 class="box-title">Test Report - {{student_name}} </h3>
+</div>
+<div class="box-body table-responsive">
+  <table class="table table-bordered table-responsive-md table-striped table-centered">
+    
+    <!-- This is our clonable table line -->
+    <tr>
+      <td class="pt-3-half" contenteditable="false">
+        <h4>Score Percentage</h4>
+      </td>
+      {% if marksPercentage > 50 %}
+      <td class="pt-3-half" contenteditable="false">
+        <h3 class="green-text">{{'%0.2f' % marksPercentage|float}}%</h3>
+      </td>
+      {% else %}
+      <td class="pt-3-half" contenteditable="false">
+        <h3 class="red-text">{{'%0.2f' % marksPercentage|float}}%</h3>
+      </td>
+      {% endif %}
+    </tr>
+    <tr>
+        <td class="pt-3-half" contenteditable="false">
+          <h4>Total Marks Scored </h4>
+        </td>
+        <td class="pt-3-half" contenteditable="false">
+          <h4>{{marksScoredVal.marks_scored}} out of {{totalMarksVal.total_marks}}</h4>
+        </td>
+      </tr>
+      <tr>
+          <td class="pt-3-half" contenteditable="false">
+            <h4>Questions answers correctly</h4>
+            </td>
+            <td>
+                <h4>{{marksScoredVal.correct_ans}} out of {{totalMarksVal.num_of_questions}}</h4>
+            </td>
+      </tr>
+  </table>
+  <p> <a class='pull-right green btn'
+      href="{{url_for('studentFeedbackReport',student_id=student_id, student_name= student_name, resp_session_id = resp_session_id ) }}"
+      target="_blank">See Details</a></p>
+  <br>
+  <br>
+</div>

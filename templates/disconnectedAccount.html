@@ -23,9 +23,10 @@
           </a>
         </li>
         <li>
-          <div class="collapsible-header" title="Request access to a registered school"><i class="material-icons">person_add</i>
-            <h4>Request access as a teacher</h4>
-            
+          <div class="collapsible-header" title="Request access to a registered school"><i
+              class="material-icons">person_add</i>
+            <h4>Request access to a school</h4>
+
           </div>
           <div class="collapsible-body">
             <div class="input-field">
@@ -33,10 +34,18 @@
               <label for="reqAccessTeacher">Enter School ID</label>
             </div>
             <div class="input-field">
-              <input placeholder="Introduce yourself in 5 words" id="reqAccessTeacherMSG" type="text" class="validate">
-              <label for="reqAccessTeacherMSG">Introduce yourself in 5 words</label>
+              <input placeholder="Short Introduction" id="reqAccessTeacherMSG" type="text" class="validate">
+              <label for="reqAccessTeacherMSG">Introduce yourself</label>
+              <a class="waves-effect waves-light btn requestAccessBTNClass left" id="requestAccessTeacherBTNID"
+                name='71'>Request as a Teacher</a>
+              <a class="waves-effect waves-light btn requestAccessBTNClass right" id="requestAccessStudentBTNID"
+                name='134'>Request as a Student</a>
+              <a class="waves-effect waves-light btn requestAccessBTNClass mid" id="requestAccessGuardianBTNID" style="margin-left: 250px;"
+                name='72'>Request as a Guardian</a>
+              <br>
+              <br>
             </div>
-            <a class="waves-effect waves-light btn" id="requestAccessTeacherBTNID">Submit</a>
+
 
           </div>
         </li>
@@ -53,26 +62,40 @@
               </div>
             <a class="waves-effect waves-light btn" id="requestAccessGuardianBTNID">Submit</a>
       </div>
-    </li>-->
-
-
+    </li>
+    <li>
+        <div class="collapsible-header" title="Request access to a registered school"><i class="material-icons">person_add</i>
+          <h4>Request access as a student</h4>
+          
+        </div>
+        <div class="collapsible-body">
+          <div class="input-field">
+            <input placeholder="School ID" id="reqAccessStudent" type="text" class="validate">
+            <label for="reqAccessStudent">Enter School ID</label>
+          </div>
+          <div class="input-field">
+            <input placeholder="Short Introduction" id="reqAccessStudentMSG" type="text" class="validate">
+            <label for="reqAccessStudentMSG">Introduce yourself </label>
+          </div>
+          
+        </div>
+      </li>-->
       </ul>
     </div>
   </div>
-</div>
-{%else%}
-<div id="alreadyRequestedDiv">
-  <h2>Access requested</h2>
-  <p> You will receive a notification in your email once access has been granted</p>
-</div>
-{%endif%}
-<div id="accessRequestedAlreadyDiv" style="display: none;">
-  <h2>Access requested</h2>
-  <p> You will receive a notification in your email once access has been granted</p>
-</div>
-<div id="invalidSchoolIdDiv" style="display: none">
-  <p class="red-text">Invalid school id</p>
-</div>
+  {%else%}
+  <div id="alreadyRequestedDiv">
+    <h2>Access requested</h2>
+    <p> You will receive a notification in your email once access has been granted</p>
+  </div>
+  {%endif%}
+  <div id="accessRequestedAlreadyDiv" style="display: none;">
+    <h2>Access requested</h2>
+    <p> You will receive a notification in your email once access has been granted</p>
+  </div>
+  <div id="invalidSchoolIdDiv" style="display: none">
+    <p class="red-text">Invalid school id</p>
+  </div>
 </div>
 <script>
   $(document).ready(function () {
@@ -80,14 +103,18 @@
   });
 
 
-  $('#requestAccessTeacherBTNID').click(function () {
+  $('.requestAccessBTNClass').click(function () {
     var username = "{{current_user.username}}";
+    var email = "{{current_user.email}}";
     var school_id = $('#reqAccessTeacher').val();
-    about_me = $('#reqAccessTeacherMSG').val();
+    var about_me = $('#reqAccessTeacherMSG').val();
+    var user_type = $(this).attr('name');
+
     console.log(username);
     var data = "";
     $.ajax({
-      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me,
+      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me +
+        "&user_type=" + user_type,
       type: "get",
       data: data,
       success: function (response) {

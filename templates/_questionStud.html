@@ -1,0 +1,63 @@
+<div class="content">
+  <div class="row">
+
+    <label id="currQuestionLabel" style="width: 100%;">
+      {% if totalQCount!=''%}
+      {% set qnum = qnum | int %}
+      {% set qnum = qnum + 1 %}
+      Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
+    </label>
+    {% endif %}
+    <h3>Q: {{ question.question_description }}</h3>
+    {%if question.reference_link !=None %}
+    <aside class="right">
+      <img src="{{ question.reference_link }}" height="210px" width="300px" style="margin-top: 20px;">
+    </aside>
+    {% endif %}
+
+    <br>
+    {% for optionVal in questionOp %}
+    {% if  optionVal.option_desc %}
+    <!--<li style="display:flex;"></li>    -->
+    <p>
+      <label>
+        <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}"/>
+        <span style="font-size: 15px;">({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
+        <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
+      </label>
+    </p>
+    {% endif %}
+    {% endfor %}
+
+  </div>
+
+</div>
+
+<script>
+    $(".ansOption").click(function (){
+    $("#startAndNextBTN").attr("disabled", false);
+});
+
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src =
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+    var config = 'MathJax.Hub.Config({' +
+      'extensions: ["tex2jax.js"],' +
+      'jax: ["input/TeX","output/HTML-CSS"]' +
+      '});' +
+      'MathJax.Hub.Startup.onload();';
+
+
+    if (window.opera) {
+      script.innerHTML = config
+    } else {
+      script.text = config
+    }
+
+    document.getElementsByTagName("head")[0].appendChild(script);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+  })();
+</script>

@@ -30,7 +30,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{%endif%}{% endif %}
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -132,8 +132,19 @@
           <li style="color: green;">
             <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
           </li>
-          {% else %}          
-          {%if user_type_val!='161'%}
+          {% else %}
+          {%if user_type_val==72 %}
+          <li>
+            <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+          </li>
+          {%elif user_type_val=='134'%}
+            <li>
+                <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
+              </li>
+            <li>
+                <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
+              </li>        
+          {%elif user_type_val!='161'%}
           <li>
               <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             </li>
@@ -142,7 +153,7 @@
             </li>
             {%else%}
             <li>
-                <a style="color: green;"  href="{{ url_for('teachingApplicantProfile', user_id=current_user.id) }}">My Profile</a>
+                <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
               </li>
             {%endif%}
           <li>
