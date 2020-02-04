@@ -1,300 +1,323 @@
 {%extends "layout.html"%} {%block content%}
+
 <div class="container">
+
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar">
-      
+
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
-          <li class="treeview menu-open" style="padding: 10px;">            
-                <i class="glyphicon glyphicon-education"></i>
-              <span style='font-size:15px'><a href="{{url_for('leaderBoard')}}" >All</a></span>
+          <li class="treeview menu-open" style="padding: 10px;">
+            <i class="glyphicon glyphicon-education"></i>
+            <span style='font-size:15px'><a href="{{url_for('leaderBoard')}}">All</a></span>
             </a>
           </li>
           {% for singleClass in distinctClasses %}
           <li class="treeview" style="padding: 10px;">
-            
-              <i class="glyphicon glyphicon-education"></i>
-              <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"  name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
-              <span class="pull-right-container">
-                <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-              </span>            
+
+            <i class="glyphicon glyphicon-education"></i>
+            <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"
+                name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
+            <span class="pull-right-container">
+              <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+            </span>
           </li>
           {% endfor %}
           <ul>
       </section>
     </aside>
   </div>
-
+  {%if leaderBoardData==1222 %}
   <div class="content-wrapper" style="background-color: white;">
-  <div class="box">
-    <div class="box-header">
-      {% if qclass_val!=None %}
-        <h3 class="box-title">Leaderboard for</h3> <span style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: {{qclass_val}}<span id="classNo">
-      {% else %}
-        <h3 class="box-title">Leaderboard for</h3> <span style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: All<span id="classNo">
-      {% endif %}
-        </span></span>
-    </div>
-    <div class="input-field col s6" style="width: 50%;">
+  <div>
+    <p style="font-size: 24px;" class="grey-text text-lighten-1">No Data Available</p>
+  </div>
+</div>
+  {% else %}
+  <div class="content-wrapper" style="background-color: white;">
+    <div class="box">
+      <div class="box-header">
+        {% if qclass_val!=None %}
+        <h3 class="box-title">Leaderboard for </h3> <span
+          style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: {{qclass_val}}<span
+            id="classNo">
+            {% else %}
+            <h3 class="box-title">Leaderboard for</h3> <span
+              style="padding-left: 10px;font-size: 16px;padding-top: 20px;font-size: 19px;"> Class: All<span
+                id="classNo">
+                {% endif %}
+              </span></span>
+      </div>
+      <div class="input-field col s6" style="width: 50%;">
         <select id="subjects" multiple>
           <option value="" disabled selected> Select Subjects</option>
           {% for sub in subject %}
-          
+
           <option value="{{sub[0]}}" class="unselect" id="{{sub[0]}}" name="{{sub[1]}}">{{sub[1]}}</option>
           <!-- <option type="text" style="display: none;" id="desc" name="{{sub[1]}}"> -->
-          
+
           {% endfor %}
         </select>
-        <label>Select Subjects</label> 
+        <label>Select Subjects</label>
       </div>
-    <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
-      {{ form.hidden_tag() }}
-      <div class="form-group ">
-        <div class="row" id="classDetailsDiv">
-          <div class="col-sm-2" style="width: 200px;display: none;">
-            <div>
+      <form action="" method="POST" enctype="multipart/form-data" style="margin-left: 30px;">
+        {{ form.hidden_tag() }}
+        <div class="form-group ">
+          <div class="row" id="classDetailsDiv">
+            <div class="col-sm-2" style="width: 200px;display: none;">
+              <div>
                 {{ form.subject_name.label(class='labelsize') }}
                 <div id='loaderSubject' style='display: none; float: right;'>
-                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                  <img src='../static/images/spinner.gif' width='25px' height='25px'>
                 </div>
                 <br>
                 {% if form.subject_name.errors %}
                 {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.subject_name.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
+                  {% for error in form.subject_name.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
                 </div>
                 {% else %}
                 {{ form.subject_name(class='form-control') }}
                 {% endif %}
-            </div>
-        </div>
-    <div class="row">
-        <div id="admin" class="col s12">
-          <div class="card material-table" id="firstTable">
-            <div class="table-header">
-              <span class="table-title" style="display: flex;">
-                  
-              </span>
-              <div class="actions">
-                <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>
               </div>
             </div>
-            <table id="datatable">
-              <thead>
-                <tr>{% for columnName in columnNames %}
-                    {% if loop.index!=1 %}
-                    {% if loop.index==2 %}
-                    <th style="font-size: 15px;" id="profile">{{columnName}}</th>
-                    {% elif loop.index==3 %}
-                    <th style="font-size: 15px;" id="name">{{columnName}}</th>
-                    {% elif loop.index==4 %}
-                    <th style="font-size: 15px;" id="class">{{columnName}}</th>
-                    {% elif loop.index==5 %}
-                    <th style="font-size: 15px;" id="section">{{columnName}}</th>
-                    {% elif loop.index==6 %}
-                    <th style="font-size: 15px;" class = "sorting_desc" id="marks">{{columnName}}</th>
-                    {% elif loop.index==7 %}
-                    <th style="font-size: 15px;" id="tests">{{columnName}}</th>
-                    <!-- {% else %}
-                    <th style="font-size: 15px;" class="st1">{{columnName}}</th> -->
-                    {% endif %}
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% for subCol in subHeader%}
-                    <!-- for Subject Name -->
-                    <th style="font-size: 15px;display: none;" class="st1" id="{{subCol}}">{{subCol}}</th>
-                    <!-- End -->
-                    {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-                  {% for data in leaderBoardData %}
-                      <tr>
-                          {% set studid = data[0] %}
-                          {% set lencol = colAll|length %}
-                      {% for i in range(lencol+1) %}
-                      {% if loop.index!=1 %}
-                      {% set d = data[loop.index-1] %}
-                        {% if loop.index==2 %}
-                          {% if d %}
-                          <td style="font-size: 15px;"><img src="{{d}}" height="50" width="50"></div>
-                          {% else %}
-                          <td style="font-size: 15px;"><img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50" width="50"></div>  
-                          {% endif %}
-                        {% elif loop.index==3 %}
-                        <td style="font-size: 15px;">
-                        <span style="text-align: center;font-size: 14px;"> 
-                            <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
-                        </span>
-                        </td>
+            <div class="row">
+              <div id="admin" class="col s12">
+                <div class="card material-table" id="firstTable">
+                  <div class="table-header">
+                    <span class="table-title" style="display: flex;">
 
-                        {%elif loop.index==6 %}
-                        {% set number = d|float %}
-                        <td style="font-size: 15px;width:180px;" id="st">{{number|round(2)}}</td>
-                        {% else %}
-                        {%set data = d|string %}
-                        {% if data=='nan' %}
-                        <td style="font-size: 15px;">(No Test)</td>
-                        {% else %}
-                        <td style="font-size: 15px;">{{d}}</td>
+                    </span>
+                    <div class="actions">
+                      <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i
+                          class="material-icons">search</i></a>
+                    </div>
+                  </div>
+                  <table id="datatable">
+                    <thead>
+                      <tr>{% for columnName in columnNames %}
+                        {% if loop.index!=1 %}
+                        {% if loop.index==2 %}
+                        <th style="font-size: 15px;" id="profile">{{columnName}}</th>
+                        {% elif loop.index==3 %}
+                        <th style="font-size: 15px;" id="name">{{columnName}}</th>
+                        {% elif loop.index==4 %}
+                        <th style="font-size: 15px;" id="class">{{columnName}}</th>
+                        {% elif loop.index==5 %}
+                        <th style="font-size: 15px;" id="section">{{columnName}}</th>
+                        {% elif loop.index==6 %}
+                        <th style="font-size: 15px;" class="sorting_desc" id="marks">{{columnName}}</th>
+                        {% elif loop.index==7 %}
+                        <th style="font-size: 15px;" id="tests">{{columnName}}</th>
+                        <!-- {% else %}
+                    <th style="font-size: 15px;" class="st1">{{columnName}}</th> -->
                         {% endif %}
                         {% endif %}
-                        {% endif %}
-                      {% endfor %}
-                      
-                    </tr>
-                  {% endfor %}
+                        {% endfor %}
+
+                        {% for subCol in subHeader%}
+                        <!-- for Subject Name -->
+                        <th style="font-size: 15px;display: none;" class="st1" id="{{subCol}}">{{subCol}}</th>
+                        <!-- End -->
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for data in leaderBoardData %}
+                      <tr>
+                        {% set studid = data[0] %}
+                        {% set lencol = colAll|length %}
+                        {% for i in range(lencol+1) %}
+                        {% if loop.index!=1 %}
+                        {% set d = data[loop.index-1] %}
+                        {% if loop.index==2 %}
+                        {% if d %}
+                        <td style="font-size: 15px;"><img src="{{d}}" height="50" width="50">
+                </div>
+                {% else %}
+                <td style="font-size: 15px;"><img
+                    src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" height="50"
+                    width="50">
+              </div>
+              {% endif %}
+              {% elif loop.index==3 %}
+              <td style="font-size: 15px;">
+                <span style="text-align: center;font-size: 14px;">
+                  <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
+                </span>
+              </td>
+
+              {%elif loop.index==6 %}
+              {% set number = d|float %}
+              <td style="font-size: 15px;width:180px;" id="st">{{number|round(2)}}</td>
+              {% else %}
+              {%set data = d|string %}
+              {% if data=='nan' %}
+              <td style="font-size: 15px;">(No Test)</td>
+              {% else %}
+              <td style="font-size: 15px;">{{d}}</td>
+              {% endif %}
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+
+              </tr>
+              {% endfor %}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      </div>
-      </form>
+    </div>
+    </form>
   </div>
-    <div class="tableDynamic">
+
+  <div class="tableDynamic">
     <div id="dynamicDataTable">
-        
+
     </div>
     <div id="loader" style="display: none;padding-left: 300px;padding-top: 150px;padding-bottom: 250px;">
-        <img src="../static/images/loader.gif">
+      <img src="../static/images/loader.gif">
     </div>
   </div>
-  </div>
-
+  {% endif %}
 </div>
+
+
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+
 <script>
-$(document).ready(function(){
-  
-$('#datatable').dataTable( {
-    "order": [[ 4, 'desc' ]]
-} );
+  $(document).ready(function () {
 
-var table = $('#datatable').DataTable();
+    $('#datatable').dataTable({
+      "order": [[4, 'desc']]
+    });
 
-// table.columns.adjust().
+    var table = $('#datatable').DataTable();
 
-console.log('inside datatable sorting');
-$("#marks").width("130px");
-  $("#profile").width("130px");
-  $("#name").width("150px");
-  $("#class").width("50px");
-  $("#section").width("50px");
-  $("#tests").width("130px");
-  $(".st1").width("90px");
-});
-// var table = $('#datatable').DataTable();
- 
-// Sort by columns 1 and 2 and redraw
+    // table.columns.adjust().
 
-// $("#st").removeClass("sorting_asc");
-// table
-//     .order( [ 4, 'desc' ] )
-//     .draw();
-// });
+    console.log('inside datatable sorting');
+    $("#marks").width("130px");
+    $("#profile").width("130px");
+    $("#name").width("150px");
+    $("#class").width("50px");
+    $("#section").width("50px");
+    $("#tests").width("130px");
+    $(".st1").width("90px");
+  });
+  // var table = $('#datatable').DataTable();
 
-document.addEventListener('DOMContentLoaded', function() {
+  // Sort by columns 1 and 2 and redraw
+
+  // $("#st").removeClass("sorting_asc");
+  // table
+  //     .order( [ 4, 'desc' ] )
+  //     .draw();
+  // });
+
+  document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('select');
     var instances = M.FormSelect.init(elems, options);
   });
 
-  $(document).ready(function(){
+  $(document).ready(function () {
     $('select').formSelect();
   });
- 
 
-$("#subjects").change(function(){
-  M.toast({html: '<h6>Leaderboard updated</h6>'})
-  desc = $('option').attr("name");
-  // console.log(desc);
-    var selectedValues = [];    
-    $("#subjects :selected").each(function(){
-        selectedValues.push($(this).val()); 
+
+  $("#subjects").change(function () {
+    M.toast({ html: '<h6>Leaderboard updated</h6>' })
+    desc = $('option').attr("name");
+    // console.log(desc);
+    var selectedValues = [];
+    $("#subjects :selected").each(function () {
+      selectedValues.push($(this).val());
     });
     // alert(selectedValues);
     // alert(selectedValues.length)
-    if(selectedValues.length==0){
+    if (selectedValues.length == 0) {
       {% for subcol in subColumn %}
       $('#{{subcol}}').hide();
       {% endfor %}
     }
-      {% for subcol in subColumn %}
-      
-      $('#{{subcol}}').hide();
-      {% endfor %}
+    {% for subcol in subColumn %}
+
+    $('#{{subcol}}').hide();
+    {% endfor %}
 
 
-    for(i=0;i<selectedValues.length;i++){
+    for (i = 0; i < selectedValues.length; i++) {
 
       {% for subcol in subColumn %}
       {% set list1 = subcol.split('_') %}
-        var subColid = "{{list1[0]}}";
-        var sec = "{{list1[1]}}";
-      if(selectedValues[i]== subColid&&sec=='x'){
+      var subColid = "{{list1[0]}}";
+      var sec = "{{list1[1]}}";
+      if (selectedValues[i] == subColid && sec == 'x') {
         {% for sub in subject %}
-          var id = "{{sub[0]}}";
-          if(subColid==id){
-            console.log('Inside second if'+id);
-            $("#{{subcol}}").html("{{sub[1]}}%");
-          }
+        var id = "{{sub[0]}}";
+        if (subColid == id) {
+          console.log('Inside second if' + id);
+          $("#{{subcol}}").html("{{sub[1]}}%");
+        }
         {% endfor %}
         $('#{{subcol}}').show();
-        
-      }else if(selectedValues[i]== subColid&&sec=='y'){
+
+      } else if (selectedValues[i] == subColid && sec == 'y') {
         {% for sub in subject %}
-          var id = "{{sub[0]}}";
-          if(subColid==id){
-        var desc = "{{sub[1]}}";
-        var s = desc.substring(0,3); 
-        $("#{{subcol}}").html("Tests In "+s);
-          }
+        var id = "{{sub[0]}}";
+        if (subColid == id) {
+          var desc = "{{sub[1]}}";
+          var s = desc.substring(0, 3);
+          $("#{{subcol}}").html("Tests In " + s);
+        }
         {% endfor %}
         $('#{{subcol}}').show();
-      }else{
+      } else {
         // $('#{{subcol}}').hide();
-      } 
+      }
       {% endfor %}
     }
     return false;
-});
+  });
 
-// $(document).ready(function(){
-//   console.log('Inside document Ready');
-//   {% for subCol in subColumn%}
-//   {% set list2 = subCol.split('_') %}
-//   var subColid = "{{list2[0]}}";
-//     {% for sub in subject %}
-//     var subid = "{{sub.msg_id}}";
-//       if(subColid==subid){
-//         console.log('Inside if');
-//         $('#{{sub.msg_id}}').show();
-//       }
-//     {% endfor %}
-//   {% endfor %}
-// });
+  // $(document).ready(function(){
+  //   console.log('Inside document Ready');
+  //   {% for subCol in subColumn%}
+  //   {% set list2 = subCol.split('_') %}
+  //   var subColid = "{{list2[0]}}";
+  //     {% for sub in subject %}
+  //     var subid = "{{sub.msg_id}}";
+  //       if(subColid==subid){
+  //         console.log('Inside if');
+  //         $('#{{sub.msg_id}}').show();
+  //       }
+  //     {% endfor %}
+  //   {% endfor %}
+  // });
 
-$(document).ready(function(){
-  console.log('Inside doc');
-  {% for sub in subject %}
-          {% for subCol in subColumn%}
-          {% set list2 = subCol.split('_') %}
-            console.log('value:')
-            var li = "{{list2[0]}}";
-            var s = "{{sub.msg_id}}";
-            console.log(li);
-            console.log(s);
-           if(li==s){
-            console.log('Inside if');
-              console.log(s)
-              $('#{{sub.msg_id}}').show();
-            }
-          {% endfor %}
-        {% endfor %}
-});
+  $(document).ready(function () {
+    console.log('Inside doc');
+    {% for sub in subject %}
+    {% for subCol in subColumn %}
+    {% set list2 = subCol.split('_') %}
+    console.log('value:')
+    var li = "{{list2[0]}}";
+    var s = "{{sub.msg_id}}";
+    console.log(li);
+    console.log(s);
+    if (li == s) {
+      console.log('Inside if');
+      console.log(s)
+      $('#{{sub.msg_id}}').show();
+    }
+    {% endfor %}
+    {% endfor %}
+  });
 </script>
+
 
 {% endblock %}

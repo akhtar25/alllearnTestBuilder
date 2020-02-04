@@ -133,34 +133,37 @@ def leaderboardContent(qclass_val):
     query = query + where
     print('Query inside leaderboardContent:'+str(query))
     leaderbrd_row = db.session.execute(text(query)).fetchall()
-    df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
-    
-    leaderbrd_pivot = pd.pivot_table(df,index=['studentid','profile_pic','student_name','class_val','section']
-                      , columns='subjectid', values='marks'
-                      ,aggfunc='sum').reset_index()
-    leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
-    col_list= list(leaderbrd_pivot)
-    col_list.remove('studentid')
-    col_list.remove('student_name')
-    col_list.remove('class_val')
-    col_list.remove('section')
-    col_list.remove('profile_pic')
-    leaderbrd_pivot['total_marks%'] = leaderbrd_pivot[col_list].mean(axis=1)
+    try:
+        df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
+        
+        leaderbrd_pivot = pd.pivot_table(df,index=['studentid','profile_pic','student_name','class_val','section']
+                        , columns='subjectid', values='marks'
+                        ,aggfunc='sum').reset_index()
+        leaderbrd_pivot = leaderbrd_pivot.rename_axis(None).rename_axis(None, axis=1)
+        col_list= list(leaderbrd_pivot)
+        col_list.remove('studentid')
+        col_list.remove('student_name')
+        col_list.remove('class_val')
+        col_list.remove('section')
+        col_list.remove('profile_pic')
+        leaderbrd_pivot['total_marks%'] = leaderbrd_pivot[col_list].mean(axis=1)
 
-    # leaderbrd_pivot = leaderbrd_pivot.groupby(['studentid','student_name','class_val','section']).agg()
-    df2 = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
-    leaderbrd_pivot2 = pd.pivot_table(df2,index=['studentid','profile_pic','student_name','class_val','section']
-                      , columns='subjectid', values='test_count'
-                      ,aggfunc='sum').reset_index()
-    leaderbrd_pivot2 = leaderbrd_pivot2.rename_axis(None).rename_axis(None, axis=1)
-    col_list2= list(leaderbrd_pivot2)
-    col_list2.remove('studentid')
-    col_list2.remove('student_name')
-    col_list2.remove('class_val')
-    col_list2.remove('section')
-    col_list2.remove('profile_pic')
-    leaderbrd_pivot2['total_tests'] = leaderbrd_pivot2[col_list2].sum(axis=1)
-    result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on=('studentid','student_name','class_val','section','profile_pic'))
+        # leaderbrd_pivot = leaderbrd_pivot.groupby(['studentid','student_name','class_val','section']).agg()
+        df2 = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
+        leaderbrd_pivot2 = pd.pivot_table(df2,index=['studentid','profile_pic','student_name','class_val','section']
+                        , columns='subjectid', values='test_count'
+                        ,aggfunc='sum').reset_index()
+        leaderbrd_pivot2 = leaderbrd_pivot2.rename_axis(None).rename_axis(None, axis=1)
+        col_list2= list(leaderbrd_pivot2)
+        col_list2.remove('studentid')
+        col_list2.remove('student_name')
+        col_list2.remove('class_val')
+        col_list2.remove('section')
+        col_list2.remove('profile_pic')
+        leaderbrd_pivot2['total_tests'] = leaderbrd_pivot2[col_list2].sum(axis=1)
+        result = pd.merge(leaderbrd_pivot,leaderbrd_pivot2,on=('studentid','student_name','class_val','section','profile_pic'))
+    except:
+        result = 1222
     return result  
 
 
@@ -1996,103 +1999,124 @@ def leaderBoard():
         
 
         leaderBoardData = leaderboardContent(qclass_val)
-        df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-        df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
-        leaderBoard = pd.merge(df1,df2,on=('studentid'))
-        
-        d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-        df3 = leaderBoard.drop(['studentid'],axis=1)
-        print('DF3:')
-        print(df3)
-        print('print new dataframe')
-        
-        df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
-        df1.rename(columns = {'student_name':'Student'}, inplace = True)
-        df1.rename(columns = {'class_val':'Class'}, inplace = True)
-        df1.rename(columns = {'section':'Section'}, inplace = True)
-        df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
-        df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-        print(df1)
-        print('Excluding columns')
-        print(df2)
-        # rename(df2)
-        print('LeaderBoard Data:')
-        print(leaderBoardData)
-        data = []
-        
+        print('Type')
+        print(type(leaderBoardData))
+        column_names = ["a", "b", "c"]
+        datafr = pd.DataFrame(columns = column_names)
+        if type(leaderBoardData)!=type(datafr):
+            classSecCheckVal=''
+            colAll = ''
+            columnNames = ''
+            qclass_val = ''
+            subj = ''
+            subColumn = ''
+            subHeader = ''
+            data = ''
+            classSecCheckVal = ''
+            return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
 
-        header = [df1.columns.values.tolist()]
-        headerAll = [df3.columns.values.tolist()]
-        colAll = ''
-        subjHeader = [df2.columns.values.tolist()]
-        columnNames = ''
-        col = ''
-        subColumn = ''
-        print('Size of dataframe:'+str(len(subjHeader)))
-        for subhead in subjHeader:
-            subColumn = subhead
-            print('Header with Subject Name')
-            print(subhead)
-        for h in header:
-            columnNames = h
-        for headAll in headerAll: 
-            colAll = headAll
-        print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
-        n= int(len(subColumn)/2)
-        ndf = df2.drop(['studentid'],axis=1)
-        newDF = ndf.iloc[:,0:n]
-        new1DF = ndf.iloc[:,n:]
-        
-        df5 = pd.concat([newDF, new1DF], axis=1)
-        DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
-        print('New DF')
-        print(DFW)
-        dat = pd.concat([d,DFW], axis=1)
-        print(dat)
-        subHeader = ''
-        for row in dat.values.tolist():
-            data.append(row)
-        subH = [DFW.columns.values.tolist()]
+        else:
+            df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+            df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+            leaderBoard = pd.merge(df1,df2,on=('studentid'))
+            
+            d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+            df3 = leaderBoard.drop(['studentid'],axis=1)
+            print('DF3:')
+            print(df3)
+            print('print new dataframe')
+            
+            df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+            df1.rename(columns = {'student_name':'Student'}, inplace = True)
+            df1.rename(columns = {'class_val':'Class'}, inplace = True)
+            df1.rename(columns = {'section':'Section'}, inplace = True)
+            df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+            df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+            print(df1)
+            print('Excluding columns')
+            print(df2)
+            # rename(df2)
+            print('LeaderBoard Data:')
+            print(leaderBoardData)
+            data = []
+            
 
-        for s in subH:
-            subHeader = s
-        subHead = [dat.columns.values.tolist()]
-        for column in subHead:
-            col = column
-        subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
-        print(subject)
-        subj = []
+            header = [df1.columns.values.tolist()]
+            headerAll = [df3.columns.values.tolist()]
+            colAll = ''
+            subjHeader = [df2.columns.values.tolist()]
+            columnNames = ''
+            col = ''
+            subColumn = ''
+            print('Size of dataframe:'+str(len(subjHeader)))
+            for subhead in subjHeader:
+                subColumn = subhead
+                print('Header with Subject Name')
+                print(subhead)
+            for h in header:
+                columnNames = h
+            for headAll in headerAll: 
+                colAll = headAll
+            print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+            n= int(len(subColumn)/2)
+            ndf = df2.drop(['studentid'],axis=1)
+            newDF = ndf.iloc[:,0:n]
+            new1DF = ndf.iloc[:,n:]
+            
+            df5 = pd.concat([newDF, new1DF], axis=1)
+            DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+            print('New DF')
+            print(DFW)
+            dat = pd.concat([d,DFW], axis=1)
+            print(dat)
+            subHeader = ''
+            for row in dat.values.tolist():
+                data.append(row)
+            subH = [DFW.columns.values.tolist()]
 
-        for d in data:
-            print('In data Student id')
-            print(data[0])
-        
-        for sub in subject:
-            li = []
-            i=0
-            for col in subColumn:
-                if i!=len(subColumn)/2:
-                    c = col.split('_')
-                    print(c[0])
-                    print(sub.msg_id)
-                    if(c[0]==str(sub.msg_id)):
+            for s in subH:
+                subHeader = s
+            subHead = [dat.columns.values.tolist()]
+            for column in subHead:
+                col = column
+            subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
+            print(subject)
+            subj = []
+
+            for d in data:
+                print('In data Student id')
+                print(data[0])
+            
+            for sub in subject:
+                li = []
+                i=0
+                for col in subColumn:
+                    if i!=len(subColumn)/2:
+                        c = col.split('_')
                         print(c[0])
                         print(sub.msg_id)
-                        
-                        
-                        li.append(sub.msg_id)
-                        li.append(sub.description)
-                        subj.append(li)
-                        break
-                i=i+1
-                
-        print('List with Subjects')
-        print(subj)
-        for s in subj:
-            print(s[0])
-            print(s[1])
-        print('Inside subjects')
-    return render_template('leaderBoard.html',classSecCheckVal=classSecCheck(),form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
+                        if(c[0]==str(sub.msg_id)):
+                            print(c[0])
+                            print(sub.msg_id)
+                            
+                            
+                            li.append(sub.msg_id)
+                            li.append(sub.description)
+                            subj.append(li)
+                            break
+                    i=i+1
+                    
+            print('List with Subjects')
+            print(subj)
+            for s in subj:
+                print(s[0])
+                print(s[1])
+            print('Inside subjects')
+            classSecCheckVal=classSecCheck()
+            return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
+
+
+    return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
 
 @app.route('/classDelivery')
 @login_required
