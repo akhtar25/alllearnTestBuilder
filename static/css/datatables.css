@@ -74,6 +74,13 @@ div.material-table .table-footer {
 #datatable_wrapper{
   overflow-x: auto;
 }
+/* th:first-child {
+  position: absolute;
+  
+}
+td:first-child{
+  position: absolute;
+} */
 
 div.material-table .table-footer .dataTables_length {
   display: -webkit-flex;

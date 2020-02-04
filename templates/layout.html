@@ -3,7 +3,7 @@
 <head>  
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="static/images/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" type="image/png" href="#" /> {% if title %}
   <title>Alllearn  - {{ title }}</title>
   {% else %}
@@ -30,7 +30,7 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}{% if user_type_val!=72 %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{%endif%}{%endif%}{% endif %}
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -447,6 +447,14 @@ if ('{{session["classSecVal"]}}'=='N'){
 //}
   
 });
+// $(document).ready(function(){
+//       $("#st").removeClass("sorting_asc");
+//       $('#datatable').dataTable( {
+//         "order": [ 3, 'desc' ]
+//       } );
+          
+//     });
+
     function DisableLinks() {
       //alert('2');
     $('.classSpecLink').attr('href','#');

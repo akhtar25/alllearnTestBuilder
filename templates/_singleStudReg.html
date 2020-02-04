@@ -1,3 +1,4 @@
+
 {{ form.hidden_tag() }}
 <div class="form-group " style="padding-top:5px;">
   <div class="row">
@@ -51,7 +52,8 @@
     <div class="row">
             <div class="col-sm-3">
                 <label for="birthdate">Date of Birth</label>
-                <input type="date" id="birthdate" name="birthdate">
+                <!-- <input type="date" id="birthdate" name="birthdate"> -->
+                <input type="text" class="datepicker" id="birthdate" name="birthdate">
               </div>
 
         <div class="col-sm-4">
@@ -236,18 +238,113 @@
  
 <div id="guardianbox" name="guardianbox">
   </div>
-
+      <input type="text" value="{{student_id}}" style="display:none;" name="tag">
   <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();val();" value="Add Guardian"></p>
-  <div id="buttonbox" style="display:none;">
+  <div id="buttonbox">
       <span id="message" style="color:Red;display: none;float:left;"></span>
         <p><button class="btn waves-light green lighten-1 white-text" style="margin-top:5px; margin-right:550px;float:right;margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
 </div>
 </div>
-</div>
-
-
-
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.datepicker');
+    var instances = M.Datepicker.init(elems, options);
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    console.log('Inside datepicker');
+    $('.datepicker').datepicker();
+
+  });
+
+  $(document).ready(function(){
+  console.log('Inside function');
+  studId = '{{student_id}}';
+  console.log('Student Id:'+studId);
+    if(studId){
+    console.log('If you want to edit student details');
+    var gender = "{{studentDetailRow.gender}}";
+    var class_val = "{{studentDetailRow.class_val}}";
+    var section = "{{studentDetailRow.section}}";
+    var first_name = "{{studentDetailRow.first_name}}";
+    var last_name  = "{{studentDetailRow.last_name}}";
+    var profile_picture = "{{studentDetailRow.profile_picture}}";
+    var dob = "{{studentDetailRow.dob}}";
+    var phone = "{{studentDetailRow.phone}}";
+    var address1 = "{{studentDetailRow.address_1}}";
+    var address2 = "{{studentDetailRow.address_2}}";
+    var locality = "{{studentDetailRow.locality}}";
+    var city = "{{studentDetailRow.city}}";
+    var state = "{{studentDetailRow.state}}";
+    var country = "{{studentDetailRow.country}}";
+    var pin = "{{studentDetailRow.pin}}";
+    var roll = "{{studentDetailRow.roll_number}}";
+    var school_num = "{{studentDetailRow.school_adm_number}}";
+    console.log('DOB:'+dob);
+    $('#gender').val(gender);
+    $('#class_val').val(class_val);
+    $('#section').val(section);
+    $('#first_name').val(first_name);
+    $('#last_name').val(last_name);
+    console.log('Image path:'+profile_picture);
+    if(profile_picture!=''){
+    $('#preview').attr('src', profile_picture);
+    }
+    $('#profile_image').val(profile_picture);
+    $('#birthdate').val(dob);
+    $('#phone').val(phone);
+    $('#address1').val(address1);
+    $('#address2').val(address2);
+    $('#locality').val(locality);
+    $('#city').val(city);
+    $('#state').val(state);
+    $('#country').val(country);
+    $('#pincode').val(pin);
+    $('#roll_number').val(roll);
+    $('#school_admn_no').val(school_num);
+    
+    guarDetail1 = "{{guardianDetail1}}";
+    console.log('Guardian list length:'+guarDetail1.length);
+    console.log(guarDetail1)
+    {% if guardianDetail1 %}
+      console.log('Inside Detail1 of guardian if not empty');
+      addGuardian();
+      val();
+      var guardian_first_name = "{{guardianDetail1.first_name}}";
+      var guardian_last_name = "{{guardianDetail1.last_name}}";
+      var email = "{{guardianDetail1.email}}";
+      var phone = "{{guardianDetail1.phone}}";
+      var relation = "{{guardianDetail1.relation}}";
+      $('#guardian_first_name').val(guardian_first_name);
+      $('#guardian_last_name').val(guardian_last_name);
+      $('#guardian_email').val(email);
+      $('#guardian_phone').val(phone);
+      $('#relation').val(relation);
+      guarDetail2 = "{{guardianDetail2}}";
+      console.log('guardian 2:'+guarDetail2);
+      {% if guardianDetail2 %}
+        console.log('Inside second guardian');
+        addGuardian();
+        val();
+        var guardian_first_name2 = "{{guardianDetail2.first_name}}";
+        var guardian_last_name2 = "{{guardianDetail2.last_name}}";
+        var email2 = "{{guardianDetail2.email}}";
+        var phone2 = "{{guardianDetail2.phone}}";
+        var relation2 = "{{guardianDetail2.relation}}";
+        $('#guardianfname').val(guardian_first_name2);
+        $('#guardianlname').val(guardian_last_name2);
+        $('#guardianemail').val(email2);
+        $('#guardianphone').val(phone2);
+        $('#guardianrelation').val(relation2);
+      {% endif %}
+    {% endif %}
+    }else{
+      console.log('If you want to add Student');
+    }
+  });
 
 var fileReader = new FileReader();
 var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
@@ -461,7 +558,7 @@ var class_select = document.getElementById("class_val");
             {% endfor %}
             </div>
             {% else %}
-            {{ form.guardian_last_name(class='form-control') }}
+            {{ form.guardian_last_name(class='form-control',id='guardianlname') }}
             {% endif %}
       </div>
       <div class='col-sm-3'>
@@ -512,7 +609,7 @@ var class_select = document.getElementById("class_val");
   }
         div.innerHTML=guardianbox_data;
         row_id.appendChild(div);
-        $('#buttonbox').show();
+        // $('#buttonbox').show();
   if (count==2)
   {
     $("#addGuardianbtn").hide();
@@ -567,7 +664,7 @@ function val(){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
             uploadFile(file, response.data, response.url);
-          }
+          } 
           else{
             alert('Could not get signed URL.');
           }
@@ -711,70 +808,70 @@ function val(){
         $('#message').show();
         event.preventDefault();
       }else
-      if(guardian_first_name==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter guardian first name';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(guardian_email==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter guardian email';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(guardian_phone==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter guardian phone no';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(relation==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter relation';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(guardian_first_name2==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter second guardian first name';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(guardian_email2==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter second guardian email';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(guardian_phone2==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter second guardian phone';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(relation2==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter second guardian relation';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(relation==relation2){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter different relation for guardian second';
-        $('#message').show();
-        event.preventDefault();
-      }
-      else
+      // if(guardian_first_name==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter guardian first name';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(guardian_email==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter guardian email';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(guardian_phone==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter guardian phone no';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(relation==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter relation';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(guardian_first_name2==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter second guardian first name';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(guardian_email2==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter second guardian email';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(guardian_phone2==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter second guardian phone';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(relation2==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter second guardian relation';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }else
+      // if(relation==relation2){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter different relation for guardian second';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }
+      // else
       {
         $('#message').hide();
       }

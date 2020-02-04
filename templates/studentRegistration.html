@@ -25,6 +25,15 @@
     </div>
 
 <script>
+    id = '{{studentId}}';
+    $(document).ready(function(){
+      
+      console.log('Inside Student Registration Id'+id);
+      if(id){
+        $('#upload_type1').click();
+        $('.row').hide();
+      }
+    });
     
     var upload_type1=document.getElementById('upload_type1')
     var upload_type2=document.getElementById('upload_type2')
@@ -32,7 +41,7 @@
     upload_type1.onclick=function(){
         $(function(){
             $.ajax({
-                  url: "/singleStudReg",
+                  url: "/singleStudReg?student_id="+id,
                   type: "get",
                   success: function(response) {
                     $("#new").show(); 
