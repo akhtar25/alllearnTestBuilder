@@ -668,7 +668,9 @@ def edit_profile():
         form.resume.data = current_user.resume
         form.intro_link.data = current_user.intro_link
         
-
+        print('Inside edit profile')
+        print(current_user.about_me)
+        print(current_user.first_name)
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
@@ -1696,13 +1698,16 @@ def guardianDashboard():
     print('Id:'+str(current_user.id))
     school= User.query.filter_by(id=current_user.id).first()
     student=[]
+    
     for g in guardian:
-        query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
-        query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
-        query = query + "left join fn_guardian_dashboard_summary('"+str(school.school_id)+"') fn on fn.student_name=sp.full_name "
-        query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(g.student_id)+"' order by marks desc limit 1"
-        student_data = db.session.execute(text(query)).first()
-        student.append(student_data)
+        if g.student_id!=None:
+            query = "select fn.score as marks,fn.strong_2_subjects as subjects,sp.full_name as student,spro.school_name as school,cs.class_val as class,cs.section as section,sp.profile_picture as pic,sp.student_id from student_profile sp "
+            query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id "
+            query = query + "left join fn_guardian_dashboard_summary('"+str(school.school_id)+"') fn on fn.student_name=sp.full_name "
+            query = query + "inner join school_profile spro on spro.school_id = sp.school_id where student_id='"+str(g.student_id)+"' order by marks desc limit 1"
+            student_data = db.session.execute(text(query)).first()
+            student.append(student_data)
+    
     return render_template('guardianDashboard.html',students=student,disconn = 1,user_type_val=user_type_val)
 
 @app.route('/performanceDetails/<student_id>',methods=['POST','GET'])
@@ -2284,7 +2289,7 @@ def feedbackCollection():
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-                print('Date:'+str(print (dateVal)))
+                print('Date:'+str(dateVal))
                 print('Response Session ID:'+str(responseSessionID))
                 print('If Question list size is not zero')
                 print(sessionDetailRowCheck)
@@ -3766,7 +3771,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000))
-        # ssl_context='adhoc'
+        port=int(os.getenv('PORT', 8000)),
+        ssl_context='adhoc'
         )
     #app.run()
