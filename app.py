@@ -676,6 +676,8 @@ def studentRegistration():
                 return render_template('studentRegistration.html',studentId=student_id)
 
         else:
+            teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            print('School_id:'+str(teacher_id.school_id))
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
             df1=df1.replace(np.nan, '', regex=True)
@@ -689,7 +691,7 @@ def studentRegistration():
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section']).first()
+                class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section'],school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
                 date = row['dob']
                 li = date.split('/',3)
@@ -722,18 +724,22 @@ def studentRegistration():
                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
                     db.session.add(student_qr_data)
-            for i in range(2):
-                relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
-                if relation_id is not None:
-                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
-                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                else:
-                    guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
-                    email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                for i in range(2):
+                    relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+                    print('Inside range')
+                    if relation_id is not None:
+                        print('If relation id is not empty')
+                        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+                        email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                    else:
+                        print('If relation id is empty')
+                        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
+                        email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+                        
+                    db.session.add(guardian_data)
+                    db.session.commit()
                 
-                db.session.add(guardian_data)
-                
-            db.session.commit()
+            
             flash('Successful upload !')
             return render_template('studentRegistration.html')
     if studentId!='':
@@ -4074,7 +4080,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000)),
-        ssl_context='adhoc'
+        port=int(os.getenv('PORT', 8000))
+        # ssl_context='adhoc'
         )
     #app.run()
