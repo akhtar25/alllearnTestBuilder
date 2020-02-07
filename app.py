@@ -418,9 +418,10 @@ def classRegistration():
 
         classSecNotInTopicTracker = db.session.execute(text(topicTrackerRows)).fetchall()
 
-        for classRow in classSecRows:
-            if classRow.class_sec_id not in classSecNotInTopicTracker: 
-                insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(teacherRow.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
+        for i in range(len(class_val)):
+            class_id = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(school_id=teacherRow.school_id,class_val=class_val[i]).first()
+            if class_id.class_sec_id not in classSecNotInTopicTracker: 
+                insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacherRow.school_id)+"', 0,current_date from Topic_detail where class_val="+str(class_val[i])+")"
                 db.session.execute(text(insertRow))
         db.session.commit()
 
@@ -731,11 +732,7 @@ def studentRegistration():
                         print('If relation id is not empty')
                         guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
                         email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                    else:
-                        print('If relation id is empty')
-                        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],
-                        email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
-                        
+                    
                     db.session.add(guardian_data)
                     db.session.commit()
                 
