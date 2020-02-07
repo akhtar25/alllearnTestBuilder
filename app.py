@@ -536,54 +536,9 @@ def studentRegistration():
     if request.method=='POST':
         print('Inside Student Registration')
         if form.submit.data:
-            if studentId=='':
-                print('Inside Student Registration when student id is empty')
-                address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                if address_id is None:
-                    address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-                    db.session.add(address_data)
-                    address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                print('Print Form Data:'+form.section.data)
-                class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
-                gender=MessageDetails.query.filter_by(description=form.gender.data).first()
-                print('Section Id:'+str(class_sec.class_sec_id))
-                student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
-                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
-                dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
-                roll_number=int(form.roll_number.data))
-                #print('Query:'+student)
-                db.session.add(student)
-                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
-                for i in range(4):
-                    if i==0:
-                        option='A'
-                        qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    elif i==1:
-                        option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    elif i==2:
-                        option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    else:
-                        option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
-                    db.session.add(student_qr_data)
-                first_name=request.form.getlist('guardian_first_name')
-                last_name=request.form.getlist('guardian_last_name')
-                phone=request.form.getlist('guardian_phone')
-                email=request.form.getlist('guardian_email')
-                relation=request.form.getlist('relation')
-                for i in range(len(first_name)):
-                    relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                    guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                    email=email[i],phone=phone[i],student_id=student_data.student_id)
-                    db.session.add(guardian_data)
-                db.session.commit()
-                flash('Successful upload !')
-                return render_template('studentRegistration.html')
-            else:
+            if studentId:
+                
+
                 print('Inside Student update when student id is not empty')
                 student_id = request.form['tag']
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -675,6 +630,69 @@ def studentRegistration():
                 db.session.commit()
                 flash('Data Updated Successfully!')
                 return render_template('studentRegistration.html',studentId=student_id)
+
+
+            else:
+                print('Inside Student Registration when student id is empty')
+                address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+                if address_id is None:
+                    address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+                    db.session.add(address_data)
+                    address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+                print('Print Form Data:'+form.section.data)
+                class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
+                gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+                print('Section Id:'+str(class_sec.class_sec_id))
+                student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+                dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+                roll_number=int(form.roll_number.data))
+                #print('Query:'+student)
+                db.session.add(student)
+                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
+                for i in range(4):
+                    if i==0:
+                        option='A'
+                        qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    elif i==1:
+                        option='B'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    elif i==2:
+                        option='C'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    else:
+                        option='D'
+                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+                    student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+                    db.session.add(student_qr_data)
+                first_name=request.form.getlist('guardian_first_name')
+                last_name=request.form.getlist('guardian_last_name')
+                phone=request.form.getlist('guardian_phone')
+                email=request.form.getlist('guardian_email')
+                relation=request.form.getlist('relation')
+                for i in range(len(first_name)):
+                    relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+                    guardian_id = GuardianProfile.query.filter_by(email=email[i]).first()
+                    if guardian_id:
+                        print('If guardian already exist')
+                        if guardian_id.student_id=='':
+                            guardian_id.student_id = student_data.student_id
+                            guardian_id.relation = relation_id.msg_id
+                            print('If Id is empty')
+                        else:
+                            print('skip')
+                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                            email=email[i],phone=phone[i],user_id=guardian_id.user_id,student_id=student_data.student_id)
+                            db.session.add(guardian_data)
+                    else:
+                        guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+                        email=email[i],phone=phone[i],student_id=student_data.student_id)
+                        db.session.add(guardian_data)
+                        print('If guardian does not exist')
+                db.session.commit()
+                flash('Successful upload !')
+                return render_template('studentRegistration.html')
 
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -1572,14 +1590,17 @@ def grantUserAccess():
     elif userTableDetails.user_type==72:
         print('#########Gotten into 72')
         print('Email:'+str(userTableDetails.email))
-        checkGuardianProfile=GuardianProfile.query.filter_by(user_id=userTableDetails.id).first()
-        
-        if checkGuardianProfile==None:
+        checkGuardianProfile=GuardianProfile.query.filter_by(email=userTableDetails.email).all()
+        print(checkGuardianProfile)
+        if checkGuardianProfile:
+            for gprofile in checkGuardianProfile:
+                print('If guardian profile is not empty')
+                gprofile.user_id=userTableDetails.id
+                db.session.commit()
+        else:
+            print('If guardian profile is empty')
             guardianData=GuardianProfile(full_name=userFullName,first_name=userTableDetails.first_name, last_name=userTableDetails.last_name,email=userTableDetails.email,phone=userTableDetails.phone, user_id=userTableDetails.id)
             db.session.add(guardianData)    
-            db.session.commit()
-        else:
-            checkGuardianProfile.user_id=userTableDetails.id
             db.session.commit()
     else:
         print('#########Gotten into else')
