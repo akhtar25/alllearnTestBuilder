@@ -685,6 +685,7 @@ function val(){
 
     $('#submit').click(function(){
       console.log('Inside Submit button function');
+
       first_name = document.getElementById('first_name').value;
       gender = document.getElementById('gender').value;
       birthdate = document.getElementById('birthdate').value;
@@ -723,14 +724,16 @@ function val(){
         tag.innerHTML = 'please enter gender';
         $('#message').show();
         event.preventDefault();
-      }else
-      if(birthdate==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter date of birth';
-        $('#message').show();
-        event.preventDefault();
-      }else
+      }
+      // else
+      // if(birthdate==''){
+      //   console.log('Inside message');
+      //   tag = document.getElementById('message');
+      //   tag.innerHTML = 'please enter date of birth';
+      //   $('#message').show();
+      //   event.preventDefault();
+      // }
+      else
       if(phone==''){
         console.log('Inside message');
         tag = document.getElementById('message');
@@ -872,8 +875,9 @@ function val(){
       //   event.preventDefault();
       // }
       // else
-      {
+      { 
         $('#message').hide();
+         
       }
     });
 

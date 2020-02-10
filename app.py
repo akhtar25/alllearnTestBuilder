@@ -530,12 +530,14 @@ def singleStudReg():
 @app.route('/studentRegistration', methods=['GET','POST'])
 @login_required
 def studentRegistration():
+    studId = request.args.get('student_id') 
     form=SingleStudentRegistration()
-    studentId = request.args.get('student_id')
-    print('Student Id:'+str(studentId))
     if request.method=='POST':
         print('Inside Student Registration')
         if form.submit.data:
+            
+            studentId = request.form['tag']
+            print('Student Id:'+str(studentId))
             if studentId:
                 
 
@@ -757,9 +759,9 @@ def studentRegistration():
             
             flash('Successful upload !')
             return render_template('studentRegistration.html')
-    if studentId!='':
-        print('inside if Student Id:'+str(studentId))
-        return render_template('studentRegistration.html',studentId=studentId)
+    if studId!='':
+        print('inside if Student Id:'+str(studId))
+        return render_template('studentRegistration.html',studentId=studId)
     return render_template('studentRegistration.html')
 
 
