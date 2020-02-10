@@ -556,14 +556,16 @@ def studentRegistration():
                 print('Query:'+str(studProfile))
                 profileImg = db.session.execute(text(studProfile))
                 print(studentDetails)
-                print('DOB:'+str(request.form['birthdate']))
+                if request.form['birthdate']:
+                    print('DOB:'+str(request.form['birthdate']))
                 print('Student id:'+str(student_id))
                 print('First Name:'+str(studentDetails.first_name))
                 print('Image url:'+str(request.form['profile_image']))
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
-                studentDetails.dob=request.form['birthdate']
+                if request.form['birthdate']:
+                    studentDetails.dob=request.form['birthdate']
                 studentDetails.phone=form.phone.data
                 studentDetails.address_id=address_id.address_id
                 studentDetails.profile_image=request.form['profile_image']
@@ -646,10 +648,16 @@ def studentRegistration():
                 class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
                 print('Section Id:'+str(class_sec.class_sec_id))
-                student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
-                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
-                dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
-                roll_number=int(form.roll_number.data))
+                if request.form['birthdate']:
+                    student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+                    school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+                    dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+                    roll_number=int(form.roll_number.data))
+                else:
+                    student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+                    school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+                    phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+                    roll_number=int(form.roll_number.data))
                 #print('Query:'+student)
                 db.session.add(student)
                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()

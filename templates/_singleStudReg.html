@@ -218,7 +218,7 @@
     </div>
       <div class="col-sm-2">
         <label for="roll_number">Roll Number</label>
-        <input type="number" id="roll_number" name="roll_number" min=1 max=100 placeholder="Roll No." onKeyPress="if(this.value.length==2) return false;">
+        <input type="number" id="roll_number" name="roll_number" min=1 max=10000 placeholder="Roll No." onKeyPress="if(this.value.length==4) return false;">
       </div>
       <div class="col-sm-3">
           <label for="school_admn_no">Admission No.</label>
@@ -294,7 +294,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#preview').attr('src', profile_picture);
     }
     $('#profile_image').val(profile_picture);
-    $('#birthdate').val(dob);
+    if(dob=='None'){
+    $('#birthdate').val('');
+    }
     $('#phone').val(phone);
     $('#address1').val(address1);
     $('#address2').val(address2);
