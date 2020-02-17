@@ -445,6 +445,10 @@ class StudentProfile(db.Model):
     profile_picture= db.Column(db.String(500),nullable=True)
     student_unique_id = db.Column(db.String(50),nullable=True) #added to identify each student since if a student is promoted new row will have to be inserted thereby changing the student_id
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
+    sponsored_status = db.Column(db.String(1), nullable=True)
+    sponsored_amount = db.Column(db.Integer, nullable=True)
+    sponsored_on = db.Column(db.DateTime, nullable=True)
+    sponsored_till = db.Column(db.DateTime, nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
