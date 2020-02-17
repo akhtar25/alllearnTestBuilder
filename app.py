@@ -45,10 +45,12 @@ from random import randint
 import string
 import requests
 from flask_talisman import Talisman, ALLOW_FROM
+from flask_api import FlaskAPI, status, exceptions
 
 #from flask_material import Material
 
-app=Flask(__name__)
+#app=Flask(__name__)
+app=FlaskAPI(__name__)
 #csp = {
 # 'default-src': [
 #        '\'self\'',
@@ -122,6 +124,58 @@ def schoolNameVal():
             return None
     else:
         return None
+
+
+notes = {
+    0: 'do the shopping',
+    1: 'build the codez',
+    2: 'paint the door',
+}
+
+def note_repr(key):
+    return {
+        'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
+        'text': notes[key]
+    }
+
+##########################Start of test section
+
+@app.route("/api", methods=['GET', 'POST'])
+def notes_list():
+    """
+    List or create notes.
+    """
+    if request.method == 'POST':
+        note = str(request.data.get('text', ''))
+        idx = max(notes.keys()) + 1
+        notes[idx] = note
+        return note_repr(idx), status.HTTP_201_CREATED
+
+    # request.method == 'GET'
+    return [note_repr(idx) for idx in sorted(notes.keys())]
+
+
+@app.route("/api/<int:key>/", methods=['GET', 'PUT', 'DELETE'])
+def notes_detail(key):
+    """
+    Retrieve, update or delete note instances.
+    """
+    if request.method == 'PUT':
+        note = str(request.data.get('text', ''))
+        notes[key] = note
+        return note_repr(key)
+
+    elif request.method == 'DELETE':
+        notes.pop(key, None)
+        return '', status.HTTP_204_NO_CONTENT
+
+    # request.method == 'GET'
+    if key not in notes:
+        raise exceptions.NotFound()
+    return note_repr(key)
+##########################End of test section
+
+
 
 def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
