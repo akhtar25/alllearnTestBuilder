@@ -155,6 +155,54 @@ def notes_list():
     return [note_repr(idx) for idx in sorted(notes.keys())]
 
 
+#@app.route("/api/leaderBoard/<int:schoolID>",methods=['GET','PUT','DELETE'])
+#def leaderboardAPI(schoolID):
+#    return leaderboardContent(schoolID)
+
+@property
+def serialize(self):
+ return {
+    'student_id': self.student_id,
+    'full_name': self.full_name,
+    #'class_val': self.class_val,
+    #'section': self.section,
+    #'sponsored_status': self.sponsored_status,
+    #'sponsored_on': self.sponsored_on,
+    #'sponsored_amount': self.sponsored_amount,
+    #'sponsored_till': self.sponsored_till,
+    #'profile_picture': self.profile_picture,
+    #'perf_avg': self.perf_avg,
+}
+
+
+
+@app.route("/api/studentList/<int:schoolID>/", methods=['GET', 'PUT', 'DELETE'])
+def studentListAPI(schoolID):
+    #studentList = StudentProfile.query.filter_by(school_id=schoolID).all()
+    studentListQuery = "select sp.student_id as student_id, sp.full_name as full_name , cs.class_val as class_val , cs.section as section , sponsored_status as spnsored_status, sponsored_on as sponsoted_on, sponsored_amount as sponsored_amount, sponsored_till as sponsored_till, "
+    studentListQuery = studentListQuery + "sp.profile_picture as profile_picture,  CAST ( round( avg(pd.student_score),2) as Varchar) as perf_avg "
+    studentListQuery = studentListQuery + "from student_profile sp "
+    studentListQuery = studentListQuery + "inner join class_section cs on "
+    studentListQuery = studentListQuery + "cs.class_sec_id  = sp.class_sec_id and "
+    studentListQuery = studentListQuery + "sp.school_id  = "+str(schoolID)
+    studentListQuery = studentListQuery + " inner join performance_detail pd on "
+    studentListQuery = studentListQuery + "pd.student_id  = sp.student_id "
+    studentListQuery = studentListQuery + "group by sp.student_id , sp.full_name , cs.class_val , cs.section , sp.profile_picture , sponsored_status , sponsored_on , sponsored_amount , sponsored_till "
+    studentListQuery = studentListQuery + "order by perf_avg desc"
+
+    studentListData = db.session.execute(text(studentListQuery)).fetchall()
+    
+    # the two lines below can also be used to send data but without the flask api library
+    #resp = jsonify({'result': [dict(row) for row in studentListData]})
+    #resp.status_code = 200
+
+    return {'result': [dict(row) for row in studentListData]}
+    #return [(str(idx.student_id)+','+str(idx.first_name)+','+str(idx.last_name)+',' +str(idx.sponsored_status)) for idx in studentList]
+
+
+
+
+
 @app.route("/api/<int:key>/", methods=['GET', 'PUT', 'DELETE'])
 def notes_detail(key):
     """
@@ -2495,6 +2543,7 @@ def leaderBoard():
 
     return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
 
+
 @app.route('/classDelivery')
 @login_required
 def classDelivery():
@@ -3522,24 +3571,24 @@ def scoreGraph():
         resultArray.append(Array)
     return jsonify({'result':resultArray})
 
-@app.route('/performanceSummary')
-def performanceSummary():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_value = request.args.get('class_val')
-    section = request.args.get('section')
-    subject = request.args.get('subject')
-    subName = ''
-    if(subject!='All'):
-        subject_name = MessageDetails.query.filter_by(msg_id=subject).first()
-        subName = subject_name.description
-    else:
-        subName = subject
-
-    print('Inside performance Summary')
-    query = "Select * from fn_overall_performance_summary("+str(teacher_id.school_id)+") where class='"+str(class_value)+"' and section='"+str(section)+"' and subject='"+str(subName)+"'"
-    print(query)
+@app.route('/api/performanceSummary/<int:schoolID>')
+def apiPerformanceSummary(schoolID):
+    #teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #class_value = request.args.get('class_val')
+    #section = request.args.get('section')
+    #subject = request.args.get('subject')
+    #subName = ''
+    #if(subject!='All'):
+    #    subject_name = MessageDetails.query.filter_by(msg_id=subject).first()
+    #    subName = subject_name.description
+    #else:
+    #    subName = subject
+#
+    #print('Inside performance Summary')
+    query = "Select * from fn_overall_performance_summary("+str(schoolID)+") where class='All'and section='All' and subject='All'"
+    #print(query)
     resultSet = db.session.execute(text(query))
-    print(resultSet)
+    #print(resultSet)
     resultArray = []
 
     for result in resultSet:
@@ -3554,7 +3603,8 @@ def performanceSummary():
         Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
         Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
         resultArray.append(Array)
-    return jsonify({'result' : resultArray})
+    #return jsonify({'result' : resultArray})
+    return {'result' : resultArray}
     # return render_template('testPerformance.html',form=form,form1=form1,resultSet=resultSet)
 
 
