@@ -18,14 +18,11 @@
                     {% for question in q %}
                     <tr>
                         <td>
-                                {% if question.question_type=='MCQ1' %}
-                        
+                                {% if question.question_type=='MCQ1' %}                        
                                 <ul>
                                         <li>
-                                          <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>
-                        
-                                         <!-- Modal Structure  -->
-                                         
+                                          <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                        
+                                         <!-- Modal Structure  -->                                         
                                         <div id="modal2" class="modal" style="background-color:white;">
                                                 <div id="questionloader1" style="display: none;">
                                                         <img src="../static/images/loader.gif">
