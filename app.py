@@ -377,9 +377,9 @@ def schoolRegistration():
 def admin():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select count(*) from public.user where user_type='161'"
-    query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 10;"
+    query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 30;"
     count = db.session.execute(text(query)).fetchall()
-    count2 = db.session.execute(text(query2)).fetchall()
+    min_user_count = db.session.execute(text(query2)).first()
     schoolDetails = SchoolProfile.query.all()
     teacherDetails = TeacherProfile.query.all()
     schoolCount = "select count(*) from school_profile"
@@ -389,15 +389,17 @@ def admin():
     teacher_count = db.session.execute(text(teacherCount)).first()
     studentCount = "select count(*) from student_profile"
     student_count = db.session.execute(text(studentCount)).first()
+    userCount = "select count(*) from public.user"
+    user_count = db.session.execute(text(userCount)).first()
     num = ''
     num2 = ''
     for c in count:
         num = c.count
-    for c2 in count2:
-        num2 = c2.count
+    # for c2 in count2:
+    #     num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,number = num2,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails)
+    return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count)
 
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required

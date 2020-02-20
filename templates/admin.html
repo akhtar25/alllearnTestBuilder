@@ -1,5 +1,15 @@
 {%extends "layout.html"%} {%block content%}
-<div class="container">
+<div class="container container-color" >
+<div class="app-page-title">
+  <div class="page-title-wrapper">
+    <div class="page-title-heading">
+      <div class="page-title-icon">
+        <i class="fas fa-user-cog "></i>
+      </div>
+      <div class="head">Admin Dashboard</div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <!-- For Total numbers of schools -->
     <div class="col-md-4 col-xl-4">
@@ -79,13 +89,13 @@
         </div>
       </div>
 
-      <div class="tab-content" style="overflow-y: auto;height: 280px;">
+      <div class="tab-content" style="overflow-y: auto;height: 259px;">
         <ul class="collapsible" style="border: 0px;margin: 0px;">
           {% for school in schoolDetails %}
           <li>
             <div class="collapsible-header" title="Registered Schools" style="padding: 0px;">
                 <i class="fas fa-school" style="margin-top: 10px;margin-left: 10px;"></i>
-              <h4>{{school.school_name}}</h4>
+              <h4 style="font-size:15px;">{{school.school_name}}</h4>
 
           </div>
           {% for teacher in teacherDetails %}
@@ -108,6 +118,49 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6 col-xl-6">
+          <div class="card mb-3 widget-content">
+            <div class="widget-content-wrapper">
+              <div class="widget-content-left">
+                <div class="widget-heading">
+                  Registered Users
+                </div>
+                <div class="widget-subheading">
+                  total registered users of the system 
+                </div>
+              </div>
+              <div class="widget-content-right">
+                <div class="widget-numbers text-success" style="font-size:26px;">
+                  <span>{{user_count[0]}}</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+    <div class="col-md-6 col-xl-6">
+          <div class="card mb-3 widget-content">
+            <div class="widget-content-wrapper">
+              <div class="widget-content-left">
+                <div class="widget-heading">
+                  New Users
+                </div>
+                <div class="widget-subheading">
+                 total registered users in last one month 
+                </div>
+              </div>
+              <div class="widget-content-right">
+                <div class="widget-numbers text-danger" style="font-size:26px;">
+                  <span>{{min_user_count[0]}}</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
 </div>
 
 </div>
@@ -148,10 +201,8 @@
                   data: data,
                   success: function(response) { 
                      var id = '#'+ teacher_id;
-                        $(id).html("<p style:'green-text;float: right;margin-top: -25px;margin-right: 10px;color: green;'>Access Granted</p>"); 
-                        console.log('Inside success'); 
-                                                                                  
-                        
+                        $(id).html("<p style='green-text;float: right;margin-top: -25px;margin-right: 10px;color: green;'>Access Granted</p>"); 
+                        console.log('Inside success');       
                   },
                   error: function(xhr) {
                     window.alert("error occurred while granting access for school admin");
