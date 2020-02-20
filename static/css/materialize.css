@@ -4992,6 +4992,85 @@ small {
   display: block;
 }
 
+.bg-midnight-bloom {
+    background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%) !important;
+    padding: 1rem;
+    flex-direction: row;
+    align-items: center;
+    height: 80px;
+}
+
+.bg-grow-early {
+  background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%) !important;
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 10px;
+  height: 80px;
+}
+
+.card-header:first-child {
+  border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  border-bottom-width: 1px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: .625rem;
+  height: 3.5rem;
+}
+
+.card-header, .card-title {
+  text-transform: uppercase;
+  color: rgba(13,27,62,0.7);
+  font-weight: bold;
+  font-size: .88rem;
+  font-size: 1.65rem;
+  margin-right: .625rem;
+}
+
+.bg-tempting-azure {
+  background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%) !important;
+}
+
+.icon-gradient {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.card-header .header-icon {
+  font-size: 1.65rem;
+  margin-right: .625rem;
+}
+
+.card-header.card-header-tab .card-header-title {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.card-header {
+  padding: .75rem 1.25rem;
+  margin-bottom: 0;
+  color: inherit;
+  background-color: #fff;
+  border-bottom: 1px solid rgba(26,54,126,0.125);
+}
+
+.bg-arielle-smile {
+  background-image: radial-gradient(circle 248px at center, #16d9e3 0%, #30c7ec 47%, #46aef7 100%) !important;
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 10px;
+  height:80px;
+}
+
 #toast-container {
   display: block;
   position: fixed;
@@ -5444,6 +5523,45 @@ button.btn-floating {
 
 .fixed-action-btn.direction-bottom {
   padding: 0 0 15px 0;
+}
+
+.text-white {
+  color: #fff !important;
+  font-size: 26px;
+}
+
+.widget-content .widget-content-left .widget-heading {
+  opacity: .8;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.widget-content .widget-content-left .widget-subheading {
+  opacity: .5;
+  font-size: 15px;
+}
+
+.widget-content .widget-content-right {
+  margin-left: auto;
+}
+
+.widget-content .widget-numbers {
+  font-weight: bold;
+  font-size: 1.8rem;
+  display: block;
+}
+
+.widget-content {
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+}
+
+.widget-content .widget-content-wrapper {
+  display: flex;
+  flex: 1;
+  position: relative;
+  align-items: center;
 }
 
 .fixed-action-btn.direction-bottom ul {
@@ -5909,6 +6027,8 @@ button.btn-floating {
   text-align: center;
   margin-right: 1rem;
 }
+
+
 
 .collapsible-body {
   display: none;

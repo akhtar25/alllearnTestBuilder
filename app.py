@@ -380,6 +380,15 @@ def admin():
     query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 10;"
     count = db.session.execute(text(query)).fetchall()
     count2 = db.session.execute(text(query2)).fetchall()
+    schoolDetails = SchoolProfile.query.all()
+    teacherDetails = TeacherProfile.query.all()
+    schoolCount = "select count(*) from school_profile"
+    school_count = db.session.execute(text(schoolCount)).first()
+    print(school_count[0])
+    teacherCount = "select count(*) from teacher_profile"
+    teacher_count = db.session.execute(text(teacherCount)).first()
+    studentCount = "select count(*) from student_profile"
+    student_count = db.session.execute(text(studentCount)).first()
     num = ''
     num2 = ''
     for c in count:
@@ -388,7 +397,7 @@ def admin():
         num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,number = num2)
+    return render_template('admin.html',count=num,number = num2,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails)
 
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
@@ -1571,6 +1580,15 @@ def syllabusTopics():
         topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
     return jsonify([topicArray]) 
 
+
+@app.route('/grantSchoolAdminAccess')
+def grantSchoolAdminAccess():
+    school_id=request.args.get('school_id')
+    teacher_id=request.args.get('teacher_id')
+    schoolTableDetails = SchoolProfile.query.filter_by(school_id=school_id).first()
+    schoolTableDetails.school_admin=teacher_id
+    db.session.commit()
+    return jsonify(["String"])
 
 
 @app.route('/grantUserAccess')

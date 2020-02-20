@@ -1,5 +1,118 @@
 {%extends "layout.html"%} {%block content%}
-  <div class="row">
+<div class="container">
+<div class="row">
+  <!-- For Total numbers of schools -->
+    <div class="col-md-4 col-xl-4">
+      <div class="card mb-3 widget-content bg-midnight-bloom">
+        <div class="widget-content-wrapper text-white">
+          <div class="widget-content-left">
+            <div class="widget-heading">
+              Schools
+            </div>
+            <div class="widget-subheading">
+              On board 
+            </div>
+          </div>
+          <div class="widget-content-right">
+            <div class="widget-numbers text-white" style="font-size:26px;">
+              <span>{{school_count[0]}}</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <!-- For total numbers of teachers -->
+
+    <div class="col-md-4 col-xl-4">
+        <div class="card mb-3 widget-content bg-arielle-smile">
+          <div class="widget-content-wrapper text-white">
+            <div class="widget-content-left">
+              <div class="widget-heading">
+                Teachers
+              </div>
+              <div class="widget-subheading">
+                across all schools 
+              </div>
+            </div>
+            <div class="widget-content-right">
+              <div class="widget-numbers text-white" style="font-size:26px;">
+                <span>{{teacher_count[0]}}</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- for total numbers of students -->
+      <div class="col-md-4 col-xl-4">
+          <div class="card mb-3 widget-content bg-grow-early">
+            <div class="widget-content-wrapper text-white">
+              <div class="widget-content-left">
+                <div class="widget-heading">
+                  Students
+                </div>
+                <div class="widget-subheading">
+                  across all schools 
+                </div>
+              </div>
+              <div class="widget-content-right">
+                <div class="widget-numbers text-white" style="font-size:26px;">
+                  <span>{{student_count[0]}}</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+  </div>
+
+
+<div class="row">
+  <div class="col-md-4 col-lg-4">
+    <div class="mb-3 card">
+      <div class="card-header-tab card-header">
+        <div class="card-header-title">
+          <i class="header-icon lnr-rocket icon-gradient bg-tempting-azure">
+          </i>Schools  
+        </div>
+      </div>
+
+      <div class="tab-content" style="overflow-y: auto;height: 280px;">
+        <ul class="collapsible" style="border: 0px;margin: 0px;">
+          {% for school in schoolDetails %}
+          <li>
+            <div class="collapsible-header" title="Registered Schools" style="padding: 0px;">
+                <i class="fas fa-school" style="margin-top: 10px;margin-left: 10px;"></i>
+              <h4>{{school.school_name}}</h4>
+
+          </div>
+          {% for teacher in teacherDetails %}
+          {% if teacher.school_id==school.school_id %}
+          <div class="collapsible-body">
+              <label for="TeacherName" style="padding: 0px;color: black;margin-left: 10px;">{{teacher.teacher_name}}</label>
+              {% if school.school_admin==teacher.teacher_id %}
+              <p style="font-size: 30px;float:right;margin-right: 10px;color:green;"><i class="fas fa-user-cog"></i></p>
+              {% else %}
+              <div id="{{teacher.teacher_id}}">
+              <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{school.school_id}}" id="{{teacher.teacher_id}}" style="font-size: 11px;float:right;margin-right: 10px;margin-top: -30px;">Access for Admin</a>
+              </div>
+              {% endif %}
+            </div>
+          {% endif %}
+          {% endfor %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+  <!-- <div class="row">
     <div class="col s12 m7" style="margin-left: 200px;">
       <div class="card">
         <div class="card-image">
@@ -13,6 +126,39 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
+  <script>
+    $(document).ready(function () {
+    $('.collapsible').collapsible();
+    $('.collapsible-body').css('padding',"0");
+  });
+
+  $('.grantAccessBTNCLass').click(function(){
+                //$('#loaderDiv').show();
+                //$('#classTrackerDiv').hide();    
+                console.log("Granting access");
+                
+                var school_id = $(this).attr('name');
+                var teacher_id = $(this).attr('id');
+                console.log(teacher_id);
+                var data="";
+                $.ajax({
+                  url: "/grantSchoolAdminAccess?teacher_id="+ teacher_id+"&school_id="+school_id,
+                  type: "get",
+                  data: data,
+                  success: function(response) { 
+                     var id = '#'+ teacher_id;
+                        $(id).html("<p style:'green-text;float: right;margin-top: -25px;margin-right: 10px;color: green;'>Access Granted</p>"); 
+                        console.log('Inside success'); 
+                                                                                  
+                        
+                  },
+                  error: function(xhr) {
+                    window.alert("error occurred while granting access for school admin");
+                  }
+                });      
+                       
+            });           
+  </script>
 
   {%endblock%}
