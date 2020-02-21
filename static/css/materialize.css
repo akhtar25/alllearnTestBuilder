@@ -55,6 +55,14 @@ body, html {
   color: #fdeaeb !important;
 }
 
+.mb-3, .my-3 {
+    margin-bottom: 1rem !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
 .materialize-red.lighten-4 {
   background-color: #f8c1c3 !important;
 }
@@ -4802,6 +4810,12 @@ small {
   border-radius: 2px;
 }
 
+.card {
+    box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+    /* border-width: 0; */
+    /* transition: all .2s; */
+}
+
 .card .card-title {
   font-size: 24px;
   font-weight: 300;
@@ -5640,11 +5654,97 @@ button.btn-floating {
 }
 
 .widget-content .widget-content-wrapper {
-  display: flex;
-  flex: 1;
-  position: relative;
-  align-items: center;
+    display: flex;
+    flex: 1;
+    position: relative;
+    align-items: center;
 }
+
+.widget-content .widget-numbers {
+    font-weight: bold;
+    font-size: 1.8rem;
+    display: block;
+}
+
+.fsize-3 {
+    font-size: 1.6rem !important;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.text-info{
+  color: #16aaff !important;
+}
+
+.bg-info{
+  background-color: #16aaff !important;
+}
+.bg-danger {
+    background-color: #d92550 !important;
+}
+
+.bg-success{
+  background-color: #3ac47d !important;
+}
+
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #3f6ad8;
+    transition: width 0.6s ease;
+}
+
+.progress {
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    font-size: .75rem;
+    background-color: #e9ecef;
+    border-radius: .25rem;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.fsize-1 {
+    font-size: .95rem !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.opacity-6 {
+    opacity: .6 !important;
+}
+
+.pr-2, .px-2 {
+    padding-right: .5rem !important;
+}
+
+
+
+.widget-content .widget-content-outer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
 
 .fixed-action-btn.direction-bottom ul {
   top: 64px;
@@ -6100,6 +6200,26 @@ button.btn-floating {
   padding: 1rem;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
+}
+
+.card.mb-3 {
+    margin-bottom: 30px !important;
+}
+
+.card-shadow-danger {
+    box-shadow: 0 0.46875rem 2.1875rem rgba(217,37,80,0.03), 0 0.9375rem 1.40625rem rgba(217,37,80,0.03), 0 0.25rem 0.53125rem rgba(217,37,80,0.05), 0 0.125rem 0.1875rem rgba(217,37,80,0.03);
+}
+
+@media (min-width: 992px)
+.col-lg-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+@media (min-width: 768px)
+.col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
 }
 
 .collapsible-header i {
