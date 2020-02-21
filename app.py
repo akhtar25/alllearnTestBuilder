@@ -391,6 +391,10 @@ def admin():
     student_count = db.session.execute(text(studentCount)).first()
     userCount = "select count(*) from public.user"
     user_count = db.session.execute(text(userCount)).first()
+
+    userTypeCount = "select user_type,count(*) as user_count,description from public.user inner join message_detail on msg_id=user_type group by user_type,description"
+    user_type_count = db.session.execute(text(userTypeCount)).fetchall()
+
     num = ''
     num2 = ''
     for c in count:
@@ -399,7 +403,7 @@ def admin():
     #     num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count)
+    return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count)
 
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required

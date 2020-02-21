@@ -163,6 +163,41 @@
         </div>
 </div>
 
+
+<div class="row">
+  <div class="col-md-6 col-lg-6">
+    <div class="card mb-3 widget-content">
+      <div class="card-header-tab card-header" style="opacity:0.8">
+        <!-- <div class="card-header-title"> -->
+        <div class="widget-content-left">
+          User Types  
+          </div>
+          <div class="widget-content-right">
+            User Count
+          </div>
+        <!-- </div> -->
+      </div>
+      <div class="tab-content" style="overflow-y: auto;height: 155px;">
+        <div class="widget-content widget-content">
+        <ul>
+            {% for userType in user_type_count %}
+            <li style="display:flex;">
+              <div class="widget-content-left" style="font-size:15px;font-weight:600;opacity:0.5;">
+                  {{userType.description}}
+              </div>
+              <div class="widget-content-right" style="margin-right: 10px;">
+                <div class="widget-numbers text-count" style="font-size:15px;">
+                  <span>{{userType.user_count}}</span>
+                </div>
+              </div>
+              </li>
+              {% endfor %}
+        </ul>
+            </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
   <!-- <div class="row">
