@@ -601,7 +601,9 @@ def studentRegistration():
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
-                if request.form['birthdate']:
+                if request.form['birthdate']=='':
+                    studentDetails.dob=None
+                else:
                     studentDetails.dob=request.form['birthdate']
                 studentDetails.phone=form.phone.data
                 studentDetails.address_id=address_id.address_id

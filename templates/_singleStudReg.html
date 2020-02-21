@@ -294,8 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#preview').attr('src', profile_picture);
     }
     $('#profile_image').val(profile_picture);
+    //alert(dob);
     if(dob=='None'){
     $('#birthdate').val('');
+    }
+    else{
+      $('#birthdate').val(dob);
     }
     $('#phone').val(phone);
     $('#address1').val(address1);
