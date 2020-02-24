@@ -417,6 +417,9 @@ def schoolProfile():
         value=1
     return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
+
+
+
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():
@@ -3571,24 +3574,59 @@ def scoreGraph():
         resultArray.append(Array)
     return jsonify({'result':resultArray})
 
+@app.route('/api/schoolRegistration/<int:impactSchoolID>',methods=["GET","POST"])
+def apiSchoolRegistration(impactSchoolID,):
+    #Firstly register the school using the data from impact form
+    #When inserting a record in schoolProfile ensure that you add the impactSchoolID to it
+    ###Use this section to insert into school registration, class section, address and update user as admin
+    #
+    #
+    #
+    #
+    # if the insert is successful, set status =1
+    ###status =1
+    ###message = "School registered successfully"
+    ###else
+    ###status = 0
+    ###message = "Error registering school"
+
+    #Secondly return the school_id that has newly been created back to the impact system
+    #schoolData = SchoolProfile.query.filter_by(impact_school_id = request.form('impact_school_id')).first()
+    #
+
+    #postData= {
+    #    "status" : status,
+    #    "message" : message
+    #    "perf_eval_school_id" : schoolData.school_id
+    #}
+    return {'result' : postData}    
+
+@app.route('/api/userRegistration',methods=["POST"])
+def apiUserRegistration():
+    if request.form['internalKey'] == app.config['ALLLEARN_INTERNAL_KEY']:
+        userData = User.query.filter_by(email = request.form['email']).first()
+        if userData==None:
+            user = User(username=request.form['email'], email=request.form['email'], user_type='140', access_status='144', phone=request.form['phone'],
+                    first_name = request.form['firstName'],last_name= request.form['lastName'],password_hash=request.form['key'])        
+            db.session.add(user)
+            db.session.commit()
+            print("########## no existing user of the same email")
+            return {'result' : 'User Registered successfully'}  
+        else:
+            print(str(userData))
+            print(str(userData.email))
+            print('######### user already present')
+            return {'result' : 'User already present'}  
+    else:
+        return {'result' : 'Key mismatch'}
+      
+
 @app.route('/api/performanceSummary/<int:schoolID>')
 def apiPerformanceSummary(schoolID):
-    #teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #class_value = request.args.get('class_val')
-    #section = request.args.get('section')
-    #subject = request.args.get('subject')
-    #subName = ''
-    #if(subject!='All'):
-    #    subject_name = MessageDetails.query.filter_by(msg_id=subject).first()
-    #    subName = subject_name.description
-    #else:
-    #    subName = subject
-#
-    #print('Inside performance Summary')
     query = "Select * from fn_overall_performance_summary("+str(schoolID)+") where class='All'and section='All' and subject='All'"
-    #print(query)
+    
     resultSet = db.session.execute(text(query))
-    #print(resultSet)
+    
     resultArray = []
 
     for result in resultSet:
@@ -3603,9 +3641,7 @@ def apiPerformanceSummary(schoolID):
         Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
         Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
         resultArray.append(Array)
-    #return jsonify({'result' : resultArray})
-    return {'result' : resultArray}
-    # return render_template('testPerformance.html',form=form,form1=form1,resultSet=resultSet)
+    return {'result' : resultArray}    
 
 
 @app.route('/testDateSearch/<class_val>')
@@ -4212,7 +4248,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000))
+        port=int(os.getenv('PORT', 5000))
         # ssl_context='adhoc'
         )
     #app.run()
