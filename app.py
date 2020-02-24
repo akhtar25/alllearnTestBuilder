@@ -3625,9 +3625,18 @@ def scoreGraph():
 @app.route('/linkWithImpact/<int:impactSchoolID>', methods=["GET","POST"])
 @login_required
 def linkWithImpact(impactSchoolID):
-    
-
-    return render_template('linkWithImpact.html')
+    teacherProfileData = TeacherProfile.query.filter_by(user_id = current_user.id).first()
+    if teacherProfileData!=None:
+        schoolProfileData = SchoolProfile.query.filter_by(school_admin=teacher_id).first()
+        if schoolProfileData!=None and schoolProfileData.impact_school_id==None:
+            schoolProfileData.impact_school_id=impactSchoolID
+            db.session.commit()
+            status = 0
+        else:
+            status = 1
+    else:
+        status = 1
+    return render_template('linkWithImpact.html',status=status,schoolId=schoolProfileData.school_id, impactSchoolID = impactSchoolID)
 
 
 @app.route('/api/schoolRegistration/<int:impactSchoolID>',methods=["GET","POST"])

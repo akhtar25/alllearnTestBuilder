@@ -1,0 +1,24 @@
+{%extends "layout.html"%}
+{%block content%}
+<div class="container">
+    <!-- <h3>Click confirm to complete linking the accounts </h3>
+    <a class="btn green" href="#">Confirm</a>
+    <p></p>-->
+    {%if status==0%}
+    <div onload="document.frm1.submit()">
+        <form action="https://127.0.0.1:8000/school/{{impactSchoolID}}/linkSchool/{{schoolId}}" name="frm1" method="post">
+            <p>Please wait.......</p>
+            <input type="hidden" name="signature" value="{{signature}}" />
+            <input type="hidden" name="orderNote" value="{{postData.orderNote}}" />
+        </form>
+    </div>
+{%else%}
+<h5>Error occurred while trying to connect accounts</h5>
+<h6>Please contact the support team at contact@alllearn.in for help</h6>
+{%endif%}
+</div>
+
+<script>
+    document.getElementById("frm1").submit();
+</script>
+{%endblock%}
