@@ -3574,6 +3574,14 @@ def scoreGraph():
         resultArray.append(Array)
     return jsonify({'result':resultArray})
 
+@app.route('/linkWithImpact/<int:impactSchoolID>', methods=["GET","POST"])
+@login_required
+def linkWithImpact(impactSchoolID):
+    
+
+    return render_template('linkWithImpact.html')
+
+
 @app.route('/api/schoolRegistration/<int:impactSchoolID>',methods=["GET","POST"])
 def apiSchoolRegistration(impactSchoolID,):
     #Firstly register the school using the data from impact form
