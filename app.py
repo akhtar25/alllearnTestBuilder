@@ -482,18 +482,55 @@ def schoolRegistration():
 def admin():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select count(*) from public.user where user_type='161'"
-    query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 10;"
+    query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 30;"
     count = db.session.execute(text(query)).fetchall()
-    count2 = db.session.execute(text(query2)).fetchall()
+    min_user_count = db.session.execute(text(query2)).first()
+    schoolDetails = SchoolProfile.query.all()
+    teacherDetails = TeacherProfile.query.all()
+    schoolCount = "select count(*) from school_profile"
+    school_count = db.session.execute(text(schoolCount)).first()
+    print(school_count[0])
+    teacherCount = "select count(*) from teacher_profile"
+    teacher_count = db.session.execute(text(teacherCount)).first()
+    studentCount = "select count(*) from student_profile"
+    student_count = db.session.execute(text(studentCount)).first()
+    userCount = "select count(*) from public.user"
+    user_count = db.session.execute(text(userCount)).first()
+
+    userTypeCount = "select user_type,count(*) as user_count,description from public.user inner join message_detail on msg_id=user_type group by user_type,description"
+    user_type_count = db.session.execute(text(userTypeCount)).fetchall()
+    schoolreg1 = "SELECT count(*) FROM school_profile WHERE registered_date <=current_date - 30;"
+    regSchool1 = db.session.execute(text(schoolreg1)).first()
+    schoolreg2 = "SELECT count(*) FROM school_profile WHERE registered_date >=current_date - 30;"
+    regSchool2 = db.session.execute(text(schoolreg2)).first()
+
+    teacherreg1 = "SELECT count(*) FROM teacher_profile WHERE registration_date <=current_date - 30;"
+    regTeacher1 = db.session.execute(text(teacherreg1)).first()
+    teacherreg2 = "SELECT count(*) FROM teacher_profile WHERE registration_date >=current_date - 30;"
+    regTeacher2 = db.session.execute(text(teacherreg2)).first()
+
+    studentreg1 = "SELECT count(*) FROM student_profile WHERE registration_date <=current_date - 30;"
+    regStudent1 = db.session.execute(text(studentreg1)).first()
+    studentreg2 = "SELECT count(*) FROM student_profile WHERE registration_date >=current_date - 30;"
+    regStudent2 = db.session.execute(text(studentreg2)).first()
+    print(regTeacher2[0])
+    print(regTeacher1[0])
+    perSchool = float((int(regSchool2[0])*100)/int(regSchool1[0]))
+    perSchool = round(perSchool,2)
+    perTeacher = float((int(regTeacher2[0])*100)/int(regTeacher1[0]))
+    perTeacher = round(perTeacher,2)
+    perStudent = float((int(regStudent2[0])*100)/int(regStudent1[0]))
+    perStudent = round(perStudent,2)
+    # perSchool=''
     num = ''
     num2 = ''
     for c in count:
         num = c.count
-    for c2 in count2:
-        num2 = c2.count
+    # for c2 in count2:
+    #     num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,number = num2)
+    return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
 
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
@@ -669,7 +706,9 @@ def studentRegistration():
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
-                if request.form['birthdate']:
+                if request.form['birthdate']=='':
+                    studentDetails.dob=None
+                else:
                     studentDetails.dob=request.form['birthdate']
                 studentDetails.phone=form.phone.data
                 studentDetails.address_id=address_id.address_id
@@ -1676,6 +1715,15 @@ def syllabusTopics():
         topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
     return jsonify([topicArray]) 
 
+
+@app.route('/grantSchoolAdminAccess')
+def grantSchoolAdminAccess():
+    school_id=request.args.get('school_id')
+    teacher_id=request.args.get('teacher_id')
+    schoolTableDetails = SchoolProfile.query.filter_by(school_id=school_id).first()
+    schoolTableDetails.school_admin=teacher_id
+    db.session.commit()
+    return jsonify(["String"])
 
 
 @app.route('/grantUserAccess')

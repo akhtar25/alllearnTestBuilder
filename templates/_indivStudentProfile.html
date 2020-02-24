@@ -25,11 +25,11 @@
                 </tr>
                 <tr>
                     <td><b>Date of Birth</b> </td>
-                    {% if studentProfileRow.dob %}
+                    {% if studentProfileRow.dob is not none %}
                     <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
                     {% endif %}
                 </tr>
-                {% if studentProfileRow.dob == '16'%}
+                {% if studentProfileRow.gender == 16%}
                 <tr>
                     <td><b>Gender</b> </td>
                     <td>Male</td>
