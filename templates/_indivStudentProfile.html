@@ -1,12 +1,12 @@
 <div class="row">
-    <div class="col s8 offset-s2">
+    <div class="col s8 offset-s2">             
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
             <h3>Student Details<a href="{{url_for('studentRegistration',student_id=studentProfileRow.student_id)}}" 
                 style="color:white;float:right;margin-right: 10px;font-size: 20px;"><i
-                class="material-icons">edit</i></a></h3>
-        </div>
-
-        <div class="col s4 m4 l4 center">
+                class="material-icons">edit</i></a></h3>                
+                         
+        </div>        
+        <div class="col s4 m4 l4 center">            
             {%if studentProfileRow.profile_picture!="" %}
             <img class="responsive-img " src="{{studentProfileRow.profile_picture}}">
             {%else%}
@@ -57,7 +57,10 @@
                 </tr>
             </table>
         </div>
-        <div class="col s4 m4 l6">
+        <div class="col s4 m4 l6">           
+            <div class="row">
+                <a href="#" class="btn cyan">Allocate Student to sponsor</a> 
+                </div>
             <div id="performanceDiv">
                 <table class='responsive-table'>
                     <td>
@@ -167,7 +170,7 @@
         </div>
     </div>
 
-    <div class="col s8 offset-s2">
+    <div class="col s8 offset-s2">        
             <div class="divider"></div>
         <h4 class='grey-text'>Overall Performance Graph</h4>
     <div id='studentPerformanceGraphDiv'> Loading graph...</div>
