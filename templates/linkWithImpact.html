@@ -5,11 +5,9 @@
     <a class="btn green" href="#">Confirm</a>
     <p></p>-->
     {%if status==0%}
-    <div onload="document.frm1.submit()">
+    <div id="formDiv">
         <form action="https://127.0.0.1:8000/school/{{impactSchoolID}}/linkSchool/{{schoolId}}" name="frm1" method="post">
-            <p>Please wait.......</p>
-            <input type="hidden" name="signature" value="{{signature}}" />
-            <input type="hidden" name="orderNote" value="{{postData.orderNote}}" />
+            <p>Please wait.......</p>                        
         </form>
     </div>
 {%else%}

@@ -113,6 +113,7 @@ def before_request():
 def schoolNameVal():
     if current_user.is_authenticated:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        print(teacher_id.school_id)
         if teacher_id != None:
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             if school_name_row!=None:
@@ -3627,8 +3628,8 @@ def scoreGraph():
 def linkWithImpact(impactSchoolID):
     teacherProfileData = TeacherProfile.query.filter_by(user_id = current_user.id).first()
     if teacherProfileData!=None:
-        schoolProfileData = SchoolProfile.query.filter_by(school_admin=teacher_id).first()
-        if schoolProfileData!=None and schoolProfileData.impact_school_id==None:
+        schoolProfileData = SchoolProfile.query.filter_by(school_admin=teacherProfileData.teacher_id).first()
+        if schoolProfileData!=None:
             schoolProfileData.impact_school_id=impactSchoolID
             db.session.commit()
             status = 0
