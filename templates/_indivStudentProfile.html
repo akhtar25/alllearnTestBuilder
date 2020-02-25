@@ -57,10 +57,14 @@
                 </tr>
             </table>
         </div>
-        <div class="col s4 m4 l6">           
-            <div class="row">
-                <a href="#" class="btn cyan">Allocate Student to sponsor</a> 
+        <div class="col s4 m4 l6">                       
+                {%if amount!=None%}
+                <div class="row" id="sponsorAllocationDiv">
+                    {%if studentProfileRow.sponsored_status!='Y'%}
+                <a href="#" class="btn cyan" id="allocateStudentBTN">Allocate Student to sponsor </a>
+                {%endif%}
                 </div>
+                {%endif%}
             <div id="performanceDiv">
                 <table class='responsive-table'>
                     <td>
@@ -201,4 +205,24 @@ $(document).ready(function(){
     console.log('Inside model');
     $('.modal').modal();
   });
+
+  
+  $('#allocateStudentBTN').click(function () {
+            var need_id = $(this).attr("name");
+            $.ajax({
+                url: "/allocateStudentToSponsor?student_id={{studentProfileRow.student_id}}&sponsor_name={{sponsor_name}}&sponsor_id={{sponsor_id}}&amount={{amount}}",
+                type: "get",
+                data: '',
+                success: function (archiveResponse) {
+                    if (archiveResponse==0){
+                        M.toast({html: 'Sponsor Allocation Done!'})
+                        $('#sponsorAllocationDiv').html('<h4 class="cyan-text">Sponsor Allocated!</h4>');
+                        window.location.replace("{{urlForAllocationComplete}}?sponsor_id={{sponsor_id}}&student_id={{studentProfileRow.student_id}}&student_name={{studentProfileRow.full_name}}&student_profile_picture={{studentProfileRow.profile_picture}}");
+                    }
+                    else{
+                        M.toast({html: 'Error Allocating Sponsor!'})
+                    }
+                }
+            })
+        });
 </script>

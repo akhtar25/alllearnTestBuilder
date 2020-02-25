@@ -4101,12 +4101,37 @@ def addEvent():
 def studentProfileOld():
     return render_template('studentProfile.html')
 
+
+@app.route('/allocateStudentToSponsor')
+def allocateStudentToSponsor():
+    student_id = request.args.get('student_id')
+    sponsor_id = request.args.get('sponsor_id')
+    sponsor_name = request.args.get('sponsor_name')
+    amount = request.args.get('amount')
+
+    studentData = StudentProfile.query.filter_by(student_id=student_id).first()
+    studentData.sponsor_id = sponsor_id
+    studentData.sponsor_name = sponsor_name
+    studentData.sponsored_amount = amount
+    studentData.sponsored_on = datetime.today()
+    studentData.sponsored_status='Y'
+    studentData.last_modified_date = datetime.today()
+    db.session.commit()
+    
+    return jsonify(['0'])
+
 @app.route('/indivStudentProfile')
 @login_required
 def indivStudentProfile():    
     student_id=request.args.get('student_id')
+    
+    #spnsor data check
+    sponsor_id = request.args.get('sponsor_id')
+    sponsor_name = request.args.get('sponsor_name')
+    amount = request.args.get('amount')
+
     print(student_id)
-    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
     studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
     print('Id:'+str(studentProfileRow.student_id))  
@@ -4126,7 +4151,8 @@ def indivStudentProfile():
     print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
 
-
+    #Sponsor allocation
+    urlForAllocationComplete = app.config['IMPACT_HOST'] + '/responseStudentAllocate'
     overallSum = 0
     overallPerfValue = 0
 
@@ -4151,15 +4177,20 @@ def indivStudentProfile():
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         print(optionURL)
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+    return render_template('_indivStudentProfile.html',urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows,disconn=1)
+        testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount)
 
 
 @app.route('/studentProfile')
 @login_required
 def studentProfile():    
     qstudent_id=request.args.get('student_id')
+
+    #####Section for sponsor data fetch
+    qsponsor_name = request.args.get('sponsor_name')
+    qsponsor_id = request.args.get('sponsor_id')
+    qamount = request.args.get('amount')
 
     if qstudent_id==None or qstudent_id=='':
         form=studentPerformanceForm()
@@ -4184,19 +4215,19 @@ def studentProfile():
         form.test_type1.choices=test_type_list
         form.student_name1.choices = ''
         print('we are in the form one')
-        return render_template('studentProfileNew.html',form=form)
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
     else:
         value=0
         if current_user.user_type==72:
             value=1
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
         if current_user.user_type==134:
             disconn=1
         else:
             disconn=0
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
 
 
     

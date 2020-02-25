@@ -143,6 +143,10 @@
             classValue = document.getElementById('class_val1').value;
             sectionValue = document.getElementById('section1').value;
             studentNameValue = document.getElementById('student_name1').value;
+            //section for sponsor data send
+            sponsor_name = "{{sponsor_name}}";
+            sponsor_id = "{{sponsor_id}}";
+            amount = "{{amount}}";
             console.log('Class Value:'+classValue);
             if(classValue=='na'){
                 console.log('Inside message');
@@ -168,7 +172,7 @@
                 var data="";
         var student_id = $('#student_name1').val();   
         $.ajax({
-            url: "/indivStudentProfile?student_id="+student_id ,
+            url: "/indivStudentProfile?student_id="+student_id+"&sponsor_name="+sponsor_name+"&sponsor_id="+sponsor_id+"&amount="+amount ,
             type: "get",
             data: data,
             success: function(response) {                            
