@@ -6,7 +6,7 @@
     <p></p>-->
     {%if status==0%}
     <div id="formDiv">
-        <form action="https://127.0.0.1:8000/school/{{impactSchoolID}}/linkSchool/{{schoolId}}" name="frm1" method="post">
+        <form action="{{urlForImpact}}/school/{{impactSchoolID}}/linkSchool/{{schoolId}}" id="frm1" method="get">
             <p>Please wait.......</p>                        
         </form>
     </div>
@@ -17,6 +17,9 @@
 </div>
 
 <script>
-    document.getElementById("frm1").submit();
+    $(document).ready(function () {
+        $('#frm1').submit();
+    });
+    //document.getElementById("frm1").submit();
 </script>
 {%endblock%}
