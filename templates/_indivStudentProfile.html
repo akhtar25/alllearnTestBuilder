@@ -30,19 +30,11 @@
                     {% if studentProfileRow.dob is not none %}
                     <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
                     {% endif %}
-                </tr>
-                {% if studentProfileRow.gender == 16%}
+                </tr>                
                 <tr>
                     <td><b>Gender</b> </td>
-                    <td>Male</td>
-                </tr>
-                {%else%}
-                <tr>
-                    <td><b>Gender</b> </td>
-                    <td>Female</td>
-                </tr>
-                {%endif%}
-
+                    <td>{{studentProfileRow.gender}}</td>
+                </tr>                
                 <tr>
                     <td><b>Roll Number</b></td>
                     <td> {{studentProfileRow.roll_number}}</td>
@@ -217,7 +209,7 @@ $(document).ready(function(){
                     if (archiveResponse==0){
                         M.toast({html: 'Sponsor Allocation Done!'})
                         $('#sponsorAllocationDiv').html('<h4 class="cyan-text">Sponsor Allocated!</h4>');
-                        window.location.replace("{{urlForAllocationComplete}}?sponsor_id={{sponsor_id}}&student_id={{studentProfileRow.student_id}}&student_name={{studentProfileRow.full_name}}&student_profile_picture={{studentProfileRow.profile_picture}}");
+                        window.location.replace("{{urlForAllocationComplete}}/{{sponsor_id}}/{{studentProfileRow.student_id}}/{{studentProfileRow.full_name}}/{{studentProfileRow.gender}}/{{studentProfileRow.class_val}}/{{overallPerfValue}}/{{studentProfileRow.profile_picture}}");
                     }
                     else{
                         M.toast({html: 'Error Allocating Sponsor!'})

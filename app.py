@@ -4131,8 +4131,16 @@ def indivStudentProfile():
     amount = request.args.get('amount')
 
     print(student_id)
-    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
-    studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    #studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    #studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    #New updated query
+    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, md.description as gender,class_val, section, "
+    studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
+    studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
+    studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
+    studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
+
+
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
     print('Id:'+str(studentProfileRow.student_id))  
     #performanceData
