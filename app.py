@@ -112,9 +112,9 @@ def before_request():
 #helper methods
 def schoolNameVal():
     if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        print(teacher_id.school_id)
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
         if teacher_id != None:
+            print(teacher_id.school_id)
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             if school_name_row!=None:
                 name=school_name_row.school_name            
@@ -425,6 +425,7 @@ def schoolProfile():
 @login_required
 def schoolRegistration():
     #queries for subcription 
+    fromImpact = request.args.get('fromImpact')
     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
 
@@ -475,8 +476,8 @@ def schoolRegistration():
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('School Registered Successfully!')
         new_school_reg_email(form.schoolName.data)
-        return render_template('schoolRegistrationSuccess.html',data=data,school_id=school_id.school_id)
-    return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=schoolNameVal())
+        return render_template('schoolRegistrationSuccess.html',fromImpact=fromImpact,data=data,school_id=school_id.school_id)
+    return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
 @login_required
@@ -3678,14 +3679,14 @@ def apiUserRegistration():
             db.session.add(user)
             db.session.commit()
             print("########## no existing user of the same email")
-            return {'result' : 'User Registered successfully'}  
+            return {'result' : 'User Registered successfully', 'value':'0'}  
         else:
             print(str(userData))
             print(str(userData.email))
             print('######### user already present')
-            return {'result' : 'User already present'}  
+            return {'result' : 'User already present','value':'err1'}  
     else:
-        return {'result' : 'Key mismatch'}
+        return {'result' : 'Key mismatch','value':'err2'}
       
 
 @app.route('/api/performanceSummary/<int:schoolID>')

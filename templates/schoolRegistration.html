@@ -188,7 +188,7 @@
 <br>
 
 <!--This section is fo subscription plans-->
-
+{%if fromImpact!='True'%}
         <div class="row">
             <div class="section">
             <h4 class="grey-text">Choose Subscription Plans </h4><h6>Introductory Pricing</h6>
@@ -196,6 +196,7 @@
             <p>The first month is free. We'll send the payment link 5 days before renewal date if you opt for a paid subscription.</p>
         </div>
         </div>
+        
             <div class="row">
                     <div class="section">
                 <section class="plans-container" id="plans">                
@@ -257,7 +258,7 @@
         <h4 class="grey-text">Plan Selected </h4> <span id="showPlanSelected"> No Plan Selected</span>
         <input type="hidden" id="selected_sub_id" name="selected_sub_id"> 
     </div>
-
+    {%endif%}
         <p><!--<button class="btn waves-light green lighten-1 white-text"
             style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
             value="submit">Register School</button>-->
@@ -288,7 +289,9 @@
         minimumFractionDigits: 2
       })
       $(document).ready(function(){
+          {%if fromImpact!='True'%}
         $("#submit").attr("disabled", true); 
+        {%endif%}
       var charge_val = $('.charge').val();
       $(this).val(formatter.format(charge_val));
       $('.collapsible').collapsible();
