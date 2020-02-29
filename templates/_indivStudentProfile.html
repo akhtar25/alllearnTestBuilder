@@ -209,7 +209,9 @@ $(document).ready(function(){
                     if (archiveResponse==0){
                         M.toast({html: 'Sponsor Allocation Done!'})
                         $('#sponsorAllocationDiv').html('<h4 class="cyan-text">Sponsor Allocated!</h4>');
-                        window.location.replace("{{urlForAllocationComplete}}/{{sponsor_id}}/{{studentProfileRow.student_id}}/{{studentProfileRow.full_name}}/{{studentProfileRow.gender}}/{{studentProfileRow.class_val}}/{{overallPerfValue}}/{{studentProfileRow.profile_picture}}");
+                        var urlForResponse = "{{urlForAllocationComplete}}/{{sponsor_id}}/{{studentProfileRow.student_id}}/{{studentProfileRow.full_name}}/{{studentProfileRow.gender}}/{{studentProfileRow.class_val}}/{{overallPerfValue}}/{{studentProfileRow.profile_picture}}";                                            
+                        var urlForResponseEncoded = encodeURIComponent(urlForResponse.trim())
+                        window.location.replace(urlForResponseEncoded);
                     }
                     else{
                         M.toast({html: 'Error Allocating Sponsor!'})
