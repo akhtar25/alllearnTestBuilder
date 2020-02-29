@@ -212,8 +212,9 @@ $(document).ready(function(){
                         var sp_id = "{{sponsor_id}}";
                         var sponsor_id = encodeURIComponent(sp_id.trim());
 
-                        var full_name = "{{studentProfileRow.full_name}}";
+                        var full_name = "{{studentProfileRow.full_name}}";                        
                         var full_name_encoded = encodeURIComponent(full_name.trim());
+                        full_name_encoded = full_name_encoded.replace(" ", "%20");
 
                         var gen_id = "{{studentProfileRow.gender}}";
                         var gender = encodeURIComponent(gen_id.trim());
