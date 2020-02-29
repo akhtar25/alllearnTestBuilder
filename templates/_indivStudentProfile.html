@@ -217,8 +217,15 @@ $(document).ready(function(){
 
                         var gen_id = "{{studentProfileRow.gender}}";
                         var gender = encodeURIComponent(gen_id.trim());
+                        
+                        if ("{{studentProfileRow.profile_picture}}"==''){
+                            var profile_pic = "NA";
+                        }
+                        else{
+                            profile_pic= "{{studentProfileRow.profile_picture}}";
+                        }
 
-                        var urlForResponse = "{{urlForAllocationComplete}}/"+sponsor_id+"/{{studentProfileRow.student_id}}/"+full_name_encoded+"/"+gender+"/{{studentProfileRow.class_val}}/{{overallPerfValue}}/{{studentProfileRow.profile_picture}}";          
+                        var urlForResponse = "{{urlForAllocationComplete}}/"+sponsor_id+"/{{studentProfileRow.student_id}}/"+full_name_encoded+"/"+gender+"/{{studentProfileRow.class_val}}/{{overallPerfValue}}/"+profile_pic;          
                         window.location.replace(urlForResponse);
                     }
                     else{
