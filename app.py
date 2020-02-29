@@ -45,10 +45,12 @@ from random import randint
 import string
 import requests
 from flask_talisman import Talisman, ALLOW_FROM
+from flask_api import FlaskAPI, status, exceptions
 
 #from flask_material import Material
 
-app=Flask(__name__)
+#app=Flask(__name__)
+app=FlaskAPI(__name__)
 #csp = {
 # 'default-src': [
 #        '\'self\'',
@@ -110,8 +112,9 @@ def before_request():
 #helper methods
 def schoolNameVal():
     if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
         if teacher_id != None:
+            print(teacher_id.school_id)
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             if school_name_row!=None:
                 name=school_name_row.school_name            
@@ -122,6 +125,106 @@ def schoolNameVal():
             return None
     else:
         return None
+
+
+notes = {
+    0: 'do the shopping',
+    1: 'build the codez',
+    2: 'paint the door',
+}
+
+def note_repr(key):
+    return {
+        'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
+        'text': notes[key]
+    }
+
+##########################Start of test section
+
+@app.route("/api", methods=['GET', 'POST'])
+def notes_list():
+    """
+    List or create notes.
+    """
+    if request.method == 'POST':
+        note = str(request.data.get('text', ''))
+        idx = max(notes.keys()) + 1
+        notes[idx] = note
+        return note_repr(idx), status.HTTP_201_CREATED
+
+    # request.method == 'GET'
+    return [note_repr(idx) for idx in sorted(notes.keys())]
+
+
+#@app.route("/api/leaderBoard/<int:schoolID>",methods=['GET','PUT','DELETE'])
+#def leaderboardAPI(schoolID):
+#    return leaderboardContent(schoolID)
+
+@property
+def serialize(self):
+ return {
+    'student_id': self.student_id,
+    'full_name': self.full_name,
+    #'class_val': self.class_val,
+    #'section': self.section,
+    #'sponsored_status': self.sponsored_status,
+    #'sponsored_on': self.sponsored_on,
+    #'sponsored_amount': self.sponsored_amount,
+    #'sponsored_till': self.sponsored_till,
+    #'profile_picture': self.profile_picture,
+    #'perf_avg': self.perf_avg,
+}
+
+
+
+@app.route("/api/studentList/<int:schoolID>/", methods=['GET', 'PUT', 'DELETE'])
+def studentListAPI(schoolID):
+    #studentList = StudentProfile.query.filter_by(school_id=schoolID).all()
+    studentListQuery = "select sp.student_id as student_id, sp.full_name as full_name , cs.class_val as class_val , cs.section as section , sponsored_status as spnsored_status, sponsored_on as sponsoted_on, sponsored_amount as sponsored_amount, sponsored_till as sponsored_till, "
+    studentListQuery = studentListQuery + "sp.profile_picture as profile_picture,  CAST ( round( avg(pd.student_score),2) as Varchar) as perf_avg "
+    studentListQuery = studentListQuery + "from student_profile sp "
+    studentListQuery = studentListQuery + "inner join class_section cs on "
+    studentListQuery = studentListQuery + "cs.class_sec_id  = sp.class_sec_id and "
+    studentListQuery = studentListQuery + "sp.school_id  = "+str(schoolID)
+    studentListQuery = studentListQuery + " inner join performance_detail pd on "
+    studentListQuery = studentListQuery + "pd.student_id  = sp.student_id "
+    studentListQuery = studentListQuery + "group by sp.student_id , sp.full_name , cs.class_val , cs.section , sp.profile_picture , sponsored_status , sponsored_on , sponsored_amount , sponsored_till "
+    studentListQuery = studentListQuery + "order by perf_avg desc"
+
+    studentListData = db.session.execute(text(studentListQuery)).fetchall()
+    
+    # the two lines below can also be used to send data but without the flask api library
+    #resp = jsonify({'result': [dict(row) for row in studentListData]})
+    #resp.status_code = 200
+
+    return {'result': [dict(row) for row in studentListData]}
+    #return [(str(idx.student_id)+','+str(idx.first_name)+','+str(idx.last_name)+',' +str(idx.sponsored_status)) for idx in studentList]
+
+
+
+
+
+@app.route("/api/<int:key>/", methods=['GET', 'PUT', 'DELETE'])
+def notes_detail(key):
+    """
+    Retrieve, update or delete note instances.
+    """
+    if request.method == 'PUT':
+        note = str(request.data.get('text', ''))
+        notes[key] = note
+        return note_repr(key)
+
+    elif request.method == 'DELETE':
+        notes.pop(key, None)
+        return '', status.HTTP_204_NO_CONTENT
+
+    # request.method == 'GET'
+    if key not in notes:
+        raise exceptions.NotFound()
+    return note_repr(key)
+##########################End of test section
+
+
 
 def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -315,10 +418,14 @@ def schoolProfile():
         value=1
     return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
+
+
+
 @app.route('/schoolRegistration', methods=['GET','POST'])
 @login_required
 def schoolRegistration():
     #queries for subcription 
+    fromImpact = request.args.get('fromImpact')
     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
 
@@ -369,8 +476,8 @@ def schoolRegistration():
         data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('School Registered Successfully!')
         new_school_reg_email(form.schoolName.data)
-        return render_template('schoolRegistrationSuccess.html',data=data,school_id=school_id.school_id)
-    return render_template('schoolRegistration.html',disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery, School_Name=schoolNameVal())
+        return render_template('schoolRegistrationSuccess.html',fromImpact=fromImpact,data=data,school_id=school_id.school_id)
+    return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
 @login_required
@@ -2489,6 +2596,7 @@ def leaderBoard():
 
     return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader)
 
+
 @app.route('/classDelivery')
 @login_required
 def classDelivery():
@@ -3516,24 +3624,77 @@ def scoreGraph():
         resultArray.append(Array)
     return jsonify({'result':resultArray})
 
-@app.route('/performanceSummary')
-def performanceSummary():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_value = request.args.get('class_val')
-    section = request.args.get('section')
-    subject = request.args.get('subject')
-    subName = ''
-    if(subject!='All'):
-        subject_name = MessageDetails.query.filter_by(msg_id=subject).first()
-        subName = subject_name.description
+@app.route('/linkWithImpact/<int:impactSchoolID>', methods=["GET","POST"])
+@login_required
+def linkWithImpact(impactSchoolID):
+    teacherProfileData = TeacherProfile.query.filter_by(user_id = current_user.id).first()
+    if teacherProfileData!=None:
+        schoolProfileData = SchoolProfile.query.filter_by(school_id=teacherProfileData.school_id).first()
+        if schoolProfileData!=None:
+            schoolProfileData.impact_school_id=impactSchoolID
+            db.session.commit()
+            status = 0
+        else:
+            status = 1
     else:
-        subName = subject
+        status = 1
+    urlForImpact = app.config['IMPACT_HOST']
+    return render_template('linkWithImpact.html',urlForImpact=urlForImpact,status=status,schoolId=schoolProfileData.school_id, impactSchoolID = impactSchoolID)
 
-    print('Inside performance Summary')
-    query = "Select * from fn_overall_performance_summary("+str(teacher_id.school_id)+") where class='"+str(class_value)+"' and section='"+str(section)+"' and subject='"+str(subName)+"'"
-    print(query)
+
+@app.route('/api/schoolRegistration/<int:impactSchoolID>',methods=["GET","POST"])
+def apiSchoolRegistration(impactSchoolID,):
+    #Firstly register the school using the data from impact form
+    #When inserting a record in schoolProfile ensure that you add the impactSchoolID to it
+    ###Use this section to insert into school registration, class section, address and update user as admin
+    #
+    #
+    #
+    #
+    # if the insert is successful, set status =1
+    ###status =1
+    ###message = "School registered successfully"
+    ###else
+    ###status = 0
+    ###message = "Error registering school"
+
+    #Secondly return the school_id that has newly been created back to the impact system
+    #schoolData = SchoolProfile.query.filter_by(impact_school_id = request.form('impact_school_id')).first()
+    #
+
+    #postData= {
+    #    "status" : status,
+    #    "message" : message
+    #    "perf_eval_school_id" : schoolData.school_id
+    #}
+    return {'result' : postData}    
+
+@app.route('/api/userRegistration',methods=["POST"])
+def apiUserRegistration():
+    if request.form['internalKey'] == app.config['ALLLEARN_INTERNAL_KEY']:
+        userData = User.query.filter_by(email = request.form['email']).first()
+        if userData==None:
+            user = User(username=request.form['email'], email=request.form['email'], user_type='140', access_status='144', phone=request.form['phone'],
+                    first_name = request.form['firstName'],last_name= request.form['lastName'],password_hash=request.form['key'])        
+            db.session.add(user)
+            db.session.commit()
+            print("########## no existing user of the same email")
+            return {'result' : 'User Registered successfully', 'value':'0'}  
+        else:
+            print(str(userData))
+            print(str(userData.email))
+            print('######### user already present')
+            return {'result' : 'User already present','value':'err1'}  
+    else:
+        return {'result' : 'Key mismatch','value':'err2'}
+      
+
+@app.route('/api/performanceSummary/<int:schoolID>')
+def apiPerformanceSummary(schoolID):
+    query = "Select * from fn_overall_performance_summary("+str(schoolID)+") where class='All'and section='All' and subject='All'"
+    
     resultSet = db.session.execute(text(query))
-    print(resultSet)
+    
     resultArray = []
 
     for result in resultSet:
@@ -3548,8 +3709,7 @@ def performanceSummary():
         Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
         Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
         resultArray.append(Array)
-    return jsonify({'result' : resultArray})
-    # return render_template('testPerformance.html',form=form,form1=form1,resultSet=resultSet)
+    return {'result' : resultArray}    
 
 
 @app.route('/testDateSearch/<class_val>')
@@ -3943,13 +4103,46 @@ def addEvent():
 def studentProfileOld():
     return render_template('studentProfile.html')
 
+
+@app.route('/allocateStudentToSponsor')
+def allocateStudentToSponsor():
+    student_id = request.args.get('student_id')
+    sponsor_id = request.args.get('sponsor_id')
+    sponsor_name = request.args.get('sponsor_name')
+    amount = request.args.get('amount')
+
+    studentData = StudentProfile.query.filter_by(student_id=student_id).first()
+    studentData.sponsor_id = sponsor_id
+    studentData.sponsor_name = sponsor_name
+    studentData.sponsored_amount = amount
+    studentData.sponsored_on = datetime.today()
+    studentData.sponsored_status='Y'
+    studentData.last_modified_date = datetime.today()
+    db.session.commit()
+    
+    return jsonify(['0'])
+
 @app.route('/indivStudentProfile')
 @login_required
 def indivStudentProfile():    
     student_id=request.args.get('student_id')
+    
+    #spnsor data check
+    sponsor_id = request.args.get('sponsor_id')
+    sponsor_name = request.args.get('sponsor_name')
+    amount = request.args.get('amount')
+
     print(student_id)
-    studentProfileQuery = "select full_name, email, phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
-    studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    #studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
+    #studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    #New updated query
+    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, md.description as gender,class_val, section, "
+    studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
+    studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
+    studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
+    studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
+
+
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
     print('Id:'+str(studentProfileRow.student_id))  
     #performanceData
@@ -3968,7 +4161,8 @@ def indivStudentProfile():
     print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
 
-
+    #Sponsor allocation
+    urlForAllocationComplete = app.config['IMPACT_HOST'] + '/responseStudentAllocate'
     overallSum = 0
     overallPerfValue = 0
 
@@ -3993,15 +4187,20 @@ def indivStudentProfile():
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         print(optionURL)
-    return render_template('_indivStudentProfile.html',studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+    return render_template('_indivStudentProfile.html',urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows,disconn=1)
+        testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount)
 
 
 @app.route('/studentProfile')
 @login_required
 def studentProfile():    
     qstudent_id=request.args.get('student_id')
+
+    #####Section for sponsor data fetch
+    qsponsor_name = request.args.get('sponsor_name')
+    qsponsor_id = request.args.get('sponsor_id')
+    qamount = request.args.get('amount')
 
     if qstudent_id==None or qstudent_id=='':
         form=studentPerformanceForm()
@@ -4026,19 +4225,19 @@ def studentProfile():
         form.test_type1.choices=test_type_list
         form.student_name1.choices = ''
         print('we are in the form one')
-        return render_template('studentProfileNew.html',form=form)
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
     else:
         value=0
         if current_user.user_type==72:
             value=1
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
         if current_user.user_type==134:
             disconn=1
         else:
             disconn=0
         print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount)
 
 
     
@@ -4156,7 +4355,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 8000))
+        port=int(os.getenv('PORT', 5000))
         # ssl_context='adhoc'
         )
     #app.run()
