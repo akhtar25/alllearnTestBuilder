@@ -17,4 +17,5 @@ class Config(object):
     ALLLEARN_INTERNAL_KEY = os.environ.get('ALLLEARN_INTERNAL_KEY')
     IMPACT_HOST = os.environ.get('IMPACT_HOST')
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
-    #IMPACT_HOST = "http://127.0.0.1:8000"
+    # IMPACT_HOST = "alllearnimpactstaging.herukoapp.com"
+    # IMPACT_HOST = "http://127.0.0.1:8000"
