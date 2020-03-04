@@ -137,8 +137,14 @@
                   <ul class="users-list clearfix">
                     {% for student in topStudentsRows%}
                     <li>
-                      <img src="{{student.profile_picture}}" alt="User Image">
-                      <span class="users-list-name">{{student.class}}{{student.section}}-{{student.student_name}}</span>
+                      <a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">
+                      {% if student[1] %}
+                      <img src="{{student[1]}}" alt="Student Image">
+                      {% else %}
+                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
+                      {% endif %}
+                      <span class="users-list-name">{{student[3]}}{{student[4]}}-{{student[2]}}</span>
+                      </a>
                     </li>
                     {%endfor%}
                   </ul>
