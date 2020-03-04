@@ -136,6 +136,8 @@
                   {%if topStudentsRows | length!=0%}
                   <ul class="users-list clearfix">
                     {% for student in topStudentsRows%}
+                      {% if loop.index > 10 %}
+                      {% else %}
                     <li>
                       <a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">
                       {% if student[1] %}
@@ -146,6 +148,7 @@
                       <span class="users-list-name">{{student[3]}}{{student[4]}}-{{student[2]}}</span>
                       </a>
                     </li>
+                      {% endif %}
                     {%endfor%}
                   </ul>
                   {%else%}

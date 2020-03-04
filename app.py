@@ -231,7 +231,7 @@ def leaderboardContent(qclass_val):
     query = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
     if qclass_val=='dashboard':
         
-        where = " where marks is not null order by marks desc limit 10"
+        where = " where marks is not null order by marks"
         query = query + where
         print('Query inside leaderboardContent:'+str(query))
     else:
