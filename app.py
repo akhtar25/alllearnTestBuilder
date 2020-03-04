@@ -229,12 +229,18 @@ def notes_detail(key):
 def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
-    if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
-        where = " where class='"+str(qclass_val)+"' order by marks desc fetch first 10 rows only"
+    if qclass_val=='dashboard':
+        
+        where = " where marks is not null order by marks desc limit 10"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))
     else:
-        where = " where marks is not null order by marks desc fetch first 10 rows only"
-    query = query + where
-    print('Query inside leaderboardContent:'+str(query))
+        if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
+            where = " where class='"+str(qclass_val)+"' order by marks desc"
+        else:
+            where = " where marks is not null order by marks desc"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))    
     leaderbrd_row = db.session.execute(text(query)).fetchall()
     try:
         df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
@@ -1066,7 +1072,7 @@ def index():
             graphJSON="1"
     #####Fetch Top Students infor##########        
         # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
-        qclass_val = ''
+        qclass_val = 'dashboard'
         topStudentsRows = ''
         leaderBoardData = leaderboardContent(qclass_val)
 
