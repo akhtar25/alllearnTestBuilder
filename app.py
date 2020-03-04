@@ -229,12 +229,18 @@ def notes_detail(key):
 def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
-    if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
-        where = " where class='"+str(qclass_val)+"' order by marks desc"
+    if qclass_val=='dashboard':
+        
+        where = " where marks is not null order by marks"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))
     else:
-        where = " order by marks desc"
-    query = query + where
-    print('Query inside leaderboardContent:'+str(query))
+        if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
+            where = " where class='"+str(qclass_val)+"' order by marks desc"
+        else:
+            where = " where marks is not null order by marks desc"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))    
     leaderbrd_row = db.session.execute(text(query)).fetchall()
     try:
         df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
@@ -1065,11 +1071,84 @@ def index():
         else:
             graphJSON="1"
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
-        
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-        for val in topStudentsRows:
-            print(val.student_name)
+        # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+        qclass_val = 'dashboard'
+        topStudentsRows = ''
+        leaderBoardData = leaderboardContent(qclass_val)
+
+        # Convert dataframe to a list
+
+        df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+        df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+        leaderBoard = pd.merge(df1,df2,on=('studentid'))
+            
+        d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+        df3 = leaderBoard.drop(['studentid'],axis=1)
+            # print('DF3:')
+            # print(df3)
+            # print('print new dataframe')
+            
+        df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+        df1.rename(columns = {'student_name':'Student'}, inplace = True)
+        df1.rename(columns = {'class_val':'Class'}, inplace = True)
+        df1.rename(columns = {'section':'Section'}, inplace = True)
+        df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+        df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+            # print(df1)
+            # print('Excluding columns')
+            # print(df2)
+            # rename(df2)
+            # print('LeaderBoard Data:')
+            # print(leaderBoardData)
+        data = []
+            
+
+        header = [df1.columns.values.tolist()]
+        headerAll = [df3.columns.values.tolist()]
+        colAll = ''
+        subjHeader = [df2.columns.values.tolist()]
+        columnNames = ''
+        col = ''
+        subColumn = ''
+            # print('Size of dataframe:'+str(len(subjHeader)))
+        for subhead in subjHeader:
+            subColumn = subhead
+                # print('Header with Subject Name')
+                # print(subhead)
+        for h in header:
+            columnNames = h
+        for headAll in headerAll: 
+            colAll = headAll
+            # print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+        n= int(len(subColumn)/2)
+        ndf = df2.drop(['studentid'],axis=1)
+        newDF = ndf.iloc[:,0:n]
+        new1DF = ndf.iloc[:,n:]
+            
+        df5 = pd.concat([newDF, new1DF], axis=1)
+        DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+           
+           
+        dat = pd.concat([d,DFW], axis=1)
+            
+        subHeader = ''
+        for row in dat.values.tolist():
+            data.append(row)
+
+        for d in data:
+            print('Print Dataframe Data:')
+            print(d[0])
+            print(d[1])
+            print(d[2])
+            print(d[3])
+            # print(d[i])
+
+        # End
+
+
+        # = db.session.execute(text(topStudentsQuery)).fetchall()
+        # for val in topStudentsRows:
+        #     print(val.student_name)
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
@@ -1082,7 +1161,7 @@ def index():
         jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
 
         return render_template('dashboard.html',title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data)
 
 
 @app.route('/disconnectedAccount')
@@ -4377,6 +4456,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
+        
         port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
