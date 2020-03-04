@@ -42,7 +42,7 @@
         <h3 class="box-title">Result Upload</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
         </div>
         <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div><br/>
-        <p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
+        <span id="message" style="color:Red;display: none;float:left;"></span><p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
         <div class="card id" id="result_table" style="margin-top: 24px;">
         <div class="card-body">
           <div id="table" class="table-editable" style="overflow-y: auto;height: 466px;overflow-x: auto;">
@@ -79,10 +79,11 @@
                                         </div> 
                                         <select class="browser-default fa" id="test_id">
                                                         <option value="1" selected style="font-size:11px;">Test papers</option>
-                                                        <option value="" style="font-size:11px;">NA</option>
+                                                        <option value="" style="font-size:11px;">NA</option> 
+                                                        <option value="" style="font-size:11px;" disabled>Existing Test Papers</option>
                                                         {% for test in test_details %}
                                                         <div>
-                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}}</option>
+                                                        <option value="{{test.test_id}}">{{test.test_id}} - {{test.subject_name}} - Created On {{test.date_of_creation.date()}}</option>
                                                         <a href="{{test.test_paper_link}}"><i class="fa fa-eye"></i></a>
                                                         </div>
                                                         {% endfor %}
@@ -122,15 +123,15 @@
       <h5>To register new students, please go to <a href="{{url_for('studentRegistration')}}">Student Registration</a></h5>
       {% endif %}
         <!-- End Result Upload Table -->
-        <div class="fixed-action-btn">
-                        <a class="btn-floating btn-large blue" style="font-size: 12px;">Column
+        <!-- <div class="fixed-action-btn"> -->
+                        <!-- <a class="btn-floating btn-large blue" style="font-size: 12px;">Column -->
                           <!-- <i class="large material-icons">mode_edit</i> -->
-                        </a>
+                        <!-- </a>
                         <ul>
                           <li><a class="btn-floating btn-large waves-effect waves-light blue" id="addColumn" style="font-size: 12px;"><i class="material-icons">add</i></a></li>
                           <li><a class="btn-floating btn-large waves-effect waves-light blue" id="deleteColumn" style="font-size: 12px;"><i class="material-icons">remove</i></a></li>
                         </ul>
-                      </div>
+                      </div> -->
 </section>
 </div>
 </div>  
@@ -253,7 +254,7 @@
         $("#addColumn").click(function () {
                 num=num+1;
         console.log('count of add Column function:'+num);
-	$("tr:first").append("<th scope='col' style='width: 200px;'><div style='display:flex;margin-bottom: 20px;'><select class='browser-default selectSubID"+num+"' style='float:left;margin-right:10px;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <select class='browser-default testtype"+num+"' style='float: right;' name='testtype' id='testtype'><option value='' disabled selected style='font-size:11px;'>Choose Test type</option>{% for test in test_type %}<option value='{{test.msg_id}}'>{{test.description}}</option>{% endfor %}</select> </div><div style='margin-bottom: 10px;display:flex;'><input type='number' name='Tmarks' id='Tmarks"+num+"' placeholder='total marks' value='Tmarks' style='width: 220px;font-size: 14px;'><input type='date' name='testdate' id='testdate"+num+"' style='margin-left: 10px;width: 210px;float:right;'> </div>  <br/><select class='browser-default'  id='test_id"+num+"'><option value='' disabled selected style='font-size:11px;'>Test Papers</option><option value=''>NA</option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} -- >  {{test.date_of_creation.date()}} </option>{% endfor %} </select> <input type='file' id='uploadBtn"+num+"' style='display: none;height: 16px;font-size: 10px;'><input type='text' id='url"+num+"' style='display:none;'></th>");
+	$("tr:first").append("<th scope='col' style='width: 200px;'><div style='display:flex;margin-bottom: 20px;'><select class='browser-default selectSubID"+num+"' style='float:left;margin-right:10px;'><option value='' disabled selected style='font-size:11px;'>Choose Subject</option> {% for subject in subject_name %}<option value='{{subject[1]}}'>{{subject[0]}}</option>{% endfor %} </select> <select class='browser-default testtype"+num+"' style='float: right;' name='testtype' id='testtype'><option value='' disabled selected style='font-size:11px;'>Choose Test type</option>{% for test in test_type %}<option value='{{test.msg_id}}'>{{test.description}}</option>{% endfor %}</select> </div><div style='margin-bottom: 10px;display:flex;'><input type='number' name='Tmarks' id='Tmarks"+num+"' placeholder='total marks' value='Tmarks' style='width: 220px;font-size: 14px;'><input type='date' name='testdate' id='testdate"+num+"' style='margin-left: 10px;width: 210px;float:right;'> </div>  <br/><select class='browser-default'  id='test_id"+num+"'><option value='1' disabled selected style='font-size:11px;'>Test Papers</option><option value=''>NA</option>{% for test in test_details %}<option value='{{test.test_id}}'>{{test.test_id}} - {{test.subject_name}} - Created On {{test.date_of_creation.date()}}</option>{% endfor %} </select> <input type='file' id='uploadBtn"+num+"' style='display: none;height: 16px;font-size: 10px;'><input type='text' id='url"+num+"' style='display:none;'></th>");
 	$("tr:not(:first)").append("<td><div class='container' style='width:100px;'><input type='number' class='marks"+num+"' id='marks' name='marks' max='100' min='-1'></div></td>");
        
         });
@@ -272,8 +273,10 @@
           var testId = document.getElementById('test_id1').value;
           var c = '#uploadBtn'+num;
                 if(testId==''){
+                        console.log('If Test id is empty')
                         $('#uploadBtn1').show();
                 }else{
+                        console.log('If test id not empty')
                         $('#uploadBtn1').hide();  
                 }
         });
@@ -285,11 +288,13 @@
                 var subject_id = $("#subjectIds").val();
                 var file = $('#uploadBtn').val();
                 var test_type = $(".testtype").val();
-                var marks = $(".marks").val();
+                var marks = $(".marks");
                 var testdate = $('#testdate').val();
                 var Tmarks = $('#Tmarks').val();
                 var testId = $('#test_id').val();
                 console.log('SubjectID:'+subject_id+"Test type:"+test_type+"Total Marks:"+marks+"Test Date:"+testdate+"Total Marks:"+Tmarks+"Test Id:"+testId+"file:"+file);
+                
+                
             if(subject_id=='1'){
                 console.log('Inside message');
                 tag = document.getElementById('message');
@@ -325,25 +330,46 @@
                 $('#message').show();
                 event.preventDefault();
             }else
-            if(file==''){
-                console.log('Inside message');
+            if(testId==''&&file=='' ){
+                  
+                console.log('if file not selected');
                 tag = document.getElementById('message');
                 tag.innerHTML = 'No File Selected';
                 $('#message').show();
                 event.preventDefault();
-            }else
-            if(marks==''){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'Please Enter All Student Marks';
-                $('#message').show();
-                event.preventDefault();
-            }
+                  
+                }
+            
             else{
                 if(num==0){
+                  k=0;
+                  for(var i = 0; i < marks.length; i++){
+                      mark = parseInt($(marks[i]).val());
+                      Tmark = parseInt(Tmarks);
+                      if(mark>Tmark){
+                        console.log('Marks'+$(marks[i]).val());
+                        console.log('Tmarks:'+Tmarks);
+                        console.log('Inside comparison');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Student marks should be less then total marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        k=1;
+                      }
+                      if($(marks[i]).val()==''){
+                        console.log('marks null');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Please Enter All Student Marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        k=1;
+                      }
+                }
+                if(k==0){
                 $('#message').hide();
                 uploadResult();
                 M.toast({html: 'Result Successfully Uploaded !!!'})
+                }
                 }
                 else{
                         if(num!=0){
@@ -354,7 +380,7 @@
                 var test_type = $(".testtype"+n).val(); 
                 var marks = $(".marks"+n).val();
                 var testdate = $('#testdate'+n).val();
-                var Tmarks = $('#Tmarks'+n).val();
+                var Tmarks = $('#Tmarks'+n);
                 var testId = $('#test_id'+n).val();        
                 console.log('nSubjectID:'+subject_id+"Test type:"+test_type+"Total Marks:"+marks+"Test Date:"+testdate+"Total Marks:"+Tmarks+"Test Id:"+testId);
                 if(subject_id=='1'){
@@ -392,24 +418,42 @@
                 $('#message').show();
                 event.preventDefault();
             }else
-            if(file==''){
+            if(testId==''&&file==''){
                 console.log('Inside message');
                 tag = document.getElementById('message');
                 tag.innerHTML = 'No File Selected';
                 $('#message').show();
                 event.preventDefault();
-            }else
-            if(marks==''){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'Please Enter All Student Marks';
-                $('#message').show();
-                event.preventDefault();
             }
             else{
+              j=0;
+                  for(var i = 0; i < marks.length; i++){
+                      mark = parseInt($(marks[i]).val());
+                      Tmark = parseInt(Tmarks);
+                      if(mark>Tmark){
+                        console.log('Marks'+$(marks[i]).val());
+                        console.log('Tmarks:'+Tmarks);
+                        console.log('Inside comparison');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Student marks should be less then total marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        j=1;
+                      }
+                      if($(marks[i]).val()==''){
+                        console.log('marks null');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Please Enter All Student Marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        j=1;
+                      }
+                }
+                if(j==0){
                 $('#message').hide();
                 uploadResult();
-                M.toast({html: 'Result Successfully Uploaded!'})
+                M.toast({html: 'Result Successfully Uploaded !!!'})
+                }
             }
                 n=n+1;
                }
