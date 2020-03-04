@@ -3756,7 +3756,7 @@ def uploadHistoryDetail():
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
     resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id order by marks_scored desc" 
     resultUploadRows = db.session.execute(text(resultDetailQuery)).fetchall()
-
+    # paper = TestDetails.query.filter_by(test).first()
     runcount=0
     class_val_record = ""    
     section_record=""
@@ -3771,7 +3771,8 @@ def uploadHistoryDetail():
             exam_date_record= value.exam_date
             question_paper_ref = value.question_paper_ref
         runcount+1
-
+    print('Upload Id:'+str(upload_id))
+    print('Question Paper link:'+str(question_paper_ref))
     return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,question_paper_ref=question_paper_ref)
 
 @app.route('/studentList/<class_val>/<section>/')
@@ -3931,6 +3932,7 @@ def uploadMarks():
     for student_id in student_list:
         list_id.append(student_id.student_id)
     paper = ''
+    print('Coming Paper Url :'+str(paperUrl))
     if testId!='':
         paper = TestDetails.query.filter_by(test_id=testId).first()
         print('Paper:'+str(paper.test_paper_link))
@@ -3978,7 +3980,7 @@ def uploadMarks():
     print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId+"Test type:"+test_type)
     
 
-
+    flash('Marks successfully uploaded')
     return render_template('resultUpload.html')
 
 
