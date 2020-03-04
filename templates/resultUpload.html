@@ -42,7 +42,7 @@
         <h3 class="box-title">Result Upload</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
         </div>
         <div class="right"><a href="{{url_for('resultUploadHistory')}}">Upload History</a></div><br/>
-        <p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
+        <span id="message" style="color:Red;display: none;float:left;"></span><p class="right" style="margin-bottom: 0px;">* Please enter -1 for absent students</p>
         <div class="card id" id="result_table" style="margin-top: 24px;">
         <div class="card-body">
           <div id="table" class="table-editable" style="overflow-y: auto;height: 466px;overflow-x: auto;">
@@ -80,9 +80,10 @@
                                         <select class="browser-default fa" id="test_id">
                                                         <option value="1" selected style="font-size:11px;">Test papers</option>
                                                         <option value="" style="font-size:11px;">NA</option>
+                                                        <option value="" style="font-size:11px;" disabled>Existing Test Papers</option>
                                                         {% for test in test_details %}
                                                         <div>
-                                                        <option value="{{test.test_id}}">{{test.test_id}} -- >      {{test.date_of_creation.date()}}</option>
+                                                        <option value="{{test.test_id}}">{{test.test_id}} - {{test.subject_name}} - Created On {{test.date_of_creation.date()}}</option>
                                                         <a href="{{test.test_paper_link}}"><i class="fa fa-eye"></i></a>
                                                         </div>
                                                         {% endfor %}
@@ -285,11 +286,13 @@
                 var subject_id = $("#subjectIds").val();
                 var file = $('#uploadBtn').val();
                 var test_type = $(".testtype").val();
-                var marks = $(".marks").val();
+                var marks = $(".marks");
                 var testdate = $('#testdate').val();
                 var Tmarks = $('#Tmarks').val();
                 var testId = $('#test_id').val();
                 console.log('SubjectID:'+subject_id+"Test type:"+test_type+"Total Marks:"+marks+"Test Date:"+testdate+"Total Marks:"+Tmarks+"Test Id:"+testId+"file:"+file);
+                
+                
             if(subject_id=='1'){
                 console.log('Inside message');
                 tag = document.getElementById('message');
@@ -325,25 +328,46 @@
                 $('#message').show();
                 event.preventDefault();
             }else
-            if(file==''){
-                console.log('Inside message');
+            if(testId==''&&file=='' ){
+                  
+                console.log('if file not selected');
                 tag = document.getElementById('message');
                 tag.innerHTML = 'No File Selected';
                 $('#message').show();
                 event.preventDefault();
-            }else
-            if(marks==''){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'Please Enter All Student Marks';
-                $('#message').show();
-                event.preventDefault();
-            }
+                  
+                }
+            
             else{
                 if(num==0){
+                  k=0;
+                  for(var i = 0; i < marks.length; i++){
+                      mark = parseInt($(marks[i]).val());
+                      Tmark = parseInt(Tmarks);
+                      if(mark>Tmark){
+                        console.log('Marks'+$(marks[i]).val());
+                        console.log('Tmarks:'+Tmarks);
+                        console.log('Inside comparison');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Student marks should be less then total marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        k=1;
+                      }
+                      if($(marks[i]).val()==''){
+                        console.log('marks null');
+                        tag = document.getElementById('message');
+                        tag.innerHTML = 'Please Enter All Student Marks';
+                        $('#message').show();
+                        event.preventDefault();
+                        k=1;
+                      }
+                }
+                if(k==0){
                 $('#message').hide();
                 uploadResult();
                 M.toast({html: 'Result Successfully Uploaded !!!'})
+                }
                 }
                 else{
                         if(num!=0){

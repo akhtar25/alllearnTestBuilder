@@ -3504,7 +3504,8 @@ def resultUpload():
                 count+=1
             
     test_type = MessageDetails.query.filter_by(category='Test type').all()
-    test_details = TestDetails.query.distinct().filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
+    test_details = "select test_id,date_of_creation,description as subject_name from test_details td inner join message_detail md on md.msg_id=td.subject_id where class_val='"+str(qclass_val)+"' and school_id='"+str(teacher_id.school_id)+"'"
+    test_details = db.session.execute(test_details).fetchall()
     for section in classSections:
             print("Class Section:"+section.section)
     subject_name = []
@@ -3929,6 +3930,15 @@ def uploadMarks():
     list_id = []
     for student_id in student_list:
         list_id.append(student_id.student_id)
+    paper = ''
+    if testId!='':
+        paper = TestDetails.query.filter_by(test_id=testId).first()
+        print('Paper:'+str(paper.test_paper_link))
+    else:
+        testType = MessageDetails.query.filter_by(msg_id=test_type).first()
+        testPaper = TestDetails(test_type=testType.description,total_marks=Tmarks,
+        last_modified_date=datetime.today(),board_id=board_id.board_id,subject_id=subject_id,class_val=classValue,date_of_creation=datetime.today(),school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id,test_paper_link=paperUrl)
+        db.session.add(testPaper)
     for marksSubjectWise in marks:
         if marksSubjectWise=='-1':
             marksSubjectWise=0
@@ -3938,18 +3948,28 @@ def uploadMarks():
         #print('Marks:'+marksSubjectWise)
         upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + dt_string
         upload_id=upload_id.replace('-','')
+        print('Test Id:'+testId)
+        
         if testId=='':
+            print('If test id is null')
+            print('Test Date:'+str(testdate))
+            print('upload Date:'+str(datetime.today()))
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
             exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
             test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,
             uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today(),question_paper_ref=paperUrl
             )
         else:
+            print('If test id not null')
+            print('Test Date:'+str(testdate))
+            print('upload Date:'+str(datetime.today()))
+            
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
             exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
             test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,test_id=testId,
-            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today()
+            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today(),question_paper_ref=str(paper.test_paper_link)
             )
+        
         db.session.add(Marks)
         count = count + 1
     db.session.execute(text('call sp_performance_detail_load()'))
@@ -4355,7 +4375,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 5000))
+        port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
     #app.run()
