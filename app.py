@@ -1596,6 +1596,16 @@ def feeManagement():
 def privacyPolicy():
     return render_template('privacyPolicy.html')
 
+@app.route('/sendPerformanceReportEmail')
+def sendPerformanceReportEmail():
+    school_id = request.args.get('school_id')
+    schoolAdmin = "select teacher_name as admin from school_profile sp inner join teacher_profile tp on sp.school_admin = tp.teacher_id where sp.school_id='"+str(school_id)+"'"
+    schoolAdmin = db.session.execute(schoolAdmin).first()
+    score = "Select avg_score from fn_overall_performance_summary("+str(school_id)+") where class='All'and section='All' and subject='All'"
+    avg_score = db.session.execute(score).first()
+    
+    
+
 
 @app.route('/requestUserAccess')
 def requestUserAccess():

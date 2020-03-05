@@ -118,6 +118,37 @@
       </div>
     </div>
   </div>
+
+  <div class="col-md-4 col-lg-4">
+    <div class="mb-3 card">
+      <div class="card-header-tab card-header">
+        <div class="card-header-title">
+          <i class="header-icon lnr-rocket icon-gradient bg-tempting-azure">
+          </i>Email 
+        </div>
+      </div>
+
+      <div class="tab-content" style="overflow-y: auto;height: 40px;">
+        <div class="widget-content widget-content">
+        <ul>
+            <li style="display:flex;">
+              <div class="widget-content-left" style="font-size:15px;font-weight:600;opacity:0.5;">
+                  Email for performance summary
+              </div>
+              <div class="widget-content-right" style="margin-right: 10px;">
+                <div class="widget-numbers text-count" style="font-size:15px;">
+                  <button class="waves-effect waves-light btn sendPerformaceSummaryEmailBtn" id="emailBtn" name="{{school.school_id}}" value="Send" style="border-radius: 7px;font-size: 12px;float:right;">Send</button>
+                  <p style="font-size: 12px;float:right;display:none;" id="emailMsg">Email Sent</p>
+                  <!-- <a class="waves-effect waves-light btn grantAccessBTNCLass" name="" id="" style="font-size: 11px;float:right;margin-right: 10px;margin-top: -30px;padding-top: 10px;">Set for Admin</a> -->
+                </div>
+              </div>
+              </li>
+        </ul>
+            </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <div class="row">
@@ -304,6 +335,24 @@
     $(document).ready(function () {
     $('.collapsible').collapsible();
     $('.collapsible-body').css('padding',"0");
+  });
+
+  $('.sendPerformaceSummaryEmailBtn').click(function(){
+    console.log('Send Performance Email');
+    var school_id = $(this).attr('name');
+    $.ajax({
+      url: "/sendPerformanceReportEmail?school_id="+school_id,
+      type: "get",
+      data: "",
+      success: function(response){
+        $('#emailBtn').hide();
+        $('#emailMsg').show();
+      },
+      error: function(xhr){
+        window.alert("Error occured while sending email");
+      }
+
+    });
   });
 
   $('.grantAccessBTNCLass').click(function(){
