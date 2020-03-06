@@ -44,7 +44,7 @@ import hashlib
 from random import randint
 import string
 import requests
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 
