@@ -173,6 +173,7 @@ class LeaderBoardQueryForm(FlaskForm):
 class TestBuilderQueryForm(FlaskForm):
     class_val=SelectField('Class')
     subject_name=SelectField('Subject')
+    chapter_num=SelectField('Select Chapter')
     test_type=SelectField('Test Type')
     test_date=DateField('Test Date',format='%d/%m/%Y')
     submit=SubmitField('Load Topics')
