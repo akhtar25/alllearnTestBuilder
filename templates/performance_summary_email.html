@@ -1,0 +1,40 @@
+<div class="container">
+    <p>Dear {{name}},</p>
+    <p>
+        Greetings from allLearn. 
+         <br><br>Here’s the performance summary of {{school}}:<br><br>
+            <h3>Current average school performance:<span style="color: #3ac47d !important;">{{"%.2f"|format(average_score)}}%</span></h3> 
+            <div id="testAttendanceGraph" style="overflow-x:hidden;top:-30px;">
+                </div>
+        <h3>Top 5 Students in school</h3>
+        <table cellpadding="10">
+                <thead>
+                    <tr style="border-bottom: none;">
+                        <th scope="col">Student</th>
+                        <th scope="col">Class and Section</th>
+                        <th scope="col">Average %</th>
+                        <th scopr="col">See Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        {% for student in studentlist %}
+                  <tr style="border-bottom: none;">
+                    
+                    <td>{{student[2]}}</td>
+                    <td>{{student[3]}} {{student[4]}}</td>
+                    <td>{{student[5]}}%</td>
+                    <td><a target="_blank" href="{{url_for('studentProfile',student_id=student[0],_external=True)}}">See Profile</a></td>
+                    
+                  </tr>
+                  {% endfor %}
+                </tbody>
+        
+            </table>
+        <h3>No of test conducted in the last week: {{test_count}}</h3>
+    </p>
+    <p>For any suggestions and queries, please write to us at contact@alllearn.in or simply reply to this email.</p>
+    
+    <p>Thanks</p>
+    <p>allLearn Team</p>
+    </div>
+

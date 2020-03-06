@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email
+from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
@@ -44,6 +44,7 @@ import hashlib
 from random import randint
 import string
 import requests
+import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 
@@ -229,12 +230,18 @@ def notes_detail(key):
 def leaderboardContent(qclass_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select  school,class as class_val,section,studentid,student_name,profile_pic,subjectid,test_count,marks from fn_performance_leaderboard_detail_v1("+str(teacher_id.school_id)+")"
-    if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
-        where = " where class='"+str(qclass_val)+"' order by marks desc"
+    if qclass_val=='dashboard':
+        
+        where = " where marks is not null order by marks"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))
     else:
-        where = " order by marks desc"
-    query = query + where
-    print('Query inside leaderboardContent:'+str(query))
+        if qclass_val!='' and qclass_val is not None and str(qclass_val)!='None':
+            where = " where class='"+str(qclass_val)+"' order by marks desc"
+        else:
+            where = " where marks is not null order by marks desc"
+        query = query + where
+        print('Query inside leaderboardContent:'+str(query))    
     leaderbrd_row = db.session.execute(text(query)).fetchall()
     try:
         df = pd.DataFrame(leaderbrd_row,columns=['school','class_val','section','studentid','student_name','profile_pic','subjectid','test_count','marks'])
@@ -517,12 +524,21 @@ def admin():
     regStudent2 = db.session.execute(text(studentreg2)).first()
     print(regTeacher2[0])
     print(regTeacher1[0])
-    perSchool = float((int(regSchool2[0])*100)/int(regSchool1[0]))
-    perSchool = round(perSchool,2)
-    perTeacher = float((int(regTeacher2[0])*100)/int(regTeacher1[0]))
-    perTeacher = round(perTeacher,2)
-    perStudent = float((int(regStudent2[0])*100)/int(regStudent1[0]))
-    perStudent = round(perStudent,2)
+    try:
+        perSchool = float((int(regSchool2[0])*100)/int(regSchool1[0]))
+        perSchool = round(perSchool,2)
+    except:
+        perSchool = 0
+    try: 
+        perTeacher = float((int(regTeacher2[0])*100)/int(regTeacher1[0]))
+        perTeacher = round(perTeacher,2)
+    except:
+        perTeacher = 0
+    try:
+        perStudent = float((int(regStudent2[0])*100)/int(regStudent1[0]))
+        perStudent = round(perStudent,2)
+    except:
+        perStudent = 0
     # perSchool=''
     num = ''
     num2 = ''
@@ -1065,11 +1081,93 @@ def index():
         else:
             graphJSON="1"
     #####Fetch Top Students infor##########        
-        topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+        # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+        qclass_val = 'dashboard'
+        topStudentsRows = ''
+        leaderBoardData = leaderboardContent(qclass_val)
+
+        # Convert dataframe to a list
+
+        df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+        df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+        leaderBoard = pd.merge(df1,df2,on=('studentid'))
+            
+        d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+        df3 = leaderBoard.drop(['studentid'],axis=1)
+            # print('DF3:')
+            # print(df3)
+            # print('print new dataframe')
+            
+        df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+        df1.rename(columns = {'student_name':'Student'}, inplace = True)
+        df1.rename(columns = {'class_val':'Class'}, inplace = True)
+        df1.rename(columns = {'section':'Section'}, inplace = True)
+        df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+        df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+            # print(df1)
+            # print('Excluding columns')
+            # print(df2)
+            # rename(df2)
+            # print('LeaderBoard Data:')
+            # print(leaderBoardData)
+        data = []
+            
+
+        header = [df1.columns.values.tolist()]
+        headerAll = [df3.columns.values.tolist()]
+        colAll = ''
+        subjHeader = [df2.columns.values.tolist()]
+        columnNames = ''
+        col = ''
+        subColumn = ''
+            # print('Size of dataframe:'+str(len(subjHeader)))
+        for subhead in subjHeader:
+            subColumn = subhead
+                # print('Header with Subject Name')
+                # print(subhead)
+        for h in header:
+            columnNames = h
+        for headAll in headerAll: 
+            colAll = headAll
+            # print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+        n= int(len(subColumn)/2)
+        ndf = df2.drop(['studentid'],axis=1)
+        newDF = ndf.iloc[:,0:n]
+        new1DF = ndf.iloc[:,n:]
+            
+        df5 = pd.concat([newDF, new1DF], axis=1)
+        DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+           
+           
+        dat = pd.concat([d,DFW], axis=1)
+         
+        dat = dat.sort_values('total_marks%',ascending=False)  
+         
+        subHeader = ''
+        i=1
+        print(dat)
+        for row in dat.values.tolist():
+            if i<9:
+                print('Inside if:'+str(i))
+                data.append(row)
+            i=i+1
+        print('New Data frame')
+        print(data)
+
+        for d in data:
+            print(d[0])
+            print(d[1])
+            print(d[2])
+            print(d[3])
         
-        topStudentsRows = db.session.execute(text(topStudentsQuery)).fetchall()
-        for val in topStudentsRows:
-            print(val.student_name)
+            # print(d[i])
+
+        # End
+
+
+        # = db.session.execute(text(topStudentsQuery)).fetchall()
+        # for val in topStudentsRows:
+        #     print(val.student_name)
         #print("this is topStudentRows"+str(topStudentsRows))
     #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
@@ -1082,7 +1180,7 @@ def index():
         jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
 
         return render_template('dashboard.html',title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = topStudentsRows)
+            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data)
 
 
 @app.route('/disconnectedAccount')
@@ -1595,6 +1693,106 @@ def feeManagement():
 @app.route('/privacyPolicy')
 def privacyPolicy():
     return render_template('privacyPolicy.html')
+
+@app.route('/sendPerformanceReportEmail')
+def sendPerformanceReportEmail():
+    school_id = request.args.get('school_id')
+    schoolAdmin = "select teacher_name as admin from school_profile sp inner join teacher_profile tp on sp.school_admin = tp.teacher_id where sp.school_id='"+str(school_id)+"'"
+    schoolAdmin = db.session.execute(schoolAdmin).first()
+    score = "Select avg_score from fn_overall_performance_summary("+str(school_id)+") where class='All'and section='All' and subject='All'"
+    avg_score = db.session.execute(score).first()
+    #####Fetch Top 5 Students info##########        
+    # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+    qclass_val = 'dashboard'
+    topStudentsRows = ''
+    leaderBoardData = leaderboardContent(qclass_val)
+
+    # Convert dataframe to a list
+
+    df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+    df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+    leaderBoard = pd.merge(df1,df2,on=('studentid'))
+            
+    d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+    df3 = leaderBoard.drop(['studentid'],axis=1)
+            # print('DF3:')
+            # print(df3)
+            # print('print new dataframe')
+            
+    df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+    df1.rename(columns = {'student_name':'Student'}, inplace = True)
+    df1.rename(columns = {'class_val':'Class'}, inplace = True)
+    df1.rename(columns = {'section':'Section'}, inplace = True)
+    df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+    df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+            # print(df1)
+            # print('Excluding columns')
+            # print(df2)
+            # rename(df2)
+            # print('LeaderBoard Data:')
+            # print(leaderBoardData)
+    data = []
+            
+
+    header = [df1.columns.values.tolist()]
+    headerAll = [df3.columns.values.tolist()]
+    colAll = ''
+    subjHeader = [df2.columns.values.tolist()]
+    columnNames = ''
+    col = ''
+    subColumn = ''
+            # print('Size of dataframe:'+str(len(subjHeader)))
+    for subhead in subjHeader:
+        subColumn = subhead
+                # print('Header with Subject Name')
+                # print(subhead)
+    for h in header:
+        columnNames = h
+    for headAll in headerAll: 
+        colAll = headAll
+            # print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+    n= int(len(subColumn)/2)
+    ndf = df2.drop(['studentid'],axis=1)
+    newDF = ndf.iloc[:,0:n]
+    new1DF = ndf.iloc[:,n:]
+            
+    df5 = pd.concat([newDF, new1DF], axis=1)
+    DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+           
+           
+    dat = pd.concat([d,DFW], axis=1)
+    dat = dat.sort_values('total_marks%',ascending=False)  
+    print(dat)        
+    subHeader = ''
+    i=1
+    for row in dat.values.tolist():
+        if i<6:
+            data.append(row)
+        i=i+1
+
+    for d in data:
+        print('Print Dataframe Data:')
+        print(d[0])
+        print(d[1])
+        print(d[2])
+        print(d[3])
+            # print(d[i])
+
+        # End  
+    query = "select sum(total) as total_test from "
+    query = query + "(select count(*) as total from response_capture rc where last_modified_date >current_date - 7 and school_id='"+str(school_id)+"'"
+    query = query + " union all "
+    query = query + "select count(*) from (select upload_id from result_upload ru where school_id='"+str(school_id)+"' and last_modified_date >current_date - 7"      
+    query = query + " group by ru.upload_id)d ) s"
+    test_count = db.session.execute(query).first()
+    adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+str(school_id)+"'")).first()
+
+    if adminEmail!=None:
+        performance_report_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name,data,test_count.total_test,avg_score.avg_score,school_id)
+        return jsonify(["0"])
+    else:
+        return jsonify(["1"])
+    
 
 
 @app.route('/requestUserAccess')
@@ -3504,7 +3702,8 @@ def resultUpload():
                 count+=1
             
     test_type = MessageDetails.query.filter_by(category='Test type').all()
-    test_details = TestDetails.query.distinct().filter_by(class_val=qclass_val,school_id=teacher_id.school_id).all()
+    test_details = "select test_id,date_of_creation,description as subject_name from test_details td inner join message_detail md on md.msg_id=td.subject_id where class_val='"+str(qclass_val)+"' and school_id='"+str(teacher_id.school_id)+"'"
+    test_details = db.session.execute(test_details).fetchall()
     for section in classSections:
             print("Class Section:"+section.section)
     subject_name = []
@@ -3687,7 +3886,10 @@ def apiUserRegistration():
             return {'result' : 'User already present','value':'err1'}  
     else:
         return {'result' : 'Key mismatch','value':'err2'}
-      
+
+
+   
+
 
 @app.route('/api/performanceSummary/<int:schoolID>')
 def apiPerformanceSummary(schoolID):
@@ -3755,7 +3957,7 @@ def uploadHistoryDetail():
     resultDetailQuery = resultDetailQuery + "inner join message_detail md on md.msg_id=ru.test_type "
     resultDetailQuery = resultDetailQuery + "and ru.upload_id='"+ str(upload_id) +"' inner join class_section cs on cs.class_sec_id=ru.class_sec_id order by marks_scored desc" 
     resultUploadRows = db.session.execute(text(resultDetailQuery)).fetchall()
-
+    # paper = TestDetails.query.filter_by(test).first()
     runcount=0
     class_val_record = ""    
     section_record=""
@@ -3770,7 +3972,8 @@ def uploadHistoryDetail():
             exam_date_record= value.exam_date
             question_paper_ref = value.question_paper_ref
         runcount+1
-
+    print('Upload Id:'+str(upload_id))
+    print('Question Paper link:'+str(question_paper_ref))
     return render_template('_uploadHistoryDetail.html',resultUploadRows=resultUploadRows, class_val_record=class_val_record,section_record=section_record, test_type_record=test_type_record,exam_date_record=exam_date_record,question_paper_ref=question_paper_ref)
 
 @app.route('/studentList/<class_val>/<section>/')
@@ -3929,6 +4132,16 @@ def uploadMarks():
     list_id = []
     for student_id in student_list:
         list_id.append(student_id.student_id)
+    paper = ''
+    print('Coming Paper Url :'+str(paperUrl))
+    if testId!='':
+        paper = TestDetails.query.filter_by(test_id=testId).first()
+        print('Paper:'+str(paper.test_paper_link))
+    else:
+        testType = MessageDetails.query.filter_by(msg_id=test_type).first()
+        testPaper = TestDetails(test_type=testType.description,total_marks=Tmarks,
+        last_modified_date=datetime.today(),board_id=board_id.board_id,subject_id=subject_id,class_val=classValue,date_of_creation=datetime.today(),school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id,test_paper_link=paperUrl)
+        db.session.add(testPaper)
     for marksSubjectWise in marks:
         if marksSubjectWise=='-1':
             marksSubjectWise=0
@@ -3938,18 +4151,28 @@ def uploadMarks():
         #print('Marks:'+marksSubjectWise)
         upload_id=str(teacher_id.school_id)+str(class_sec_id.class_sec_id)+str(subject_id) + str(test_type) + dt_string
         upload_id=upload_id.replace('-','')
+        print('Test Id:'+testId)
+        
         if testId=='':
+            print('If test id is null')
+            print('Test Date:'+str(testdate))
+            print('upload Date:'+str(datetime.today()))
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
             exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
             test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,
             uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today(),question_paper_ref=paperUrl
             )
         else:
+            print('If test id not null')
+            print('Test Date:'+str(testdate))
+            print('upload Date:'+str(datetime.today()))
+            
             Marks=ResultUpload(school_id=teacher_id.school_id,student_id=list_id[count],
             exam_date=testdate,marks_scored=marksSubjectWise,class_sec_id=class_sec_id.class_sec_id,
             test_type=test_type,subject_id=subject_id,is_present=is_present.msg_id,total_marks=Tmarks,test_id=testId,
-            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today()
+            uploaded_by=teacher_id.teacher_id, upload_id=upload_id,last_modified_date=datetime.today(),question_paper_ref=str(paper.test_paper_link)
             )
+        
         db.session.add(Marks)
         count = count + 1
     db.session.execute(text('call sp_performance_detail_load()'))
@@ -3958,7 +4181,7 @@ def uploadMarks():
     print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId+"Test type:"+test_type)
     
 
-
+    flash('Marks successfully uploaded')
     return render_template('resultUpload.html')
 
 
@@ -4354,8 +4577,8 @@ if __name__=="__main__":
     app.jinja_env.filters['zip'] = zip
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
-    app.run(host=os.getenv('IP', '0.0.0.0'), 
-        port=int(os.getenv('PORT', 5000))
+    app.run(host=os.getenv('IP', '0.0.0.0'),         
+        port=int(os.getenv('PORT', 8005))
         # ssl_context='adhoc'
         )
     #app.run()
