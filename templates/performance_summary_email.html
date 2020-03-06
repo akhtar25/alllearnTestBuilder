@@ -23,7 +23,7 @@
                     <td>{{student[2]}}</td>
                     <td>{{student[3]}} {{student[4]}}</td>
                     <td>{{student[5]}}%</td>
-                    <td><a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">See Profile</a></td>
+                    <td><a target="_blank" href="{{url_for('studentProfile',student_id=student[0],_external=True)}}">See Profile</a></td>
                     
                   </tr>
                   {% endfor %}
@@ -35,6 +35,6 @@
     <p>For any suggestions and queries, please write to us at contact@alllearn.in or simply reply to this email.</p>
     
     <p>Thanks</p>
-    <p>Alllearn Team</p>
+    <p>allLearn Team</p>
     </div>
 

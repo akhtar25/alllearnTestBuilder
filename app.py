@@ -524,12 +524,21 @@ def admin():
     regStudent2 = db.session.execute(text(studentreg2)).first()
     print(regTeacher2[0])
     print(regTeacher1[0])
-    perSchool = float((int(regSchool2[0])*100)/int(regSchool1[0]))
-    perSchool = round(perSchool,2)
-    perTeacher = float((int(regTeacher2[0])*100)/int(regTeacher1[0]))
-    perTeacher = round(perTeacher,2)
-    perStudent = float((int(regStudent2[0])*100)/int(regStudent1[0]))
-    perStudent = round(perStudent,2)
+    try:
+        perSchool = float((int(regSchool2[0])*100)/int(regSchool1[0]))
+        perSchool = round(perSchool,2)
+    except:
+        perSchool = 0
+    try: 
+        perTeacher = float((int(regTeacher2[0])*100)/int(regTeacher1[0]))
+        perTeacher = round(perTeacher,2)
+    except:
+        perTeacher = 0
+    try:
+        perStudent = float((int(regStudent2[0])*100)/int(regStudent1[0]))
+        perStudent = round(perStudent,2)
+    except:
+        perStudent = 0
     # perSchool=''
     num = ''
     num2 = ''
@@ -1778,15 +1787,6 @@ def sendPerformanceReportEmail():
     test_count = db.session.execute(query).first()
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+str(school_id)+"'")).first()
 
-
-    # query = "Select * from fn_overall_performance_summary("+str(school_id)+") where class='All'and section='All' and subject='All'"
-    # resultSet = db.session.execute(text(query))
-    # for result in resultSet:
-        # slices_hours = [round(result.avg_score,2), result.highest_mark]
-    # slices_hours = [12344408, 2441523]
-    # activities = ['avg_score', 'highest_mark']
-    # plt.pie(slices_hours, labels=activities)
-    # plt.show()
     if adminEmail!=None:
         performance_report_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name,data,test_count.total_test,avg_score.avg_score,school_id)
         return jsonify(["0"])
@@ -4578,7 +4578,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8002))
+        port=int(os.getenv('PORT', 8005))
         # ssl_context='adhoc'
         )
     #app.run()

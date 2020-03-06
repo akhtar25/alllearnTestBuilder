@@ -132,8 +132,11 @@
         <div class="widget-content widget-content">
         <ul>
             <li style="display:flex;">
-              <div class="widget-content-left" style="font-size:15px;font-weight:600;opacity:0.5;">
+              <div class="widget-content-left" id="emailHeading" style="font-size:15px;font-weight:600;opacity:0.5;display: none;">
                   Email for performance summary
+              </div>
+              <div class="widget-content-left" id="Heading" style="font-size:15px;font-weight:600;opacity:0.5;" >
+                Click on School name to send Mail 
               </div>
               <div class="widget-content-right" style="margin-right: 10px;">
                 <div class="widget-numbers text-count" style="font-size:15px;">
@@ -336,6 +339,8 @@
 
     $('.school_name').click(function(){
       console.log('click on teacher');
+      $('#Heading').hide();
+      $('#emailHeading').show();
       $('#emailBtn').show();
       $('#emailMsg').hide();
       var school_id = $(this).attr('name');
