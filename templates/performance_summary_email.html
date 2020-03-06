@@ -21,7 +21,7 @@
                   <tr style="border-bottom: none;">
                     
                     <td>{{student[2]}}</td>
-                    <td>{{student[3]}} {{student[4]}}</td>
+                    <td>{{student[3]}} {{student[4]|round(1)}}</td>
                     <td>{{student[5]}}%</td>
                     <td><a target="_blank" href="{{url_for('studentProfile',student_id=student[0],_external=True)}}">See Profile</a></td>
                     
@@ -33,7 +33,7 @@
             <h4 class="right"><a target="_blank" href="{{url_for('leaderBoard',_external=True)}}">See Full Leaderboard</a></h4>
         <h3>No of test conducted in the last week: {{test_count}}</h3>
     </p>
-    <p>For any suggestions and queries, please write to us at contact@alllearn.in or simply reply to this email.</p>
+    <p>For any suggestions and queries, please write to us at contact@alllearn.in.</p>
     
     <p>Thanks</p>
     <p>allLearn Team</p>

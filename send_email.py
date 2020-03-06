@@ -63,7 +63,7 @@ def performance_report_email(email,name,school,studentData,test_count,average_sc
     print('Test count'+str(test_count))
     print('Score:'+str(average_score))
     print('Email:'+str(email))
-    subject = "allLearn - Performance Summary"
+    subject = "allLearn - Weekly Performance Summary for %s" % school 
     message = render_template('performance_summary_email.html', name=name,school=school,studentlist=studentData,test_count=test_count,average_score=average_score,school_id=school_id)
     send_email(email, name, subject, message)
 
