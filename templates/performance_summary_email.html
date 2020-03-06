@@ -21,8 +21,8 @@
                   <tr style="border-bottom: none;">
                     
                     <td>{{student[2]}}</td>
-                    <td>{{student[3]}} {{student[4]|round(1)}}</td>
-                    <td>{{student[5]}}%</td>
+                    <td>{{student[3]}} {{student[4]}}</td>
+                    <td>{{student[5]|round(2)}}%</td>
                     <td><a target="_blank" href="{{url_for('studentProfile',student_id=student[0],_external=True)}}">See Profile</a></td>
                     
                   </tr>
