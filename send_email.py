@@ -59,6 +59,14 @@ def user_access_request_email(email,name, school, requestFrom,adminUsername, use
     message = render_template('user_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
     send_email(email, name, subject, message)
 
+def performance_report_email(email,name,school,studentData,test_count,average_score,school_id):
+    print('Test count'+str(test_count))
+    print('Score:'+str(average_score))
+    print('Email:'+str(email))
+    subject = "Alllearn - Performance Summary"
+    message = render_template('performance_summary_email.html', name=name,school=school,studentlist=studentData,test_count=test_count,average_score=average_score,school_id=school_id)
+    send_email(email, name, subject, message)
+
 def access_granted_email(email,name, school):
     subject = "Alllearn - Access granted to %s" % school
     message = render_template('access_granted_email.html', name=name, school=school)
