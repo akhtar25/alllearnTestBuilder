@@ -95,8 +95,8 @@
           <li>
             <div class="collapsible-header" title="Registered Schools" style="padding: 0px;">
                 <i class="fas fa-school" style="margin-top: 10px;margin-left: 10px;"></i>
-              <h4 style="font-size:15px;">{{school.school_name}}</h4>
-
+              <h4 style="font-size:15px;" class="school_name" name="{{school.school_id}}">{{school.school_name}}</h4>
+              <!-- <input type="hidden" value="{{school.school_id}}" id="school_id"> -->
           </div>
           {% for teacher in teacherDetails %}
           {% if teacher.school_id==school.school_id %}
@@ -116,6 +116,41 @@
           {% endfor %}
         </ul>
       </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-lg-4">
+    <div class="mb-3 card">
+      <div class="card-header-tab card-header">
+        <div class="card-header-title">
+          <i class="header-icon lnr-rocket icon-gradient bg-tempting-azure">
+          </i>Email 
+        </div>
+      </div>
+
+      <div class="tab-content" style="overflow-y: auto;height: 46px;">
+        <div class="widget-content widget-content">
+        <ul>
+            <li style="display:flex;">
+              <div class="widget-content-left" id="emailHeading" style="font-size:15px;font-weight:600;opacity:0.5;display: none;">
+                  Email for performance summary
+              </div>
+              <div class="widget-content-left" id="Heading" style="font-size:15px;font-weight:600;opacity:0.5;" >
+                Click on School name to send Mail 
+              </div>
+              <div class="widget-content-right" style="margin-right: 10px;">
+                <div class="widget-numbers text-count" style="font-size:15px;">
+                  <button class="waves-effect waves-light btn sendPerformaceSummaryEmailBtn" id="emailBtn" value="Send" style="border-radius: 7px;font-size: 12px;float:right;display:none;height:30px;">Send</button>
+                  <p style="font-size: 12px;float:right;display:none;" id="emailMsg">Email Sent</p>
+                  <input type="hidden" id="schoolId" value="">
+                  <!-- <a class="waves-effect waves-light btn grantAccessBTNCLass" name="" id="" style="font-size: 11px;float:right;margin-right: 10px;margin-top: -30px;padding-top: 10px;">Set for Admin</a> -->
+                </div>
+              </div>
+              </li>
+        </ul>
+            </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -301,9 +336,41 @@
     </div>
   </div> -->
   <script>
+
+    $('.school_name').click(function(){
+      console.log('click on teacher');
+      $('#Heading').hide();
+      $('#emailHeading').show();
+      $('#emailBtn').show();
+      $('#emailMsg').hide();
+      var school_id = $(this).attr('name');
+      console.log('School id:'+school_id);
+      $('#schoolId').val(school_id);
+      
+      // console.log('SchId:'+sc);
+    });
+
     $(document).ready(function () {
     $('.collapsible').collapsible();
     $('.collapsible-body').css('padding',"0");
+  });
+
+  $('.sendPerformaceSummaryEmailBtn').click(function(){
+    console.log('Send Performance Email');
+    var school_id = $('#schoolId').val(); 
+    $.ajax({
+      url: "/sendPerformanceReportEmail?school_id="+school_id,
+      type: "get",
+      data: "",
+      success: function(response){
+        $('#emailBtn').hide();
+        $('#emailMsg').show();
+      },
+      error: function(xhr){
+        window.alert("Error occured while sending email");
+      }
+
+    });
   });
 
   $('.grantAccessBTNCLass').click(function(){
