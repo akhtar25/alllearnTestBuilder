@@ -140,9 +140,9 @@
                     <li>
                       <a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">
                       {% if student[1] %}
-                      <img src="{{student[1]}}" alt="Student Image">
+                      <img style="width: 80px;height:80px;" src="{{student[1]}}" alt="Student Image">
                       {% else %}
-                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
+                      <img style="width: 80px;height:80px;" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
                       {% endif %}
                       <span class="users-list-name">{{student[3]}}{{student[4]}}-{{student[2]}}</span>
                       </a>
