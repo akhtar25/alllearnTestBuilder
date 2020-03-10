@@ -1,209 +1,313 @@
 {%extends "layout.html"%}
 {%block content%}
 {%if not qstudent_id %}
-<div class="container">    
+<div class="container">
     <h3>Student Directory</h3>
     <div id="studentProfileDiv">
         <!--This is the start of student performance input form-->
-        <div class="row">            
-        </div>
         <div class="row">
-            <div class="col-sm-2">
-                <div>
-                    {{ form.class_val1.label(class='labelsize') }}
-                    <br>
-                    {% if form.class_val1.errors %}
-                    {{ form.class_val1(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.class_val1.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.class_val1(class='form-control') }}
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div style="width:150px;" >
-                    {{ form.section1.label(class='labelsize') }}
-                    <div id='loader1'style='display: none; float: right;'>
-                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                    </div>
-                    <br>
-                    {% if form.section1.errors %}
-                    {{ form.section1(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.section1.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.section1(class='form-control') }}
-                    {% endif %}                                                
-                </div>
-                <input type='hidden' name='checkIndx' id='checkIndx' />
-            </div>         
-            <div class="col-sm-2"> 
-                {{ form.student_name1.label(class='labelsize') }}
-                <div id='loader2'style='display: none; float: right;'>
-                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                </div>
+            <div class="col-sm-4">
+                {{ form.student_name.label(class='labelsize') }}
                 <br>
-                {% if form.student_name1.errors %}
-                {{ form.student_name1(class="form-control form-control-lg is-invalid") }}
+                {% if form.student_name.errors %}
+                {{ form.student_name(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.student_name1.errors %}
+                    {% for error in form.student_name.errors %}
                     <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.student_name1(class='form-control') }}
+                {{ form.student_name(class='form-control',onkeyup='myFunction()',placeholder='Search name...') }}
                 {% endif %}
-            </div>            
-            <div class="col-sm-2" style="margin-top:25px;">						
+            </div>
+            <div class="col-sm-2">
+                <div style="width:150px;">
+                    {{ form.class_section.label(class='labelsize') }}
+                    <div id='loader1' style='display: none; float: right;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                    </div>
+                    <br>
+                    {% if form.class_section.errors %}
+                    {{ form.class_section(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.class_section.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_section(class='form-control') }}
+                    {% endif %}
+                </div>
+                <input type='hidden' name='checkIndx' id='checkIndx' />
+            </div>
+            <!-- <div class="col-sm-2" style="margin-top:25px;">						
                 <input type="button"  class="btn green"  style="height:35px; width:180px;" id="loadStudentProfBTN" value="Load Student Data">                
-            </div>     
+            </div>      -->
             <div class="col-sm-2" style="margin-top:25px;">
-                <a href="{{url_for('studentRegistration',student_id='')}}"><input type="button" class="btn green"  style="height:35px; width:130px;margin-left: 140px;" id="addStudent" value="Add Student"></a>                
-            </div>         
-        </div>        
+                <a href="{{url_for('studentRegistration',student_id='')}}"><input type="button" class="btn green"
+                        style="height:35px; width:130px;float:right" id="addStudent" value="Add Student"></a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="sepratorLine">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="HeadingBox">
+                    <div class="BoxTxt">
+                        <h3>Directory</h3>
+                    </div>
+                </div>
+                <div class="StudentList">
+                    <div class="box-body table-responsive no-padding" style="height: 540px;">
+                        <table class="table table-hover table-striped" id="myTable">
+                            <!-- <tr style="display:none;">
+                                            <th>Student Image</th>
+                                            <th>Student Name</th>                        
+                                          </tr> -->
+                            {% for student in available_student_list%}
+                            <tr class="rowPos" id="{{student.student_id}}" onclick="studentDetail('{{student.student_id}}');" name="">
+
+                                {% if student.profile_picture %}
+                                <td><img style="width: 50px;height:50px;" src="{{student.profile_picture}}"
+                                        alt="Student Image"></td>
+                                {% else %}
+                                <td><img style="width: 50px;height:50px;"
+                                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png"
+                                        alt="Student Image"></td>
+                                {% endif %}
+                                <td style="padding-top: 20px;padding-left:20px;" class="StudName" id="{{loop.index}}">
+                                    <a href="#" style="display: none;" id="{{loop.index}}">{{student.full_name}}</a>
+                                    <input type="hidden" value="{{student.class}}" id="class{{loop.index}}">
+                                    {{student.full_name}}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <!-- <ul>
+                            {% for student in available_student_list %}
+                                <li>
+                                    {{ student.full_name }}
+                                </li>
+                            {% endfor %}
+                            </ul> -->
+
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div id="studentProfileData"></div>
+            </div>
+
+        </div>
     </div>
-    <span id="message" style="color:Red;display: none;float:left;"></span>    
-    <div class="row">
+    <!-- <span id="message" style="color:Red;display: none;float:left;"></span>     -->
+    <!-- <div class="row">
         <div id="studentProfileData"></div>
-    </div>
+    </div> -->
 </div>
 <!--Student level graph loader-->
 <!--Section for Student level form - dynamic-->
 
-<script>        
-    
-    var class_select1 = document.getElementById("class_val1");
-    var section_select1 = document.getElementById("section1");
-    var student_select1 = document.getElementById("student_name1")
+<script>
 
-    var optionHTMLClass = '';
-        var optionHTMLStudentName = '';
-        var optionHTMLSection = '';
     $(document).ready(function(){
-        $('#class_val1').val("na");
-        
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select1.innerHTML = optionHTMLClass + class_select1.innerHTML;
-        optionHTMLStudentName += '<option value="na"  selected disabled> Select Student Name </option>';
-        student_select1.innerHTML = optionHTMLStudentName + student_select1.innerHTML;
-        optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
-        section_select1.innerHTML = optionHTMLSection + section_select1.innerHTML;
+        console.log('Inside Ready');
+        {% for student in available_student_list %}
+        {% if loop.index==1 %}
+        $("#{{student.student_id}}").css('background-color','lightgray');
+        {% endif %}
+        {% endfor %}
     });
-    
-    class_select1.onchange = function()  {
-        
-        class_val = class_select1.value;
-        $("#loader1").show();
-        
-        fetch('/resultUpload/' + class_val).then(function(response) {
-            response.json().then(function(data) {
-                $("#loader1").hide();    
+
+    var class_section = document.getElementById("class_section");
+
+    class_section.onchange = function () {
+        $('#student_name').val('All');
+        var classSection = class_section.value;
+        console.log('Class Section:' + classSection);
+        var res = classSection.split("-");
+        var class_val = res[0];
+        var section = res[1];
+        console.log('Class:' + class_val + ' section:' + section);
+        fetch('/studentList/' + class_val + "/" + section).then(function (response) {
+            response.json().then(function (data) {
                 var optionHTML = '';
-                optionHTML += '<option value="na" selected disabled> Select Section </option>';
-                for (var section1 of data.sections) {
-                    optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
+                optionHTML += '<option value="na" selected disabled> All </option>';
+                for (var student of data.students) {
+                    //                 // optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
+
+                    var table = document.getElementById("myTable");
+                    var tr = table.getElementsByTagName("tr");
+                    for (i = 1; i <= tr.length; i++) {
+                        console.log('Length:' + tr.length);
+                        var a = document.getElementById(i.toString());
+                        var class_v = document.getElementById("class"+i.toString()).value;
+                        console.log('sec Class:' + class_val);
+                        var txtValue = a.innerText;
+                        console.log('Class:' + class_v);
+                        if ((txtValue.toUpperCase().indexOf(student.student_name.toUpperCase()) > -1)&&(class_v!=class_val)) {
+                            console.log('Li:' + a)
+                            tr[i - 1].style.display = "";
+                        } else {
+                            tr[i - 1].style.display = "none";
+                        }
+                    }
                 }
-                section_select1.innerHTML = optionHTML;
-            })
+                // class_section.innerHTML = optionHTML;
+            });
         });
     }
-    
-    
-    
-    section_select1.onchange=function()  {
-        class_val1 = class_select1.value;
-        section_val1 = section_select1.value;
-        console.log("Inside section select");
-        $("#loader2").show();
-        
-        fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
-            response.json().then(function(data) {  
-                $("#loader2").hide();    
-                var optionHTML = '';
-                optionHTML += '<option value="na" selected disabled> Select Student </option>';
-                for (var student of data.students) {
-                    optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
-                }
-                student_select1.innerHTML = optionHTML;
-            })
-        });
-    };
+    // var section_select1 = document.getElementById("section1");
+    // var student_select1 = document.getElementById("student_name1")
+
+    var optionHTMLClass = '';
+    //     var optionHTMLStudentName = '';
+    //  var optionHTMLClass = '';
+    $(document).ready(function () {
+        $('#class_section').val("na");
+        optionHTMLClass += '<option value="na"  selected disabled> All </option>';
+        class_section.innerHTML = optionHTMLClass + class_section.innerHTML;
+    });
+    //     optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+    //     class_select1.innerHTML = optionHTMLClass + class_select1.innerHTML;
+    //     optionHTMLStudentName += '<option value="na"  selected disabled> Select Student Name </option>';
+    //     student_select1.innerHTML = optionHTMLStudentName + student_select1.innerHTML;
+    //     optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
+    //     section_select1.innerHTML = optionHTMLSection + section_select1.innerHTML;
+    // });
+
+    // class_select1.onchange = function()  {
+
+    //     class_val = class_select1.value;
+    //     $("#loader1").show();
+
+    //     fetch('/resultUpload/' + class_val).then(function(response) {
+    //         response.json().then(function(data) {
+    //             $("#loader1").hide();    
+    //             var optionHTML = '';
+    //             optionHTML += '<option value="na" selected disabled> Select Section </option>';
+    //             for (var section1 of data.sections) {
+    //                 optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
+    //             }
+    //             section_select1.innerHTML = optionHTML;
+    //         })
+    //     });
+    // }
 
 
 
-    $(document).ready(function(){
-        $('#loadStudentProfBTN').click(function(){
-            classValue = document.getElementById('class_val1').value;
-            sectionValue = document.getElementById('section1').value;
-            studentNameValue = document.getElementById('student_name1').value;
-            //section for sponsor data send
-            sponsor_name = "{{sponsor_name}}";
-            sponsor_id = "{{sponsor_id}}";
-            amount = "{{amount}}";
-            console.log('Class Value:'+classValue);
-            if(classValue=='na'){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Class Selected';
-                $('#message').show();
-                event.preventDefault();
-            }
-            else
-            if(sectionValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Section Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            if(studentNameValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Student Name Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else{
-                $('#message').hide();
-                var data="";
-        var student_id = $('#student_name1').val();   
+    // section_select1.onchange=function()  {
+    //     class_val1 = class_select1.value;
+    //     section_val1 = section_select1.value;
+    //     console.log("Inside section select");
+    //     $("#loader2").show();
+
+    //     fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
+    //         response.json().then(function(data) {  
+    //             $("#loader2").hide();    
+    //             var optionHTML = '';
+    //             optionHTML += '<option value="na" selected disabled> Select Student </option>';
+    //             for (var student of data.students) {
+    //                 optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
+    //             }
+    //             student_select1.innerHTML = optionHTML;
+    //         })
+    //     });
+    // };
+
+    function studentDetail(student_id) {
+        // var student_id = $(this).attr('name');
+        $('tr').css('background-color','');
+        $("#"+student_id.toString()).css('background-color','lightgray');
+        var flag = 1;
+        console.log('Inside studentDetail function' + student_id);
+        var data = "";
         $.ajax({
-            url: "/indivStudentProfile?student_id="+student_id+"&sponsor_name="+sponsor_name+"&sponsor_id="+sponsor_id+"&amount="+amount ,
+            url: "/indivStudentProfile?student_id=" + student_id + "&flag=" + flag,
             type: "get",
             data: data,
-            success: function(response) {                            
-                $("#studentProfileData").html(response);                     
+            success: function (response) {
+                $("#studentProfileData").html(response);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 window.alert("error occurred while submitting data");
             }
-        });   
-            }
-            
         });
+    }
+
+    $(document).ready(function () {
+
+        sponsor_name = "{{sponsor_name}}";
+        sponsor_id = "{{sponsor_id}}";
+        amount = "{{amount}}";
+        flag = "{{flag}}";
+        var data = "";
+        {% for student in available_student_list %}
+        var index = "{{loop.index}}";
+        var sId = "{{student.student_id}}";
+        if (index == 1) {
+            var student_id = "{{student.student_id}}";
+        }
+        {% endfor %}
+        $.ajax({
+            url: "/indivStudentProfile?student_id=" + student_id + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
+            type: "get",
+            data: data,
+            success: function (response) {
+                $("#studentProfileData").html(response);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while submitting data");
+            }
+        });
+
     });
+
+    function myFunction() {
+        $('#class_section').val("na");
+        console.log('Inside myFunction');
+        var name = $('#student_name').val();
+        console.log('Name:' + name);
+        var filter = name.toUpperCase();
+        var table = document.getElementById("myTable");
+        var tr = table.getElementsByTagName("tr");
+        for (i = 1; i <= tr.length; i++) {
+            console.log('Length:' + tr.length);
+            var a = document.getElementById(i.toString());
+            console.log('value of a:' + a);
+            var txtValue = a.innerText;
+            console.log('Text:' + txtValue);
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                console.log('Li:' + a)
+                tr[i - 1].style.display = "";
+            } else {
+                tr[i - 1].style.display = "none";
+            }
+        }
+    }
 </script>
 {%else%}
-<div class='container'>    
-        <div class="row">
-                <div id="studentProfileData"></div>
-            </div>
+<div class='container'>
+    <div class="row">
+        <div id="studentProfileData"></div>
+    </div>
 </div>
-    <script>
- $( document ).ready(function() {
-      $.ajax({
-        url: "/indivStudentProfile?student_id=" + {{qstudent_id}},
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "/indivStudentProfile?student_id=" + {{ qstudent_id }},
         type: "get",
         data: '',
         success: function (response) {
-          $("#studentProfileData").html(response);
+            $("#studentProfileData").html(response);
         },
         error: function (xhr) {
-          window.alert("error occurred while submitting data");
+            window.alert("error occurred while submitting data");
         }
       });  
   });

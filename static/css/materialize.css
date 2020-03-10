@@ -3,6 +3,38 @@
  * Copyright 2014-2017 Materialize
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */
+
+/* Css for student Directory */
+
+.HeadingBox{
+  background-color: #3c8dbc !important;
+  height:60px;
+}
+
+.BoxTxt{
+  color: white;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 100;
+  padding:3px;
+}
+
+.nameText{
+  padding-top: 20px;
+}
+
+.rowPos{
+  margin-top:5px;
+  cursor:pointer;
+}
+
+.sepratorLine{
+  border-top: 1px solid silver;
+}
+
+
+/* End */
+
  i.icon-green {
   color: green;
 }

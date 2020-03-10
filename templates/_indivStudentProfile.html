@@ -1,5 +1,9 @@
 <div class="row">
-    <div class="col s8 offset-s2">             
+    {% if flag=='1' %}
+    <div class=""> 
+    {% else %}
+    <div class="col s8 offset-s2">   
+    {% endif %}          
         <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
             <h3>Student Details<a href="{{url_for('studentRegistration',student_id=studentProfileRow.student_id)}}" 
                 style="color:white;float:right;margin-right: 10px;font-size: 20px;"><i
@@ -50,7 +54,7 @@
             </table>
         </div>
         <div class="col s4 m4 l6">                       
-                {%if amount!=None%}
+                {%if amount!=None and amount!='None' and amount!=''%}
                 <div class="row" id="sponsorAllocationDiv">
                     {%if studentProfileRow.sponsored_status!='Y'%}
                 <a href="#" class="btn cyan" id="allocateStudentBTN">Allocate Student to sponsor </a>
