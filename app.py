@@ -3986,7 +3986,10 @@ def studentList(class_val,section):
     students = StudentProfile.query.distinct().filter_by(class_sec_id=classSecRow.class_sec_id).all()
     studentArray = []
 
+    
+
     for student in students:
+        print('Student Name:'+str(student.full_name))
         studentObj = {}
         studentObj['student_id'] = student.student_id
         studentObj['student_name'] = student.full_name
