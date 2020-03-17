@@ -1260,7 +1260,7 @@ def openJobs():
 
     if first_login=='1':
         print('this is the first login section')
-        userRecord = User.query.filter_by(id=current_user.id).first()
+        userRecord = User.query.filter_by(id=current_user.id).first() 
         userRecord.user_type= '161'
         db.session.commit()
         flash('Please complete your profile before applying for jobs')
