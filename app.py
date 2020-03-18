@@ -4441,7 +4441,7 @@ def studentProfile():
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
         available_test_type=MessageDetails.query.filter_by(category='Test type').all()
         # available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
-        available_student_list = "select student_id,full_name,profile_picture,class_val from student_profile sp inner join class_section cs on sp.class_sec_id = cs.class_sec_id where cs.school_id ='"+str(teacher.school_id)+"'"
+        available_student_list = "select student_id,full_name,profile_picture,class_val, section from student_profile sp inner join class_section cs on sp.class_sec_id = cs.class_sec_id where cs.school_id ='"+str(teacher.school_id)+"'"
         available_student_list = db.session.execute(available_student_list).fetchall()
 
 
