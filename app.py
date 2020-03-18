@@ -1260,7 +1260,7 @@ def openJobs():
 
     if first_login=='1':
         print('this is the first login section')
-        userRecord = User.query.filter_by(id=current_user.id).first()
+        userRecord = User.query.filter_by(id=current_user.id).first() 
         userRecord.user_type= '161'
         db.session.commit()
         flash('Please complete your profile before applying for jobs')
@@ -3986,7 +3986,10 @@ def studentList(class_val,section):
     students = StudentProfile.query.distinct().filter_by(class_sec_id=classSecRow.class_sec_id).all()
     studentArray = []
 
+    
+
     for student in students:
+        print('Student Name:'+str(student.full_name))
         studentObj = {}
         studentObj['student_id'] = student.student_id
         studentObj['student_name'] = student.full_name

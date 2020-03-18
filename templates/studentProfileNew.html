@@ -62,7 +62,8 @@
                         <h3>Directory</h3>
                     </div>
                 </div>
-                <div class="StudentList">
+                <div><h3 class="grey-text" id="msg" style="text-align: center;display:none;">No Students</h3></div>
+                <div class="StudentList" id="list">
                     <div class="box-body table-responsive no-padding" style="height: 540px;">
                         <table class="table table-hover table-striped" id="myTable">
                             <!-- <tr style="display:none;">
@@ -70,7 +71,8 @@
                                             <th>Student Name</th>                        
                                           </tr> -->
                             {% for student in available_student_list%}
-                            <tr class="rowPos" id="{{student.student_id}}" onclick="studentDetail('{{student.student_id}}');" name="">
+                            <tr class="rowPos" id="{{student.student_id}}"
+                                onclick="studentDetail('{{student.student_id}}');" name="">
 
                                 {% if student.profile_picture %}
                                 <td><img style="width: 50px;height:50px;" src="{{student.profile_picture}}"
@@ -82,26 +84,27 @@
                                 {% endif %}
                                 <td style="padding-top: 20px;padding-left:20px;" class="StudName" id="{{loop.index}}">
                                     <a href="#" style="display: none;" id="{{loop.index}}">{{student.full_name}}</a>
-                                    <input type="hidden" value="{{student.class}}" id="class{{loop.index}}">
+                                    <input type="hidden" value="{{student.class_val}}" id="class{{loop.index}}">
+                                    <input type="hidden" value="{{student.student_id}}" id="Id{{loop.index}}">
                                     {{student.full_name}}
                                 </td>
                             </tr>
                             {% endfor %}
                         </table>
                     </div>
-                    <!-- <ul>
-                            {% for student in available_student_list %}
-                                <li>
-                                    {{ student.full_name }}
-                                </li>
-                            {% endfor %}
-                            </ul> -->
 
+                </div>
+                <div id="studentloader" style="display: none;">
+                    <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
                 </div>
             </div>
             <div class="col-sm-9">
-                <div id="studentProfileData"></div>
+                <div id="studentProfileData" style="display: none;"></div>
+                <div id="questionloader" style="padding-left: 300px;padding-top: 100px;">
+                    <img src="../static/images/loader.gif">
+                </div>
             </div>
+
 
         </div>
     </div>
@@ -115,11 +118,11 @@
 
 <script>
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         console.log('Inside Ready');
         {% for student in available_student_list %}
-        {% if loop.index==1 %}
-        $("#{{student.student_id}}").css('background-color','lightgray');
+        {% if loop.index == 1 %}
+        $("#{{student.student_id}}").css('background-color', 'lightgray');
         {% endif %}
         {% endfor %}
     });
@@ -127,112 +130,150 @@
     var class_section = document.getElementById("class_section");
 
     class_section.onchange = function () {
-        $('#student_name').val('All');
+        // $('#student_name').val('All');
+        $('#msg').hide();
+        $('#list').hide();
+        $('#studentloader').show();
+        {% for stud in available_student_list %}
+        var data = document.getElementById("{{stud.student_id}}");
+        data.style.display = "none";
+        {% endfor %}
+        var Name = document.getElementById('student_name').value;
+        console.log('Input Name:' + Name);
         var classSection = class_section.value;
         console.log('Class Section:' + classSection);
         var res = classSection.split("-");
         var class_val = res[0];
         var section = res[1];
+        var msg = 0;
         console.log('Class:' + class_val + ' section:' + section);
         fetch('/studentList/' + class_val + "/" + section).then(function (response) {
             response.json().then(function (data) {
                 var optionHTML = '';
-                optionHTML += '<option value="na" selected disabled> All </option>';
-                for (var student of data.students) {
-                    //                 // optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
+                optionHTML += '<option value="na" selected> All </option>';
+                k = 1;
+                if (Name != 'All') {
 
-                    var table = document.getElementById("myTable");
-                    var tr = table.getElementsByTagName("tr");
-                    for (i = 1; i <= tr.length; i++) {
-                        console.log('Length:' + tr.length);
-                        var a = document.getElementById(i.toString());
-                        var class_v = document.getElementById("class"+i.toString()).value;
-                        console.log('sec Class:' + class_val);
-                        var txtValue = a.innerText;
-                        console.log('Class:' + class_v);
-                        if ((txtValue.toUpperCase().indexOf(student.student_name.toUpperCase()) > -1)&&(class_v!=class_val)) {
-                            console.log('Li:' + a)
-                            tr[i - 1].style.display = "";
-                        } else {
-                            tr[i - 1].style.display = "none";
+                    for (var student of data.students) {
+                        var class_v = student.class_value;
+                        var name = student.student_name;
+                        var studentID = student.student_id
+                        var row = document.getElementById(studentID);
+                        Name = Name.toUpperCase();
+
+                        if (name.toUpperCase().indexOf(Name) > -1) {
+                            msg = 1;
+                            console.log('Inside if');
+                            console.log('Name:' + name.toUpperCase());
+                            console.log('Stud Name:' + Name.toUpperCase());
+                            row.style.display = "block";
+                            var flag = 1;
+                            if (k == 1) {
+                                $('#studentProfileData').hide();
+                                $('#questionloader').show();
+                                sponsor_name = "{{sponsor_name}}";
+                                sponsor_id = "{{sponsor_id}}";
+                                amount = "{{amount}}";
+                                sId = student.student_id;
+                                $("#" + sId.toString()).css('background-color', 'lightgray');
+                                $.ajax({
+                                    url: "/indivStudentProfile?student_id=" + sId + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
+                                    type: "get",
+                                    data: data,
+                                    success: function (response) {
+                                        $('#questionloader').hide();
+                                        $('#studentProfileData').show();
+                                        $("#studentProfileData").html(response);
+                                    },
+                                    error: function (xhr) {
+                                        window.alert("error occurred while submitting data");
+                                    }
+                                });
+                            }
+                            k = k + 1;
                         }
                     }
+
+                    $('#studentloader').hide();
+                    $('#list').show();
+                    if(msg==0){
+                        $('#msg').show();
+                        $('#studentProfileData').hide();
+                    }
                 }
-                // class_section.innerHTML = optionHTML;
+
+
+                if (Name == 'All') {
+                    var j = 1;
+                    var flag = 1;
+                    for (var student of data.students) {
+                        msg = 1;
+                        var row = document.getElementById(student.student_id);
+                        row.style.display = "block";
+                        if (j == 1) {
+                            $('#studentProfileData').hide();
+                            $('#questionloader').show();
+                            sponsor_name = "{{sponsor_name}}";
+                            sponsor_id = "{{sponsor_id}}";
+                            amount = "{{amount}}";
+                            sId = student.student_id;
+                            $("#" + sId.toString()).css('background-color', 'lightgray');
+                            $.ajax({
+                                url: "/indivStudentProfile?student_id=" + sId + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
+                                type: "get",
+                                data: data,
+                                success: function (response) {
+                                    $('#questionloader').hide();
+                                    $('#studentProfileData').show();
+                                    $("#studentProfileData").html(response);
+                                },
+                                error: function (xhr) {
+                                    window.alert("error occurred while submitting data");
+                                }
+                            });
+                        }
+                        j = j + 1;
+
+                    }
+                    $('#studentloader').hide();
+                    $('#list').show();
+                    if(msg==0){
+                        $('#msg').show();
+                        $('#studentProfileData').hide();
+                    }
+                }
             });
         });
     }
-    // var section_select1 = document.getElementById("section1");
-    // var student_select1 = document.getElementById("student_name1")
-
     var optionHTMLClass = '';
-    //     var optionHTMLStudentName = '';
-    //  var optionHTMLClass = '';
     $(document).ready(function () {
         $('#class_section').val("na");
-        optionHTMLClass += '<option value="na"  selected disabled> All </option>';
+        $('#student_name').val("All");
+        optionHTMLClass += '<option value="na"  selected> All </option>';
         class_section.innerHTML = optionHTMLClass + class_section.innerHTML;
     });
-    //     optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-    //     class_select1.innerHTML = optionHTMLClass + class_select1.innerHTML;
-    //     optionHTMLStudentName += '<option value="na"  selected disabled> Select Student Name </option>';
-    //     student_select1.innerHTML = optionHTMLStudentName + student_select1.innerHTML;
-    //     optionHTMLSection += '<option value="na"  selected disabled> Select Section </option>';
-    //     section_select1.innerHTML = optionHTMLSection + section_select1.innerHTML;
-    // });
-
-    // class_select1.onchange = function()  {
-
-    //     class_val = class_select1.value;
-    //     $("#loader1").show();
-
-    //     fetch('/resultUpload/' + class_val).then(function(response) {
-    //         response.json().then(function(data) {
-    //             $("#loader1").hide();    
-    //             var optionHTML = '';
-    //             optionHTML += '<option value="na" selected disabled> Select Section </option>';
-    //             for (var section1 of data.sections) {
-    //                 optionHTML += '<option value="' + section1.section_val + '">' + section1.section_val + '</option>';
-    //             }
-    //             section_select1.innerHTML = optionHTML;
-    //         })
-    //     });
-    // }
-
-
-
-    // section_select1.onchange=function()  {
-    //     class_val1 = class_select1.value;
-    //     section_val1 = section_select1.value;
-    //     console.log("Inside section select");
-    //     $("#loader2").show();
-
-    //     fetch('/studentList/' + class_val1+"/"+section_val1).then(function(response) {
-    //         response.json().then(function(data) {  
-    //             $("#loader2").hide();    
-    //             var optionHTML = '';
-    //             optionHTML += '<option value="na" selected disabled> Select Student </option>';
-    //             for (var student of data.students) {
-    //                 optionHTML += '<option value="' + student.student_id + '">' + student.student_name + '</option>';
-    //             }
-    //             student_select1.innerHTML = optionHTML;
-    //         })
-    //     });
-    // };
 
     function studentDetail(student_id) {
         // var student_id = $(this).attr('name');
-        $('tr').css('background-color','');
-        $("#"+student_id.toString()).css('background-color','lightgray');
+        sponsor_name = "{{sponsor_name}}";
+        sponsor_id = "{{sponsor_id}}";
+        amount = "{{amount}}";
+        $('#studentProfileData').hide();
+        $('#questionloader').show();
+        $('tr').css('background-color', '');
+        $("#" + student_id.toString()).css('background-color', 'lightgray');
         var flag = 1;
         console.log('Inside studentDetail function' + student_id);
         var data = "";
         $.ajax({
-            url: "/indivStudentProfile?student_id=" + student_id + "&flag=" + flag,
+            url: "/indivStudentProfile?student_id=" + student_id + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
             type: "get",
             data: data,
             success: function (response) {
+                $('#questionloader').hide();
+                $('#studentProfileData').show();
                 $("#studentProfileData").html(response);
+                console.log('Inside REsponse of studentDEtails')
             },
             error: function (xhr) {
                 window.alert("error occurred while submitting data");
@@ -259,6 +300,8 @@
             type: "get",
             data: data,
             success: function (response) {
+                $('#questionloader').hide();
+                $('#studentProfileData').show();
                 $("#studentProfileData").html(response);
             },
             error: function (xhr) {
@@ -269,25 +312,130 @@
     });
 
     function myFunction() {
-        $('#class_section').val("na");
-        console.log('Inside myFunction');
-        var name = $('#student_name').val();
-        console.log('Name:' + name);
-        var filter = name.toUpperCase();
-        var table = document.getElementById("myTable");
-        var tr = table.getElementsByTagName("tr");
-        for (i = 1; i <= tr.length; i++) {
-            console.log('Length:' + tr.length);
-            var a = document.getElementById(i.toString());
-            console.log('value of a:' + a);
-            var txtValue = a.innerText;
-            console.log('Text:' + txtValue);
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                console.log('Li:' + a)
-                tr[i - 1].style.display = "";
-            } else {
-                tr[i - 1].style.display = "none";
+        //  $('#class_section').val("na");
+        $('#msg').hide();
+        var class_sec = document.getElementById('class_section').value;
+        var res = '';
+        var section = '';
+        $('#list').hide();
+        msg = 0;
+        $('#studentloader').show();
+        if (class_sec != 'na') {
+            res = class_sec.split("-");
+            class_val = res[0];
+            section = res[1];
+            {% for stud in available_student_list %}
+            var data = document.getElementById("{{stud.student_id}}");
+            data.style.display = "none";
+            {% endfor %}
+            var name = $('#student_name').val();
+            console.log('Name:' + name);
+            var filter = name.toUpperCase();
+            fetch('/studentList/' + class_val + "/" + section).then(function (response) {
+                response.json().then(function (data) {
+                    var z = 1;
+                    var sId = '';
+                    for (var student of data.students) {
+                        var Name = student.student_name;
+                        if (Name.toUpperCase().indexOf(filter) > -1) {
+                            console.log('Class:' + student.class_value);
+                            var row = document.getElementById(student.student_id);
+                            row.style.display = "block";
+                            msg = 1;
+                            if (z == 1) {
+                                sId = student.student_id;
+                                $('#studentProfileData').hide();
+                                $('#questionloader').show();
+                                sponsor_name = "{{sponsor_name}}";
+                                sponsor_id = "{{sponsor_id}}";
+                                amount = "{{amount}}";
+                                sId = student.student_id;
+                                console.log(sId)
+                                $("#" + sId.toString()).css('background-color', 'lightgray');
+                                $.ajax({
+                                    url: "/indivStudentProfile?student_id=" + sId + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
+                                    type: "get",
+                                    data: data,
+                                    success: function (response) {
+                                        $('#questionloader').hide();
+                                        $('#studentProfileData').show();
+                                        $("#studentProfileData").html(response);
+                                    },
+                                    error: function (xhr) {
+                                        window.alert("error occurred while submitting data");
+                                    }
+                                });
+                            }
+                            z = z + 1;
+                        }
+                    }
+
+
+                    $('#studentloader').hide();
+                    $('#list').show();
+                    if(msg==0){
+                        $('#msg').show();
+                        $('#studentProfileData').hide();
+                    }
+                });
+            });
+        } else {
+            console.log('Inside myFunction');
+            var name = $('#student_name').val();
+            console.log('Name:' + name);
+            var filter = name.toUpperCase();
+            var table = document.getElementById("myTable");
+            var tr = table.getElementsByTagName("tr");
+            var j = 1;
+            var studId = '';
+            for (i = 1; i <= tr.length; i++) {
+                console.log('Length:' + tr.length);
+                var a = document.getElementById(i.toString());
+                // var class_v = document.getElementById("class"+i.toString()).value;
+                console.log('value of a:' + a);
+                var txtValue = a.innerText;
+                console.log('Text:' + txtValue);
+                var sId = document.getElementById("Id" + i.toString()).value;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    // console.log('Class value:'+class_val);
+                    // console.log('Class:'+class_v);
+
+                    console.log('Li:' + a)
+                    tr[i - 1].style.display = "";
+                    msg = 1
+                    if (j == 1) {
+                        $('#studentProfileData').hide();
+                        $('#questionloader').show();
+                        sponsor_name = "{{sponsor_name}}";
+                        sponsor_id = "{{sponsor_id}}";
+                        amount = "{{amount}}";
+                        console.log(sId)
+                        $("#" + sId.toString()).css('background-color', 'lightgray');
+                        $.ajax({
+                            url: "/indivStudentProfile?student_id=" + sId + "&sponsor_name=" + sponsor_name + "&sponsor_id=" + sponsor_id + "&amount=" + amount + "&flag=" + flag,
+                            type: "get",
+                            data: data,
+                            success: function (response) {
+                                $('#questionloader').hide();
+                                $('#studentProfileData').show();
+                                $("#studentProfileData").html(response);
+                            },
+                            error: function (xhr) {
+                                window.alert("error occurred while submitting data");
+                            }
+                        });
+                    }
+                    j = j + 1;
+                } else {
+                    tr[i - 1].style.display = "none";
+                }
             }
+            $('#studentloader').hide();
+            $('#list').show();
+            if(msg==0){
+                        $('#msg').show();
+                        $('#studentProfileData').hide();
+                    }
         }
     }
 </script>
