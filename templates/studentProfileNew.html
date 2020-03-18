@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="grey-text" id="msg" style="text-align: center;display:none;">No Students</h3>
+                    <h3 class="grey-text" id="msg" style="text-align: center;display:none;">No Students Available</h3>
                 </div>
                 <div class="StudentList" id="list">
                     <div class="box-body table-responsive no-padding" style="height: 540px;">
@@ -122,7 +122,6 @@
 
     class_section.onchange = function () {
         $('tr').css('background-color', '');
-        $('#studentProfileData').hide();
         $('#msg').hide();
         $('#list').hide();
         $('#studentloader').show();
@@ -157,7 +156,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
         }
 
@@ -188,7 +186,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
         }
 
@@ -206,7 +203,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
         }
 
@@ -231,7 +227,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
         }
     }
@@ -301,7 +296,6 @@
 
     function myFunction() {
         $('tr').css('background-color', '');
-        $('#studentProfileData').hide();
         $('#msg').hide();
         var class_sec = document.getElementById('class_section').value;
         var res = '';
@@ -345,7 +339,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
 
         } else {
@@ -378,7 +371,6 @@
             $('#list').show();
             if (msg == 0) {
                 $('#msg').show();
-                $('#studentProfileData').hide();
             }
         }
     }
