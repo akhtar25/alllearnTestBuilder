@@ -141,10 +141,15 @@
                         <td>{{jobDetailRow.job_id}}</td>
                     </tr>
                 </table>
+                {% if current_user.is_anonymous %}
+                {%if jobDetailRow.status=='Open'%}
+                <a href="{{url_for('logout')}}" class='btn green right applyBTN' id='applyBTN'>Apply</a>
+                {%endif%}
+                {% else %}
                 {%if jobDetailRow.status=='Open' and user_type_val=='161'%}
                 <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
                 {%endif%}
-                <!-- Modal Structure -->
+                {% endif %}
                 <div id="fillApplyDetail" class="modal" >
                         <form action="/sendJobApplication" method="post">
                             <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
@@ -170,11 +175,14 @@
 {%endif%}
 </div>
 <script>
-    $(document).ready(function () {        
+    $(document).ready(function () {   
+             
         if ({{applied}}!=0){            
             $('#applyBTN').attr('disabled', true);
         }
-        
+        {% if current_user.is_anonymous %}
+        $('#applyBTN').attr('disabled', false);
+        {% endif %}
         $('.modal').modal();
         $('#mainApplyBTN').attr('disabled', true);
         $('.datepicker').datepicker();

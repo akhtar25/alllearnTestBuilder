@@ -62,12 +62,16 @@
                                 <span>All</span>
                               </label>
                             </p>
+                            {% if current_user.is_anonymous %}
+                            {% else %}
                             <p>
                               <label>
                                 <input name="city" type="radio" class='cityClass' value="{{current_user.city}}"/>
                                 <span>{{current_user.city}}</span>
                               </label>
-                            </p>                      
+                            </p> 
+                            
+                            {% endif %}
                   </div>
                   <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text" id='filterListBTN'
                           >Filter List</button></p>
@@ -85,6 +89,7 @@
 
   
 </div>
+
 <script>
   var qjobTerm='';
   var qjobType='';
@@ -121,7 +126,9 @@ var page = 0;
     loadJobs(qjobTerm,qjobType,qcity,page);
   });
 
-  function loadJobs(qjobTerm,qjobType,qcity,page){    
+
+  
+      function loadJobs(qjobTerm,qjobType,qcity,page){    
   $.ajax({
             url: "/openJobsFilteredList?job_term=" + qjobTerm + "&job_type=" + qjobType +"&city="+qcity+"&page="+page,
             type: "get",
@@ -148,5 +155,6 @@ var page = 0;
       }
 </script>
 
-
 {%endblock%}
+
+
