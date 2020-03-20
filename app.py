@@ -1371,11 +1371,11 @@ def jobDetail():
     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
     if current_user.is_anonymous:
         print('user Anonymous')
-        jobApplicationRow = JobApplication.query.filter_by(job_id=job_id).first()
+        jobApplicationRow = ''
     else:
         print('user exist')
         jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
-    if jobApplicationRow!=None:
+    if jobApplicationRow:
         applied=1
     else:
         applied=0
