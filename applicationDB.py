@@ -238,6 +238,16 @@ class ChapterDetail(db.Model):
     book_name = db.Column(db.String(200), nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
 
+class StudentClassSecDetail(db.Model):
+    __tablename__= "student_class_sec_detail"
+    student_class_sec_id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    class_val = db.Column(db.Integer, nullable=True)
+    section=db.Column(db.String(1), nullable=True)
+    is_current = db.Column(db.String(1), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
 class TopicTracker(db.Model):
     __tablename__ = "topic_tracker"    
     topic_track_id = db.Column(db.Integer, primary_key=True)
