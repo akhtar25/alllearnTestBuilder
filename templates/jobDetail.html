@@ -141,11 +141,16 @@
                         <td>{{jobDetailRow.job_id}}</td>
                     </tr>
                 </table>
+                {% if current_user.is_anonymous %}
+                {%if jobDetailRow.status=='Open'%}
+                <a href="{{url_for('login')}}" class='btn green right applyBTN' id='applyBTN'>Apply</a>
+                {%endif%}
+                {% else %}
                 {%if jobDetailRow.status=='Open' and user_type_val=='161'%}
                 <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
                 {%endif%}
-                <!-- Modal Structure -->
-                <div id="fillApplyDetail" class="modal" >
+                {% endif %}
+                <div id="fillApplyDetail" class="modal" style="width: 750px;height: 370px;">
                         <form action="/sendJobApplication" method="post">
                             <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
                             <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
@@ -163,21 +168,33 @@
                 </div>
             </div>
         </div>
-        <div class="sharethis-inline-share-buttons"></div>
+        <div class="row">
+            <h5 class='grey-text'>Share Page</h5>
+            <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
+                <a class="a2a_button_facebook"></a>
+                <a class="a2a_button_whatsapp"></a>
+                <a class="a2a_button_sms"></a>
+                <a class="a2a_button_google_gmail"></a>
+            </div>
+            <script async src="https://static.addtoany.com/menu/page.js"></script>
+        </div>
     </div>
     {%else%}
 <h3 class="grey-text">No details found for the selected job id</h3>
 {%endif%}
 </div>
 <script>
-    $(document).ready(function () {        
+    $(document).ready(function () {   
+        var app = "{{applied}}";
+        console.log('applied:'+app);     
         if ({{applied}}!=0){            
             $('#applyBTN').attr('disabled', true);
         }
         
         $('.modal').modal();
         $('#mainApplyBTN').attr('disabled', true);
-        $('.datepicker').datepicker();
+         $('.datepicker').datepicker();
+         
 
         $('#availableFromID').change(function () {
             if ($(this).val().length != 0) {

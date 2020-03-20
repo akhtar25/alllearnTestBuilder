@@ -125,7 +125,9 @@
                 <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
                 </li>
                 {%endif%}
-        </ul>        
+        </ul>  
+        
+        
 
 
 
@@ -229,7 +231,9 @@
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
             {% if current_user.is_anonymous or disconn == 1 %}
-
+            <li>
+              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
+            </li> 
             <li>
                 <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
                   <i class="material-icons right" style="font-size: 40px">account_circle </i>

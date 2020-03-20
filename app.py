@@ -1250,15 +1250,14 @@ def postJob():
 
 
 @app.route('/openJobs')
-@login_required
 def openJobs():
     page=request.args.get('page',0, type=int)    
     first_login = request.args.get('first_login','0').strip()
-
     jobTermOptions = MessageDetails.query.filter_by(category='Teaching Term Option').all()
     jobTypeOptions = MessageDetails.query.filter_by(category='Job Type').all()
-
+    # print('User value in openJobs:'+str(user_type_val))
     if first_login=='1':
+        
         print('this is the first login section')
         userRecord = User.query.filter_by(id=current_user.id).first() 
         userRecord.user_type= '161'
@@ -1266,12 +1265,14 @@ def openJobs():
         flash('Please complete your profile before applying for jobs')
         return redirect('edit_profile')
     else:
-        print('first login not registered')    
-        return render_template('openJobs.html',title='Look for Jobs', user_type_val=str(current_user.user_type),first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,classSecCheckVal=classSecCheck())
+        print('first login not registered')
+        if current_user.is_anonymous:
+            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+        else:
+            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,user_type_val=str(current_user.user_type))
 
 
 @app.route('/openJobsFilteredList')
-@login_required
 def openJobsFilteredList():
     page=request.args.get('page',0, type=int)
     recordsOnPage = 5
@@ -1281,7 +1282,7 @@ def openJobsFilteredList():
     qjob_term = request.args.get('job_term') #all /short term / long term
     qjob_type = request.args.get('job_type') #all /part time/ full time
     qcity =  request.args.get('city')       # all/ home city
-
+   
     print("qterm is "+str(qjob_term))
     print("qtype is "+str(qjob_type))
     print("qcity is "+str(qcity))
@@ -1360,21 +1361,31 @@ def openJobsFilteredList():
 
 
 @app.route('/jobDetail')
-@login_required
+
 def jobDetail():
     job_id = request.args.get('job_id')
-    school_id=request.args.get('school_id')    
+    school_id=request.args.get('school_id')  
     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
-    jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
-    if jobApplicationRow!=None:
+    if current_user.is_anonymous:
+        print('user Anonymous')
+        jobApplicationRow = ''
+    else:
+        print('user exist')
+        jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+    if jobApplicationRow:
         applied=1
     else:
         applied=0
-    return render_template('jobDetail.html', title='Job Detail', 
-        schoolProfileRow=schoolProfileRow,classSecCheckVal=classSecCheck(),addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied, user_type_val=str(current_user.user_type))
+    if current_user.is_anonymous:
+        return render_template('jobDetail.html', title='Job Detail', 
+            schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+    else:
+        return render_template('jobDetail.html', title='Job Detail', 
+            schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+    
 
 
 
