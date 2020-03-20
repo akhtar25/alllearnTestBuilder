@@ -1266,7 +1266,10 @@ def openJobs():
         return redirect('edit_profile')
     else:
         print('first login not registered')
-        return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+        if current_user.is_anonymous:
+            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+        else:
+            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,user_type_val=str(current_user.user_type))
 
 
 @app.route('/openJobsFilteredList')

@@ -150,7 +150,7 @@
                 <a href="#fillApplyDetail" class='btn green right applyBTN modal-trigger' id='applyBTN'>Apply</a>
                 {%endif%}
                 {% endif %}
-                <div id="fillApplyDetail" class="modal" >
+                <div id="fillApplyDetail" class="modal" style="width: 750px;height: 370px;">
                         <form action="/sendJobApplication" method="post">
                             <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
                             <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
@@ -176,7 +176,8 @@
 </div>
 <script>
     $(document).ready(function () {   
-             
+        var app = "{{applied}}";
+        console.log('applied:'+app);     
         if ({{applied}}!=0){            
             $('#applyBTN').attr('disabled', true);
         }
@@ -185,7 +186,8 @@
         {% endif %}
         $('.modal').modal();
         $('#mainApplyBTN').attr('disabled', true);
-        $('.datepicker').datepicker();
+         $('.datepicker').datepicker();
+         
 
         $('#availableFromID').change(function () {
             if ($(this).val().length != 0) {
