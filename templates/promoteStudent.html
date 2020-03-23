@@ -61,24 +61,25 @@
                 <div class="selectTable">
                         <table class="table table-hover">
                             <thead>
-                                <tr>
+                                <tr>   
+                                    <th style="padding-left: 0px;">Select</th>
                                     <th>Student Name</th>
-                                    <th>Select</th>
                                 </tr>
                             </thead>
                             <tbody class="tableBody">
                                 {% for student in studentList %}
                                 <tr id="{{student.student_id}}">
-                                    <td>
-                                        {{student.full_name}}
-                                    </td>
-                                    <td>
+                                   
+                                    <td style="padding-left: 0px;">
                                         <p>
-                                            <label>
+                                            <label>    
                                                 <input type="checkbox" class="clickBox" id="{{student.student_id}}" name="checkbox" value="{{student.student_id}}" checked="checked" />
                                                 <span></span> 
                                             </label>
                                         </p>
+                                    </td>
+                                    <td>
+                                            {{student.full_name}}
                                     </td>
                                 </tr>
                                 {% endfor %}

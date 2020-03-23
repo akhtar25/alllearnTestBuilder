@@ -13,6 +13,9 @@
     position: relative;
     overflow-y: auto;
   }
+  .selectTable{
+    width: 77%;
+  }
   .tableBody{
     overflow-y: auto;
   }
