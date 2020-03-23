@@ -4,6 +4,27 @@
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */
 
+ /* CSS for promote Student */
+  .selectClassSection{
+    width: 284px;
+  }
+  .selectTable{
+    height: 400px;
+    position: relative;
+    overflow-y: auto;
+  }
+  .tableBody{
+    overflow-y: auto;
+  }
+  .rightScroll{
+    margin-left: 150px;
+  }
+  .promotionBtn{
+    float: right;
+    margin-top: 250px;
+  }
+ /* End */
+
 /* Css for student Directory */
 
 .HeadingBox{
