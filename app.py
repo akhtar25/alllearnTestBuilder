@@ -4,7 +4,7 @@ from send_email import new_teacher_invitation,new_applicant_for_job, application
 from applicationDB import *
 from qrReader import *
 from config import Config
-from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm 
+from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
 from forms import createSubscriptionForm,ClassRegisterForm,postJobForm
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
@@ -550,6 +550,51 @@ def admin():
     print('Count2:'+str(num2))
     return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
 
+
+@app.route('/promoteStudent',methods=['POST','GET'])
+@login_required
+def promoteStudent():
+    form = promoteStudentForm()
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()
+    class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
+    form.class_section1.choices = class_list
+    form.class_section2.choices = class_list
+    studentListQuery = "select sp.student_id,sp.school_id ,full_name , section ,class_val ,section from student_profile sp inner join class_section cs on sp.class_sec_id =cs.class_sec_id where sp.school_id='"+str(teacher_id.school_id)+"'"
+    studentList = db.session.execute(studentListQuery).fetchall()
+    if request.method == 'POST':
+        print('Inside post request')    
+        flash('Student promoted successfully')
+        classSecBefore = form.class_section1.data
+        classSecAfter = form.class_section2.data
+        print('Class Section after')
+        print(classSecAfter)
+        resClassSection = classSecAfter.split("-")
+        classAfter = resClassSection[0]
+        print(classAfter)
+        sectionAfter = resClassSection[1]
+        print(sectionAfter)
+        value = request.form.getlist('checkbox')
+        for i in range(len(value)):
+            print(value[i])
+            studentPromote = StudentProfile.query.filter_by(student_id=str(value[i])).first()
+            print(studentPromote.full_name)
+            classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=str(classAfter),section=str(sectionAfter),school_id=str(teacher_id.school_id)).first()
+            studentPromote.class_sec_id = classSection.class_sec_id
+            db.session.commit()
+            studentClassSec = StudentClassSecDetail.query.filter_by(student_id=str(value[i])).first()
+            if studentClassSec:
+                studentClassSec.is_current = 'N'
+                db.session.commit()
+            classSecAdd = StudentClassSecDetail(student_id=str(value[i]),
+            class_sec_id=classSection.class_sec_id,class_val=str(classAfter),
+            section=str(sectionAfter),is_current='Y',last_modified_date=datetime.now())
+            db.session.add(classSecAdd)
+            db.session.commit()
+        return render_template('promoteStudent.html',form=form,studentList=studentList)
+    else:
+        return render_template('promoteStudent.html',form=form,studentList=studentList)
+
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
 def classRegistration():
@@ -689,7 +734,7 @@ def singleStudReg():
 
 @app.route('/studentRegistration', methods=['GET','POST'])
 @login_required
-def studentRegistration():
+def studentRegistration(): 
     studId = request.args.get('student_id') 
     form=SingleStudentRegistration()
     if request.method=='POST':
@@ -712,8 +757,10 @@ def studentRegistration():
                     db.session.add(address_data)
                     address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
+                studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
                 studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
                 print('Query:'+str(studProfile))
+
                 profileImg = db.session.execute(text(studProfile))
                 print(studentDetails)
                 if request.form['birthdate']:
@@ -735,6 +782,10 @@ def studentRegistration():
                 studentDetails.roll_number=int(form.roll_number.data)
                 studentDetails.school_adm_number=form.school_admn_no.data
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
+                db.session.commit()
+                studentClassSec.class_sec_id = class_sec.class_sec_id
+                studentClassSec.class_val = int(form.class_val.data)
+                studentClassSec.section = form.section.data
                 db.session.commit()
                 first_name=request.form.getlist('guardian_first_name')
                 last_name=request.form.getlist('guardian_last_name')
@@ -807,6 +858,7 @@ def studentRegistration():
                     address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 print('Print Form Data:'+form.section.data)
+                
                 class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
                 print('Section Id:'+str(class_sec.class_sec_id))
@@ -843,6 +895,10 @@ def studentRegistration():
                 phone=request.form.getlist('guardian_phone')
                 email=request.form.getlist('guardian_email')
                 relation=request.form.getlist('relation')
+                print('Insert into ClassSec table')
+                student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
+                class_val=int(form.class_val.data), section=form.section.data, is_current='Y',last_modified_date=datetime.today()) 
+                db.session.add(student_class_sec)
                 for i in range(len(first_name)):
                     relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
                     guardian_id = GuardianProfile.query.filter_by(email=email[i]).first()
@@ -900,6 +956,10 @@ def studentRegistration():
                 roll_number=int(row['roll_number']))
                 db.session.add(student)
                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
+                print('Insert into ClassSec table')
+                student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
+                class_val=str(row['class_val']), section=row['section'], is_current='Y',last_modified_date=datetime.today()) 
+                db.session.add(student_class_sec)
                 for i in range(4):
                     if i==0:
                         option='A'
@@ -4489,7 +4549,8 @@ def studentProfile():
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
 
 
-    
+
+
 
 
 @app.route('/performance')
@@ -4604,7 +4665,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8005))
+        port=int(os.getenv('PORT', 8008))
         # ssl_context='adhoc'
         )
     #app.run()

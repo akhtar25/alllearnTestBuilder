@@ -291,6 +291,10 @@ class studentPerformanceForm(FlaskForm):
     test_type1=SelectField('Select Test Type')
     student_name1=SelectField('Select Student')
 
+class promoteStudentForm(FlaskForm):
+    class_section1 = SelectField('Select Class - Section')
+    class_section2 = SelectField('Select Class - Section')
+
 class studentDirectoryForm(FlaskForm):
     student_name = StringField('Student Name')
     class_section = SelectField('Select Class - Section')

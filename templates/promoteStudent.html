@@ -1,0 +1,156 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+        <form action="" method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+    <div class="row">
+            
+            <div class="col-sm-5">
+                <div class="leftScroll">
+                    <div class="selectLabel">
+                        <label><h4>Promote from</h4></label>
+                    </div>
+                    <div class="selectClassSection">
+                        {{ form.class_section1.label(class='labelsize') }}
+                        <br>
+                        {% if form.class_section1.errors %}
+                        {{ form.class_section1(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.class_section1.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.class_section1(class='form-control') }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="rightScroll">
+                        <div class="selectLabel">
+                            <label><h4>Promote to</h4></label>
+                        </div>
+                        <div class="selectClassSection">
+                                {{ form.class_section2.label(class='labelsize') }}
+                                <br>
+                                {% if form.class_section2.errors %}
+                                {{ form.class_section2(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.class_section2.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.class_section2(class='form-control') }}
+                                {% endif %}
+                        </div>
+                    </div>
+            </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-5">
+                <div class="deselectDiv">
+                        <p>
+                                <label>
+                                    <!-- <input type="checkbox" id="unselectAll" /> -->
+                                    <span><a href="#" id="unselectAll">Unselect All</a></span> 
+                                </label>
+                            </p>
+                </div>
+                <div class="selectTable">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>   
+                                    <th style="padding-left: 0px;">Select</th>
+                                    <th>Student Name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tableBody">
+                                {% for student in studentList %}
+                                <tr id="{{student.student_id}}">
+                                   
+                                    <td style="padding-left: 0px;">
+                                        <p>
+                                            <label>    
+                                                <input type="checkbox" class="clickBox" id="{{student.student_id}}" name="checkbox" value="{{student.student_id}}" />
+                                                <span></span> 
+                                            </label>
+                                        </p>
+                                    </td>
+                                    <td>
+                                            {{student.full_name}}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="promotionBtn">
+                <button class="btn waves-light green lighten-1 white-text" type="submit">Confirm Promotion</button>
+            </div>
+        </div>
+            
+    </div>
+    </div>
+    </form>
+</div>
+<script>
+    $('#unselectAll').click(function(){
+        console.log('Inside unselect');
+        
+        $('.clickBox').attr('checked',false);
+        
+    });
+
+    $(document).ready(function(){
+        $('#class_section1').val('1-A');
+        console.log('Inside ready function');
+        {% for student in studentList %}
+            var data = document.getElementById("{{student.student_id}}");
+            data.style.display = "none";
+            console.log('hide all rows');
+        {% endfor %}
+        var class_val = 1;
+        var section = 'A';
+        {% for student in studentList %}
+            var clas = "{{student.class_val}}";
+            var sec = "{{student.section}}";
+            if ((class_val == clas) && (section == sec)) {
+                    var sID = "{{student.student_id}}";
+                    console.log('sID:' + sID);
+                    var row = document.getElementById(sID);
+                    row.style.display = "table-row";
+                    $('input[name="checkbox"][value="{{student.student_id}}"]').attr('checked','checked');
+                }
+        {% endfor %}
+    });
+    
+    var class_section = document.getElementById('class_section1')
+    class_section.onchange = function(){
+        $('.clickBox').attr('checked',false);
+        {% for student in studentList %}
+            var data = document.getElementById("{{student.student_id}}");
+            data.style.display = "none";
+            console.log('hide all rows');            
+        {% endfor %}
+        classSection = class_section.value;
+        var res = classSection.split("-");
+        var class_val = res[0];
+        var section = res[1];
+        {% for student in studentList %}
+            var clas = "{{student.class_val}}";
+            var sec = "{{student.section}}";
+            if ((class_val == clas) && (section == sec)) {
+                    var sID = "{{student.student_id}}";
+                    console.log('sID:' + sID);
+                    var row = document.getElementById(sID);
+                    row.style.display = "table-row";
+                    $('input[name="checkbox"][value="{{student.student_id}}"]').attr('checked','checked');
+                }
+        {% endfor %}
+    }
+</script>
+{% endblock %}
