@@ -53,8 +53,8 @@
                 <div class="deselectDiv">
                         <p>
                                 <label>
-                                    <input type="checkbox" id="unselectAll" />
-                                    <span>Deselect All</span> 
+                                    <!-- <input type="checkbox" id="unselectAll" /> -->
+                                    <span><a href="#" id="unselectAll">Unselect All</a></span> 
                                 </label>
                             </p>
                 </div>
@@ -73,7 +73,7 @@
                                     <td style="padding-left: 0px;">
                                         <p>
                                             <label>    
-                                                <input type="checkbox" class="clickBox" id="{{student.student_id}}" name="checkbox" value="{{student.student_id}}" checked="checked" />
+                                                <input type="checkbox" class="clickBox" id="{{student.student_id}}" name="checkbox" value="{{student.student_id}}" />
                                                 <span></span> 
                                             </label>
                                         </p>
@@ -100,10 +100,13 @@
 <script>
     $('#unselectAll').click(function(){
         console.log('Inside unselect');
+        
         $('.clickBox').attr('checked',false);
+        
     });
 
     $(document).ready(function(){
+        $('#class_section1').val('1-A');
         console.log('Inside ready function');
         {% for student in studentList %}
             var data = document.getElementById("{{student.student_id}}");
@@ -120,18 +123,18 @@
                     console.log('sID:' + sID);
                     var row = document.getElementById(sID);
                     row.style.display = "table-row";
-                    
+                    $('input[name="checkbox"][value="{{student.student_id}}"]').attr('checked','checked');
                 }
         {% endfor %}
     });
     
     var class_section = document.getElementById('class_section1')
     class_section.onchange = function(){
-        
+        $('.clickBox').attr('checked',false);
         {% for student in studentList %}
             var data = document.getElementById("{{student.student_id}}");
             data.style.display = "none";
-            console.log('hide all rows');
+            console.log('hide all rows');            
         {% endfor %}
         classSection = class_section.value;
         var res = classSection.split("-");
@@ -145,7 +148,7 @@
                     console.log('sID:' + sID);
                     var row = document.getElementById(sID);
                     row.style.display = "table-row";
-                    
+                    $('input[name="checkbox"][value="{{student.student_id}}"]').attr('checked','checked');
                 }
         {% endfor %}
     }
