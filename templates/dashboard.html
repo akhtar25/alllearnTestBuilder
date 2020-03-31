@@ -16,18 +16,6 @@
         </section> 
         <section class="content">
           <div class="row">
-            <!-- <section class="col-lg-12 connectedSortable" >
-              <div class="box box-info">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Average School Performance</h3>
-                </div>
-
-                <div id='graphDiv' style="overflow: auto;top:-30px;overflow: auto;height:300px;"></div>
-                <div class="box-footer text-right">
-                  <a href="{{url_for('testPerformance')}}" class="uppercase">See Performance</a>
-                </div>
-              </div>
-            </section> -->
             <div class="col-md-6 col-xl-6">
               <div class="card mb-3 widget-content bg-arielle-smile-dashboard1">
                 <div class="widget-content-wrapper text-white">
@@ -71,7 +59,54 @@
                 </div>
               </div>
           </div>
-          <div class="row">
+          <div class="row" style="margin-top: -20px;">
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+                  <div class="widget-content-wrapper text-white">
+                    <div class="widget-content-left leftContent">
+                      <div class="widget-heading">
+                        Test
+                      </div>
+                      <div class="widget-subheading">
+                        Total test till now 
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;">
+                        <span>{{testCount[0]}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                </div>
+              </div>
+        
+              <!-- for total numbers of students -->
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                  <div class="card mb-3 widget-content bg-grow-early-dashboard">
+                    <div class="widget-content-wrapper text-white">
+                      <div class="widget-content-left leftContent">
+                        <div class="widget-heading">
+                          Test
+                        </div>
+                        <div class="widget-subheading">
+                          Test in lask one week 
+                        </div>
+                      </div>
+                      <div class="widget-content-right rightContent">
+                        <div class="widget-numbers text-white" style="font-size:26px;">
+                          <span>{{lastWeekTestCount[0]}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          <div class="row" style="margin-top: -20px;">
             <div class="col-md-6 col-xl-6">
                 <div class="">
                     <h3 class="box-title" style="font-size: 18px;">Student performance</h3>
@@ -91,7 +126,7 @@
               </div>
             </div>
             <div class="col-md-6 col-xl-6">
-                <div class="barChartBorder" style="position: relative;margin-top: 60px;">
+                <div class="barChartBorder" style="position: relative;margin-top: 50px;height:505px;">
                   <!-- <div class="selectLabel">
                       <label><h4>Select Class and Section</h4></label>
                   </div> -->
@@ -119,7 +154,7 @@
             </div>
           </div>
           <div class="row">
-              <section class="col-lg-12">
+              <div class="col-md-6 col-xl-6">
                   <div class="">
                     <div class="box-header with-border">
                         <h3 class="box-title">Recent contents</h3>
@@ -128,39 +163,42 @@
                     </div>
                     </div>
                   </div>
-              </section>
+                </div>
+                <section class="col-lg-6 connectedSortable" style="padding-top:5px;">
+                    <p class="text-center">
+                        <h4 class="box-title">Course Completion</h4>
+                      </p>
+                  <div class="courseCompletionDashboard">
+                    <div style="overflow-y:auto;height:300px">
+                      
+                      {% if topicToCoverDetails|length >0  %}
+                      {% for topicCountRow in topicToCoverDetails %}
+                      <div class="progress-group">
+                        <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
+                        <span
+                          class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
+                        <div class="progress sm">
+                          {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
+                          <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                      {% else %}
+                      <h3 class="grey-text" style="margin-left: 20px;">No course data </h3>
+                      <h5 style="margin-left: 20px;">Please add classes to see data here</h5>
+                      {% endif %}
+                      <!-- /.progress-group -->
+                    </div>
+                    <div class="box-footer text-right">
+                      <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
+                    </div>
+                  </div>
+                </section>
           </div>
 
           <div class="row">
-              <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
-                  <p class="text-center">
-                      <h4 class="box-title">Course Completion</h4>
-                    </p>
-                <div class="courseCompletionDashboard">
-                  <div style="overflow-y:auto;height:300px">
-                    
-                    {% if topicToCoverDetails|length >0  %}
-                    {% for topicCountRow in topicToCoverDetails %}
-                    <div class="progress-group">
-                      <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
-                      <span
-                        class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
-                      <div class="progress sm">
-                        {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
-                        <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
-                      </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <h3 class="grey-text" style="margin-left: 20px;">No course data </h3>
-                    <h5 style="margin-left: 20px;">Please add classes to see data here</h5>
-                    {% endif %}
-                    <!-- /.progress-group -->
-                  </div>
-                  <div class="box-footer text-right">
-                    <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
-                  </div>
-                </div>
+              <section class="col-lg-7">
+
               </section>
               <section class="col-lg-5 connectedSortable">
                   <h3 class="box-title" style="font-size: 18px;">Top Students Last Month</h3>
@@ -196,54 +234,6 @@
                 <!-- /.box -->
               </section>
             </div>
-
-            <div class="row">
-                <div class="col-md-6 col-xl-6">
-                    <div class="">
-                  <div class="card mb-3 widget-content bg-arielle-smile-dashboard rightCard">
-                    <div class="widget-content-wrapper text-white">
-                      <div class="widget-content-left leftContent">
-                        <div class="widget-heading">
-                          Test
-                        </div>
-                        <div class="widget-subheading">
-                          Total test till now 
-                        </div>
-                      </div>
-                      <div class="widget-content-right rightContent">
-                        <div class="widget-numbers text-white" style="font-size:26px;">
-                          <span>{{testCount[0]}}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  </div>
-                  </div>
-                </div>
-          
-                <!-- for total numbers of students -->
-                <div class="col-md-6 col-xl-6">
-                    <div class="">
-                    <div class="card mb-3 widget-content bg-grow-early-dashboard leftCard">
-                      <div class="widget-content-wrapper text-white">
-                        <div class="widget-content-left leftContent">
-                          <div class="widget-heading">
-                            Test
-                          </div>
-                          <div class="widget-subheading">
-                            Test in lask one week 
-                          </div>
-                        </div>
-                        <div class="widget-content-right rightContent">
-                          <div class="widget-numbers text-white" style="font-size:26px;">
-                            <span>{{lastWeekTestCount[0]}}</span>
-                          </div>
-                        </div>
-                      </div>
-                      </div>
-                    </div>
-                  </div>
-              </div>
 
 
               <div class="row">

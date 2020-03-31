@@ -5098,20 +5098,18 @@ small {
   margin-top: 20px;
 }
 .bg-grow-early-dashboard{
-  background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%);
+  background-image: linear-gradient(-225deg, #7085B6 0%, #87A7D9 50%, #DEF3F8 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
   height: 80px;
-  border-radius: 25px;
 }
 .bg-grow-early-dashboard1{
-  background-image: linear-gradient(to top, #0250c5 0%, #d43f8d 100%);
+  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
   height: 80px;
-  border-radius: 25px;
 }
 .barChartBorder{
   background: white;
@@ -5203,23 +5201,21 @@ small {
   height:80px;
 }
 .bg-arielle-smile-dashboard{
-  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+  background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
   height:80px;
-  border-radius: 25px;
 }
 .labelDashboard{
   margin-top: 12px;
 }
 .bg-arielle-smile-dashboard1{
-  background-image: linear-gradient(to top, #0c3483 0%, #a2b6df 100%, #6b8cce 100%, #a2b6df 100%);
+  background-image: radial-gradient(circle 248px at center, #16d9e3 0%, #30c7ec 47%, #46aef7 100%) !important;
   padding: 1rem;
   flex-direction: row;
   align-items: center;
   height:80px;
-  border-radius: 25px;
 }
 
 #toast-container {
