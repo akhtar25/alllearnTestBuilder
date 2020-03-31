@@ -4,56 +4,6 @@
 <div class="card id">
     <div class="card-body">
         <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;">
-           <!-- <table class="table table-bordered table-responsive-md table-striped text-center">
-                <thead>
-                    <tr>                      
-                        <th>Preview</th>
-                        <th scope="col">Content</th>
-                        <th scope="col">Modified Date</th>     
-                    </tr>
-                </thead>
-                <tbody class="center-align">
-                    {% for c in contents %}      
-                    {%for content in c %}    
-                    <tr>
-                        <td>
-                            {%if content.content_type==92%}
-             
-                          <video width="160" height="120" >
-                                    <source src="{{content.reference_link}}">
-                                  </video>
-                                  {%elif content.content_type==96%}
-                                  <iframe height="120" src="{{content.reference_link}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                            {%elif content.content_type==93 or content.content_type==97 %}  
-                            <audio controls>
-                                    <source src="{{content.reference_link}}">
-                                  Your browser does not support the audio.
-                                  </audio>
-                            {%elif content.content_type==94 or content.content_type==98%}
-                                  <div class="center-align responsive-image">
-                                  <img class="materialboxed" height="120" src="{{content.reference_link}}">
-                                </div>
-                            {%elif content.content_type==95 or content.content_type==99%}            
-                            <a href="#modal1" class="modal-trigger"><img height="50px" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
-                            <div id="modal1" class="modal">
-                                    <div class="modal-content">
-                                      <h4>Modal Header</h4>
-                                      <p>A bunch of text</p>
-                                    </div>                                  
-                                  </div>
-                            {%endif%}
-                            </td>
-                            <td>
-                            <a href="{{content.reference_link}}" target="_blank">{{content.content_name}}
-                        </td>
-                        <td>{{content.last_modified_date.strftime('%d-%B-%Y')}}</td>                        
-
-                    </tr>
-                    {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>-->
-
 <table>
             {% for c in contents %}      
             {%for content in c %}    

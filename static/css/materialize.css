@@ -8,6 +8,11 @@
   .selectClassSection{
     width: 284px;
   }
+  .selectClassSectionDashboard{
+    width: 150px;
+    margin: auto;
+    margin-top: 20px;
+  }
   .selectTable{
     height: 400px;
     position: relative;
@@ -5086,6 +5091,20 @@ small {
   margin-left: 10px;
   height: 80px;
 }
+.leftCard{
+  margin-top: 20px;
+}
+.rightCard{
+  margin-top: 20px;
+}
+.bg-grow-early-dashboard{
+  background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height: 80px;
+  border-radius: 25px;
+}
 
 .card-header:first-child {
   border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
@@ -5148,6 +5167,14 @@ small {
   align-items: center;
   margin-left: 10px;
   height:80px;
+}
+.bg-arielle-smile-dashboard{
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height:80px;
+  border-radius: 25px;
 }
 
 #toast-container {
@@ -5679,6 +5706,13 @@ button.btn-floating {
     padding: 30px;
     position: inherit;
     
+}
+
+.leftContent{
+  margin-left: 25px;
+}
+.rightContent{
+  margin-right: 25px;
 }
 
 .widget-content .widget-content-left .widget-heading {

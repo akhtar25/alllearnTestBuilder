@@ -338,14 +338,16 @@
            },
             success: function (response) {
                 $("#loaderDiv").hide();
+                console.log(response);
                 if (response=="NA"){
+                    console
                     $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
                 }
                 else{
                 $("#contentDiv").html(response);
             }
             },
-            error: function (xhr) {
+            error: function (xhr) { 
                 window.alert("error occurred while loading contents");
             }
         });
