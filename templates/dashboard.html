@@ -74,8 +74,8 @@
           <div class="row">
             <div class="col-md-6 col-xl-6">
                 <div class="">
-                    <h3 class="box-title">Student performance</h3>
-                    <div class="box-header with-border boxBorderDashboard">
+                    <h3 class="box-title" style="font-size: 18px;">Student performance</h3>
+                    <div class="box-header with-border boxBorderDashboard" id="pieChartId">
                         
                   <div class="performanceGraph">
                       <h5 id='avg_score'></h5>
@@ -85,15 +85,18 @@
                 <div id="schoolPerformanceGraph">
                 </div>
                 </div>
+                <div id="pieChartloader" style="display: none;margin-left: 150px;">
+                    <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
+                </div>
               </div>
             </div>
             <div class="col-md-6 col-xl-6">
-                <div class="barChartBorder">
+                <div class="barChartBorder" style="position: relative;margin-top: 60px;">
                   <!-- <div class="selectLabel">
                       <label><h4>Select Class and Section</h4></label>
                   </div> -->
                   <div class="selectClassSectionDashboard">
-                      {{ form.class_section1.label(class='labelsize') }}
+                      {{ form.class_section1.label(class='labelsize labelDashboard') }}
                       <br>
                       {% if form.class_section1.errors %}
                       {{ form.class_section1(class="form-control form-control-lg is-invalid") }}
@@ -130,13 +133,12 @@
 
           <div class="row">
               <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
+                  <p class="text-center">
+                      <h4 class="box-title">Course Completion</h4>
+                    </p>
                 <div class="courseCompletionDashboard">
                   <div style="overflow-y:auto;height:300px">
-                    <div class="box-header with-border">
-                      <p class="text-center">
-                        <h4 class="box-title">Course Completion</h4>
-                      </p>
-                    </div>
+                    
                     {% if topicToCoverDetails|length >0  %}
                     {% for topicCountRow in topicToCoverDetails %}
                     <div class="progress-group">
@@ -161,11 +163,9 @@
                 </div>
               </section>
               <section class="col-lg-5 connectedSortable">
-  
+                  <h3 class="box-title" style="font-size: 18px;">Top Students Last Month</h3>
                 <div class="topStudentDashboard" style="overflow-y:auto;">
-                  <div class="box-header with-border">
-                    <h3 class="box-title">Top Students Last Month</h3>
-                  </div>
+                  
                   <!-- /.box-header -->
                   <div class="box-body no-padding" style="overflow-y:auto;height:300px">
                     {%if topStudentsRows | length!=0%}
@@ -248,11 +248,9 @@
 
               <div class="row">
                   <section class="col-lg-12 connectedSortable">
-      
+                      <h3 class="box-title" style="font-size: 18px;">Upcoming Tests and Events</h3>
                     <div class="testDashboard">
-                      <div class="box-header with-border">
-                        <h3 class="box-title">Upcoming Tests and Events</h3>
-                      </div>
+                      
                       <!-- /.box-header -->
                       <div class="box-body">
                         <div>
@@ -301,10 +299,9 @@
 
           <div class="row">
             <section class="col-lg-12 connectedSortable">
+                <h3 class="box-title" style="font-size: 18px;">Job Posts</h3>
               <div class="jobDashboard">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Job Posts</h3>
-                </div>
+                
                 <!-- /.box-header -->
                 <div class="box-body">
                   <div>
@@ -469,6 +466,8 @@ var class_section = document.getElementById('class_section1')
 
 
   $(document).ready(function () {
+            $('#pieChartId').hide();
+        $('#pieChartloader').show();
             $.ajax({
             url: "/performanceChart",
             type: "POST",
@@ -476,7 +475,10 @@ var class_section = document.getElementById('class_section1')
             data: "",
             success: function (response) {
               if (response=="NA"){
-                $("#performanceGraph").html('<h3 class="grey-text">School performance data not available</h3>');
+                
+                console.log('Data is empty');
+                console.log(response);
+                $("#pieChartId").html('<h3 class="grey-text">School performance data not available</h3>');
               }else{
             for (var result of response.result) {
                 $('#avg_score').html('Average Score <b>' + result.avg_score + '%</b>');
@@ -512,6 +514,8 @@ var class_section = document.getElementById('class_section1')
                 });
             }
             }
+            $('#pieChartId').show();
+        $('#pieChartloader').hide();
           },
             error: function (xhr) {
                 window.alert("error occurred while loading performance pie chart");
@@ -521,6 +525,8 @@ var class_section = document.getElementById('class_section1')
 
 
         $(document).ready(function(){
+          $('#chart').hide();
+          $('#barChartloader').show();
           var class_section = document.getElementById('class_section1')
           classSection = class_section.value;
           var res = classSection.split("-");
@@ -595,6 +601,8 @@ var class_section = document.getElementById('class_section1')
 
         var chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
+        $('#chart').show();
+        $('#barChartloader').hide();
             },
             error: function (xhr) {
                 window.alert("error occurred while loading performance bar chart");
@@ -639,7 +647,8 @@ var class_section = document.getElementById('class_section1')
                 console.log('success');
                 console.log(response);
                 if (response=="NA"){
-                    $(".contentDiv").html('<h3 class="grey-text">No content recent content found.</h3>');
+                    $(".contentDiv").html('<h3 class="grey-text">No recent content found.</h3><a href="{{url_for("contentManager")}}" style="float:right">Add content</a>');
+                    // $(".contentDiv").html('');
                 }
                 else{
                 $(".contentDiv").html(response);
