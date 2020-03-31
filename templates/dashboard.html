@@ -7,7 +7,7 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <body class="white">
-    <div class="wrapper">
+    <div class="wrapper" style="background-image: linear-gradient(45deg,#E4EBF2 , transparent);">
       <div>
         <section class="content-header">
           <h1>
@@ -29,7 +29,7 @@
               </div>
             </section> -->
             <div class="col-md-6 col-xl-6">
-              <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+              <div class="card mb-3 widget-content bg-arielle-smile-dashboard1">
                 <div class="widget-content-wrapper text-white">
                   <div class="widget-content-left leftContent">
                     <div class="widget-heading">
@@ -51,7 +51,7 @@
       
             <!-- for total numbers of students -->
             <div class="col-md-6 col-xl-6">
-                <div class="card mb-3 widget-content bg-grow-early-dashboard">
+                <div class="card mb-3 widget-content bg-grow-early-dashboard1">
                   <div class="widget-content-wrapper text-white">
                     <div class="widget-content-left leftContent">
                       <div class="widget-heading">
@@ -73,9 +73,10 @@
           </div>
           <div class="row">
             <div class="col-md-6 col-xl-6">
-                <div class="box box-info">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Student performance</h3>
+                <div class="">
+                    <h3 class="box-title">Student performance</h3>
+                    <div class="box-header with-border boxBorderDashboard">
+                        
                   <div class="performanceGraph">
                       <h5 id='avg_score'></h5>
                       <h5 id='highest_mark'></h5>
@@ -87,7 +88,7 @@
               </div>
             </div>
             <div class="col-md-6 col-xl-6">
-                <div class="box box-info">
+                <div class="barChartBorder">
                   <!-- <div class="selectLabel">
                       <label><h4>Select Class and Section</h4></label>
                   </div> -->
@@ -116,7 +117,7 @@
           </div>
           <div class="row">
               <section class="col-lg-12">
-                  <div class="box box-info">
+                  <div class="">
                     <div class="box-header with-border">
                         <h3 class="box-title">Recent contents</h3>
                     <div class="contentDiv">
@@ -129,7 +130,7 @@
 
           <div class="row">
               <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
-                <div class="box box-info">
+                <div class="courseCompletionDashboard">
                   <div style="overflow-y:auto;height:300px">
                     <div class="box-header with-border">
                       <p class="text-center">
@@ -149,8 +150,8 @@
                     </div>
                     {% endfor %}
                     {% else %}
-                    <h3 class="grey-text">No course data </h3>
-                    <h5>Please add classes to see data here</h5>
+                    <h3 class="grey-text" style="margin-left: 20px;">No course data </h3>
+                    <h5 style="margin-left: 20px;">Please add classes to see data here</h5>
                     {% endif %}
                     <!-- /.progress-group -->
                   </div>
@@ -161,7 +162,7 @@
               </section>
               <section class="col-lg-5 connectedSortable">
   
-                <div class="box box-info" style="overflow-y:auto;">
+                <div class="topStudentDashboard" style="overflow-y:auto;">
                   <div class="box-header with-border">
                     <h3 class="box-title">Top Students Last Month</h3>
                   </div>
@@ -198,7 +199,7 @@
 
             <div class="row">
                 <div class="col-md-6 col-xl-6">
-                    <div class="box box-info">
+                    <div class="">
                   <div class="card mb-3 widget-content bg-arielle-smile-dashboard rightCard">
                     <div class="widget-content-wrapper text-white">
                       <div class="widget-content-left leftContent">
@@ -222,7 +223,7 @@
           
                 <!-- for total numbers of students -->
                 <div class="col-md-6 col-xl-6">
-                    <div class="box box-info">
+                    <div class="">
                     <div class="card mb-3 widget-content bg-grow-early-dashboard leftCard">
                       <div class="widget-content-wrapper text-white">
                         <div class="widget-content-left leftContent">
@@ -244,9 +245,63 @@
                   </div>
               </div>
 
+
+              <div class="row">
+                  <section class="col-lg-12 connectedSortable">
+      
+                    <div class="testDashboard">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">Upcoming Tests and Events</h3>
+                      </div>
+                      <!-- /.box-header -->
+                      <div class="box-body">
+                        <div>
+                          <div class="table-responsive" style="overflow: auto;height:300px;">
+                            {%if EventDetailRows | length!=0%}
+                            <table class="table no-margin">
+                              <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>Test</th>
+                                  <th>Duration</th>
+                                  <th>Start Date</th>
+                                  <th>End Date</th>
+                                  <th>Category</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for eventRow in EventDetailRows %}
+                                <tr>
+                                  <td>{{eventRow.event_date}}</td>
+                                  <td><span class="label label-success">{{eventRow.event_name}}</span></td>
+                                  <td>{{eventRow.event_duration}}</td>
+                                  <td>{{eventRow.event_start}}</td>
+                                  <td>{{eventRow.event_end}}</td>
+                                  <td>
+                                    {{eventRow.event_category}}
+                                  </td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                            {%else%}
+                            <h3 class="grey-text">No events added yet</h3>
+                            <h5>Please click on 'Add Event' button to update event details</h5>
+                            {%endif%}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+      
+                    <div class="box-footer text-right">
+                      <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
+                    </div>
+                  </section>
+                </div>
+
           <div class="row">
             <section class="col-lg-12 connectedSortable">
-              <div class="box box-info">
+              <div class="jobDashboard">
                 <div class="box-header with-border">
                   <h3 class="box-title">Job Posts</h3>
                 </div>
@@ -315,58 +370,7 @@
 
 
           <!--End of job post details-->
-          <div class="row">
-            <section class="col-lg-12 connectedSortable">
-
-              <div class="box box-info">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Upcoming Tests and Events</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                  <div>
-                    <div class="table-responsive" style="overflow: auto;height:300px;">
-                      {%if EventDetailRows | length!=0%}
-                      <table class="table no-margin">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Test</th>
-                            <th>Duration</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Category</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for eventRow in EventDetailRows %}
-                          <tr>
-                            <td>{{eventRow.event_date}}</td>
-                            <td><span class="label label-success">{{eventRow.event_name}}</span></td>
-                            <td>{{eventRow.event_duration}}</td>
-                            <td>{{eventRow.event_start}}</td>
-                            <td>{{eventRow.event_end}}</td>
-                            <td>
-                              {{eventRow.event_category}}
-                            </td>
-                          </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-                      {%else%}
-                      <h3 class="grey-text">No events added yet</h3>
-                      <h5>Please click on 'Add Event' button to update event details</h5>
-                      {%endif%}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="box-footer text-right">
-                <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
-              </div>
-            </section>
-          </div>
+          
         </section>
       </div>
     </div>

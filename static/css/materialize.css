@@ -5105,6 +5105,40 @@ small {
   height: 80px;
   border-radius: 25px;
 }
+.bg-grow-early-dashboard1{
+  background-image: linear-gradient(to top, #0250c5 0%, #d43f8d 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height: 80px;
+  border-radius: 25px;
+}
+.barChartBorder{
+  background: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+
+.boxBorderDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.courseCompletionDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.topStudentDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.testDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+
+.jobDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
 
 .card-header:first-child {
   border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
@@ -5170,6 +5204,14 @@ small {
 }
 .bg-arielle-smile-dashboard{
   background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height:80px;
+  border-radius: 25px;
+}
+.bg-arielle-smile-dashboard1{
+  background-image: linear-gradient(to top, #0c3483 0%, #a2b6df 100%, #6b8cce 100%, #a2b6df 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
