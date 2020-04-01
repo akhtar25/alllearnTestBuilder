@@ -247,6 +247,7 @@ class StudentClassSecDetail(db.Model):
     section=db.Column(db.String(1), nullable=True)
     is_current = db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)
+    promotion_date = db.Column(db.DateTime, nullable=True)
 
 class TopicTracker(db.Model):
     __tablename__ = "topic_tracker"    
