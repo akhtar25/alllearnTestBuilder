@@ -588,7 +588,7 @@ def promoteStudent():
                 db.session.commit()
             classSecAdd = StudentClassSecDetail(student_id=str(value[i]),
             class_sec_id=classSection.class_sec_id,class_val=str(classAfter),
-            section=str(sectionAfter),is_current='Y',last_modified_date=datetime.now())
+            section=str(sectionAfter),is_current='Y',last_modified_date=datetime.now(),promotion_date=datetime.now())
             db.session.add(classSecAdd)
             db.session.commit()
         return render_template('promoteStudent.html',form=form,studentList=studentList)
