@@ -7,35 +7,291 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <body class="white">
-    <div class="wrapper">
+    <div class="wrapper" style="background-image: linear-gradient(45deg,#E4EBF2 , transparent);">
       <div>
         <section class="content-header">
           <h1>
             Dashboard
           </h1>
-        </section>
+        </section> 
         <section class="content">
           <div class="row">
-            <section class="col-lg-12 connectedSortable" >
-              <div class="box box-info">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Average School Performance</h3>
+            <div class="col-md-6 col-xl-6">
+              <div class="card mb-3 widget-content bg-arielle-smile-dashboard1">
+                <div class="widget-content-wrapper text-white">
+                  <div class="widget-content-left leftContent">
+                    <div class="widget-heading">
+                      Teachers
+                    </div>
+                    <div class="widget-subheading">
+                      Total Teachers of School 
+                    </div>
+                  </div>
+                  <div class="widget-content-right rightContent">
+                    <div class="widget-numbers text-white" style="font-size:26px;">
+                      <span>{{teacherCount[0]}}</span>
+                    </div>
+                  </div>
                 </div>
-
-                <div id='graphDiv' style="overflow: auto;top:-30px;overflow: auto;height:300px;"></div>
-                <div class="box-footer text-right">
-                  <a href="{{url_for('testPerformance')}}" class="uppercase">See Performance</a>
+                
+              </div>
+            </div>
+      
+            <!-- for total numbers of students -->
+            <div class="col-md-6 col-xl-6">
+                <div class="card mb-3 widget-content bg-grow-early-dashboard1">
+                  <div class="widget-content-wrapper text-white">
+                    <div class="widget-content-left leftContent">
+                      <div class="widget-heading">
+                        Students
+                      </div>
+                      <div class="widget-subheading">
+                        Total Students of School 
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;">
+                        <span>{{studentCount[0]}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
                 </div>
               </div>
-            </section>
+          </div>
+          <div class="row" style="margin-top: -20px;">
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+                  <div class="widget-content-wrapper text-white">
+                    <div class="widget-content-left leftContent">
+                      <div class="widget-heading">
+                        Test
+                      </div>
+                      <div class="widget-subheading">
+                        Total test till now 
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;">
+                        <span>{{testCount[0]}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                </div>
+              </div>
+        
+              <!-- for total numbers of students -->
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                  <div class="card mb-3 widget-content bg-grow-early-dashboard">
+                    <div class="widget-content-wrapper text-white">
+                      <div class="widget-content-left leftContent">
+                        <div class="widget-heading">
+                          Test
+                        </div>
+                        <div class="widget-subheading">
+                          Test in lask one week 
+                        </div>
+                      </div>
+                      <div class="widget-content-right rightContent">
+                        <div class="widget-numbers text-white" style="font-size:26px;">
+                          <span>{{lastWeekTestCount[0]}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          <div class="row" style="margin-top: -20px;">
+            <div class="col-md-6 col-xl-6">
+                <div class="">
+                    <h3 class="box-title" style="font-size: 18px;">Student performance</h3>
+                    <div class="box-header with-border boxBorderDashboard" id="pieChartId">
+                        
+                  <div class="performanceGraph">
+                      <h5 id='avg_score'></h5>
+                      <h5 id='highest_mark'></h5>
+                      <h5 id='lowest_mark'></h5>
+                  </div>
+                <div id="schoolPerformanceGraph">
+                </div>
+                </div>
+                <div id="pieChartloader" style="display: none;margin-left: 150px;">
+                    <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-6">
+                <div class="barChartBorder" style="position: relative;margin-top: 50px;height:505px;">
+                  <!-- <div class="selectLabel">
+                      <label><h4>Select Class and Section</h4></label>
+                  </div> -->
+                  <div class="selectClassSectionDashboard">
+                      {{ form.class_section1.label(class='labelsize labelDashboard') }}
+                      <br>
+                      {% if form.class_section1.errors %}
+                      {{ form.class_section1(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.class_section1.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                      {% else %}
+                      {{ form.class_section1(class='form-control') }}
+                      {% endif %}
+                  </div>
+                <div id="chart">
+                </div>
+                <div id="barChartloader" style="display: none;margin-left: 150px;">
+                    <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="row">
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Recent contents</h3>
+                    <div class="contentDiv">
+
+                    </div>
+                    </div>
+                  </div>
+                </div>
+                <section class="col-lg-6 connectedSortable" style="padding-top:5px;">
+                    <p class="text-center">
+                        <h4 class="box-title">Course Completion</h4>
+                      </p>
+                  <div class="courseCompletionDashboard">
+                    <div style="overflow-y:auto;height:300px">
+                      
+                      {% if topicToCoverDetails|length >0  %}
+                      {% for topicCountRow in topicToCoverDetails %}
+                      <div class="progress-group">
+                        <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
+                        <span
+                          class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
+                        <div class="progress sm">
+                          {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
+                          <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                      {% else %}
+                      <h3 class="grey-text" style="margin-left: 20px;">No course data </h3>
+                      <h5 style="margin-left: 20px;">Please add classes to see data here</h5>
+                      {% endif %}
+                      <!-- /.progress-group -->
+                    </div>
+                    <div class="box-footer text-right">
+                      <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
+                    </div>
+                  </div>
+                </section>
           </div>
 
           <div class="row">
-            <section class="col-lg-12 connectedSortable">
-              <div class="box box-info">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Job Posts</h3>
+              <section class="col-lg-7">
+
+              </section>
+              <section class="col-lg-5 connectedSortable">
+                  <h3 class="box-title" style="font-size: 18px;">Top Students Last Month</h3>
+                <div class="topStudentDashboard" style="overflow-y:auto;">
+                  
+                  <!-- /.box-header -->
+                  <div class="box-body no-padding" style="overflow-y:auto;height:300px">
+                    {%if topStudentsRows | length!=0%}
+                    <ul class="users-list clearfix">
+                      {% for student in topStudentsRows%}
+                        
+                      <li>
+                        <a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">
+                        {% if student[1] %}
+                        <img style="width: 80px;height:80px;" src="{{student[1]}}" alt="Student Image">
+                        {% else %}
+                        <img style="width: 80px;height:80px;" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
+                        {% endif %}
+                        <span class="users-list-name">{{student[3]}}{{student[4]}}-{{student[2]}}</span>
+                        </a>
+                      </li>
+                      {%endfor%}
+                    </ul>
+                    {%else%}
+                    <h3 class="grey-text">No performance data</h3>
+                    {%endif%}
+                  </div>
+                
+                <div class="box-footer text-right">
+                  <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
                 </div>
+              </div>
+                <!-- /.box -->
+              </section>
+            </div>
+
+
+              <div class="row">
+                  <section class="col-lg-12 connectedSortable">
+                      <h3 class="box-title" style="font-size: 18px;">Upcoming Tests and Events</h3>
+                    <div class="testDashboard">
+                      
+                      <!-- /.box-header -->
+                      <div class="box-body">
+                        <div>
+                          <div class="table-responsive" style="overflow: auto;height:300px;">
+                            {%if EventDetailRows | length!=0%}
+                            <table class="table no-margin">
+                              <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>Test</th>
+                                  <th>Duration</th>
+                                  <th>Start Date</th>
+                                  <th>End Date</th>
+                                  <th>Category</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for eventRow in EventDetailRows %}
+                                <tr>
+                                  <td>{{eventRow.event_date}}</td>
+                                  <td><span class="label label-success">{{eventRow.event_name}}</span></td>
+                                  <td>{{eventRow.event_duration}}</td>
+                                  <td>{{eventRow.event_start}}</td>
+                                  <td>{{eventRow.event_end}}</td>
+                                  <td>
+                                    {{eventRow.event_category}}
+                                  </td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                            {%else%}
+                            <h3 class="grey-text">No events added yet</h3>
+                            <h5>Please click on 'Add Event' button to update event details</h5>
+                            {%endif%}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+      
+                    <div class="box-footer text-right">
+                      <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
+                    </div>
+                  </section>
+                </div>
+
+          <div class="row">
+            <section class="col-lg-12 connectedSortable">
+                <h3 class="box-title" style="font-size: 18px;">Job Posts</h3>
+              <div class="jobDashboard">
+                
                 <!-- /.box-header -->
                 <div class="box-body">
                   <div>
@@ -93,74 +349,7 @@
 
             </section>
           </div>
-          <div class="row">
-            <section class="col-lg-7 connectedSortable" style="padding-top:5px;">
-              <div class="box box-info">
-                <div style="overflow-y:auto;height:300px">
-                  <div class="box-header with-border">
-                    <p class="text-center">
-                      <h4 class="box-title">Course Completion</h4>
-                    </p>
-                  </div>
-                  {% if topicToCoverDetails|length >0  %}
-                  {% for topicCountRow in topicToCoverDetails %}
-                  <div class="progress-group">
-                    <span class="progress-text">Class: {{topicCountRow.class}} - {{topicCountRow.section}}</span>
-                    <span
-                      class="progress-number"><b>{{topicCountRow.completed_topics}}</b>/{{topicCountRow.total_topics}}</span>
-                    <div class="progress sm">
-                      {%set topicCoverPercent = (topicCountRow.completed_topics/topicCountRow.total_topics) *100 %}
-                      <div class="progress-bar progress-bar-green" style="width: {{topicCoverPercent}}%"></div>
-                    </div>
-                  </div>
-                  {% endfor %}
-                  {% else %}
-                  <h3 class="grey-text">No course data </h3>
-                  <h5>Please add classes to see data here</h5>
-                  {% endif %}
-                  <!-- /.progress-group -->
-                </div>
-                <div class="box-footer text-right">
-                  <a href="{{url_for('classCon')}}" class="uppercase">Go To Class</a>
-                </div>
-              </div>
-            </section>
-            <section class="col-lg-5 connectedSortable">
-
-              <div class="box box-info" style="overflow-y:auto;">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Top Students Last Month</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body no-padding" style="overflow-y:auto;height:300px">
-                  {%if topStudentsRows | length!=0%}
-                  <ul class="users-list clearfix">
-                    {% for student in topStudentsRows%}
-                      
-                    <li>
-                      <a target="_blank" href="{{url_for('studentProfile',student_id=student[0])}}">
-                      {% if student[1] %}
-                      <img style="width: 80px;height:80px;" src="{{student[1]}}" alt="Student Image">
-                      {% else %}
-                      <img style="width: 80px;height:80px;" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
-                      {% endif %}
-                      <span class="users-list-name">{{student[3]}}{{student[4]}}-{{student[2]}}</span>
-                      </a>
-                    </li>
-                    {%endfor%}
-                  </ul>
-                  {%else%}
-                  <h3 class="grey-text">No performance data</h3>
-                  {%endif%}
-                </div>
-              
-              <div class="box-footer text-right">
-                <a href="{{url_for('studentProfile')}}" class="uppercase">View All Students</a>
-              </div>
-            </div>
-              <!-- /.box -->
-            </section>
-          </div>
+          
           <div class="row">
             <!-- right col -->
           </div>
@@ -168,87 +357,297 @@
 
 
           <!--End of job post details-->
-          <div class="row">
-            <section class="col-lg-12 connectedSortable">
-
-              <div class="box box-info">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Upcoming Tests and Events</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                  <div>
-                    <div class="table-responsive" style="overflow: auto;height:300px;">
-                      {%if EventDetailRows | length!=0%}
-                      <table class="table no-margin">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Test</th>
-                            <th>Duration</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Category</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for eventRow in EventDetailRows %}
-                          <tr>
-                            <td>{{eventRow.event_date}}</td>
-                            <td><span class="label label-success">{{eventRow.event_name}}</span></td>
-                            <td>{{eventRow.event_duration}}</td>
-                            <td>{{eventRow.event_start}}</td>
-                            <td>{{eventRow.event_end}}</td>
-                            <td>
-                              {{eventRow.event_category}}
-                            </td>
-                          </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-                      {%else%}
-                      <h3 class="grey-text">No events added yet</h3>
-                      <h5>Please click on 'Add Event' button to update event details</h5>
-                      {%endif%}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="box-footer text-right">
-                <a href="{{url_for('addEvent')}}" class="uppercase">Add Event</a>
-              </div>
-            </section>
-          </div>
+          
         </section>
       </div>
     </div>
   </body>
 </div>
 <script>
-  var graphData = {{graphJSON | safe}};
-  if (graphData == "1") {
-    $('#graphDiv').html(
-      '<h3 class="grey-text">No performance data yet</h3><h5> The graph will load once performance data has been entered through Result Upload or Class modules</h5>'
-      )
-  } else {
-    for (key in graphData) {
-      value1 = graphData[key].data1[0];
-      value2 = graphData[key].data2[0];
-      value3 = graphData[key].data3[0];
-      value4 = graphData[key].data4[0];
-      value5 = graphData[key].data5[0];
-      value6 = graphData[key].data6[0];
-      value7 = graphData[key].data7[0];
-      value8 = graphData[key].data8[0];
-      value9 = graphData[key].data9[0];
-      value10 = graphData[key].data10[0];
-    }
-    var data = [value1, value2, value3, value4, value5, value6, value7, value8, value9, value10];
-    Plotly.newPlot('graphDiv', data, {}, {
-      showlegend: true,
-      displayModeBar: false
-    });
-  }
+
+var class_section = document.getElementById('class_section1')
+  class_section.onchange = function(){
+  $('#chart').hide();
+  $('#barChartloader').show();
+  classSection = class_section.value;
+  var res = classSection.split("-");
+  var class_val = res[0];
+  var section = res[1];
+  $.ajax({
+            url: "/performanceBarChart?class_val="+class_val+"&section="+section,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+              
+        var options = {
+          series: [{
+          name: 'Pass Students',
+          data: makeData1(response.performance)
+        }, {
+          name: 'Fail Students',
+          data: makeData2(response.performance)
+        }],
+          chart: {
+          type: 'bar',
+          height: 350,
+          stacked: true,
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+          },
+        },
+        stroke: {
+          width: 1,
+          colors: ['#fff']
+        },
+        title: {
+          text: 'Class Performance'
+        },
+        xaxis: {
+          categories:
+             subject(response.performance)
+          ,
+          labels: {
+            formatter: function (val) {
+              return val
+            }
+          },
+          title: {
+            text: "No. of Students"
+          }
+        },
+        yaxis: {
+          title: {
+            text: "Subjects"
+          },
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return val
+            }
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'left',
+          offsetX: 25
+        }
+        };
+      
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+        $('#chart').show();
+        $('#barChartloader').hide();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading performance bar chart");
+            }
+          });
+
+}
+
+
+
+  $(document).ready(function () {
+            $('#pieChartId').hide();
+        $('#pieChartloader').show();
+            $.ajax({
+            url: "/performanceChart",
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+              if (response=="NA"){
+                
+                console.log('Data is empty');
+                console.log(response);
+                $("#pieChartId").html('<h3 class="grey-text">School performance data not available</h3>');
+              }else{
+            for (var result of response.result) {
+                $('#avg_score').html('Average Score <b>' + result.avg_score + '%</b>');
+                $('#highest_mark').html('Highest Score ' + result.highest_mark + '%');
+                $('#lowest_mark').html('Lowest Score ' + result.lowest_mark + '%');
+                $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                var data = [{
+                    values: [result.no_of_students_above_90, result.no_of_students_80_90, result
+                        .no_of_students_70_80, result.no_of_students_50_70, result
+                        .no_of_students_below_50,
+                        result.no_of_students_cross_50
+                    ],
+                    labels: ['No of students above 90%', 'Between 80%-90%', 'Between 70%-80%',
+                        'Between 50%-70%', 'Below 50%', 'Above 50%'
+                    ],
+                    title:{
+                      text:"School Performance",
+                    },
+                    type: 'pie'
+                }];
+                var layout = {
+                    height: 400,
+                    width: 500
+                };
+
+                Plotly.newPlot('schoolPerformanceGraph', data, layout, {
+                    displayModeBar: false
+                });
+            }
+            }
+            $('#pieChartId').show();
+        $('#pieChartloader').hide();
+          },
+            error: function (xhr) {
+                window.alert("error occurred while loading performance pie chart");
+            }
+        });
+        });
+
+
+        $(document).ready(function(){
+          $('#chart').hide();
+          $('#barChartloader').show();
+          var class_section = document.getElementById('class_section1')
+          classSection = class_section.value;
+          var res = classSection.split("-");
+          var class_val = res[0];
+          var section = res[1];
+          $.ajax({
+            url: "/performanceBarChart?class_val="+class_val+"&section="+section,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+        var options = {
+          series: [{
+          name: 'Pass Students',
+          data: makeData1(response.performance)
+        }, {
+          name: 'Fail Students',
+          data: makeData2(response.performance)
+        }],
+          chart: {
+          type: 'bar',
+          height: 350,
+          stacked: true,
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+          },
+        },
+        stroke: {
+          width: 1,
+          colors: ['#fff']
+        },
+        title: {
+          text: "Class Performance"
+        },
+        xaxis: {
+          categories:
+             subject(response.performance)
+          ,
+          labels: {
+            formatter: function (val) {
+              return val
+            }
+          },
+          title: {
+            text: "No. of Students"
+          }
+        },
+        yaxis: {
+          title: {
+            text: "Subjects"
+          },
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return val
+            }
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'left',
+          offsetX: 25
+        }
+        };
+      
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+        $('#chart').show();
+        $('#barChartloader').hide();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading performance bar chart");
+            }
+          });
+      });
+
+      function makeData1(data){
+        var arr1 = [];
+        for(d of data){
+          arr1.push(d.pass_count);
+        }
+        return arr1;
+
+      }
+      function makeData2(data){
+        var arr2 = [];
+        for(d of data){
+          arr2.push(d.fail_count);
+        }
+        return arr2;
+      }
+      function subject(data){
+        var arrSub = [];
+        for(sub of data){
+          arrSub.push(sub.description);
+        }
+        return arrSub;
+      }
+
+
+
+
+      $(document).ready(function(){
+        console.log('Inside ready of content Details');
+        $.ajax({
+            url: "/contentDetails",
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log('success');
+                console.log(response);
+                if (response=="NA"){
+                    $(".contentDiv").html('<h3 class="grey-text">No recent content found.</h3><a href="{{url_for("contentManager")}}" style="float:right">Add content</a>');
+                    // $(".contentDiv").html('');
+                }
+                else{
+                $(".contentDiv").html(response);
+            }
+            },
+            error: function (xhr) {
+                window.alert("error occurred while loading contents");
+            }
+        });
+      });
 </script>
 {%endblock%}

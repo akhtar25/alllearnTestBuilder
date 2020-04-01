@@ -1,0 +1,69 @@
+<div>
+        <div id="contentBoxDiv">
+        <h3></h3>
+        <div class="card id">
+            <div class="card-body">
+                <div id="table" class="table-bordered" style="overflow-y: auto; height:335px; position: relative;">
+        <table>
+                    {% for content in contents %}    
+                    <div class="row z-depth-1" style="padding-left:15px;padding-top:20px;margin-top: -18px;">  
+                                 <div class="col s12 m6 l5 center-align">
+                            {%if content.content_type==92%}
+             
+                            <video class="responsive-video" >
+                                      <source src="{{content.reference_link}}">
+                                    </video>
+                                    {%elif content.content_type==96%}
+        
+                                    <iframe src="{{content.reference_link}}" style="height: 130px;width: 180px;margin-top: 15px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                              {%elif content.content_type==93 or content.content_type==97 %}  
+                              <audio controls style="margin-top: 60px;width:180px;">
+                                      <source src="{{content.reference_link}}">
+                                    Your browser does not support the audio.
+                                    </audio>
+                              {%elif content.content_type==94 or content.content_type==98%}
+                                    <div class="center-align responsive-image">
+                                    <img class="materialboxed" style="height: 130px;width: 180px;margin-top: 10px;margin-left: 15px;" src="{{content.reference_link}}">
+                                  </div>
+                              {%elif content.content_type==95 or content.content_type==99%}            
+                              <a href="#modal1" class="modal-trigger"><img height="120" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
+                              <div id="modal1" class="modal" style="background-color:white;">
+                                      <div class="modal-content" style="height: 100%">
+                                        <h2>{{content.content_name}}</h4>                         
+                                    </div>  
+                                    </div>
+                              {%endif%}
+                    </div> 
+                            <div class="col s12 m6 l6">
+                                <div class="row" style="margin-bottom: -12px;margin-top: -10px;">
+                                    
+                                    <div>
+                                        
+                                        <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name}}</a></span></h3>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div>
+                                        <h4>{{content.topic_name}}</h4>
+                                    </div>
+                                    <div>
+                                        <h5>Date Modified: {{content.last_modified_date.strftime('%d-%B-%Y')}}</h5>
+                                    </div>
+                                    <div style="display: flex;">
+                                        <h5 style="margin-top: 0px;">Class : <span>{{content.class_val}}</span></h5>
+                                        <h5 style="margin-left: 50px;margin-top: 0px;">Subject: <span>{{content.subject_name}}</span></h5>
+                                    </div>
+                                    <div>
+                                        <h5 style="margin-top: 0px;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                    </div>
+                                </div>           
+                            </div>                                                   
+                        </div>
+        
+                        {% endfor %}
+                    </table>
+                </div>        
+            </div>
+        </div>
+        </div>       
+        </div>

@@ -8,6 +8,11 @@
   .selectClassSection{
     width: 284px;
   }
+  .selectClassSectionDashboard{
+    width: 150px;
+    margin: auto;
+    margin-top: 20px;
+  }
   .selectTable{
     height: 400px;
     position: relative;
@@ -5086,6 +5091,52 @@ small {
   margin-left: 10px;
   height: 80px;
 }
+.leftCard{
+  margin-top: 20px;
+}
+.rightCard{
+  margin-top: 20px;
+}
+.bg-grow-early-dashboard{
+  background-image: linear-gradient(-225deg, #7085B6 0%, #87A7D9 50%, #DEF3F8 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height: 80px;
+}
+.bg-grow-early-dashboard1{
+  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height: 80px;
+}
+.barChartBorder{
+  background: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+
+.boxBorderDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.courseCompletionDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.topStudentDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+.testDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
+
+.jobDashboard{
+  background-color: white;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+}
 
 .card-header:first-child {
   border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
@@ -5147,6 +5198,23 @@ small {
   flex-direction: row;
   align-items: center;
   margin-left: 10px;
+  height:80px;
+}
+.bg-arielle-smile-dashboard{
+  background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
+  height:80px;
+}
+.labelDashboard{
+  margin-top: 12px;
+}
+.bg-arielle-smile-dashboard1{
+  background-image: radial-gradient(circle 248px at center, #16d9e3 0%, #30c7ec 47%, #46aef7 100%) !important;
+  padding: 1rem;
+  flex-direction: row;
+  align-items: center;
   height:80px;
 }
 
@@ -5679,6 +5747,13 @@ button.btn-floating {
     padding: 30px;
     position: inherit;
     
+}
+
+.leftContent{
+  margin-left: 25px;
+}
+.rightContent{
+  margin-right: 25px;
 }
 
 .widget-content .widget-content-left .widget-heading {
