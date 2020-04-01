@@ -1256,7 +1256,7 @@ def index():
 @app.route('/performanceChart',methods=['GET','POST'])
 def performanceChart():
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    query = "Select * from fn_overall_performance_summary('"+str(teacher_id.school_id)+"')"
+    query = "Select * from fn_overall_performance_summary('"+str(teacher_id.school_id)+"') where class='All'and section='All' and subject='All'"
     
     resultSet = db.session.execute(text(query)).fetchall()
     
@@ -3066,7 +3066,7 @@ def contentDetails():
     content = "select cd.last_modified_date, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
-    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by WHERE cd.last_modified_date >=current_date - 5 and cd.archive_status = 'N' "
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' order by cd.last_modified_date desc limit 5 "
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
     if len(contentDetail)==0:

@@ -5749,12 +5749,6 @@ button.btn-floating {
     
 }
 
-.leftContent{
-  margin-left: 25px;
-}
-.rightContent{
-  margin-right: 25px;
-}
 
 .widget-content .widget-content-left .widget-heading {
   opacity: .8;
