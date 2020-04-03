@@ -3081,6 +3081,7 @@ def contentDetails():
     content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' order by cd.last_modified_date desc limit 5 "
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
+    
     if len(contentDetail)==0:
         print("No data present in the content manager details")
         return jsonify(["NA"])
@@ -3088,6 +3089,7 @@ def contentDetails():
         print(len(contentDetail))
         for c in contentDetail:
             print("Content List"+str(c.content_name))    
+        
         return render_template('_contentDetails.html',contents=contentDetail)
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
@@ -4462,6 +4464,14 @@ def questionTopicPicker():
         print(topic.chapter_num)
     
     return render_template('_topics.html',topic_list=topic_list)
+
+# @app.route('/coveredTopic',methods=['GET','POST'])
+# def coveredTopic():
+#     print('covered Topics')
+#     class_v = request.args.get('class_val')
+#     section = request.args.get('section')
+#     query = "select *from topic_details where "
+#     return render_template('_topicCovered.html')
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):

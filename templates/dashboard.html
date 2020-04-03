@@ -157,11 +157,11 @@
             </div>
           </div>
           <div class="row">
-              <div class="col-md-6 col-xl-6">
+              <div class="col-lg-6">
                   <p class="text-center">
                       <h4 class="box-title">Topic To Teach</h4>
                     </p>
-                    <div class="barChartBorder" style="position: relative;height:505px;">
+                    <div class="barChartBorder" style="position: relative;height:360px;margin-top: -5px;">
                     <div class="selectClassSectionDashboard">
                         {{ form.class_section2.label(class='labelsize labelDashboard') }}
                         <br>
@@ -175,6 +175,9 @@
                         {% else %}
                         {{ form.class_section2(class='form-control') }}
                         {% endif %}
+                    </div>
+                    <div class="topicCoveredTable">
+                        <h3 class="grey-text" style="padding-left: 20px;">No data available.</h3>
                     </div>
                     </div>
               </div>
@@ -214,9 +217,14 @@
               <div class="col-md-6 col-xl-6">
                   <div class="">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Recent contents</h3>
+                        <p class="text-center">
+                            <h4 class="box-title">Recent contents</h4>
+                          </p>
+                        <!-- <h3 class="box-title"></h3> -->
+                    <div class="contentBorder" style="position: relative;height:340px;padding-left: 10px;padding-right: 10px;padding-top: 1px;">
                     <div class="contentDiv">
 
+                    </div>
                     </div>
                     </div>
                   </div>
@@ -371,9 +379,9 @@
             </section>
           </div>
           
-          <div class="row">
+          <!-- <div class="row"> -->
             <!-- right col -->
-          </div>
+          <!-- </div> -->
           <!--Job Post Details-->
 
 
@@ -385,6 +393,26 @@
   </body>
 </div>
 <script>
+
+  // $(document).ready(function(){
+  //   var class_section = document.getElementById('class_section2')
+  //         classSection = class_section.value;
+  //         var res = classSection.split("-");
+  //         var class_val = res[0];
+  //         var section = res[1];
+  //         $.ajax({
+  //           url: "/coveredTopic?class_val="+class_val+"&section="+section,
+  //           type: "POST",
+  //           contentType: "application/json",
+  //           data: "",
+  //           success: function (response) {
+
+  //           },
+  //           error: function (xhr) {
+  //               window.alert("error occurred while loading performance bar chart");
+  //           }
+  //         });
+  // });
 
 var class_section = document.getElementById('class_section1')
   class_section.onchange = function(){
@@ -436,6 +464,7 @@ var class_section = document.getElementById('class_section1')
           categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
+              val = Math.round(val);
               return val
             }
           },
