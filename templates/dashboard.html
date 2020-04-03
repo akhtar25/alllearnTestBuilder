@@ -109,7 +109,7 @@
           <div class="row" style="margin-top: -20px;">
             <div class="col-md-6 col-xl-6">
                 <div class="">
-                    <h3 class="box-title" style="font-size: 18px;">Student performance</h3>
+                    <h3 class="box-title" style="font-size: 18px;">School performance</h3>
                     <div class="box-header with-border boxBorderDashboard" id="pieChartId">
                         
                   <div class="performanceGraph">
@@ -146,6 +146,9 @@
                   </div>
                 <div id="chart">
                 </div>
+                <div id="chart2" style="display: none;">
+
+                </div>
                 <div id="barChartloader" style="display: none;margin-left: 150px;">
                     <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
                 </div>
@@ -155,21 +158,32 @@
           </div>
           <div class="row">
               <div class="col-md-6 col-xl-6">
-                  <div class="">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Recent contents</h3>
-                    <div class="contentDiv">
-
+                  <p class="text-center">
+                      <h4 class="box-title">Topic To Teach</h4>
+                    </p>
+                    <div class="barChartBorder" style="position: relative;height:505px;">
+                    <div class="selectClassSectionDashboard">
+                        {{ form.class_section2.label(class='labelsize labelDashboard') }}
+                        <br>
+                        {% if form.class_section2.errors %}
+                        {{ form.class_section2(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.class_section2.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.class_section2(class='form-control') }}
+                        {% endif %}
                     </div>
                     </div>
-                  </div>
-                </div>
+              </div>
                 <section class="col-lg-6 connectedSortable" style="padding-top:5px;">
                     <p class="text-center">
                         <h4 class="box-title">Course Completion</h4>
                       </p>
-                  <div class="courseCompletionDashboard">
-                    <div style="overflow-y:auto;height:300px">
+                  <div class="courseCompletionDashboard" style="padding-top: 20px;">
+                    <div style="overflow-y:auto;height:300px;width:auto;margin-right: 20px;margin-left: 20px;">
                       
                       {% if topicToCoverDetails|length >0  %}
                       {% for topicCountRow in topicToCoverDetails %}
@@ -197,9 +211,16 @@
           </div>
 
           <div class="row">
-              <section class="col-lg-6">
+              <div class="col-md-6 col-xl-6">
+                  <div class="">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Recent contents</h3>
+                    <div class="contentDiv">
 
-              </section>
+                    </div>
+                    </div>
+                  </div>
+                </div>
               <section class="col-lg-6 connectedSortable">
                   <h3 class="box-title" style="font-size: 18px;">Top Students Last Month</h3>
                 <div class="topStudentDashboard" style="overflow-y:auto;">
@@ -367,26 +388,32 @@
 
 var class_section = document.getElementById('class_section1')
   class_section.onchange = function(){
+  $('#chart2').html(" ");
   $('#chart').hide();
+  $('#chart2').hide();
   $('#barChartloader').show();
   classSection = class_section.value;
   var res = classSection.split("-");
   var class_val = res[0];
   var section = res[1];
+ 
+  console.log('Class:'+class_val+'section:'+section);
   $.ajax({
             url: "/performanceBarChart?class_val="+class_val+"&section="+section,
             type: "POST",
             contentType: "application/json",
             data: "",
             success: function (response) {
-              
-        var options = {
+              var options = {
           series: [{
-          name: 'Pass Students',
-          data: makeData1(response.performance)
+          name: 'Above 50% Marks',
+          data: passStudentList(response.performance)
         }, {
-          name: 'Fail Students',
-          data: makeData2(response.performance)
+          name: 'Below 50% Marks',
+          data: failStudentList(response.performance)
+        }, {
+          name: 'Absent Students',
+          data: absentStudents(response.performance)
         }],
           chart: {
           type: 'bar',
@@ -406,27 +433,25 @@ var class_section = document.getElementById('class_section1')
           text: 'Class Performance'
         },
         xaxis: {
-          categories:
-             subject(response.performance)
-          ,
+          categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
               return val
             }
           },
           title: {
-            text: "No. of Students"
-          }
+            text: 'No. of Students'
+          },
         },
         yaxis: {
           title: {
-            text: "Subjects"
+            text: 'Subjects'
           },
         },
         tooltip: {
           y: {
             formatter: function (val) {
-              return val
+              return val + "K"
             }
           }
         },
@@ -436,22 +461,60 @@ var class_section = document.getElementById('class_section1')
         legend: {
           position: 'top',
           horizontalAlign: 'left',
-          offsetX: 25
+          offsetX: 40
         }
         };
-      
 
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        var chart = new ApexCharts(document.querySelector("#chart2"), options);
+        $('#chart2').show();
         chart.render();
-        $('#chart').show();
         $('#barChartloader').hide();
+       
             },
             error: function (xhr) {
                 window.alert("error occurred while loading performance bar chart");
             }
           });
-
+  
 }
+function passStudentList(data){
+        var arr1 = [];
+        for(d of data){
+          arr1.push(d.pass_count);
+        }
+        console.log('inside passStudentList');
+        console.log(arr1);
+        return arr1;
+
+      }
+      function failStudentList(data){
+        var arr2 = [];
+        for(d of data){
+          arr2.push(d.fail_count);
+        }
+        console.log('inside failStudentList');
+        console.log(arr2);
+        return arr2;
+      }
+      function absentStudents(data){
+        var arr3 = [];
+        for(d of data){
+          arr3.push(d.absent_students);
+        }
+        console.log('inside absent Students');
+        console.log(arr3);
+        return arr3;
+      }
+
+      function subjectList(data){
+        var arrSub = [];
+        for(sub of data){
+          arrSub.push(sub.description);
+        }
+        console.log('inside Subject List');
+        console.log(arrSub);
+        return arrSub;
+      }
 
 
 
@@ -515,6 +578,7 @@ var class_section = document.getElementById('class_section1')
 
 
         $(document).ready(function(){
+          
           $('#chart').hide();
           $('#barChartloader').show();
           var class_section = document.getElementById('class_section1')
@@ -528,13 +592,16 @@ var class_section = document.getElementById('class_section1')
             contentType: "application/json",
             data: "",
             success: function (response) {
-        var options = {
+              var options = {
           series: [{
-          name: 'Pass Students',
-          data: makeData1(response.performance)
+          name: 'Above 50% Marks',
+          data: passStudentList(response.performance)
         }, {
-          name: 'Fail Students',
-          data: makeData2(response.performance)
+          name: 'Below 50% Marks',
+          data: failStudentList(response.performance)
+        }, {
+          name: 'Absent Students',
+          data: absentStudents(response.performance)
         }],
           chart: {
           type: 'bar',
@@ -551,30 +618,28 @@ var class_section = document.getElementById('class_section1')
           colors: ['#fff']
         },
         title: {
-          text: "Class Performance"
+          text: 'Class Performance'
         },
         xaxis: {
-          categories:
-             subject(response.performance)
-          ,
+          categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
               return val
             }
           },
           title: {
-            text: "No. of Students"
-          }
+            text: 'No. of Students'
+          },
         },
         yaxis: {
           title: {
-            text: "Subjects"
+            text: 'Subjects'
           },
         },
         tooltip: {
           y: {
             formatter: function (val) {
-              return val
+              return val + "K"
             }
           }
         },
@@ -584,15 +649,15 @@ var class_section = document.getElementById('class_section1')
         legend: {
           position: 'top',
           horizontalAlign: 'left',
-          offsetX: 25
+          offsetX: 40
         }
         };
-      
 
         var chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
-        $('#chart').show();
         $('#barChartloader').hide();
+        $('#chart').show();
+          
             },
             error: function (xhr) {
                 window.alert("error occurred while loading performance bar chart");
@@ -634,8 +699,6 @@ var class_section = document.getElementById('class_section1')
             contentType: "application/json",
             data: "",
             success: function (response) {
-                console.log('success');
-                console.log(response);
                 if (response=="NA"){
                     $(".contentDiv").html('<h3 class="grey-text">No recent content found.</h3><a href="{{url_for("contentManager")}}" style="float:right">Add content</a>');
                     // $(".contentDiv").html('');
