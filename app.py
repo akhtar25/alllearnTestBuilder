@@ -460,10 +460,14 @@ def schoolRegistration():
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
-
-        for i in range(len(class_val)):
-            class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=school_id.school_id)
-            db.session.add(class_data)
+        if class_val:
+            for i in range(len(class_val)):
+                class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=school_id.school_id)
+                db.session.add(class_data)
+        else:
+            for i in range(1,10):
+                class_data = ClassSection(class_val=int(i),section='A',student_count=10,school_id=school_id.school_id)
+                db.session.add(class_data)
         teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
         db.session.add(teacher)
         db.session.commit()
@@ -1145,95 +1149,65 @@ def index():
         qclass_val = 'dashboard'
         topStudentsRows = ''
         leaderBoardData = leaderboardContent(qclass_val)
-
+        # print('leaderBoard Data:'+str(leaderBoardData))
         # Convert dataframe to a list
-
-        df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-        df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
-        leaderBoard = pd.merge(df1,df2,on=('studentid'))
-            
-        d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-        df3 = leaderBoard.drop(['studentid'],axis=1)
-            # print('DF3:')
-            # print(df3)
-            # print('print new dataframe')
-            
-        df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
-        df1.rename(columns = {'student_name':'Student'}, inplace = True)
-        df1.rename(columns = {'class_val':'Class'}, inplace = True)
-        df1.rename(columns = {'section':'Section'}, inplace = True)
-        df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
-        df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-            # print(df1)
-            # print('Excluding columns')
-            # print(df2)
-            # rename(df2)
-            # print('LeaderBoard Data:')
-            # print(leaderBoardData)
         data = []
+        print(type(leaderBoardData))
+        column_names = ["a", "b", "c"]
+        datafr = pd.DataFrame(columns = column_names)
+        if type(leaderBoardData)==type(datafr):
+            print('if data is not empty')
+            df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+            df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+            leaderBoard = pd.merge(df1,df2,on=('studentid'))
+                
+            d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+            df3 = leaderBoard.drop(['studentid'],axis=1)
             
-
-        header = [df1.columns.values.tolist()]
-        headerAll = [df3.columns.values.tolist()]
-        colAll = ''
-        subjHeader = [df2.columns.values.tolist()]
-        columnNames = ''
-        col = ''
-        subColumn = ''
-            # print('Size of dataframe:'+str(len(subjHeader)))
-        for subhead in subjHeader:
-            subColumn = subhead
-                # print('Header with Subject Name')
-                # print(subhead)
-        for h in header:
-            columnNames = h
-        for headAll in headerAll: 
-            colAll = headAll
-            # print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
-        n= int(len(subColumn)/2)
-        ndf = df2.drop(['studentid'],axis=1)
-        newDF = ndf.iloc[:,0:n]
-        new1DF = ndf.iloc[:,n:]
+            df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+            df1.rename(columns = {'student_name':'Student'}, inplace = True)
+            df1.rename(columns = {'class_val':'Class'}, inplace = True)
+            df1.rename(columns = {'section':'Section'}, inplace = True)
+            df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+            df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+            header = [df1.columns.values.tolist()]
+            headerAll = [df3.columns.values.tolist()]
+            colAll = ''
+            subjHeader = [df2.columns.values.tolist()]
+            columnNames = ''
+            col = ''
+            subColumn = ''
+            for subhead in subjHeader:
+                subColumn = subhead
+            for h in header:
+                columnNames = h
+            for headAll in headerAll: 
+                colAll = headAll
+            n= int(len(subColumn)/2)
+            ndf = df2.drop(['studentid'],axis=1)
+            newDF = ndf.iloc[:,0:n]
+            new1DF = ndf.iloc[:,n:]
+                
+            df5 = pd.concat([newDF, new1DF], axis=1)
+            DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
             
-        df5 = pd.concat([newDF, new1DF], axis=1)
-        DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
-           
-           
-        dat = pd.concat([d,DFW], axis=1)
+            
+            dat = pd.concat([d,DFW], axis=1)
+                
+            dat = dat.sort_values('total_marks%',ascending=False)  
+            
+            subHeader = ''
+            i=1
+            for row in dat.values.tolist():
+                if i<9:
+                    data.append(row)
+                i=i+1
         form  = promoteStudentForm() 
         available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
         form.class_section1.choices = class_list 
-        form.class_section2.choices = class_list       
-        dat = dat.sort_values('total_marks%',ascending=False)  
-         
-        subHeader = ''
-        i=1
-        print(dat)
-        for row in dat.values.tolist():
-            if i<9:
-                print('Inside if:'+str(i))
-                data.append(row)
-            i=i+1
-        print('New Data frame')
-        print(data)
-
-        for d in data:
-            print(d[0])
-            print(d[1])
-            print(d[2])
-            print(d[3])
+        form.class_section2.choices = class_list 
         
-            # print(d[i])
-
-        # End
-
-
-        # = db.session.execute(text(topStudentsQuery)).fetchall()
-        # for val in topStudentsRows:
-        #     print(val.student_name)
-        #print("this is topStudentRows"+str(topStudentsRows))
-    #####Fetch Event data##########
         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
     #####Fetch Course Completion infor##########    
         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
@@ -1246,7 +1220,7 @@ def index():
         teacherCount = db.session.execute(teacherCount).first()
         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
         studentCount = db.session.execute(studentCount).first()
-        testCount = "select count(*) from test_details td"
+        testCount = "select count(*) from test_details td where school_id = '"+str(teacher.school_id)+"'"
         testCount = db.session.execute(testCount).first()
         lastWeekTestCount = "select count(*) from test_details td where last_modified_date >=current_date - 7 "
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
