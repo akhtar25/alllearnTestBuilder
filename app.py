@@ -1203,7 +1203,8 @@ def index():
         form  = promoteStudentForm() 
         available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
-        form.class_section1.choices = class_list        
+        form.class_section1.choices = class_list 
+        form.class_section2.choices = class_list       
         dat = dat.sort_values('total_marks%',ascending=False)  
          
         subHeader = ''
@@ -1285,19 +1286,30 @@ def performanceBarChart():
     section = request.args.get('section')
     classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=class_v,section=section).first()
     subject = "select distinct subject_id from topic_detail where class_val= '"+str(class_v)+"'"
-    subejct_id = db.session.execute(subject).fetchall()
+    totalStudent = "select count(*) from student_profile where class_sec_id='"+str(classSection.class_sec_id)+"' and school_id='"+str(teacher_id.school_id)+"'"
+    print(totalStudent)
+    totalStudent = db.session.execute(totalStudent).first()
+    subject_id = db.session.execute(subject).fetchall()
     performance_array = []
-    for sub in subejct_id:
-        pass_count = "select count(*) pass_student from performance_detail pd where school_id='"+str(teacher_id.school_id)+"' and class_sec_id ='"+str(classSection.class_sec_id)+"' and subject_id='"+str(sub.subject_id)+"' and student_score>30"
-        fail_count = "select count(*) pass_student from performance_detail pd where school_id  ='"+str(teacher_id.school_id)+"' and class_sec_id ='"+str(classSection.class_sec_id)+"' and subject_id='"+str(sub.subject_id)+"' and student_score<30"
+    for sub in subject_id:
+        pass_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1(1) pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks>50)"
+        fail_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1(1) pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks<51)"
         print('pass and fail count:')
+        print(pass_count)
+        print(fail_count)
         passStudents = db.session.execute(pass_count).first()
         failStudents = db.session.execute(fail_count).first()
+        presentStudents = passStudents[0] + failStudents[0]
+        absentStudents = totalStudent[0] - presentStudents
+        print(absentStudents)
+        if absentStudents==totalStudent[0]:
+            absentStudents = 0
         print((passStudents[0]))
         print((failStudents[0]))
         Array = {}
         Array['pass_count'] = str(passStudents[0])
         Array['fail_count'] = str(failStudents[0])
+        Array['absent_students'] = str(absentStudents)
         subjectName = MessageDetails.query.with_entities(MessageDetails.description).filter_by(msg_id=sub.subject_id).first()
         Array['description'] = str(subjectName.description)
         performance_array.append(Array)
@@ -3069,6 +3081,7 @@ def contentDetails():
     content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' order by cd.last_modified_date desc limit 5 "
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
+    
     if len(contentDetail)==0:
         print("No data present in the content manager details")
         return jsonify(["NA"])
@@ -3076,6 +3089,7 @@ def contentDetails():
         print(len(contentDetail))
         for c in contentDetail:
             print("Content List"+str(c.content_name))    
+        
         return render_template('_contentDetails.html',contents=contentDetail)
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
@@ -4450,6 +4464,14 @@ def questionTopicPicker():
         print(topic.chapter_num)
     
     return render_template('_topics.html',topic_list=topic_list)
+
+# @app.route('/coveredTopic',methods=['GET','POST'])
+# def coveredTopic():
+#     print('covered Topics')
+#     class_v = request.args.get('class_val')
+#     section = request.args.get('section')
+#     query = "select *from topic_details where "
+#     return render_template('_topicCovered.html')
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):

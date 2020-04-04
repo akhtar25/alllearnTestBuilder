@@ -262,6 +262,8 @@ class TopicTracker(db.Model):
     #cover_Date = db.Column(db.DateTime, nullable=True)
     #next_topic = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)        
     reteach_count = db.Column(db.Integer, nullable=True)
+    target_covered_date = db.Column(db.DateTime,nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 
