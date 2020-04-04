@@ -110,7 +110,7 @@
             <div class="col-md-6 col-xl-6">
                 <div class="">
                     <h3 class="box-title" style="font-size: 18px;">School performance</h3>
-                    <div class="box-header with-border boxBorderDashboard" id="pieChartId">
+                    <div class="box-header with-border boxBorderDashboard" id="pieChartId" style="overflow-x: auto;">
                         
                   <div class="performanceGraph">
                       <h5 id='avg_score'></h5>
@@ -432,6 +432,18 @@ var class_section = document.getElementById('class_section1')
             contentType: "application/json",
             data: "",
             success: function (response) {
+              var i = 0;
+              for(d of response.performance){
+                if(d.pass_count!=0){
+                  console.log(d.pass_count);
+                  i=1;
+                }
+                if(d.fail_count!=0){
+                  console.log(d.fail_count);
+                  i=1
+                }
+              }
+            if(i==1){
               var options = {
           series: [{
           name: 'Above 50% Marks',
@@ -464,7 +476,8 @@ var class_section = document.getElementById('class_section1')
           categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
-              val = Math.round(val);
+              // val = Math.round(val);
+              
               return val
             }
           },
@@ -480,7 +493,7 @@ var class_section = document.getElementById('class_section1')
         tooltip: {
           y: {
             formatter: function (val) {
-              return val + "K"
+              return val
             }
           }
         },
@@ -498,21 +511,27 @@ var class_section = document.getElementById('class_section1')
         $('#chart2').show();
         chart.render();
         $('#barChartloader').hide();
-       
+      }else{
+        $('#barChartloader').hide();
+            $('#chart2').html('<h3 class="grey-text" style="margin-left: 20px;margin-top:50px;">No data available.</h3>');
+            $('#chart2').show();
+          }
             },
             error: function (xhr) {
                 window.alert("error occurred while loading performance bar chart");
             }
+          
           });
   
-}
+
+  }
+
+var i = 0
 function passStudentList(data){
         var arr1 = [];
         for(d of data){
           arr1.push(d.pass_count);
         }
-        console.log('inside passStudentList');
-        console.log(arr1);
         return arr1;
 
       }
@@ -521,8 +540,6 @@ function passStudentList(data){
         for(d of data){
           arr2.push(d.fail_count);
         }
-        console.log('inside failStudentList');
-        console.log(arr2);
         return arr2;
       }
       function absentStudents(data){
@@ -530,18 +547,15 @@ function passStudentList(data){
         for(d of data){
           arr3.push(d.absent_students);
         }
-        console.log('inside absent Students');
-        console.log(arr3);
         return arr3;
       }
 
       function subjectList(data){
+
         var arrSub = [];
         for(sub of data){
           arrSub.push(sub.description);
         }
-        console.log('inside Subject List');
-        console.log(arrSub);
         return arrSub;
       }
 
@@ -653,6 +667,7 @@ function passStudentList(data){
           categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
+              val = Math.round(val);
               return val
             }
           },
@@ -668,7 +683,7 @@ function passStudentList(data){
         tooltip: {
           y: {
             formatter: function (val) {
-              return val + "K"
+              return val
             }
           }
         },
@@ -694,28 +709,6 @@ function passStudentList(data){
           });
       });
 
-      function makeData1(data){
-        var arr1 = [];
-        for(d of data){
-          arr1.push(d.pass_count);
-        }
-        return arr1;
-
-      }
-      function makeData2(data){
-        var arr2 = [];
-        for(d of data){
-          arr2.push(d.fail_count);
-        }
-        return arr2;
-      }
-      function subject(data){
-        var arrSub = [];
-        for(sub of data){
-          arrSub.push(sub.description);
-        }
-        return arrSub;
-      }
 
 
 
