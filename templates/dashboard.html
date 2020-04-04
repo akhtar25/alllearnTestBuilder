@@ -635,6 +635,18 @@ function passStudentList(data){
             contentType: "application/json",
             data: "",
             success: function (response) {
+              var i = 0;
+              for(d of response.performance){
+                if(d.pass_count!=0){
+                  console.log(d.pass_count);
+                  i=1;
+                }
+                if(d.fail_count!=0){
+                  console.log(d.fail_count);
+                  i=1
+                }
+              }
+            if(i==1){
               var options = {
           series: [{
           name: 'Above 50% Marks',
@@ -701,7 +713,11 @@ function passStudentList(data){
         chart.render();
         $('#barChartloader').hide();
         $('#chart').show();
-          
+      }else{
+        $('#barChartloader').hide();
+            $('#chart2').html('<h3 class="grey-text" style="margin-left: 20px;margin-top:50px;">No data available.</h3>');
+            $('#chart2').show();
+          }
             },
             error: function (xhr) {
                 window.alert("error occurred while loading performance bar chart");
