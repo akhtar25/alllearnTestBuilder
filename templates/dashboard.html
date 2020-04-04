@@ -480,7 +480,7 @@ var class_section = document.getElementById('class_section1')
         tooltip: {
           y: {
             formatter: function (val) {
-              return val + "K"
+              return val
             }
           }
         },
@@ -653,6 +653,7 @@ function passStudentList(data){
           categories: subjectList(response.performance),
           labels: {
             formatter: function (val) {
+              val = Math.round(val);
               return val
             }
           },
@@ -668,7 +669,7 @@ function passStudentList(data){
         tooltip: {
           y: {
             formatter: function (val) {
-              return val + "K"
+              return val
             }
           }
         },
