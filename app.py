@@ -1203,7 +1203,7 @@ def index():
                     data.append(row)
                 i=i+1
         form  = promoteStudentForm() 
-        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val,ClassSection.section).filter_by(school_id=teacher.school_id).all()
         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
         form.class_section1.choices = class_list 
         form.class_section2.choices = class_list 
@@ -1220,11 +1220,18 @@ def index():
         teacherCount = db.session.execute(teacherCount).first()
         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
         studentCount = db.session.execute(studentCount).first()
-        testCount = "select count(*) from test_details td where school_id = '"+str(teacher.school_id)+"'"
-        testCount = db.session.execute(testCount).first()
-        lastWeekTestCount = "select count(*) from test_details td where last_modified_date >=current_date - 7 "
-        lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
-        
+        testCount1 = "select count(*) from result_upload where upload_id in (select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"')"
+        testCount2 = "select count(*) from response_capture rc where resp_session_id in (select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"')"
+        print(testCount1)
+        print(testCount2)
+        testCount1 = db.session.execute(testCount1).first()
+        testCount2 = db.session.execute(testCount2).first()
+        testCount = testCount1[0] + testCount2[0]
+        lastWeekTestCount1 = "select count(*) from result_upload where upload_id in (select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)"
+        lastWeekTestCount2 = "select count(*) from response_capture rc where resp_session_id in (select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)"
+        lastWeekTestCount1 = db.session.execute(lastWeekTestCount1).first()
+        lastWeekTestCount2 = db.session.execute(lastWeekTestCount2).first()
+        lastWeekTestCount = lastWeekTestCount1[0] + lastWeekTestCount2[0]
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
