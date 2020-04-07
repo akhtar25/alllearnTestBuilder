@@ -2004,7 +2004,7 @@ def syllabusBooks():
     return jsonify([bookArray])  
 
 
-@app.route('/syllabusChapters')
+@app.route('/syllabusChapters') 
 @login_required
 def syllabusChapters():
     book_name=request.args.get('book_name')
