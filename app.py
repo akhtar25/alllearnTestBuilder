@@ -1220,16 +1220,12 @@ def index():
         teacherCount = db.session.execute(teacherCount).first()
         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
         studentCount = db.session.execute(studentCount).first()
-        testCount = "select (select count(*) from result_upload where upload_id in "
-        testCount = testCount + "(select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"')) + "
-        testCount = testCount + "(select count(*) from response_capture rc where resp_session_id in " 
-        testCount = testCount + "(select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"')) as SumCount"
+        testCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"') + "
+        testCount = testCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"') as SumCount"
         print(testCount)
         testCount = db.session.execute(testCount).first()
-        lastWeekTestCount = "select (select count(*) from result_upload where upload_id in "
-        lastWeekTestCount = lastWeekTestCount + "(select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)) + "
-        lastWeekTestCount = lastWeekTestCount + "(select count(*) from response_capture rc where resp_session_id in "
-        lastWeekTestCount =lastWeekTestCount + "(select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)) as SumCount"
+        lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
+        lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
         print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
