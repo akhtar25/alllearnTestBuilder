@@ -1203,7 +1203,7 @@ def index():
                     data.append(row)
                 i=i+1
         form  = promoteStudentForm() 
-        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val,ClassSection.section).filter_by(school_id=teacher.school_id).all()
         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
         form.class_section1.choices = class_list 
         form.class_section2.choices = class_list 
@@ -1220,11 +1220,14 @@ def index():
         teacherCount = db.session.execute(teacherCount).first()
         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
         studentCount = db.session.execute(studentCount).first()
-        testCount = "select count(*) from test_details td where school_id = '"+str(teacher.school_id)+"'"
+        testCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"') + "
+        testCount = testCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"') as SumCount"
+        print(testCount)
         testCount = db.session.execute(testCount).first()
-        lastWeekTestCount = "select count(*) from test_details td where last_modified_date >=current_date - 7 "
+        lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
+        lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
+        print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
-        
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
@@ -1997,7 +2000,7 @@ def syllabusBooks():
     return jsonify([bookArray])  
 
 
-@app.route('/syllabusChapters')
+@app.route('/syllabusChapters') 
 @login_required
 def syllabusChapters():
     book_name=request.args.get('book_name')
