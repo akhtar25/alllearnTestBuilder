@@ -1220,18 +1220,18 @@ def index():
         teacherCount = db.session.execute(teacherCount).first()
         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
         studentCount = db.session.execute(studentCount).first()
-        testCount1 = "select count(*) from result_upload where upload_id in (select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"')"
-        testCount2 = "select count(*) from response_capture rc where resp_session_id in (select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"')"
-        print(testCount1)
-        print(testCount2)
-        testCount1 = db.session.execute(testCount1).first()
-        testCount2 = db.session.execute(testCount2).first()
-        testCount = testCount1[0] + testCount2[0]
-        lastWeekTestCount1 = "select count(*) from result_upload where upload_id in (select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)"
-        lastWeekTestCount2 = "select count(*) from response_capture rc where resp_session_id in (select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)"
-        lastWeekTestCount1 = db.session.execute(lastWeekTestCount1).first()
-        lastWeekTestCount2 = db.session.execute(lastWeekTestCount2).first()
-        lastWeekTestCount = lastWeekTestCount1[0] + lastWeekTestCount2[0]
+        testCount = "select (select count(*) from result_upload where upload_id in "
+        testCount = testCount + "(select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"')) + "
+        testCount = testCount + "(select count(*) from response_capture rc where resp_session_id in " 
+        testCount = testCount + "(select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"')) as SumCount"
+        print(testCount)
+        testCount = db.session.execute(testCount).first()
+        lastWeekTestCount = "select (select count(*) from result_upload where upload_id in "
+        lastWeekTestCount = lastWeekTestCount + "(select distinct upload_id from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)) + "
+        lastWeekTestCount = lastWeekTestCount + "(select count(*) from response_capture rc where resp_session_id in "
+        lastWeekTestCount =lastWeekTestCount + "(select distinct resp_session_id from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7)) as SumCount"
+        print(lastWeekTestCount)
+        lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
