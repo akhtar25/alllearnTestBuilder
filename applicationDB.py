@@ -225,7 +225,7 @@ class BoardClassSubject(db.Model):
     #subject_name = db.Column(db.ForeignKey('message_detail.description'),nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
-    is_archived = db.Column(db.String(1),nullable=True)
+    is_archieve = db.Column(db.String(1), nullable=True)
 
 class ChapterDetail(db.Model):
     __tablename__="chapter_detail"

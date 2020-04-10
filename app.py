@@ -1984,7 +1984,7 @@ def syllabusSubjects():
     # subjectQuery = "select distinct t1.subject_id, t2.description from topic_detail t1  inner join  message_detail t2 on "
     # subjectQuery = subjectQuery+ "t1.subject_id=t2.msg_id where board_id='"+board_id+"' and class_val='"+class_val+"' order by subject_id"
     # distinctSubjects = db.session.execute(text(subjectQuery)).fetchall()
-    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
+    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where bcs.class_val='"+class_val+"' and bcs.board_id='"+board_id+"' and bcs.is_archieve='N'"
     print(subjectQuery)
     distinctSubjects = db.session.execute(subjectQuery).fetchall()
     sujectArray=[]
@@ -1995,39 +1995,55 @@ def syllabusSubjects():
         print(val.description)
         print(val.subject_id)
         sujectArray.append(str(val.subject_id)+":"+str(val.description))
-    return jsonify([sujectArray])    
+    return jsonify([sujectArray]) 
+
+@app.route('/deleteSubject',methods=['GET','POST'])
+def deleteSubject():
+    subjectId = request.args.get('subjectId')
+    board_id=request.args.get('board')
+    class_val=request.args.get('class_val')
+    updateSubject = BoardClassSubject.query.filter_by(subject_id=subjectId,board_id=board_id,class_val=class_val).first()
+    updateSubject.is_archieve = 'Y'
+    db.session.commit()
+    return ("Data updated successfully")
+
+@app.route('/addNewSubject',methods=['GET','POST'])
+def addNewSubject():
+    subject = request.args.get('subject')
+    board_id=request.args.get('board')
+    class_val=request.args.get('class_val')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    insertMessage = MessageDetails(category='Subject',description=subject)
+    db.session.add(insertMessage)
+    db.session.commit()
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    insertSubject = BoardClassSubject(board_id=board_id,class_val=class_val,subject_id=subject_id.msg_id,last_modified_date=datetime.now(),school_id=teacher.school_id,is_archieve='N')
+    db.session.add(insertSubject)
+    db.session.commit()
+    return ("Data added successfully")
 
 @app.route('/addSubject',methods=['GET','POST'])
 @login_required
 def addSubject():
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subjectVal = request.args.get('subject')
+    subject = request.args.get('subject')
     board_id=request.args.get('board')
     class_val=request.args.get('class_val')
     print('inside add Subject')
-    print(subjectVal+' '+board_id+' '+class_val)
-    subject_id = MessageDetails.query.filter_by(description=subjectVal).first()
+    print(subject+' '+board_id+' '+class_val)
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    insertSubject = BoardClassSubject(board_id=board_id,class_val=class_val,subject_id=subject_id.msg_id,last_modified_date=datetime.now())
+    insertSubject = BoardClassSubject(board_id=board_id,class_val=class_val,subject_id=subject_id.msg_id,last_modified_date=datetime.now(),school_id=teacher.school_id,is_archieve='N')
     db.session.add(insertSubject)
     db.session.commit()
-    # subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
-    # print(subjectQuery)
-    # distinctSubjects = db.session.execute(subjectQuery).fetchall()
-    # sujectArray=[]
-    # print('inside syllabus subject')
-    # print(distinctSubjects)
-    # for val in distinctSubjects:
-    #     print('inside for')
-    #     print(val.description)
-    #     print(val.subject_id)
-    #     sujectArray.append(str(val.subject_id)+":"+str(val.description))
-    # sujectArray.append("54:English")
     return ("Data added successfully")  
 
-@app.route('/fetchSubjects/<classforSubject>/<boardforSub>')
+@app.route('/fetchSubjects',methods=['GET','POST'])
 def fetchSubjects():
-    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
+    class_val=request.args.get('class_val')
+    board_id =request.args.get('board') 
+    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where bcs.class_val='"+class_val+"' and bcs.board_id='"+board_id+"' and bcs.is_archieve='N'"
     print(subjectQuery)
     distinctSubjects = db.session.execute(subjectQuery).fetchall()
     sujectArray=[]
