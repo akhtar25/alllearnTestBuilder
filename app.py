@@ -1945,7 +1945,23 @@ def requestUserAccess():
 @login_required
 def syllabus():
     boardRows = MessageDetails.query.filter_by(category='Board').all()
-    return render_template('syllabus.html', boardRows=boardRows)
+    classValues = MessageDetails.query.filter_by(category='Class').all()
+    subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+    bookName = "select distinct replace(book_name , ' ', '') as book_name from book_details bd"
+    bookName = db.session.execute(bookName).fetchall()
+    chapterNum = "select distinct chapter_num from topic_detail td"
+    chapterNum = db.session.execute(chapterNum).fetchall()
+    topicId = "select distinct topic_id from topic_detail"
+    topicId = db.session.execute(topicId).fetchall()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_name = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
+    return render_template('syllabus.html', boardRows=boardRows,school_name=school_name.school_name,classValues=classValues,subjectValues=subjectValues,bookName=bookName,chapterNum=chapterNum,topicId=topicId)
+
+# @app.route('/addSubjectSyl')
+# def addSubjectSyl():
+#     subject = request.args.get('subject')
+#     class_val = request.args.get('class_val')
+#     board = request.args.get('board')
 
 
 @app.route('/syllabusClasses')
@@ -1965,24 +1981,49 @@ def syllabusClasses():
 def syllabusSubjects():
     board_id=request.args.get('board_id')
     class_val=request.args.get('class_val')
-    subjectQuery = "select distinct t1.subject_id, t2.description from topic_detail t1  inner join  message_detail t2 on "
-    subjectQuery = subjectQuery+ "t1.subject_id=t2.msg_id where board_id='"+board_id+"' and class_val='"+class_val+"' order by subject_id"
-    distinctSubjects = db.session.execute(text(subjectQuery)).fetchall()
+    # subjectQuery = "select distinct t1.subject_id, t2.description from topic_detail t1  inner join  message_detail t2 on "
+    # subjectQuery = subjectQuery+ "t1.subject_id=t2.msg_id where board_id='"+board_id+"' and class_val='"+class_val+"' order by subject_id"
+    # distinctSubjects = db.session.execute(text(subjectQuery)).fetchall()
+    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
+    print(subjectQuery)
+    distinctSubjects = db.session.execute(subjectQuery).fetchall()
     sujectArray=[]
+    print('inside syllabus subject')
+    print(distinctSubjects)
     for val in distinctSubjects:
+        print('inside for')
         print(val.description)
+        print(val.subject_id)
         sujectArray.append(str(val.subject_id)+":"+str(val.description))
     return jsonify([sujectArray])    
 
-@app.route('/addSubject')
+@app.route('/addSubject',methods=['GET','POST'])
 @login_required
 def addSubject():
-    subjectVal = request.args.get('subjectVal')
-    board_id=request.args.get('board_id')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    subjectVal = request.args.get('subject')
+    board_id=request.args.get('board')
     class_val=request.args.get('class_val')
+    print('inside add Subject')
+    print(subjectVal+' '+board_id+' '+class_val)
+    subject_id = MessageDetails.query.filter_by(description=subjectVal).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    insertSubject = db.session.execute(text("insert into class_section()"))
-
+    insertSubject = BoardClassSubject(board_id=board_id,class_val=class_val,subject_id=subject_id.msg_id,last_modified_date=datetime.now())
+    db.session.add(insertSubject)
+    db.session.commit()
+    # subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
+    # print(subjectQuery)
+    # distinctSubjects = db.session.execute(subjectQuery).fetchall()
+    # sujectArray=[]
+    # print('inside syllabus subject')
+    # print(distinctSubjects)
+    # for val in distinctSubjects:
+    #     print('inside for')
+    #     print(val.description)
+    #     print(val.subject_id)
+    #     sujectArray.append(str(val.subject_id)+":"+str(val.description))
+    # sujectArray.append("54:English")
+    return ("Data added successfully")  
 
 @app.route('/syllabusBooks')
 @login_required
@@ -1992,7 +2033,9 @@ def syllabusBooks():
     #distinctBookQuery = "select distinct book_id, book_name from book_details where subject_id='"+subject_id+"'and class_val='"+class_val+"'"
     distinctBookQuery ="select distinct replace(book_name , ' ', '') as book_name from book_details t1  inner join  message_detail t2 on "
     distinctBookQuery=distinctBookQuery+"t1.subject_id=t2.msg_id and t2.description='"+subject_name+"' and t1.class_val='"+class_val+"'"
+    print(distinctBookQuery)
     distinctBooks = db.session.execute(text(distinctBookQuery)).fetchall()
+    
     bookArray=[]
     for val in distinctBooks:
         print(val.book_name)
@@ -2009,7 +2052,8 @@ def syllabusChapters():
     subject_id=request.args.get('subject_id')
     #distinctChapterQuery="select distinct chapter_num, chapter_name from topic_detail where book_name= '"+book_name+"'and class_val ='"+class_val+"' and board_id='"+board_id+"' and subject_id='"+subject_id+"'"
     distinctChapterQuery="select distinct t1.chapter_num, t1.chapter_name from topic_detail t1 inner join book_details t2 "
-    distinctChapterQuery=distinctChapterQuery+ "on t1.book_id=t2.book_id where t2.book_name= '"+book_name+"' and t1.class_val ='"+class_val+"' and board_id='"+board_id+"' and t1.subject_id='"+subject_id+"'"
+    distinctChapterQuery=distinctChapterQuery+ "on t1.book_id=t2.book_id where t2.book_name= '"+book_name+"' and t1.class_val ='"+class_val+"' and t1.board_id='"+board_id+"' and t1.subject_id='"+subject_id+"'"
+    print('Query in syllabusChapter'+str(distinctChapterQuery))
     distinctChapters = db.session.execute(text(distinctChapterQuery)).fetchall()
     chapterArray=[]
     for val in distinctChapters:
@@ -2025,10 +2069,14 @@ def syllabusTopics():
     subject_id=request.args.get('subject_id')
     board_id=request.args.get('board_id')
     chapter_num=request.args.get('chapter_num')
-    chapter_name=request.args.get('chapter_name')
+    # chapter_name=request.args.get('chapter_name')
     class_val = request.args.get('class_val')
-
-    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+subject_id+"' and board_id='"+board_id+"' and chapter_num='"+chapter_num+"' and chapter_name='"+chapter_name+"' and class_val='"+class_val+"'"
+    chapterName = Topic.query.filter_by(subject_id=subject_id,board_id=board_id,chapter_num=chapter_num,class_val=class_val).first()
+    print('Topic details')
+    print(subject_id)
+    print(board_id)
+    print(chapter_num)
+    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+str(subject_id)+"' and board_id='"+str(board_id)+"' and chapter_num='"+str(chapter_num)+"' and chapter_name='"+str(chapterName.chapter_name)+"' and class_val='"+str(class_val)+"'"
     print('Fetch Topics:'+str(distinctTopicQuery))
     distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
     topicArray=[]

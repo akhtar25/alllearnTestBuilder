@@ -3,27 +3,39 @@
 <div class="container ">
     <!--This section is fo subscription plans-->
 
-    <div class="row">
+    <!-- <div class="row">
         <div class="section">
-            <h4 class="grey-text">Syllabus</h4>
+            <h2 class="grey-text textCenter">Syllabus</h2>
+        </div>
+    </div> -->
+    <div class="row" id="titleSyllabus">
+            <h2 class="grey-text">Syllabus</h2>
+        <div class="col lg s12" id="unselect">
+            <ul class="tabs">
+                <li class="tab col s6">
+                    <a href="#" id="general" class="tabFont">General</a>
+                </li>
+                <li class="tab col s6">
+                    <a href="" id="specificSchool" class="tabFont">{{school_name}}</a>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="row">
-        <div class="section">
+        <div class="section1">
             <section class="plans-container" id="plans">
+                <h2 class="textCenter">General</h2>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Boards</div>
-                            <!-- Modal Structure -->
 
                             <ul class="collection " id="boardDiv">
                                 {%for boardRow in boardRows%}
                                 <a href="#">
-                                    <li class="collection-item boardClass" id="{{boardRow.msg_id}}">
+                                    <li class="collection-item" id="">
                                         {{boardRow.description}}</li>
                                 </a>
                                 {%endfor%}
@@ -32,14 +44,12 @@
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Classes</div>
-                            <!-- Modal Structure -->
-                            <ul class="collection " id="classDiv">
+                            <ul class="collection " id="">
 
                             </ul>
                         </div>
@@ -47,47 +57,40 @@
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Subjects</div>
-                            <!-- Modal Structure -->
 
 
-                            <ul class="collection " id="subjectDiv">
+                            <ul class="collection " id="">
 
                             </ul>
-                            <div id='divSubject' style="display: none;">
-                            <div id="dataSubject"></div>
-                            <a href="#" id="addSubject"><i class="fa fa-plus" aria-hidden="true" style="float:right"></i></a>
+                            <div id='' style="display: none;">
+                            <div id=""></div>
                             </div>
                         </div>
 
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Books</div>
-                            <!-- Modal Structure -->
 
 
-                            <ul class="collection " id="bookDiv">
+                            <ul class="collection " id="">
                             </ul>
-                            <div id='divBook' style="display: none;">
+                            <div id='' style="display: none;">
                                 <div id="dataBook"></div>
-                                <a href="#" id="addBook"><i class="fa fa-plus" aria-hidden="true" style="float:right"></i></a>
                                 </div>                        
                             </div>
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
@@ -95,40 +98,284 @@
                             <div class="card-title">Chapters</div>
 
 
-                            <ul class="collection " id="chapterDiv">
+                            <ul class="collection " id="">
                             </ul>
-                            <div id='divChapter' style="display: none;">
+                            <div id='' style="display: none;">
                                 <div id="dataChapter"></div>
-                                <a href="#" id="addChapter"><i class="fa fa-plus" aria-hidden="true" style="float:right"></i></a>
                                 </div>                        
                             </div>
 
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
-                    <!--cyan here-->
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Topics</div>
-                            <ul class="collection " id="topicDiv">
+                            <ul class="collection " id="">
                             </ul>
-                            <div id='divTopics' style="display: none;">
+                            <div id='' style="display: none;">
                                 <div id="dataTopics"></div>
-                                <a href="#" id="addTopics"><i class="fa fa-plus" aria-hidden="true" style="float:right"></i></a>
                                 </div>                       
                              </div>
                     </div>
                 </article>
             </section>
         </div>
-        <!-- Floating Action Button -->
+
+        <!-- for Specific School Tab -->
+
+        <div class="section2">
+                <h2 class="textCenter">{{school_name}}</h2>
+                <section class="plans-container" id="plans">
+                        
+                    <article class="col-md-2 col-xl-2">
+                            
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                                
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Boards</div>
+    
+                                <ul class="collection " id="boardDiv">
+                                    {%for boardRow in boardRows%}
+                                        <li class="collection-item boardClass" id="{{boardRow.msg_id}}">
+                                            {{boardRow.description}}
+                                        </li>
+                                    {%endfor%}
+                                </ul>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="col s12 m6 l2 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Classes</div>
+                                <ul class="collection " id="classDiv">
+    
+                                </ul>
+                                <div id="classloader" style="display: none;">
+                                    <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>
+                            </div>
+    
+                        </div>
+                    </article>
+                    <article class="col s12 m6 l2 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Subjects</div>
+    
+                                <div id='divSubject' style="display: none;">
+                                <ul class="collection " id="subjectDiv">
+    
+                                </ul>
+                                <div class="remSubject" style="display:none;">
+                                <span class="sugText">Suggestion</span>
+                                <ul class="collection" id="remSub">
+                                
+                                </ul>
+                                </div>
+                                <div class="subCol" onclick="remSubList();">
+                                <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <div class="addSubBtn" style="display:none;text-align:center;">
+                                <button style="border-radius:15px;" class="btn waves-light green lighten-1 white-text" type="button" onclick="addBtn();"><a href="#" style="color: white;">Add</a></button>
+                                </div>
+                                </div>
+                                </div>
+                                <div id="subjectloader" style="display: none;">
+                                    <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>
+                                
+                            </div>
+    
+                    </article>
+                    <article class="col s12 m6 l2 ">
+                        <div class="card  z-depth-4">
+                                <div class="card-image">
+                                </div>
+                                <div class="card-content ">
+                                    <div class="card-title">Books</div>
+        
+                                    <ul class="collection " id="bookDiv">
+        
+                                    </ul>
+                                    <div class="bookCol" style="display: none;">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </div>
+                                    </div>
+                                    
+                                    <div id="Bookloader" style="display: none;">
+                                        <img src="../static/images/smallLoader.gif" style="width:100%">
+                                    </div>
+                                    
+                                </div>
+                    </article>
+                    <article class="col s12 m6 l2 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Chapters</div>
+    
+                                <ul class="collection " id="chapterDiv">
+                                </ul>
+                                <div class="chapterCol" style="display: none;">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                
+                                </div>
+                                <div id="chapterloader" style="display: none;">
+                                        <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>
+    
+                        </div>
+                    </article>
+                    <article class="col s12 m6 l2 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Topics</div>
+                                <ul class="collection " id="topicDiv">
+                                </ul>
+                                <div class="topicCol" style="display: none;">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                 </div>
+                                 <div id="topicloader" style="display: none;">
+                                        <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>
+                        </div>
+                    </article>
+                </section>
+            </div>
     </div>
 </div>
 <script>
+    $(document).ready(function(){
+    $('.tabs').tabs();
+    $('.section1').hide();
+      $('.section2').show();
+  });
+
+  $('#general').click(function(){
+      console.log('inside general');
+      $('.section2').hide();
+      $('.section1').show();
+  });
+  $('#specificSchool').click(function(){
+      console.log('inside specific School');
+    $('.section1').hide();
+      $('.section2').show();
+  });
+
+  var selSub = [];
+    var ul = document.getElementById('remSub');
+      ul.onclick = function(event) {
+      var target = event.target;
+      console.log(event.target.innerHTML);
+      selSub.push(event.target.innerHTML);
+}; 
+
+  function addBtn(){
+    //   $('#divSubject').hide();
+    //   $('.remSubject').hide();
+    //   $('.addSubBtn').hide();
+    //   #('.subCol').hide();
+    //     $('#subjectloader').show();
+      console.log('inside addBtn');
+      for(var i=0;i<selSub.length;i++){
+          console.log(selSub[i]);
+      
+      $.ajax({
+            url: "/addSubject?subject="+selSub[i]+"&class_val="+classforSubject+"&board="+boardforSub,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log(response);
+                //  responseArr = response.toString().split(',');
+                // //alert(responseArr.length);
+                // var subjectHTMLRecords = "";
+                // for (var i = 0; i < responseArr.length; i++) {
+                //     var subjectID = responseArr[i].toString().split(':')[0];
+                //     var subjectName = responseArr[i].toString().split(':')[1];
+                //     console.log('inside for loop');
+                //     console.log(subjectID);
+                //     console.log(subjectName);
+                //     var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
+                //         ',' + selectedBoardID;
+                //     subjectHTMLRecords = subjectHTMLRecords +
+                //         '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
+                //         parameters + '); name=' +
+                //         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                //         .split(':')[1] + '</span><div class="delIcon"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>' +
+                //         '</li></a>';
+                //     // alert(responseArr[i].toString().split(':')[0]);
+                //     subArray.push(subjectName);
+                // }
+                // $("#subjectDiv").html(subjectHTMLRecords);
+                
+                // $('#divSubject').show();
+                // #('.subCol').show();
+                // $('#subjectloader').hide();                             
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding indivisual Subject");
+            }
+        });
+      }
+  }
+
+
     //$('#selected_sub_id').val($(this).attr("name"));
-    var classHTMLRecords = "";
+
+    function remSubList(){
+        $('.subCol').hide();
+        $('.addSubBtn').show();
+        console.log('inside remSubList');
+        var remSub = [];
+        var subjectHTMLRecords = '';
+        
+        
+            {% for sub in subjectValues %}
+                var allSub = "{{sub.description}}";
+                var k =0;
+                for(var i=0;i<subArray.length;i++){
+                    
+                    var reSub = '';
+                if(subArray[i]==allSub){
+                    k=1;
+                }
+                }
+            
+            if(k==0){
+                console.log(allSub);
+                remSub.push(allSub);
+                allSub = allSub.trim();
+                subjectHTMLRecords = subjectHTMLRecords +
+                        '<a href="#"><li class="subjectRemItem" id="'+allSub+'id" onclick=onColor("'+allSub+'"); style="padding: 10px 5px;" id="'+allSub+'">' + allSub +
+                        '</li></a>';
+            }
+            {% endfor %}
+            $("#remSub").html(subjectHTMLRecords);
+            $('.remSubject').show();
+    }
+
+    function onColor(subject){
+        var ids = '#'+subject+'id';
+        $(ids).css('background-color','lightseagreen');
+        $(ids).css('color','white');
+    }
+    
     var responseArr = [];
     var selectedBoardID = "";
     var selectedClassVal = "";
@@ -136,8 +383,16 @@
     var selectedSubjectID = "";
     var  selectedChapterNum = "";
     var  selectedChapterName = "";
+    var boardforSub = '';
+
     $('.boardClass').click(function () {
+        var classHTMLRecords = "";
         selectedBoardID = this.id;
+        boardforSub = selectedBoardID;
+        $('.boardClass').css('background-color','lightseagreen');
+        $('.boardClass').css('color','white');
+        $('#classDiv').hide();
+        $('#classloader').show();
         $.ajax({
             url: "/syllabusClasses?board_id=" + selectedBoardID,
             type: "get",
@@ -147,13 +402,19 @@
                 //alert(responseArr.length);
                 for (var i = 0; i < responseArr.length; i++) {
                     //alert(responseArr[i]);
+                    
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="#"><li class="collection-item classVal" onClick="loadSubjects(' +
+                        '<a href="#"><li class="collection-item classVal" id="'+responseArr[i]+'" onClick="loadSubjects(' +
                         responseArr[i] + ')" name=' +
                         selectedBoardID + ' id=' + responseArr[i] + ' >' + responseArr[i] +
                         '</li></a>';
                 }
+                
                 $("#classDiv").html(classHTMLRecords);
+                
+                $('#classDiv').show();
+                $('#classloader').hide();
+                
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching class list");
@@ -162,12 +423,25 @@
     });
 
     //$('.classVal').click(function () {
+    var subArray = [];
+    var classforSubject = '';
     function loadSubjects(selectedClassVal) {
-        // alert("We are in this section");
-        // //selectedClassVal = $('.classVal').id;
-        // alert("We have the class val. it's actually: " + selectedClassVal);
-        //$('#selected_sub_id').val($(this).attr("name"));
+        $('#divSubject').hide();
+        $('#subjectloader').show();
+        classforSubject = selectedClassVal;
+        {% for class in classValues %}
+            var desc = "{{class.description}}";
+            var clasId = '#'+desc.toString();
+            $(clasId).css('background-color','');
+            $(clasId).css('color','');
+            console.log('inside for'+clasId);
+        {% endfor %}
         
+        var classId = '#'+selectedClassVal.toString();
+        console.log('outside for:'+selectedClassVal);
+        $(classId).css('background-color','lightseagreen');
+        $(classId).css('color','white');
+        console.log('inside loadSubjects'+selectedClassVal);
         $.ajax({
             url: "/syllabusSubjects?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal,
             type: "get",
@@ -179,19 +453,24 @@
                 for (var i = 0; i < responseArr.length; i++) {
                     var subjectID = responseArr[i].toString().split(':')[0];
                     var subjectName = responseArr[i].toString().split(':')[1];
-
+                    console.log('inside for loop');
+                    console.log(subjectID);
+                    console.log(subjectName);
                     var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
                         ',' + selectedBoardID;
                     subjectHTMLRecords = subjectHTMLRecords +
-                        '<a href="#"><li class="collection-item subjectItem" onClick=loadBooks(' +
+                        '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
                         parameters + '); name=' +
-                        'id=' + responseArr[i].toString().split(':')[0] + '>' + responseArr[i].toString()
-                        .split(':')[1] +
+                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                        .split(':')[1] + '</span><div class="delIcon"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>' +
                         '</li></a>';
                     // alert(responseArr[i].toString().split(':')[0]);
+                    subArray.push(subjectName);
                 }
                 $("#subjectDiv").html(subjectHTMLRecords);
+                
                 $('#divSubject').show();
+                $('#subjectloader').hide();
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching subject list");
@@ -205,7 +484,21 @@
     function loadBooks(selectedSubjectVal, selectedSubjectID, selectedClassVal, selectedBoardID) {
         //$('#selected_sub_id').val($(this).attr("name"));
         // alert("We're in load books function " + selectedSubjectVal + selectedClassVal + selectedBoardID);
+        $('#bookDiv').hide();
+        $('.bookCol').hide();
+        $('#Bookloader').show(); 
         
+        {% for sub in subjectValues %}
+            var subVal = "{{sub.description}}";
+            var subjectVal = '#'+subVal.toString();
+            $(subjectVal).css('background-color','');
+            $(subjectVal).css('color','');
+            console.log('inside for:'+subjectVal);
+        {% endfor %}
+        var subjectVal = '#'+selectedSubjectVal.toString();
+        console.log('outside for:'+selectedSubjectVal);
+        $(subjectVal).css('background-color','lightseagreen');
+        $(subjectVal).css('color','white');
         $.ajax({
             url: "/syllabusBooks?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
                 "&subject_name=" + selectedSubjectVal,
@@ -221,13 +514,15 @@
                         "\"," + selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID;
                         console.log('Books Records in parameters:'+parameters);
                     bookHTMLRecords = bookHTMLRecords +
-                        '<a href="#"><li class="collection-item bookItem" onClick=loadChapters(' +
+                        '<a href="#"><li class="bookItem" style="padding: 10px 5px;" id="'+responseArr[i]+'book" onClick=loadChapters(' +
                         parameters + '); name=' +
                         selectedBoardID + ' id=' + responseArr[i] + '>' + responseArr[i] +
-                        '</li></a>';
+                        '<div class="delIconBooks"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
                 }
                 $("#bookDiv").html(bookHTMLRecords);
-                $('#divBook').show();
+                $('#bookDiv').show();
+                $('.bookCol').show();
+                $('#Bookloader').hide();
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching book list");
@@ -237,12 +532,24 @@
         //});
     }
 
-
     function loadChapters(selectedBookName, selectedSubjectVal, selectedSubjectID, selectedClassVal, selectedBoardID) {
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
         
-        console.log('Inside load Chapters');
+        $('#chapterDiv').hide();
+        $('.chapterCol').hide();
+        $('#chapterloader').show();
+        
+        {% for book in bookName %}
+            var bookNam = '#{{book.book_name}}book';
+            $(bookNam).css('background-color','');
+            $(bookNam).css('color','');
+            console.log('inside for:'+bookNam);
+        {% endfor %}
+        var bookId = '#'+selectedBookName.toString()+'book';
+        console.log('outside for:'+bookId);
+        $(bookId).css('background-color','lightseagreen');
+        $(bookId).css('color','white');
         $.ajax({
             url: "/syllabusChapters?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
                 "&subject_id=" + selectedSubjectID + "&book_name=" + selectedBookName + "&subject_val=" +
@@ -257,20 +564,21 @@
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
-                    var chapterName = '"'+responseArr[i].toString().split(':')[1]+'"';
-                    var chapter = responseArr[i].toString().split(':')[1];
+                    var chapterName = responseArr[i].toString().split(':')[1];
+                    // var chapter = responseArr[i].toString().split(':')[1];
                     // alert(chapterNum + " and " + chapterName);
-                    console.log('Chapter Name:'+chapterName);
-                    console.log('Subject Name:'+selectedSubjectVal);
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum;
-                    console.log('Inside for loop of load Chapters:'+parameters);
                     chapterHTMLRecords = chapterHTMLRecords +
-                    '<a href="#"><li class="collection-item chapterItem'+chapterNum+'" name='+chapterName+' onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+');>' + chapter +'</li></a>';
+                    '<a href="#"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
+                            '<div class="delIconChapter"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
                     i=i+1;
                 }
 
                 $("#chapterDiv").html(chapterHTMLRecords);
-                $('#divChapter').show();
+                
+                $('#chapterDiv').show();
+                $('.chapterCol').show();
+                $('#chapterloader').hide();
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching book list");
@@ -283,15 +591,27 @@
 
     function loadTopics( selectedSubjectVal,  selectedSubjectID, selectedClassVal, selectedBoardID, selectedChapterNum) {
         var s = '.chapterItem'+selectedChapterNum;
+        // var chapterId = '#'+selectedChapterNum.toString();
+        // console.log(chapterId);
+        $('#topicDiv').hide();
+        $('.topicCol').hide();
+        $('#topicloader').show();
         
-        console.log('S:'+s)
-        chapterName = $(s).attr('name');
-        console.log('Chapter Name:'+chapterName);
+        {% for chapter  in chapterNum %}
+            var chapterNumber = '.chapterItem{{chapter.chapter_num}}';
+            $(chapterNumber).css('background-color','');
+            $(chapterNumber).css('color','');
+
+        {% endfor %}
+        $(s).css('background-color','lightseagreen');
+        $(s).css('color','white');
+        // console.log(chapterName);
+        // console.log('Chapter Name:'+chapterName);
         console.log('Inside load Topics');
-        console.log('Data:'+selectedSubjectVal+','+selectedSubjectID+','+selectedClassVal+','+selectedBoardID+','+selectedChapterNum+','+chapterName);
+        console.log('Data:'+selectedSubjectVal+','+selectedSubjectID+','+selectedClassVal+','+selectedBoardID+','+selectedChapterNum);
         $.ajax({
             url: "/syllabusTopics?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
-                "&subject_id=" + selectedSubjectID + "&chapter_name=" + chapterName+"&chapter_num=" + selectedChapterNum,
+                "&subject_id=" + selectedSubjectID + "&chapter_num=" + selectedChapterNum,
             type: "get",
             data: '',
             success: function (response) {
@@ -303,12 +623,16 @@
                     var topicName = responseArr[i].toString().split(':')[1];
                     //alert(responseArr[i]);
                     topicHTMLRecords = topicHTMLRecords +
-                        '<a href="#"><li class="collection-item topicItem" name = ' +
-                            topicID + 'id=' + topicID + '>' + topicName +
-                        '</li></a>';
+                        '<a href="#"><li class="topicItem" style="padding: 10px 5px;" name = "' +
+                            topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+'); >' + topicName +
+                        '<div class="delIconTopics"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
                 }
                 $("#topicDiv").html(topicHTMLRecords);
-                $('#divTopics').show();
+                
+                
+                $('#topicDiv').show();
+                $('.topicCol').show();
+                $('#topicloader').hide();
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching book list");
@@ -316,6 +640,35 @@
         });
         
     };
+
+    function loadQuestions(selectedTopicId,selectedClassVal,selectedSubjectID,selectedBoardID){
+        var topicsId = '#'+selectedTopicId.toString()+'topic';
+        console.log('inside loadQuestions');
+        {% for topic in topicId %}
+            var topicIds = '#{{topic.topic_id}}topic';
+            $(topicIds).css('background-color','');
+            $(topicIds).css('color','');
+            if(topicIds==topicsId){
+                console.log('topic in for:'+topicIds);
+                console.log('topic outside for:'+topicsId);
+            }
+        {% endfor %}
+        console.log('outside for:'+topicsId);
+        $(topicsId).css('background-color','lightseagreen');
+        $(topicsId).css('color','white');
+        // $.ajax({
+        //     url: "/syllabusQuestions?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
+        //         "&subject_id=" + selectedSubjectID + "&topic_id=" + selectedTopicId,
+        //     type: "get",
+        //     data: '',
+        //     success: function(response){
+
+        //     },
+        //     error:function(xhr){
+
+        //     }
+        // });
+    }
 
 
 
@@ -377,38 +730,40 @@
         $('#dataTopics').html(inputHTMLTopics);
     });
 
-    $('#save').click(function(){
-        var subjectVal = $('#subject_val').val();
-        console.log('Data:'+subjectVal);
-        $.ajax({
-            url: "/addSubject?subjectVal=" + subjectVal,
-            type: "get",
-            data: '',
-            success: function (response) {
-                responseArr = response.toString().split(',');
-                //alert(responseArr.length);
-                var subjectHTMLRecords = "";
-                for (var i = 0; i < responseArr.length; i++) {
-                    var subjectID = responseArr[i].toString().split(':')[0];
-                    var subjectName = responseArr[i].toString().split(':')[1];
+    // $('#save').click(function(){
+    //     var subjectVal = $('#subject_val').val();
+    //     console.log('Data:'+subjectVal);
+    //     $.ajax({
+    //         url: "/addSubject?subjectVal=" + subjectVal,
+    //         type: "get",
+    //         data: '',
+    //         success: function (response) {
+    //             responseArr = response.toString().split(',');
+    //             //alert(responseArr.length);
+    //             var subjectHTMLRecords = "";
+    //             for (var i = 0; i < responseArr.length; i++) {
+    //                 var subjectID = responseArr[i].toString().split(':')[0];
+    //                 var subjectName = responseArr[i].toString().split(':')[1];
 
-                    var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
-                        ',' + selectedBoardID;
-                    subjectHTMLRecords = subjectHTMLRecords +
-                        '<a href="#"><li class="collection-item subjectItem" onClick=loadBooks(' +
-                        parameters + '); name=' +
-                        'id=' + responseArr[i].toString().split(':')[0] + '>' + responseArr[i].toString()
-                        .split(':')[1] +
-                        '</li></a>';
-                    // alert(responseArr[i].toString().split(':')[0]);
-                }
-                $("#subjectDiv").html(subjectHTMLRecords);
-            },
-            error: function (xhr) {
-                window.alert("error occurred while fetching class list");
-            }
-        });
-    })
+    //                 var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
+    //                     ',' + selectedBoardID;
+    //                 subjectHTMLRecords = subjectHTMLRecords +
+    //                     '<a href="#"><li class="collection-item subjectItem" onClick=loadBooks(' +
+    //                     parameters + '); name=' +
+    //                     'id=' + responseArr[i].toString().split(':')[0] + '>' + responseArr[i].toString()
+    //                     .split(':')[1] +
+    //                     '</li></a>';
+    //                 // alert(responseArr[i].toString().split(':')[0]);
+    //             }
+    //             $("#subjectDiv").html(subjectHTMLRecords);
+    //         },
+    //         error: function (xhr) {
+    //             window.alert("error occurred while fetching class list");
+    //         }
+    //     });
+    // });
+
+
 </script>
 
 {% endblock %}

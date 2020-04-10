@@ -5115,6 +5115,142 @@ small {
   background: white;
   box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
 }
+.boardClass{
+  cursor: pointer;
+}
+#titleSyllabus{
+  margin-top: -30px;
+}
+.classVal{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+}
+.delIcon{
+  float:right;
+  cursor: pointer;
+}
+.delIconChapter{
+  float:right;
+  cursor: pointer;
+}
+.delIconTopics{
+  float:right;
+  cursor: pointer;
+}
+.delIconBooks{
+  float:right;
+  cursor: pointer;
+}
+.subCol{
+  float: right;
+  color: green;
+}
+.subCol:hover{
+  cursor: pointer;
+}
+.bookCol:hover{
+cursor: pointer;
+}
+.bookCol{
+  float: right;
+  color: green;
+}
+.chapterCol:hover{
+  cursor: pointer;
+}
+.topicCol:hover{
+  cursor: pointer;
+}
+.chapterCol{
+  float: right;
+  color: green;
+}
+.topicCol{
+  float: right;
+  color: green;
+}
+#divBook{
+  float: right;
+  color: green;
+}
+#divChapter{
+  float: right;
+  color: green;
+}
+#divTopics{
+  float: right;
+  color: green;
+}
+.subjectItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+  padding: 10px 5px;
+}
+.subjectRemItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+  padding: 10px 5px;
+}
+.bookItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+}
+.chapterColor{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+}
+.topicItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+}
+.section1{
+  display: none;
+}
+.classVal:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.topicItem:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.chapterColor:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.subjectItem:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.subjectRemItem:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.bookItem:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.boardClass:hover{
+color: white;
+background-color: lightseagreen;
+}
+#general{
+  font-size: 18px;
+}
+#specificSchool{
+  font-size: 18px;
+}
+.textCenter{
+  text-align: center;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
 .contentBorder{
   background: white;
   box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 0 0.25rem 0.53125rem rgba(4,9,20,0.05), 0 0.125rem 0.1875rem rgba(4,9,20,0.03);
@@ -5354,18 +5490,23 @@ small {
   margin: 0;
   text-transform: uppercase;
 }
+.tabFont{
+  font-size: 18px;
+}
 
 .tabs .tab a {
-  color: rgba(238, 110, 115, 0.7);
+  color: green;
   display: block;
   width: 100%;
   height: 100%;
   padding: 0 24px;
   font-size: 14px;
   text-overflow: ellipsis;
+  border-bottom: 2px solid;
   overflow: hidden;
   -webkit-transition: color .28s ease, background-color .28s ease;
   transition: color .28s ease, background-color .28s ease;
+  background-color: #d4f8e8;
 }
 
 .tabs .tab a:focus, .tabs .tab a:focus.active {
@@ -5373,22 +5514,27 @@ small {
   outline: none;
 }
 
-.tabs .tab a:hover, .tabs .tab a.active {
-  background-color: transparent;
-  color: #ee6e73;
+.tabs .tab a:hover  {
+  background-color:#d8ebb5;
+  color:grey;
+}
+.tabs .tab a.active{
+  background-color: green;
+  color: white;
 }
 
 .tabs .tab.disabled a,
 .tabs .tab.disabled a:hover {
-  color: rgba(238, 110, 115, 0.4);
-  cursor: default;
+ background-color: #d8ebb5;
+  color: grey;
+  cursor: pointer;
 }
 
 .tabs .indicator {
   position: absolute;
   bottom: 0;
-  height: 2px;
-  background-color: #f6b2b5;
+  /* height: 2px; */
+  background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
   will-change: left, right;
 }
 
@@ -9250,6 +9396,10 @@ input[type=range].focused:focus:not(.active)::-ms-thumb {
 
 .datepicker-table td.is-today {
   color: #26a69a;
+}
+.selectedRow{
+  background-color: lightseagreen;
+  color: white;
 }
 
 .datepicker-table td.is-selected {
