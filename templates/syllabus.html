@@ -286,11 +286,11 @@
 }; 
 
   function addBtn(){
-    //   $('#divSubject').hide();
-    //   $('.remSubject').hide();
-    //   $('.addSubBtn').hide();
-    //   #('.subCol').hide();
-    //     $('#subjectloader').show();
+      $('#divSubject').hide();
+      $('.remSubject').hide();
+      $('.addSubBtn').hide();
+      $('.subCol').hide();
+        $('#subjectloader').show();
       console.log('inside addBtn');
       for(var i=0;i<selSub.length;i++){
           console.log(selSub[i]);
@@ -302,37 +302,44 @@
             data: "",
             success: function (response) {
                 console.log(response);
-                //  responseArr = response.toString().split(',');
-                // //alert(responseArr.length);
-                // var subjectHTMLRecords = "";
-                // for (var i = 0; i < responseArr.length; i++) {
-                //     var subjectID = responseArr[i].toString().split(':')[0];
-                //     var subjectName = responseArr[i].toString().split(':')[1];
-                //     console.log('inside for loop');
-                //     console.log(subjectID);
-                //     console.log(subjectName);
-                //     var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
-                //         ',' + selectedBoardID;
-                //     subjectHTMLRecords = subjectHTMLRecords +
-                //         '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
-                //         parameters + '); name=' +
-                //         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
-                //         .split(':')[1] + '</span><div class="delIcon"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>' +
-                //         '</li></a>';
-                //     // alert(responseArr[i].toString().split(':')[0]);
-                //     subArray.push(subjectName);
-                // }
-                // $("#subjectDiv").html(subjectHTMLRecords);
-                
-                // $('#divSubject').show();
-                // #('.subCol').show();
-                // $('#subjectloader').hide();                             
+                                             
             },
             error: function (xhr) {
                 window.alert("error occurred while adding indivisual Subject");
             }
         });
-      }
+}
+        fetch('/fetchSubjects/' + classforSubject+'/'+boardforSub).then(function(response) {
+             response.json().then(function(data) {
+                      responseArr = response.toString().split(',');
+                //alert(responseArr.length);
+                var subjectHTMLRecords = "";
+                for (var i = 0; i < responseArr.length; i++) {
+                    var subjectID = responseArr[i].toString().split(':')[0];
+                    var subjectName = responseArr[i].toString().split(':')[1];
+                    console.log('inside for loop');
+                    console.log(subjectID);
+                    console.log(subjectName);
+                    var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
+                        ',' + selectedBoardID;
+                    subjectHTMLRecords = subjectHTMLRecords +
+                        '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
+                        parameters + '); name=' +
+                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                        .split(':')[1] + '</span><div class="delIcon"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>' +
+                        '</li></a>';
+                    // alert(responseArr[i].toString().split(':')[0]);
+                    subArray.push(subjectName);
+                }
+                $("#subjectDiv").html(subjectHTMLRecords);
+                
+                $('#divSubject').show();
+                $('.subCol').show();
+                $('#subjectloader').hide();
+             })
+             
+         });
+      
   }
 
 

@@ -2025,6 +2025,21 @@ def addSubject():
     # sujectArray.append("54:English")
     return ("Data added successfully")  
 
+@app.route('/fetchSubjects/<classforSubject>/<boardforSub>')
+def fetchSubjects():
+    subjectQuery = "select bcs.subject_id,msg.description from board_class_subject bcs inner join message_detail msg on msg.msg_id = bcs.subject_id where class_val='"+class_val+"' and board_id='"+board_id+"'"
+    print(subjectQuery)
+    distinctSubjects = db.session.execute(subjectQuery).fetchall()
+    sujectArray=[]
+    print('inside syllabus subject')
+    print(distinctSubjects)
+    for val in distinctSubjects:
+        print('inside for')
+        print(val.description)
+        print(val.subject_id)
+        sujectArray.append(str(val.subject_id)+":"+str(val.description))
+    return jsonify([sujectArray])
+
 @app.route('/syllabusBooks')
 @login_required
 def syllabusBooks():
