@@ -5171,7 +5171,7 @@ cursor: pointer;
   color: green;
 }
 #divBook{
-  float: right;
+  /* float: right; */
   color: green;
 }
 #divChapter{
@@ -5189,6 +5189,12 @@ cursor: pointer;
   padding: 10px 5px;
 }
 .subjectRemItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+  padding: 10px 5px;
+}
+.bookRemItem{
   border-bottom: 0px;
   cursor: pointer;
   color: #333;
