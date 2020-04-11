@@ -1944,7 +1944,10 @@ def requestUserAccess():
 @app.route('/syllabus')
 @login_required
 def syllabus():
-    boardRows = MessageDetails.query.filter_by(category='Board').all()
+    # boardRows = MessageDetails.query.filter_by(category='Board').all()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
+    boardRows = MessageDetails.query.filter_by(msg_id=board_id.board_id).all()
     classValues = MessageDetails.query.filter_by(category='Class').all()
     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
     bookName = "select distinct replace(book_name , ' ', '') as book_name from book_details bd"
@@ -1969,7 +1972,9 @@ def syllabus():
 def syllabusClasses():
     board_id=request.args.get('board_id')
     classArray = []
-    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+str(board_id)+"' order by class_val ")).fetchall()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    distinctClasses = ClassSection.query.with_entities(ClassSection.class_val).order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+    # distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+str(board_id)+"' order by class_val ")).fetchall()
     for val in distinctClasses:
         print(val.class_val)
         classArray.append(val.class_val)

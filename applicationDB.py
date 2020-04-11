@@ -220,12 +220,23 @@ class BoardClassSubject(db.Model):
     __tablename__ = "board_class_subject"
     bcs_id = db.Column(db.Integer,primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    class_val = class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.Integer, nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #subject_name = db.Column(db.ForeignKey('message_detail.description'),nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
     is_archieve = db.Column(db.String(1), nullable=True)
+
+class BoardClassSubjectBooks(db.Model):
+    __tablename__ = "board_class_subject_books"
+    bcsb_id = db.Column(db.Integer,primary_key=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
+    class_val = db.Column(db.Integer, nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    book_id = db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
+    is_archieve = db.Column(db.String(1), nullable=True)
+    last_modified_date = db.Column(db.DateTime, nullable=True)
+    
 
 class ChapterDetail(db.Model):
     __tablename__="chapter_detail"
