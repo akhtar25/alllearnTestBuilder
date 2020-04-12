@@ -235,23 +235,36 @@
                     </article>
                     <article class="col s12 m6 l2 ">
                         <div class="card  z-depth-4">
-                            <div class="card-image">
-                            </div>
-                            <div class="card-content ">
-                                <div class="card-title">Chapters</div>
-    
-                                <ul class="collection " id="chapterDiv">
-                                </ul>
-                                <div class="chapterCol" style="display: none;">
-                                    <i class="fas fa-plus-circle"></i>
+                                <div class="card-image">
                                 </div>
+                                <div class="card-content ">
+                                    <div class="card-title">Chapters</div>
+    
+                                <div id='divChapter' style="display: none;">
+                                <ul class="collection " id="chapterDiv">
+    
+                                </ul>
+                                <div class="remchapters" style="display:none;">
+                                <span class="sugTextChapters">Suggestion</span>
+                                <ul class="collection" id="remchapt">
                                 
+                                </ul>
+                                <a href="#" id="otherChapter">Add other chapter</a>
+                                <input type="text" style="display:none;" id="chapterText">
+                                </div>
+                                <div class="chapterCol" onclick="remChapterList();">
+                                <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <div class="addChapterBtn" style="text-align:center;margin-top:5px;">
+                                <button style="border-radius:15px;" class="btn waves-light green lighten-1 white-text" type="button" id="suggestionChapterBtn" onclick="addChapterBtn();"><a href="#" style="color: white;">Add</a></button>
+                                <button style="border-radius:15px;display:none;" class="btn waves-light green lighten-1 white-text" type="button" id="inputChapterBtn" onclick="addInputChapterBtn();"><a href="#" style="color: white;">Add</a></button>
+                                </div>
+                                </div>
                                 </div>
                                 <div id="chapterloader" style="display: none;">
-                                        <img src="../static/images/smallLoader.gif" style="width:100%">
+                                    <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>   
                                 </div>
-    
-                        </div>
                     </article>
                     <article class="col s12 m6 l2 ">
                         <div class="card  z-depth-4">
@@ -264,9 +277,10 @@
                                 <div class="topicCol" style="display: none;">
                                     <i class="fas fa-plus-circle"></i>
                                 </div>
-                                 </div>
+                                 
                                  <div id="topicloader" style="display: none;">
                                         <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>
                                 </div>
                         </div>
                     </article>
@@ -304,6 +318,10 @@
   $('#otherBook').click(function(){
       $('#otherBook').hide();
       $('#bookText').show();
+      $('.sugTextBooks').hide();
+      $('#rembok').hide();
+      $('#suggestionBookBtn').hide();
+      $('#inputBookBtn').show();
   });
 
   var selSub = [];
@@ -313,17 +331,38 @@
       console.log(event.target.innerHTML);
       selSub.push(event.target.innerHTML);
 }; 
+    var selBok = [];
+    var ul = document.getElementById('rembok');
+      ul.onclick = function(event) {
+      var target = event.target;
+      console.log(event.target.innerHTML);
+      selBok.push(event.target.innerHTML);
+};
 
     function deleteFunc(subjectId){
         console.log('inside delete function');
         console.log(subjectId);
         deleteSubject(subjectId,classforSubject,boardforSub);
+        $('#remSub').hide();
+        $('.addSubBtn').hide();
     }
 
     function deleteBookFunc(bookId){
         console.log('inside book delete function');
-        console.log(subjectId);
+        console.log(bookId);
         deleteBooks(bookId,subjectforBooks,classforBooks);
+        $('#rembok').hide();
+        $('.addBookBtn').hide();
+    }
+
+    function addInputBookBtn(){
+        $('#inputBookBtn').hide();
+        $('#bookText').hide();
+        $('#Bookloader').show();
+        var book = $('#bookText').val();
+        console.log('inside addInputBookBtn');
+        console.log(book);
+        insertNewBook(book,subjectforBooks,classforBooks);
     }
 
     function addInputBtn(){
@@ -336,6 +375,25 @@
         insertNewSubject(subject,classforSubject,boardforSub);
     }
 
+  function addBookBtn(){
+      console.log('inside addBookBtn');
+      $('.remBook').hide();
+      $('#divBook').hide();
+      $('.sugTextBooks').hide();
+      $('#rembok').hide();
+      $('#otherBook').hide();
+      $('.addBookBtn').hide();
+      
+      $('.subCol').hide();
+      $('#Bookloader').show();
+      for(var i=0;i<selBok.length;i++){
+          console.log(selBok.length);
+          console.log(selBok[i]);
+            insertBook(selBok[i],classforBooks,subjectforBooks,i,selBok.length);
+          console.log('after insert Book Data');
+        }
+  }
+
   function addBtn(){
       $('#divSubject').hide();
       $('.remSubject').hide();
@@ -344,6 +402,7 @@
         $('#subjectloader').show();
       console.log('inside addBtn');
       for(var i=0;i<selSub.length;i++){
+          console.log(selSub.length);
           console.log(selSub[i]);
             insertSubject(selSub[i],classforSubject,boardforSub,i,selSub.length);
           console.log('after insert Data');
@@ -353,9 +412,9 @@
       
   }
 
-  function deleteBookFunc(bookId,subject_id,class_val){
+  function deleteBooks(bookId,subject,class_val){
       $.ajax({
-            url: "/deleteBook?subjectId="+subject_id+"&class_val="+class_val+"&bookId="+bookId,
+            url: "/deleteBook?subject="+subject+"&class_val="+class_val+"&bookId="+bookId,
             type: "POST",
             contentType: "application/json",
             data: "",
@@ -378,7 +437,24 @@
             data: "",
             success: function (response) {
                 console.log(response);
-                  fetchSubject(classforSubject,boardforSub);                        
+                  fetchSubject(classforSubject,boardforSub);  
+
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding indivisual Subject");
+            }
+        });
+  }
+
+  function insertNewBook(book,subject,class_val){
+      $.ajax({
+            url: "/addNewBook?book="+book+"&class_val="+class_val+"&subject="+subject,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log(response);
+                  fetchBooks(classforBooks,subjectforBooks);                        
             },
             error: function (xhr) {
                 window.alert("error occurred while adding indivisual Subject");
@@ -402,6 +478,25 @@
         });
   }
 
+  function insertBook(bookName,class_val,subject,index,length){
+      $.ajax({
+            url: "/addBook?book="+bookName+"&class_val="+class_val+"&subject="+subject,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log(response);
+                if(index==length-1){
+                 fetchBooks(classforBooks,subjectforBooks); 
+                 selBok = [];
+                }                           
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding indivisual Subject");
+            }
+        });
+  }
+
   function insertSubject(subjectName,class_val,board,index,length){
       $.ajax({
             url: "/addSubject?subject="+subjectName+"&class_val="+class_val+"&board="+board,
@@ -412,6 +507,7 @@
                 console.log(response);
                 if(index==length-1){
                  fetchSubject(classforSubject,boardforSub); 
+                 selSub = [];
                 }                           
             },
             error: function (xhr) {
@@ -421,7 +517,47 @@
   }
 
   function fetchBooks(class_val,subject){
-      
+      $.ajax({
+          url: "/fetchBooks?class_val="+class_val+"&subject="+subject,
+          type: "POST",
+          contentType: "application/json",
+          data: "",
+          success: function(response){
+              console.log('inside fetch books success');
+              var bookHTMLRecords = "";
+              if(response){
+              responseArr = response.toString().split(',');
+                // alert(responseArr);
+                
+                for (var i = 0; i < responseArr.length; i++) {
+                    //alert(responseArr[i]);
+                    var bookID = responseArr[i].toString().split(':')[0];
+                    var bookName = responseArr[i].toString().split(':')[1];
+                    console.log('inside book syllabus:'+bookID);
+                    var parameters = "\"" + selectedSubjectVal +
+                        "\"," + bookID+',' + selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID;
+                        console.log('Books Records in parameters:'+parameters);
+                    bookHTMLRecords = bookHTMLRecords +
+                        '<a href="#"><li class="bookItem" style="padding: 10px 5px;" id="'+bookID+'book" onClick=loadChapters(' +
+                        parameters + '); name=' +
+                        selectedBoardID + '>' + bookName +
+                        '</li><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
+                    // bookArray.push(bookID+':'+bookName);
+                }
+              }else{
+                  bookHTMLRecords = bookHTMLRecords +
+                  '<li style="padding: 10px 5px;">No data available</li>'
+              }
+                $('#bookDiv').html("");
+                $("#bookDiv").html(bookHTMLRecords);
+                $('#divBook').show();
+                $('.bookCol').show();
+                $('#Bookloader').hide();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching book list");
+            }
+      });
   }
 
   function fetchSubject(class_val,board){
@@ -432,27 +568,32 @@
             data: "",
             success: function (response) {
                 console.log('inside fetch Subject success');
+                var subjectHTMLRecord = "";
+                if(response){
                 responseArr = response.toString().split(',');
                 //alert(responseArr.length);
-                var subjectHTMLRecord = "";
+                subArray = [];
                 for (var i = 0; i < responseArr.length; i++) {
                     var subjectID = responseArr[i].toString().split(':')[0];
                     var subjectName = responseArr[i].toString().split(':')[1];
                     console.log('inside for loop');
                     console.log(subjectID);
                     console.log(subjectName);
-                    var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
-                        ',' + selectedBoardID;
+                    var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + class_val +
+                        ',' + board;
                     subjectHTMLRecord = subjectHTMLRecord +
                         '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
                         parameters + '); name=' +
                         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
-                        .split(':')[1] + '</span><div class="delIcon"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>' +
-                        '</li></a>';
+                        .split(':')[1] +
+                        '</li><div class="delIcon" onclick=deleteFunc('+subjectID+'); style="margin-top:-30px;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                     // alert(responseArr[i].toString().split(':')[0]);
                     subArray.push(subjectName);
                 }
                 // $("#subjectDiv").hide();
+                }else{
+                    subjectHTMLRecord = subjectHTMLRecord + "<li>Not Available</li>"
+                }
                 $("#subjectDiv").html(subjectHTMLRecord);
                 // $('#updatedSubjectDiv').show();
                 $('#divSubject').show();
@@ -470,13 +611,60 @@
 
     //$('#selected_sub_id').val($(this).attr("name"));
 
+    function remChapterList(){
+
+        console.log('inside remChapterList');
+
+        fetchRemChapters(classforChapters,subjectforChapters,bookIdforChapters);
+    }
+
     function remBookList(){
-        $('.bookCol').hide();
-        $('.remBooks').show();
+        
         console.log('inside remBookList');
         // $('#inputBookBtn').show();
         fetchRemBooks(subjectforBooks,classforBooks);
         
+    }
+
+    function fetchRemChapters(class_val,subject,bookId){
+        $.ajax({
+            url: "/fetchRemChapters?class_val="+class_val+"&subject="+subject+"&bookId="+bookId,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                var remChapterHTMLRecords = "";
+                console.log('inside fetchRemChapters :'+response);
+                if(response){
+                    responseArr = response.toString().split(',');
+                // alert(responseArr);
+                
+                for (var i = 0; i < responseArr.length; i++) {
+                    //alert(responseArr[i]);
+                    var chapterID = responseArr[i].toString().split(':')[0];
+                    var chapterName = responseArr[i].toString().split(':')[1];
+                    console.log('inside chapter syllabus:'+chapterID);
+                    
+                    remChapterHTMLRecords = remChapterHTMLRecords +
+                    '<a href="#"><li class="chapterRemItem" id="'+chapterID+'id" onclick=onColor("'+chapterID+'"); style="padding: 10px 5px;">' + chapterName +
+                        '</li></a>';
+                }
+                }else{
+                    remChapterHTMLRecords = remChapterHTMLRecords +
+                    '<li style="padding: 10px 5px;">No suggestions available</li>'
+                }
+                $("#remchapt").html(remBookHTMLRecords);
+                $('.chapterCol').hide();
+                $('.addChapterBtn').show();
+                $('.remChapters').show();
+                $('#remchapt').show();
+                $('#chapterText').hide();
+                
+                },
+            error: function (xhr) {
+                window.alert("error occurred while display Subject Subject");
+            }
+        });
     }
 
     function fetchRemBooks(subjectforBooks,classforBooks){
@@ -486,9 +674,12 @@
             contentType: "application/json",
             data: "",
             success: function (response) {
+                var remBookHTMLRecords = "";
+                console.log('inside fetchRemBook :'+response);
+                if(response){
                     responseArr = response.toString().split(',');
                 // alert(responseArr);
-                var remBookHTMLRecords = "";
+                
                 for (var i = 0; i < responseArr.length; i++) {
                     //alert(responseArr[i]);
                     var bookID = responseArr[i].toString().split(':')[0];
@@ -499,8 +690,16 @@
                     '<a href="#"><li class="bookRemItem" id="'+bookID+'id" onclick=onColor("'+bookID+'"); style="padding: 10px 5px;">' + bookName +
                         '</li></a>';
                 }
-                $("#remBok").html(bookHTMLRecords);
-                // $('#divBook').show();
+                }else{
+                    remBookHTMLRecords = remBookHTMLRecords +
+                    '<li style="padding: 10px 5px;">No suggestions available</li>'
+                }
+                $("#rembok").html(remBookHTMLRecords);
+                $('.bookCol').hide();
+                $('.addBookBtn').show();
+                $('.remBooks').show();
+                $('#rembok').show();
+                $('#bookText').hide();
                 
                 },
             error: function (xhr) {
@@ -629,9 +828,13 @@
             type: "get",
             data: '',
             success: function (response) {
-                responseArr = response.toString().split(',');
+                
                 //alert(responseArr.length);
                 var subjectHTMLRecords = "";
+                console.log('inside load Subjects');
+                console.log(response);
+                if(response){
+                responseArr = response.toString().split(',');
                 for (var i = 0; i < responseArr.length; i++) {
                     var subjectID = responseArr[i].toString().split(':')[0];
                     var subjectName = responseArr[i].toString().split(':')[1];
@@ -649,6 +852,10 @@
                     // alert(responseArr[i].toString().split(':')[0]);
                     subArray.push(subjectName+':'+subjectID);
                      
+                }
+                }else{
+                    // subjectHTMLRecord = '';
+                    subjectHTMLRecords = subjectHTMLRecords + '<li class="subjectItem">Not Available</li>'
                 }
                 
                 $("#subjectDiv").html(subjectHTMLRecords);
@@ -694,6 +901,9 @@
             type: "get",
             data: '',
             success: function (response) {
+
+                var bookHTMLRecords = "";
+                if(response){
                 responseArr = response.toString().split(',');
                 // alert(responseArr);
                 var bookHTMLRecords = "";
@@ -712,9 +922,14 @@
                         '</li><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                     bookArray.push(bookID+':'+bookName);
                 }
+                }else{
+                    bookHTMLRecords = bookHTMLRecords +
+                    '<li style="padding: 10px 5px;">No data available</li>'
+                }
                 $("#bookDiv").html(bookHTMLRecords);
                 $('#divBook').show();
                 $('.bookCol').show();
+                $('.addBookBtn').hide();
                 $('#Bookloader').hide();
             },
             error: function (xhr) {
@@ -724,15 +939,19 @@
         
         //});
     }
-
+    var classforChapters = '';
+    var subjectforChapters = '';
+    var bookIdforChapters = '';
     function loadChapters( selectedSubjectVal, selectedBookId,selectedSubjectID, selectedClassVal, selectedBoardID) {
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
         
-        $('#chapterDiv').hide();
+        $('#divChapter').hide();
         $('.chapterCol').hide();
         $('#chapterloader').show();
-        
+        classforChapters = selectedClassVal;
+        subjectforChapters = selectedSubjectVal;
+         
         {% for book in bookName %}
             var bookNam = '#{{book.book_id}}book';
             $(bookNam).css('background-color','');
@@ -754,6 +973,7 @@
                 // alert(responseArr.length);
                 var chapterHTMLRecords = "";
                 var i = 1;
+                bookIdforChapters = selectedBookId;
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
@@ -768,9 +988,9 @@
                 }
 
                 $("#chapterDiv").html(chapterHTMLRecords);
-                
-                $('#chapterDiv').show();
+                $('#divChapter').show();
                 $('.chapterCol').show();
+                $('.addChapterBtn').hide();
                 $('#chapterloader').hide();
             },
             error: function (xhr) {

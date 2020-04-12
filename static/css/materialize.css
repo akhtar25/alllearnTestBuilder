@@ -5175,11 +5175,11 @@ cursor: pointer;
   color: green;
 }
 #divChapter{
-  float: right;
+  /* float: right; */
   color: green;
 }
 #divTopics{
-  float: right;
+  /* float: right; */
   color: green;
 }
 .subjectItem{
