@@ -2005,6 +2005,28 @@ def syllabusSubjects():
     else:
         return "" 
 
+@app.route('/deleteChapters',methods=['GET','POST'])
+def deleteChapters():
+    subject = request.args.get('subject')
+    class_val = request.args.get('class_val')
+    bookId = request.args.get('bookId')
+    chapter_num = request.args.get('chapter_num')
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    book = BookDetails.query.filter_by(book_id=bookId).first()
+    book_ids = BookDetails.query.filter_by(book_name=book.book_name).all()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+    chapterArray=[]
+    for book_id in book_ids:
+        chapters = "select distinct chapter_name,chapter_num,is_archived from topic_detail td inner join topic_tracker tt on "
+        chapters = chapters + "td.topic_id = tt.topic_id where school_id = '"+str(teacher.school_id)+"' and class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.subject_id = '"+str(subject_id.msg_id)+"' and is_archived = 'N' "
+        chapters = chapters + "and td.book_id='"+str(book_id.book_id)+"'"
+        chapters = db.session.execute(text(chapters)).fetchall()
+        for chapter in chapters:
+            chapter.is_archived = 'Y'
+            db.session.commit()
+    return ("chapter updated successfully")
+
 @app.route('/deleteBook',methods=['GET','POST'])
 def deleteBook():
     subject = request.args.get('subject')
@@ -2099,7 +2121,23 @@ def fetchRemChapters():
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     bookId = request.args.get('bookId')
-    
+    book = BookDetails.query.filter_by(book_id=bookId).first()
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    book_ids = BookDetails.query.filter_by(book_name=book.book_name).all()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+    chapterArray=[]
+    for book_id in book_ids:
+        chapters = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+        chapters = chapters + "td.topic_id = tt.topic_id where school_id = '"+str(teacher.school_id)+"' and class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.subject_id = '"+str(subject_id.msg_id)+"' and is_archived = 'Y' "
+        chapters = chapters + "and td.book_id='"+str(book_id.book_id)+"'"
+        chapters = db.session.execute(text(chapters)).fetchall()
+        for chapter in chapters:
+            chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
+    if chapterArray:
+        return jsonify([chapterArray]) 
+    else:
+        return ""
 
 @app.route('/fetchRemBooks',methods=['GET','POST'])
 def fetchRemBooks():
@@ -2195,15 +2233,18 @@ def syllabusChapters():
     class_val=request.args.get('class_val')
     board_id=request.args.get('board_id')
     subject_id=request.args.get('subject_id')
-    #distinctChapterQuery="select distinct chapter_num, chapter_name from topic_detail where book_name= '"+book_name+"'and class_val ='"+class_val+"' and board_id='"+board_id+"' and subject_id='"+subject_id+"'"
-    distinctChapterQuery="select distinct t1.chapter_num, t1.chapter_name from topic_detail t1 inner join book_details t2 "
-    distinctChapterQuery=distinctChapterQuery+ "on t1.book_id=t2.book_id where t2.book_id= '"+book_id+"' and t1.class_val ='"+class_val+"' and t1.board_id='"+board_id+"' and t1.subject_id='"+subject_id+"'"
-    print('Query in syllabusChapter'+str(distinctChapterQuery))
-    distinctChapters = db.session.execute(text(distinctChapterQuery)).fetchall()
+    book = BookDetails.query.filter_by(book_id=book_id).first()
+    book_ids = BookDetails.query.filter_by(book_name=book.book_name).all()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     chapterArray=[]
-    for val in distinctChapters:
-        print(val.chapter_num)
-        chapterArray.append(str(val.chapter_num)+":"+str(val.chapter_name))
+    for book_id in book_ids:
+        chapters = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+        chapters = chapters + "td.topic_id = tt.topic_id where school_id = '"+str(teacher.school_id)+"' and class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.subject_id = '"+str(subject_id)+"' and is_archived = 'N' "
+        chapters = chapters + "and td.book_id='"+str(book_id.book_id)+"'"
+        chapters = db.session.execute(text(chapters)).fetchall()
+        for chapter in chapters:
+            chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
     return jsonify([chapterArray]) 
 
 
@@ -2214,15 +2255,15 @@ def syllabusTopics():
     subject_id=request.args.get('subject_id')
     board_id=request.args.get('board_id')
     chapter_num=request.args.get('chapter_num')
-    # chapter_name=request.args.get('chapter_name')
+    chapter_name=request.args.get('chapterName')
     class_val = request.args.get('class_val')
-    chapterName = Topic.query.filter_by(subject_id=subject_id,board_id=board_id,chapter_num=chapter_num,class_val=class_val).first()
+    # chapterName = Topic.query.filter_by(subject_id=subject_id,board_id=board_id,chapter_num=chapter_num,class_val=class_val,chapter_name=chapterName).first()
     print('Topic details')
     print(subject_id)
     print(board_id)
     print(chapter_num)
     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
-    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+str(subject_id)+"' and board_id='"+str(board_id)+"' and chapter_num='"+str(chapter_num)+"' and chapter_name='"+str(chapterName.chapter_name)+"' and class_val='"+str(class_val)+"'"
+    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+str(subject_id)+"' and board_id='"+str(board_id)+"' and chapter_num='"+str(chapter_num)+"' and chapter_name='"+str(chapter_name)+"' and class_val='"+str(class_val)+"'"
     print('Fetch Topics:'+str(distinctTopicQuery))
     distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
     topicArray=[]

@@ -241,24 +241,33 @@
                                     <div class="card-title">Chapters</div>
     
                                 <div id='divChapter' style="display: none;">
-                                <ul class="collection " id="chapterDiv">
+                                <ul class="collection " id="chapterDiv" style="margin-left:-5px;width:145px;">
     
                                 </ul>
-                                <div class="remchapters" style="display:none;">
-                                <span class="sugTextChapters">Suggestion</span>
-                                <ul class="collection" id="remchapt">
-                                
-                                </ul>
-                                <a href="#" id="otherChapter">Add other chapter</a>
-                                <input type="text" style="display:none;" id="chapterText">
-                                </div>
-                                <div class="chapterCol" onclick="remChapterList();">
+                                <a class="chapterCol modal-trigger" href="#modal1" onclick="remChapterList();">
                                 <i class="fas fa-plus-circle"></i>
-                                </div>
-                                <div class="addChapterBtn" style="text-align:center;margin-top:5px;">
-                                <button style="border-radius:15px;" class="btn waves-light green lighten-1 white-text" type="button" id="suggestionChapterBtn" onclick="addChapterBtn();"><a href="#" style="color: white;">Add</a></button>
-                                <button style="border-radius:15px;display:none;" class="btn waves-light green lighten-1 white-text" type="button" id="inputChapterBtn" onclick="addInputChapterBtn();"><a href="#" style="color: white;">Add</a></button>
-                                </div>
+                                </a>
+                                <!-- Model -->
+                                    <div id="modal1" class="modal" style="width:52%;height:41%;">
+                                        <div class="modal-content">
+                                          <div class="remchapters" style="display:none;">
+                                            <span class="sugTextChapters">Choose existing chapters</span>
+                                            <ul class="collection" id="remchapt">
+                                
+                                            </ul>
+                                            <a href="#" id="otherChapter">Add other chapter</a>
+                                            <input type="text" style="display:none;" id="chapterText">
+                                          </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <div class="addChapterBtn" style="text-align:center;margin-top:5px;">
+                                            <button style="border-radius:15px;" class="btn waves-light green lighten-1 white-text" type="button" id="suggestionChapterBtn" onclick="addChapterBtn();"><a href="#" style="color: white;">Add</a></button>
+                                            <button style="border-radius:15px;display:none;" class="btn waves-light green lighten-1 white-text" type="button" id="inputChapterBtn" onclick="addInputChapterBtn();"><a href="#" style="color: white;">Add</a></button>
+                                        </div>
+                                        </div>
+                                      </div>
+                                <!-- End -->
+                                
                                 </div>
                                 </div>
                                 <div id="chapterloader" style="display: none;">
@@ -289,6 +298,12 @@
     </div>
 </div>
 <script>
+
+
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
+
     $(document).ready(function(){
     $('.tabs').tabs();
     $('.section1').hide();
@@ -355,6 +370,13 @@
         $('.addBookBtn').hide();
     }
 
+    function deleteChapterFunc(chapterNum){
+        console.log('inside chapter delete function');
+        console.log(chapterNum);
+        deleteChapters(chapterNum,bookIdforChapters,subjectforChapters,classforChapters);
+
+    }
+
     function addInputBookBtn(){
         $('#inputBookBtn').hide();
         $('#bookText').hide();
@@ -410,6 +432,23 @@
         // fetchSubject(classforSubject,boardforSub);
         
       
+  }
+
+  function deleteChapters(chapterNum,bookId,subject,class_val){
+      $.ajax({
+            url: "/deleteChapters?subject="+subject+"&class_val="+class_val+"&bookId="+bookId+"&chapter_num="+chapterNum,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log(response);
+                //   fetchSubject(classforSubject,boardforSub); 
+                fetchChapters(chapterNum,bookId,subject,class_val);                       
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding indivisual Subject");
+            }
+        });
   }
 
   function deleteBooks(bookId,subject,class_val){
@@ -516,6 +555,40 @@
         });
   }
 
+  function fetchChapters(chapterNum,bookId,subject,class_val){
+      $.ajax({
+          url: "/fetchChapters?class_val="+class_val+"&subject="+subject+"&bookId="+bookId+"&chapterNum="+chapterNum,
+          type: "POST",
+          contentType: "application/json",
+          data: "",
+          success: function(response){
+              responseArr = response.toString().split(',');
+                // alert(responseArr.length);
+                var chapterHTMLRecords = "";
+                for (var i = 0; i < responseArr.length; i++) {
+                    // alert(responseArr[i]);
+                    var chapterNum = responseArr[i].toString().split(':')[0];
+                    var chapterName = responseArr[i].toString().split(':')[1];
+                    // var chapter = responseArr[i].toString().split(':')[1];
+                    // alert(chapterNum + " and " + chapterName);
+                    var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum;
+                    chapterHTMLRecords = chapterHTMLRecords +
+                    '<a href="#"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
+                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
+                }
+
+                $("#chapterDiv").html(chapterHTMLRecords);
+                $('#divChapter').show();
+                $('.chapterCol').show();
+                // $('.addChapterBtn').hide();
+                // $('#chapterloader').hide();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching book list");
+            }
+      });
+  }
+
   function fetchBooks(class_val,subject){
       $.ajax({
           url: "/fetchBooks?class_val="+class_val+"&subject="+subject,
@@ -614,7 +687,8 @@
     function remChapterList(){
 
         console.log('inside remChapterList');
-
+        $('.remchapters').show();
+        $('.addChapterBtn').show();
         fetchRemChapters(classforChapters,subjectforChapters,bookIdforChapters);
     }
 
@@ -635,7 +709,7 @@
             success: function (response) {
                 var remChapterHTMLRecords = "";
                 console.log('inside fetchRemChapters :'+response);
-                if(response){
+                if(response!=''){
                     responseArr = response.toString().split(',');
                 // alert(responseArr);
                 
@@ -650,15 +724,16 @@
                         '</li></a>';
                 }
                 }else{
+                    console.log('inside else');
                     remChapterHTMLRecords = remChapterHTMLRecords +
-                    '<li style="padding: 10px 5px;">No suggestions available</li>'
+                    '<li>No suggestions available</li>'
                 }
-                $("#remchapt").html(remBookHTMLRecords);
-                $('.chapterCol').hide();
-                $('.addChapterBtn').show();
-                $('.remChapters').show();
-                $('#remchapt').show();
-                $('#chapterText').hide();
+                $("#remchapt").html(remChapterHTMLRecords);
+                // $('.chapterCol').hide();
+                // $('.addChapterBtn').show();
+                // $('.remChapters').show();
+                // $('#remchapt').show();
+                // $('#chapterText').hide();
                 
                 },
             error: function (xhr) {
@@ -983,7 +1058,7 @@
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
                     '<a href="#"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
-                            '<div class="delIconChapter"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
+                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;"><input type="hidden" value="'+chapterName+'" id="inputChapterName"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                     i=i+1;
                 }
 
@@ -1009,7 +1084,8 @@
         $('#topicDiv').hide();
         $('.topicCol').hide();
         $('#topicloader').show();
-        
+        var chapterName = $('#inputChapterName').val();
+        console.log('Chapter Name:'+chapterName);
         {% for chapter  in chapterNum %}
             var chapterNumber = '.chapterItem{{chapter.chapter_num}}';
             $(chapterNumber).css('background-color','');
@@ -1024,7 +1100,7 @@
         console.log('Data:'+selectedSubjectVal+','+selectedSubjectID+','+selectedClassVal+','+selectedBoardID+','+selectedChapterNum);
         $.ajax({
             url: "/syllabusTopics?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
-                "&subject_id=" + selectedSubjectID + "&chapter_num=" + selectedChapterNum,
+                "&subject_id=" + selectedSubjectID + "&chapter_num=" + selectedChapterNum+"&chapterName="+chapterName,
             type: "get",
             data: '',
             success: function (response) {
@@ -1037,7 +1113,7 @@
                     //alert(responseArr[i]);
                     topicHTMLRecords = topicHTMLRecords +
                         '<a href="#"><li class="topicItem" style="padding: 10px 5px;" name = "' +
-                            topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+'); >' + topicName +
+                            topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+','+selectedChapterNum+'); >' + topicName +
                         '<div class="delIconTopics"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
                 }
                 $("#topicDiv").html(topicHTMLRecords);
@@ -1054,7 +1130,7 @@
         
     };
 
-    function loadQuestions(selectedTopicId,selectedClassVal,selectedSubjectID,selectedBoardID){
+    function loadQuestions(selectedTopicId,selectedClassVal,selectedSubjectID,selectedBoardID,chapterNumber){
         var topicsId = '#'+selectedTopicId.toString()+'topic';
         console.log('inside loadQuestions');
         {% for topic in topicId %}
@@ -1116,64 +1192,31 @@
     //     });
     // }
     // });
-    inputHTMLSubject = '';
-    inputHTMLBook = '';
-    inputHTMLChapter = '';
-    inputHTMLTopics = '';
-    $('#addSubject').click(function(){ 
+    // inputHTMLSubject = '';
+    // inputHTMLBook = '';
+    // inputHTMLChapter = '';
+    // inputHTMLTopics = '';
+    // $('#addSubject').click(function(){ 
         
-        inputHTMLSubject = inputHTMLSubject + '<input type="text" id="subject_val" >';
-        $('#dataSubject').html(inputHTMLSubject);
-    });
-    $('#addBook').click(function(){ 
+    //     inputHTMLSubject = inputHTMLSubject + '<input type="text" id="subject_val" >';
+    //     $('#dataSubject').html(inputHTMLSubject);
+    // });
+    // $('#addBook').click(function(){ 
         
-        inputHTMLBook = inputHTMLBook + '<input type="text" id="book_val" >';
-        $('#dataBook').html(inputHTMLBook);
-    });
+    //     inputHTMLBook = inputHTMLBook + '<input type="text" id="book_val" >';
+    //     $('#dataBook').html(inputHTMLBook);
+    // });
 
-    $('#addChapter').click(function(){ 
+    // $('#addChapter').click(function(){ 
         
-        inputHTMLChapter = inputHTMLChapter + '<input type="text" id="chapter_val" >';
-        $('#dataChapter').html(inputHTMLChapter);
-    });
+    //     inputHTMLChapter = inputHTMLChapter + '<input type="text" id="chapter_val" >';
+    //     $('#dataChapter').html(inputHTMLChapter);
+    // });
 
-    $('#addTopics').click(function(){ 
+    // $('#addTopics').click(function(){ 
         
-        inputHTMLTopics = inputHTMLTopics + '<input type="text" id="topics_val" >';
-        $('#dataTopics').html(inputHTMLTopics);
-    });
-
-    // $('#save').click(function(){
-    //     var subjectVal = $('#subject_val').val();
-    //     console.log('Data:'+subjectVal);
-    //     $.ajax({
-    //         url: "/addSubject?subjectVal=" + subjectVal,
-    //         type: "get",
-    //         data: '',
-    //         success: function (response) {
-    //             responseArr = response.toString().split(',');
-    //             //alert(responseArr.length);
-    //             var subjectHTMLRecords = "";
-    //             for (var i = 0; i < responseArr.length; i++) {
-    //                 var subjectID = responseArr[i].toString().split(':')[0];
-    //                 var subjectName = responseArr[i].toString().split(':')[1];
-
-    //                 var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
-    //                     ',' + selectedBoardID;
-    //                 subjectHTMLRecords = subjectHTMLRecords +
-    //                     '<a href="#"><li class="collection-item subjectItem" onClick=loadBooks(' +
-    //                     parameters + '); name=' +
-    //                     'id=' + responseArr[i].toString().split(':')[0] + '>' + responseArr[i].toString()
-    //                     .split(':')[1] +
-    //                     '</li></a>';
-    //                 // alert(responseArr[i].toString().split(':')[0]);
-    //             }
-    //             $("#subjectDiv").html(subjectHTMLRecords);
-    //         },
-    //         error: function (xhr) {
-    //             window.alert("error occurred while fetching class list");
-    //         }
-    //     });
+    //     inputHTMLTopics = inputHTMLTopics + '<input type="text" id="topics_val" >';
+    //     $('#dataTopics').html(inputHTMLTopics);
     // });
 
 
