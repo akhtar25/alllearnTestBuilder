@@ -527,8 +527,38 @@ class TeacherProfile(db.Model):
     phone = db.Column(db.String(12), nullable=True)
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
+    #adding as a part of payroll setup
+    curr_salary = db.Column(db.Integer, nullable=True)
+    #end of payroll related row
     last_modified_date=db.Column(db.DateTime)
     device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+
+#New tables to manage payroll
+class TeacherSalary(db.Model):
+    __tablename__="teacher_salary"
+    teacher_salary_id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    total_salary = db.Column(db.Float, nullable=False)
+    is_current = db.Column(db.String(1), nullable=False)
+    salary_set_on = db.Column(db.DateTime, nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+class TeacherPayrollDetail(db.Model):
+    __tablename__="teacher_payroll_detail"
+    tpd_id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    teacher_name = db.Column(db.String(100), nullable=False)
+    total_salary = db.Column(db.Float, nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    days_in_month = db.Column(db.Integer, nullable = False)
+    days_present = db.Column(db.Integer, nullable=False)
+    calc_salary = db.Column(db.Float, nullable=False)
+    paid_status = db.Column(db.String(1),nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+#end of teacher payroll tables
 
 
 class FeeManagement(db.Model):

@@ -1,0 +1,258 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div>
+            <div id="teacherbox" name="teacherbox">
+            </div>
+            <p><input type='button' id="addClassbtn" style="width:150px; height:40px; margin-top:10px;"
+                    class="btn green right" onclick="addTeacher();" value="Add New Teacher"></p>
+            <br>
+        </div>
+        <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text"
+                    style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
+                    value="submit">Confirm</button></p>
+        </div>
+    </form>
+    <br>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Directory</a></li>
+        <li class="tab col s3"><a href="#newPayrollDiv">Add Payroll Data</a></li>
+        <li class="tab col s3"><a href="#payrollReport">Payroll Report</a></li>
+    </ul>
+    <br>
+
+    <div id="teacherRowsDiv">
+        <table class="highlight">
+            <thead>
+                <th>Teacher</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Current Salary</th>
+                <th>Registration Date</th>
+            </thead>
+            <tbody>
+                {%for teacherRow in allTeachers%}
+                <tr>
+                    <td>{%if teacherRow.profile_picture!= None %}
+                        <img class="responsive-img circle" src="{{teacherRow.profile_picture}}" width="100px">
+                        {%else%}
+                        <img class="responsive-img circle" width="50px"
+                            src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+                        {%endif%}
+                        {% if teacherRow.teacher_name!= None %}
+                        {{teacherRow.teacher_name}}
+                        {%else%}
+                        {{teacherRow.full_name}}
+                        {% endif %}
+                    </td>
+                    <td>{{teacherRow.email}}</td>
+                    <td>{{teacherRow.phone}}</td>
+                    <td>{{teacherRow.current_salary}}</td>
+                    <td>{{teacherRow.registration_date.strftime('%d %B %Y')}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+
+    <div id="newPayrollDiv">
+            <h4 class="grey-text">Choose Month and Year</h4>
+            <div class="input-field col-md-3">
+                <select id="addMonthSelect" class="selection">
+                    <option value="" disabled selected>Select Month</option>
+                </select>
+            </div>
+            <div class="input-field col-md-3">
+                <select id="addYearSelect" class="selection">
+                    <option value="" disabled selected>Select Year</option>
+                </select>
+            </div>
+            <!--<a href="#" class="" id="setCurrentMonthYear">Current month</a>-->
+
+            <div id="salaryUpdateDiv" style="display: none;">
+                <!--This section will contain the payrollMonthData-->
+            </div>
+            <div id="questionloader" style="padding-left: 300px;padding-top: 100px;display: none;">
+                <img src="../static/images/loader.gif">
+            </div>
+    </div>
+
+    <div id="payrollReport">
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var qntYears = 4;
+        var selectYear = $("#addYearSelect");
+        var selectMonth = $("#addMonthSelect");
+        var currentYear = new Date().getFullYear();
+
+        for (var y = 0; y < qntYears; y++) {
+            let date = new Date(currentYear);
+            var yearElem = document.createElement("option");
+            yearElem.value = currentYear;
+            yearElem.textContent = currentYear;
+            selectYear.append(yearElem);
+            currentYear--;
+        }
+
+        for (var m = 0; m < 12; m++) {
+            let monthNum = new Date(2018, m).getMonth()
+            let month = monthNames[monthNum];
+            var monthElem = document.createElement("option");
+            monthElem.value = parseInt(monthNum)+1;
+            monthElem.textContent = month;
+            selectMonth.append(monthElem);
+        }
+
+        $('.tabs').tabs();
+        $('select').formSelect();
+    });
+
+
+    //$('#setCurrentMonthYear').click(function(){
+    //
+    //});
+
+    $('.selection').change(function () {
+        $('#salaryUpdateDiv').html('');
+        var monthSelectCheck = $('#addMonthSelect').val();
+        var yearSelectCheck = $('#addYearSelect').val();
+        if (monthSelectCheck != null && yearSelectCheck != null) {
+            //alert(monthSelectCheck);
+            //alert(yearSelectCheck);
+            $('#questionloader').show();
+            //ajax fetch from server    
+            var data = "";
+            $.ajax({
+                url: "/payrollMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#questionloader').hide();
+                    $('#salaryUpdateDiv').show();
+                    $("#salaryUpdateDiv").html(response);
+                    console.log('Fetched payroll data from server')
+                },
+                error: function (xhr) {
+                    $('#questionloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+
+            $('#salaryUpdateDiv').show();
+        } else {
+            $('#salaryUpdateDiv').hide();
+        }
+    });
+
+    
+
+    var teacherbox_data = '';
+    var count = 0;
+
+
+
+
+
+    function addTeacher() {
+        const div = document.createElement('div');
+        var row_id = document.getElementById('teacherbox');
+        count += 1
+        header = '<h4 style="text-weight:Bold;">Teacher Details</h4>'
+        //var submitButton=' <p><button class="btn waves-light green lighten-1 white-text" style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>'
+        teacherbox_data = `
+          <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px; margin-bottom:5px;'>
+          <div class='row'>
+          <div class='col-sm-3'>
+              {{ form.teacher_name.label(class='labelsize') }}
+                    <br>
+                    {% if form.teacher_name.errors %}
+                    {{ form.teacher_name(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.teacher_name.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.teacher_name(class='form-control') }}
+                    {% endif %}
+          </div>
+          <div class='col-sm-2'>
+              {{ form.teacher_subject.label(class='labelsize') }}
+                    <br>
+                    {% if form.teacher_subject.errors %}
+                    {{ form.teacher_subject(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.teacher_subject.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.teacher_subject(class='form-control') }}
+                    {% endif %}
+              </div>
+              <div class='col-sm-2'>
+              {{ form.class_teacher.label(class='labelsize') }}
+                    <br>
+                    {% if form.class_teacher.errors %}
+                    {{ form.class_teacher(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.class_teacher.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_teacher(class='form-control') }}
+                    {% endif %}
+                    </div>
+    
+                    <div class='col-sm-2'>
+              {{ form.class_teacher_section.label(class='labelsize') }}
+              <div id='loader'style='display: none; float: right;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                        </div>
+                    <br>
+                    {% if form.class_teacher_section.errors %}
+                    {{ form.class_teacher_section(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.class_teacher_section.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.class_teacher_section(class='form-control') }}
+                    {% endif %}
+                    </div>
+          
+              <div class='col-sm-3'>
+              {{ form.teacher_email.label(class='labelsize') }}
+                    <br>
+                    {% if form.teacher_email.errors %}
+                    {{ form.teacher_email(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                    {% for error in form.teacher_email.errors %}
+                     <span>{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.teacher_email(class='form-control') }}
+                    {% endif %}</div>
+       </div></div>`;
+        if (count == 1) {
+            div.innerHTML = header + teacherbox_data;
+            $('#buttonbox').show();
+        } else {
+            div.innerHTML = teacherbox_data;
+        }
+        row_id.appendChild(div);
+    }
+</script>
+{% endblock %}

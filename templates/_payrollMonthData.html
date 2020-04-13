@@ -1,0 +1,92 @@
+<div id="payrollDiv">
+    <form>
+    <div class="red-text right" id="errorBox">
+    </div>
+    <table class="highlight">
+        <thead>
+            <th>Teacher</th>
+            <th>Current Salary</th>
+            <th>Days in Month</th>
+            <th>Days Attended</th>
+            <th>Calculated Salary</th>
+            <th>Paid</th>
+        </thead>
+        <tbody>
+            {%for teacherRow in payrollDataRows%}
+            <tr>
+                <td class="col-sm-3">{%if teacherRow.profile_picture!= None %}
+                    <img class="responsive-img circle" src="{{teacherRow.profile_picture}}" width="100px">
+                    {%else%}
+                    <img class="responsive-img circle" width="50px"
+                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+                    {%endif%}
+                    {% if teacherRow.teacher_name!= None %}
+                    {{teacherRow.teacher_id}}
+                    {{teacherRow.teacher_name}}
+                    {%else%}
+                    {{teacherRow.full_name}}
+                    {% endif %}
+                </td>
+                <td class="currentSalaryClass col-sm-2">{{teacherRow.curr_salary}}</td>
+                <td class="col-sm-2"><span id="dayCount">{{daysInMonth}}</span></td>
+                <td class="col-sm-2">
+                    {%if teacherRow.days_present!=None%}
+                    <input class="attendedClass" type="number" value="{{teacherRow.days_present}}">
+                    {%else%}
+                    <input class="attendedClass" type="number" value="0">
+                    {%endif%}
+                </td>
+                <td class="col-sm-2">
+                    {%if teacherRow.calc_salary!=None%}
+                    <span class="calcSalaryClass">{{teacherRow.calc_salary}}</span>
+                    {%else%}
+                    <span class="calcSalaryClass">0</span>
+                </td>
+                {%endif%}
+                <td>
+                    {%if teacherRow.paid_status=='Y'%}
+                    <label>
+                        <input type="checkbox" checked/>
+                        <span></span>
+                    </label>
+                    {%else%}
+                    <label>
+                        <input type="checkbox"/>
+                        <span></span>
+                    </label>
+                    {%endif%}
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</form>
+    <br>
+    <a href="#" class="btn green right">Save Payroll Data</a>
+    <br><br>
+</div>
+
+<script>
+    $('.attendedClass').blur(function () {
+        $('#errorBox').html('');
+        //alert('On blur called');
+        var totalAttendedCount = $(this).val();
+        //alert('totalAttendedCount'+totalAttendedCount);
+
+        var currentSalaryVal = $(this).parents("tr").find(".currentSalaryClass").text();
+        //alert('currentSalaryVal'+currentSalaryVal);
+
+        var daysInMonth = $(this).parents("tr").find("#dayCount").text();
+        //alert('daysInMonth'+daysInMonth);
+        if (totalAttendedCount <= daysInMonth) {
+            var calcSalaryVal = (parseInt(totalAttendedCount) / parseInt(daysInMonth)) * parseFloat(
+                currentSalaryVal);
+            calcSalaryVal = Math.ceil(calcSalaryVal * 100) / 100;
+            //alert(calcSalaryVal);    
+            $(this).parents("tr").find(".calcSalaryClass").text(calcSalaryVal);
+        }
+        else{
+            $('#errorBox').html('Days Attended cannot be greater than Total days');
+        }
+    });
+</script>
