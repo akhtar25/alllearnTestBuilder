@@ -33,12 +33,10 @@
                             <div class="card-title">Boards</div>
 
                             <ul class="collection " id="boardDiv">
-                                {%for boardRow in boardRows%}
                                 <a href="#">
                                     <li class="collection-item" id="">
-                                        {{boardRow.description}}</li>
+                                        {{boardRows}}</li>
                                 </a>
-                                {%endfor%}
                             </ul>
                         </div>
                     </div>
@@ -140,11 +138,9 @@
                                 <div class="card-title">Boards</div>
     
                                 <ul class="collection " id="boardDiv">
-                                    {%for boardRow in boardRows%}
-                                        <li class="collection-item boardClass" id="{{boardRow.msg_id}}">
-                                            {{boardRow.description}}
+                                        <li class="collection-item boardClass" id="{{boardRowsId}}">
+                                            {{boardRows}}
                                         </li>
-                                    {%endfor%}
                                 </ul>
                             </div>
                         </div>
@@ -182,7 +178,7 @@
                                 
                                 </ul>
                                 <a href="#" id="other">Add New Subject</a>
-                                <input type="text" style="display:none;" id="subText">
+                                <input type="text" placeholder="Enter Subject Name" style="display:none;" id="subText">
                                 </div>
                                 <div class="subCol" onclick="remSubList();">
                                 <i class="fas fa-plus-circle"></i>
@@ -217,7 +213,7 @@
                                 
                                 </ul>
                                 <a href="#" id="otherBook">Add other books</a>
-                                <input type="text" style="display:none;" id="bookText">
+                                <input type="text" placeholder="Enter Book Name" style="display:none;" id="bookText">
                                 </div>
                                 <div class="bookCol" onclick="remBookList();">
                                 <i class="fas fa-plus-circle"></i>
@@ -338,6 +334,7 @@
       $('#rembok').hide();
       $('#suggestionBookBtn').hide();
       $('#inputBookBtn').show();
+       document.getElementById('bookText').focus();
   });
 
   var selSub = [];
@@ -815,7 +812,7 @@
                 $('.remBooks').show();
                 $('#rembok').show();
                 $('#bookText').hide();
-                
+                $('#otherBook').show();
                 },
             error: function (xhr) {
                 window.alert("error occurred while display Subject Subject");
@@ -1171,67 +1168,6 @@
         //     }
         // });
     }
-
-
-
-    // $('.chapterItem').click(function () {
-    // function loadTopics(selectedChapterName, selectedSubjectVal,  selectedSubjectID, selectedClassVal, selectedBoardID, selectedChapterNum) {
-    //     // alert(selectedChapterName + " and "+ selectedChapterNum);
-    //     console.log('Inside loadTopics');
-    //     //$('#selected_sub_id').val($(this).attr("name"));
-    //     $.ajax({
-    //         url: "/syllabusTopics?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal +
-    //             "&subject_id=" + selectedSubjectID + "&chapter_name=" + selectedChapterName+"&chapter_num=" + selectedChapterNum,
-    //         type: "get",
-    //         data: '',
-    //         success: function (response) {
-    //             responseArr = response.toString().split(',');
-    //             //alert(responseArr.length);
-    //             var topicHTMLRecords = "";
-    //             for (var i = 0; i < responseArr.length; i++) {
-    //                 var topicID = responseArr[i].toString().split(':')[0];
-    //                 var topicName = responseArr[i].toString().split(':')[1];
-    //                 //alert(responseArr[i]);
-    //                 topicHTMLRecords = topicHTMLRecords +
-    //                     '<a href="#"><li class="collection-item topicItem" name = ' +
-    //                         topicID + 'id=' + topicID + '>' + topicName +
-    //                     '</li></a>';
-    //             }
-    //             $("#topicDiv").html(topicHTMLRecords);
-    //         },
-    //         error: function (xhr) {
-    //             window.alert("error occurred while fetching book list");
-    //         }
-    //     });
-    // }
-    // });
-    // inputHTMLSubject = '';
-    // inputHTMLBook = '';
-    // inputHTMLChapter = '';
-    // inputHTMLTopics = '';
-    // $('#addSubject').click(function(){ 
-        
-    //     inputHTMLSubject = inputHTMLSubject + '<input type="text" id="subject_val" >';
-    //     $('#dataSubject').html(inputHTMLSubject);
-    // });
-    // $('#addBook').click(function(){ 
-        
-    //     inputHTMLBook = inputHTMLBook + '<input type="text" id="book_val" >';
-    //     $('#dataBook').html(inputHTMLBook);
-    // });
-
-    // $('#addChapter').click(function(){ 
-        
-    //     inputHTMLChapter = inputHTMLChapter + '<input type="text" id="chapter_val" >';
-    //     $('#dataChapter').html(inputHTMLChapter);
-    // });
-
-    // $('#addTopics').click(function(){ 
-        
-    //     inputHTMLTopics = inputHTMLTopics + '<input type="text" id="topics_val" >';
-    //     $('#dataTopics').html(inputHTMLTopics);
-    // });
-
 
 </script>
 
