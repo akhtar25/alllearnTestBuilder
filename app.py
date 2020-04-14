@@ -696,6 +696,7 @@ def payrollMonthData():
     qmonth = request.args.get('month')
     qyear = request.args.get('year')
     print(qmonth+ ' '+qyear)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #days in month
     daysInMonth = monthrange(int(qyear),int(qmonth))
     daysInMonth = int(daysInMonth[1])
@@ -703,7 +704,7 @@ def payrollMonthData():
     payrollDataQuery = "select tp.teacher_id as teacher_id, tp.profile_picture as profile_picture, tp.teacher_name as teacher_name, tp.curr_salary as curr_salary,tpd.days_present as days_present, tpd.calc_salary, tpd.paid_status as paid_status"
     payrollDataQuery = payrollDataQuery + " from teacher_profile  tp left join "
     payrollDataQuery = payrollDataQuery + "teacher_payroll_detail tpd on tpd.teacher_id=tp.teacher_id "
-    payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " and tpd.school_id=61"
+    payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " where tp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
     payrollDataRows = db.session.execute(text(payrollDataQuery)).fetchall()
     print(str(len(payrollDataRows)))
     return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
