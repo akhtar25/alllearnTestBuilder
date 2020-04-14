@@ -225,7 +225,7 @@ class BoardClassSubject(db.Model):
     #subject_name = db.Column(db.ForeignKey('message_detail.description'),nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
-    is_archieve = db.Column(db.String(1), nullable=True)
+    is_archived = db.Column(db.String(1), nullable=True)
 
 class BoardClassSubjectBooks(db.Model):
     __tablename__ = "board_class_subject_books"
@@ -234,7 +234,7 @@ class BoardClassSubjectBooks(db.Model):
     class_val = db.Column(db.Integer, nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id = db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
-    is_archieve = db.Column(db.String(1), nullable=True)
+    is_archived = db.Column(db.String(1), nullable=True)
     last_modified_date = db.Column(db.DateTime, nullable=True)
     
 

@@ -181,7 +181,7 @@
                                 <ul class="collection" id="remSub">
                                 
                                 </ul>
-                                <a href="#" id="other">Other</a>
+                                <a href="#" id="other">Add New Subject</a>
                                 <input type="text" style="display:none;" id="subText">
                                 </div>
                                 <div class="subCol" onclick="remSubList();">
@@ -328,6 +328,7 @@
       $('#suggestionBtn').hide();
       $('#inputBtn').show();
       $('#subText').show();
+      document.getElementById('subText').focus();
   });
 
   $('#otherBook').click(function(){
@@ -360,6 +361,8 @@
         deleteSubject(subjectId,classforSubject,boardforSub);
         $('#remSub').hide();
         $('.addSubBtn').hide();
+        $('.sugText').hide();
+        $('#other').hide();
     }
 
     function deleteBookFunc(bookId){
@@ -672,7 +675,7 @@
                 $('#divSubject').show();
                 $('.subCol').show();
                 $('#subjectloader').hide();
-                
+                $('#other').show();
                                              
             },
             error: function (xhr) {
@@ -684,13 +687,7 @@
 
     //$('#selected_sub_id').val($(this).attr("name"));
 
-    function remChapterList(){
-
-        console.log('inside remChapterList');
-        $('.remchapters').show();
-        $('.addChapterBtn').show();
-        fetchRemChapters(classforChapters,subjectforChapters,bookIdforChapters);
-    }
+    
 
     function remBookList(){
         
@@ -698,6 +695,49 @@
         // $('#inputBookBtn').show();
         fetchRemBooks(subjectforBooks,classforBooks);
         
+    }
+
+    function fetchRemSubjects(class_val){
+        $.ajax({
+            url: "/fetchRemSubjects?class_val="+class_val,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                var remSubjectHTMLRecords = "";
+                console.log('inside fetchRemSubjects :'+response);
+                if(response!=''){
+                    responseArr = response.toString().split(',');
+                // alert(responseArr);
+                
+                for (var i = 0; i < responseArr.length; i++) {
+                    //alert(responseArr[i]);
+                    var subjectID = responseArr[i].toString().split(':')[0];
+                    var subjectName = responseArr[i].toString().split(':')[1];
+                    
+                    remSubjectHTMLRecords = remSubjectHTMLRecords +
+                    '<a href="javascript:void(0);"><li class="subjectRemItem" id="'+subjectID+'id" onclick=onColor("'+subjectID+'"); style="padding: 10px 5px;">' + subjectName +
+                        '</li></a>';
+                }
+                }else{
+                    console.log('inside else');
+                    remSubjectHTMLRecords = remSubjectHTMLRecords +
+                    '<li>No suggestions available</li>'
+                }
+                console.log('Before adding Rem Subjects');
+                $("#remSub").html(remSubjectHTMLRecords);
+                $('.addSubBtn').show();
+                $('.remSubject').show();
+                $('.sugText').show();
+                $('#remSub').show();
+                $('#suggestionBtn').show();
+                $('#inputBtn').hide();
+                $('#subjectloader').hide();
+                },
+            error: function (xhr) {
+                window.alert("error occurred while display suggestion subjects");
+            }
+        });
     }
 
     function fetchRemChapters(class_val,subject,bookId){
@@ -720,7 +760,7 @@
                     console.log('inside chapter syllabus:'+chapterID);
                     
                     remChapterHTMLRecords = remChapterHTMLRecords +
-                    '<a href="#"><li class="chapterRemItem" id="'+chapterID+'id" onclick=onColor("'+chapterID+'"); style="padding: 10px 5px;">' + chapterName +
+                    '<a href="javascript:void(0);"><li class="chapterRemItem" id="'+chapterID+'id" onclick=onColor("'+chapterID+'"); style="padding: 10px 5px;">' + chapterName +
                         '</li></a>';
                 }
                 }else{
@@ -762,7 +802,7 @@
                     console.log('inside book syllabus:'+bookID);
                     
                     remBookHTMLRecords = remBookHTMLRecords +
-                    '<a href="#"><li class="bookRemItem" id="'+bookID+'id" onclick=onColor("'+bookID+'"); style="padding: 10px 5px;">' + bookName +
+                    '<a href="javascript:void(0);"><li class="bookRemItem" id="'+bookID+'id" onclick=onColor("'+bookID+'"); style="padding: 10px 5px;">' + bookName +
                         '</li></a>';
                 }
                 }else{
@@ -783,46 +823,19 @@
         });
     }
 
+    function remChapterList(){
+
+        console.log('inside remChapterList');
+        $('.remchapters').show();
+        $('.addChapterBtn').show();
+        fetchRemChapters(classforChapters,subjectforChapters,bookIdforChapters);
+    }
+
     function remSubList(){
         $('.subCol').hide();
-        $('.addSubBtn').show();
+        $('#subjectloader').show();
         console.log('inside remSubList');
-        var remSub = [];
-        var subjectHTMLRecords = '';
-        
-        
-            {% for sub in subjectValues %}
-                var allSub = "{{sub.msg_id}}";
-                var subName = "{{sub.description}}";
-                var k =0;
-                for(var i=0;i<subArray.length;i++){
-                    var subjectName = subArray[i].toString().split(':')[0];
-                    var subjectId = subArray[i].toString().split(':')[1]
-
-                    var reSub = '';
-                    console.log('Same subjects:'+subjectName);
-                    console.log(subName)
-                if(subjectName==subName){
-                    k=1;
-                    
-                }
-                }
-            
-            if(k==0){
-                console.log(allSub);
-                remSub.push(allSub);
-                subjectHTMLRecords = subjectHTMLRecords +
-                        '<a href="#"><li class="subjectRemItem" id="'+allSub+'id" onclick=onColor("'+allSub+'"); style="padding: 10px 5px;">' + subName +
-                        '</li></a>';
-            }
-            {% endfor %}
-            
-            $("#remSub").html(subjectHTMLRecords);
-            $('.remSubject').show();
-            $('.sugText').show();
-            $('#remSub').show();
-            $('#suggestionBtn').show();
-            $('#inputBtn').hide();
+        fetchRemSubjects(classforSubject);
     }
 
     function onColor(subject){
@@ -859,7 +872,7 @@
                     //alert(responseArr[i]);
                     
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="#"><li class="collection-item classVal" id="'+responseArr[i]+'" onClick="loadSubjects(' +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'" onClick="loadSubjects(' +
                         responseArr[i] + ')" name=' +
                         selectedBoardID + ' id=' + responseArr[i] + ' >' + responseArr[i] +
                         '</li></a>';
@@ -919,7 +932,7 @@
                     var parameters = "\"" + subjectName + "\"" + ',' + subjectID + ',' + selectedClassVal +
                         ',' + selectedBoardID;
                     subjectHTMLRecords = subjectHTMLRecords +
-                        '<a href="#"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
+                        '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subjectName+'" onClick=loadBooks(' +
                         parameters + '); name=' +
                         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
                         .split(':')[1] + '</span>' +
@@ -991,7 +1004,7 @@
                         "\"," + bookID+',' + selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID;
                         console.log('Books Records in parameters:'+parameters);
                     bookHTMLRecords = bookHTMLRecords +
-                        '<a href="#"><li class="bookItem" style="padding: 10px 5px;" id="'+bookID+'book" onClick=loadChapters(' +
+                        '<a href="javascript:void(0);"><li class="bookItem" style="padding: 10px 5px;" id="'+bookID+'book" onClick=loadChapters(' +
                         parameters + '); name=' +
                         selectedBoardID + '>' + bookName +
                         '</li><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
@@ -1057,7 +1070,7 @@
                     // alert(chapterNum + " and " + chapterName);
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
-                    '<a href="#"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
+                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
                             '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;"><input type="hidden" value="'+chapterName+'" id="inputChapterName"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                     i=i+1;
                 }
@@ -1112,7 +1125,7 @@
                     var topicName = responseArr[i].toString().split(':')[1];
                     //alert(responseArr[i]);
                     topicHTMLRecords = topicHTMLRecords +
-                        '<a href="#"><li class="topicItem" style="padding: 10px 5px;" name = "' +
+                        '<a href="javascript:void(0);"><li class="topicItem" style="padding: 10px 5px;" name = "' +
                             topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+','+selectedChapterNum+'); >' + topicName +
                         '<div class="delIconTopics"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></li></a>';
                 }
