@@ -41,14 +41,12 @@
                             src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
                         {%endif%}
                         {% if teacherRow.teacher_name!= None %}
-                        {{teacherRow.teacher_name}}
-                        {%else%}
-                        {{teacherRow.full_name}}
+                        <a href="{{ url_for('user', username=teacherRow.email) }}" target="_blank">{{teacherRow.teacher_name}}</a>
                         {% endif %}
                     </td>
                     <td>{{teacherRow.email}}</td>
                     <td>{{teacherRow.phone}}</td>
-                    <td>{{teacherRow.current_salary}}</td>
+                    <td>{{teacherRow.curr_salary}}</td>
                     <td>{{teacherRow.registration_date.strftime('%d %B %Y')}}</td>
                 </tr>
                 {%endfor%}
