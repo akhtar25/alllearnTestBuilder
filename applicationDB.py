@@ -547,7 +547,7 @@ class TeacherPayrollDetail(db.Model):
     __tablename__="teacher_payroll_detail"
     tpd_id = db.Column(db.Integer, primary_key=True)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
-    teacher_name = db.Column(db.String(100), nullable=False)
+    #teacher_name = db.Column(db.String(100), nullable=False)
     total_salary = db.Column(db.Float, nullable=False)
     month = db.Column(db.Integer, nullable=False)
     year = db.Column(db.Integer, nullable=False)

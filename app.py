@@ -651,6 +651,11 @@ def teacherDirectory():
         return redirect(url_for('disconnectedAccount'))
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #section for payroll report
+        payrollReportQuery = "select month, year, sum(calc_salary) as salary_spend, count(*) teacher_count, (avg(days_present) / avg(days_in_month))*100 as avg_productivity from teacher_payroll_detail where school_id= "+ str(teacher_id.school_id)
+        payrollReportQuery= payrollReportQuery+" group  by month, year "
+        payrollReportData = db.session.execute(payrollReportQuery).fetchall()
+        #end of payroll report section
         allTeachers = TeacherProfile.query.filter_by(school_id = teacher_id.school_id).all()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
         class_list=[('select','Select')]
@@ -682,7 +687,7 @@ def teacherDirectory():
                 new_teacher_invitation(teacher_email[i],teacher_name[i],school_name_val, str(teacher_id.teacher_name))
             db.session.commit()
             flash('Successful registration !')            
-        return render_template('teacherDirectory.html',form=form, allTeachers=allTeachers)
+        return render_template('teacherDirectory.html',form=form, payrollReportData=payrollReportData,allTeachers=allTeachers)
 
 
 #New Section added to manage payroll
@@ -701,7 +706,56 @@ def payrollMonthData():
     payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " and tpd.school_id=61"
     payrollDataRows = db.session.execute(text(payrollDataQuery)).fetchall()
     print(str(len(payrollDataRows)))
-    return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows)
+    return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
+
+
+@app.route('/updatePayrollData', methods=['GET','POST'])
+def updatePayrollData():
+    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    teacher_id_list = request.form.getlist('teacher_id')    
+    current_salary_list = request.form.getlist('currentSalaryInput')
+    days_count_list = request.form.getlist('dayCountInput')
+    days_present_list = request.form.getlist('days_present')
+    calc_salary_list = request.form.getlist('calcSalaryInput')
+    #paid_status_list = request.form.getlist('paid_status')
+    has_changed_list = request.form.getlist('hasChanged')
+    qmonth = request.form.get('qmonth')
+    qyear = request.form.get('qyear')
+    #print(teacher_id_list)
+    #print(current_salary_list)
+    #print(days_count_list)
+    #print(days_present_list)
+    #print(calc_salary_list)
+    #print(has_changed_list)
+    #print(qmonth)
+    #print(qyear)
+    ##print(paid_status_list)
+    #print("#########")
+    for i in range(len(has_changed_list)):
+        print("This is the value of i "+ str(i))
+        if has_changed_list[i]=='Y':   
+            print ('Something has changed')
+            #if (paid_status_list[i]):
+            #    paidValue = 'Y'
+            #else:
+            #    paidValue='N'
+            indivPayrollRecord = TeacherPayrollDetail.query.filter_by(teacher_id=teacher_id_list[i], month=qmonth, year=qyear).first()
+            if indivPayrollRecord==None:
+                print('Adding new values')
+                payrollInsert=TeacherPayrollDetail(teacher_id=teacher_id_list[i],total_salary=current_salary_list[i],month=qmonth,
+                    year=qyear,days_in_month=days_count_list[i],days_present = days_present_list[i], calc_salary = calc_salary_list[i], paid_status='Y',
+                    last_modified_date=datetime.today(), school_id = teacherDetailRow.school_id)
+                db.session.add(payrollInsert)
+            else:
+                if indivPayrollRecord.calc_salary!=calc_salary_list[i]:
+                    print('Updating exiting values')
+                    indivPayrollRecord.days_present = days_present_list[i]
+                    indivPayrollRecord.calc_salary= calc_salary_list[i]
+                    indivPayrollRecord.paid_status = 'Y'
+                    indivPayrollRecord.last_modified_date = datetime.today()
+
+    db.session.commit()
+    return jsonify(['0'])
 
 #End of section for payroll
 

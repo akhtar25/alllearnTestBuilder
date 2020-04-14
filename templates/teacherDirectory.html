@@ -17,8 +17,8 @@
     <br>
     <ul class="tabs">
         <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Directory</a></li>
-        <li class="tab col s3"><a href="#newPayrollDiv">Add Payroll Data</a></li>
-        <li class="tab col s3"><a href="#payrollReport">Payroll Report</a></li>
+        <li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>
+        <li class="tab col s3"><a href="#payrollReport">Report</a></li>
     </ul>
     <br>
 
@@ -59,28 +59,46 @@
     </div>
 
     <div id="newPayrollDiv">
-            <h4 class="grey-text">Choose Month and Year</h4>
-            <div class="input-field col-md-3">
-                <select id="addMonthSelect" class="selection">
-                    <option value="" disabled selected>Select Month</option>
-                </select>
-            </div>
-            <div class="input-field col-md-3">
-                <select id="addYearSelect" class="selection">
-                    <option value="" disabled selected>Select Year</option>
-                </select>
-            </div>
-            <!--<a href="#" class="" id="setCurrentMonthYear">Current month</a>-->
+        <h4 class="grey-text">Choose Month and Year</h4>
+        <div class="input-field col-md-3">
+            <select id="addMonthSelect" class="selection">
+                <option value="" disabled selected>Select Month</option>
+            </select>
+        </div>
+        <div class="input-field col-md-3">
+            <select id="addYearSelect" class="selection">
+                <option value="" disabled selected>Select Year</option>
+            </select>
+        </div>
+        <!--<a href="#" class="" id="setCurrentMonthYear">Current month</a>-->
 
-            <div id="salaryUpdateDiv" style="display: none;">
-                <!--This section will contain the payrollMonthData-->
-            </div>
-            <div id="questionloader" style="padding-left: 300px;padding-top: 100px;display: none;">
-                <img src="../static/images/loader.gif">
-            </div>
+        <div id="salaryUpdateDiv" style="display: none;">
+            <!--This section will contain the payrollMonthData-->
+        </div>
+        <div id="questionloader" style="padding-left: 300px;padding-top: 100px;display: none;">
+            <img src="../static/images/loader.gif">
+        </div>
     </div>
 
     <div id="payrollReport">
+        <table class="center highlight">
+            <thead>
+                <th>Month</th>                
+                <th>Spend on Salary</th>
+                <th>Teachers Paid</th>
+                <th>Average Productivity</th>
+            </thead>
+            <tbody>
+                {%for row in payrollReportData%}
+                <tr style="font-size: 24px;">
+                    <td>{{row.month}}/{{row.year}}</td>                    
+                    <td>₹{{row.salary_spend|round(2)}}</td>
+                    <td>{{row.teacher_count}}</td>
+                    <td class="green-text">{{row.avg_productivity|round(2)}}%</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
     </div>
 </div>
 <script>
@@ -106,7 +124,7 @@
             let monthNum = new Date(2018, m).getMonth()
             let month = monthNames[monthNum];
             var monthElem = document.createElement("option");
-            monthElem.value = parseInt(monthNum)+1;
+            monthElem.value = parseInt(monthNum) + 1;
             monthElem.textContent = month;
             selectMonth.append(monthElem);
         }
@@ -153,7 +171,7 @@
         }
     });
 
-    
+
 
     var teacherbox_data = '';
     var count = 0;
