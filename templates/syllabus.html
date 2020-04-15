@@ -244,15 +244,26 @@
                                 <i class="fas fa-plus-circle"></i>
                                 </a>
                                 <!-- Model -->
-                                    <div id="modal1" class="modal" style="width:52%;height:41%;">
+                                    <div id="modal1" class="modal" style="width:52%;height:61%;">
                                         <div class="modal-content">
                                           <div class="remchapters" style="display:none;">
                                             <span class="sugTextChapters">Choose existing chapters</span>
-                                            <ul class="collection" id="remchapt">
+                                            <ul class="collection" id="remchapt" style="display:none;">
+                                            
+                                            </ul>
+                                            <div id="remchaptloader" style="display:none;">
+                                                <img src="../static/images/smallLoader.gif" style="width:25%">
+                                            </div>
+                                            <a href="#" id="otherChapter">Add new chapter</a></br>
+                                            <span class="chapterText" style="display:none;">Chapter</span></t><input type="text" style="display:none;width:400px;margin-left:20px;" class="chapterText"></br>
+                                            <span class="topicText" style="display:none;">Topic</span></t><input type="text" style="display:none;width:400px;margin-left:35px;" class="topicText">
+                                            <span class="chapterTopic" style="display:none;">Choose topics</span>
+                                            <ul class="collection" id="chooseTopic" style="display:none;">
                                 
                                             </ul>
-                                            <a href="#" id="otherChapter">Add other chapter</a>
-                                            <input type="text" style="display:none;" id="chapterText">
+                                            <div id="chooseTopicloader" style="display:none;">
+                                                <img src="../static/images/smallLoader.gif" style="width:25%">
+                                            </div>
                                           </div>
                                         </div>
                                         <div class="modal-footer">
@@ -336,6 +347,15 @@
       $('#inputBookBtn').show();
        document.getElementById('bookText').focus();
   });
+  $('#otherChapter').click(function(){
+      $('#otherChapter').hide();
+      $('#remchapt').hide();
+      $('.sugTextChapters').hide();
+      $('#suggestionChapterBtn').hide();
+      $('#inputChapterBtn').show();
+      $('.chapterText').show();
+      $('.topicText').show();
+  });
 
   var selSub = [];
     var ul = document.getElementById('remSub');
@@ -344,6 +364,22 @@
       console.log(event.target.innerHTML);
       selSub.push(event.target.innerHTML);
 }; 
+    var selectedChapters = [];
+    var ul = document.getElementById('remchapt');
+      ul.onclick = function(event) {
+      var target = event.target;
+      console.log(event.target.innerHTML);
+      selectedChapters.push(event.target.innerHTML);
+};
+
+    var selectedTopics = [];
+    var ul = document.getElementById('chooseTopic');
+      ul.onclick = function(event) {
+      var target = event.target;
+      console.log(event.target.innerHTML); 
+      selectedTopics.push(event.target.innerHTML);
+};
+
     var selBok = [];
     var ul = document.getElementById('rembok');
       ul.onclick = function(event) {
@@ -351,6 +387,26 @@
       console.log(event.target.innerHTML);
       selBok.push(event.target.innerHTML);
 };
+
+    function addChapterBtn(){
+        console.log('inside add chapter btn');
+        $('#chooseTopic').hide();
+        $('.chapterTopic').hide();
+        $('#divChapter').hide();
+        $('#chapterloader').show();
+        var chapter = '';
+        for(var i=0;i<selectedChapters.length;i++){
+        
+        console.log('chapter name:'+selectedChapters[i]);
+            chapter = selectedChapters[i];
+        }
+        for(var j=0;j<selectedTopics.length;j++){
+        
+        console.log('topic name:'+selectedTopics[i]);
+        }
+        $('.modal.open').modal('close')
+        insertChapter(subjectforChapters,classforChapters,chapter,selectedTopics);
+    }
 
     function deleteFunc(subjectId){
         console.log('inside delete function');
@@ -396,6 +452,7 @@
         console.log(subject);
         insertNewSubject(subject,classforSubject,boardforSub);
     }
+
 
   function addBookBtn(){
       console.log('inside addBookBtn');
@@ -443,7 +500,7 @@
             success: function (response) {
                 console.log(response);
                 //   fetchSubject(classforSubject,boardforSub); 
-                fetchChapters(chapterNum,bookId,subject,class_val);                       
+                fetchChapters(bookId,subject,class_val);                       
             },
             error: function (xhr) {
                 window.alert("error occurred while adding indivisual Subject");
@@ -517,6 +574,23 @@
         });
   }
 
+  function insertChapter(subject,class_val,chapterName,topicName){
+    //   chapterName = JSON.stringify(chapterName);
+      topicName = JSON.stringify(topicName);
+      $.ajax({
+            url: "/addChapter?class_val="+class_val+"&subject="+subject+"&chapterName="+chapterName,
+            type: "POST",
+            contentType: "application/json",
+            data: topicName,
+            success: function (response) {
+                fetchChapters(bookIdforChapters,subjectforChapters,classforChapters);                     
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding chapters");
+            }
+        });
+  }
+
   function insertBook(bookName,class_val,subject,index,length){
       $.ajax({
             url: "/addBook?book="+bookName+"&class_val="+class_val+"&subject="+subject,
@@ -555,9 +629,9 @@
         });
   }
 
-  function fetchChapters(chapterNum,bookId,subject,class_val){
+  function fetchChapters(bookId,subject,class_val){
       $.ajax({
-          url: "/fetchChapters?class_val="+class_val+"&subject="+subject+"&bookId="+bookId+"&chapterNum="+chapterNum,
+          url: "/fetchChapters?class_val="+class_val+"&subject="+subject+"&bookId="+bookId,
           type: "POST",
           contentType: "application/json",
           data: "",
@@ -578,8 +652,10 @@
                 }
 
                 $("#chapterDiv").html(chapterHTMLRecords);
+                $('#chapterloader').hide();
                 $('#divChapter').show();
-                $('.chapterCol').show();
+                $('.chapterCol').show()
+                
                 // $('.addChapterBtn').hide();
                 // $('#chapterloader').hide();
             },
@@ -754,10 +830,9 @@
                     //alert(responseArr[i]);
                     var chapterID = responseArr[i].toString().split(':')[0];
                     var chapterName = responseArr[i].toString().split(':')[1];
-                    console.log('inside chapter syllabus:'+chapterID);
-                    
+                    console.log('inside chapter syllabus:'+chapterID);       
                     remChapterHTMLRecords = remChapterHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="chapterRemItem" id="'+chapterID+'id" onclick=onColor("'+chapterID+'"); style="padding: 10px 5px;">' + chapterName +
+                    '<a href="javascript:void(0);"><li class="chapterRemItem" onclick=onColor("'+chapterID+'");chapterTopic("'+class_val+'","'+subject+'","'+chapterID+'"); id="'+chapterID+'ids" onclick=onColor("'+chapterID+'");>' + chapterName +
                         '</li></a>';
                 }
                 }else{
@@ -765,7 +840,9 @@
                     remChapterHTMLRecords = remChapterHTMLRecords +
                     '<li>No suggestions available</li>'
                 }
+                $('#remchaptloader').hide();
                 $("#remchapt").html(remChapterHTMLRecords);
+                $('#remchapt').show();
                 // $('.chapterCol').hide();
                 // $('.addChapterBtn').show();
                 // $('.remChapters').show();
@@ -775,6 +852,62 @@
                 },
             error: function (xhr) {
                 window.alert("error occurred while display Subject Subject");
+            }
+        });
+    }
+    
+    function chapterTopic(class_val,subject,chapter_num){
+        console.log('inside chapterTopic');
+        var s = '#'+chapter_num+'ids';
+        $('#chooseTopic').hide();
+        $('.chapterTopic').hide();
+        $('#chooseTopicloader').show();
+        {% for chapter  in chapterNum %}
+            var chapterNumber = '#{{chapter.chapter_num}}ids';
+
+            $(chapterNumber).css('background-color','');
+            $(chapterNumber).css('color','');
+
+        {% endfor %}
+        $(s).css('background-color','lightseagreen');
+        $(s).css('color','white');
+        console.log(class_val+' '+subject+' '+chapter_num);
+        $.ajax({
+            url: "/chapterTopic?class_val="+class_val+"&subject="+subject+"&chapter_num="+chapter_num,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function(response){
+                // #chooseTopic
+                var chapterTopicHTMLRecords = "";
+                console.log('inside chapterTopic :'+response);
+                if(response!=''){
+                    responseArr = response.toString().split(',');
+                // alert(responseArr);
+                
+                for (var i = 0; i < responseArr.length; i++) {
+                    //alert(responseArr[i]);
+                    var topicID = responseArr[i].toString().split(':')[0];
+                    var topicName = responseArr[i].toString().split(':')[1];
+                    console.log('inside chapterTopic:'+topicID);
+                    
+                    chapterTopicHTMLRecords = chapterTopicHTMLRecords +
+                    '<a href="javascript:void(0);"><li class="chapterTopicItem" onclick=onColor("'+topicID+'");; id="'+topicID+'id">'+ topicName +
+                        '</li></a>';
+                }
+                }else{
+                    console.log('inside else');
+                    chapterTopicHTMLRecords = chapterTopicHTMLRecords +
+                    '<li>No Topics available</li>'
+                }
+                $("#chooseTopic").html(chapterTopicHTMLRecords);
+                $('#chooseTopicloader').hide();
+                $('.chapterTopic').show();
+                $('#chooseTopic').show();
+                
+            },
+            error: function(xhr){
+                window.alert('error occurred while loading topics');
             }
         });
     }
@@ -815,13 +948,13 @@
                 $('#otherBook').show();
                 },
             error: function (xhr) {
-                window.alert("error occurred while display Subject Subject");
+                window.alert("error occurred while display Books");
             }
         });
     }
 
     function remChapterList(){
-
+        $('#remchaptloader').show();
         console.log('inside remChapterList');
         $('.remchapters').show();
         $('.addChapterBtn').show();
@@ -1027,6 +1160,7 @@
     var classforChapters = '';
     var subjectforChapters = '';
     var bookIdforChapters = '';
+    var bookIdforChapters = '';
     function loadChapters( selectedSubjectVal, selectedBookId,selectedSubjectID, selectedClassVal, selectedBoardID) {
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
@@ -1036,7 +1170,7 @@
         $('#chapterloader').show();
         classforChapters = selectedClassVal;
         subjectforChapters = selectedSubjectVal;
-         
+        bookIdforChapters =  selectedBookId;
         {% for book in bookName %}
             var bookNam = '#{{book.book_id}}book';
             $(bookNam).css('background-color','');
@@ -1057,8 +1191,9 @@
                 responseArr = response.toString().split(',');
                 // alert(responseArr.length);
                 var chapterHTMLRecords = "";
-                var i = 1;
                 bookIdforChapters = selectedBookId;
+                console.log('inside syllabus chapter');
+                console.log(response);
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
@@ -1069,7 +1204,6 @@
                     chapterHTMLRecords = chapterHTMLRecords +
                     '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+'); >' + chapterName +
                             '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;"><input type="hidden" value="'+chapterName+'" id="inputChapterName"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
-                    i=i+1;
                 }
 
                 $("#chapterDiv").html(chapterHTMLRecords);

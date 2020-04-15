@@ -5152,6 +5152,15 @@ small {
 .bookCol:hover{
 cursor: pointer;
 }
+
+.chapterRemItem{
+  padding: 3px 5px;
+}
+#remchapt{
+  height: 90px;
+  position: relative;
+  overflow-y: auto;
+}
 .bookCol{
   float: right;
   color: green;
@@ -5188,11 +5197,30 @@ cursor: pointer;
   color: #333;
   padding: 10px 5px;
 }
+#chooseTopic{
+  height: 90px;
+  height: 90px;
+  position: relative;
+  overflow-y: auto;
+}
 .subjectRemItem{
   border-bottom: 0px;
   cursor: pointer;
   color: #333;
   padding: 10px 5px;
+}
+
+.chapterRemItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+  padding: 3px 5px;
+}
+.chapterTopicItem{
+  border-bottom: 0px;
+  cursor: pointer;
+  color: #333;
+  padding: 3px 5px;
 }
 .bookRemItem{
   border-bottom: 0px;

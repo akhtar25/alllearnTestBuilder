@@ -2029,6 +2029,30 @@ def addSubject():
     db.session.commit()
     return ('update data successfully')
 
+@app.route('/addChapter',methods=['GET','POST'])
+def addChapter():
+    topics=request.get_json()
+    print('inside add Chapter')
+    class_val = request.args.get('class_val')
+    subject = request.args.get('subject')
+    chapterName = request.args.get('chapterName')
+    
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    chapter_num = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName).first()
+    print(topics)
+    for topic in topics:
+        print('inside for')
+        print(topic)
+        topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic,board_id=board_id.board_id).first()
+        updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
+        print(updateTT)
+        updateTT = db.session.execute(text(updateTT))
+        db.session.commit()
+    return ("data updated successfully")
+
 @app.route('/addBook',methods=['GET','POST'])
 def addBook():
     book = request.args.get('book')
@@ -2074,6 +2098,7 @@ def addNewBook():
     book_id=book_id.book_id,is_archived='N')
     db.session.add(insertInBCSB)
     db.session.commit()
+    return ('New Book added successfully')
 
 @app.route('/deleteSubject',methods=['GET','POST'])
 def deleteSubject():
@@ -2115,14 +2140,18 @@ def deleteChapters():
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     book  = BookDetails.query.filter_by(book_id=bookId,class_val=class_val,subject_id=subject_id.msg_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
-    for book_id in bookIds:
-        print('inside for of deleteChapters')
-        print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookID:'+str(book_id.book_id))
-        topic_id = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,book_id=book_id.book_id,chapter_num=chapter_num).first()
-        if topic_id:
-            updateTT = TopicTracker.query.filter_by(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).first()
-            updateTT.is_archived = 'Y'
-            db.session.commit()
+    book_id = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num).first()
+    # for book_id in bookIds:
+    #     print('inside for of deleteChapters')
+    print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookID:'+str(book_id.book_id))
+    topic_ids = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num,book_id=book_id.book_id).all()
+    for topic_id in topic_ids:
+        print('Topic id:'+str(topic_id.topic_id))
+        # updateTT = TopicTracker.query.filter_by(school_id=teacher_id.school_id,subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).all()
+        updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
+        print(updateTT)
+        updateTT = db.session.execute(text(updateTT))
+        db.session.commit()
     return ("delete chapter successfully")
 
 @app.route('/syllabusBooks')
@@ -2165,6 +2194,34 @@ def fetchRemBooks():
         return jsonify([bookArray])
     else:
         return "" 
+
+@app.route('/fetchRemChapters',methods=['GET','POST'])
+def fetchRemChapters():
+    class_val = request.args.get('class_val')
+    subject = request.args.get('subject')
+    bookId = request.args.get('bookId')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+    book = BookDetails.query.filter_by(book_id=bookId).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+    
+    chapterArray=[]
+    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
+    for book_id in bookIds:
+        distinctChapterQuery="select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+        distinctChapterQuery=distinctChapterQuery+ "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id = '"+str(book_id.book_id)+"' and tt.is_archived = 'Y'"
+        distinctChapters = db.session.execute(text(distinctChapterQuery)).fetchall()
+        for val in distinctChapters:
+            print('inside for')
+            print(str(val.chapter_name)+':'+str(val.chapter_num))
+            chapterArray.append(str(val.chapter_num)+":"+str(val.chapter_name))
+    if chapterArray:
+        return jsonify([chapterArray]) 
+    else:
+        return ""
+
 
 @app.route('/fetchBooks',methods=['GET','POST'])
 def fetchBooks():
@@ -2212,20 +2269,36 @@ def syllabusChapters():
     else:
         return ""
 
+@app.route('/chapterTopic',methods=['GET','POST'])
+def chapterTopic():
+    class_val = request.args.get('class_val')
+    subject = request.args.get('subject')
+    chapter_num = request.args.get('chapter_num')
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    topics = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).all()
+    topicArray = []
+    for topic in topics:
+         topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
+    if topicArray:
+        return jsonify([topicArray])
+    else:
+        return ""
+
 @app.route('/fetchChapters',methods=['GET','POST'])
 def fetchChapters():
     book_id=request.args.get('bookId')
     class_val=request.args.get('class_val')
-    board_id=request.args.get('board_id')
+    # board_id=request.args.get('board_id')
     subject=request.args.get('subject')
-    chapterNum = request.args.get('chapterNum')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     book = BookDetails.query.filter_by(book_id=book_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id,board_id=board_id).all()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+    
     chapterArray=[]
-    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id)+' boardId:'+str(board_id))
+    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
     for book_id in bookIds:
         distinctChapterQuery="select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
         distinctChapterQuery=distinctChapterQuery+ "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id = '"+str(book_id.book_id)+"' and tt.is_archived = 'N'"
