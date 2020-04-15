@@ -479,6 +479,16 @@ class StudentProfile(db.Model):
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
+class StudentRemarks(db.Model):
+    __tablename__ = "student_remarks"
+    remark_id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
+    remark_desc = db.Column(db.String(200), nullable=False)
+    remark_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
 class studentQROptions(db.Model):
     __tablename__="student_qr_options"
     student_qr_id = db.Column(db.Integer,primary_key=True)

@@ -3853,10 +3853,8 @@ def studentPerformanceGraph():
         graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)        
         return render_template('_studentPerformanceGraph.html',graphJSON=graphJSON)
     else:
-        return jsonify(['No records found for the selected values'])
+        return jsonify(['No performance data found'])
   
-    
-
 
 
 @app.route('/classPerformance')
@@ -4587,10 +4585,7 @@ def indivStudentProfile():
     sponsor_id = request.args.get('sponsor_id')
     sponsor_name = request.args.get('sponsor_name')
     amount = request.args.get('amount')
-
-    #print(student_id)
-    #studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
-    #studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    
     #New updated query
     studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, md.description as gender,class_val, section, "
     studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
@@ -4598,9 +4593,8 @@ def indivStudentProfile():
     studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
-
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
-    #print('Id:'+str(studentProfileRow.student_id))  
+    
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
@@ -4616,6 +4610,12 @@ def indivStudentProfile():
     testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
     #print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
+    
+    #Remarks info
+    studentRemarksQuery = "select student_id, tp.teacher_id, teacher_name, profile_picture, remark_desc, sr.last_modified_date as last_modified_date"
+    studentRemarksQuery= studentRemarksQuery+ " from student_remarks sr inner join teacher_profile tp on sr.teacher_id=tp.teacher_id and student_id="+str(student_id) + " "
+    studentRemarkRows = db.session.execute(text(studentRemarksQuery)).fetchall()
+    #studentRemarkRows = StudentRemarks.query.filter_by(student_id=student_id).order_by(StudentRemarks.last_modified_date.desc()).limit(5).all()
 
     #Sponsor allocation
     urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
@@ -4643,10 +4643,24 @@ def indivStudentProfile():
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         #print(optionURL)
-    return render_template('_indivStudentProfile.html',urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+    return render_template('_indivStudentProfile.html',studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
+
+@app.route('/addStudentRemarks',methods = ["GET","POST"])
+def addStudentRemarks():
+    remark_desc=request.form.get('remark')
+    student_id = request.form.get('student_id')
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
+    try:
+        studentRemarkAdd = StudentRemarks(student_id=student_id, remark_desc=remark_desc, teacher_id=teacherDataRow.teacher_id,
+            is_archived = 'N', last_modified_date = datetime.today())
+        db.session.add(studentRemarkAdd)
+        db.session.commit()
+        return jsonify(['0'])
+    except:
+        return jsonify(['1'])
 
 @app.route('/studentProfile') 
 @login_required
