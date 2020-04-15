@@ -261,7 +261,9 @@
                 console.log('Inside REsponse of studentDEtails')
             },
             error: function (xhr) {
-                window.alert("error occurred while submitting data");
+                 $('#questionloader').hide();
+                 $('#studentProfileData').show();
+                 $("#studentProfileData").html("<h5 class='orange-text'>Error occurred while fetching student data. Please try again.</h5>");                
             }
         });
     }

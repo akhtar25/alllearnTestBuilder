@@ -193,13 +193,13 @@
                 </tbody>
                 </table>                
                 {%endif%}
+            </div>
                 <form id="remarkForm">
                     <label for="remark">Add Remark</label>
                     <input type="text" id="remark" name="remark">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
                     <input type="hidden" name="student_id" value="{{studentProfileRow.student_id}}">
-                </form>
-            </div>
+                </form>           
         </div>
         </div>
     </div>
@@ -276,6 +276,9 @@ $('#remarkPostButton').click(function($e){
                 );                
                 $('#remark').val('');
                 M.toast({html: '<h4>Remark Added</h4>'});
+                $('#insideRemarkDiv').animate({
+                scrollTop: $('#insideRemarkDiv').get(0).scrollHeight
+                }, 2000);
             }
             else{
                 window.alert("Error");
