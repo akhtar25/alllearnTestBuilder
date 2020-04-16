@@ -4587,7 +4587,7 @@ def indivStudentProfile():
     amount = request.args.get('amount')
     
     #New updated query
-    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, md.description as gender,class_val, section, "
+    studentProfileQuery = "select full_name, email, sponsored_status,phone,sp.school_id as school_id, dob, md.description as gender,class_val, section, "
     studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
     studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
     studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
@@ -4628,22 +4628,21 @@ def indivStudentProfile():
     try:
         overallPerfValue = round(overallSum/(len(perfRows)),2)    
     except:
-        overallPerfValue=0
-    
+        overallPerfValue=0    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
-
-    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="
-    
-
+    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="    
     qrArray=[]
     x = range(4)    
+
+    #section for fetching surveys
+    surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
 
     for n in x:               
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
         #print(optionURL)
-    return render_template('_indivStudentProfile.html',studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+    return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
@@ -4666,7 +4665,6 @@ def addStudentRemarks():
 @login_required
 def studentProfile():    
     qstudent_id=request.args.get('student_id')
-
     #####Section for sponsor data fetch
     qsponsor_name = request.args.get('sponsor_name')
     qsponsor_id = request.args.get('sponsor_id')
@@ -4697,10 +4695,7 @@ def studentProfile():
         # form.test_type1.choices=test_type_list
         form.student_name.choices = ''
         flag = 1
-        #for student in available_student_list:
-        #    print('Student Name')
-        #    print(student.full_name)
-        #print('we are in the form one')
+
         return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag)
     else:
         value=0
@@ -4716,6 +4711,79 @@ def studentProfile():
             disconn=0
         #print(qstudent_id)
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
+
+#Addition of new section to conduct student surveys
+@app.route('/studentSurveys')
+def studentSurveys():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    surveyDetailQuery = "select sd.survey_id, survey_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+    surveyDetailQuery = surveyDetailQuery+ "from survey_detail sd left join student_survey_response ssr on ssr.survey_id =sd.survey_id "
+    surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.survey_id,survey_name, question_count,question_count, sd.last_modified_date"
+    surveyDetailRow = db.session.execute(surveyDetailQuery).fetchall()
+    #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
+    
+    return render_template('studentSurveys.html', surveyDetailRow=surveyDetailRow)
+
+@app.route('/indivSurveyDetail/')
+def indivSurveyDetail():
+    survey_id = request.args.get('survey_id')
+    survey_id = survey_id.split('_')[1]
+    student_id = request.args.get('student_id')    
+    studSurveyData = " select sq.sq_id as sq_id, question,sq.survey_id,survey_response_id , sp.student_id, answer from student_survey_response ssr "
+    studSurveyData = studSurveyData  + " right join survey_questions sq on "
+    studSurveyData = studSurveyData  +  " sq.survey_id =ssr.survey_id and "
+    studSurveyData = studSurveyData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
+    studSurveyData = studSurveyData  +  " left join student_profile sp "
+    studSurveyData = studSurveyData  +  " on sp.student_id =ssr.student_id "
+    studSurveyData = studSurveyData  +  " where sq.survey_id =" + str(survey_id)
+    surveyQuestions = db.session.execute(text(studSurveyData)).fetchall()
+    return render_template('_indivSurveyDetail.html',surveyQuestions=surveyQuestions,student_id=student_id,survey_id=survey_id)
+
+@app.route('/updateSurveyAnswer',methods=["GET","POST"])
+def updateSurveyAnswer():
+    sq_id_list = request.form.getlist('sq_id')
+    survey_response_id_list = request.form.getlist('survey_response_id')
+    answer_list = request.form.getlist('answer')
+    survey_id = request.form.get('survey_id')
+    student_id = request.form.get('student_id')
+    for i in range(len(sq_id_list)):
+        if survey_response_id_list[i]!='None':
+            studentSurveyAnsUpdate = StudentSurveyResponse.query.filter_by(sq_id=sq_id_list[i], survey_response_id=survey_response_id_list[i]).first()
+            studentSurveyAnsUpdate.answer = answer_list[i]
+            surveyDetailRow = SurveyDetail.query.filter_by(survey_id=survey_id).first()            
+        else:
+            addNewSurveyResponse = StudentSurveyResponse(survey_id=survey_id, sq_id=sq_id_list[i], 
+                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
+            db.session.add(addNewSurveyResponse)
+    db.session.commit()
+    return jsonify(['0'])
+
+@app.route('/addNewSurvey',methods=["GET","POST"])
+def addNewSurvey():    
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    questions = request.form.getlist('questionInput')
+    questionCount = len(questions)
+    newSurveyRow = SurveyDetail(survey_name=request.form.get('surveyName'),teacher_id= teacherRow.teacher_id, 
+        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',last_modified_date=datetime.today())
+    db.session.add(newSurveyRow)
+    db.session.commit()
+    currentSurvey = SurveyDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(SurveyDetail.last_modified_date.desc()).first()
+    for i in range(questionCount):
+        newSurveyQuestion= SurveyQuestions(survey_id=currentSurvey.survey_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+        db.session.add(newSurveyQuestion)
+    db.session.commit()
+    return jsonify(['0'])
+
+
+@app.route('/archiveSurvey')
+def archiveSurvey():
+    survey_id = request.args.get('survey_id')
+    surveyData = SurveyDetail.query.filter_by(survey_id=survey_id).first()
+    surveyData.is_archived='Y'
+    db.session.commit()
+    return jsonify(['0'])
+#End of student survey section
+
 
 @app.route('/performance')
 def performance():

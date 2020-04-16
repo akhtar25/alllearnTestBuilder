@@ -496,7 +496,35 @@ class studentQROptions(db.Model):
     option = db.Column(db.String(1), nullable=True)
     qr_link = db.Column(db.String(200), nullable=True)
 
-    
+
+class SurveyDetail(db.Model):
+    __tablename__ = "survey_detail"
+    survey_id = db.Column(db.Integer, primary_key=True)
+    survey_name = db.Column(db.String(200), nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+    question_count = db.Column(db.Integer, nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class SurveyQuestions(db.Model):
+    __tablename__="survey_questions"
+    sq_id = db.Column(db.Integer, primary_key=True)
+    survey_id = db.Column(db.ForeignKey('survey_detail.survey_id'),nullable=False)
+    question = db.Column(db.String(200), nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class StudentSurveyResponse(db.Model):
+    __tablename__ = "student_survey_response"
+    survey_response_id = db.Column(db.Integer, primary_key=True)
+    survey_id = db.Column(db.ForeignKey('survey_detail.survey_id'),nullable=False)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
+    sq_id = db.Column(db.ForeignKey('survey_questions.sq_id'), nullable=False)
+    answer = db.Column(db.String(200), nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+
 
 class GuardianProfile(db.Model):
     __tablename__="guardian_profile"
