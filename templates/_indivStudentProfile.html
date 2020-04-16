@@ -54,7 +54,7 @@
                 <tr>
                     <td><a href="#modal2" class="modal-trigger">QR Codes for tests</a></td>
                 </tr>
-            </table>
+            </table>            
             <div style="max-height: 300px;overflow-y: auto;">
             <h4 class="grey-text left">Student Surveys</h4>
             {%if surveyRows|length>0%}
@@ -180,7 +180,15 @@
             <h5>No info present</h5>
             {%endif%}
             <br>      
-            
+            <div style="max-height: 200px;">               
+            <h4 class="grey-text">Sponsor Details</h4>
+            {%if studentProfileRow.sponsor_status=='Y'%}
+            <span>{{studentProfileRow.sponsor_name}} sponsored on {{studentProfileRow.sponsored_on.strftime('%d %b %Y')}}</span>
+            {%else%}
+            <span>No Sponsor Data Found</span>
+            {%endif%}
+            </div>
+            <br><br>
             <div id="studentRemarksDiv" >
                 <h4 class='grey-text'>Teacher Remarks</h4>
                 <div id="insideRemarkDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
@@ -198,8 +206,7 @@
                         </td></tr>                    
                     {%endfor%}
                 </tbody>                          
-                </table>          
-                <a href="#" class="right">See All Remarks</a>  
+                </table>                          
                 <br>
                 {%else%}
                 <table id="remarkTable" >
