@@ -5222,6 +5222,12 @@ cursor: pointer;
   color: #333;
   padding: 3px 5px;
 }
+.questionRow{
+  padding:5px;
+}
+.iconAdd{
+  cursor:pointer;
+}
 .bookRemItem{
   border-bottom: 0px;
   cursor: pointer;

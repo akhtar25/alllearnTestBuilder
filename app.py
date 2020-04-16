@@ -2100,6 +2100,55 @@ def addNewBook():
     db.session.commit()
     return ('New Book added successfully')
 
+@app.route('/checkForChapterNum',methods=['GET','POST'])
+def checkForChapterNum():
+    class_val = request.args.get('class_val')
+    subject = request.args.get('subject')
+    chapterNum = request.args.get('chapter_num')
+    bookId = request.args.get('bookId')
+    subject_id= MessageDetails.query.filter_by(description=subject).first()
+    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
+    bookIds = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book.book_name).all()
+    k = 0
+    print(book.book_name)
+    for book_id in bookIds:
+        print(str(class_val)+' '+str(subject_id.msg_id)+' '+str(chapterNum)+' '+str(book_id.book_id))
+        topic = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum,book_id=book_id.book_id).first()
+        print('inside for')
+        print(book_id.book_id)
+        print(topic)
+        if topic:
+            k = 1
+    print(k)
+    if k==1:
+        return ""
+    else:
+        return "1"
+
+@app.route('/addNewChapter',methods=['GET','POST'])
+def addNewChapter():
+    topics=request.get_json()
+    book_id = request.args.get('book_id')
+    class_val = request.args.get('class_val')
+    subject = request.args.get('subject')
+    chapter = request.args.get('chapter')
+    chapter_num = request.args.get('chapter_num')
+    
+    subject_id = MessageDetails.query.filter_by(description = subject).first()
+    topics=request.get_json()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    for topic in topics:
+        insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id)
+        db.session.add(insertTopic)
+        db.session.commit()
+        topic_id = Topic.query.filter_by(chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
+        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N')
+        db.session.add(insertTopicTracker)
+        db.session.commit()
+    return ("Add new Chapter")
+
 @app.route('/deleteSubject',methods=['GET','POST'])
 def deleteSubject():
     subject_id = request.args.get('subjectId')
@@ -2128,6 +2177,22 @@ def deleteBook():
         updateBook.is_archived = 'Y'
         db.session.commit()
     return ("delete book successfully")
+
+@app.route('/deleteTopics',methods=['GET','POST'])
+def deleteTopics():
+    subject = request.args.get('subject')
+    class_val = request.args.get('class_val')
+    bookId = request.args.get('bookId')
+    chapter_num = request.args.get('chapter_num')
+    topic_id = request.args.get('topic_id')
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id)+"'"
+    print(updateTT)
+    updateTT = db.session.execute(text(updateTT))
+    db.session.commit()
+    return ("delete topic successfully")
 
 @app.route('/deleteChapters',methods=['GET','POST'])
 def deleteChapters():
@@ -2275,7 +2340,9 @@ def chapterTopic():
     subject = request.args.get('subject')
     chapter_num = request.args.get('chapter_num')
     subject_id = MessageDetails.query.filter_by(description=subject).first()
-    topics = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).all()
+    topics = "select distinct td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on "
+    topics = topics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.is_archived = 'Y'"
+    topics = db.session.execute(text(topics)).fetchall()
     topicArray = []
     for topic in topics:
          topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
@@ -2312,23 +2379,82 @@ def fetchChapters():
     else:
         return ""
 
+@app.route('/fetchTopics',methods=['GET','POST'])
+def fetchTopics():
+    subject=request.args.get('subject')
+    chapter_num=request.args.get('chapter_num')
+    
+    class_val = request.args.get('class_val')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    subject_id = MessageDetails.query.filter_by(description=subject).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    bookId = request.args.get('bookId')
+    chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id,board_id=board_id.board_id).all()
+    topicArray=[]
+    chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+    for book_id in bookIds:
+        print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id)+' boardId:'+str(board_id.board_id)+' chapter_num:'+str(chapter_num))
+        distinctTopicQuery="select distinct topic_name,td.topic_id from topic_detail td inner join topic_tracker tt on "
+        distinctTopicQuery=distinctTopicQuery+ "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id = '"+str(book_id.book_id)+"' and td.chapter_name='"+str(chapter_name.chapter_name)+"' and td.chapter_num='"+str(chapter_num)+"' and tt.is_archived = 'N'"
+        distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
+        for val in distinctTopics:
+            print('inside for')
+            print(str(val.topic_name)+':'+str(val.topic_id))
+            topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
+    if topicArray:
+        return jsonify([topicArray]) 
+    else:
+        return ""
+
 @app.route('/syllabusTopics')
 @login_required
 def syllabusTopics():
     subject_id=request.args.get('subject_id')
     board_id=request.args.get('board_id')
     chapter_num=request.args.get('chapter_num')
-    chapter_name=request.args.get('chapter_name')
+    bookId = request.args.get('selectedBookId')
     class_val = request.args.get('class_val')
-
-    distinctTopicQuery = "select topic_id, topic_name from topic_detail where subject_id='"+subject_id+"' and board_id='"+board_id+"' and chapter_num='"+chapter_num+"' and chapter_name='"+chapter_name+"' and class_val='"+class_val+"'"
-    print('Fetch Topics:'+str(distinctTopicQuery))
-    distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    
+    print('BookID:'+str(bookId))
+    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
     topicArray=[]
-    for val in distinctTopics:
-        print(val.topic_id)
-        topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
-    return jsonify([topicArray]) 
+    chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id,chapter_num=chapter_num).first()
+    for book_id in bookIds:
+        print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id)+' chapter_name:'+str(chapter_name)+' chapter_num:'+str(chapter_num))
+        distinctTopicQuery="select distinct topic_name,td.topic_id from topic_detail td inner join topic_tracker tt on "
+        distinctTopicQuery=distinctTopicQuery+ "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id = '"+str(book_id.book_id)+"' and td.chapter_name='"+str(chapter_name.chapter_name)+"' and td.chapter_num='"+str(chapter_num)+"' and tt.is_archived = 'N'"
+        distinctTopics = db.session.execute(text(distinctTopicQuery)).fetchall()
+        for val in distinctTopics:
+            print('inside for')
+            print(str(val.topic_name)+':'+str(val.topic_id))
+            topicArray.append(str(val.topic_id)+":"+str(val.topic_name))
+    if topicArray:
+        return jsonify([topicArray]) 
+    else:
+        return ""
+
+@app.route('/syllabusQuestions',methods=['GET','POST'])
+def syllabusQuestions():
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    topic_id = request.args.get('topic_id')
+    questions = QuestionDetails.query.filter_by(subject_id=subject_id,class_val=class_val,topic_id=topic_id).all()
+    questionArray = []
+    print('class_val:'+str(class_val)+' subject_id:'+str(subject_id)+' topic_id:'+str(topic_id))
+    for question in questions:
+        questionArray.append(question.question_description)
+        print('Question')
+        print(question.question_description)
+    if questionArray:
+        return jsonify([questionArray])
+    else:
+        return ""
 
 
 @app.route('/grantSchoolAdminAccess')
