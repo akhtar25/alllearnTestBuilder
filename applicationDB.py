@@ -223,8 +223,20 @@ class BoardClassSubject(db.Model):
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
     class_val = class_val = db.Column(db.Integer, nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    #subject_name = db.Column(db.ForeignKey('message_detail.description'),nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
+
+class BoardClassSubjectBooks(db.Model):
+    _tablename_ = "board_class_subject_books"
+    bcsb_id = db.Column(db.Integer,primary_key=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
+    class_val = db.Column(db.Integer, nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    book_id = db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
+    is_archived = db.Column(db.String(1), nullable=True)
+    last_modified_date = db.Column(db.DateTime, nullable=True)
+
 
 class ChapterDetail(db.Model):
     __tablename__="chapter_detail"
@@ -467,6 +479,16 @@ class StudentProfile(db.Model):
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
+class StudentRemarks(db.Model):
+    __tablename__ = "student_remarks"
+    remark_id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
+    remark_desc = db.Column(db.String(200), nullable=False)
+    remark_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
 class studentQROptions(db.Model):
     __tablename__="student_qr_options"
     student_qr_id = db.Column(db.Integer,primary_key=True)
@@ -474,7 +496,34 @@ class studentQROptions(db.Model):
     option = db.Column(db.String(1), nullable=True)
     qr_link = db.Column(db.String(200), nullable=True)
 
-    
+
+class SurveyDetail(db.Model):
+    __tablename__ = "survey_detail"
+    survey_id = db.Column(db.Integer, primary_key=True)
+    survey_name = db.Column(db.String(200), nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+    question_count = db.Column(db.Integer, nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class SurveyQuestions(db.Model):
+    __tablename__="survey_questions"
+    sq_id = db.Column(db.Integer, primary_key=True)
+    survey_id = db.Column(db.ForeignKey('survey_detail.survey_id'),nullable=False)
+    question = db.Column(db.String(200), nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class StudentSurveyResponse(db.Model):
+    __tablename__ = "student_survey_response"
+    survey_response_id = db.Column(db.Integer, primary_key=True)
+    survey_id = db.Column(db.ForeignKey('survey_detail.survey_id'),nullable=False)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
+    sq_id = db.Column(db.ForeignKey('survey_questions.sq_id'), nullable=False)
+    answer = db.Column(db.String(200), nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
 
 class GuardianProfile(db.Model):
     __tablename__="guardian_profile"
@@ -527,8 +576,38 @@ class TeacherProfile(db.Model):
     phone = db.Column(db.String(12), nullable=True)
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     user_id=db.Column(db.ForeignKey('user.id'), nullable=True)
+    #adding as a part of payroll setup
+    curr_salary = db.Column(db.Integer, nullable=True)
+    #end of payroll related row
     last_modified_date=db.Column(db.DateTime)
     device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+
+#New tables to manage payroll
+class TeacherSalary(db.Model):
+    __tablename__="teacher_salary"
+    teacher_salary_id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    total_salary = db.Column(db.Float, nullable=False)
+    is_current = db.Column(db.String(1), nullable=False)
+    salary_set_on = db.Column(db.DateTime, nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+class TeacherPayrollDetail(db.Model):
+    __tablename__="teacher_payroll_detail"
+    tpd_id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    #teacher_name = db.Column(db.String(100), nullable=False)
+    total_salary = db.Column(db.Float, nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    days_in_month = db.Column(db.Integer, nullable = False)
+    days_present = db.Column(db.Integer, nullable=False)
+    calc_salary = db.Column(db.Float, nullable=False)
+    paid_status = db.Column(db.String(1),nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+#end of teacher payroll tables
 
 
 class FeeManagement(db.Model):

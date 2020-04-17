@@ -1,0 +1,124 @@
+<div id="payrollDiv" >
+    <div id="dataDiv" style="height: 400px;overflow-y: auto;width: 100%;position: relative;">
+    <form id="payrollFormID">
+    <div class="red-text right" id="errorBox">
+    </div>
+    <table class="highlight" >
+        <thead>
+            <th>Teacher</th>
+            <th>Current Salary</th>
+            <th>Days in Month</th>
+            <th>Days Attended</th>
+            <th>Calculated Salary</th>
+            <th>Paid</th>
+        </thead>
+        <tbody>
+            <input type="hidden" value="{{qmonth}}" name="qmonth">
+            <input type="hidden" value="{{qyear}}" name="qyear">
+            {%for teacherRow in payrollDataRows%}
+            <tr>
+                <td class="col-sm-3">{%if teacherRow.profile_picture!= None %}
+                    <img class="responsive-img circle" src="{{teacherRow.profile_picture}}" width="100px">
+                    {%else%}
+                    <img class="responsive-img circle" width="50px"
+                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+                    {%endif%}
+                    <input type="hidden" value="{{teacherRow.teacher_id}}" name="teacher_id">
+                    {{teacherRow.teacher_name}}                 
+                </td>                
+                <td class="currentSalaryClass col-sm-2"><span name="current_salary">{{teacherRow.curr_salary}}</span></td>
+                <input type="hidden" name="currentSalaryInput" value="{{teacherRow.curr_salary}}">
+                <td class="col-sm-2"><span id="dayCount" name="dayCount" class="dayCount">{{daysInMonth}}</span></td>
+                <input type="hidden" name="dayCountInput" value="{{daysInMonth}}">
+                <td class="col-sm-2">
+                    {%if teacherRow.days_present!=None%}
+                    <input class="attendedClass" type="number" name="days_present" value="{{teacherRow.days_present}}">
+                    {%else%}
+                    <input class="attendedClass" type="number" value="0" name="days_present">
+                    {%endif%}
+                </td>
+                <td class="col-sm-2">
+                    {%if teacherRow.calc_salary!=None%}
+                    <span class="calcSalaryClass" name="calcSalary">{{teacherRow.calc_salary}}</span>
+                    <input type="hidden" value="{{teacherRow.calc_salary}}" name="calcSalaryInput" class="calcSalaryInputClass">
+                    <input type="hidden" value="N" name="hasChanged" class="hasChangedClass" value="{{teacherRow.calc_salary}}">
+                    {%else%}
+                    <span class="calcSalaryClass" name="calcSalary">0</span>
+                    <input type="hidden" value="{{teacherRow.calc_salary}}" name="calcSalaryInput" class="calcSalaryInputClass">
+                    <input type="hidden" value="N" name="hasChanged" class="hasChangedClass" value="0">
+                </td>
+                {%endif%}
+                <td>
+                    {%if teacherRow.paid_status=='Y'%}
+                    <label>
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+                    {%else%}
+                    <label style="display:none" class="postUpdateCheck">
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+
+                    {%endif%}
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</form>
+</div>
+    <br>
+    <a href="#" id="savePayrollDataBTN" class="btn green right">Save Payroll Data</a>
+    <br><br>
+</div>
+
+<script>
+    $('.attendedClass').blur(function () {
+        $('#errorBox').html('');
+        //alert('On blur called');
+        var totalAttendedCount = $(this).val();
+        //('totalAttendedCount'+totalAttendedCount);
+
+        var currentSalaryVal = $(this).parents("tr").find(".currentSalaryClass").text();
+        //alert('currentSalaryVal'+currentSalaryVal);
+
+        var daysInMonth = $(this).parents("tr").find(".dayCount").text();
+        //alert('daysInMonth'+daysInMonth);
+        if (parseInt(totalAttendedCount) <= parseInt(daysInMonth)) {
+            var calcSalaryVal = (parseInt(totalAttendedCount) / parseInt(daysInMonth)) * parseFloat(
+                currentSalaryVal);
+            calcSalaryVal = Math.ceil(calcSalaryVal * 100) / 100;
+            //alert(calcSalaryVal);    
+            $(this).parents("tr").find(".calcSalaryClass").text(calcSalaryVal);
+            $(this).parents("tr").find(".calcSalaryInputClass").val(calcSalaryVal);            
+            $(this).parents("tr").find(".hasChangedClass").val('Y');
+            $(this).parents("tr").find(".postUpdateCheck").show();            
+            //alert($(this).parents("tr").find(".hasChangedClass").text());            
+        }
+        else{
+            $('#errorBox').html('Days Attended cannot be greater than Total days');
+        }
+    });
+
+
+    $('#savePayrollDataBTN').click(function(){ 
+        var form = $('#payrollFormID');
+            $.ajax({
+                url: "/updatePayrollData",
+                type: "POST",
+                data: form.serialize(),
+                success: function (response2) {
+                    if (response2=='0'){
+                    M.toast({html: '<h4>Data Uploaded Successfully</h4>'});
+                    }
+                    else{
+                        $('#errorBox').html('Error occurred while updating payroll records');
+                    }
+                },
+                error: function (xhr) {                   
+                    window.alert("error occurred while submitting data");
+                }
+            });
+    });
+</script>

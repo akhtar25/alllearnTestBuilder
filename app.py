@@ -47,6 +47,7 @@ import requests
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
+from calendar import monthrange
 
 #from flask_material import Material
 
@@ -640,9 +641,9 @@ def classRegistration():
 
 
 
-@app.route('/teacherRegistration',methods=['GET','POST'])
+@app.route('/teacherDirectory',methods=['GET','POST'])
 @login_required
-def teacherRegistration():
+def teacherDirectory():
     school_name_val = schoolNameVal()
     
     if school_name_val ==None:
@@ -650,6 +651,12 @@ def teacherRegistration():
         return redirect(url_for('disconnectedAccount'))
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        #section for payroll report
+        payrollReportQuery = "select month, year, sum(calc_salary) as salary_spend, count(*) teacher_count, (avg(days_present) / avg(days_in_month))*100 as avg_productivity from teacher_payroll_detail where school_id= "+ str(teacher_id.school_id)
+        payrollReportQuery= payrollReportQuery+" group  by month, year "
+        payrollReportData = db.session.execute(payrollReportQuery).fetchall()
+        #end of payroll report section
+        allTeachers = TeacherProfile.query.filter_by(school_id = teacher_id.school_id).all()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
         class_list=[('select','Select')]
         section_list=[]
@@ -679,9 +686,81 @@ def teacherRegistration():
                     #send email to the teachers here
                 new_teacher_invitation(teacher_email[i],teacher_name[i],school_name_val, str(teacher_id.teacher_name))
             db.session.commit()
-            flash('Successful registration !')
-            return render_template('teacherRegistration.html',form=form)
-        return render_template('teacherRegistration.html',form=form)
+            flash('Successful registration !')            
+        return render_template('teacherDirectory.html',form=form, payrollReportData=payrollReportData,allTeachers=allTeachers)
+
+
+#New Section added to manage payroll
+@app.route('/payrollMonthData')
+def payrollMonthData():
+    qmonth = request.args.get('month')
+    qyear = request.args.get('year')
+    print(qmonth+ ' '+qyear)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #days in month
+    daysInMonth = monthrange(int(qyear),int(qmonth))
+    daysInMonth = int(daysInMonth[1])
+    #temporary query
+    payrollDataQuery = "select tp.teacher_id as teacher_id, tp.profile_picture as profile_picture, tp.teacher_name as teacher_name, tp.curr_salary as curr_salary,tpd.days_present as days_present, tpd.calc_salary, tpd.paid_status as paid_status"
+    payrollDataQuery = payrollDataQuery + " from teacher_profile  tp left join "
+    payrollDataQuery = payrollDataQuery + "teacher_payroll_detail tpd on tpd.teacher_id=tp.teacher_id "
+    payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " where tp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
+    payrollDataRows = db.session.execute(text(payrollDataQuery)).fetchall()
+    print(str(len(payrollDataRows)))
+    return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
+
+
+@app.route('/updatePayrollData', methods=['GET','POST'])
+def updatePayrollData():
+    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    teacher_id_list = request.form.getlist('teacher_id')    
+    current_salary_list = request.form.getlist('currentSalaryInput')
+    days_count_list = request.form.getlist('dayCountInput')
+    days_present_list = request.form.getlist('days_present')
+    calc_salary_list = request.form.getlist('calcSalaryInput')
+    #paid_status_list = request.form.getlist('paid_status')
+    has_changed_list = request.form.getlist('hasChanged')
+    qmonth = request.form.get('qmonth')
+    qyear = request.form.get('qyear')
+    #print(teacher_id_list)
+    #print(current_salary_list)
+    #print(days_count_list)
+    #print(days_present_list)
+    #print(calc_salary_list)
+    #print(has_changed_list)
+    #print(qmonth)
+    #print(qyear)
+    ##print(paid_status_list)
+    #print("#########")
+    for i in range(len(has_changed_list)):
+        print("This is the value of i "+ str(i))
+        if has_changed_list[i]=='Y':   
+            print ('Something has changed')
+            #if (paid_status_list[i]):
+            #    paidValue = 'Y'
+            #else:
+            #    paidValue='N'
+            indivPayrollRecord = TeacherPayrollDetail.query.filter_by(teacher_id=teacher_id_list[i], month=qmonth, year=qyear).first()
+            if indivPayrollRecord==None:
+                print('Adding new values')
+                payrollInsert=TeacherPayrollDetail(teacher_id=teacher_id_list[i],total_salary=current_salary_list[i],month=qmonth,
+                    year=qyear,days_in_month=days_count_list[i],days_present = days_present_list[i], calc_salary = calc_salary_list[i], paid_status='Y',
+                    last_modified_date=datetime.today(), school_id = teacherDetailRow.school_id)
+                db.session.add(payrollInsert)
+            else:
+                if indivPayrollRecord.calc_salary!=calc_salary_list[i]:
+                    print('Updating exiting values')
+                    indivPayrollRecord.days_present = days_present_list[i]
+                    indivPayrollRecord.calc_salary= calc_salary_list[i]
+                    indivPayrollRecord.paid_status = 'Y'
+                    indivPayrollRecord.last_modified_date = datetime.today()
+
+    db.session.commit()
+    return jsonify(['0'])
+
+#End of section for payroll
+
+
 
 @app.route('/bulkStudReg')
 def bulkStudReg():
@@ -1085,14 +1164,12 @@ def edit_profile():
 @app.route('/dashboard')
 @login_required 
 def index():
-    print('Inside index')
+    #print('Inside index')
     user = User.query.filter_by(username=current_user.username).first_or_404()        
-
-
     school_name_val = schoolNameVal()
-    print('User Type Value:'+str(user.user_type))
+    #print('User Type Value:'+str(user.user_type))
     if user.user_type==72:
-        print('Inside guardian')
+        #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
     if user.user_type=='161':
         return redirect(url_for('openJobs'))
@@ -1103,7 +1180,7 @@ def index():
     classSecCheckVal = classSecCheck()
 
     if school_name_val ==None:
-        print('did we reach here')
+        #print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
     else:
     #####Fetch school perf graph information##########
@@ -1152,11 +1229,11 @@ def index():
         # print('leaderBoard Data:'+str(leaderBoardData))
         # Convert dataframe to a list
         data = []
-        print(type(leaderBoardData))
+        #print(type(leaderBoardData))
         column_names = ["a", "b", "c"]
         datafr = pd.DataFrame(columns = column_names)
         if type(leaderBoardData)==type(datafr):
-            print('if data is not empty')
+            #print('if data is not empty')
             df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
             df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
             leaderBoard = pd.merge(df1,df2,on=('studentid'))
@@ -1222,11 +1299,11 @@ def index():
         studentCount = db.session.execute(studentCount).first()
         testCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"') + "
         testCount = testCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"') as SumCount"
-        print(testCount)
+        #print(testCount)
         testCount = db.session.execute(testCount).first()
         lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
-        print(lastWeekTestCount)
+        #print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
@@ -1264,25 +1341,25 @@ def performanceBarChart():
     classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=class_v,section=section,school_id=str(teacher_id.school_id)).first()
     subject = "select distinct subject_id from topic_detail where class_val= '"+str(class_v)+"'"
     totalStudent = "select count(*) from student_profile where class_sec_id='"+str(classSection.class_sec_id)+"' and school_id='"+str(teacher_id.school_id)+"'"
-    print(totalStudent)
+    #print(totalStudent)
     totalStudent = db.session.execute(totalStudent).first()
     subject_id = db.session.execute(subject).fetchall()
     performance_array = []
     for sub in subject_id:
         pass_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks>50)"
         fail_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks<=50)"
-        print('pass and fail count:')
-        print(pass_count)
-        print(fail_count)
+        #print('pass and fail count:')
+        #print(pass_count)
+        #print(fail_count)
         passStudents = db.session.execute(pass_count).first()
         failStudents = db.session.execute(fail_count).first()
         presentStudents = passStudents[0] + failStudents[0]
         absentStudents = totalStudent[0] - presentStudents
-        print(absentStudents)
+        #print(absentStudents)
         if absentStudents==totalStudent[0]:
             absentStudents = 0
-        print((passStudents[0]))
-        print((failStudents[0]))
+        #print((passStudents[0]))
+        #print((failStudents[0]))
         Array = {}
         Array['pass_count'] = str(passStudents[0])
         Array['fail_count'] = str(failStudents[0])
@@ -3776,10 +3853,8 @@ def studentPerformanceGraph():
         graphJSON = json.dumps(subLevelData, cls=plotly.utils.PlotlyJSONEncoder)        
         return render_template('_studentPerformanceGraph.html',graphJSON=graphJSON)
     else:
-        return jsonify(['No records found for the selected values'])
+        return jsonify(['No performance data found'])
   
-    
-
 
 
 @app.route('/classPerformance')
@@ -4510,20 +4585,16 @@ def indivStudentProfile():
     sponsor_id = request.args.get('sponsor_id')
     sponsor_name = request.args.get('sponsor_name')
     amount = request.args.get('amount')
-
-    print(student_id)
-    #studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, gender,class_val, section,roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join class_section cs on sp.class_sec_id= cs.class_sec_id "
-    #studentProfileQuery = studentProfileQuery + "and sp.student_id='"+str(student_id)+"'" + "left join address_detail ad on ad.address_id=sp.address_id "    
+    
     #New updated query
-    studentProfileQuery = "select full_name, email, sponsored_status,phone, dob, md.description as gender,class_val, section, "
+    studentProfileQuery = "select full_name, email, sponsored_status,sponsored_on,sponsor_name,phone,sp.school_id as school_id, dob, md.description as gender,class_val, section, "
     studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
     studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
     studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
-
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
-    print('Id:'+str(studentProfileRow.student_id))  
+    
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
@@ -4537,45 +4608,63 @@ def indivStudentProfile():
     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
     testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
     testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
-    print(testResultQuery)
+    #print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
+    
+    #Remarks info
+    studentRemarksQuery = "select student_id, tp.teacher_id, teacher_name, profile_picture, remark_desc, sr.last_modified_date as last_modified_date"
+    studentRemarksQuery= studentRemarksQuery+ " from student_remarks sr inner join teacher_profile tp on sr.teacher_id=tp.teacher_id and student_id="+str(student_id) + " "
+    studentRemarkRows = db.session.execute(text(studentRemarksQuery)).fetchall()
+    #studentRemarkRows = StudentRemarks.query.filter_by(student_id=student_id).order_by(StudentRemarks.last_modified_date.desc()).limit(5).all()
 
     #Sponsor allocation
-    urlForAllocationComplete = app.config['IMPACT_HOST'] + '/responseStudentAllocate'
+    urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
     overallSum = 0
     overallPerfValue = 0
 
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
-        print(overallSum)
+        #print(overallSum)
     try:
         overallPerfValue = round(overallSum/(len(perfRows)),2)    
     except:
-        overallPerfValue=0
-    
+        overallPerfValue=0    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
-
-    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="
-    
-
+    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="    
     qrArray=[]
     x = range(4)    
+
+    #section for fetching surveys
+    surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
 
     for n in x:               
         optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         qrArray.append(optionURL)
-        print(optionURL)
-    return render_template('_indivStudentProfile.html',urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+        #print(optionURL)
+    return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
+
+@app.route('/addStudentRemarks',methods = ["GET","POST"])
+def addStudentRemarks():
+    remark_desc=request.form.get('remark')
+    student_id = request.form.get('student_id')
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
+    try:
+        studentRemarkAdd = StudentRemarks(student_id=student_id, remark_desc=remark_desc, teacher_id=teacherDataRow.teacher_id,
+            is_archived = 'N', last_modified_date = datetime.today())
+        db.session.add(studentRemarkAdd)
+        db.session.commit()
+        return jsonify(['0'])
+    except:
+        return jsonify(['1'])
 
 @app.route('/studentProfile') 
 @login_required
 def studentProfile():    
     qstudent_id=request.args.get('student_id')
-
     #####Section for sponsor data fetch
     qsponsor_name = request.args.get('sponsor_name')
     qsponsor_id = request.args.get('sponsor_id')
@@ -4606,29 +4695,94 @@ def studentProfile():
         # form.test_type1.choices=test_type_list
         form.student_name.choices = ''
         flag = 1
-        for student in available_student_list:
-            print('Student Name')
-            print(student.full_name)
-        print('we are in the form one')
+
         return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag)
     else:
         value=0
         flag = 0
         if current_user.user_type==72:
             value=1
-        print(qstudent_id)
+        #print(qstudent_id)
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
         flag = 0
         if current_user.user_type==134:
             disconn=1
         else:
             disconn=0
-        print(qstudent_id)
+        #print(qstudent_id)
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
 
+#Addition of new section to conduct student surveys
+@app.route('/studentSurveys')
+def studentSurveys():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    surveyDetailQuery = "select sd.survey_id, survey_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+    surveyDetailQuery = surveyDetailQuery+ "from survey_detail sd left join student_survey_response ssr on ssr.survey_id =sd.survey_id "
+    surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.survey_id,survey_name, question_count,question_count, sd.last_modified_date"
+    surveyDetailRow = db.session.execute(surveyDetailQuery).fetchall()
+    #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
+    
+    return render_template('studentSurveys.html', surveyDetailRow=surveyDetailRow)
+
+@app.route('/indivSurveyDetail/')
+def indivSurveyDetail():
+    survey_id = request.args.get('survey_id')
+    survey_id = survey_id.split('_')[1]
+    student_id = request.args.get('student_id')    
+    studSurveyData = " select sq.sq_id as sq_id, question,sq.survey_id,survey_response_id , sp.student_id, answer from student_survey_response ssr "
+    studSurveyData = studSurveyData  + " right join survey_questions sq on "
+    studSurveyData = studSurveyData  +  " sq.survey_id =ssr.survey_id and "
+    studSurveyData = studSurveyData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
+    studSurveyData = studSurveyData  +  " left join student_profile sp "
+    studSurveyData = studSurveyData  +  " on sp.student_id =ssr.student_id "
+    studSurveyData = studSurveyData  +  " where sq.survey_id =" + str(survey_id)
+    surveyQuestions = db.session.execute(text(studSurveyData)).fetchall()
+    return render_template('_indivSurveyDetail.html',surveyQuestions=surveyQuestions,student_id=student_id,survey_id=survey_id)
+
+@app.route('/updateSurveyAnswer',methods=["GET","POST"])
+def updateSurveyAnswer():
+    sq_id_list = request.form.getlist('sq_id')
+    survey_response_id_list = request.form.getlist('survey_response_id')
+    answer_list = request.form.getlist('answer')
+    survey_id = request.form.get('survey_id')
+    student_id = request.form.get('student_id')
+    for i in range(len(sq_id_list)):
+        if survey_response_id_list[i]!='None':
+            studentSurveyAnsUpdate = StudentSurveyResponse.query.filter_by(sq_id=sq_id_list[i], survey_response_id=survey_response_id_list[i]).first()
+            studentSurveyAnsUpdate.answer = answer_list[i]
+            surveyDetailRow = SurveyDetail.query.filter_by(survey_id=survey_id).first()            
+        else:
+            addNewSurveyResponse = StudentSurveyResponse(survey_id=survey_id, sq_id=sq_id_list[i], 
+                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
+            db.session.add(addNewSurveyResponse)
+    db.session.commit()
+    return jsonify(['0'])
+
+@app.route('/addNewSurvey',methods=["GET","POST"])
+def addNewSurvey():    
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    questions = request.form.getlist('questionInput')
+    questionCount = len(questions)
+    newSurveyRow = SurveyDetail(survey_name=request.form.get('surveyName'),teacher_id= teacherRow.teacher_id, 
+        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',last_modified_date=datetime.today())
+    db.session.add(newSurveyRow)
+    db.session.commit()
+    currentSurvey = SurveyDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(SurveyDetail.last_modified_date.desc()).first()
+    for i in range(questionCount):
+        newSurveyQuestion= SurveyQuestions(survey_id=currentSurvey.survey_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+        db.session.add(newSurveyQuestion)
+    db.session.commit()
+    return jsonify(['0'])
 
 
-
+@app.route('/archiveSurvey')
+def archiveSurvey():
+    survey_id = request.args.get('survey_id')
+    surveyData = SurveyDetail.query.filter_by(survey_id=survey_id).first()
+    surveyData.is_archived='Y'
+    db.session.commit()
+    return jsonify(['0'])
+#End of student survey section
 
 
 @app.route('/performance')
