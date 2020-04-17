@@ -525,7 +525,6 @@ class StudentSurveyResponse(db.Model):
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
 
-
 class GuardianProfile(db.Model):
     __tablename__="guardian_profile"
     guardian_id = db.Column(db.Integer, primary_key=True)
