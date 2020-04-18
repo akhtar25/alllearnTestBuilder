@@ -288,7 +288,7 @@ class BookDetails(db.Model):
     book_link= db.Column(db.String(500)) 
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
-    book_level = db.Column(db.String(1),nullable=True)  #S=Subject level book ; T=Topic Level Book
+    book_level = db.Column(db.String(1),nullable=True)  #F=Full book ; C=Chapter Level Book
     last_modified_date=db.Column(db.DateTime)
 
 #End of changes for Syllabus Page
