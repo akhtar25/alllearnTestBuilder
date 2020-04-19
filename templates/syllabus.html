@@ -24,7 +24,7 @@
     <div class="row">
         <div class="section1">
             <section class="plans-container" id="plans">
-                <h2 class="textCenter">General</h2>
+                <!-- <h2 class="textCenter">General</h2> -->
                 <article class="col s12 m6 l2 ">
                     <div class="card  z-depth-4">
                         <div class="card-image">
@@ -130,7 +130,7 @@
         <!-- for Specific School Tab -->
 
         <div class="section2">
-                <h2 class="textCenter">{{school_name}}</h2>
+                <!-- <h2 class="textCenter">{{school_name}}</h2> -->
                 <section class="plans-container" id="plans">
                         
                     <article class="col-md-2 col-xl-2">
@@ -159,6 +159,22 @@
                                 <ul class="collection " id="classDiv" style="display:none;">
     
                                 </ul>
+                                <div class="classCol" style="display:none;" onclick="showClassText();">
+                                <i class="fas fa-plus-circle"></i>
+                                </div><br>
+                                <div class="classTextBoxes">
+                                <div class="srollBox">
+                                <input type="number" class="class" placeholder="Class" style="text-align:center;width:130px;" onKeyPress="if(this.value.length==1) return false;" max="10" min="1">
+                                <div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn1" onclick="addTextBtn();">
+                                <i class="fas fa-plus-circle"></i>
+                                </div></div>
+                                <div id="newTextBoxes"></div></br>
+                                </div>
+                                <div class="classBtn">
+                                <button style="border-radius:15px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassBtn" onclick="addClassBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
+                                </div>
+                                </div>
+                                <div id="msgClass"></div>
                                 <div id="classloader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
                                 </div>
@@ -332,6 +348,146 @@
 </div>
 <script>
 
+    var z = 1;
+    function addTextBtn(){
+        var ids = '#addTextBtn'+x;
+          $(ids).hide();
+        var d = document.getElementById('newTextBoxes');
+        console.log('inside addTextBtn');
+        console.log(ids);
+        x=x+1;
+        d.innerHTML += '<input type="number" class="class" placeholder="Class" style="text-align:center;width:130px;" onKeyPress="if(this.value.length==1) return false;" max="10" min="1"><div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn'+x+'" onclick="addTextBtn();"><i class="fas fa-plus-circle"></i></div></div>';
+    }
+
+
+    function addClassBtn(){
+        console.log('inside addClassBtn');
+        var classArray = [];
+        $('.class').each(function(){
+            var class_values = $(this).val();
+            classArray.push(class_values);
+        });
+        var sectionArray = [];
+        $('.section').each(function(){
+            var section_values = $(this).val();
+            sectionArray.push(section_values);
+        });
+        var classSectionArray = [];
+        for(var i=0,j=0;i<classArray.length,j<sectionArray.length;i++,j++){
+            console.log('Class:'+classArray[i]+' section:'+sectionArray[j]);
+            classSectionArray.push(classArray[i]+':'+sectionArray[j]);
+        }
+        for(var i=0;i<sectionArray.length;i++){
+            console.log('Section:'+sectionArray[i]);
+        }
+        var check = checkforClass(classSectionArray);
+
+        
+    }
+
+    function insertClass(classSectionArray){
+        // classSectionArray = JSON.stringify(classSectionArray);
+        $.ajax({
+            url: "/addClassSection",
+            type: "POST",
+            contentType: "application/json",
+            data: classSectionArray,
+            success: function (response) {
+                console.log('inside success of addClassSection');
+                console.log(response);
+                if(response){
+                    console.log('inserted successfully');
+                }
+                fetchClass();
+                // result = response;
+                // addInputNewChapter(result);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding Classes");
+            }
+            
+        });
+    }
+
+    function checkforClass(classSectionArray){
+        classSectionArray = JSON.stringify(classSectionArray);
+        $.ajax({
+            url: "/checkforClassSection",
+            type: "POST",
+            contentType: "application/json",
+            data: classSectionArray,
+            success: function (response) {
+                console.log('inside success of addClassSection');
+                console.log(response);
+                if(response){
+                    console.log('class already exist');
+                    console.log(response);
+                    var response_val = response.toString().split(':')
+                    var class_val = response_val[0];
+                    var section = response_val[1];
+                    console.log("Class:'"+class_val+"'and section:'"+section+"' already exist");
+                    $('#msgClass').html("<h6 style='color:red'>*class "+class_val+" - "+section+" already exist</h6>");
+                    $('#msgClass').show();
+                }else{
+                    console.log('class not exist');
+                    insertClass(classSectionArray);
+                }
+                // result = response;
+                // addInputNewChapter(result);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding Classes");
+            }
+            
+        });
+    }
+
+    function fetchClass(){
+        $('.classCol').hide();
+        $('#classDiv').hide();
+        $('.classTextBoxes').hide();
+        $('.classBtn').hide();
+        $('#msgClass').html('');
+        $('#classloader').show();
+        
+        $.ajax({
+            url: "/syllabusClasses?board_id=" + selectedBoardID,
+            type: "get",
+            data: '',
+            success: function (response) {
+                console.log('inside generalSyllabusClasses');
+                console.log(response);
+                responseArr = response.toString().split(',');
+                console.log(responseArr)
+                var classHTMLRecords = '';
+                for (var i = 0; i < responseArr.length; i++) {
+                    var class_val = responseArr[i].toString().split(':')[0];
+                    var sections = responseArr[i].toString().split(':')[1];
+                     sections = sections.replace(/;/g,",");
+                    console.log('sections:'+sections)
+                    classHTMLRecords = classHTMLRecords +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'" onClick="loadSubjects(' +
+                        class_val + ')" name=' +
+                        selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
+                        '</li></a>';
+                }
+                
+                $("#classDiv").html(classHTMLRecords);
+                $('.classTextBoxes').hide();
+                $('.class').val('');
+                $('.section').val('');
+                $('.classBtn').hide();
+                $('#classDiv').show();
+                $('.classCol').show();
+                $('#classloader').hide();
+                
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching class list");
+            }
+        });
+    }
+
 
     function onclickChapterAdd(){
         $('#modal1').css('height','61%');
@@ -371,6 +527,18 @@
         x=x+1;
         d.innerHTML += "<input type='text' style='width:400px;margin-left:68px;' id='topic"+x+"' class='topicText'><a id='addRowBtn"+x+"' class='iconAdd' onclick='appendRow();'><i class='fas fa-plus-circle'></i></a></br>";
         
+    }
+
+    function showClassText(){
+        console.log('inside show class text');
+        $('.classTextBoxes').show();
+        $('.classCol').hide();
+        $('.classBtn').show();
+        $('.class').val('');
+        $('.section').val('');
+        var d = document.getElementById('newTextBoxes');
+        
+        d.innerHTML = '';
     }
 
   $(document).ready(function(){
@@ -1057,7 +1225,8 @@
 
     function remBookList(){
         // $('#otherBook').show();
-        $('.sugTextBooks').show();
+        $('#bookCol').hide();
+        $('#Bookloader').show();
         console.log('inside remBookList');
         // $('#inputBookBtn').show();
         fetchRemBooks(subjectforBooks,classforBooks);
@@ -1234,12 +1403,17 @@
                     '<li style="padding: 10px 5px;">No suggestions available</li>'
                 }
                 $("#rembok").html(remBookHTMLRecords);
+
                 $('.bookCol').hide();
                 $('.addBookBtn').show();
                 $('.remBooks').show();
                 $('#rembok').show();
                 $('#bookText').hide();
                 $('#otherBook').show();
+                $('.sugTextBooks').show();
+                $('#suggestionBookBtn').show();
+                $('#inputBookBtn').hide();
+                $('#Bookloader').hide();
                 },
             error: function (xhr) {
                 window.alert("error occurred while display Books");
@@ -1312,15 +1486,19 @@
             type: "get",
             data: '',
             success: function (response) {
+                console.log('inside generalSyllabusClasses');
+                console.log(response);
                 responseArr = response.toString().split(',');
-                //alert(responseArr.length);
+                console.log(responseArr)
                 for (var i = 0; i < responseArr.length; i++) {
-                    //alert(responseArr[i]);
-                    
+                    var class_val = responseArr[i].toString().split(':')[0];
+                    var sections = responseArr[i].toString().split(':')[1];
+                     sections = sections.replace(/;/g,",");
+                    console.log('sections:'+sections)
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
-                        responseArr[i] + ')" name=' +
-                        selectedBoardID + ' id=' + responseArr[i] + ' >' + responseArr[i] +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'general" onClick="generalLoadSubjects(' +
+                        class_val + ')" name=' +
+                        selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
                 }
                 
@@ -1349,32 +1527,41 @@
 
     $('.boardClass').click(function () {
         var classHTMLRecords = "";
+        $('.classCol').hide();
         selectedBoardID = this.id;
         boardforSub = selectedBoardID;
         $('.boardClass').css('background-color','lightseagreen');
         $('.boardClass').css('color','white');
         $('#classDiv').hide();
+        $('#msgClass').html('');
+        $('.classTextBoxes').hide();
+        $('.classBtn').hide();
         $('#classloader').show();
         $.ajax({
             url: "/syllabusClasses?board_id=" + selectedBoardID,
             type: "get",
             data: '',
             success: function (response) {
+                console.log('inside generalSyllabusClasses');
+                console.log(response);
                 responseArr = response.toString().split(',');
-                //alert(responseArr.length);
+                console.log(responseArr)
                 for (var i = 0; i < responseArr.length; i++) {
-                    //alert(responseArr[i]);
-                    
+                    var class_val = responseArr[i].toString().split(':')[0];
+                    var sections = responseArr[i].toString().split(':')[1];
+                     sections = sections.replace(/;/g,",");
+                    console.log('sections:'+sections)
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'" onClick="loadSubjects(' +
-                        responseArr[i] + ')" name=' +
-                        selectedBoardID + ' id=' + responseArr[i] + ' >' + responseArr[i] +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'" onClick="loadSubjects(' +
+                        class_val + ')" name=' +
+                        selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
                 }
                 
                 $("#classDiv").html(classHTMLRecords);
                 
                 $('#classDiv').show();
+                $('.classCol').show();
                 $('#classloader').hide();
                 
             },

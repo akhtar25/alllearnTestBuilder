@@ -1961,25 +1961,51 @@ def syllabus():
 @app.route('/generalSyllabusClasses')
 def generalSyllabusClasses():
     board_id=request.args.get('board_id')
-    classArray = []
+    classSectionArray = []
+    sectionArray = []
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctClasses = db.session.execute(text("select distinct class_val from topic_detail where board_id='"+str(board_id)+"' order by class_val ")).fetchall()
+    distinctClasses = ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()
     for val in distinctClasses:
         print(val.class_val)
-        classArray.append(val.class_val)
-    return jsonify([classArray])
+        sections = ClassSection.query.filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
+        # sectionsString = ''
+        sectionsString = '['
+        i=1
+        for section in sections:
+            print(len(sections))
+            if i<len(sections):
+                sectionsString = sectionsString + str(section.section)+';'
+            else:
+                sectionsString = sectionsString + str(section.section)
+            i = i + 1
+        sectionsString = sectionsString + ']'
+        classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
+    return jsonify([classSectionArray])
 
 @app.route('/syllabusClasses')
 @login_required
 def syllabusClasses():
     board_id=request.args.get('board_id')
-    classArray = []
+    classSectionArray = []
+    sectionArray = []
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctClasses = db.session.execute(text("select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"' order by class_val ")).fetchall()
+    distinctClasses = ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()
     for val in distinctClasses:
         print(val.class_val)
-        classArray.append(val.class_val)
-    return jsonify([classArray])
+        sections = ClassSection.query.filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
+        # sectionsString = ''
+        sectionsString = '['
+        i=1
+        for section in sections:
+            print(len(sections))
+            if i<len(sections):
+                sectionsString = sectionsString + str(section.section)+';'
+            else:
+                sectionsString = sectionsString + str(section.section)
+            i = i + 1
+        sectionsString = sectionsString + ']'
+        classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
+    return jsonify([classSectionArray])
 
 
 @app.route('/generalSyllabusSubjects',methods=['GET','POST'])
@@ -2153,6 +2179,62 @@ def checkForChapterNum():
         return ""
     else:
         return "1"
+
+@app.route('/addClassSection',methods=['POST'])
+def addClassSection():
+    print('inside addClassSection')
+    classSection=request.get_json()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    for class_section in classSection:
+        class_section = class_section.split(':')
+        class_val = class_section[0]
+        section = class_section[1]
+        checkClass = ClassSection.query.filter_by(class_val=class_val,section=section.upper(),school_id=teacher_id.school_id).first()
+        if checkClass:
+            return ""
+    for class_section in classSection:
+        print(class_section)
+        class_section = class_section.split(':')
+        class_val = class_section[0]
+        section = class_section[1]
+        
+        print('Class:'+str(class_val)+' Section:'+str(section))
+        class_data=ClassSection(class_val=class_val,section=str(section).upper(),student_count=10,school_id=teacher_id.school_id)
+        db.session.add(class_data)
+        db.session.commit()
+    
+    for class_section in classSection:
+        class_section = class_section.split(':')
+        class_val = class_section[0]
+        section = class_section[1]
+        class_id = ClassSection.query.filter_by(class_val=class_val,section=section.upper(),school_id=teacher_id.school_id).first()
+        topic_tracker = TopicTracker.query.filter_by(class_sec_id=class_id.class_sec_id,school_id=teacher_id.school_id).first()
+        if topic_tracker:
+            print('data already present')
+        else:
+            print('insert data into topic tracker')
+            insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,current_date from Topic_detail where class_val="+str(class_val)+")"
+            db.session.execute(text(insertRow))
+        db.session.commit()   
+
+    return "success"
+
+@app.route('/checkforClassSection',methods=['GET','POST'])
+def checkforClassSection():
+    classSection=request.get_json()
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('inside checkforClassSection')
+    print(classSection)
+    for class_section in classSection:
+        class_section = class_section.split(':')
+        class_val = class_section[0]
+        section = class_section[1]
+        print('class_val:'+class_val)
+        print('section:'+section.upper())
+        checkClass = ClassSection.query.filter_by(class_val=int(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
+        if checkClass:
+            return str(class_val)+':'+str(section.upper())
+    return ""
 
 @app.route('/addNewChapter',methods=['GET','POST'])
 def addNewChapter():

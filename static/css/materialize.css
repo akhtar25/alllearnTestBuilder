@@ -5149,7 +5149,30 @@ small {
   float: right;
   color: green;
 }
+.classTextBoxes{
+  display:none;
+}
+.srollBox{
+  position: relative;
+  max-height: 80px;
+  margin-bottom: 15px;
+  overflow-y: auto;
+  width: 150px;
+}
+.textWithBtn{
+  display:flex;
+}
 .subCol:hover{
+  cursor: pointer;
+}
+.classBtn{
+  text-align:center;
+}
+.classCol{
+  float: right;
+  color: green;
+}
+.classCol:hover{
   cursor: pointer;
 }
 .bookCol:hover{
