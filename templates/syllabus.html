@@ -410,8 +410,7 @@
 
     function insertWordTopic(){
         console.log('inside insertWordTopic');
-        console.log(corWordTopic);
-        $('.topicText').val(corWordChapter);
+        $('.topicText').val(corWordTopic);
         $('#suggBoxTopic').hide();
     }
 
@@ -2072,8 +2071,8 @@
         $('#generalSubjectDiv').hide();
         $('#generalSubjectLoader').show();
         // classforSubject = selectedClassVal;
-        {% for class in classValues %}
-            var desc = "{{class.description}}";
+        {% for class in classValuesGeneral %}
+            var desc = "{{class.class_val}}";
             var clasId = '#'+desc.toString()+'general';
             $(clasId).css('background-color','');
             $(clasId).css('color','');
@@ -2157,7 +2156,7 @@
         // end
         classforSubject = selectedClassVal;
         {% for class in classValues %}
-            var desc = "{{class.description}}";
+            var desc = "{{class.class_val}}";
             var clasId = '#'+desc.toString();
             $(clasId).css('background-color','');
             $(clasId).css('color','');

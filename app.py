@@ -1951,13 +1951,16 @@ def syllabus():
     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classValues = MessageDetails.query.filter_by(category='Class').all()
+    classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+    classValues = db.session.execute(text(classValues)).fetchall()
+    classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+    classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
     bookName = BookDetails.query.all()
     chapterNum = Topic.query.distinct().all()
     topicId = Topic.query.all()
     generalBoard = MessageDetails.query.filter_by(category='Board').all()
-    return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,bookName=bookName,chapterNum=chapterNum,topicId=topicId)
+    return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId)
 
 @app.route('/generalSyllabusClasses')
 def generalSyllabusClasses():
@@ -2156,7 +2159,7 @@ def addNewBook():
     subject = request.args.get('subject')
     subject_id= MessageDetails.query.filter_by(description=subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    insertBook = BookDetails(book_name=book,class_val=class_val,subject_id=subject_id.msg_id)
+    insertBook = BookDetails(book_name=book,class_val=class_val,subject_id=subject_id.msg_id,teacher_id=teacher_id.teacher_id)
     db.session.add(insertBook)
     db.session.commit()
     book_id = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book).first()
@@ -2301,7 +2304,7 @@ def addNewTopic():
     for topic in topics:
         print(topic)
         if bookId:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id)
+            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id,teacher_id=teacher_id.teacher_id)
         db.session.add(insertTopic)
         db.session.commit()
         if bookId:
@@ -2338,9 +2341,9 @@ def addNewChapter():
     for topic in topics:
         print(topic)
         if chapter_num:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id)
+            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
         else:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id)
+            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
         db.session.add(insertTopic)
         db.session.commit()
         if chapter_num:

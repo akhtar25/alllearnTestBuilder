@@ -5242,6 +5242,13 @@ cursor: pointer;
   cursor:pointer;
 }
 
+#correctWordTopic{
+  cursor:pointer;
+}
+#correctWordChapter{
+  cursor:pointer;
+}
+
 .colChapter{
   display:flex;
   margin-right: 15px;
