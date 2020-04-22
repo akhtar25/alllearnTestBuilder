@@ -1,0 +1,143 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div>
+            <div id="surveyBox" name="surveyBox">
+            </div>
+            <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
+                    class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
+            <a href="#createModal" id="addSurveyBTN" class="modal-trigger btn green right">Create New Survey</a>
+            <br>
+        </div>
+        <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text"
+                    style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
+                    value="submit">Confirm</button></p>
+        </div>
+    </form>
+    <br>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Surveys</a></li>
+        <!--<li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>-->
+        <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
+    </ul>
+    <br>
+
+    <div id="surveyRowsDiv">
+        <table class="highlight" id="surveyTable">
+            <thead>              
+                <th>Survey</th>
+                <th>Student Responses</th>
+                <th>Question Count</th>
+                <th>Created On</th>
+                <th>Delete</th>
+            </thead>
+            <tbody>
+                {%for surveyRow in surveyDetailRow%}
+                <tr id="{{surveyRow.survey_id}}">         
+                    <td>{{surveyRow.survey_name}}</td>
+                    <td>{{surveyRow.student_responses}}</td>
+                    <td>{{surveyRow.question_count}}</td>
+                    <td>{{surveyRow.last_modified_date.strftime('%d %B %Y')}}</td>
+                    <td><a title="Delete Need" name="{{surveyRow.survey_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                        <i class="material-icons small">delete</i></a>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+</div>
+
+<div id="displaySurveyModal" class="modal" style="background-color: white;padding-top: 20px;">
+    <div class="modal-content" style="height:100%">
+        </div>
+</div>
+
+<div id="createModal" class="modal" style="background-color: white;padding-top: 20px;">
+    <div class="modal-content" style="height:100%">
+        <form id="addSurveyForm">
+            <input type="text" style="font-size:xx-large" name='surveyName' id="surveyName" placeholder="Survey Name" required>
+            <h4 class="grey-text">Survey Questions</h4>
+            <div id="questionDiv" style="max-width: 80%;"></div>
+            <a href="#" id="addQuestionBTN">
+                <i class="material-icons" class="green center">add_circle</i>
+                <span style="font-size: large;">Add Question</span></a>
+            <br><br>
+            <div>
+                <a href="#" id="addSurveyDataBTN" class="btn green right">Create Survey</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+    });
+    var clicks = 0;
+    $('#addQuestionBTN').click(function () {
+        clicks=clicks+1;        
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question">');
+    });
+
+
+ 
+$('#addSurveyDataBTN').click(function($e){
+    $e.preventDefault();
+    var form = $('#addSurveyForm'); 
+    var surveyName = $('#surveyName').val();   
+    $.ajax({
+            url: "/addNewSurvey",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {        
+                if (formResponse=='0'){     
+                    $('#questionDiv').html('');                  
+                    $("#surveyTable tbody").append( 
+                    '<tr>'+   
+                    '<td>'+surveyName+'</td>'+
+                    '<td>0</td>'+
+                    '<td>'+clicks+'</td>'+
+                    '<td>Now</td>'+
+                    '<td>-</td>'+
+                     '</tr>'
+                );                
+                $('#remark').val('');
+                M.toast({html: '<h4>New Survey Created</h4>'});
+                var elem = $('#createModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                clicks = 0;
+            }
+            else{
+                window.alert("Error");
+            }
+            },
+            error: function (xhr) {
+                window.alert("Error while creating survey");
+            }
+        });       
+});   
+
+$('.deleteBTNClass').click(function () {
+            var survey_id = $(this).attr("name");
+            $.ajax({
+                url: "/archiveSurvey?survey_id="+survey_id,
+                type: "get",
+                data: '',
+                success: function (archiveResponse) {
+                    if (archiveResponse=='0'){
+                        var surveyWithHash = '#'+survey_id;
+                        $(surveyWithHash).remove();
+                        M.toast({html: '<h4>Survey deleted!</h4>'})
+                    }
+                    else{
+                        M.toast({html: '<h4>Error deleting survey!</h4>'})
+                    }                 
+                }
+            })
+        });
+</script>
+{% endblock %}

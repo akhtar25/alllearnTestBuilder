@@ -51,7 +51,25 @@
                         <td><b>Student Id</b></td>
                         <td> {{studentProfileRow.student_id}}</td>
                 </tr>
+                <tr>
+                    <td><a href="#modal2" class="modal-trigger">QR Codes for tests</a></td>
+                </tr>
+            </table>            
+            <div style="max-height: 300px;overflow-y: auto;">
+            <h4 class="grey-text left">Student Surveys</h4>
+            {%if surveyRows|length>0%}
+            <table>
+            {%for survey in surveyRows%}            
+            <tr><td>
+            <a href="#surveyModal"  name="survey_{{survey.survey_id}}" class="modal-trigger surveyModalBTN indivSurveyClass">{{survey.survey_name}}</a> 
+            </td></tr>
+            {%endfor%}
             </table>
+            {%else%}
+            <br><br>
+            <span class="left">No Surveys created</span>
+            {%endif%}
+        </div>
         </div>
         <div class="col s4 m4 l6">                       
                 {%if amount!=None and amount!='None' and amount!=''%}
@@ -110,6 +128,7 @@
                 </table>
                 <br>            
                 <h4 class='grey-text'>Subject Level Performance</h4>
+                {%if perfRows|length>0%}
                 <table class='responsive-table' style='font-size: 18px;'>
                     <thead>
                         {%for rows in perfRows%}
@@ -128,12 +147,14 @@
                         </tr>                       
                     </tbody>
                 </table>
-
+                {%else%}
+                <h5>No Info Present</h5>
+                {%endif%}
             </div>            
             <br>
-            {% if guardianRows | length != 0 %}
+            
             <h4 class='grey-text'>Parent/Guardian Details</h4>
-            {%endif%}
+            {% if guardianRows | length != 0 %}
             <table class='responsive-table'>
                 {% for guardian in guardianRows %}
                 <tr>
@@ -155,18 +176,53 @@
                 </tr>
                 {%endfor%}
             </table>
-            <br>
-            {%if qrArray  | length != 0 %}
-            <h4 class='grey-text'>QR Codes for feedback sessions</h4>
-            <p><i>Please print the qr codes in full size on A4 sheets </i></p>
-            <ul>
-                {% for qrRow in qrArray%}
-                <li>
-                    <a href="{{qrRow}}" target="_blank">Option: {{ qrRow[-1] }}</a>
-                </li>
-                {%endfor%}
-            </ul>
+            {%else%}
+            <h5>No info present</h5>
             {%endif%}
+            <br>      
+            <div style="max-height: 200px;">               
+            <h4 class="grey-text">Sponsor Details</h4>
+            {%if studentProfileRow.sponsor_status=='Y'%}
+            <span>{{studentProfileRow.sponsor_name}} sponsored on {{studentProfileRow.sponsored_on.strftime('%d %b %Y')}}</span>
+            {%else%}
+            <span>No Sponsor Data Found</span>
+            {%endif%}
+            </div>
+            <br><br>
+            <div id="studentRemarksDiv" >
+                <h4 class='grey-text'>Teacher Remarks</h4>
+                <div id="insideRemarkDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
+                {%if studentRemarkRows|length>0%}
+                <table id="remarkTable" >
+                    <tbody>
+                    {%for remarksRow in studentRemarkRows%}
+                    <tr>
+                        <td>
+                    <div class=" green lighten-4" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
+                        <span class="grey-text">{{remarksRow.teacher_name}}</span><br>
+                        <span style="margin-left: 5px;">{{remarksRow.remark_desc}}</span><br>                       
+                    </div>
+                    <span class="right grey-text"> {{remarksRow.last_modified_date.strftime('%d %b %Y')}}</span>                        
+                        </td></tr>                    
+                    {%endfor%}
+                </tbody>                          
+                </table>                          
+                <br>
+                {%else%}
+                <table id="remarkTable" >
+                    <tbody>
+                <h5 id="noRemark">No Remarks Added</h5>   
+                </tbody>
+                </table>                
+                {%endif%}
+            </div>
+                <form id="remarkForm">
+                    <label for="remark">Add Remark</label>
+                    <input type="text" id="remark" name="remark">
+                    <a href="#" id="remarkPostButton" class="btn green right">Add</a>
+                    <input type="hidden" name="student_id" value="{{studentProfileRow.student_id}}">
+                </form>           
+        </div>
         </div>
     </div>
 
@@ -175,6 +231,35 @@
         <h4 class='grey-text'>Overall Performance Graph</h4>
     <div id='studentPerformanceGraphDiv'> Loading graph...</div>
 </div>
+
+<div id="modal2" class="modal" style="background-color: white;height: 300px;width: 300px;">
+    <div class="modal-content" >
+    {%if qrArray  | length != 0 %}
+    <h4 class='grey-text'>QR Codes for feedback sessions</h4>
+    <p><i>Please print the qr codes in full size on A4 sheets </i></p>
+    <ul>
+        {% for qrRow in qrArray%}
+        <li>
+            <a href="{{qrRow}}" target="_blank">Option: {{ qrRow[-1] }}</a>
+        </li>
+        {%endfor%}
+    </ul>
+    {%endif%}
+</div>
+</div>
+
+<div id="surveyModal" name="surveyModal" class="modal" style="background-color: white;">
+    <div class="modal-content" style="height: 100%;">        
+            <div id="surveyLoader" style="display: none;" class="center">
+                <img src="../static/images/loader.gif">
+            </div>
+            <div id="surveyQuestionsDiv">
+    <!--This will contain ajax data for the selected survey-->
+        </div>
+    </div>
+</div>
+
+
 </div>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
@@ -202,7 +287,61 @@ $(document).ready(function(){
     $('.modal').modal();
   });
 
-  
+$('#remarkPostButton').click(function($e){
+    $e.preventDefault();
+    var form = $('#remarkForm');
+    var remark = $('#remark').val();
+    $.ajax({
+            url: "/addStudentRemarks",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {
+                if (formResponse=='0'){     
+                    $('#noRemark').html('');                  
+                    $("#remarkTable tbody").append( 
+                    '<tr>'+
+                    '<td>'+
+                    '<div class=" green lighten-4" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">'+
+                        '<span style="margin-left: 5px;">'+remark+'</span>'+
+                    '</div>'+
+                    '<span class="right grey-text">Now</span>'+
+                     '</td></tr>'
+                );                
+                $('#remark').val('');
+                M.toast({html: '<h4>Remark Added</h4>'});
+                $('#insideRemarkDiv').animate({
+                scrollTop: $('#insideRemarkDiv').get(0).scrollHeight
+                }, 2000);
+            }
+            else{
+                window.alert("Error");
+            }
+            },
+            error: function (xhr) {
+                window.alert("Error while adding remark");
+            }
+        });
+});
+
+$('.surveyModalBTN').click(function(){
+    $('#surveyQuestionsDiv').html('');
+    $('#surveyLoader').show();
+    var survey_id= $(this).attr('name');
+    $.ajax({
+                url: "/indivSurveyDetail?student_id={{studentProfileRow.student_id}}&survey_id="+survey_id,
+                type: "get",
+                data: '',
+                success: function (surveyResponse) {
+                    $('#surveyLoader').hide();      
+                    $('#surveyQuestionsDiv').html(surveyResponse);
+                },
+            error: function (xhr) {
+                $('#surveyLoader').hide();   
+                $('#surveyQuestionsDiv').html("Error Loading Survey Data");
+            }
+            })
+});
+
   $('#allocateStudentBTN').click(function () {
             var need_id = $(this).attr("name");
             $.ajax({

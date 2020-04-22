@@ -1,91 +1,140 @@
 {% extends "layout.html" %} {% block content %}
 <div class="row col s12 m6 offset-m3 ">
-        <div class="col s8 offset-s2" style="background: whitesmoke">    
-        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1"><h3>My Profile</h3>
-            
-        </div>        
-        <!--<div class="right col s4 m8 l2">
-                <a class="waves-effect waves-light btn" href="{{url_for('edit_profile')}}"><i class="material-icons">edit</i> Edit Profile</a>
-            </div>  -->
-        
-           <div class="col s4 m4 l4 center" >               
-               {% if teacher.profile_picture != none %}
+    <div class="col s8 offset-s2" style="background: whitesmoke">
+        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
+            <h3>Profile</h3>
+
+        </div>
+        <div class="col s4 m4 l4 center">
+            {% if teacher.profile_picture != none %}
             <img class="responsive-img " src="{{teacher.profile_picture}}">
             {%else%}
-            <img class="responsive-img " src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+            <img class="responsive-img "
+                src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
             {%endif%}
+
             <h4 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h4>
-        </div>        
-            <div class="col s4 m4 l6">            
-            <h4><b>Email:</b> {{user.email}}</h4>
-            <h4><b>Phone:</b> {{teacher.phone}}</h4>
-            {%if teacher.device_preference==78%}
-            <h4><b>Device Preference:</b> Integrated Camera(eg. Tablet)</h4> 
-            {%else%}
-            <h4><b>Device Preference:</b>External Web Camera(eg. PC+ Mobile)</h4> 
-            {%endif%}
-            <h4><b>Main Subjects:</b> {{teacher.subject_name}}</h4>
-            <h4><b>Assigned Class:</b> {{teacher.class_sec_id}}</h4>
-            <h4><b>Registration Date:</b> {{teacher.registration_date.strftime('%d %B-%Y')}}</h4>
-            <h4><b>About Me:</b> {{user.about_me}}</h4> 
-            <h4><b>School ID:</b>{{school_id}}</h4>
+            <table class="highlight">
+                <tr>
+                    <td>Phone</td>
+                    <td>{{user.phone}}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{user.email}}</td>
+                </tr>
+                <tr>
+                    <td>Registered On</td>
+                    <td>{{teacher.registration_date.strftime('%d %B-%Y')}}</td>
+                </tr>
+                <tr>
+                    <td>Testing Preference</td>
+                    <td>
+                        {%if teacher.device_preference==78%}
+                        Integrated Camera(eg. Tablet)
+                        {%else%}
+                        External Web Camera(eg. PC+ Mobile)
+                        {%endif%}
+                    </td>
+                </tr>
+                <tr>
+                    <td>School ID</td>
+                    <td>{{school_id}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col s4 m4 l6">
+            <table>
+                <tr>
+                    <div class="section">
+                        <h3>About</h3>
+                        <span style="white-space: pre-line">{{user.about_me}}</span>
+                    </div>
+                </tr>
+                <tr>
+                    <div class='section'>
+                        <h3>Education </h3>
+                        <span style="white-space: pre-line">{{user.education}}</span>
+                    </div>
+                </tr>
+                <tr>
+                    <div class='section'>
+                        <h3> Experience </h3>
+                        <span style="white-space: pre-line">{{user.experience}}</span>
+                    </div>
+                </tr>
+                <tr>
+                    <div class="section">
+                        <h3>Assigned Classes</h3>
+                        <span style="white-space: pre-line">{{teacher.class_sec_id}}</span>
+                    </div>
+                </tr>
+                <tr>
+                    <div class="section">
+                        <h3>Subjects Taught</h3>
+                        <span style="white-space: pre-line">{{teacher.subject_name}}</span>
+                    </div>
+                </tr>
+
+            </table>
         </div>
 
         {% if accessRequestListRows | length > 0 %}
         <div class="col s4 m6 l6">
-                <h4>Access Requests</h4>
-            <ul  class="collapsible">
-            {%for row in accessRequestListRows%}
-            <li class="accessRequestDiv">
-            <div class="collapsible-header"><i class="material-icons">person_add</i>{{row.username}}</div>
-            <div class="collapsible-body">
-                <p>Email: {{row.email}}</p>
-                <p>Phone: {{row.phone}}</p>
-                <p>Requested Access as: {{row.user_type}}</p>                
-                <p>About requestor:{{row.about_me}}</p>
-                <div class='grantAccessDiv'>
-                <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}" id="{{row.school_id}}">Grant Access</a>
-            </div>
-            </div>
-        </li>
-            {%endfor%}
-        </ul>
+            <h4>Access Requests</h4>
+            <ul class="collapsible">
+                {%for row in accessRequestListRows%}
+                <li class="accessRequestDiv">
+                    <div class="collapsible-header"><i class="material-icons">person_add</i>{{row.username}}</div>
+                    <div class="collapsible-body">
+                        <p>Email: {{row.email}}</p>
+                        <p>Phone: {{row.phone}}</p>
+                        <p>Requested Access as: {{row.user_type}}</p>
+                        <p>About requestor:{{row.about_me}}</p>
+                        <div class='grantAccessDiv'>
+                            <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}"
+                                id="{{row.school_id}}">Grant Access</a>
+                        </div>
+                    </div>
+                </li>
+                {%endfor%}
+            </ul>
         </div>
         {%endif%}
-        
-    </div>            
-  
+
     </div>
 
-<script>
-        $(document).ready(function(){
-         $('.collapsible').collapsible();
-       });        
+</div>
 
-       $('.grantAccessBTNCLass').click(function(){
-                //$('#loaderDiv').show();
-                //$('#classTrackerDiv').hide();    
-                console.log("Granting access");
-                
-                var username = $(this).attr('name');
-                var school_id = $(this).attr('id');
-                console.log(username);
-                var data="";
-                $.ajax({
-                  url: "/grantUserAccess?username="+ username+"&school_id="+school_id,
-                  type: "get",
-                  data: data,
-                  success: function(response) { 
-                        $('.grantAccessDiv').html("<p style:'green-text'>Access Granted</p>"); 
-                        console.log('Inside success'); 
-                                                                                  
-                        
-                  },
-                  error: function(xhr) {
-                    window.alert("Guardian not associated to any student");
-                  }
-                });      
-                       
-            });                 
-       </script>
+<script>
+    $(document).ready(function () {
+        $('.collapsible').collapsible();
+    });
+
+    $('.grantAccessBTNCLass').click(function () {
+        //$('#loaderDiv').show();
+        //$('#classTrackerDiv').hide();    
+        console.log("Granting access");
+
+        var username = $(this).attr('name');
+        var school_id = $(this).attr('id');
+        console.log(username);
+        var data = "";
+        $.ajax({
+            url: "/grantUserAccess?username=" + username + "&school_id=" + school_id,
+            type: "get",
+            data: data,
+            success: function (response) {
+                $('.grantAccessDiv').html("<p style:'green-text'>Access Granted</p>");
+                console.log('Inside success');
+
+
+            },
+            error: function (xhr) {
+                window.alert("Guardian not associated to any student");
+            }
+        });
+
+    });
+</script>
 {% endblock %}

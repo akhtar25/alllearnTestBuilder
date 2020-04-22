@@ -3,6 +3,13 @@
 {%if not qstudent_id %}
 <div class="container">
     <h3>Student Directory</h3>
+    <div class="right">
+        <h5>More Options</h5><strong>
+            <a href="{{url_for('studentRegistration',student_id='')}}"  id="addStudent" class="" style="margin:10px;">Add Student</a><br>
+            <a href="{{url_for('promoteStudent')}}" id="promoteStudent" class="" style="margin: 10px;">Promote Student</a><br>
+            <a href="{{url_for('studentSurveys')}}"id="studentSurveys" class="" style="margin: 10px;">Student Surveys</a><br>
+        </strong>
+    </div>
     <div id="studentProfileDiv">
         <!--This is the start of student performance input form-->
         <div class="row">
@@ -39,13 +46,7 @@
                     {% endif %}
                 </div>
                 <input type='hidden' name='checkIndx' id='checkIndx' />
-            </div>
-            <div class="col-sm-2" style="margin-left:70px;">
-                <a href="{{url_for('studentRegistration',student_id='')}}"><input type="button" class="btn green"
-                        style="height:35px; width:158px;float:right;margin-bottom: 10px;" id="addStudent" value="Add Student"></a>
-                        <a href="{{url_for('promoteStudent')}}"><input type="button" class="btn green"
-                            style="height:35px; width:158px;float:right" id="promoteStudent" value="Promote Student"></a>
-            </div>
+            </div>            
         </div>
 
         <div class="row">
@@ -261,7 +262,9 @@
                 console.log('Inside REsponse of studentDEtails')
             },
             error: function (xhr) {
-                window.alert("error occurred while submitting data");
+                 $('#questionloader').hide();
+                 $('#studentProfileData').show();
+                 $("#studentProfileData").html("<h5 class='orange-text'>Error occurred while fetching student data. Please try again.</h5>");                
             }
         });
     }

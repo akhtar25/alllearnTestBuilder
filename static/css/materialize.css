@@ -9847,3 +9847,33 @@ input[type=range].focused:focus:not(.active)::-ms-thumb {
 
 
 
+
+.tabs .tab{
+  background-color: #d4f8e8;  
+  color: #f6d186;
+}
+
+.tabs .tab a{
+  color:#639a67;
+} /*Black color to the text*/
+
+.tabs .tab a:hover {
+  background-color:#d8ebb5;
+  color:grey;
+} /*Text color on hover*/
+
+.tabs .tab a.active {  
+  background-color: green;
+  color:white;
+  
+} /*Background and text color when a tab is active*/
+
+.tabs .indicator {
+  background-color:green;
+  
+} 
+
+.tabs .tab a.click {
+  background-color:green;
+  color:white;
+} 
