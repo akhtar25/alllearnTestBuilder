@@ -5223,11 +5223,75 @@ cursor: pointer;
   color: #333;
   padding: 10px 5px;
 }
+.colBoard{
+  display:flex;
+  margin-right: 15px;
+  font-size:15px;
+}
+.colClass{
+  display:flex;
+  margin-right: 15px;
+  font-size:15px;
+}
+.colSubject{
+  display:flex;
+  margin-right: 15px;
+  font-size:15px;
+}
+#correctWord{
+  cursor:pointer;
+}
+
+.colChapter{
+  display:flex;
+  margin-right: 15px;
+  font-size:15px;
+}
+#searchIdForChapters{
+  width:180px;
+}
+#searchIdForTopics{
+  width:180px;
+}
+.colTopic{
+  display:flex;
+  margin-right: 15px;
+  font-size:15px;
+}
+.dataDetails{
+  display:flex;
+  
+}
+.subQuestionDet{
+  display:flex;
+}
+.objQuestionDet{
+  display:flex;
+}
+.refContentDet{
+  display:flex;
+}
+.contentDetail{
+  border: solid 1px;
+  padding: 5px;
+}
+.allTextBoxes{
+    height: 80px;
+    position: relative;
+    overflow-y: auto;
+    margin-top: -25px;
+}
 #chooseTopic{
   height: 90px;
   height: 90px;
   position: relative;
   overflow-y: auto;
+}
+#msgSubject{
+  text-align:center;
+}
+#msgBook{
+  text-align:center;
 }
 .subjectRemItem{
   border-bottom: 0px;
@@ -5259,6 +5323,10 @@ cursor: pointer;
   cursor: pointer;
   color: #333;
   padding: 10px 5px;
+}
+.bookRemItem:hover{
+  color: white;
+  background-color: lightseagreen;
 }
 .bookItem{
   border-bottom: 0px;
