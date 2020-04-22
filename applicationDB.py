@@ -194,6 +194,7 @@ class Topic(db.Model):
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id= db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
 
 
 class BoardDetail(db.Model):
@@ -290,6 +291,7 @@ class BookDetails(db.Model):
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
     book_level = db.Column(db.String(1),nullable=True)  #F=Full book ; C=Chapter Level Book
     last_modified_date=db.Column(db.DateTime)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
 
 #End of changes for Syllabus Page
 
