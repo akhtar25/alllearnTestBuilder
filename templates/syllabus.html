@@ -2537,7 +2537,7 @@
                     //alert(responseArr[i]);
                     topicHTMLRecords = topicHTMLRecords +
                         '<a href="#modal2" class="modal-trigger"><li class="topicItem" style="padding: 10px 5px;" name = "' +
-                            topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+','+selectedChapterNum+'); >' + topicName +
+                            topicID + '" id="' + topicID + 'general" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+','+selectedChapterNum+'); >' + topicName +
                         '</li></a>';
                 }
                 $("#generalDivTopics").html(topicHTMLRecords);
@@ -2561,6 +2561,7 @@
     var boardforTopics = '';
     var chapterNameforBooks = '';
     var topicNameforTopic = '';
+    var subjectforTopics = '';
     function loadTopics( selectedSubjectVal,  selectedSubjectID, selectedClassVal, selectedBoardID, selectedChapterNum,selectedBookId) {
         var s = '.chapterItem'+selectedChapterNum;
         // var chapterId = '#'+selectedChapterNum.toString();
@@ -2626,6 +2627,7 @@
 
     function loadQuestions(selectedTopicId,selectedClassVal,selectedSubjectID){
         var topicsId = '#'+selectedTopicId.toString()+'topic';
+        var topicsIdGeneral = '#'+selectedTopicId.toString()+'general';
         console.log('inside loadQuestions');
         console.log('Topic id:'+selectedTopicId);
         console.log('Chapter num:'+chapterNumforTopics);
@@ -2638,9 +2640,17 @@
             $(topicIds).css('color','');
             
         {% endfor %}
+        {% for topic in topicId %}
+            var topicIds = '#{{topic.topic_id}}general';
+            $(topicIds).css('background-color','');
+            $(topicIds).css('color','');
+            
+        {% endfor %}
         // console.log('outside for:'+topicsId);
         $(topicsId).css('background-color','lightseagreen');
         $(topicsId).css('color','white');
+        $(topicsIdGeneral).css('background-color','lightseagreen');
+        $(topicsIdGeneral).css('color','white');
         $.ajax({
             url: "/syllabusQuestionsDetails?class_val=" + selectedClassVal +
                 "&subject_id=" + selectedSubjectID + "&topic_id=" + selectedTopicId+"&chapter_num="+chapterNumforTopics,
