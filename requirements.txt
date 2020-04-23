@@ -2,7 +2,6 @@ alembic==1.0.10
 attrs==19.1.0
 boto3==1.12.44
 botocore==1.15.44
-botocore-python3==1.12.139
 certifi==2019.6.16
 cffi==1.13.1
 chardet==3.0.4
