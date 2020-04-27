@@ -39,6 +39,8 @@
                                     </li>
                             {% endfor %}
                             </ul>
+                            <!-- <input type='text' id="SearchBox" name="SearchBox" onKeyUp="keyStroke()" value="Hello"/>
+<div >Did You Mean:<a id='suggestionLink' href='#' onclick='fixSuggestions(this); return false;'></a></div> -->
                         </div>
                     </div>
                 </article>
@@ -147,6 +149,7 @@
                                             {{boardRows}}
                                         </li>
                                 </ul>
+                                <a class="tooltippedBoard" style="float: right;" data-position="right" data-tooltip="To add new Board contact us @ contact@alllearn.in"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
                             </div>
                         </div>
                     </article>
@@ -211,8 +214,10 @@
                                 <button style="border-radius:15px;display:none;" class="btn waves-light green lighten-1 white-text" type="button" id="inputBtn" onclick="addInputBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
                                 </div>
                                 </div>
+                                <a class="tooltipped" style="float: right;display: none;" data-position="right" data-tooltip="To add new Subject contact us @ contact@alllearn.in"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
                                 </div>
                                 <div id="msgSubject"></div>
+                                
                                 <div id="subjectloader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
                                 </div>
@@ -238,6 +243,8 @@
                                 </ul>
                                 <a href="javascript:void(0);" id="otherBook">Add other books</a>
                                 <input type="text" placeholder="Enter Book Name" onkeyup = "spellCheck();" style="display:none;color:black;" id="bookText">
+                                <!-- onkeyup = "spellCheck();"  -->
+                                
                                 <h5 id="suggBox">suggest:<a style="margin-left:5px;" id="correctWord" onclick="insertWord();"></a></h5>
                                 </div>
                                 <div class="bookCol" onclick="remBookList();">
@@ -384,6 +391,13 @@
 </div>
 <script>
 
+$(document).ready(function(){
+    $('.tooltipped').tooltip();
+  });
+  $(document).ready(function(){
+    $('.tooltippedBoard').tooltip();
+  });
+
     var z = 1;
     function addTextBtn(){
         var ids = '#addTextBtn'+z;
@@ -478,30 +492,32 @@
     function spellCheck(){
         console.log('inside spellCheck');
         var bookText = $('#bookText').val();
-        $.ajax({
-            url: "/spellCheckBook?bookText="+bookText,
-            type: "POST",
-            contentType: "application/json",
-            data: "",
-            success: function (response) {
-                console.log('inside success of spellCheckBook');
-                console.log(response);
-                if(response){
-                $('#correctWord').html(response);
-                corWordBook = response;
-                $('#suggBox').show();
-                }else{
-                $('#correctWord').html('');
-                $('#suggBox').hide();
-                }
-                // result = response;
-                // addInputNewChapter(result);
-            },
-            error: function (xhr) {
-                window.alert("error occurred while adding Classes");
-            }
+        var check = $('#bookText').spellAsYouType();
+        console.log(check);
+        // $.ajax({
+        //     url: "/spellCheckBook?bookText="+bookText,
+        //     type: "POST",
+        //     contentType: "application/json",
+        //     data: "",
+        //     success: function (response) {
+        //         console.log('inside success of spellCheckBook');
+        //         console.log(response);
+        //         if(response){
+        //         $('#correctWord').html(response);
+        //         corWordBook = response;
+        //         $('#suggBox').show();
+        //         }else{
+        //         $('#correctWord').html('');
+        //         $('#suggBox').hide();
+        //         }
+        //         result = response;
+        //         addInputNewChapter(result);
+        //     },
+        //     error: function (xhr) {
+        //         window.alert("error occurred while adding Classes");
+        //     }
             
-        });
+        // });
     }
 
     function myFunctionTopics(){
@@ -745,6 +761,9 @@
         $('#topicText').val('');
         $('#chapNoText').val('');
         $('#msg').hide();
+        selectedTopics = [];
+        selectedChapters = [];
+        colorArray = [];
     }
 
     function onclickTopicAdd(){
@@ -770,6 +789,9 @@
         $('#suggBoxChapter').hide();
         $('#suggBoxTopic').hide();
         $('#chooseTopic').html('<li>No chapter selected</li>');
+        selectedTopics = [];
+        selectedChapters = [];
+        colorArray = [];
     }
 
     var x=1
@@ -901,8 +923,20 @@
     var ul = document.getElementById('chooseTopic');
       ul.onclick = function(event) {
       var target = event.target;
-      console.log(event.target.innerHTML); 
+      console.log(event.target.innerHTML);
+      var z = 0;
+      for(var i=0;i<selectedTopics.length;i++){
+          if(selectedTopics[i].toString()==event.target.innerHTML){
+            z = 1;
+          }
+      }
+      if(z == 0){ 
+          console.log('push element:'+event.target.innerHTML);
       selectedTopics.push(event.target.innerHTML);
+      }else{
+          console.log('pop element:'+event.target.innerHTML);
+        selectedTopics.pop(event.target.innerHTML);
+      }
 };
 
     var selBok = [];
@@ -982,7 +1016,7 @@
         console.log(subjectId);
         deleteSubject(subjectId,classforSubject,boardforSub);
       
-
+        $('.tooltipped').hide();
         $('#divSubject').hide();
       $('.remSubject').hide();
       $('.addSubBtn').hide();
@@ -1299,6 +1333,7 @@
           $('#msgSubject').html("<h5 style='color:red;margin-top:-10px;padding:10px;'>please add subject</h5>");
           $('#msgSubject').show();
       }else{
+      $('.tooltipped').hide();
       $('#msgSubject').hide();
       $('#divSubject').hide();
       $('.remSubject').hide();
@@ -1745,6 +1780,7 @@
                 $('.remSubject').show();
                 $('.sugText').show();
                 $('#remSub').show();
+                $('.tooltipped').show();
                 $('#searchId').show();
                 $('#other').show();
                 $('#suggestionBtn').show();
@@ -1837,7 +1873,7 @@
                     console.log('inside chapterTopic:'+topicID);
                     
                     chapterTopicHTMLRecords = chapterTopicHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="chapterTopicItem" onclick=onColor("'+topicID+'");; id="'+topicID+'id">'+ topicName +
+                    '<a href="javascript:void(0);"><li class="chapterTopicItem" onclick=onColorTopic("'+topicID+'"); id="'+topicID+'id">'+ topicName +
                         '</li></a>';
                 }
                 }else{
@@ -1855,6 +1891,26 @@
                 window.alert('error occurred while loading topics');
             }
         });
+    }
+    var colorArray = [];
+    function onColorTopic(topicId){
+        var c = 0;
+        for(var i=0;i<colorArray.length;i++){
+            if(colorArray[i].toString==topicId.toString){
+                c = 1;
+            }
+        }
+        if(c==0){        
+        var ids = '#'+topicId+'id';
+        $(ids).css('background-color','lightseagreen');
+        $(ids).css('color','white');
+        colorArray.push(topicId);
+        }else{
+            var ids = '#'+topicId+'id';
+            $(ids).css('background-color','');
+            $(ids).css('color','');
+            colorArray.pop(topicId);
+        }
     }
 
     function fetchRemBooks(subjectforBooks,classforBooks){
@@ -1956,7 +2012,7 @@
 
     function remSubList(){
         $('.subCol').hide();
-        
+        $('.tooltipped').hide();
         $('#subjectloader').show();
         console.log('inside remSubList');
         fetchRemSubjects(classforSubject);
@@ -2296,6 +2352,7 @@
         $('.bookCol').hide();
         $('.remSubject').hide();
         $('.subCol').show();
+        $('.tooltipped').hide();
         $('#msgSubject').hide();
         $('#suggestionBtn').hide();
         $('#inputBtn').hide();
@@ -2683,6 +2740,40 @@
             }
         });
     }
+
+
+
+    // Spell Check start
+    
+
+//     var timoutInterval
+// function keyStroke(){
+// clearTimeout(timoutInterval)
+// timoutInterval =setTimeout( ajaxDYM(),500)
+// }
+
+// function fixSuggestions(link){
+//          SearchBoxText = document.getElementById('SearchBox').value = link.innerHTML;
+//      link.innerHTML = "";
+// }
+
+// function ajaxDYM(){
+//         var SearchBoxText = document.getElementById('SearchBox').value;
+
+//         o = $Spelling.AjaxDidYouMean(SearchBoxText)
+
+//         o.onDidYouMean = function(result){
+//                         var oSuggestionLink= document.getElementById('suggestionLink');
+//                 if(result){
+
+//                 oSuggestionLink.innerHTML =     result
+//         }else{
+//                 oSuggestionLink.innerHTML = "";
+//         }
+//         }
+// }
+
+    // End
 
 </script>
 
