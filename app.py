@@ -459,17 +459,17 @@ def schoolRegistration():
             school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
             client = boto3.client('s3', region_name='ap-south-1')
             client.upload_fileobj(school_picture , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/' + school_picture_name,ExtraArgs={'ACL':'public-read'})
-        class_val=request.form.getlist('class_val')
-        class_section=request.form.getlist('section')
-        student_count=request.form.getlist('student_count')
-        if class_val:
-            for i in range(len(class_val)):
-                class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=school_id.school_id)
-                db.session.add(class_data)
-        else:
-            for i in range(1,10):
-                class_data = ClassSection(class_val=int(i),section='A',student_count=10,school_id=school_id.school_id)
-                db.session.add(class_data)
+        # class_val=request.form.getlist('class_val')
+        # class_section=request.form.getlist('section')
+        # student_count=request.form.getlist('student_count')
+        # if class_val:
+        #     for i in range(len(class_val)):
+        #         class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=school_id.school_id)
+        #         db.session.add(class_data)
+        # else:
+        #     for i in range(1,10):
+        #         class_data = ClassSection(class_val=int(i),section='A',student_count=10,school_id=school_id.school_id)
+        #         db.session.add(class_data)
         teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
         db.session.add(teacher)
         db.session.commit()
@@ -479,17 +479,37 @@ def schoolRegistration():
 
         #adding records to topic tracker while registering school
         
-        classSecRows = ClassSection.query.filter_by(school_id=newSchool.school_id).all()
-        for classRow in classSecRows:
-            insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(newSchool.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
-            db.session.execute(text(insertRow))
+        # classSecRows = ClassSection.query.filter_by(school_id=newSchool.school_id).all()
+        # for classRow in classSecRows:
+        #     insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(classRow.class_sec_id)+"', 'N', topic_id, '"+str(newSchool.school_id)+"', 0,current_date from Topic_detail where class_val="+str(classRow.class_val)+")"
+        #     db.session.execute(text(insertRow))
 
         #end of inser to topic tracker
         db.session.commit()
-        data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
+        # data=ClassSection.query.filter_by(school_id=school_id.school_id).all()
         flash('School Registered Successfully!')
         new_school_reg_email(form.schoolName.data)
-        return render_template('schoolRegistrationSuccess.html',fromImpact=fromImpact,data=data,school_id=school_id.school_id)
+        fromSchoolRegistration = True
+        # return render_template('schoolRegistrationSuccess.html',fromImpact=fromImpact,data=data,school_id=school_id.school_id)
+        # Syllabus page
+        subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+        teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+        school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+        classValues = db.session.execute(text(classValues)).fetchall()
+        classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+        classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
+        subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+        bookName = BookDetails.query.all()
+        chapterNum = Topic.query.distinct().all()
+        topicId = Topic.query.all()
+        generalBoard = MessageDetails.query.filter_by(category='Board').all()
+        fromSchoolRegistration = True
+        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+        # end
+        # return render_template('syllabus.html',fromSchoolRegistration=fromSchoolRegistration)
     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
@@ -2022,7 +2042,7 @@ def requestUserAccess():
 @app.route('/syllabus')
 @login_required
 def syllabus():
-    
+    fromSchoolRegistration = False
     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
@@ -2037,31 +2057,47 @@ def syllabus():
     chapterNum = Topic.query.distinct().all()
     topicId = Topic.query.all()
     generalBoard = MessageDetails.query.filter_by(category='Board').all()
-    return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId)
+    return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+
+@app.route('/addSyllabus',methods=['GET','POST'])
+def addSyllabus():
+    subjects = request.get_json()
+    class_val = request.args.get('class_val')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id)
+    db.session.add(addClass)
+    db.session.commit()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
+    for subject in subjects:
+        subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+        addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id)
+        db.session.add(addSubject)
+        db.session.commit()
+        bookNames = BookDetails.query.distinct(BookDetails.book_name).filter_by(subject_id=subject_id.msg_id,class_val=class_val).all()
+        for book_name in bookNames:
+            book_id = BookDetails.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,book_name=book_name.book_name).first()
+            addBook = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id.book_id,is_archived='N')
+            db.session.add(addBook)
+            db.session.commit()
+        insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count,is_archived, last_modified_date) (select subject_id, '"+str(class_sec_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,'N',current_date from Topic_detail where class_val="+str(class_val)+")"
+        db.session.execute(text(insertRow))
+        db.session.commit()
+    return ("Syllabus added successfully")
+
 
 @app.route('/generalSyllabusClasses')
 def generalSyllabusClasses():
     board_id=request.args.get('board_id')
-    classSectionArray = []
-    sectionArray = []
+    classArray = []
     distinctClasses = "select distinct class_val from class_section order by class_val"
     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
-        print(val.class_val)
-        sections = ClassSection.query.distinct(ClassSection.section).filter_by(class_val=val.class_val).all()
-        # sectionsString = ''
-        sectionsString = '['
-        i=1
-        for section in sections:
-            print(len(sections))
-            if i<len(sections):
-                sectionsString = sectionsString + str(section.section)+';'
-            else:
-                sectionsString = sectionsString + str(section.section)
-            i = i + 1
-        sectionsString = sectionsString + ']'
-        classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
-    return jsonify([classSectionArray])
+        classArray.append(val.class_val)
+    if classArray:
+        return jsonify([classArray])
+    else:
+        return ""
 
 @app.route('/syllabusClasses')
 @login_required
@@ -2086,7 +2122,10 @@ def syllabusClasses():
             i = i + 1
         sectionsString = sectionsString + ']'
         classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
-    return jsonify([classSectionArray])
+    if classSectionArray:
+        return jsonify([classSectionArray])
+    else:
+        return ""
 
 
 @app.route('/generalSyllabusSubjects',methods=['GET','POST'])
@@ -2096,7 +2135,7 @@ def generalSyllabusSubjects():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id).all()
     sujectArray=[]
-    subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and bcs.is_archived= 'N' order by description"
+    subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' order by description"
     subjects = db.session.execute(text(subjects)).fetchall()
     for val in subjects:
         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
@@ -2528,7 +2567,7 @@ def generalSyllabusBooks():
     subject_id = MessageDetails.query.filter_by(description=subject_name).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
-    distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' order by bd.book_name"
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
@@ -2652,7 +2691,7 @@ def generalSyllabusChapters():
     chapterArray=[]
     # print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and td.book_id in "
     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
     print('inside general syllabus chapter:')
     print(queryBookDetails)
@@ -2671,7 +2710,8 @@ def syllabusChapters():
     class_val=request.args.get('class_val')
     board_id=request.args.get('board_id')
     subject_id=request.args.get('subject_id')
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     book = BookDetails.query.filter_by(book_id=book_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -2680,6 +2720,7 @@ def syllabusChapters():
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
     queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     for book in queryBookDetails:
         chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
@@ -2766,7 +2807,7 @@ def generalSyllabusTopics():
     bookId = request.args.get('selectedBookId')
     class_val = request.args.get('class_val')
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     
     print('BookID:'+str(bookId))
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
@@ -2778,7 +2819,7 @@ def generalSyllabusTopics():
     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
     chapter_name = db.session.execute(text(chapter_name)).first()
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
-    queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.topic_id in "
+    queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
     print('inside generalsyllabustopics')
     print(queryTopics)

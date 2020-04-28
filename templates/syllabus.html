@@ -12,12 +12,21 @@
             <h2 class="grey-text">Syllabus</h2>
         <div class="col lg s12" id="unselect">
             <ul class="tabs">
+                {% if fromSchoolRegistration==False %}
                 <li class="tab col s6">
                     <a href="javascript:void(0);" id="general" class="tabFont">General</a>
                 </li>
                 <li class="tab col s6">
                     <a href="" id="specificSchool" class="tabFont">{{school_name}}</a>
                 </li>
+                {% else %}
+                <li class="tab col s6">
+                        <a href="" id="general" class="tabFont">General</a>
+                    </li>
+                    <li class="tab col s6">
+                        <a href="javascript:void(0);" id="specificSchool" class="tabFont">{{school_name}}</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -53,6 +62,10 @@
                             <ul class="collection " id="generalClassDiv" style="max-height:380px;position:relative;overflow-y:auto">
 
                             </ul>
+                            <ul class="collection " id="generalEditClassDiv" style="max-height:380px;position:relative;overflow-y:auto;display: none;">
+
+                            </ul>
+                            
                             <div id="generalClassLoader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
                             </div>
@@ -67,10 +80,29 @@
                         <div class="card-content ">
                             <div class="card-title">Subjects</div>
 
-
+                            <p id="selectall" style="display: none;">
+                                <label>
+                                    <!-- <input type="checkbox" id="unselectAll" /> -->
+                                    <span><a href="#" id="selectAll">select All</a></span> 
+                                </label>
+                            </p>
                             <ul class="collection " id="generalSubjectDiv" style="max-height:380px;position:relative;overflow-y:auto">
 
                             </ul>
+                            <ul class="collection" id="generalEditSubjectDiv" style="max-height: 380px;position: relative;overflow-y:auto;display: none;">
+
+                            </ul>
+                            <button style="border-radius:15px;display:none;margin-left:35px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassSubject" onclick="addClassSubjectBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
+                            {% if fromSchoolRegistration!=False %}
+                            <div class="switch pull-right" style="display: none;">
+                                    <label>
+                                      <!-- Show Covered -->
+                                      <input type="checkbox">
+                                      <span class="lever"></span>
+                                      <!-- Hide Covered -->
+                                    </label>
+                                    </div> 
+                            {% endif %}
                             <div id="generalSubjectLoader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
                             </div>
@@ -243,7 +275,7 @@
                                 </ul>
                                 <a href="javascript:void(0);" id="otherBook">Add other books</a>
                                 <input type="text" placeholder="Enter Book Name" onkeyup = "spellCheck();" style="display:none;color:black;" id="bookText">
-                                <!-- onkeyup = "spellCheck();"  -->
+                                
                                 
                                 <h5 id="suggBox">suggest:<a style="margin-left:5px;" id="correctWord" onclick="insertWord();"></a></h5>
                                 </div>
@@ -292,11 +324,11 @@
                                             <a href="javascript:void(0);" id="otherChapter">Add new chapter</a></br>
                                             <a href="javascript:void(0);" id="otherTopic" style="display:none;">Add new topic</a><br>
                                             <div class="newChapterDiv" style="display:none;margin-top: -55px;">
-                                            <span class="chapterTextlabel">Chapter</span></t><input type="text" style="width: 300px;margin-left:20px;margin-right:20px;color:black;font-size:14px;" id="chapterFocus" onkeyup = "spellCheckChapter();" class="chapterText"><span class="chapNoTextlabel">Ch no.</span><input type="text" style="width:40px;margin-left:10px;color:black;font-size:14px;" class="chapNoText"></br>
+                                            <span class="chapterTextlabel">Chapter</span></t><input type="text" style="width: 300px;margin-left:20px;margin-right:20px;color:black;font-size:14px;" id="chapterFocus" spellcheck="true" class="chapterText"><span class="chapNoTextlabel">Ch no.</span><input type="text" style="width:40px;margin-left:10px;color:black;font-size:14px;" class="chapNoText"></br>
                                             <h5 id="suggBoxChapter">suggest:<a style="margin-left:5px;" id="correctWordChapter" onclick="insertWordChapter();"></a></h5>
                                             <span class="topicTextlabel">Topic</span></t>
                                             <div class="allTextBoxes">
-                                            <input type="text" style="width:400px;margin-left:68px;color:black;font-size:14px;" class="topicText" onkeyup = "spellCheckTopic();"><a id="addRowBtn1" class="iconAdd" onclick="appendRow();"><i class="fas fa-plus-circle"></i></a></br>
+                                            <input type="text" style="width:400px;margin-left:68px;color:black;font-size:14px;" class="topicText" spellcheck="true"><a id="addRowBtn1" class="iconAdd" onclick="appendRow();"><i class="fas fa-plus-circle"></i></a></br>
                                             <div id="newTextbox"></div>
                                             </div>
                                             <h5 id="suggBoxTopic">suggest:<a style="margin-left:5px;" id="correctWordTopic" onclick="insertWordTopic();"></a></h5>
@@ -388,8 +420,18 @@
                                         <div class="modal-footer">
                                         </div>
                                       </div> 
+                                      {% if fromSchoolRegistration==True %}
+                                      <a href="{{url_for('syllabus')}}" style="float:right;">go to {{school_name}} syllabus</a>
+                                      {% endif %}
 </div>
 <script>
+
+$('#selectAll').click(function(){
+        console.log('Inside unselect');
+        
+        $('.selectedSubject').attr('checked',true);
+        
+    });
 
 $(document).ready(function(){
     $('.tooltipped').tooltip();
@@ -492,32 +534,32 @@ $(document).ready(function(){
     function spellCheck(){
         console.log('inside spellCheck');
         var bookText = $('#bookText').val();
-        var check = $('#bookText').spellAsYouType();
-        console.log(check);
-        // $.ajax({
-        //     url: "/spellCheckBook?bookText="+bookText,
-        //     type: "POST",
-        //     contentType: "application/json",
-        //     data: "",
-        //     success: function (response) {
-        //         console.log('inside success of spellCheckBook');
-        //         console.log(response);
-        //         if(response){
-        //         $('#correctWord').html(response);
-        //         corWordBook = response;
-        //         $('#suggBox').show();
-        //         }else{
-        //         $('#correctWord').html('');
-        //         $('#suggBox').hide();
-        //         }
-        //         result = response;
-        //         addInputNewChapter(result);
-        //     },
-        //     error: function (xhr) {
-        //         window.alert("error occurred while adding Classes");
-        //     }
+        // var check = $('#bookText').spellAsYouType();
+        // console.log(check);
+        $.ajax({
+            url: "/spellCheckBook?bookText="+bookText,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log('inside success of spellCheckBook');
+                console.log(response);
+                if(response){
+                $('#correctWord').html(response);
+                corWordBook = response;
+                $('#suggBox').show();
+                }else{
+                $('#correctWord').html('');
+                $('#suggBox').hide();
+                }
+                // result = response;
+                // addInputNewChapter(result);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding Classes");
+            }
             
-        // });
+        });
     }
 
     function myFunctionTopics(){
@@ -825,8 +867,13 @@ $(document).ready(function(){
 
     $(document).ready(function(){
     $('.tabs').tabs();
+    {% if fromSchoolRegistration==False%}
     $('.section1').hide();
       $('.section2').show();
+    {% else %}
+    $('.section1').show();
+      $('.section2').hide();
+    {% endif %}
   });
 
   $('#general').click(function(){
@@ -2023,12 +2070,98 @@ $(document).ready(function(){
         $(ids).css('background-color','lightseagreen');
         $(ids).css('color','white');
     }
+
+    function addClassSubjectBtn(){
+        console.log('inside addClassSubjectBtn');
+        var classValue = document.getElementsByName('group1');
+        var class_value = '';
+        for(var i = 0; i < classValue.length; i++){
+            if(classValue[i].checked){
+                class_value = classValue[i].value;
+                console.log(class_value);
+            }
+        }
+
+        var subjects = [];
+        $.each($("input[name='selectedSubjects']:checked"), function(){
+            subjects.push($(this).val());
+            
+        });
+        insertSyllabus(class_value,subjects);
+           
+        
+    }
+
+    function insertSyllabus(class_value,subjects){
+        console.log(subjects);
+            subjects = JSON.stringify(subjects);
+            $.ajax({
+            url: "/addSyllabus?class_val="+class_value,
+            type: "POST",
+            contentType: "application/json",
+            data: subjects,
+            success: function (response) {
+                console.log('inside success of insertSyllabus');
+                console.log(response);
+                M.toast({html: 'Syllabus successfully added to school'})
+                //   fetchSubject(classforSubject,boardforSub);  
+
+            },
+            error: function (xhr) {
+                window.alert("error occurred while adding syllabus");
+            }
+        });
+    }
+
+
+    $(document).ready(function(){
+        $('input[type="checkbox"]').click(function(){
+            if($(this).is(":checked")) {
+                console.log("Is checked");
+                $("#generalClassDiv").hide();
+                $("#generalEditClassDiv").show();
+                $('#generalSubjectDiv').hide();
+                $('#generalEditSubjectDiv').show();
+                $('#addClassSubject').show();
+                    }
+            else {
+                $("#generalClassDiv").show();
+                    $("#generalEditClassDiv").hide();
+                    $('#generalSubjectDiv').show();
+                $('#generalEditSubjectDiv').hide();
+                $('#addClassSubject').hide();
+                }                           
+            });
+        });
+        $('input[type="checkbox"]').click(function(){
+            if($(this).is(":checked")) {
+                console.log("Is checked");
+                $("#generalClassDiv").hide();
+                $("#generalEditClassDiv").show();
+                $('#generalSubjectDiv').hide();
+                $('#generalEditSubjectDiv').show();
+                $('#selectall').show();
+                $('#addClassSubject').show();
+                    }
+            else {
+                console.log('not checked');
+                
+                $("#generalEditClassDiv").hide();
+                $("#generalClassDiv").show();
+                $('#generalSubjectDiv').show();
+                $('#generalEditSubjectDiv').hide();
+                $('#selectall').hide();
+                $('#addClassSubject').hide();
+                console.log('after show generalClassDiv');
+                }                           
+            });
     var selectedBoardID = '';
     $('.generalBoardClass').click(function(){
         $('.generalBoardClass').css('background-color','lightseagreen');
         $('.generalBoardClass').css('color','white');
         selectedBoardID = this.id;
         var classHTMLRecords = "";
+        var classHTMLEditRecords = "";
         $('#generalClassDiv').hide();
         $('#generalClassLoader').show();
         $.ajax({
@@ -2041,18 +2174,31 @@ $(document).ready(function(){
                 responseArr = response.toString().split(',');
                 console.log(responseArr)
                 for (var i = 0; i < responseArr.length; i++) {
-                    var class_val = responseArr[i].toString().split(':')[0];
-                    var sections = responseArr[i].toString().split(':')[1];
-                     sections = sections.replace(/;/g,",");
-                    console.log('sections:'+sections)
+                    // var class_val = responseArr[i].toString().split(':')[0];
+                    // var sections = responseArr[i].toString().split(':')[1];
+                    //  sections = sections.replace(/;/g,",");
+                    console.log('sections:'+responseArr[i]);
+                    {% if  fromSchoolRegistration!=False %}
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'general" onClick="generalLoadSubjects(' +
-                        class_val + ')" name=' +
-                        selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
+                    '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
+                            responseArr[i] + ')" name=' +
+                        selectedBoardID + ' id=' + responseArr[i] + ' >'+ responseArr[i] +
                         '</li></a>';
+
+                    classHTMLEditRecords = classHTMLEditRecords +
+                    '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;padding-top: 5px;" id="' + responseArr[i] + 'selectedGeneral" >'+responseArr[i]+
+                        '<p style="margin-top:-4px;margin-left:60px;"><label><input class="with-gap selectedClass" name="group1" type="radio" value="'+responseArr[i]+'"/><span></span></label></p></li></a>';
+                    {% else %}
+                    classHTMLRecords = classHTMLRecords +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
+                            responseArr[i] + ')" name=' +
+                        selectedBoardID + ' id=' + responseArr[i] + ' >'+ responseArr[i] +
+                        '</li></a>';
+                    {% endif %}
                 }
                 
-                $("#generalClassDiv").html(classHTMLRecords);
+                $('#generalClassDiv').html(classHTMLRecords);
+                $('#generalEditClassDiv').html(classHTMLEditRecords);
                 $('#generalClassLoader').hide();
                 $('#generalClassDiv').show();
                 
@@ -2095,22 +2241,27 @@ $(document).ready(function(){
             success: function (response) {
                 console.log('inside generalSyllabusClasses');
                 console.log(response);
+                if(response){
+                console.log('inside if');
                 responseArr = response.toString().split(',');
                 console.log(responseArr)
                 for (var i = 0; i < responseArr.length; i++) {
                     var class_val = responseArr[i].toString().split(':')[0];
                     var sections = responseArr[i].toString().split(':')[1];
                      sections = sections.replace(/;/g,",");
-                    console.log('sections:'+sections)
+                    console.log('sections:'+sections);
                     classHTMLRecords = classHTMLRecords +
                         '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'" onClick="loadSubjects(' +
                         class_val + ')" name=' +
                         selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
                 }
+            }else{
+                classHTMLRecords = classHTMLRecords + '<li class="classVal">Not Available</li>'
+            }
                 
                 $("#classDiv").html(classHTMLRecords);
-                
+            
                 $('#classDiv').show();
                 $('.classCol').show();
                 $('#classloader').hide();
@@ -2125,16 +2276,19 @@ $(document).ready(function(){
 
     function generalLoadSubjects(selectedClassVal){
         $('#generalSubjectDiv').hide();
+        $('.switch').hide();
         $('#generalSubjectLoader').show();
         // classforSubject = selectedClassVal;
+        
         {% for class in classValuesGeneral %}
             var desc = "{{class.class_val}}";
             var clasId = '#'+desc.toString()+'general';
             $(clasId).css('background-color','');
             $(clasId).css('color','');
             console.log('inside for'+clasId);
+            
         {% endfor %}
-        
+        // $('.switch').show();
         var classId = '#'+selectedClassVal.toString()+'general';
         console.log('outside for:'+selectedClassVal);
         $(classId).css('background-color','lightseagreen');
@@ -2148,6 +2302,7 @@ $(document).ready(function(){
                 
                 //alert(responseArr.length);
                 var subjectHTMLRecords = "";
+                var subjectEditHTMLRecords = "";
                 console.log('inside load Subjects');
                 console.log(response);
                 if(response){
@@ -2161,12 +2316,27 @@ $(document).ready(function(){
                     subject_name = subjectName.replace(/ /g,"_");
                     var parameters = "\"" + subject_name + "\"" + ',' + subjectID + ',' + selectedClassVal +
                         ',' + selectedBoardID;
+                    {% if  fromSchoolRegistration!=False %}
                     subjectHTMLRecords = subjectHTMLRecords +
                         '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subject_name+'general" onClick=generalLoadBooks(' +
                         parameters + '); name=' +
                         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
                         .split(':')[1] + '</span>' +
                         '</li></a>';
+
+                        subjectEditHTMLRecords = subjectEditHTMLRecords +
+                        '<a href="javascript:void(0);"><li class="selectSubj" style="padding: 10px 5px;color:black;" id="'+subject_name+'general" name=' +
+                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                        .split(':')[1] + '</span>' +
+                        '<p style="margin-top:-4px;margin-left:30px;"><label><input class="selectedSubject" name="selectedSubjects" type="checkbox" value="'+subject_name+'"/><span></span></label></p></li></a>';
+                    {% else %}
+                    subjectHTMLRecords = subjectHTMLRecords +
+                        '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subject_name+'general" onClick=generalLoadBooks(' +
+                        parameters + '); name=' +
+                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                        .split(':')[1] + '</span>' +
+                        '</li></a>';
+                    {% endif %}
                     // alert(responseArr[i].toString().split(':')[0]);
                     // subArray.push(subjectName+':'+subjectID);
                      
@@ -2177,7 +2347,9 @@ $(document).ready(function(){
                 }
                 
                 $("#generalSubjectDiv").html(subjectHTMLRecords);
+                $('#generalEditSubjectDiv').html(subjectEditHTMLRecords);
                 // $('#updatedSubjectDiv').hide();
+                $('.switch').show();
                 $('#generalSubjectDiv').show();
                 $('#generalSubjectLoader').hide();
             },

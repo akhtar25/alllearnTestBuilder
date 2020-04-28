@@ -3198,6 +3198,15 @@ td, th {
   overflow: hidden;
   position: relative;
 }
+.classEdit{
+  display:flex;
+}
+.selectSubj{
+  display: flex;
+}
+.selectClass{
+  display: flex;
+}
 
 .collection .collection-item {
   background-color: #fff;
