@@ -534,6 +534,7 @@ $(document).ready(function(){
     function spellCheck(){
         console.log('inside spellCheck');
         var bookText = $('#bookText').val();
+        console.log($Spelling.AjaxDidYouMean(document.getElementById("bookText").value));
         // var check = $('#bookText').spellAsYouType();
         // console.log(check);
         $.ajax({
@@ -2186,8 +2187,8 @@ $(document).ready(function(){
                         '</li></a>';
 
                     classHTMLEditRecords = classHTMLEditRecords +
-                    '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;padding-top: 5px;" id="' + responseArr[i] + 'selectedGeneral" >'+responseArr[i]+
-                        '<p style="margin-top:-4px;margin-left:60px;"><label><input class="with-gap selectedClass" name="group1" type="radio" value="'+responseArr[i]+'"/><span></span></label></p></li></a>';
+                    '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;" id="' + responseArr[i] + 'selectedGeneral" ><p style="margin-top:-4px;"><label><input class="with-gap selectedClass" name="group1" type="radio" value="'+responseArr[i]+'"/><span></span></label></p>'+responseArr[i]+
+                        '</li></a>';
                     {% else %}
                     classHTMLRecords = classHTMLRecords +
                         '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
@@ -2326,9 +2327,9 @@ $(document).ready(function(){
 
                         subjectEditHTMLRecords = subjectEditHTMLRecords +
                         '<a href="javascript:void(0);"><li class="selectSubj" style="padding: 10px 5px;color:black;" id="'+subject_name+'general" name=' +
-                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
+                        responseArr[i].toString().split(':')[0] + '><p><label><input class="selectedSubject" name="selectedSubjects" type="checkbox" value="'+subject_name+'"/><span></span></label></p><span>' + responseArr[i].toString()
                         .split(':')[1] + '</span>' +
-                        '<p style="margin-top:-4px;margin-left:30px;"><label><input class="selectedSubject" name="selectedSubjects" type="checkbox" value="'+subject_name+'"/><span></span></label></p></li></a>';
+                        '</li></a>';
                     {% else %}
                     subjectHTMLRecords = subjectHTMLRecords +
                         '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subject_name+'general" onClick=generalLoadBooks(' +
