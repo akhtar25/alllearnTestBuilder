@@ -2047,7 +2047,7 @@ def addSyllabus():
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
     if classExist == None:
-        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id)
+        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
         db.session.add(addClass)
         db.session.commit()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
@@ -2681,7 +2681,7 @@ def fetchRemChapters():
     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
     for bookId in bookIds:
         print('Book Id new:'+str(bookId))
-        queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id='"+str(bookId.book_id)+"' "
+        queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id in (select ) "
         queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
         queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
         print(queryChapters)
@@ -2689,7 +2689,7 @@ def fetchRemChapters():
         for chapter in queryChapters:
             chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'Y' and td.book_id in "
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     for book in queryBookDetails:
