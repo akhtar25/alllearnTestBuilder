@@ -426,9 +426,7 @@
                                         <div class="modal-footer">
                                         </div>
                                       </div> 
-                                      {% if fromSchoolRegistration==True %}
-                                      <a href="{{url_for('syllabus')}}" style="float:right;">go to {{school_name}} syllabus</a>
-                                      {% endif %}
+                                      
 </div>
 <script>
 
@@ -762,7 +760,7 @@ $(document).ready(function(){
                      sections = sections.replace(/;/g,",");
                     console.log('sections:'+sections)
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'" onClick="loadSubjects(' +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'specific" onClick="loadSubjects(' +
                         class_val + ')" name=' +
                         selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
@@ -773,6 +771,9 @@ $(document).ready(function(){
                 $('.class').val('');
                 $('.section').val('');
                 $('#subSpec').hide();
+                $('#divBook').hide();
+                $('#topicSpec').hide();
+                $('#divChapter').hide();
                 $('.classBtn').hide();
                 $('#classDiv').show();
                 $('.classCol').show();
@@ -1684,6 +1685,7 @@ $(document).ready(function(){
                 $('#divChapter').show();
                 $('#chapterDiv').show();
                 $('.chapterCol').show();
+                $('#topicSpec').hide();
                 $('#chapterloader').hide();
                 
                 
@@ -1731,6 +1733,8 @@ $(document).ready(function(){
                 $('#bookDiv').html("");
                 $("#bookDiv").html(bookHTMLRecords);
                 $('#divBook').show();
+                $('#topicSpec').hide();
+                $('#divChapter').hide();
                 $('#bookText').hide();
                 $('#bookLink').hide();
                 $('.bookCol').show();
@@ -1781,6 +1785,9 @@ $(document).ready(function(){
                 $('#divSubject').show();
                 $('.subCol').show();
                 $('#subSpec').show();
+                $('#divBook').hide();
+                $('#topicSpec').hide();
+                $('#divChapter').hide();
                 $('#msgSubject').hide();
                 $('#subjectloader').hide();
                 $('#other').show();
@@ -2425,6 +2432,7 @@ $(document).ready(function(){
         classforSubject = selectedClassVal;
         {% for class in classValues %}
             var desc = "{{class.class_val}}";
+            console.log(desc);
             var clasId = '#'+desc.toString()+"specific";
             $(clasId).css('background-color','');
             $(clasId).css('color','');

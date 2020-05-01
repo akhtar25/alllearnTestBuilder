@@ -2045,9 +2045,11 @@ def addSyllabus():
     class_val = request.args.get('class_val')
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id)
-    db.session.add(addClass)
-    db.session.commit()
+    classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
+    if classExist == None:
+        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id)
+        db.session.add(addClass)
+        db.session.commit()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
     for subject in subjects:
         subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
@@ -2056,7 +2058,7 @@ def addSyllabus():
         print(subjExist)
         if subjExist == None:
             print('is subjExist is null')
-            addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id)
+            addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id,last_modified_date=datetime.now())
             db.session.add(addSubject)
             db.session.commit()
         # bookNames = BookDetails.query.distinct(BookDetails.book_name).filter_by(subject_id=subject_id.msg_id,class_val=class_val).all()
@@ -2301,8 +2303,10 @@ def checkForChapter():
     chapterName = request.args.get('chapter_name')
     subject_id= MessageDetails.query.filter_by(description=subject).first()
     print('Book Id:'+str(bookId))
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
-    bookIds = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book.book_name).all()
+    book = BookDetails.query.filter_by(book_id=bookId).first()
+    bookIds = BookDetails.query.filter_by(class_val=class_val,book_name=book.book_name,subject_id=subject_id.msg_id).all()
+    print('class_val:'+str(class_val)+'subject:'+str(subject_id.msg_id)+'Book name:'+str(book.book_name))
+    # bookIds = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book.book_name).all()
     k = 0
     print(book.book_name)
     for book_id in bookIds:
@@ -2341,7 +2345,7 @@ def addClassSection():
         # section = class_section[1]
         
         print('Class:'+str(class_val)+' Section:'+str(section))
-        class_data=ClassSection(class_val=class_val,section=str(section).upper(),student_count=0,school_id=teacher_id.school_id)
+        class_data=ClassSection(class_val=class_val,section=str(section).upper(),student_count=0,school_id=teacher_id.school_id,last_modified_date=datetime.now())
         db.session.add(class_data)
         db.session.commit()
     
@@ -2419,9 +2423,10 @@ def addNewTopic():
     
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"'"
+    bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
     bookId = db.session.execute(text(bookId)).first()
     print(topics)
     print('Book ID:'+str(bookId.book_id))
@@ -2433,7 +2438,7 @@ def addNewTopic():
         db.session.commit()
         if bookId:
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id).first()
-        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N')
+        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
         db.session.add(insertTopicTracker)
         db.session.commit()
     return ("Add new Topic")
@@ -2474,7 +2479,7 @@ def addNewChapter():
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
         else:
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id).first()
-        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N')
+        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
         db.session.add(insertTopicTracker)
         db.session.commit()
     return ("Add new Chapter")
@@ -2646,7 +2651,11 @@ def selectedChapter():
     print('inside selected chapter')
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
-    chapter = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum).first()
+    # chapter = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum,book_id=book_id).first()
+    chapter = "select chapter_num,chapter_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+    chapter = chapter + "td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name  = '"+str(book.book_name)+"'"
+    print(chapter)
+    chapter = db.session.execute(text(chapter)).first()
     # chapter = "select chapter_name,chapter_num from topic_detail td inner join book_details bd on "
     # chapter = chapter + "td.book_id = bd.book_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name ='"+str(book.book_name)+"'"
     # chapter = db.session.execute(text(chapter)).fetchall()
@@ -2752,8 +2761,10 @@ def syllabusChapters():
     chapterArray=[]
     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
+    # queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
+    queryBookDetails = queryBookDetails + "order by chapter_num"
     print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     for book in queryBookDetails:
@@ -2771,6 +2782,7 @@ def chapterTopic():
     chapter_num = request.args.get('chapter_num')
     book_id = request.args.get('book_id')
     print('Book id:'+str(book_id))
+    print('class value:'+str(class_val))
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
@@ -2809,8 +2821,11 @@ def fetchChapters():
     chapterArray=[]
     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
+    # queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
+    queryBookDetails = queryBookDetails + "order by chapter_num"
+    print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     for book in queryBookDetails:
         chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
@@ -2830,11 +2845,25 @@ def fetchTopics():
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     bookId = request.args.get('bookId')
-    chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+    # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id,board_id=board_id.board_id).all()
+    # topicArray=[]
+    # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+    # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
+    # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
+    # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
+    # queryTopics = db.session.execute(text(queryTopics)).fetchall()
+    # for topic in queryTopics:
+    #     topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+    # if topicArray:
+    #     return jsonify([topicArray]) 
+    # else:
+    #     return ""
     topicArray=[]
-    chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+    chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+    chapter_name = chapter_name + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
+    chapter_name = db.session.execute(text(chapter_name)).first()
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
@@ -2890,7 +2919,7 @@ def syllabusTopics():
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     print('BookID:'+str(bookId))
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+    # bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
     topicArray=[]
     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
