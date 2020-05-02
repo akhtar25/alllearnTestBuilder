@@ -10,7 +10,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from logging.handlers import RotatingFileHandler
-from spellchecker import SpellChecker
+#from spellchecker import SpellChecker
 import os
 import logging
 import datetime as dt
@@ -2489,18 +2489,19 @@ def addNewChapter():
 def spellCheckBook():
     print('inside spellCheckBox')
     bookText = request.args.get('bookText')
-    if bookText=='':
-        return ""
-    spell = SpellChecker()
-    correct = spell.correction(bookText)
-    print('correct word:'+str(correct))
-    if bookText==correct:
-        return ""
-    else:
-        print('inside if')
-        print(bookText)
-        print(correct)
-        return correct
+    return ""
+    #if bookText=='':
+    #    return ""
+    #spell = SpellChecker()
+    #correct = spell.correction(bookText)
+    #print('correct word:'+str(correct))
+    #if bookText==correct:
+    #    return ""
+    #else:
+    #    print('inside if')
+    #    print(bookText)
+    #    print(correct)
+    #    return correct
 
 @app.route('/deleteSubject',methods=['GET','POST'])
 def deleteSubject():
