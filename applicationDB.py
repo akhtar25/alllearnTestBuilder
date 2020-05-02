@@ -190,10 +190,11 @@ class Topic(db.Model):
     chapter_num = db.Column(db.Integer,nullable=True)
     chapter_name= db.Column(db.String(120), nullable=True)
     start_date= db.Column(db.DateTime, nullable=True)
-    end_date= db.Column(db.DateTime, nullable=True)
+    end_date= db.Column(db.DateTime, nullable=True)    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id= db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
 
 
 class BoardDetail(db.Model):
@@ -289,6 +290,7 @@ class BookDetails(db.Model):
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
     book_level = db.Column(db.String(1),nullable=True)  #S=Subject level book ; T=Topic Level Book
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)    
     last_modified_date=db.Column(db.DateTime)
 
 #End of changes for Syllabus Page
@@ -832,3 +834,29 @@ class StudentTag(db.Model):
     tag_id =  db.Column(db.ForeignKey('tag_detail.tag_id'),nullable=True)
     archive_status = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
+
+
+class InventoryDetail(db.Model):
+    __tablename__ = "inventory_detail"
+    inv_id = db.Column(db.Integer, primary_key=True)
+    inv_name = db.Column(db.String(200), nullable=False)
+    inv_description = db.Column(db.String(500), nullable=False) 
+    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+    total_stock = db.Column(db.Float, nullable=False)
+    stock_out = db.Column(db.Float, nullable=False)
+    item_rate = db.Column(db.Float, nullable=False)
+    total_cost = db.Column(db.Float, nullable=False)
+    is_archived = db.Column(db.String(1),nullable=True)    
+    last_modified_date=db.Column(db.DateTime, nullable=False)
+
+
+class InventoryAllocationStudent(db.Model):
+    __tablename__ = "inventory_allocation_stud"
+    alloc_id = db.Column(db.Integer, primary_key=True)
+    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
+    count = db.Column(db.Float, nullable=False)
+    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
+    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+    is_archived = db.Column(db.String(1),nullable=True)    
+    last_modified_date=db.Column(db.DateTime, nullable=False)

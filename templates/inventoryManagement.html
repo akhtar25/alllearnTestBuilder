@@ -6,7 +6,7 @@
             </div>
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
-            <a href="#createModal" id="addSurveyBTN" class="modal-trigger btn green right">Create New Survey</a>
+            <a href="#createModal" id="addSurveyBTN" class="modal-trigger btn green right">Add New Item</a>
             <br>
         </div>
         <div id="buttonbox" style="display:none;">
@@ -17,23 +17,26 @@
     </form>
     <br>
     <ul class="tabs">
-        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Surveys</a></li>
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Inventory Details</a></li>
         <!--<li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>-->
         <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
     </ul>
     <br>
 
-    <div id="surveyRowsDiv">
-        <table class="highlight" id="surveyTable">
+    <div id="inventoryRowsDiv">
+        <table class="highlight" id="inventoryTable">
             <thead>              
-                <th>Survey</th>
-                <th>Student Responses</th>
-                <th>Question Count</th>
-                <th>Created On</th>
+                <th>ID</th>
+                <th>Name</th>                
+                <th>Total Stock</th>
+                <th>Stock Out</th>
+                <th>Rate</th>
+                <th>Total Cost</th>
+                <th>Allocate</th>                
                 <th>Delete</th>
-            </thead>
+            </thead> <!--Done uptil here-->
             <tbody>
-                {%for surveyRow in surveyDetailRow%}
+                {%for inventoryRow in inventoryDetailRow%}
                 <tr id="{{surveyRow.survey_id}}">         
                     <td>{{surveyRow.survey_name}}</td>
                     <td>{{surveyRow.student_responses}}</td>
