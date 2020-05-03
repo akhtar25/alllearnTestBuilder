@@ -1,0 +1,40 @@
+<div class="content">
+    {%if studentInventoryData|length>0%}
+    <span class="orange-text" style="display:none;" id="errorInventoryUpdate">Error allocating inventory</span>
+    <form id="inventoryAllocationForm">        
+        <input type="hidden" name="inv_id" value="{{inv_id}}">
+        <div style="overflow-y: auto;">
+            <table>
+        {%for row in studentInventoryData%}
+        <tr>
+            <td>{{row.full_name}}</td>
+            <td><input type="text" id="allocateCount" placeholder="Count"/></td>
+        </tr>
+        {%endfor%}
+    </table>
+    </div>
+        <a href="#" id="updateInventoryAllocBTN" class="green btn right">Allocate</a>
+    </form>
+    {%else%}
+    <h5 class="grey-text">No students Found</h5>
+    {%endif%}
+
+</div>
+<script>
+    $('#updateInventoryAllocBTN').click(function($e){
+        $e.preventDefault();
+        var form = $('#inventoryAllocationForm');
+        $('#errorInventoryUpdate').hide();
+        $.ajax({
+                url: "/updateInventoryAllocation",
+                type: "POST",
+                data: form.serialize(),
+                success: function (updateResponse) {                    
+                    M.toast({html: '<h4>Survey Answers Updated</h4>'});
+                },
+            error: function (xhr) {                
+                $('#errorInventoryUpdate').show();
+            }
+            })
+    });
+</script>

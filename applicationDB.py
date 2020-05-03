@@ -846,6 +846,8 @@ class InventoryDetail(db.Model):
     stock_out = db.Column(db.Float, nullable=False)
     item_rate = db.Column(db.Float, nullable=False)
     total_cost = db.Column(db.Float, nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
     is_archived = db.Column(db.String(1),nullable=True)    
     last_modified_date=db.Column(db.DateTime, nullable=False)
 
