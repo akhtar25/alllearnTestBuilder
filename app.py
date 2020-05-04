@@ -10,7 +10,6 @@ from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from logging.handlers import RotatingFileHandler
-#from spellchecker import SpellChecker
 import os
 import logging
 import datetime as dt
@@ -2047,7 +2046,7 @@ def addSyllabus():
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
     if classExist == None:
-        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now)
+        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
         db.session.add(addClass)
         db.session.commit()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()

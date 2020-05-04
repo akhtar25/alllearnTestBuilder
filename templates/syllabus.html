@@ -8,8 +8,20 @@
             <h2 class="grey-text textCenter">Syllabus</h2>
         </div>
     </div> -->
+    
     <div class="row" id="titleSyllabus">
             <h2 class="grey-text">Syllabus</h2>
+            {% if fromSchoolRegistration==True %}
+            <div id="instructions">
+                
+                    <h5>1. To add class and subject go to General Tab</h5>
+                    <h5>2. Turn on <img src="../static/images/Button.png" width="35px;"/> to see select options</h5>
+                      
+                    <h5>3. Select class and subjects then click on Add button</h5>
+                    <h5>4. To add books, chapters and topics go to School Specific Tab</h5>
+                
+            </div> 
+            {% endif %}
         <div class="col lg s12" id="unselect">
             <ul class="tabs">
                 {% if fromSchoolRegistration==False %}
@@ -83,7 +95,7 @@
                             <p id="selectall" style="display: none;">
                                 <label>
                                     <!-- <input type="checkbox" id="unselectAll" /> -->
-                                    <span><a href="#" id="selectAll">select All</a></span> 
+                                    <span><a href="javascript:void(0);" id="selectAll">select all</a></span> 
                                 </label>
                             </p>
                             <ul class="collection " id="generalSubjectDiv" style="max-height:380px;position:relative;overflow-y:auto">
@@ -93,7 +105,7 @@
 
                             </ul>
                             <button style="border-radius:15px;display:none;margin-left:35px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassSubject" onclick="addClassSubjectBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
-                            {% if fromSchoolRegistration!=False %}
+                            
                             <div class="switch pull-right" style="display: none;">
                                     <label>
                                       <!-- Show Covered -->
@@ -102,7 +114,6 @@
                                       <!-- Hide Covered -->
                                     </label>
                                     </div> 
-                            {% endif %}
                         </div>
                             <div id="generalSubjectLoader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
@@ -277,7 +288,8 @@
                                 
                                 </ul>
                                 <a href="javascript:void(0);" id="otherBook">Add other books</a>
-                                <input type="text" placeholder="Book Name" onkeyup = "spellCheck();" style="display:none;color:black;" id="bookText">
+                                <input type="text" placeholder="Book Name" style="display:none;color:black;" id="bookText">
+                                <!--  onkeyup = "spellCheck();" -->
                                 <input type="text" placeholder="Book link (optional)" style="display: none;color: black;" id="bookLink">
                                 
                                 <h5 id="suggBox">suggest:<a style="margin-left:5px;" id="correctWord" onclick="insertWord();"></a></h5>
@@ -426,7 +438,7 @@
                                         <div class="modal-footer">
                                         </div>
                                       </div> 
-                                      
+                                     
 </div>
 <script>
 
@@ -2207,7 +2219,7 @@ $(document).ready(function(){
                     // var sections = responseArr[i].toString().split(':')[1];
                     //  sections = sections.replace(/;/g,",");
                     console.log('sections:'+responseArr[i]);
-                    {% if  fromSchoolRegistration!=False %}
+                    
                     classHTMLRecords = classHTMLRecords +
                     '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
                             responseArr[i] + ')" name=' +
@@ -2217,13 +2229,7 @@ $(document).ready(function(){
                     classHTMLEditRecords = classHTMLEditRecords +
                     '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;" id="' + responseArr[i] + 'selectedGeneral" ><p style="margin-top:-4px;"><label><input class="with-gap selectedClass" name="group1" id="'+responseArr[i]+'" type="radio" value="'+responseArr[i]+'"/><span></span></label></p>'+responseArr[i]+
                         '</li></a>';
-                    {% else %}
-                    classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
-                            responseArr[i] + ')" name=' +
-                        selectedBoardID + ' id=' + responseArr[i] + ' >'+ responseArr[i] +
-                        '</li></a>';
-                    {% endif %}
+                    
                 }
                 
                 $('#generalClassDiv').html(classHTMLRecords);
@@ -2354,7 +2360,7 @@ $(document).ready(function(){
                     subject_name = subjectName.replace(/ /g,"_");
                     var parameters = "\"" + subject_name + "\"" + ',' + subjectID + ',' + selectedClassVal +
                         ',' + selectedBoardID;
-                    {% if  fromSchoolRegistration!=False %}
+                    
                     subjectHTMLRecords = subjectHTMLRecords +
                         '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subject_name+'general" onClick=generalLoadBooks(' +
                         parameters + '); name=' +
@@ -2367,14 +2373,7 @@ $(document).ready(function(){
                         responseArr[i].toString().split(':')[0] + '><p><label><input class="selectedSubject" name="selectedSubjects" type="checkbox" value="'+subject_name+'"/><span></span></label></p><span>' + responseArr[i].toString()
                         .split(':')[1] + '</span>' +
                         '</li></a>';
-                    {% else %}
-                    subjectHTMLRecords = subjectHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="subjectItem" style="padding: 10px 5px;" id="'+subject_name+'general" onClick=generalLoadBooks(' +
-                        parameters + '); name=' +
-                        responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
-                        .split(':')[1] + '</span>' +
-                        '</li></a>';
-                    {% endif %}
+                    
                     // alert(responseArr[i].toString().split(':')[0]);
                     // subArray.push(subjectName+':'+subjectID);
                      
