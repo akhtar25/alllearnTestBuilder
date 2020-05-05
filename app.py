@@ -2174,10 +2174,17 @@ def fetchRemSubjects():
     board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id.board_id,school_id=teacher.school_id,is_archived='Y').all()
     subjectArray=[]
+    generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
+    generalSubjects = generalSubjects + "where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id.board_id)+"' and md.msg_id not in (select distinct msg_id from message_detail md "
+    generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
+    generalSubjects = generalSubjects + "and bcs.is_archived= 'Y')  order by description"
+    generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
     subjects = db.session.execute(text(subjects)).fetchall()
     for val in subjects:
         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
+        subjectArray.append(str(val.msg_id)+":"+str(val.description))
+    for val in generalSubjects:
         subjectArray.append(str(val.msg_id)+":"+str(val.description))
     if subjectArray:
         return jsonify([subjectArray])   
