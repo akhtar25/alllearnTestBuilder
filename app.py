@@ -2727,6 +2727,7 @@ def generalSyllabusChapters():
     class_val=request.args.get('class_val')
     board_id=request.args.get('board_id')
     subject_id=request.args.get('subject_id')
+    print('Book id:'+str(book_id))
     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     book = BookDetails.query.filter_by(book_id=book_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
@@ -2889,7 +2890,7 @@ def generalSyllabusTopics():
     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     
     print('BookID:'+str(bookId))
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
+    book = BookDetails.query.filter_by(book_id=bookId).first()
     print('book name:')
     print(book.book_name)
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
