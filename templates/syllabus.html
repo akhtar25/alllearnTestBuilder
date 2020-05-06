@@ -1139,7 +1139,7 @@ $(document).ready(function(){
         $('#chapterDiv').hide();
         $('.chapterCol').hide();
         $('#chapterloader').show();
-        deleteChapters(chapterNum,bookIdforChapters,subjectforChapters,classforChapters);
+        deleteChapters(chapterNum,bookIdforChapter,subjectforChapters,classforChapters);
 
     }
 
@@ -1469,7 +1469,7 @@ $(document).ready(function(){
             success: function (response) {
                 console.log(response);
                 //   fetchSubject(classforSubject,boardforSub); 
-                fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapters,boardIdforChapters);                       
+                fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                       
             },
             error: function (xhr) {
                 window.alert("error occurred while adding indivisual Subject");
@@ -1695,17 +1695,21 @@ $(document).ready(function(){
               
                 // alert(responseArr.length);
                 var chapterHTMLRecords = "";
+                console.log('fetch chapters:'+response);
                 if(response){
-                responseArr = response.toString().split('/,/');
+                responseArr = response.toString().split(',/');
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
-                    var chapterName = responseArr[i].toString().split(':')[1];
+                    var chapName = responseArr[i].toString().split(':')[1];
+                    var chapterName = chapName.toString().split(';')[0];
+                    var bookId = chapName.toString().split(';')[1];
+                    bookIdforChapter = bookId;
                     // var chapter = responseArr[i].toString().split(':')[1];
                     // alert(chapterNum + " and " + chapterName);
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + subjectforChapters +"\"," + subjectIdforChapters + "," + classforChapters + "," + boardIdforChapters+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ',' + classforChapters + ',' + boardIdforChapters+','+chapterNum+','+bookIdforChapters+'); >' + chapterName +
+                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ',' + classforChapters + ',' + boardIdforChapters+','+chapterNum+','+bookId+'); >' + chapterName +
                             '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                 }
                 }else{
@@ -2145,8 +2149,13 @@ $(document).ready(function(){
         var Classes = [];
         $.each($("input[name='selClass']:checked"), function(){
             Classes.push($(this).val());
-            
+            $(this).attr('disabled',true);
         });
+        if($('.selectedClass:checked').not(':disabled').length == 0){
+                    $('#addClassSubject').hide();
+                    }else{
+                    $('#addClassSubject').show();
+                }
         insertSyllabus(Classes);
            
         
@@ -2183,6 +2192,18 @@ $(document).ready(function(){
                 // $('#generalSubjectDiv').hide();
                 // $('#generalEditSubjectDiv').show();
                 // $('#addClassSubject').show();
+                $('#generalSubjectDiv').css('pointer-events','none');
+                $('#generalSubjectDiv').css('opacity','0.5');
+                $('#generalSubjectDiv').css('background','#ccc');
+                $('#generalDivBooks').css('pointer-events','none');
+                $('#generalDivBooks').css('opacity','0.5');
+                $('#generalDivBooks').css('background','#ccc');
+                $('#generalDivChapters').css('pointer-events','none');
+                $('#generalDivChapters').css('opacity','0.5');
+                $('#generalDivChapters').css('background','#ccc');
+                $('#generalDivTopics').css('pointer-events','none');
+                $('#generalDivTopics').css('opacity','0.5');
+                $('#generalDivTopics').css('background','#ccc');
                 if($('.selectedClass:checked').not(':disabled').length == 0){
                     $('#addClassSubject').hide();
                     }else{
@@ -2196,6 +2217,18 @@ $(document).ready(function(){
                 // $('#generalEditSubjectDiv').hide();
                 // $('#addClassSubject').hide();
                 $('#addClassSubject').hide();
+                $('#generalSubjectDiv').css('pointer-events','');
+                $('#generalSubjectDiv').css('opacity','');
+                $('#generalSubjectDiv').css('background','');
+                $('#generalDivBooks').css('pointer-events','');
+                $('#generalDivBooks').css('opacity','');
+                $('#generalDivBooks').css('background','');
+                $('#generalDivChapters').css('pointer-events','');
+                $('#generalDivChapters').css('opacity','');
+                $('#generalDivChapters').css('background','');
+                $('#generalDivTopics').css('pointer-events','');
+                $('#generalDivTopics').css('opacity','');
+                $('#generalDivTopics').css('background','');
                 }                           
             });
         });
@@ -2749,6 +2782,7 @@ $(document).ready(function(){
     var subjectIdforChapters = '';
     var boardIdforChapters = '';
     var chapterNameforchapter = '';
+    var bookIdforChapter = '';
     function loadChapters( selectedSubjectVal, selectedBookId,selectedSubjectID, selectedClassVal, selectedBoardID) {
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
@@ -2771,7 +2805,6 @@ $(document).ready(function(){
             var bookNam = '#{{book.book_id}}book';
             $(bookNam).css('background-color','');
             $(bookNam).css('color','');
-            console.log('inside for:'+bookNam);
         {% endfor %}
         var bookId = '#'+selectedBookId+'book';
         console.log('outside for:'+selectedBookId);
@@ -2787,7 +2820,7 @@ $(document).ready(function(){
                 console.log('inside syllabus chapter:'+response);
                 var chapterHTMLRecords = "";
                 if(response){
-                responseArr = response.toString().split('/,/');
+                responseArr = response.toString().split(',/');
                 // alert(responseArr.length);
                 
                 // bookIdforChapters = selectedBookId;
@@ -2796,11 +2829,15 @@ $(document).ready(function(){
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
-                    var chapterName = responseArr[i].toString().split(':')[1];
+                    var chapName = responseArr[i].toString().split(':')[1];
+                    var chapterName = chapName.toString().split(';')[0];
+                    var chapterBookId = chapName.toString().split(';')[1];
                     // var chapter = responseArr[i].toString().split(':')[1];
                     // alert(chapterNum + " and " + chapterName);
+                    
                     chapterNameforchapter = chapterName;
-                    var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum+","+selectedBookId;
+                    bookIdforChapter = chapterBookId;
+                    var parameters ="\""+chapterName + "\"" + "," + "\"" + selectedSubjectVal +"\"," + selectedSubjectID + "," + selectedClassVal + "," + selectedBoardID+","+chapterNum+","+chapterBookId;
                     console.log('inside load chapters:'+parameters);
                     chapterHTMLRecords = chapterHTMLRecords +
                     '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;padding-right:15px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+','+selectedBookId+'); >' + chapterName +

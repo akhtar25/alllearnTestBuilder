@@ -2575,7 +2575,7 @@ def deleteChapters():
     # for book_id in bookIds:
     #     print('inside for of deleteChapters')
     print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookID:'+str(book_id.book_id))
-    topic_ids = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num,book_id=book_id.book_id).all()
+    topic_ids = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num,book_id=bookId).all()
     for topic_id in topic_ids:
         print('Topic id:'+str(topic_id.topic_id))
         # updateTT = TopicTracker.query.filter_by(school_id=teacher_id.school_id,subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).all()
@@ -2699,6 +2699,14 @@ def fetchRemChapters():
     print('print chapters from general')
     print(queryChapters)
     queryChapters = db.session.execute(text(queryChapters)).fetchall()
+    
+            # chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
+    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
+    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    print('deleted chapters')
+    print(queryBookDetails)
+    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     j=1
     for chapter in queryChapters:
         chapters = chapter.chapter_name
@@ -2709,30 +2717,35 @@ def fetchRemChapters():
                 chapters = chapters + "/"
                 print(chapters)
             elif j==len(queryChapters):
-                num = "/"+str(num)
-                print(chapters)
+                if len(queryBookDetails)>0:
+                    num = "/"+str(num)
+                    chapters = chapters+"/"
+                else:
+                    num = "/"+str(num)
+                    print(chapters)
             else:
                 num = "/"+str(num)
                 chapters = chapters+"/"
                 print(chapters)
             j=j+1
+        else:
+            if len(queryBookDetails)>0:
+                chapters = chapters+"/"
         chapterArray.append(str(num)+":"+str(chapters))
-            # chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
-    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
-    print('deleted chapters')
-    print(queryBookDetails)
-    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
     i=1
     for book in queryBookDetails:
+        print('inside for queryBookDetails'+str(len(queryChapters)))
         chapter = book.chapter_name
         chapter = chapter.replace("'","\'")
         num = book.chapter_num
         if len(queryBookDetails)>1:
             if i==1:
-                chapter = chapter + "/"
-                print(chapter)
+                if len(queryChapters)>0:
+                    print('if queryChapters is not null')
+                    num = "/"+str(num)
+                else:
+                    chapter = chapter + "/"
+                    print(chapter)
             elif i==len(queryBookDetails):
                 num = "/"+str(num)
                 print(chapter)
@@ -2741,7 +2754,12 @@ def fetchRemChapters():
                 chapter = chapter+"/"
                 print(chapter)
             i=i+1
+        else:
+            num = "/"+str(num)
+        print(chapter)
         chapterArray.append(str(num)+":"+str(chapter))
+    for ch in chapterArray:
+        print(ch)
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2835,19 +2853,23 @@ def syllabusChapters():
         chapter = book.chapter_name
         chapter = chapter.replace("'","\'")
         num = book.chapter_num
+        book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
+        bookId = book.book_id
         if len(queryBookDetails)>1:
             if i==1:
-                chapter = chapter + "/"
+                bookId = str(bookId) + "/"
                 print(chapter)
             elif i==len(queryBookDetails):
                 num = "/"+str(num)
                 print(chapter)
             else:
                 num = "/"+str(num)
-                chapter = chapter+"/"
+                bookId = str(bookId) + "/"
                 print(chapter)
             i=i+1
-        chapterArray.append(str(num)+":"+str(chapter))
+        chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
+    for chapters in chapterArray:
+        print(chapters)
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2871,6 +2893,7 @@ def chapterTopic():
         remTopics = remTopics + "(select distinct td.topic_id from topic_detail td inner join topic_tracker tt on "
         remTopics = remTopics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and "
         remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"') order by topic_id"
+        print('inside Rem topics')
         print('Rem Topics:'+str(remTopics))
         remTopics = db.session.execute(text(remTopics)).fetchall()
         topics = "select distinct td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on "
@@ -2881,40 +2904,57 @@ def chapterTopic():
     topicArray = []
     i=1
     for topic in topics:
+        print('for topic list')
+        print(topic.topic_name)
+        print(len(remTopics))
         topic_name = topic.topic_name
         topic_name = topic_name.replace("'","\'")
         topic_id = topic.topic_id
         if len(topics)>1:
             if i==1:
                 topic_name = topic_name + "/"
-                print(topic_name)
             elif i==len(topics):
-                topic_id = "/"+str(topic_id)
+                if len(remTopics)>0:
+                    topic_id = "/"+str(topic_id)
+                    topic_name = topic_name + "/"
+                else:
+                    topic_id = "/"+str(topic_id)
             else:
                 topic_id = "/"+str(topic_id)
                 topic_name = topic_name+"/"
-                print(topic_name)
             i=i+1
+        else:
+            if len(remTopics)>0:
+                topic_name = topic_name+"/"
         topicArray.append(str(topic_id)+":"+str(topic_name))
         # topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
     j=1
     for remTopic in remTopics:
+        print('rem list')
+        print(remTopic.topic_name)
         topic_name = remTopic.topic_name
         topic_name = remTopic.topic_name.replace("'","\'")
         topic_id = remTopic.topic_id
         if len(remTopics)>1:
             if j==1:
-                topic_name = topic_name + "/"
-                print(topic_name)
+                if len(topics)>0:
+                    topic_id = "/"+str(topic_id)
+                    topic_name = topic_name + "/"
+                else:
+                    topic_name = topic_name + "/"
             elif j==len(remTopics):
                 topic_id = "/"+str(topic_id)
             else:
                 topic_id = "/"+str(topic_id)
                 topic_name = topic_name+"/"
-                print(topic_name)
             j=j+1
+        else:
+            if len(topics)>0:
+                topic_id = "/"+str(topic_id)
         topicArray.append(str(topic_id)+":"+str(topic_name))
         # topicArray.append(str(remTopic.topic_id)+':'+str(remTopic.topic_name))
+    for top in topicArray:
+        print(top)
     if topicArray:
         return jsonify([topicArray])
     else:
@@ -2947,19 +2987,21 @@ def fetchChapters():
         chapter = book.chapter_name
         chapter = chapter.replace("'","\'")
         num = book.chapter_num
+        book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
+        bookId = book.book_id
         if len(queryBookDetails)>1:
             if i==1:
-                chapter = chapter + "/"
+                bookId = str(bookId) + "/"
                 print(chapter)
             elif i==len(queryBookDetails):
                 num = "/"+str(num)
                 print(chapter)
             else:
                 num = "/"+str(num)
-                chapter = chapter+"/"
+                bookId = str(bookId) + "/"
                 print(chapter)
             i=i+1
-        chapterArray.append(str(num)+":"+str(chapter))
+        chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2995,9 +3037,10 @@ def fetchTopics():
     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
     chapter_name = db.session.execute(text(chapter_name)).first()
+    chapterName = chapter_name.chapter_name.replace("'","''")
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
-    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
+    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
     i=1
     for topic in queryTopics:
@@ -3044,7 +3087,8 @@ def generalSyllabusTopics():
     # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and td.topic_id in "
     # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
-    queryTopics = "select distinct topic_id, topic_name from topic_detail td where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id)+"' and subject_id = '"+str(subject_id)+"' and chapter_name ='"+str(chapter_name.chapter_name)+"' order by topic_id"
+    chapterName = chapter_name.chapter_name.replace("'","''")
+    queryTopics = "select distinct topic_id, topic_name from topic_detail td where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id)+"' and subject_id = '"+str(subject_id)+"' and chapter_name ='"+str(chapterName)+"' order by topic_id"
     print('inside generalsyllabustopics')
     print(queryTopics)
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
@@ -3087,11 +3131,13 @@ def syllabusTopics():
     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
     chapter_name = db.session.execute(text(chapter_name)).first()
+    chapterName = chapter_name.chapter_name.replace("'","''")
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
-    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
+    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
     i=1
+    print(len(queryTopics))
     for topic in queryTopics:
         topic_name = topic.topic_name
         topic_name = topic_name.replace("'","\'")
