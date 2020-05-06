@@ -1167,6 +1167,29 @@ def index():
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
+    teacher_id = TeacherProfile.query.filter_by(user_id=user.id).first() 
+    school_id = SchoolProfile.query.filter_by(school_name=school_name_val).first()
+    if user.user_type==71:
+        classExist = ClassSection.query.filter_by(school_id=school_id.school_id,class_teacher=teacher_id.teacher_id).first()
+        if classExist==None:
+            fromSchoolRegistration = True
+       
+            subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+            teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+            boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+            school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+            classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+            classValues = db.session.execute(text(classValues)).fetchall()
+            classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+            classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
+            subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+            bookName = BookDetails.query.all()
+            chapterNum = Topic.query.distinct().all()
+            topicId = Topic.query.all()
+            generalBoard = MessageDetails.query.filter_by(category='Board').all()
+            fromSchoolRegistration = True
+            return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
@@ -2574,12 +2597,14 @@ def deleteChapters():
     book_id = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num).first()
     # for book_id in bookIds:
     #     print('inside for of deleteChapters')
-    print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookID:'+str(book_id.book_id))
-    topic_ids = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num,book_id=bookId).all()
+    print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookName:'+str(book.book_name))
+    topic_ids = "select topic_id from topic_detail td where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' "
+    topic_ids = topic_ids + "and td.book_id in (select book_id from book_details bd2 where book_name = '"+str(book.book_name)+"' and class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"')"
+    topic_ids = db.session.execute(text(topic_ids)).fetchall()
     for topic_id in topic_ids:
         print('Topic id:'+str(topic_id.topic_id))
         # updateTT = TopicTracker.query.filter_by(school_id=teacher_id.school_id,subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).all()
-        updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
+        updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id in (select class_sec_id from class_section where class_val='"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"') and topic_id='"+str(topic_id.topic_id)+"'"
         print(updateTT)
         updateTT = db.session.execute(text(updateTT))
         db.session.commit()
@@ -2842,7 +2867,7 @@ def syllabusChapters():
     chapterArray=[]
     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
+    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'N' and td.book_id in "
     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
     # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
     # queryBookDetails = queryBookDetails + "order by chapter_num"
@@ -2892,7 +2917,7 @@ def chapterTopic():
         remTopics = "select distinct topic_name ,topic_id from topic_detail td where class_val = '"+str(class_val)+"' and subject_id  = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' and topic_id not in "
         remTopics = remTopics + "(select distinct td.topic_id from topic_detail td inner join topic_tracker tt on "
         remTopics = remTopics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and "
-        remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"') order by topic_id"
+        remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and class_val='"+str(class_val)+"' and subject_id='"+str(subject_id.msg_id)+"') order by topic_id"
         print('inside Rem topics')
         print('Rem Topics:'+str(remTopics))
         remTopics = db.session.execute(text(remTopics)).fetchall()

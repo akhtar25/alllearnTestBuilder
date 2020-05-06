@@ -1539,7 +1539,7 @@ $(document).ready(function(){
             data: topics,
             success: function (response) {
                 console.log(response);
-                  fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapters,boardIdforChapters);                        
+                  fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                        
             },
             error: function (xhr) {
                 window.alert("error occurred while adding indivisual Subject");
@@ -1605,7 +1605,7 @@ $(document).ready(function(){
             contentType: "application/json",
             data: topicName,
             success: function (response) {
-                fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapters,boardIdforChapters);                     
+                fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                     
             },
             error: function (xhr) {
                 window.alert("error occurred while adding chapters");
@@ -1709,7 +1709,7 @@ $(document).ready(function(){
                     // alert(chapterNum + " and " + chapterName);
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + subjectforChapters +"\"," + subjectIdforChapters + "," + classforChapters + "," + boardIdforChapters+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ',' + classforChapters + ',' + boardIdforChapters+','+chapterNum+','+bookId+'); >' + chapterName +
+                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ',' + classforChapters + ',' + boardIdforChapters+','+chapterNum+','+bookIdforChapters+'); >' + chapterName +
                             '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                 }
                 }else{
