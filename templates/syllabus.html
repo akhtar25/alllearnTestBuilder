@@ -14,11 +14,11 @@
             {% if fromSchoolRegistration==True %}
             <div id="instructions">
                 
-                    <h5>1. To add class and subject go to General Tab</h5>
+                    <h5>1. To add classes go to General Tab</h5>
                     <h5>2. Turn on <img src="../static/images/Button.png" width="35px;"/> to see select options</h5>
                       
-                    <h5>3. Select class and subjects then click on Add button</h5>
-                    <h5>4. To add books, chapters and topics go to School Specific Tab</h5>
+                    <h5>3. Select classes then click on Add button</h5>
+                    <h5>4. To add subjects, books, chapters and topics go to School Specific Tab</h5>
                 
             </div> 
             {% endif %}
@@ -65,19 +65,36 @@
                         </div>
                     </div>
                 </article>
+                
                 <article class="col s12 m6 l2 ">
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
+                        {% if fromSchoolRegistration==True %}
+                        <div class="switch pull-right" style="display: none;">
+                            <label>
+                              Add classes
+                              <input type="checkbox">
+                              <span class="lever"></span>
+                              <!-- Hide Covered -->
+                            </label>
+                            </div>
+                            {% endif %}
                         <div class="card-content ">
                             <div class="card-title">Classes</div>
+                            <p id="selectall" style="display: none;">
+                                <label>
+                                    <!-- <input type="checkbox" id="unselectAll" /> -->
+                                    <span><a href="javascript:void(0);" id="selectAll">select all</a></span> 
+                                </label>
+                            </p>
                             <ul class="collection " id="generalClassDiv" style="max-height:380px;position:relative;overflow-y:auto">
 
                             </ul>
                             <ul class="collection " id="generalEditClassDiv" style="max-height:380px;position:relative;overflow-y:auto;display: none;">
 
                             </ul>
-                            
+                            <button style="border-radius:15px;display:none;margin-left:35px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassSubject" onclick="addClassSubjectBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
                             <div id="generalClassLoader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
                             </div>
@@ -86,34 +103,28 @@
                     </div>
                 </article>
                 <article class="col s12 m6 l2 ">
+                     
                     <div class="card  z-depth-4">
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
                             <div class="card-title">Subjects</div>
                             <div id="genSubject">
-                            <p id="selectall" style="display: none;">
-                                <label>
-                                    <!-- <input type="checkbox" id="unselectAll" /> -->
-                                    <span><a href="javascript:void(0);" id="selectAll">select all</a></span> 
-                                </label>
-                            </p>
+                            
                             <ul class="collection " id="generalSubjectDiv" style="max-height:380px;position:relative;overflow-y:auto">
 
                             </ul>
-                            <ul class="collection" id="generalEditSubjectDiv" style="max-height: 380px;position: relative;overflow-y:auto;display: none;">
+                            <!-- <ul class="collection" id="generalEditSubjectDiv" style="max-height: 380px;position: relative;overflow-y:auto;display: none;">
 
-                            </ul>
-                            <button style="border-radius:15px;display:none;margin-left:35px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassSubject" onclick="addClassSubjectBtn();"><a href="javascript:void(0);" style="color: white;">Add</a></button>
+                            </ul> -->
                             
-                            <div class="switch pull-right" style="display: none;">
+                            
+                            <!-- <div class="switch pull-right" style="display: none;">
                                     <label>
-                                      <!-- Show Covered -->
                                       <input type="checkbox">
                                       <span class="lever"></span>
-                                      <!-- Hide Covered -->
                                     </label>
-                                    </div> 
+                                    </div>  -->
                         </div>
                             <div id="generalSubjectLoader" style="display: none;">
                                     <img src="../static/images/smallLoader.gif" style="width:100%">
@@ -441,11 +452,19 @@
                                      
 </div>
 <script>
+   
+    function checkedBox(){
+        if($('.selectedClass:checked').not(':disabled').length == 0){
+            $('#addClassSubject').hide();
+        }else{
+            $('#addClassSubject').show();
+        }
+    }
 
 $('#selectAll').click(function(){
         console.log('Inside unselect');
         
-        $('.selectedSubject').attr('checked',true);
+        $('.selectedClass').attr('checked',true);
         
     });
 
@@ -1639,7 +1658,7 @@ $(document).ready(function(){
             type: "get",
             data: '',
             success: function (response) {
-                responseArr = response.toString().split(',');
+                responseArr = response.toString().split('/,/');
                 //alert(responseArr.length);
                 var topicHTMLRecords = "";
                 for (var i = 0; i < responseArr.length; i++) {
@@ -1677,7 +1696,7 @@ $(document).ready(function(){
                 // alert(responseArr.length);
                 var chapterHTMLRecords = "";
                 if(response){
-                responseArr = response.toString().split(',');
+                responseArr = response.toString().split('/,/');
                 for (var i = 0; i < responseArr.length; i++) {
                     // alert(responseArr[i]);
                     var chapterNum = responseArr[i].toString().split(':')[0];
@@ -1886,7 +1905,7 @@ $(document).ready(function(){
                 var remChapterHTMLRecords = "";
                 console.log('inside fetchRemChapters :'+response);
                 if(response!=''){
-                    responseArr = response.toString().split(',');
+                    responseArr = response.toString().split('/,/');
                 // alert(responseArr);
                 
                 for (var i = 0; i < responseArr.length; i++) {
@@ -1947,7 +1966,7 @@ $(document).ready(function(){
                 var chapterTopicHTMLRecords = "";
                 console.log('inside chapterTopic :'+response);
                 if(response!=''){
-                    responseArr = response.toString().split(',');
+                    responseArr = response.toString().split('/,/');
                 // alert(responseArr);
                 
                 for (var i = 0; i < responseArr.length; i++) {
@@ -2111,40 +2130,40 @@ $(document).ready(function(){
 
     function addClassSubjectBtn(){
         console.log('inside addClassSubjectBtn');
-        var classValue = document.getElementsByName('group1');
-        var class_value = '';
-        for(var i = 0; i < classValue.length; i++){
-            if(classValue[i].checked){
-                class_value = classValue[i].value;
-                var class_val = "#"+class_value;
-                $(class_val).prop('checked', true );
-                $(class_val).attr('disabled', true);
-                console.log(class_value);
-            }
-        }
+        // var classValue = document.getElementsByName('group1');
+        // var class_value = '';
+        // for(var i = 0; i < classValue.length; i++){
+        //     if(classValue[i].checked){
+        //         class_value = classValue[i].value;
+        //         var class_val = "#"+class_value;
+        //         $(class_val).prop('checked', true );
+        //         $(class_val).attr('disabled', true);
+        //         console.log(class_value);
+        //     }
+        // }
 
-        var subjects = [];
-        $.each($("input[name='selectedSubjects']:checked"), function(){
-            subjects.push($(this).val());
+        var Classes = [];
+        $.each($("input[name='selClass']:checked"), function(){
+            Classes.push($(this).val());
             
         });
-        insertSyllabus(class_value,subjects);
+        insertSyllabus(Classes);
            
         
     }
 
-    function insertSyllabus(class_value,subjects){
-        console.log(subjects);
-            subjects = JSON.stringify(subjects);
+    function insertSyllabus(Classes){
+        console.log(Classes);
+        Classes = JSON.stringify(Classes);
             $.ajax({
-            url: "/addSyllabus?class_val="+class_value,
+            url: "/addSyllabus?Classes="+Classes,
             type: "POST",
             contentType: "application/json",
-            data: subjects,
+            data: Classes,
             success: function (response) {
                 console.log('inside success of insertSyllabus');
                 console.log(response);
-                M.toast({html: 'Syllabus successfully added to school'})
+                M.toast({html: 'Classes successfully added to school'})
                 //   fetchSubject(classforSubject,boardforSub);  
 
             },
@@ -2161,15 +2180,21 @@ $(document).ready(function(){
                 console.log("Is checked");
                 $("#generalClassDiv").hide();
                 $("#generalEditClassDiv").show();
-                $('#generalSubjectDiv').hide();
-                $('#generalEditSubjectDiv').show();
-                $('#addClassSubject').show();
+                // $('#generalSubjectDiv').hide();
+                // $('#generalEditSubjectDiv').show();
+                // $('#addClassSubject').show();
+                if($('.selectedClass:checked').not(':disabled').length == 0){
+                    $('#addClassSubject').hide();
+                    }else{
+                    $('#addClassSubject').show();
+                }
                     }
             else {
                 $("#generalClassDiv").show();
                     $("#generalEditClassDiv").hide();
-                    $('#generalSubjectDiv').show();
-                $('#generalEditSubjectDiv').hide();
+                //     $('#generalSubjectDiv').show();
+                // $('#generalEditSubjectDiv').hide();
+                // $('#addClassSubject').hide();
                 $('#addClassSubject').hide();
                 }                           
             });
@@ -2179,18 +2204,18 @@ $(document).ready(function(){
                 console.log("Is checked");
                 $("#generalClassDiv").hide();
                 $("#generalEditClassDiv").show();
-                $('#generalSubjectDiv').hide();
-                $('#generalEditSubjectDiv').show();
                 $('#selectall').show();
-                $('#addClassSubject').show();
+                if($('.selectedClass:checked').not(':disabled').length == 0){
+                    $('#addClassSubject').hide();
+                    }else{
+                        $('#addClassSubject').show();
+                    }
                     }
             else {
                 console.log('not checked');
                 
                 $("#generalEditClassDiv").hide();
                 $("#generalClassDiv").show();
-                $('#generalSubjectDiv').show();
-                $('#generalEditSubjectDiv').hide();
                 $('#selectall').hide();
                 $('#addClassSubject').hide();
                 console.log('after show generalClassDiv');
@@ -2198,6 +2223,7 @@ $(document).ready(function(){
             });
     var selectedBoardID = '';
     $('.generalBoardClass').click(function(){
+        $('.switch').hide();
         $('.generalBoardClass').css('background-color','lightseagreen');
         $('.generalBoardClass').css('color','white');
         selectedBoardID = this.id;
@@ -2227,8 +2253,8 @@ $(document).ready(function(){
                         '</li></a>';
 
                     classHTMLEditRecords = classHTMLEditRecords +
-                    '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;" id="' + responseArr[i] + 'selectedGeneral" ><p style="margin-top:-4px;"><label><input class="with-gap selectedClass" name="group1" id="'+responseArr[i]+'" type="radio" value="'+responseArr[i]+'"/><span></span></label></p>'+responseArr[i]+
-                        '</li></a>';
+                    '<a href="javascript:void(0);"><li class="collection-item classEdit" style="color:black;padding-bottom:0px;" id="' + responseArr[i] + 'selectedGeneral" ><p><label><input class="selectedClass" name="selClass" type="checkbox" onclick="checkedBox();" value="'+responseArr[i]+'"/><span></span></label></p><span style="margin-top: 3px;font-size: 16px;margin-left: 12px;">'+responseArr[i]+
+                        '</span></li></a>';
                     
                 }
                 
@@ -2240,6 +2266,7 @@ $(document).ready(function(){
                 $('#generalDivBooks').hide();
                 $('#generalDivChapters').hide();
                 $('#generalDivTopics').hide();
+                $('.switch').show();
                 // end
                 $('#generalClassDiv').show();
                 
@@ -2264,6 +2291,7 @@ $(document).ready(function(){
 
     $('.boardClass').click(function () {
         var classHTMLRecords = "";
+        
         $('.classCol').hide();
         selectedBoardID = this.id;
         boardforSub = selectedBoardID;
@@ -2320,7 +2348,7 @@ $(document).ready(function(){
 
     function generalLoadSubjects(selectedClassVal){
         $('#generalSubjectDiv').hide();
-        $('.switch').hide();
+       
         $('#generalSubjectLoader').show();
         // classforSubject = selectedClassVal;
         
@@ -2391,7 +2419,7 @@ $(document).ready(function(){
                 $('#generalDivChapters').hide();
                 $('#generalDivTopics').hide();
                 // end
-                $('.switch').show();
+                
                 $('#genSubject').show();
                 $('#generalDivBooks').hide();
                 $('#generalDivChapters').hide();
@@ -2679,8 +2707,9 @@ $(document).ready(function(){
             data: '',
             success: function (response) {
                 var chapterHTMLRecords = "";
+                console.log(response);
                 if(response){
-                responseArr = response.toString().split(',');
+                responseArr = response.toString().split('/,/');
                 // alert(responseArr.length);
                 
                 // bookIdforChapters = selectedBookId;
@@ -2755,9 +2784,10 @@ $(document).ready(function(){
             type: "get",
             data: '',
             success: function (response) {
+                console.log('inside syllabus chapter:'+response);
                 var chapterHTMLRecords = "";
                 if(response){
-                responseArr = response.toString().split(',');
+                responseArr = response.toString().split('/,/');
                 // alert(responseArr.length);
                 
                 // bookIdforChapters = selectedBookId;
@@ -2820,7 +2850,9 @@ $(document).ready(function(){
             type: "get",
             data: '',
             success: function (response) {
-                responseArr = response.toString().split(',');
+                console.log(response)
+                responseArr = response.toString().split('/,/');
+                
                 //alert(responseArr.length);
                 var topicHTMLRecords = "";
                 for (var i = 0; i < responseArr.length; i++) {
@@ -2890,7 +2922,7 @@ $(document).ready(function(){
             type: "get",
             data: '',
             success: function (response) {
-                responseArr = response.toString().split(',');
+                responseArr = response.toString().split('/,/');
                 //alert(responseArr.length);
                 var topicHTMLRecords = "";
                 for (var i = 0; i < responseArr.length; i++) {

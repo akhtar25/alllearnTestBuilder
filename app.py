@@ -2042,26 +2042,27 @@ def syllabus():
 @app.route('/addSyllabus',methods=['GET','POST'])
 def addSyllabus():
     print('inside add syllabus')
-    subjects = request.get_json()
-    class_val = request.args.get('class_val')
+    classes = request.get_json()
+    # class_val = request.args.get('class_val')
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
-    if classExist == None:
-        addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
-        db.session.add(addClass)
-        db.session.commit()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
-    for subject in subjects:
-        subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
-        subjExist = ''
-        subjExist = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
-        print(subjExist)
-        if subjExist == None:
-            print('is subjExist is null')
-            addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id,last_modified_date=datetime.now())
-            db.session.add(addSubject)
+    for class_val in classes:
+        classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
+        if classExist == None:
+            addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
+            db.session.add(addClass)
             db.session.commit()
+    # class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
+    # for subject in subjects:
+    #     subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+    #     subjExist = ''
+    #     subjExist = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
+    #     print(subjExist)
+    #     if subjExist == None:
+    #         print('is subjExist is null')
+    #         addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id,last_modified_date=datetime.now())
+    #         db.session.add(addSubject)
+    #         db.session.commit()
         # bookNames = BookDetails.query.distinct(BookDetails.book_name).filter_by(subject_id=subject_id.msg_id,class_val=class_val).all()
         print('after add subjects')
         # for book_name in bookNames:
@@ -2198,10 +2199,16 @@ def addSubject():
     class_val=request.args.get('class_val')
     subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
-    insertSubject.is_archived = 'N'
-    db.session.add(insertSubject)
-    db.session.commit()
+    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
+    if subjExist==None:
+        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
+        db.session.add(addSubject)
+        db.session.commit()
+    else:
+        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
+        insertSubject.is_archived = 'N'
+        db.session.add(insertSubject)
+        db.session.commit()
     return ('update data successfully')
 
 @app.route('/addChapter',methods=['GET','POST'])
@@ -2424,7 +2431,6 @@ def addNewTopic():
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
-    chapter = chapter.capitalize() 
     chapter_num = request.args.get('chapter_num')
     
     subject_id = MessageDetails.query.filter_by(description = subject).first()
@@ -2686,22 +2692,56 @@ def fetchRemChapters():
     
     chapterArray=[]
     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
-    for bookId in bookIds:
-        print('Book Id new:'+str(bookId))
-        queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id='"+str(bookId.book_id)+"'"
-        queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
-        queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
-        print(queryChapters)
-        queryChapters = db.session.execute(text(queryChapters)).fetchall()
-        for chapter in queryChapters:
-            chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
+    
+    queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"') "
+    queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
+    queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
+    print('print chapters from general')
+    print(queryChapters)
+    queryChapters = db.session.execute(text(queryChapters)).fetchall()
+    j=1
+    for chapter in queryChapters:
+        chapters = chapter.chapter_name
+        chapters = chapters.replace("'","\'")
+        num = chapter.chapter_num
+        if len(queryChapters)>1:
+            if j==1:
+                chapters = chapters + "/"
+                print(chapters)
+            elif j==len(queryChapters):
+                num = "/"+str(num)
+                print(chapters)
+            else:
+                num = "/"+str(num)
+                chapters = chapters+"/"
+                print(chapters)
+            j=j+1
+        chapterArray.append(str(num)+":"+str(chapters))
+            # chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
     queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+    print('deleted chapters')
+    print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+    i=1
     for book in queryBookDetails:
-        chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
-    
+        chapter = book.chapter_name
+        chapter = chapter.replace("'","\'")
+        num = book.chapter_num
+        if len(queryBookDetails)>1:
+            if i==1:
+                chapter = chapter + "/"
+                print(chapter)
+            elif i==len(queryBookDetails):
+                num = "/"+str(num)
+                print(chapter)
+            else:
+                num = "/"+str(num)
+                chapter = chapter+"/"
+                print(chapter)
+            i=i+1
+        chapterArray.append(str(num)+":"+str(chapter))
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2746,8 +2786,24 @@ def generalSyllabusChapters():
     print('inside general syllabus chapter:')
     print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+    i=1
     for book in queryBookDetails:
-        chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
+        chapter = book.chapter_name
+        chapter = chapter.replace("'","\'")
+        num = book.chapter_num
+        if len(queryBookDetails)>1:
+            if i==1:
+                chapter = chapter + "/"
+                print(chapter)
+            elif i==len(queryBookDetails):
+                num = "/"+str(num)
+                print(chapter)
+            else:
+                num = "/"+str(num)
+                chapter = chapter+"/"
+                print(chapter)
+            i=i+1
+        chapterArray.append(str(num)+":"+str(chapter))
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2774,8 +2830,24 @@ def syllabusChapters():
     # queryBookDetails = queryBookDetails + "order by chapter_num"
     print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+    i=1
     for book in queryBookDetails:
-        chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
+        chapter = book.chapter_name
+        chapter = chapter.replace("'","\'")
+        num = book.chapter_num
+        if len(queryBookDetails)>1:
+            if i==1:
+                chapter = chapter + "/"
+                print(chapter)
+            elif i==len(queryBookDetails):
+                num = "/"+str(num)
+                print(chapter)
+            else:
+                num = "/"+str(num)
+                chapter = chapter+"/"
+                print(chapter)
+            i=i+1
+        chapterArray.append(str(num)+":"+str(chapter))
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2807,10 +2879,42 @@ def chapterTopic():
     except:
         return ""
     topicArray = []
+    i=1
     for topic in topics:
-        topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
+        topic_name = topic.topic_name
+        topic_name = topic_name.replace("'","\'")
+        topic_id = topic.topic_id
+        if len(topics)>1:
+            if i==1:
+                topic_name = topic_name + "/"
+                print(topic_name)
+            elif i==len(topics):
+                topic_id = "/"+str(topic_id)
+            else:
+                topic_id = "/"+str(topic_id)
+                topic_name = topic_name+"/"
+                print(topic_name)
+            i=i+1
+        topicArray.append(str(topic_id)+":"+str(topic_name))
+        # topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
+    j=1
     for remTopic in remTopics:
-        topicArray.append(str(remTopic.topic_id)+':'+str(remTopic.topic_name))
+        topic_name = remTopic.topic_name
+        topic_name = remTopic.topic_name.replace("'","\'")
+        topic_id = remTopic.topic_id
+        if len(remTopics)>1:
+            if j==1:
+                topic_name = topic_name + "/"
+                print(topic_name)
+            elif j==len(remTopics):
+                topic_id = "/"+str(topic_id)
+            else:
+                topic_id = "/"+str(topic_id)
+                topic_name = topic_name+"/"
+                print(topic_name)
+            j=j+1
+        topicArray.append(str(topic_id)+":"+str(topic_name))
+        # topicArray.append(str(remTopic.topic_id)+':'+str(remTopic.topic_name))
     if topicArray:
         return jsonify([topicArray])
     else:
@@ -2838,8 +2942,24 @@ def fetchChapters():
     # queryBookDetails = queryBookDetails + "order by chapter_num"
     print(queryBookDetails)
     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+    i=1
     for book in queryBookDetails:
-        chapterArray.append(str(book.chapter_num)+":"+str(book.chapter_name))
+        chapter = book.chapter_name
+        chapter = chapter.replace("'","\'")
+        num = book.chapter_num
+        if len(queryBookDetails)>1:
+            if i==1:
+                chapter = chapter + "/"
+                print(chapter)
+            elif i==len(queryBookDetails):
+                num = "/"+str(num)
+                print(chapter)
+            else:
+                num = "/"+str(num)
+                chapter = chapter+"/"
+                print(chapter)
+            i=i+1
+        chapterArray.append(str(num)+":"+str(chapter))
     if chapterArray:
         return jsonify([chapterArray]) 
     else:
@@ -2879,8 +2999,24 @@ def fetchTopics():
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+    i=1
     for topic in queryTopics:
-        topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+        topic_name = topic.topic_name
+        topic_name = topic_name.replace("'","\'")
+        topic_id = topic.topic_id
+        if len(queryTopics)>1:
+            if i==1:
+                topic_name = topic_name + "/"
+                print(topic_name)
+            elif i==len(queryTopics):
+                topic_id = "/"+str(topic_id)
+            else:
+                topic_id = "/"+str(topic_id)
+                topic_name = topic_name+"/"
+                print(topic_name)
+            i=i+1
+        topicArray.append(str(topic_id)+":"+str(topic_name))
+        # topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
     if topicArray:
         return jsonify([topicArray]) 
     else:
@@ -2912,8 +3048,23 @@ def generalSyllabusTopics():
     print('inside generalsyllabustopics')
     print(queryTopics)
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+    i=1
     for topic in queryTopics:
-        topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+        topic_name = topic.topic_name
+        topic_name = topic_name.replace("'","\'")
+        topic_id = topic.topic_id
+        if len(queryTopics)>1:
+            if i==1:
+                topic_name = topic_name + "/"
+                print(topic_name)
+            elif i==len(queryTopics):
+                topic_id = "/"+str(topic_id)
+            else:
+                topic_id = "/"+str(topic_id)
+                topic_name = topic_name+"/"
+                print(topic_name)
+            i=i+1
+        topicArray.append(str(topic_id)+":"+str(topic_name))
     if topicArray:
         return jsonify([topicArray]) 
     else:
@@ -2940,8 +3091,23 @@ def syllabusTopics():
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+    i=1
     for topic in queryTopics:
-        topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+        topic_name = topic.topic_name
+        topic_name = topic_name.replace("'","\'")
+        topic_id = topic.topic_id
+        if len(queryTopics)>1:
+            if i==1:
+                topic_name = topic_name + "/"
+                print(topic_name)
+            elif i==len(queryTopics):
+                topic_id = "/"+str(topic_id)
+            else:
+                topic_id = "/"+str(topic_id)
+                topic_name = topic_name+"/"
+                print(topic_name)
+            i=i+1
+        topicArray.append(str(topic_id)+":"+str(topic_name))
     if topicArray:
         return jsonify([topicArray]) 
     else:
