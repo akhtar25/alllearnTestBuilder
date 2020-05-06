@@ -2201,7 +2201,7 @@ def fetchRemSubjects():
     generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
     generalSubjects = generalSubjects + "where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id.board_id)+"' and md.msg_id not in (select distinct msg_id from message_detail md "
     generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
-    generalSubjects = generalSubjects + "and bcs.is_archived= 'Y')  order by description"
+    generalSubjects = generalSubjects + ")  order by description"
     generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
     subjects = db.session.execute(text(subjects)).fetchall()
