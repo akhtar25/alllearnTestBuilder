@@ -262,6 +262,7 @@
                 $("#filebox").html(response);
                 $("#questionSubmitBtn").attr("disabled", false);
                 $("#questionSubmitLoader").hide();
+                $('#questionSubmitBtn').attr('disabled',true);
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");
@@ -270,6 +271,7 @@
     }
 
     function calculate_marks(e){
+    $("#questionSubmitBtn").attr("disabled", false);    
     checkbox_id=e.id
     weightage=document.getElementById(checkbox_id+"select").value
     if($(e).is(':checked'))
