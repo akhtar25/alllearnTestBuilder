@@ -2640,11 +2640,12 @@ def syllabusBooks():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
-        print(val.book_name)
         book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
+        print(str(book_id.book_id)+':'+str(val.book_name))
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
         return jsonify([bookArray])  

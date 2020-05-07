@@ -1668,7 +1668,7 @@ $(document).ready(function(){
                     topicHTMLRecords = topicHTMLRecords +
                         '<a href="#modal2" class="modal-trigger"><li class="topicItem" style="padding: 10px 5px;" name = "' +
                             topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+classforTopics+','+subjectIdforTopics+','+boardforTopics+','+chapterNumforTopics+'); >' + topicName +
-                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color: orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                 }
                 $("#topicDiv").html(topicHTMLRecords);
                 
@@ -1686,6 +1686,7 @@ $(document).ready(function(){
   }
 
   function fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapters,boardIdforChapters){
+      console.log('inside fetch chapters:'+bookIdforChapters);
       $.ajax({
           url: "/fetchChapters?class_val="+classforChapters+"&subject="+subjectforChapters+"&bookId="+bookIdforChapters,
           type: "POST",
@@ -1710,7 +1711,7 @@ $(document).ready(function(){
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + subjectforChapters +"\"," + subjectIdforChapters + "," + classforChapters + "," + boardIdforChapters+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
                     '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ',' + classforChapters + ',' + boardIdforChapters+','+chapterNum+','+bookIdforChapters+'); >' + chapterName +
-                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
+                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color: orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                 }
                 }else{
                     chapterHTMLRecords = chapterHTMLRecords + '<li style="padding: 10px 5px;">No data available</li>'
@@ -1758,7 +1759,7 @@ $(document).ready(function(){
                         '<a href="javascript:void(0);"><li class="bookItem" style="padding: 10px 5px;" id="'+bookID+'book" onClick=loadChapters(' +
                         parameters + '); name=' +
                         boardforBooks + '>' + bookName +
-                        '</li></a><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;color: orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                     // bookArray.push(bookID+':'+bookName);
                 }
               }else{
@@ -1807,7 +1808,7 @@ $(document).ready(function(){
                         parameters + '); name=' +
                         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
                         .split(':')[1] +
-                        '</li></a><div class="delIcon" onclick=deleteFunc('+subjectID+'); style="margin-top:-30px;color: forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIcon" onclick=deleteFunc('+subjectID+'); style="margin-top:-30px;color: orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                     // alert(responseArr[i].toString().split(':')[0]);
                     subArray.push(subjectName);
                 }
@@ -2532,7 +2533,7 @@ $(document).ready(function(){
                         parameters + '); name=' +
                         responseArr[i].toString().split(':')[0] + '><span>' + responseArr[i].toString()
                         .split(':')[1] + '</span>' +
-                        '</li></a><div class="delIcon" onclick=deleteFunc('+subjectID+'); style="margin-top:-30px;color: forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIcon" onclick=deleteFunc('+subjectID+'); style="margin-top:-30px;color: orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                     // alert(responseArr[i].toString().split(':')[0]);
                     subArray.push(subjectName+':'+subjectID);
                      
@@ -2689,7 +2690,7 @@ $(document).ready(function(){
                         '<a href="javascript:void(0);"><li class="bookItem" style="padding: 10px 5px;padding-right:15px;" id="'+bookID+'book" onClick=loadChapters(' +
                         parameters + '); name=' +
                         selectedBoardID + '>' + bookName +
-                        '</li></a><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIconBooks" onclick=deleteBookFunc('+bookID+'); style="margin-top:-30px;color:orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                     bookArray.push(bookID+':'+bookName);
                 }
                 }else{
@@ -2841,7 +2842,7 @@ $(document).ready(function(){
                     console.log('inside load chapters:'+parameters);
                     chapterHTMLRecords = chapterHTMLRecords +
                     '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;padding-right:15px;" id="'+chapterName+'" onClick=loadTopics("' + selectedSubjectVal +'",'+ selectedSubjectID + ',' + selectedClassVal + ',' + selectedBoardID+','+chapterNum+','+selectedBookId+'); >' + chapterName +
-                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:forestgreen;"><input type="hidden" value="'+chapterName+'" id="inputChapterName"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
+                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:orangered;opacity: 70%;"><input type="hidden" value="'+chapterName+'" id="inputChapterName"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                 }
                 }else{
                     chapterHTMLRecords = chapterHTMLRecords + '<li style="padding: 10px 5px;">No data available</li>'
@@ -2970,7 +2971,7 @@ $(document).ready(function(){
                     topicHTMLRecords = topicHTMLRecords +
                         '<a href="#modal2" class="modal-trigger"><li class="topicItem" style="padding: 10px 5px;padding-right:15px;" name = "' +
                             topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+selectedClassVal+','+selectedSubjectID+','+selectedBoardID+','+selectedChapterNum+'); >' + topicName +
-                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                 }
                 $("#topicDiv").html(topicHTMLRecords);
                 
