@@ -133,10 +133,12 @@ $("#backToQuestions").click(function(){
 $("#refreshReport").click(function(){
   document.getElementById("seeTestReport").click();
 });
-
+  resp_sessId = "{{resp_session_id}}"; 
+      console.log('Resp_session_id:'+resp_sessId);  
+      var obj = JSON.parse('{ "resp_sessId":"{{resp_session_id}}"}'); 
   $("#seeTestReport").click(function () {
       $.ajax({
-        url: "/feedbackReport?resp_session_id=" +{{resp_session_id}},
+        url: "/feedbackReport?resp_session_id=" +obj.resp_sessId,
         type: "get",
         data: '',   
         beforeSend: function() {                           
