@@ -2278,10 +2278,8 @@ $(document).ready(function(){
                     // var sections = responseArr[i].toString().split(':')[1];
                     //  sections = sections.replace(/;/g,",");
                     console.log('sections:'+responseArr[i]);
-                    
                     classHTMLRecords = classHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +
-                            responseArr[i] + ')" name=' +
+                    '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+responseArr[i]+'general" onClick="generalLoadSubjects(' +responseArr[i] + ')" name=' +
                         selectedBoardID + ' id=' + responseArr[i] + ' >'+ responseArr[i] +
                         '</li></a>';
 
@@ -2381,7 +2379,7 @@ $(document).ready(function(){
 
     function generalLoadSubjects(selectedClassVal){
         $('#generalSubjectDiv').hide();
-       
+        console.log('inside generalLoadSubjects');
         $('#generalSubjectLoader').show();
         // classforSubject = selectedClassVal;
         

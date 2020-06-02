@@ -811,8 +811,6 @@ def singleStudReg():
         print('Gender:'+str(studentDetailRow.class_val))
         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
 
-        
-
 
 @app.route('/studentRegistration', methods=['GET','POST'])
 @login_required
@@ -831,7 +829,7 @@ def studentRegistration():
                 print('Inside Student update when student id is not empty')
                 student_id = request.form['tag']
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
+                class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
                 if address_id is None:
@@ -866,7 +864,7 @@ def studentRegistration():
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
                 db.session.commit()
                 studentClassSec.class_sec_id = class_sec.class_sec_id
-                studentClassSec.class_val = int(form.class_val.data)
+                studentClassSec.class_val = str(form.class_val.data)
                 studentClassSec.section = form.section.data
                 db.session.commit()
                 first_name=request.form.getlist('guardian_first_name')
@@ -941,7 +939,7 @@ def studentRegistration():
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 print('Print Form Data:'+form.section.data)
                 
-                class_sec=ClassSection.query.filter_by(class_val=int(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
+                class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
                 print('Section Id:'+str(class_sec.class_sec_id))
                 if request.form['birthdate']:
@@ -1020,7 +1018,7 @@ def studentRegistration():
                 db.session.add(address_data)
                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec=ClassSection.query.filter_by(class_val=row['class_val'],section=row['section'],school_id=teacher_id.school_id).first()
+                class_sec=ClassSection.query.filter_by(class_val=str(row['class_val']),section=row['section'],school_id=teacher_id.school_id).first()
                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
                 date = row['dob']
                 li = date.split('/',3)
@@ -1179,9 +1177,9 @@ def index():
             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+            classValues = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs where school_id="+ str(teacher_id.school_id)+" ORDER BY class_val_int"
             classValues = db.session.execute(text(classValues)).fetchall()
-            classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+            classValuesGeneral = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs ORDER BY class_val_int"
             classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
             bookName = BookDetails.query.all()
@@ -1304,6 +1302,7 @@ def index():
         form  = promoteStudentForm() 
         available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val,ClassSection.section).filter_by(school_id=teacher.school_id).all()
         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
+        
         form.class_section1.choices = class_list 
         form.class_section2.choices = class_list 
         
@@ -2049,9 +2048,9 @@ def syllabus():
     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+    classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
     classValues = db.session.execute(text(classValues)).fetchall()
-    classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+    classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
     classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
     bookName = BookDetails.query.all()
@@ -2103,7 +2102,7 @@ def addSyllabus():
 def generalSyllabusClasses():
     board_id=request.args.get('board_id')
     classArray = []
-    distinctClasses = "select distinct class_val from topic_detail td where board_id = '"+str(board_id)+"' order by class_val"
+    distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
         classArray.append(val.class_val)
@@ -2119,7 +2118,8 @@ def syllabusClasses():
     classSectionArray = []
     sectionArray = []
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctClasses = ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()
+    distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
+    distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
         print(val.class_val)
         sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
@@ -2371,7 +2371,7 @@ def addClassSection():
         # class_section = class_section.split(':')
         # class_val = class_section[0]
         # section = class_section[1]
-        checkClass = ClassSection.query.filter_by(class_val=class_val,section=section.upper(),school_id=teacher_id.school_id).first()
+        checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
         if checkClass:
             return ""
     for section in sections:
@@ -2381,7 +2381,7 @@ def addClassSection():
         # section = class_section[1]
         
         print('Class:'+str(class_val)+' Section:'+str(section))
-        class_data=ClassSection(class_val=class_val,section=str(section).upper(),student_count=0,school_id=teacher_id.school_id,last_modified_date=datetime.now())
+        class_data=ClassSection(class_val=str(class_val),section=str(section).upper(),student_count=0,school_id=teacher_id.school_id,last_modified_date=datetime.now())
         db.session.add(class_data)
         db.session.commit()
     
@@ -2389,7 +2389,7 @@ def addClassSection():
         # class_section = class_section.split(':')
         # class_val = class_section[0]
         # section = class_section[1]
-        class_id = ClassSection.query.filter_by(class_val=class_val,section=section.upper(),school_id=teacher_id.school_id).first()
+        class_id = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
         topic_tracker = TopicTracker.query.filter_by(class_sec_id=class_id.class_sec_id,school_id=teacher_id.school_id).first()
         if topic_tracker:
             print('data already present')
@@ -2440,7 +2440,7 @@ def checkforClassSection():
         # section = class_section[1]
         print('class_val:'+class_val)
         print('section:'+section.upper())
-        checkClass = ClassSection.query.filter_by(class_val=int(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
+        checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
         if checkClass:
             return str(class_val)+':'+str(section.upper())
     return ""
@@ -3282,14 +3282,14 @@ def questionBank():
     form.chapter_num.choices= ''
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
-        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
+        topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
+        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('questionBank.html',form=form,topics=topic_list)
     return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck())
 
@@ -3608,13 +3608,13 @@ def classCon():
                 getSection = section.section
                 count+=1
 
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+        distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()
         #if no value has been passed for class and section in query string then use the values fetched from db
         if qclass_val==None:
             qclass_val = getClassVal
             qsection=getSection
             
-        selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=qclass_val, section=qsection).order_by(ClassSection.class_val).first()
+        selectedClassSection=ClassSection.query.filter_by(school_id=teacher.school_id, class_val=str(qclass_val), section=qsection).order_by(ClassSection.class_val).first()
         topicTrackerQuery = "with cte_total_topics as "
         topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
         topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
@@ -3965,9 +3965,9 @@ def leaderBoard():
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher_id.school_id)+" group by class_val order by class_val")).fetchall()    
+        distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()    
         form.subject_name.choices = [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-        class_sec_id=ClassSection.query.filter_by(class_val=int(1),school_id=teacher_id.school_id).first()
+        class_sec_id=ClassSection.query.filter_by(class_val='1',school_id=teacher_id.school_id).first()
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
 
         form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
@@ -4135,7 +4135,7 @@ def classDelivery():
         for classSec in classSections:
             print("class Section:"+str(classSec.section))
         currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
+        distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()        
             # end of sidebar        
         #for curr in currClass:        
         #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
@@ -4189,14 +4189,14 @@ def contentManager():
     form.chapter_num.choices= ''
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
-        topic_list=Topic.query.filter_by(class_val=int(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
+        topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
         session['chapter_num']=form.chapter_num.data    
-        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(int(form.class_val.data),int(form.subject_name.data))]
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
+        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list)
     return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent)
 
@@ -5003,7 +5003,7 @@ def resultUpload():
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()     
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()        
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()        
     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
 
     count = 0
@@ -5029,10 +5029,10 @@ def resultUpload():
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         print('Class value:'+str(qclass_val))
         print('school_id:'+str(teacher_id.school_id))
-        class_sec_id=ClassSection.query.filter_by(class_val=int(qclass_val),school_id=teacher_id.school_id,section=qsection).all()
+        class_sec_id=ClassSection.query.filter_by(class_val=str(qclass_val),school_id=teacher_id.school_id,section=qsection).all()
         
         print(teacher_id.school_id)
-        class_value = int(qclass_val)
+        class_value = str(qclass_val)
         print('Class Value:'+str(class_value))
         for section in class_sec_id:
             print('Section Id:'+str(section.class_sec_id))
@@ -5321,12 +5321,12 @@ def questionBuilder():
     print("Inside Question Builder")
     if request.method=='POST':
         if form.submit.data:
-            question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
+            question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data,suggested_weightage=int(request.form['weightage']),archive_status=str('N'))
             print(question)
             db.session.add(question)
             if form.question_type.data=='Subjective':
-                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
                 options=QuestionOptions(question_id=question_id.question_id,weightage=request.form['weightage'])
                 print('Options Desc:'+str(options))
                 db.session.add(options)
@@ -5335,7 +5335,7 @@ def questionBuilder():
                 return render_template('questionBuilder.html')
             else:
                 option_list=request.form.getlist('option_desc')
-                question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
+                question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
                 if request.form['correct']=='':
                     flash('Correct option not seleted !')
                     return render_template('questionBuilder.html')
@@ -5367,10 +5367,10 @@ def questionBuilder():
             for index ,row in df1.iterrows():
                 if row['Question Type']=='MCQ1':
                     print("Inside MCQ")
-                    question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                    question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
                     topic_id=row['Topic Id'],question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
                     db.session.add(question)
-                    question_id=db.session.query(QuestionDetails).filter_by(class_val=int(request.form['class_val']),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
+                    question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
                     for i in range(1,5):
                         option_no=str(i)
                         option_name='Option'+option_no
@@ -5399,7 +5399,7 @@ def questionBuilder():
                         db.session.add(options)
                 else:
                     print("Inside Subjective")
-                    question=QuestionDetails(class_val=int(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                    question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
                     topic_id=row['Topic Id'],question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
                     db.session.add(question)
             db.session.commit()
@@ -5567,7 +5567,7 @@ def subject_list(class_val):
     if class_val!='All':
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=int(class_val),board_id=board_id).all()
+        subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
         subject_name_list=[]
 
         for id in subject_id:
@@ -5760,6 +5760,18 @@ def addStudentRemarks():
     except:
         return jsonify(['1'])
 
+def classChecker(available_class):
+    class_list = []
+    for k in available_class:
+        if k.class_val == '99':
+            class_list.append((str('LKG')+"-"+str(k.section),str('LKG')+"-"+str(k.section)))
+            print('inside available classes')
+        elif k.class_val == '100':
+            class_list.append((str('UKG')+"-"+str(k.section),str('UKG')+"-"+str(k.section)))
+        else:
+            class_list.append((str(k.class_val)+"-"+str(k.section),str(k.class_val)+"-"+str(k.section)))
+    return class_list
+
 @app.route('/studentProfile') 
 @login_required
 def studentProfile():    
@@ -5780,14 +5792,15 @@ def studentProfile():
         # available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
         available_student_list = "select student_id,full_name,profile_picture,class_val, section from student_profile sp inner join class_section cs on sp.class_sec_id = cs.class_sec_id where cs.school_id ='"+str(teacher.school_id)+"'"
         available_student_list = db.session.execute(available_student_list).fetchall()
-
-
-        class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
+        
+        class_list = classChecker(available_class)
+        
         section_list=[(i.section,i.section) for i in available_section]    
         test_type_list=[(i.msg_id,i.description) for i in available_test_type]
         # student_list=[(i.student_id,i.full_name) for i in available_student_list]
 
         #selectfield choices
+        print(class_list)
         form.class_section.choices = class_list
         # form.section1.choices= ''
         # section_list    
@@ -5996,7 +6009,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8000))
+        port=int(os.getenv('PORT', 8002))
         # ssl_context='adhoc'
         )
     #app.run()

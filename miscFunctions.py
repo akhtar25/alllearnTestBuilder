@@ -31,7 +31,7 @@ import pprint
 def subjects(class_val):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=class_val,board_id=board_id).all()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
     subject_name_list=[]
     for id in subject_id:
         subject_name=MessageDetails.query.filter_by(msg_id=id).first()
@@ -51,7 +51,7 @@ def subjects(class_val):
 def chapters(class_val,subject_id):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    chapter_id = Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().filter_by(class_val=class_val,subject_id=subject_id,board_id=board_id).order_by(Topic.chapter_num).all()
+    chapter_id = Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().filter_by(class_val=str(class_val),subject_id=subject_id,board_id=board_id).order_by(Topic.chapter_num).all()
     print('Class value:'+str(class_val)+' Subject ID:'+str(subject_id))
     chapterArray = []
     for ids in  chapter_id:
@@ -64,7 +64,7 @@ def chapters(class_val,subject_id):
     return chapterArray
 def subjectPerformance(class_val,school_id):
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=school_id).first()
-    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=class_val,board_id=board_id).all()
+    subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
     subject_name_list=[]
     for id in subject_id:
         subject_name=MessageDetails.query.filter_by(msg_id=id).first()
@@ -90,7 +90,7 @@ def subjectPerformance(class_val,school_id):
 def topics(class_val,subject_id):
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+    topic_list=Topic.query.filter_by(class_val=str(class_val),subject_id=subject_id,board_id=board_id).all()
 
     topicArray=[]
 

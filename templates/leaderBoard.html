@@ -14,12 +14,11 @@
           </li>
           {% for singleClass in distinctClasses %}
           <li class="treeview" style="padding: 10px;">
-
             <i class="glyphicon glyphicon-education"></i>
             <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"
                 name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
             <span class="pull-right-container">
-              <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+              <span class="label label-primary pull-right">{{singleClass[2]}}</span>
             </span>
           </li>
           {% endfor %}

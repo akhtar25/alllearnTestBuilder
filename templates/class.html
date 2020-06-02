@@ -7,16 +7,17 @@
               <ul class="sidebar-menu table-responsive" data-widget="tree">
                   {% for singleClass in distinctClasses %}
                          <li class="treeview">
+                           
                            <a href="#">
-                             <i class="glyphicon glyphicon-education"></i>
-                             <span>Class {{singleClass[0]}}</span>
-                             <span class="pull-right-container">
-                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-                             </span>
-                           </a>                                                      
+                            <i class="glyphicon glyphicon-education"></i>
+                            <span>Class {{singleClass[0]}}</span>
+                            <span class="pull-right-container">
+                              <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                            </span>
+                          </a>                                                    
                            <ul class="treeview-menu">                            
                               {% for classsection in classsections %}
-                                 {% if classsection.class_val==singleClass[0] %}
+                                 {% if classsection.class_val|string == singleClass[0]|string %}
                              <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
                               {% endif %}
                              {% endfor %}
@@ -35,7 +36,7 @@
                 <div class="col-xs-12">
                   <div class="box" id="classTrackerDiv">
                     <div class="box-header">
-                      <h3 class="box-title">Class Tracker</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>                              
+                      <h3 class="box-title">Class Tracker</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>        
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
