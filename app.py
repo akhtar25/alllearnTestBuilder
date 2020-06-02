@@ -5419,7 +5419,7 @@ def questionUpload():
     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.topics.choices= ''
     # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    if form.class_val.data!='None' and form.subject_name.data!='None' and  form.chapter_num.data!='None':
+    if request.method=='POST':
         print('Inside if question Upload')
         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=str(form.subject_name.data),chapter_num=str(form.chapter_num.data)).all()
         return render_template('questionUpload.html',form=form, flag=flag,topic_list=topic_list)
