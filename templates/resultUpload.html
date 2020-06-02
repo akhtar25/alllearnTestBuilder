@@ -11,12 +11,12 @@
                                                              <i class="glyphicon glyphicon-education"></i>
                                                              <span>Class {{singleClass[0]}}</span>
                                                              <span class="pull-right-container">
-                                                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+                                                               <span class="label label-primary pull-right">{{singleClass[2]}}</span>
                                                              </span>
                                                            </a>                                                      
                                                            <ul class="treeview-menu">                            
                                                               {% for classsection in classsections %}
-                                                                 {% if classsection.class_val==singleClass[0] %}
+                                                                 {% if classsection.class_val|string==singleClass[0]|string %}
                                                              <li>
                                                                 <a href="{{ url_for('resultUpload',class_val=classsection.class_val, section=classsection.section) }}"> 
                                                                 <i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
