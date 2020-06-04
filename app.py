@@ -6050,73 +6050,89 @@ def createSubscription():
 
 
 # Routes for New Task
-@app.route('/studentSurveys')
-def studentSurveys():
+@app.route('/studentHomeWork')
+def studentHomeWork():
+    qclass_val = request.args.get('class_val')
+    qsection=request.args.get('section')
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    surveyDetailQuery = "select sd.survey_id, survey_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
-    surveyDetailQuery = surveyDetailQuery+ "from survey_detail sd left join student_survey_response ssr on ssr.survey_id =sd.survey_id "
-    surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.survey_id,survey_name, question_count,question_count, sd.last_modified_date"
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+    count = 0
+    for section in classSections:
+        print("Class Section:"+section.section)
+            #this section is to load the page for the first class section if no query value has been provided
+        if count==0:
+            getClassVal = section.class_val
+            getSection = section.section
+            count+=1
+    if qclass_val is None:
+        qclass_val = getClassVal
+        qsection = getSection
+    
+    surveyDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+    surveyDetailQuery = surveyDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+    surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
     surveyDetailRow = db.session.execute(surveyDetailQuery).fetchall()
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
-    
-    return render_template('homeWork.html', surveyDetailRow=surveyDetailRow)
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+    return render_template('studentHomeWork.html', surveyDetailRow=surveyDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
-@app.route('/indivSurveyDetail/')
-def indivSurveyDetail():
-    survey_id = request.args.get('survey_id')
-    survey_id = survey_id.split('_')[1]
+@app.route('/indivHomeWorkDetail/')
+def indivHomeWorkDetail():
+    homework_id = request.args.get('homework_id')
+    homework_id = homework_id.split('_')[1]
     student_id = request.args.get('student_id')    
-    studSurveyData = " select sq.sq_id as sq_id, question,sq.survey_id,survey_response_id , sp.student_id, answer from student_survey_response ssr "
-    studSurveyData = studSurveyData  + " right join survey_questions sq on "
-    studSurveyData = studSurveyData  +  " sq.survey_id =ssr.survey_id and "
-    studSurveyData = studSurveyData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
-    studSurveyData = studSurveyData  +  " left join student_profile sp "
-    studSurveyData = studSurveyData  +  " on sp.student_id =ssr.student_id "
-    studSurveyData = studSurveyData  +  " where sq.survey_id =" + str(survey_id)
-    surveyQuestions = db.session.execute(text(studSurveyData)).fetchall()
-    return render_template('_indivSurveyDetail.html',surveyQuestions=surveyQuestions,student_id=student_id,survey_id=survey_id)
+    studHomeWorkData = " select sq.sq_id as sq_id, question,sq.homework_id,homework_response_id , sp.student_id, answer from student_homework_response ssr "
+    studHomeWorkData = studHomeWorkData  + " right join homework_questions sq on "
+    studHomeWorkData = studHomeWorkData  +  " sq.homework_id =ssr.homework_id and "
+    studHomeWorkData = studHomeWorkData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
+    studHomeWorkData = studHomeWorkData  +  " left join student_profile sp "
+    studHomeWorkData = studHomeWorkData  +  " on sp.student_id =ssr.student_id "
+    studHomeWorkData = studHomeWorkData  +  " where sq.homework_id =" + str(homework_id)
+    homeworkQuestions = db.session.execute(text(studHomeWorkData)).fetchall()
+    return render_template('_indivhomeworkDetail.html',homeworkQuestions=homeworkQuestions,student_id=student_id,homework_id=homework_id)
 
-@app.route('/updateSurveyAnswer',methods=["GET","POST"])
-def updateSurveyAnswer():
+@app.route('/updateHomeWorkAnswer',methods=["GET","POST"])
+def updateHomeWorkAnswer():
     sq_id_list = request.form.getlist('sq_id')
-    survey_response_id_list = request.form.getlist('survey_response_id')
+    homework_response_id_list = request.form.getlist('homework_response_id')
     answer_list = request.form.getlist('answer')
-    survey_id = request.form.get('survey_id')
+    homework_id = request.form.get('homework_id')
     student_id = request.form.get('student_id')
     for i in range(len(sq_id_list)):
-        if survey_response_id_list[i]!='None':
-            studentSurveyAnsUpdate = StudentSurveyResponse.query.filter_by(sq_id=sq_id_list[i], survey_response_id=survey_response_id_list[i]).first()
-            studentSurveyAnsUpdate.answer = answer_list[i]
-            surveyDetailRow = SurveyDetail.query.filter_by(survey_id=survey_id).first()            
+        if homework_response_id_list[i]!='None':
+            studentHomeWorkAnsUpdate = StudentHomeWorkResponse.query.filter_by(sq_id=sq_id_list[i], homework_response_id=homework_response_id_list[i]).first()
+            studentHomeWorkAnsUpdate.answer = answer_list[i]
+            homeworkDetailRow = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()            
         else:
-            addNewSurveyResponse = StudentSurveyResponse(survey_id=survey_id, sq_id=sq_id_list[i], 
+            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
                 student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
-            db.session.add(addNewSurveyResponse)
+            db.session.add(addNewHomeWorkResponse)
     db.session.commit()
     return jsonify(['0'])
 
-@app.route('/addNewSurvey',methods=["GET","POST"])
-def addNewSurvey():    
+@app.route('/addNewHomeWork',methods=["GET","POST"])
+def addNewHomeWork():    
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
     questionCount = len(questions)
-    newSurveyRow = SurveyDetail(survey_name=request.form.get('surveyName'),teacher_id= teacherRow.teacher_id, 
+    newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
         school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',last_modified_date=datetime.today())
-    db.session.add(newSurveyRow)
+    db.session.add(newHomeWorkRow)
     db.session.commit()
-    currentSurvey = SurveyDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(SurveyDetail.last_modified_date.desc()).first()
+    currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
     for i in range(questionCount):
-        newSurveyQuestion= SurveyQuestions(survey_id=currentSurvey.survey_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
-        db.session.add(newSurveyQuestion)
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+        db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0'])
 
 
-@app.route('/archiveSurvey')
-def archiveSurvey():
-    survey_id = request.args.get('survey_id')
-    surveyData = SurveyDetail.query.filter_by(survey_id=survey_id).first()
-    surveyData.is_archived='Y'
+@app.route('/archiveHomeWork')
+def archiveHomeWork():
+    homework_id = request.args.get('homework_id')
+    homeworkData = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    homeworkData.is_archived='Y'
     db.session.commit()
     return jsonify(['0'])
 

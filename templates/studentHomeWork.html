@@ -1,12 +1,46 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
+    <div class="hold-transition skin-blue sidebar-mini">  
+        <div id="sidebarDiv" >   
+            <div class="main-sidebar" style="margin-top:15px;">
+                <section class="sidebar">                     
+                      <ul class="sidebar-menu table-responsive" data-widget="tree">
+                          {% for singleClass in distinctClasses %}
+                                 <li class="treeview">
+                                   
+                                   <a href="#">
+                                    <i class="glyphicon glyphicon-education"></i>
+                                    <span>Class {{singleClass[0]}}</span>
+                                    <span class="pull-right-container">
+                                      <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                                    </span>
+                                  </a>                                                    
+                                   <ul class="treeview-menu">                            
+                                      {% for classsection in classSections %}
+                                         {% if classsection.class_val|string == singleClass[0]|string %}
+                                     <li><a href="{{ url_for('studentHomeWork',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                                      {% endif %}
+                                     {% endfor %}
+                                   </ul>                                                      
+                                 </li>
+                                 {% endfor %}                
+                 <ul>                  
+                </section>
+                <!-- /.sidebar -->
+            </div>
+        </div>
+    <div class="content-wrapper" style="background-color: white;">
+    <section class="content">
+        <div class="box-header">
+            <h3 class="box-title">HomeWork</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>        
+          </div>
     <form action="" method="POST" enctype="multipart/form-data">
         <div>
             <div id="surveyBox" name="surveyBox">
             </div>
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
-            <a href="#createModal" id="addSurveyBTN" class="modal-trigger btn green right">Create New Survey</a>
+            <a href="#createModal1" id="addSurveyBTN" class="modal-trigger btn green right">Create New HomeWork</a>
             <br>
         </div>
         <div id="buttonbox" style="display:none;">
@@ -17,7 +51,7 @@
     </form>
     <br>
     <ul class="tabs">
-        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Surveys</a></li>
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">HomeWork</a></li>
         <!--<li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>-->
         <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
     </ul>
@@ -26,20 +60,20 @@
     <div id="surveyRowsDiv">
         <table class="highlight" id="surveyTable">
             <thead>              
-                <th>Survey</th>
+                <th>HomeWork</th>
                 <th>Student Responses</th>
                 <th>Question Count</th>
                 <th>Created On</th>
                 <th>Delete</th>
             </thead>
             <tbody>
-                {%for surveyRow in surveyDetailRow%}
-                <tr id="{{surveyRow.survey_id}}">         
-                    <td>{{surveyRow.survey_name}}</td>
-                    <td>{{surveyRow.student_responses}}</td>
-                    <td>{{surveyRow.question_count}}</td>
-                    <td>{{surveyRow.last_modified_date.strftime('%d %B %Y')}}</td>
-                    <td><a title="Delete Need" name="{{surveyRow.survey_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                {%for homeworkRow in homeworkDetailRow%}
+                <tr id="{{homeworkRow.homework_id}}">         
+                    <td>{{homeworkRow.homework_name}}</td>
+                    <td>{{homeworkRow.homework_responses}}</td>
+                    <td>{{homeworkRow.question_count}}</td>
+                    <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
+                    <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
                         <i class="material-icons small">delete</i></a>
                 </tr>
                 {%endfor%}
@@ -48,6 +82,9 @@
 
         <br><br>
     </div>
+</section>
+</div>
+</div>
 </div>
 
 <div id="displaySurveyModal" class="modal" style="background-color: white;padding-top: 20px;">
@@ -55,23 +92,23 @@
         </div>
 </div>
 
-<div id="createModal" class="modal" style="background-color: white;padding-top: 20px;">
+<div id="createModal1" class="modal" style="background-color: white;padding-top: 20px;">
     <div class="modal-content" style="height:100%">
         <form id="addSurveyForm">
-            <input type="text" style="font-size:xx-large" name='surveyName' id="surveyName" placeholder="Survey Name" required>
-            <h4 class="grey-text">Survey Questions</h4>
+            <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="Survey Name" required>
+            <h4 class="grey-text">HomeWork Questions</h4>
             <div id="questionDiv" style="max-width: 80%;"></div>
             <a href="#" id="addQuestionBTN">
                 <i class="material-icons" class="green center">add_circle</i>
                 <span style="font-size: large;">Add Question</span></a>
             <br><br>
             <div>
-                <a href="#" id="addSurveyDataBTN" class="btn green right">Create Survey</a>
+                <a href="#" id="addSurveyDataBTN" class="btn green right">Create HomeWork</a>
             </div>
         </form>
     </div>
-
 </div>
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
     $(document).ready(function () {
         $('.modal').modal();
@@ -89,7 +126,7 @@ $('#addSurveyDataBTN').click(function($e){
     var form = $('#addSurveyForm'); 
     var surveyName = $('#surveyName').val();   
     $.ajax({
-            url: "/addNewSurvey",
+            url: "/addNewHomeWork",
             type: "POST",
             data: form.serialize(),
             success: function (formResponse) {        
@@ -105,7 +142,7 @@ $('#addSurveyDataBTN').click(function($e){
                      '</tr>'
                 );                
                 $('#remark').val('');
-                M.toast({html: '<h4>New Survey Created</h4>'});
+                M.toast({html: '<h4>New HomeWork Created</h4>'});
                 var elem = $('#createModal')
                 var instance = M.Modal.getInstance(elem);                   
                 instance.close();
@@ -116,7 +153,7 @@ $('#addSurveyDataBTN').click(function($e){
             }
             },
             error: function (xhr) {
-                window.alert("Error while creating survey");
+                window.alert("Error while creating homework");
             }
         });       
 });   
@@ -124,17 +161,17 @@ $('#addSurveyDataBTN').click(function($e){
 $('.deleteBTNClass').click(function () {
             var survey_id = $(this).attr("name");
             $.ajax({
-                url: "/archiveSurvey?survey_id="+survey_id,
+                url: "/archiveHomeWork?homework_id="+survey_id,
                 type: "get",
                 data: '',
                 success: function (archiveResponse) {
                     if (archiveResponse=='0'){
                         var surveyWithHash = '#'+survey_id;
                         $(surveyWithHash).remove();
-                        M.toast({html: '<h4>Survey deleted!</h4>'})
+                        M.toast({html: '<h4>HomeWork deleted!</h4>'})
                     }
                     else{
-                        M.toast({html: '<h4>Error deleting survey!</h4>'})
+                        M.toast({html: '<h4>Error deleting homework!</h4>'})
                     }                 
                 }
             })
