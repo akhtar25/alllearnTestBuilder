@@ -40,7 +40,7 @@
             </div>
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
-            <a href="#createModal1" id="addSurveyBTN" class="modal-trigger btn green right">Create New HomeWork</a>
+            <a href="#createModal1" id="addSurveyBTN" class="modal-trigger btn green right">Add HomeWork</a>
             <br>
         </div>
         <div id="buttonbox" style="display:none;">
@@ -69,8 +69,15 @@
             <tbody>
                 {%for homeworkRow in homeworkDetailRow%}
                 <tr id="{{homeworkRow.homework_id}}">         
-                    <td>{{homeworkRow.homework_name}}</td>
-                    <td>{{homeworkRow.homework_responses}}</td>
+                    <td>
+                        {% if 'http' in homeworkRow.homework_name  %}
+                        <a href="{{homeworkRow.homework_name}}">{{homeworkRow.homework_name}}</a>
+                        {% else %}
+                        {{homeworkRow.homework_name}}
+                        {% endif %}
+
+                    </td>
+                    <td>{{homeworkRow.student_responses}}</td>
                     <td>{{homeworkRow.question_count}}</td>
                     <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
                     <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
@@ -96,6 +103,8 @@
     <div class="modal-content" style="height:100%">
         <form id="addSurveyForm">
             <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="Survey Name" required>
+            <input type="hidden" name="class" value="{{qclass_val}}"/>
+            <input type="hidden" name="section" value="{{qsection}}"/>
             <h4 class="grey-text">HomeWork Questions</h4>
             <div id="questionDiv" style="max-width: 80%;"></div>
             <a href="#" id="addQuestionBTN">
