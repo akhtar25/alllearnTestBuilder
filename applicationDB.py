@@ -503,6 +503,7 @@ class HomeWorkDetail(db.Model):
     __tablename__ = "homework_detail"
     homework_id = db.Column(db.Integer, primary_key=True)
     homework_name = db.Column(db.String(200), nullable=False)
+    class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
     question_count = db.Column(db.Integer, nullable=False)
