@@ -88,8 +88,8 @@
             </thead>
             <tbody>
                 {%for row in payrollReportData%}
-                <tr style="font-size: 24px;">
-                    <td>{{row.month}}/{{row.year}}</td>                    
+                <tr style="font-size: 14px;">
+                    <td>{{row.period.strftime('%B %Y')}}</td>
                     <td>₹{{row.salary_spend|round(2)}}</td>
                     <td>{{row.teacher_count}}</td>
                     <td class="green-text">{{row.avg_productivity|round(2)}}%</td>

@@ -48,6 +48,7 @@ import requests
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
+import calendar
 
 #from flask_material import Material
 
@@ -141,7 +142,9 @@ def note_repr(key):
         'text': notes[key]
     }
 
-##########################Start of test section
+#@register.filter
+#def month_name(month_number):
+#    return calendar.month_name[month_number]
 
 @app.route("/api", methods=['GET', 'POST'])
 def notes_list():
@@ -422,8 +425,8 @@ def schoolProfile():
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
     value=0
-    if current_user.user_type==134:
-        value=1
+    #if current_user.user_type==134:
+    #    value=1
     return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
 
@@ -651,7 +654,7 @@ def teacherDirectory():
     else:
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         #section for payroll report
-        payrollReportQuery = "select month, year, sum(calc_salary) as salary_spend, count(*) teacher_count, (avg(days_present) / avg(days_in_month))*100 as avg_productivity from teacher_payroll_detail where school_id= "+ str(teacher_id.school_id)
+        payrollReportQuery = "select to_date(concat('01-',month,'-',year),'DD-MM-YYYY') as period, sum(calc_salary) as salary_spend, count(*) teacher_count, (avg(days_present) / avg(days_in_month))*100 as avg_productivity from teacher_payroll_detail where school_id= "+ str(teacher_id.school_id)
         payrollReportQuery= payrollReportQuery+" group  by month, year "
         payrollReportData = db.session.execute(payrollReportQuery).fetchall()
         #end of payroll report section
@@ -3671,8 +3674,14 @@ def qrSessionScanner():
 @login_required
 def qrSessionScannerStudent():
     studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('qrSessionScannerStudent.html',disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
+
+
+@app.route('/viewHomework')
+@login_required
+def viewHomework():
+    return render_template('viewHomework.html')
 
 @app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
 def mobQuestionLoader():
@@ -5808,7 +5817,7 @@ def studentProfile():
         form.student_name.choices = ''
         flag = 1
 
-        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag)
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type))
     else:
         value=0
         flag = 0
@@ -5822,7 +5831,7 @@ def studentProfile():
         else:
             disconn=0
         #print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type))
 
 #Addition of new section to conduct student surveys
 @app.route('/studentSurveys')
@@ -5895,6 +5904,59 @@ def archiveSurvey():
     db.session.commit()
     return jsonify(['0'])
 #End of student survey section
+
+
+#Start of inventory pages
+@app.route('/inventoryManagement')
+def inventoryManagement():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('#####################'+str(teacherRow))
+    inventoryDetailRow = InventoryDetail.query.filter_by(school_id = teacherRow.school_id, is_archived='N').all()
+    
+    class_list=ClassSection.query.distinct().order_by(ClassSection.class_val).filter_by(school_id=teacherRow.school_id).all()    
+    return render_template('inventoryManagement.html',inventoryDetailRow=inventoryDetailRow,class_list=class_list)
+
+@app.route('/addInventoryItem', methods=["GET","POST"])
+def addInventoryItem():
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    inventoryName = request.form.get('inventoryName')    
+    newInventoryRow = InventoryDetail(inv_name=request.form.get('invName'),teacher_id= teacherRow.teacher_id, 
+        inv_description = request.form.get('invDescription'), inv_category = 225, total_stock = request.form.get('totalStock'),
+        item_rate = request.form.get('itemRate'), total_cost = request.form.get('totalCost'), stock_out=0, 
+        school_id=teacherRow.school_id, is_archived='N',last_modified_date=datetime.today())
+    db.session.add(newInventoryRow)
+    db.session.commit()        
+    addedInventory = InventoryDetail.query.filter_by(teacher_id = teacherRow.teacher_id, is_archived='N').order_by(InventoryDetail.last_modified_date.desc()).first()
+    return jsonify([addedInventory.inv_id])
+
+
+@app.route('/archiveInventory')
+def archiveInventory():
+    inv_id = request.args.get('inv_id')
+    InventoryData = InventoryDetail.query.filter_by(inv_id=inv_id).first()
+    InventoryData.is_archived='Y'
+    db.session.commit()
+    return jsonify(['0'])
+
+
+
+@app.route('/studentInventoryAlloc')
+def studentInventoryAlloc():
+    class_sec_id = request.args.get('class_sec_id')
+    inv_id = request.args.get('inv_id')
+    inv_id = inv_id.split('_')[1]
+    #studentInventoryQuery = "select sp.student_id , sp.full_name from student_profile sp  where sp.class_Sec_id="+ str(class_sec_id)    
+    #studentInventoryData = db.session.execute(studentInventoryQuery).fetchall()    
+    studentInventoryData = StudentProfile.query.filter_by(class_sec_id = str(class_sec_id)).all()
+    return render_template('_studentInventoryAlloc.html',studentInventoryData=studentInventoryData)
+
+
+@app.route('/updateInventoryAllocation')
+def updateInventoryAllocation():
+    ##last bit of changes required here to save inventory allocation
+    return jsonify(['0'])
+#End of inventory pages
+
 
 
 @app.route('/performance')
@@ -5993,6 +6055,101 @@ def createSubscription():
     return render_template('createSubscription.html',form=form)
 
 
+# Routes for New Task
+@app.route('/studentHomeWork')
+def studentHomeWork():
+    qclass_val = request.args.get('class_val')
+    qsection=request.args.get('section')
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+    count = 0
+    for section in classSections:
+        print("Class Section:"+section.section)
+            #this section is to load the page for the first class section if no query value has been provided
+        if count==0:
+            getClassVal = section.class_val
+            getSection = section.section
+            count+=1
+    if qclass_val is None:
+        qclass_val = getClassVal
+        qsection = getSection
+    
+    class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=qclass_val,section=qsection).first()
+    homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+    homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+    homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+    homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
+    #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+    return render_template('studentHomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
+
+@app.route('/indivHomeWorkDetail/')
+def indivHomeWorkDetail():
+    homework_id = request.args.get('homework_id')
+    homework_id = homework_id.split('_')[1]
+    student_id = request.args.get('student_id')    
+    studHomeWorkData = " select sq.sq_id as sq_id, question,sq.homework_id,homework_response_id , sp.student_id, answer from student_homework_response ssr "
+    studHomeWorkData = studHomeWorkData  + " right join homework_questions sq on "
+    studHomeWorkData = studHomeWorkData  +  " sq.homework_id =ssr.homework_id and "
+    studHomeWorkData = studHomeWorkData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
+    studHomeWorkData = studHomeWorkData  +  " left join student_profile sp "
+    studHomeWorkData = studHomeWorkData  +  " on sp.student_id =ssr.student_id "
+    studHomeWorkData = studHomeWorkData  +  " where sq.homework_id =" + str(homework_id)
+    homeworkQuestions = db.session.execute(text(studHomeWorkData)).fetchall()
+    return render_template('_indivhomeworkDetail.html',homeworkQuestions=homeworkQuestions,student_id=student_id,homework_id=homework_id)
+
+@app.route('/updateHomeWorkAnswer',methods=["GET","POST"])
+def updateHomeWorkAnswer():
+    sq_id_list = request.form.getlist('sq_id')
+    homework_response_id_list = request.form.getlist('homework_response_id')
+    answer_list = request.form.getlist('answer')
+    homework_id = request.form.get('homework_id')
+    student_id = request.form.get('student_id')
+    for i in range(len(sq_id_list)):
+        if homework_response_id_list[i]!='None':
+            studentHomeWorkAnsUpdate = StudentHomeWorkResponse.query.filter_by(sq_id=sq_id_list[i], homework_response_id=homework_response_id_list[i]).first()
+            studentHomeWorkAnsUpdate.answer = answer_list[i]
+            homeworkDetailRow = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()            
+        else:
+            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
+            db.session.add(addNewHomeWorkResponse)
+    db.session.commit()
+    return jsonify(['0'])
+
+@app.route('/addNewHomeWork',methods=["GET","POST"])
+def addNewHomeWork():    
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    questions = request.form.getlist('questionInput')
+    questionCount = len(questions)
+    class_val = request.form.get('class')
+    section = request.form.get('section')
+    class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=class_val,section=section).first()
+    newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
+        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today())
+    db.session.add(newHomeWorkRow)
+    db.session.commit()
+    currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
+    for i in range(questionCount):
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+        db.session.add(newHomeWorkQuestion)
+    db.session.commit()
+    return jsonify(['0'])
+
+
+@app.route('/archiveHomeWork')
+def archiveHomeWork():
+    homework_id = request.args.get('homework_id')
+    homeworkData = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    homeworkData.is_archived='Y'
+    db.session.commit()
+    return jsonify(['0'])
+
+
+# End
+
+
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
@@ -6009,7 +6166,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8002))
+        port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
     #app.run()

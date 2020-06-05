@@ -1,0 +1,231 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div>
+            <div id="surveyBox" name="surveyBox">
+            </div>
+            <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
+                    class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
+            <a href="#createModal" id="addSurveyBTN" class="modal-trigger btn green right">Add New Item</a>
+            <br>
+        </div>
+        <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text"
+                    style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
+                    value="submit">Confirm</button></p>
+        </div>
+    </form>
+    <br>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Inventory Details</a></li>
+        <!--<li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>-->
+        <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
+    </ul>
+    <br>
+
+    <div id="inventoryRowsDiv">
+        <table class="highlight" id="inventoryTable">
+            <thead>              
+                <th>ID</th>
+                <th>Name</th>                
+                <th>Total Stock</th>
+                <th>Stock Out</th>
+                <th>Rate</th>
+                <th>Total Cost</th>
+                <th>Allocate</th>                
+                <th>Modified On</th>  
+                <th>Delete</th>
+            </thead> <!--Done uptil here-->
+            <tbody id="inventoryTableBody">
+                {%if inventoryDetailRow|length>0%}
+                {%for inventoryRow in inventoryDetailRow%}
+                <tr id="{{inventoryRow.inv_id}}">         
+                    <td>{{inventoryRow.inv_id}}</td>
+                    <td>{{inventoryRow.inv_name}}</td>
+                    <td>{{inventoryRow.total_stock}}</td>
+                    <td>{{inventoryRow.stock_out}}</td>
+                    <td>{{inventoryRow.item_rate}}</td>
+                    <td>{{inventoryRow.total_cost}}</td>
+                    <td><a href="#allocateModal" id="allocate_{{inventoryRow.inv_id}}" class="modal-trigger allocateBTN">Allocate</a></td>
+                    <td>{{inventoryRow.last_modified_date.strftime('%d %B %Y')}}</td>
+                    <td><a title="Delete Need" name="{{inventoryRow.inv_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                        <i class="material-icons small">delete</i></a>
+                </tr>
+                {%endfor%}
+                {%endif%}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+</div>
+
+<div id="displayInventoryModal" class="modal" style="background-color: white;padding-top: 20px;">
+    <div class="modal-content" style="height:100%">
+        </div>
+</div>
+
+<div id="createModal" class="modal" style="background-color: white;padding-top: 20px;height: 400px;width: 400px;">
+    <div class="modal-content" style="height:100%">
+        <form id="addItemForm">
+            <input type="text" style="font-size:xx-large" class="invDataClass" name='invName' id="invName" placeholder="Inventory Item Name" required>            
+            <div id="inventoryDiv" style="max-width: 80%;" >
+                <table>
+                    <tr>
+                        <td>Description</td>
+                        <td><input name="invDescription" class="invDataClass" placeholder="Description" id="invDescription"></td>
+                    </tr>                
+                    <tr>
+                        <td>Total Stock</td>
+                        <td><input type="number" name="totalStock" class="invDataClass" placeholder="Total Stock" id="totalStock"></td>
+                    </tr>
+                    <tr>
+                        <td>Item rate</td>
+                        <td><input type="number" name="itemRate" class="invDataClass" placeholder="Rate" id="itemRate"></td>
+                    </tr>
+                    <tr>
+                        <td>Total Cost</td>
+                        <td><input type="text" name="totalCost" class="invDataClass" placeholder="Total Cost" id="totalCost"></td>
+                    </tr>
+                    <tr>
+                        <td>Provided By</td>
+                        <td><input type="text" name="providedBy" class="invDataClass" placeholder="Provided By" id="providedBy"> </td>
+                    </tr>
+            </table>
+                </div>
+            <br><br>
+            <div>
+                <a href="#" id="addInventoryDataBTN" class="btn green right">Add Item</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div id="allocateModal" class="modal" style="background-color: white;padding-top: 20px;width: 400px; overflow-y: auto;">
+    <div class="modal-content" style="height:100%">        
+        <h4 class="grey-text">Allocate Inventory to Student</h4>
+            <select class="browser-default" id="classSectionSelection">
+                <option value="" disabled selected>Choose Class - Section</option>
+                {%for val in class_list%}
+                <option value="{{val.class_sec_id}}">{{val.class_val}}- {{val.section}}</option>
+                {%endfor%}
+              </select>   
+              <div id="loader" style="display: none;" class="center">
+                <img src="../static/images/loader.gif">
+            </div>                                
+                <div id="allocationDiv">                    
+                </div>              
+    </div>
+</div>
+<script>
+var curr_inv_id = "";
+    $(document).ready(function () {
+        $('.modal').modal();  
+        $('select').formSelect();  
+    });
+
+
+ $('#itemRate').blur(function(){
+    var totalStockVal = $('#totalStock').val();
+    var itemRateVal = $('#itemRate').val();
+    var totalCostVal = totalStockVal*itemRateVal;
+    $('#totalCost').val(totalCostVal);
+ });
+
+
+$('#addInventoryDataBTN').click(function($e){
+    $e.preventDefault();
+    var form = $('#addItemForm'); 
+    var invName = $('#invName').val();  
+    var totalStock = $('#totalStock').val();  
+    var itemRate = $('#itemRate').val();      
+    var totalCost = $('#totalCost').val();
+    $.ajax({
+            url: "/addInventoryItem",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {           
+                    $('.invDataClass').val('');
+                    $("#inventoryTable tbody").append( 
+                    '<tr>'+   
+                    '<td>'+formResponse+'</td>'+
+                    '<td>'+invName+'</td>'+
+                    '<td>'+totalStock+'</td>'+
+                    '<td>0</td>'+
+                    '<td>'+itemRate+'</td>'+
+                    '<td>'+totalCost+'</td>'+
+                    '<td>'+'<a href="#" id="allocate_'+formResponse+'" class="allocateBTN modal-trigger">Allocate</a>'+'</td>'+
+                    '<td>Now</td>'+                    
+                    '<td><a title="Delete Need" name="{{formResponse}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">'+
+                    '<i class="material-icons small">delete</i></a>'+
+                     '</tr>'
+                );                
+                $('#remark').val('');
+                M.toast({html: '<h4>New Item Added</h4>'});
+                var elem = $('#createModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                clicks = 0;
+            },
+            error: function (xhr) {
+                window.alert("Error while adding item. Please try again.");
+            }
+        });       
+});   
+
+$('.allocateBTN').click(function(){
+    curr_inv_id = $(this).attr("id");    
+});
+
+$('#classSectionSelection').change(function () {
+        $('#studentListDiv').html('');
+        var classSectionVal = $('#classSectionSelection').val();        
+        //var yearSelectCheck = $('#addYearSelect').val();        
+            $('#loader').show();
+            //ajax fetch from server    
+            var data = "";
+            $("#allocationDiv").html('');
+            //window.alert(curr_inv_id);
+            $.ajax({
+                url: "/studentInventoryAlloc?class_sec_id=" + classSectionVal+"&inv_id="+curr_inv_id,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#loader').hide();
+                    $('#allocationDiv').show();
+                    $("#allocationDiv").html(response);                    
+                },
+                error: function (xhr) {
+                    $('#loader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+
+            $('#salaryUpdateDiv').show();
+      
+    });
+
+
+$('.deleteBTNClass').click(function () {
+            var inv_id = $(this).attr("name");
+            $.ajax({
+                url: "/archiveInventory?inv_id="+inv_id,
+                type: "get",
+                data: '',
+                success: function (archiveResponse) {
+                    if (archiveResponse=='0'){
+                        var invWithHash = '#'+inv_id;
+                        $(invWithHash).remove();
+                        M.toast({html: '<h4>Item deleted!</h4>'})
+                    }
+                    else{
+                        M.toast({html: '<h4>Error deleting item!</h4>'})
+                    }                 
+                }
+            })
+        });
+</script>
+{% endblock %}
