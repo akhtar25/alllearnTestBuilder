@@ -67,6 +67,14 @@
                 <li>
                     <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
                   </li>
+
+                  {%elif user_type_val=='134'%}
+                  <li>
+                    <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+                  </li>
+                  <li>
+                    <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
+                    </li>
           {% else %}
           <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
@@ -259,6 +267,20 @@
                       <i class="material-icons right" style="font-size: 40px">account_circle </i>
                     </a>
                   </li>
+                  {%elif user_type_val=='134'%}
+                  <li>
+                    <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
+                    </a>
+                  </li>
+                  <li>
+                    <a style="color: green; font-size:15px;"  href="{{url_for('viewHomework')}}">Homework
+                    </a>
+                  </li>
+                  <li>
+                    <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
+                      <i class="material-icons right" style="font-size: 40px">account_circle </i>
+                    </a>
+                  </li>
             {%else%}
           <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
@@ -376,7 +398,7 @@
                     </li>
           </ul>
               </div>
-              {%if (disconn != 1) and (current_user.username) and user_type_val!='161' %} 
+              {%if (disconn != 1) and (current_user.username) and user_type_val!='161' and user_type_val!='134' %} 
               <div class="col l2 s12">
                   <ul>    
               <li>

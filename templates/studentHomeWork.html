@@ -102,14 +102,14 @@
 <div id="createModal1" class="modal" style="background-color: white;padding-top: 20px;">
     <div class="modal-content" style="height:100%">
         <form id="addSurveyForm">
-            <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="Survey Name" required>
+            <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="Name: eg. Subject - Date" required>
             <input type="hidden" name="class" value="{{qclass_val}}"/>
             <input type="hidden" name="section" value="{{qsection}}"/>
-            <h4 class="grey-text">HomeWork Questions</h4>
+            <h4 class="grey-text">HomeWork Tasks</h4>
             <div id="questionDiv" style="max-width: 80%;"></div>
             <a href="#" id="addQuestionBTN">
                 <i class="material-icons" class="green center">add_circle</i>
-                <span style="font-size: large;">Add Question</span></a>
+                <span style="font-size: large;">Add Task</span></a>
             <br><br>
             <div>
                 <a href="#" id="addSurveyDataBTN" class="btn green right">Create HomeWork</a>
@@ -125,7 +125,7 @@
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
         clicks=clicks+1;        
-        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question">');
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Task">');
     });
 
 

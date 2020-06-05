@@ -425,8 +425,8 @@ def schoolProfile():
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
     value=0
-    if current_user.user_type==134:
-        value=1
+    #if current_user.user_type==134:
+    #    value=1
     return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
 
@@ -3674,8 +3674,14 @@ def qrSessionScanner():
 @login_required
 def qrSessionScannerStudent():
     studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('qrSessionScannerStudent.html',disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
+
+
+@app.route('/viewHomework')
+@login_required
+def viewHomework():
+    return render_template('viewHomework.html')
 
 @app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
 def mobQuestionLoader():
@@ -5811,7 +5817,7 @@ def studentProfile():
         form.student_name.choices = ''
         flag = 1
 
-        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag)
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type))
     else:
         value=0
         flag = 0
@@ -5825,7 +5831,7 @@ def studentProfile():
         else:
             disconn=0
         #print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type))
 
 #Addition of new section to conduct student surveys
 @app.route('/studentSurveys')
@@ -6160,7 +6166,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8002))
+        port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
     #app.run()
