@@ -20,8 +20,7 @@
           <th>Chapter</th>
           <th>Topic</th>
           <th>Covered</th>
-          <th> &nbsp; &nbsp; &nbsp; Start Class</th>
-          <th>Start Live Class</th>
+          <th> &nbsp; &nbsp; &nbsp; Start Class</th>          
         </tr>
       </thead>
       {% if topicList!="" %}
@@ -35,7 +34,7 @@
             <td>{{row.chapter_num}}</td>
             <td>{{row.topic_name}}</td>
             <td>{{row.is_covered}}</td>
-            {% if row.is_covered == 'Y'%}
+            <!--{% if row.is_covered == 'Y'%}
             <td><a class="btn btn-default"
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span
                   class=" label label-success ">Retake Class</span></a></td>
@@ -43,8 +42,9 @@
             <td><a class="btn btn-default"
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span
                   class=" label label-success ">Start Class</span></a></td>
-            {% endif %}
-            <td><a href="#modal1" class="modal-trigger green btn startliveClassBTN" name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N">Start Live Class</a></td>
+            {% endif %}-->
+            <td><a href="#modal1" class="modal-trigger green btn btn-default startliveClassBTN" name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N"><span
+              class=" label label-success ">Start Class</span></a></td>
           </tr>
           {% endfor %}
         </tbody>
