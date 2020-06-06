@@ -2027,6 +2027,7 @@ def requestUserAccess():
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     print('User Type:'+str(quser_type))
+    
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
@@ -6058,7 +6059,12 @@ def studentHomeWork():
     if user_type==134:
         user_id = User.query.filter_by(id=current_user.id).first()
         student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
-        homeworkData = HomeWorkDetail.query.filter_by(class_sec_id=student_id.class_sec_id).first()
+        print('class_sec_id:'+str(student_id.class_sec_id))
+        homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
+        homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+        homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+        print(homeworkDetailQuery)
+        homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
         print('student_id:'+str(student_id.student_id))
     return render_template('studentHomeWork.html',disconn=1,student_id=student_id.student_id,homeworkData=homeworkData)
 
@@ -6084,42 +6090,34 @@ def HomeWork():
     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
     homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+    print(homeworkDetailQuery)
     homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
-@app.route('/indivHomeWorkDetail/')
+@app.route('/indivHomeworkDetail',methods=['GET','POST'])
+@login_required
 def indivHomeWorkDetail():
-    homework_id = request.args.get('homework_id')
-    homework_id = homework_id.split('_')[1]
-    student_id = request.args.get('student_id')    
-    studHomeWorkData = " select sq.sq_id as sq_id, question,sq.homework_id,homework_response_id , sp.student_id, answer from student_homework_response ssr "
-    studHomeWorkData = studHomeWorkData  + " right join homework_questions sq on "
-    studHomeWorkData = studHomeWorkData  +  " sq.homework_id =ssr.homework_id and "
-    studHomeWorkData = studHomeWorkData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
-    studHomeWorkData = studHomeWorkData  +  " left join student_profile sp "
-    studHomeWorkData = studHomeWorkData  +  " on sp.student_id =ssr.student_id "
-    studHomeWorkData = studHomeWorkData  +  " where sq.homework_id =" + str(homework_id)
-    homeworkQuestions = db.session.execute(text(studHomeWorkData)).fetchall()
-    return render_template('_indivhomeworkDetail.html',homeworkQuestions=homeworkQuestions,student_id=student_id,homework_id=homework_id)
+    homework_id = request.args.get('homework_id') 
+    user_id = User.query.filter_by(id=current_user.id).first()
+    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
+    return render_template('_indivHomeWorkDetail.html',homeworkQuestions=homeworkQuestions,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
 
-@app.route('/updateHomeWorkAnswer',methods=["GET","POST"])
-def updateHomeWorkAnswer():
+@app.route('/addHomeworkAnswer',methods=["GET","POST"])
+def addHomeworkAnswer():
     sq_id_list = request.form.getlist('sq_id')
-    homework_response_id_list = request.form.getlist('homework_response_id')
     answer_list = request.form.getlist('answer')
     homework_id = request.form.get('homework_id')
-    student_id = request.form.get('student_id')
+    
+    user_id = User.query.filter_by(id=current_user.id).first()
+    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
-        if homework_response_id_list[i]!='None':
-            studentHomeWorkAnsUpdate = StudentHomeWorkResponse.query.filter_by(sq_id=sq_id_list[i], homework_response_id=homework_response_id_list[i]).first()
-            studentHomeWorkAnsUpdate.answer = answer_list[i]
-            homeworkDetailRow = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()            
-        else:
             addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
+                student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
             db.session.add(addNewHomeWorkResponse)
     db.session.commit()
     return jsonify(['0'])

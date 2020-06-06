@@ -111,6 +111,18 @@
                 <i class="material-icons" class="green center">add_circle</i> 
                 <span style="font-size: large;">Add Question</span></a>
             <br><br> 
+            <label>Content Type:</label><br>
+            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span>
+            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span>
+            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span>
+            <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span>
+            <input type="hidden" id="contentType" name="contentType" value="">
+            <div id="uploadContent" style="display: none;">
+                <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" id="file-input"><a href="#" id="uploadBtn" onclick="uploadBtn();" style="float: right;">Upload</a></div><br><label style="margin-left: 111px;">OR</label>
+                <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
+                <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
+                <input type="hidden" id="reference" name="reference" value="">
+              </div>
             <div>
                 <a href="#" id="addSurveyDataBTN" class="btn green right">Create HomeWork</a>
             </div>
@@ -128,6 +140,11 @@
         $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question">');
     });
 
+    function contentOption(contentType){
+      document.getElementById('contentType').value=contentType.value;
+      console.log('Insert option');
+      $("#uploadContent").show();
+    }
 
  
 $('#addSurveyDataBTN').click(function($e){
@@ -152,7 +169,7 @@ $('#addSurveyDataBTN').click(function($e){
                 );                
                 $('#remark').val('');
                 M.toast({html: '<h4>New HomeWork Created</h4>'});
-                var elem = $('#createModal')
+                var elem = $('#createModal1')
                 var instance = M.Modal.getInstance(elem);                   
                 instance.close();
                 clicks = 0;

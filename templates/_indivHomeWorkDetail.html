@@ -1,0 +1,38 @@
+<div class="content">
+    {%if homeworkQuestions%}
+    <form id="homeworkAnswerForm">
+        <input type="hidden" name="homework_id" value="{{homework_id}}">
+        
+        {%for row in homeworkQuestions%}
+        <h4>{{row.question}}</h4>
+        <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
+        <input type="hidden" name="sq_id" value="{{row.sq_id}}">
+        {%endfor%}
+        <a href="#" id="homeworkAnsBTN" class="green btn">Save</a>
+    </form>
+    {%else%}
+    <h5 class="grey-text">No questions in this Homework</h5>
+    {%endif%}
+
+</div>
+<script>
+    $('#homeworkAnsBTN').click(function($e){
+        $e.preventDefault();
+        var form = $('#homeworkAnswerForm');
+        //$('#errorSurveyUpdate').hide();
+        $.ajax({
+                url: "/addHomeworkAnswer",
+                type: "POST",
+                data: form.serialize(),
+                success: function (updateResponse) {                    
+                    M.toast({html: '<h4>Homework Answer Added</h4>'});
+                    var elem = $('#homeworkModal');
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                },
+            error: function (xhr) {                
+                //$('#errorSurveyUpdate').show();
+            }
+            })
+    });
+</script>
