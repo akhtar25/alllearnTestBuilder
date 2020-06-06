@@ -876,32 +876,32 @@ class StudentTag(db.Model):
     last_modified_date=db.Column(db.DateTime)
 
 
-class InventoryDetail(db.Model):
-    __tablename__ = "inventory_detail"
-    inv_id = db.Column(db.Integer, primary_key=True)
-    inv_name = db.Column(db.String(200), nullable=False)
-    inv_description = db.Column(db.String(500), nullable=False) 
-    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    total_stock = db.Column(db.Float, nullable=False)
-    stock_out = db.Column(db.Float, nullable=False)
-    item_rate = db.Column(db.Float, nullable=False)
-    total_cost = db.Column(db.Float, nullable=False)
-    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
-    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
-    is_archived = db.Column(db.String(1),nullable=True)    
-    last_modified_date=db.Column(db.DateTime, nullable=False)
-
-
-class InventoryAllocationStudent(db.Model):
-    __tablename__ = "inventory_allocation_stud"
-    alloc_id = db.Column(db.Integer, primary_key=True)
-    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
-    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
-    count = db.Column(db.Float, nullable=False)
-    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
-    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    is_archived = db.Column(db.String(1),nullable=True)    
-    last_modified_date=db.Column(db.DateTime, nullable=False)
+#class InventoryDetail(db.Model):
+#    __tablename__ = "inventory_detail"
+#    inv_id = db.Column(db.Integer, primary_key=True)
+#    inv_name = db.Column(db.String(200), nullable=False)
+#    inv_description = db.Column(db.String(500), nullable=False) 
+#    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    total_stock = db.Column(db.Float, nullable=False)
+#    stock_out = db.Column(db.Float, nullable=False)
+#    item_rate = db.Column(db.Float, nullable=False)
+#    total_cost = db.Column(db.Float, nullable=False)
+#    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+#    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
+#
+#
+#class InventoryAllocationStudent(db.Model):
+#    __tablename__ = "inventory_allocation_stud"
+#    alloc_id = db.Column(db.Integer, primary_key=True)
+#    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
+#    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
+#    count = db.Column(db.Float, nullable=False)
+#    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
+#    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
 
 
 class LiveClass(db.Model):
