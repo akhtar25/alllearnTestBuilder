@@ -1,5 +1,5 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container">
+<div class="container" style="height: 100%;">
     {%if current_user.is_authenticated%}
     <div class="right">
         <a href="#modal1" class="modal-trigger green btn">Add Class</a>
@@ -85,17 +85,17 @@
                     </div>
                     <!---->
                     <div class="col s4">
-                        {{ form.class_link.label(class='labelsize') }}
+                        {{ form.conference_link.label(class='labelsize') }}
                         <br>
-                        {% if form.class_link.errors %}
-                        {{ form.class_link(class="form-control form-control-lg is-invalid") }}
+                        {% if form.conference_link.errors %}
+                        {{ form.conference_link(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.class_link.errors %}
+                            {% for error in form.conference_link.errors %}
                             <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                         {% else %}
-                        {{ form.class_link(class='form-control') }}
+                        {{ form.conference_link(class='form-control') }}
                         {% endif %}
                     </div>
                     <!---->
@@ -118,7 +118,6 @@
                     </div>
             </form>
         </div>
-
     </div>
 </div>
 <div class="divider"></div>
@@ -127,35 +126,29 @@
         <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small green"><i
                 class="material-icons small">refresh</i></a>
         <thead>
-            <th>Class
-            </th>
+            <th>Class</th>            
             <th>Subject</th>
-            <th>Book and Chapter</th>
+            <th>Chapter and Topic</th>
             <th>Teacher</th>
-            <th>Class Time</th>
-            <th>Status</th>
-            <th>Phone Number</th>
-            <th>Join Online</th>
-            <th>Donate</th>
+            <th>End Time</th>
+            <th>Status</th>            
+            <th>Join</th>
+            <th>Delete</th>
         </thead>
         <tbody>
-            {%if allOpenClasses!=None%}
-            {%for openClass in allOpenClasses %}
-            <tr style="font-size: 14px" id="{{openClass.open_class_id}}">
-                <td>{{openClass.class_val}}</td>
-                <td>{{openClass.subject}}</td>
-                <td>{{openClass.book_chapter}}</td>
-                <td>{{openClass.teacher_name}}<br> <span class="grey-text">{{openClass.school_name}}</span></td>
-                <td>{{openClass.start_time}} <br> {{openClass.end_time}}</td>
-                <td>{{openClass.status}}</td>
-                <td>{{openClass.phone_number}}</td>
-                <td><a href="{{openClass.class_link}}">Join</a></td>
-                <td>
-                    <!--<a href="{{url_for('school',schoolId=openClass.school_id)}}">Donate to School</a><br>-->
-                    <a href="#">Donate to Teacher</a>
-                </td>
-                {%if current_user.is_authenticated and current_user.school_id== openClass.school_id%}
-                <td><a title="Delete Class" name="{{openClass.open_class_id}}" href="#"
+            {%if allLiveClasses!=None%}
+            {%for liveClass in allLiveClasses %}
+            <tr style="font-size: 14px" id="{{liveClass.live_class_id}}">
+                <td>{{liveClass.class_val}}</td>
+                <td>{{liveClass.subject}}</td>
+                <td>{{liveClass.book_chapter}}</td>
+                <td>{{liveClass.teacher_name}}<br> <span class="grey-text">{{liveClass.school_name}}</span></td>
+                <td>{{liveClass.end_time}}</td>
+                <td>{{liveClass.status}}</td>
+                <td>{{liveClass.phone_number}}</td>
+                <td><a href="{{liveClass.class_link}}">Join</a></td>
+                {%if current_user.is_authenticated and current_user.school_id== liveClass.school_id%}
+                <td><a title="Delete Class" name="{{liveClass.live_class_id}}" href="#"
                         class=" btn-floating btn-small orange deleteBTNClass">
                         <i class="material-icons small">delete</i></a>
                 </td>
@@ -171,7 +164,7 @@
 
 <script>
     $('#refreshBTNID').click(function () {
-        window.location.replace("{{url_for('openClass')}}");
+        window.location.replace("{{url_for('liveClass')}}");
     });
 
 
@@ -179,14 +172,14 @@
         //$('#modal2').hide();
         //$('#donateDiv').html('');
         //$('#loader').show();
-        var open_class_id = $(this).attr("name");
+        var live_class_id = $(this).attr("name");
         $.ajax({
-            url: "/archiveOpenClass?open_class_id=" + open_class_id,
+            url: "/archiveLiveClass?live_class_id=" + live_class_id,
             type: "get",
             data: '',
             success: function (archiveResponse) {
                 if (archiveResponse == 0) {
-                    var idWithHash = '#' + open_class_id;
+                    var idWithHash = '#' + live_class_id;
                     $(idWithHash).remove();
                     M.toast({
                         html: 'Class deleted!'
