@@ -1832,7 +1832,7 @@ def liveClass():
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
     #    flash('New class listed successfully!')                
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form)    
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type))    
 
 #end of live class section
 
