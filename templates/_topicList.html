@@ -1,71 +1,132 @@
+<div class="box-header">
+  <h3 class="box-title">Curriculum details for Class: {{ qclass_val }}</h3>
+  <div class="switch pull-right">
+    <label>
+      Show Covered
+      <input type="checkbox">
+      <span class="lever"></span>
+      Hide Covered
+    </label>
+  </div>
+</div>
+
+<div style="height: 500px;overflow-y:auto;">
+  <div class="box-body  no-padding table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Book</th>
+          <th>Chapter</th>
+          <th>Topic</th>
+          <th>Covered</th>
+          <th> &nbsp; &nbsp; &nbsp; Start Class</th>
+          <th>Start Live Class</th>
+        </tr>
+      </thead>
+      {% if topicList!="" %}
+      <div>
+        <tbody>
+          {% for row in topicList %}
+
+          <tr class="{{row.is_covered}} list">
+            <td>{{row.subject_name}}</td>
+            <td>{{row.book_name}}</td>
+            <td>{{row.chapter_num}}</td>
+            <td>{{row.topic_name}}</td>
+            <td>{{row.is_covered}}</td>
+            {% if row.is_covered == 'Y'%}
+            <td><a class="btn btn-default"
+                href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span
+                  class=" label label-success ">Retake Class</span></a></td>
+            {% else %}
+            <td><a class="btn btn-default"
+                href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span
+                  class=" label label-success ">Start Class</span></a></td>
+            {% endif %}
+            <td><a href="#modal1" class="modal-trigger green btn startliveClassBTN" name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N">Start Live Class</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </div>
+      {% else %}
+      <p>No data found in DB</p>
+      {% endif %}
+
+    </table>
+  </div>
+</div>
 
 
-                      <div class="box-header">
-                          <h3 class="box-title">Curriculum details for Class: {{ qclass_val }}</h3>                                      
-                          <div class="switch pull-right">
-                                <label>
-                                  Show Covered
-                                  <input type="checkbox">
-                                  <span class="lever"></span>
-                                  Hide Covered
-                                </label>
-                                </div>  
-                        </div>
-             
-                          <div style="height: 500px;overflow-y:auto;">
-                                <div class="box-body  no-padding table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                      <tr>
-                          
-                        <th>Subject</th>                        
-                        <th>Book</th>
-                        
-                        <th>Chapter</th>
-                        <th>Topic</th>
-                        <th>Covered</th>                        
-                        <th> &nbsp; &nbsp; &nbsp; Start Class</th>                       
-                      </tr>
-                    </thead>
-                      {% if topicList!="" %}
-                      <div >
-                          <tbody>
-                      {% for row in topicList %}
-                      
-                      <tr class="{{row.is_covered}} list">
-                        <td>{{row.subject_name}}</td>
-                        <td>{{row.book_name}}</td>                                           
-                        <td>{{row.chapter_num}}</td>
-                        <td>{{row.topic_name}}</td>
-                        <td>{{row.is_covered}}</td>                        
-                        {% if row.is_covered == 'Y'%}                        
-                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span class=" label label-success ">Retake Class</span></a></td>
-                        {% else %}                        
-                        <td><a class="btn btn-default"  href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span class=" label label-success ">Start Class</span></a></td>
-                        {% endif %}
-                      </tr>                    
-                      {% endfor %}
-                    </tbody>
-                    </div>
-                      {% else %}
-                      <p>No data found in DB</p>
-                      {% endif %}
-                    
-                    </table>
-                    </div>
-                  </div>                  
-                  <script type="text/javascript">
-                    $(document).ready(function(){
-                        $('input[type="checkbox"]').click(function(){
-                            if($(this).is(":checked")) {
-                            console.log("Is checked");
-                            $(".Y").hide();
-                            }
-                            else {
-                                $(".Y").show();
-                            }                           
-                        });
-                    });
-                    </script>
-                    
-                  
+<div id="modal1" class="modal" style="background-color:white;height: 400px;width: 500px;">
+  <div class="modal-content" id="">
+    <h4>Start Live Class</h4>
+    <h6 id="chosenTopicDetail"></h6>
+    <ol>
+      <li><h5>Start a live session</h5>
+        <a href="https://meet.google.com" target="_blank"><img src="../static/images/meet_img.png" width="150px"></a>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="https://zoom.us/start/videomeeting" target="_blank"><img src="../static/images/zoom_img.png" width="150px"></a>
+      </li>
+      <li>Enter the conference link: <input type="text" placeholder="Conference link" id="conferenceLink"></li>
+      <li>Class duration: <input type="text" placeholder="Duration in hours" id="duration"></li>
+      <a href="#" class="btn green" id="saveConfBTN">Save and Start class</a> <a class="right" href="#" id="skipAndStartBTN">Skip</a>
+    </ol>  
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#saveConfBTN').attr("disabled", true);
+
+    $('.modal').modal();
+    $('input[type="checkbox"]').click(function () {
+      if ($(this).is(":checked")) {
+        console.log("Is checked");
+        $(".Y").hide();
+      } else {
+        $(".Y").show();
+      }
+    });
+  });
+
+
+ $('.startliveClassBTN').click(function(){
+  var classParams = $(this).attr("name");
+  var res = classParams.split("-");
+  //window.alert(classParams);
+  //$('#chosenTopicDetail').html(res[1]);  
+  var classDeliveryURL = "{{url_for('classDelivery')}}";
+  classDeliveryURL = classDeliveryURL+ "?class_sec_id="+res[0]+"&subject_id="+res[1]+ "&topic_id="+res[2]+ "&retake=N";
+  
+  $('#skipAndStartBTN').attr('href',classDeliveryURL);
+  $('#saveConfBTN').attr('href',classDeliveryURL);
+  //if($('#conferenceLink').val() != '') {
+  //  classDeliveryURL=classDeliveryURL+"&conf_link"+ $('#conferenceLink').val();
+  //}  
+//
+  //
+  
+ }); 
+
+ $('#conferenceLink').blur(function() {
+        if($('#conferenceLink').val() != '') {
+          $('#saveConfBTN').attr("disabled", false);
+
+          var hrefVal =  $('#saveConfBTN').attr('href');
+          
+          hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
+          
+          if($('#duration').val() != '') {
+            hrefVal=hrefVal + '&duration='+$('#duration').val();
+          }
+
+          $('#saveConfBTN').attr('href',hrefVal);
+        }
+        else{
+          $('#saveConfBTN').attr("disabled", true);
+        }
+     });
+</script>
