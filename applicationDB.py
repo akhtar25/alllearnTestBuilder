@@ -508,6 +508,7 @@ class HomeWorkDetail(db.Model):
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
     question_count = db.Column(db.Integer, nullable=False)
+    attachment = db.Column(db.String(200),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
@@ -516,6 +517,8 @@ class HomeWorkQuestions(db.Model):
     sq_id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.ForeignKey('homework_detail.homework_id'),nullable=False)
     question = db.Column(db.String(200), nullable=False)
+    ref_url = db.Column(db.String(200),nullable=True)
+    ref_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
@@ -526,6 +529,7 @@ class StudentHomeWorkResponse(db.Model):
     student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
     sq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
     answer = db.Column(db.String(200), nullable=True)
+    teacher_remark  = db.Column(db.String(100), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
 # End
@@ -896,3 +900,20 @@ class InventoryAllocationStudent(db.Model):
     last_modified_date=db.Column(db.DateTime, nullable=False)
 
 
+class LiveClass(db.Model):
+    __tablename__='live_class'
+    live_class_id = db.Column(db.Integer, primary_key=True)
+    class_val= db.Column(db.String(100), nullable=False)
+    subject = db.Column(db.String(50), nullable=False)     
+    book_chapter = db.Column(db.String(100), nullable=False)
+    start_time = db.Column(db.String(30), nullable = False)
+    end_time = db.Column(db.String(30), nullable = False)
+    status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
+    teacher_id = db.Column(db.ForeignKey('user.id'), nullable=False)
+    teacher_name = db.Column(db.String(100), nullable=True)
+    class_link = db.Column(db.String(200), nullable=True)
+    phone_number = db.Column(db.String(30), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
+    school_name = db.Column(db.String(100), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
