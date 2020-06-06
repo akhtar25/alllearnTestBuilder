@@ -843,7 +843,9 @@ class ModuleDetail(db.Model):
     module_id = db.Column(db.Integer,primary_key=True)
     module_name=db.Column(db.String(100),nullable=True)
     description = db.Column(db.String(300),nullable=True)
-    page_link = db.Column(db.String(200),nullable=True)
+    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    module_url = db.Column(db.String(200),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 
@@ -852,6 +854,8 @@ class ModuleAccess(db.Model):
     access_id =  db.Column(db.Integer,primary_key=True)
     user_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     module_id = db.Column(db.ForeignKey('module_detail.module_id'),nullable=True)
+    module_name = db.Column(db.String(50), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 class TagDetail(db.Model):
@@ -921,21 +925,21 @@ class LiveClass(db.Model):
 
 
 
-class ModuleDetail(db.Model):
-    __tablename__ = "module_mapping"
-    module_id = db.Column(db.Integer, primary_key=True)
-    module_name = db.Column(db.String(50), nullable=False)
-    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    module_url = db.Column(db.String(200),nullable=True)
-    is_archived = db.Column(db.String(1),nullable=False)
-    last_modified_date = db.Column(db.DateTime, nullable=False)
-
-
-class UserModuleMapping(db.Model):
-    __tablename__ ="user_module_mapping"
-    umm_id = db.Column(db.Integer, primary_key=True)
-    user_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    module_id = db.Column(db.ForeignKey('module_detail.module_id'), nullable=True)
-    module_name = db.Column(db.String(50), nullable=True)
-    is_archived = db.Column(db.String(1),nullable=False)
-    last_modified_date = db.Column(db.DateTime, nullable=False)
+#class ModuleDetail(db.Model):
+#    __tablename__ = "module_mapping"
+#    module_id = db.Column(db.Integer, primary_key=True)
+#    module_name = db.Column(db.String(50), nullable=False)
+#    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+#    module_url = db.Column(db.String(200),nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)
+#
+#
+#class UserModuleMapping(db.Model):
+#    __tablename__ ="user_module_mapping"
+#    umm_id = db.Column(db.Integer, primary_key=True)
+#    user_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    module_id = db.Column(db.ForeignKey('module_detail.module_id'), nullable=True)
+#    module_name = db.Column(db.String(50), nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)
