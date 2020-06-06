@@ -4187,7 +4187,7 @@ def classDelivery():
         for content in contentData:            
             q=q+1
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-        for classSec in classSections:
+        
         currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
         distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()        
             # end of sidebar        
