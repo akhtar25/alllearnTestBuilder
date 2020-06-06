@@ -1,0 +1,211 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    {%if current_user.is_authenticated%}
+    <div class="right">
+        <a href="#modal1" class="modal-trigger green btn">Add Class</a>
+    </div>
+    {%endif%}
+    <div id="modal1" class="modal" style="background-color:white;height: 400px;">
+        <div class="modal-content" id="">
+            <form action="" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col s4">
+                        {{ form.class_val.label(class='labelsize') }}
+                        <br>
+                        {% if form.class_val.errors %}
+                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.class_val.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.class_val(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.subject.label(class='labelsize') }}
+                        <br>
+                        {% if form.subject.errors %}
+                        {{ form.subject(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.subject.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.subject(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.book_chapter.label(class='labelsize') }}
+                        <br>
+                        {% if form.book_chapter.errors %}
+                        {{ form.book_chapter(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.book_chapter.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.book_chapter(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.start_time.label(class='labelsize') }}
+                        <br>
+                        {% if form.start_time.errors %}
+                        {{ form.start_time(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.start_time.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.start_time(class='form-control timepicker') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.end_time.label(class='labelsize') }}
+                        <br>
+                        {% if form.end_time.errors %}
+                        {{ form.end_time(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.end_time.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.end_time(class='form-control timepicker') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.class_link.label(class='labelsize') }}
+                        <br>
+                        {% if form.class_link.errors %}
+                        {{ form.class_link(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.class_link.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.class_link(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    <!---->
+                    <div class="col s4">
+                        {{ form.phone_number.label(class='labelsize') }}
+                        <br>
+                        {% if form.phone_number.errors %}
+                        {{ form.phone_number(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.phone_number.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.phone_number(class='form-control') }}
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <button type="submit" class="right btn green">Submit</button>
+                    </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+<div class="divider"></div>
+<div id="classSectionDiv">
+    <table class="highlight responsive-table">
+        <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small green"><i
+                class="material-icons small">refresh</i></a>
+        <thead>
+            <th>Class
+            </th>
+            <th>Subject</th>
+            <th>Book and Chapter</th>
+            <th>Teacher</th>
+            <th>Class Time</th>
+            <th>Status</th>
+            <th>Phone Number</th>
+            <th>Join Online</th>
+            <th>Donate</th>
+        </thead>
+        <tbody>
+            {%if allOpenClasses!=None%}
+            {%for openClass in allOpenClasses %}
+            <tr style="font-size: 14px" id="{{openClass.open_class_id}}">
+                <td>{{openClass.class_val}}</td>
+                <td>{{openClass.subject}}</td>
+                <td>{{openClass.book_chapter}}</td>
+                <td>{{openClass.teacher_name}}<br> <span class="grey-text">{{openClass.school_name}}</span></td>
+                <td>{{openClass.start_time}} <br> {{openClass.end_time}}</td>
+                <td>{{openClass.status}}</td>
+                <td>{{openClass.phone_number}}</td>
+                <td><a href="{{openClass.class_link}}">Join</a></td>
+                <td>
+                    <!--<a href="{{url_for('school',schoolId=openClass.school_id)}}">Donate to School</a><br>-->
+                    <a href="#">Donate to Teacher</a>
+                </td>
+                {%if current_user.is_authenticated and current_user.school_id== openClass.school_id%}
+                <td><a title="Delete Class" name="{{openClass.open_class_id}}" href="#"
+                        class=" btn-floating btn-small orange deleteBTNClass">
+                        <i class="material-icons small">delete</i></a>
+                </td>
+                {%endif%}
+            </tr>
+            {%endfor%}
+            {%endif%}
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+    $('#refreshBTNID').click(function () {
+        window.location.replace("{{url_for('openClass')}}");
+    });
+
+
+    $('.deleteBTNClass').click(function () {
+        //$('#modal2').hide();
+        //$('#donateDiv').html('');
+        //$('#loader').show();
+        var open_class_id = $(this).attr("name");
+        $.ajax({
+            url: "/archiveOpenClass?open_class_id=" + open_class_id,
+            type: "get",
+            data: '',
+            success: function (archiveResponse) {
+                if (archiveResponse == 0) {
+                    var idWithHash = '#' + open_class_id;
+                    $(idWithHash).remove();
+                    M.toast({
+                        html: 'Class deleted!'
+                    })
+                } else {
+                    M.toast({
+                        html: 'Error deleting class!'
+                    })
+                }
+            }
+        })
+    });
+
+    $(document).ready(function () {
+        $('select').formSelect();
+        $('.modal').modal();
+        $('.datepicker').datepicker();
+        $('.timepicker').timepicker();
+    });
+</script>
+
+{% endblock %}

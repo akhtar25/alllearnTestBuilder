@@ -1780,6 +1780,41 @@ def explore():
     return render_template('explore.html', title='Explore', posts=posts)
 
 
+#new section for liveClass
+
+@app.route('/archiveLiveClass')
+@login_required
+def archiveLiveClass():
+    live_class_id=request.args.get('live_class_id')
+    try:
+        liveClassVal = LiveClass.query.filter_by(live_class_id=live_class_id,is_archived='N').first()
+        liveClassVal.is_archived='Y'
+        db.session.commit()
+        return jsonify(['0'])
+    except:
+        return jsonify(['1'])
+
+
+
+@app.route('/liveClass', methods=['GET','POST'])
+def liveClass():
+    form = AddLiveClassForm()
+    allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
+    if request.method == 'POST':
+        schoolNameRow = SchoolProfile.query.filter_by(school_id=current_user.school_id).first()
+        liveClassData=LiveClass(class_val = form.class_val.data,subject = form.subject.data, book_chapter=form.book_chapter.data, 
+            start_time = form.start_time.data, end_time = form.end_time.data, status = "Active", teacher_id=current_user.id, 
+            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), class_link=form.class_link.data,phone_number = form.phone_number.data, school_id = current_user.school_id,
+            school_name =schoolNameRow.name ,is_archived = 'N',last_modified_date = dt.datetime.now())        
+        db.session.add(liveClassData)
+        db.session.commit()     
+        #adding records to topic tracker while registering school                         
+        flash('New class listed successfully!')                
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form)    
+
+#end of live class section
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:

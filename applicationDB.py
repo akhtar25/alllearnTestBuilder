@@ -894,3 +894,5 @@ class InventoryAllocationStudent(db.Model):
     allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
     is_archived = db.Column(db.String(1),nullable=True)    
     last_modified_date=db.Column(db.DateTime, nullable=False)
+
+
