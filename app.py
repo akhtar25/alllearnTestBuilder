@@ -4176,6 +4176,7 @@ def classDelivery():
 @login_required
 def contentManager():
     topic_list=None
+    
     formContent = ContentManager()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     formContent.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
@@ -6123,9 +6124,15 @@ def addHomeworkAnswer():
     return jsonify(['0'])
 
 @app.route('/addNewHomeWork',methods=["GET","POST"])
-def addNewHomeWork():    
+def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
+    contentType = request.form.getlist('contentType')
+    contentName = request.form.getlist('contentName')
+    for i in range(len(contentName)):
+        print(contentName[i])
+    for i in range(len(contentType)):
+        print('content type:'+str(contentType[i]))
     questionCount = len(questions)
     class_val = request.form.get('class')
     section = request.form.get('section')
@@ -6135,7 +6142,7 @@ def addNewHomeWork():
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):
+    for i in range(len(questionCount)):
         newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
