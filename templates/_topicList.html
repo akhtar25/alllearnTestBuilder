@@ -70,11 +70,9 @@
         <a href="https://zoom.us/start/videomeeting" target="_blank"><img src="../static/images/zoom_img.png" width="150px"></a>
       </li>
       <li>Enter the conference link: <input type="text" placeholder="Conference link" id="conferenceLink"></li>
+      <li>Class duration: <input type="text" placeholder="Duration in hours" id="duration"></li>
       <a href="#" class="btn green" id="saveConfBTN">Save and Start class</a> <a class="right" href="#" id="skipAndStartBTN">Skip</a>
     </ol>  
-    <form action="" method="POST" enctype="multipart/form-data">
-
-    </form>
   </div>
 </div>
 
@@ -120,11 +118,15 @@
           var hrefVal =  $('#saveConfBTN').attr('href');
           
           hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
+          
+          if($('#duration').val() != '') {
+            hrefVal=hrefVal + '&duration='+$('#duration').val();
+          }
 
           $('#saveConfBTN').attr('href',hrefVal);
         }
         else{
-          $('#saveConfBTN').attr("disabled", true);;
+          $('#saveConfBTN').attr("disabled", true);
         }
      });
 </script>

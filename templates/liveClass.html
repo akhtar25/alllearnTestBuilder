@@ -1,11 +1,11 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container" style="height: 100%;">
+<div class="container">
     {%if current_user.is_authenticated%}
     <!--<div class="right">
         <a href="#modal1" class="modal-trigger green btn">Add Class</a>
     </div>-->
     {%endif%}
-    <div id="modal1" class="modal" style="background-color:white;height: 400px;">
+    <!--<div id="modal1" class="modal" style="background-color:white;height: 400px;">
         <div class="modal-content" id="">
             <form action="" method="POST" enctype="multipart/form-data">
                 <div class="row">
@@ -23,7 +23,7 @@
                         {{ form.class_val(class='form-control') }}
                         {% endif %}
                     </div>
-                    <!---->
+            
                     <div class="col s4">
                         {{ form.subject.label(class='labelsize') }}
                         <br>
@@ -38,7 +38,7 @@
                         {{ form.subject(class='form-control') }}
                         {% endif %}
                     </div>
-                    <!---->
+              
                     <div class="col s4">
                         {{ form.book_chapter.label(class='labelsize') }}
                         <br>
@@ -53,7 +53,7 @@
                         {{ form.book_chapter(class='form-control') }}
                         {% endif %}
                     </div>
-                    <!---->
+                
                     <div class="col s4">
                         {{ form.start_time.label(class='labelsize') }}
                         <br>
@@ -68,7 +68,7 @@
                         {{ form.start_time(class='form-control timepicker') }}
                         {% endif %}
                     </div>
-                    <!---->
+            
                     <div class="col s4">
                         {{ form.end_time.label(class='labelsize') }}
                         <br>
@@ -83,7 +83,7 @@
                         {{ form.end_time(class='form-control timepicker') }}
                         {% endif %}
                     </div>
-                    <!---->
+            
                     <div class="col s4">
                         {{ form.conference_link.label(class='labelsize') }}
                         <br>
@@ -98,7 +98,7 @@
                         {{ form.conference_link(class='form-control') }}
                         {% endif %}
                     </div>
-                    <!---->
+            
                     <div class="col s4">
                         {{ form.phone_number.label(class='labelsize') }}
                         <br>
@@ -118,46 +118,47 @@
                     </div>
             </form>
         </div>
-    </div>
-</div>
-<div class="divider"></div>
-<div id="classSectionDiv">
-    <table class="highlight responsive-table">
-        <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small green"><i
-                class="material-icons small">refresh</i></a>
-        <thead>
-            <th>Class</th>            
-            <th>Subject</th>
-            <th>Chapter and Topic</th>
-            <th>Teacher</th>
-            <th>End Time</th>
-            <th>Status</th>            
-            <th>Join</th>
-            <th>Delete</th>
-        </thead>
-        <tbody>
-            {%if allLiveClasses!=None%}
-            {%for liveClass in allLiveClasses %}
-            <tr style="font-size: 14px" id="{{liveClass.live_class_id}}">
-                <td>{{liveClass.class_val}}</td>
-                <td>{{liveClass.subject}}</td>
-                <td>{{liveClass.book_chapter}}</td>
-                <td>{{liveClass.teacher_name}}<br> <span class="grey-text">{{liveClass.school_name}}</span></td>
-                <td>{{liveClass.end_time}}</td>
-                <td>{{liveClass.status}}</td>
-                <td>{{liveClass.phone_number}}</td>
-                <td><a href="{{liveClass.class_link}}">Join</a></td>
-                {%if current_user.is_authenticated and current_user.school_id== liveClass.school_id%}
-                <td><a title="Delete Class" name="{{liveClass.live_class_id}}" href="#"
+    </div>-->
+
+    <div class="divider"></div>
+    <div id="classSectionDiv">
+        <table class="highlight ">
+            <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small green"><i
+                    class="material-icons small">refresh</i></a>
+            <thead>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Chapter and Topic</th>
+                <th>Teacher</th>
+                <th>Start Time</th>
+                <th>Status</th>
+                <th>Join</th>
+                <!--<th>Delete</th>-->
+            </thead>
+            <tbody>
+                {%if allLiveClasses!=None%}
+                {%for liveClass in allLiveClasses %}
+                <tr style="line-height: 24px;" id="{{liveClass.live_class_id}}">
+                    <td>{{liveClass.class_val}} - {{liveClass.section}}</td>
+                    <td>{{liveClass.subject}}</td>
+                    <td>{{liveClass.topic_name}}</td>
+                    <td>{{liveClass.teacher_name}}</td>
+                    <td>{{liveClass.start_time}}</td>
+                    <td>{{liveClass.status}}</td>
+                    <td><a href="{{liveClass.conf_link}}" target="_blank">Join</a></td>
+                    {%if current_user.is_authenticated %}
+                    <!--and current_user.school_id== liveClass.school_id-->
+                    <!--<td><a title="Delete Class" name="{{liveClass.live_class_id}}" href="#"
                         class=" btn-floating btn-small orange deleteBTNClass">
                         <i class="material-icons small">delete</i></a>
-                </td>
+                </td>-->
+                    {%endif%}
+                </tr>
+                {%endfor%}
                 {%endif%}
-            </tr>
-            {%endfor%}
-            {%endif%}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 <script>
     $('#refreshBTNID').click(function () {

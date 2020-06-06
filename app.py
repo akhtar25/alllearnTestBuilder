@@ -1797,19 +1797,41 @@ def archiveLiveClass():
 
 
 @app.route('/liveClass', methods=['GET','POST'])
-def liveClass():
+def liveClass():    
     form = AddLiveClassForm()
-    allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
-    if request.method == 'POST':
-        schoolNameRow = SchoolProfile.query.filter_by(school_id=current_user.school_id).first()
-        liveClassData=LiveClass(class_val = form.class_val.data,subject = form.subject.data, book_chapter=form.book_chapter.data, 
-            start_time = form.start_time.data, end_time = form.end_time.data, status = "Active", teacher_id=current_user.id, 
-            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), class_link=form.class_link.data,phone_number = form.phone_number.data, school_id = current_user.school_id,
-            school_name =schoolNameRow.name ,is_archived = 'N',last_modified_date = dt.datetime.now())        
-        db.session.add(liveClassData)
-        db.session.commit()     
-        #adding records to topic tracker while registering school                         
-        flash('New class listed successfully!')                
+    #allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
+    if current_user.user_type==71:
+        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        school_id = teacherData.school_id 
+    elif current_user.user_type==134:
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()    
+        school_id = studentData.school_id
+    else:
+        return redirect(url_for('index'))
+
+    allLiveClassQuery = "select distinct t1.class_sec_id, t2.class_val, t2.section "
+    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, DATE(start_time) as start_time, status, teacher_name, "
+    allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
+    allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
+    allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
+    allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
+    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where end_time::time<CURRENT_TIME and t1.school_id= " +str(school_id) 
+
+    try:
+        allLiveClasses = db.session.execute(text(allLiveClassQuery)).fetchall()
+    except:
+        allLiveClasses = ""
+
+    #if request.method == 'POST':
+    #    schoolNameRow = SchoolProfile.query.filter_by(school_id=current_user.school_id).first()
+    #    liveClassData=LiveClass(class_val = form.class_val.data,subject = form.subject.data, book_chapter=form.book_chapter.data, 
+    #        start_time = form.start_time.data, end_time = form.end_time.data, status = "Active", teacher_id=current_user.id, 
+    #        teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), class_link=form.class_link.data,phone_number = form.phone_number.data, school_id = current_user.school_id,
+    #        school_name =schoolNameRow.name ,is_archived = 'N',last_modified_date = dt.datetime.now())        
+    #    db.session.add(liveClassData)
+    #    db.session.commit()     
+    #    #adding records to topic tracker while registering school                         
+    #    flash('New class listed successfully!')                
     return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form)    
 
 #end of live class section
@@ -4153,67 +4175,73 @@ def classDelivery():
     form.topics.choices = ''
     
     form.content_type.choices = ''
-    if current_user.is_authenticated:        
-        user = User.query.filter_by(username=current_user.username).first_or_404()        
-        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    #if current_user.is_authenticated:        
+    user = User.query.filter_by(username=current_user.username).first_or_404()        
+    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+    qtopic_id=request.args.get('topic_id')
+    qsubject_id=request.args.get('subject_id')
+    qclass_sec_id = request.args.get('class_sec_id')
+    retake = request.args.get('retake')
+    #new changes under liveClass
+    qconf_link = request.args.get('conf_link')
+    qduration = request.args.get('duration')
+    #if qduration!=None and qduration!='':
+    #    end_time = datetime.now() + timedelta(hours=float(qduration))
+    #else:
+    end_time = datetime.now() + timedelta(hours=1)
+    #liveClassCheck = LiveClass.query.filter(is_archived='N', class_sec_id=qclass_sec_id, subject_id = qsubject_id, status='Active', end_time =datetime.now()).first()
 
-        qtopic_id=request.args.get('topic_id')
-        qsubject_id=request.args.get('subject_id')
-        qclass_sec_id = request.args.get('class_sec_id')
-        retake = request.args.get('retake')
-        #new changes under liveClass
-        qconf_link = request.args.get('conf_link')
-        duration = request.args.get('duration')
+    liveClassQuery = "select count(*) as row_count from live_class where is_archived='N' and class_sec_id='"+str(qclass_sec_id)+"' and subject_id='"+str(qsubject_id)+"' " 
+    liveClassQuery = liveClassQuery + "and status='Active' and end_time::time>CURRENT_TIME"
+    liveClassCheck = db.session.execute(text(liveClassQuery)).first()
+    print('#################'+str(liveClassCheck))
 
-        end_time = datetime.now() + timedelta(hours=float(duration))
-
+    if liveClassCheck.row_count==0:
         liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
             start_time = datetime.today(), end_time = end_time, status = "Active", teacher_id=teacher.teacher_id, 
             teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
             is_archived = 'N',last_modified_date = dt.datetime.now())        
         db.session.add(liveClassData)
         db.session.commit()  
+    #end of liveClass changes
 
-        #end of liveClass changes
-
-        #print('this is retake val: '+str(retake))
-        contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
-        subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
-        subName = ''
-        for sub in subject_name:
-            subName = sub.description
-            break
-        q=0
-        for content in contentData:            
-            q=q+1
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
-        
-        currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
-        distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()        
-            # end of sidebar        
-        #for curr in currClass:        
-        #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
-        #print ("this is topic Track: " + topicTrack)
-        topicDet = Topic.query.filter_by(topic_id=qtopic_id).order_by(Topic.chapter_num).first()
-        bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
-
-        #if retake is true then set is_covered to No
-        if retake == 'Y':
-            topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
-            topicFromTracker.is_covered='N'
-            topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
-            db.session.commit()
-        
-        topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
-        topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
-        topicTrackerQuery = topicTrackerQuery + " from "
-        topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
-        topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
-        topicTrackerQuery = topicTrackerQuery + " where"
-        topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
-        topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
-        topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
-        topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+    #print('this is retake val: '+str(retake))
+    contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
+    subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
+    subName = ''
+    for sub in subject_name:
+        subName = sub.description
+        break
+    q=0
+    for content in contentData:            
+        q=q+1
+    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+    
+    currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()        
+        # end of sidebar        
+    #for curr in currClass:        
+    #topicTrack = TopicTracker.query.filter_by(class_sec_id=currClass.class_sec_id, subject_id=qsubject_id).first()
+    #print ("this is topic Track: " + topicTrack)
+    topicDet = Topic.query.filter_by(topic_id=qtopic_id).order_by(Topic.chapter_num).first()
+    bookDet= BookDetails.query.filter_by(book_id = topicDet.book_id).first()
+    #if retake is true then set is_covered to No
+    if retake == 'Y':
+        topicFromTracker = TopicTracker.query.filter_by(school_id = teacher.school_id, topic_id=qtopic_id).first()
+        topicFromTracker.is_covered='N'
+        topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+        db.session.commit()
+    
+    topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
+    topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
+    topicTrackerQuery = topicTrackerQuery + " from "
+    topicTrackerQuery = topicTrackerQuery + " topic_detail t1, "
+    topicTrackerQuery = topicTrackerQuery + " topic_tracker t2"
+    topicTrackerQuery = topicTrackerQuery + " where"
+    topicTrackerQuery = topicTrackerQuery + " t1.topic_id=t2.topic_id"
+    topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
+    topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
+    topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
         
     return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake)
 
