@@ -4147,11 +4147,11 @@ def classDelivery():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices = ''
-    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+    
     form.chapter_num.choices = ''
-    # [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
+    
     form.topics.choices = ''
-    # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+    
     form.content_type.choices = ''
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()        
@@ -4161,23 +4161,33 @@ def classDelivery():
         qsubject_id=request.args.get('subject_id')
         qclass_sec_id = request.args.get('class_sec_id')
         retake = request.args.get('retake')
-        print('this is retake val: '+str(retake))
+        #new changes under liveClass
+        qconf_link = request.args.get('conf_link')
+        duration = request.args.get('duration')
+
+        end_time = datetime.now() + timedelta(hours=float(duration))
+
+        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+            start_time = datetime.today(), end_time = end_time, status = "Active", teacher_id=teacher.teacher_id, 
+            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+            is_archived = 'N',last_modified_date = dt.datetime.now())        
+        db.session.add(liveClassData)
+        db.session.commit()  
+
+        #end of liveClass changes
+
+        #print('this is retake val: '+str(retake))
         contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
         subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
         subName = ''
         for sub in subject_name:
             subName = sub.description
             break
-        print('Subject Name:'+str(subName))
-        print('Content Data:'+str(contentData))
         q=0
-        for content in contentData:
-            print('This is Content Data:'+str(content.content_name)+' '+str(content.reference_link)+' '+str(content.last_modified_date))
+        for content in contentData:            
             q=q+1
-        print('Times:'+str(q))
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
         for classSec in classSections:
-            print("class Section:"+str(classSec.section))
         currClassSecDet = ClassSection.query.filter_by(class_sec_id=qclass_sec_id).first()
         distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall()        
             # end of sidebar        
@@ -4193,7 +4203,6 @@ def classDelivery():
             topicFromTracker.is_covered='N'
             topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
             db.session.commit()
-
         
         topicTrackerQuery = "select t1.topic_id, t1.topic_name, t1.chapter_name, t1.chapter_num, " 
         topicTrackerQuery = topicTrackerQuery + " t1.unit_num, t1.book_id, t2.is_covered, t1.subject_id, t2.class_sec_id "
@@ -4205,8 +4214,6 @@ def classDelivery():
         topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
         topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
         topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
-
-
         
     return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake)
 

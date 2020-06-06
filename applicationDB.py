@@ -900,21 +900,21 @@ class InventoryAllocationStudent(db.Model):
     last_modified_date=db.Column(db.DateTime, nullable=False)
 
 
-class LiveClass(db.Model):
-    __tablename__='live_class'
-    live_class_id = db.Column(db.Integer, primary_key=True)
-    class_val= db.Column(db.String(100), nullable=False)
-    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    chapter_num = db.Column(db.Integer, nullable=True)
-    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
-    start_time = db.Column(db.String(30), nullable = False)
-    end_time = db.Column(db.String(30), nullable = False)
-    status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
-    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
-    teacher_name = db.Column(db.String(100), nullable=True)
-    class_link = db.Column(db.String(200), nullable=True)
-    phone_number = db.Column(db.String(30), nullable=True)
-    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
-    school_name = db.Column(db.String(100), nullable=True)
-    is_archived = db.Column(db.String(1),nullable=False)
-    last_modified_date = db.Column(db.DateTime, nullable=False)
+#class LiveClass(db.Model):
+#    __tablename__='live_class'
+#    live_class_id = db.Column(db.Integer, primary_key=True)
+#    class_sec_id= db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)
+#    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    #chapter_num = db.Column(db.Integer, nullable=True)
+#    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
+#    start_time = db.Column(db.String(30), nullable = False)
+#    end_time = db.Column(db.String(30), nullable = False)
+#    status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
+#    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+#    teacher_name = db.Column(db.String(100), nullable=True)
+#    conf_link = db.Column(db.String(200), nullable=True)
+#    #phone_number = db.Column(db.String(30), nullable=True)
+#    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
+#    #school_name = db.Column(db.String(100), nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)

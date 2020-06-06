@@ -1,9 +1,9 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container" style="height: 100%;">
     {%if current_user.is_authenticated%}
-    <div class="right">
+    <!--<div class="right">
         <a href="#modal1" class="modal-trigger green btn">Add Class</a>
-    </div>
+    </div>-->
     {%endif%}
     <div id="modal1" class="modal" style="background-color:white;height: 400px;">
         <div class="modal-content" id="">
@@ -159,15 +159,10 @@
         </tbody>
     </table>
 </div>
-
-
-
 <script>
     $('#refreshBTNID').click(function () {
         window.location.replace("{{url_for('liveClass')}}");
     });
-
-
     $('.deleteBTNClass').click(function () {
         //$('#modal2').hide();
         //$('#donateDiv').html('');
