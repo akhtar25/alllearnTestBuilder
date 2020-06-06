@@ -904,12 +904,13 @@ class LiveClass(db.Model):
     __tablename__='live_class'
     live_class_id = db.Column(db.Integer, primary_key=True)
     class_val= db.Column(db.String(100), nullable=False)
-    subject = db.Column(db.String(50), nullable=False)     
-    book_chapter = db.Column(db.String(100), nullable=False)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+    chapter_num = db.Column(db.Integer, nullable=True)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     start_time = db.Column(db.String(30), nullable = False)
     end_time = db.Column(db.String(30), nullable = False)
     status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
-    teacher_id = db.Column(db.ForeignKey('user.id'), nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
     teacher_name = db.Column(db.String(100), nullable=True)
     class_link = db.Column(db.String(200), nullable=True)
     phone_number = db.Column(db.String(30), nullable=True)
