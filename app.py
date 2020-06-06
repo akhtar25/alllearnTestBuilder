@@ -1800,7 +1800,7 @@ def archiveLiveClass():
 def liveClass():    
     form = AddLiveClassForm()
     #allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
-    if current_user.user_type==71:
+    if current_user.user_type==71 or current_user.user_type==135 or current_user.user_type==139:
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id = teacherData.school_id 
     elif current_user.user_type==134:
