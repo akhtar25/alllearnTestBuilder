@@ -192,7 +192,7 @@
                 <a style="color: green;"  href="{{url_for('syllabus')}}">Syllabus</a>
               </li>
               <li>
-                <a style="color: green;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
+                <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
               </li>
  
           <li>
@@ -240,6 +240,9 @@
             {% if current_user.is_anonymous or disconn == 1 %}
             <li>
               <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
+            </li> 
+            <li>
+              <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
             </li> 
             <li>
                 <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">

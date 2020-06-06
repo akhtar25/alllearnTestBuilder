@@ -6050,8 +6050,20 @@ def createSubscription():
 
 
 # Routes for New Task
+
 @app.route('/studentHomeWork')
+@login_required
 def studentHomeWork():
+    user_type = current_user.user_type
+    if user_type==134:
+        user_id = User.query.filter_by(id=current_user.id).first()
+        student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+        homeworkData = HomeWorkDetail.query.filter_by(class_sec_id=student_id.class_sec_id).first()
+        print('student_id:'+str(student_id.student_id))
+    return render_template('studentHomeWork.html',disconn=1,student_id=student_id.student_id,homeworkData=homeworkData)
+
+@app.route('/HomeWork')
+def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -6076,7 +6088,7 @@ def studentHomeWork():
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('studentHomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
+    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
 @app.route('/indivHomeWorkDetail/')
 def indivHomeWorkDetail():
