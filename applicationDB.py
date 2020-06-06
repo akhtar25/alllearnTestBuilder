@@ -498,7 +498,7 @@ class studentQROptions(db.Model):
     option = db.Column(db.String(1), nullable=True)
     qr_link = db.Column(db.String(200), nullable=True)
 
-# Tables for HomeWork Module
+# Tabßles for HomeWork Module
 class HomeWorkDetail(db.Model):
     __tablename__ = "homework_detail"
     homework_id = db.Column(db.Integer, primary_key=True)
@@ -512,7 +512,7 @@ class HomeWorkDetail(db.Model):
 
 class HomeWorkQuestions(db.Model):
     __tablename__="homework_questions"
-    sq_id = db.Column(db.Integer, primary_key=True)
+    hq_id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.ForeignKey('homework_detail.homework_id'),nullable=False)
     question = db.Column(db.String(200), nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
@@ -523,7 +523,7 @@ class StudentHomeWorkResponse(db.Model):
     homework_response_id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.ForeignKey('homework_detail.homework_id'),nullable=False)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
-    sq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
+    hq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
     answer = db.Column(db.String(200), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
