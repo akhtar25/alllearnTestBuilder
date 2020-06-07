@@ -1,0 +1,57 @@
+<div class="content">
+    {%if reviewData%}
+    <form id="homeworkRemarkForm">
+        <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name}}</h3>
+        {%for row in reviewData%}
+        <ol>
+        <li>
+        <h4>{{row.question}}</h4>
+        {% if row.ref_type %}
+        {% if row.ref_type==98 %}
+        <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;" id="preview" src="{{row.ref_url}}">
+        {% elif row.ref_type==96 %}
+        <iframe src="{{row.ref_url}}" id="iframeDiv" style="width: 251px;height: 115px;float: left;margin-top: 16;margin-right: 10;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        {% elif row.ref_type==97 %}
+        <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;"><source src="{{row.ref_url}}"></audio>
+        {% else %}
+        <embed width="251" height="115" id="docDiv" style="margin-left: 90px;float: right;margin-top: -15px;" src="{{row.ref_url}}" type="application/pdf">
+        {% endif %}
+        {% endif %}
+        <input type="text" name="answer" placeholder="Answer" value="{{row.answer}}" style="font-size: large;">
+        {% if row.teacher_remark %}
+        Remark<input type="text" name="remark" id="remark" value="{{row.teacher_remark}}" style="width:70px;margin-left:10px;">
+        {% else %}
+        Remark<input type="text" name="remark" id="remark" style="width:70px;margin-left:10px;"/>
+        {% endif %}
+        </li>
+        </ol>
+        {%endfor%}    
+        <a href="#" style="margin-top: 20px;margin-left: 40px;" id="homeworkAnsBTN" class="green btn">Save</a>
+    </form>
+    {%else%}
+    <h5 class="grey-text">No questions in this Homework</h5>
+    {%endif%}
+
+</div>
+<script>
+    $('#homeworkAnsBTN').click(function($e){
+        $e.preventDefault();
+        studId = "{{student_id}}";
+        var form = $('#homeworkRemarkForm');
+        //$('#errorSurveyUpdate').hide();
+        $.ajax({
+                url: "/addAnswerRemark?student_id="+studId,
+                type: "POST",
+                data: form.serialize(),
+                success: function (updateResponse) {                    
+                    M.toast({html: '<h4>Remark Added</h4>'});
+                    var elem = $('#reviewModal');
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                },
+            error: function (xhr) {                
+                //$('#errorSurveyUpdate').show();
+            }
+            })
+    });
+</script>

@@ -70,12 +70,7 @@
                 {%for homeworkRow in homeworkDetailRow%}
                 <tr id="{{homeworkRow.homework_id}}">         
                     <td>
-                        {% if 'http' in homeworkRow.homework_name  %}
-                        <a href="{{homeworkRow.homework_name}}">{{homeworkRow.homework_name}}</a>
-                        {% else %}
-                        {{homeworkRow.homework_name}}
-                        {% endif %}
-
+                        <a href="{{url_for('homeworkReview',homework_id=homeworkRow.homework_id)}}">{{homeworkRow.homework_name}}</a>
                     </td>
                     <td>{{homeworkRow.student_responses}}</td>
                     <td>{{homeworkRow.question_count}}</td>
@@ -112,6 +107,8 @@
                 <span style="font-size: large;">Add Question</span></a>
             <br><br>
             <div>
+                <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="initUpload();" accept="image/*"/><br>
+                <input type="hidden" id="homeworkContent" name="homeworkContent" value="">
                 <a href="#" id="addSurveyDataBTN" class="btn green right">Create HomeWork</a>
             </div>
         </form>
@@ -119,13 +116,69 @@
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
+
+
+
+function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+      }
+      postData.append('file', file);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            console.log(url);
+            document.getElementById('homeworkContent').value = url;
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      var type = file.type;
+      var ImageName = file.name;
+      console.log('File Name:'+type);
+      console.log('file type:'+ImageName);
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=homework`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            uploadFile(file, response.data, response.url);
+          } 
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      console.log('FileName:'+file);
+      getSignedRequest(file);
+    }
+
     $(document).ready(function () {
         $('.modal').modal();
     });
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
         clicks=clicks+1;        
-        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType" name="contentType" value=""><br/></div><div id="uploadContent" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="98" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="99" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="96" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="97" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType" name="contentType" value=""><br/></div><div id="uploadContent" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
     });
 
     function contentOption(contentType){

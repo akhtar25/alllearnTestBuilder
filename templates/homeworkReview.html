@@ -1,0 +1,61 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <h2>Teacher Review Homework</h2>
+    <h3>{{homework_name}}&nbsp;&nbsp;&nbsp;{{class_val}}-{{section}}</h3>
+    <div id="surveyRowsDiv">
+        <table class="highlight" id="surveyTable">
+            <thead>              
+                <th>Student</th>
+                <th>Status</th>
+                <th>Review</th>
+            </thead>
+            <tbody>
+                {% for homeworkRow in homeworkRevData %}
+                <tr>
+                    <td>{{homeworkRow.student_name}}</td>
+                    {% if homeworkRow.ans_count==homeworkRow.qcount %}
+                    <td>completed</td>
+                    {% else %}
+                    <td>pending</td>
+                    {% endif %}
+                    <td><a href="#reviewModal" onclick="getReview('{{homework_name}}','{{homeworkRow.student_id}}');" class="modal-trigger" >Review</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+    <div id="reviewModal" name="reviewModal" class="modal" style="background-color: white;">
+        <div class="modal-content" style="height: 100%;">        
+            <div id="homeworkLoader" style="display: none;" class="center">
+                <img src="../static/images/loader.gif">
+            </div>
+                <div id="homeworkReviewDiv">
+        <!--This will contain ajax data for the selected survey-->
+            </div>
+        </div>
+    </div> 
+</div>
+<script>
+    $(document).ready(function(){
+    console.log('Inside model');
+    $('.modal').modal();
+  });
+    function getReview(homeworkId,studentId){
+        $.ajax({
+                url: "/indivHomeworkReview?homework_name="+homeworkId+"&student_id="+studentId,
+                type: "get",
+                data: '',
+                success: function (homeworkResponse) {
+                    $('#homeworkLoader').hide();      
+                    $('#homeworkReviewDiv').html(homeworkResponse);
+                },
+            error: function (xhr) {
+                $('#homeworkLoader').hide();   
+                $('#homeworkReviewDiv').html("Error LoadingHomework Data");
+            }
+            })
+    }
+</script>
+{% endblock %}

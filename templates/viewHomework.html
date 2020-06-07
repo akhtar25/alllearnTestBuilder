@@ -1,0 +1,102 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <div id="surveyRowsDiv">
+        <table class="highlight" id="surveyTable">
+            <thead>
+                <th>Homework</th>
+                <th>Created On</th>
+                <th>Question Count</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+                <th>Open</th>
+            </thead>
+            <tbody>
+                {%for homeworkRow in homeworkDetailRow%}
+                <tr id="{{homeworkRow.homework_id}}">         
+                    <td>
+                        {{homeworkRow.homework_name}}
+                    </td>
+                    <td>{{homeworkRow.student_responses}}</td>
+                    <td>{{homeworkRow.question_count}}</td>
+                    <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
+                    <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                        <i class="material-icons small">delete</i></a>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+</div>
+
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+    });
+    var clicks = 0;
+    $('#addQuestionBTN').click(function () {
+        clicks=clicks+1;        
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Task">');
+    });
+
+
+ 
+$('#addSurveyDataBTN').click(function($e){
+    $e.preventDefault();
+    var form = $('#addSurveyForm'); 
+    var surveyName = $('#surveyName').val();   
+    $.ajax({
+            url: "/addNewHomeWork",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {        
+                if (formResponse=='0'){     
+                    $('#questionDiv').html('');                  
+                    $("#surveyTable tbody").append( 
+                    '<tr>'+   
+                    '<td>'+surveyName+'</td>'+
+                    '<td>0</td>'+
+                    '<td>'+clicks+'</td>'+
+                    '<td>Now</td>'+
+                    '<td>-</td>'+
+                     '</tr>'
+                );                
+                $('#remark').val('');
+                M.toast({html: '<h4>New HomeWork Created</h4>'});
+                var elem = $('#createModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                clicks = 0;
+            }
+            else{
+                window.alert("Error");
+            }
+            },
+            error: function (xhr) {
+                window.alert("Error while creating homework");
+            }
+        });       
+});   
+
+$('.deleteBTNClass').click(function () {
+            var survey_id = $(this).attr("name");
+            $.ajax({
+                url: "/archiveHomeWork?homework_id="+survey_id,
+                type: "get",
+                data: '',
+                success: function (archiveResponse) {
+                    if (archiveResponse=='0'){
+                        var surveyWithHash = '#'+survey_id;
+                        $(surveyWithHash).remove();
+                        M.toast({html: '<h4>HomeWork deleted!</h4>'})
+                    }
+                    else{
+                        M.toast({html: '<h4>Error deleting homework!</h4>'})
+                    }                 
+                }
+            })
+        });
+</script>
+{% endblock %}

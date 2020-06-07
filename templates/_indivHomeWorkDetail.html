@@ -2,13 +2,27 @@
     {%if homeworkQuestions%}
     <form id="homeworkAnswerForm">
         <input type="hidden" name="homework_id" value="{{homework_id}}">
-        
+        <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name.homework_name}}</h3>
         {%for row in homeworkQuestions%}
+        <ol>
+        <li>
         <h4>{{row.question}}</h4>
         <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
         <input type="hidden" name="sq_id" value="{{row.sq_id}}">
-        {%endfor%}
-        <a href="#" id="homeworkAnsBTN" class="green btn">Save</a>
+        
+        {% if row.ref_type==98 %}
+        <img style="border:1px solid gray; width:251px; height: 115px;float: left;" id="preview" src="{{row.ref_url}}">
+        {% elif row.ref_type==96 %}
+        <iframe src="{{row.ref_url}}" id="iframeDiv" style="width: 251px;height: 115px;float: left;margin-top: 16;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        {% elif row.ref_type==97 %}
+        <audio controls id="audioDiv" style="width: 251px;height: 115px;float: left;margin-top: 16px;"><source src="{{row.ref_url}}"></audio>
+        {% else %}
+        <embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}" type="application/pdf">
+        {% endif %}
+        </li>
+        </ol>
+        {%endfor%}    
+        <a href="#" style="margin-top: 120px;" id="homeworkAnsBTN" class="green btn">Save</a>
     </form>
     {%else%}
     <h5 class="grey-text">No questions in this Homework</h5>

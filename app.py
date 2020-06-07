@@ -333,8 +333,8 @@ def account():
 
 @app.route('/sign-s3')
 def sign_s3():
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    #S3_BUCKET = "alllearndatabucket"
+    #S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -425,8 +425,8 @@ def schoolProfile():
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
     value=0
-    if current_user.user_type==134:
-        value=1
+    #if current_user.user_type==134:
+    #    value=1
     return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value)
 
 
@@ -3675,8 +3675,14 @@ def qrSessionScanner():
 @login_required
 def qrSessionScannerStudent():
     studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('qrSessionScannerStudent.html',disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
+
+
+@app.route('/viewHomework')
+@login_required
+def viewHomework():
+    return render_template('viewHomework.html')
 
 @app.route('/mobFeedbackCollection', methods=['GET', 'POST'])
 def mobQuestionLoader():
@@ -5813,7 +5819,7 @@ def studentProfile():
         form.student_name.choices = ''
         flag = 1
 
-        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag)
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type))
     else:
         value=0
         flag = 0
@@ -5827,7 +5833,7 @@ def studentProfile():
         else:
             disconn=0
         #print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type))
 
 #Addition of new section to conduct student surveys
 @app.route('/studentSurveys')
@@ -6098,6 +6104,31 @@ def HomeWork():
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
+@app.route('/homeworkReview')
+@login_required
+def homeworkReview():
+    homework_id = request.args.get('homework_id')
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
+    homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
+    homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
+    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).first()
+    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name)
+
+@app.route('/indivHomeworkReview',methods=['GET','POST'])
+@login_required
+def indivHomeworkReview():
+    homework_name = request.args.get('homework_name') 
+    student_id = request.args.get('student_id')
+    homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
+    reviewData = "select hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark from homework_questions hq left join student_homework_response shr "
+    reviewData = reviewData + "on hq.homework_id = shr.homework_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    print(reviewData)
+    reviewData = db.session.execute(text(reviewData)).fetchall()
+    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
+
 @app.route('/indivHomeworkDetail',methods=['GET','POST'])
 @login_required
 def indivHomeWorkDetail():
@@ -6108,12 +6139,22 @@ def indivHomeWorkDetail():
     homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
     return render_template('_indivHomeWorkDetail.html',homeworkQuestions=homeworkQuestions,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
 
+@app.route('/addAnswerRemark',methods=["GET","POST"])
+def addAnswerRemark():
+    remark = request.form.get('remark')
+    student_id = request.args.get('student_id')
+    remarkAdd = StudentHomeWorkResponse.query.filter_by(student_id=student_id).first()
+    remarkAdd.teacher_remark = remark
+    db.session.commit()
+    return jsonify(['0'])
+
+checkValue = ''
 @app.route('/addHomeworkAnswer',methods=["GET","POST"])
 def addHomeworkAnswer():
     sq_id_list = request.form.getlist('sq_id')
     answer_list = request.form.getlist('answer')
     homework_id = request.form.get('homework_id')
-    
+    print('add homework answer')
     user_id = User.query.filter_by(id=current_user.id).first()
     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
@@ -6123,12 +6164,16 @@ def addHomeworkAnswer():
     db.session.commit()
     return jsonify(['0'])
 
+
 @app.route('/addNewHomeWork',methods=["GET","POST"])
 def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
     contentType = request.form.getlist('contentType')
     contentName = request.form.getlist('contentName')
+    homeworkContent = request.form.get('homeworkContent')
+    print('inside addNew Homework')
+    print(homeworkContent)
     for i in range(len(contentName)):
         print(contentName[i])
     for i in range(len(contentType)):
@@ -6138,12 +6183,12 @@ def addNewHomeWork():
     section = request.form.get('section')
     class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=class_val,section=section).first()
     newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
-        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today())
+        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today(),attachment=homeworkContent)
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(len(questionCount)):
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+    for i in range(questionCount):
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=contentType[i],ref_url=contentName[i])
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0'])
@@ -6177,7 +6222,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8002))
+        port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
     #app.run()
