@@ -27,7 +27,7 @@
         <br><br>
     </div>
     <div id="reviewModal" name="reviewModal" class="modal" style="background-color: white;">
-        <div class="modal-content" style="height: 100%;">        
+        <div class="modal-content" style="height: 100%;overflow-y: auto;">        
             <div id="homeworkLoader" style="display: none;" class="center">
                 <img src="../static/images/loader.gif">
             </div>
@@ -43,6 +43,8 @@
     $('.modal').modal();
   });
     function getReview(homeworkId,studentId){
+        $('#homeworkReviewDiv').html('');
+        $('#homeworkLoader').show();    
         $.ajax({
                 url: "/indivHomeworkReview?homework_name="+homeworkId+"&student_id="+studentId,
                 type: "get",

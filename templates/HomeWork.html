@@ -95,12 +95,12 @@
 </div>
 
 <div id="createModal1" class="modal" style="background-color: white;padding-top: 20px;">
-    <div class="modal-content" style="height:100%">
+    <div class="modal-content" style="height:100%;overflow-y: auto;">
         <form id="addSurveyForm">
             <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="HomeWork Name" required>
             <input type="hidden" name="class" value="{{qclass_val}}"/>
             <input type="hidden" name="section" value="{{qsection}}"/>
-            <h4 class="grey-text">HomeWork Questions</h4>
+            <h4 class="grey-text">HomeWork Questions/ Tasks</h4>
             <div id="questionDiv" style="max-width: 80%;"></div>
             <a href="#" id="addQuestionBTN">
                 <i class="material-icons" class="green center">add_circle</i> 
@@ -178,7 +178,7 @@ function uploadFile(file, s3Data, url){
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
         clicks=clicks+1;        
-        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="98" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="99" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="96" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="97" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType" name="contentType" value=""><br/></div><div id="uploadContent" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Optional Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="98" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="99" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="96" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="97" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType" name="contentType" value=""><br/></div><div id="uploadContent" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
     });
 
     function contentOption(contentType){
