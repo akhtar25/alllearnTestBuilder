@@ -334,7 +334,7 @@ def account():
 @app.route('/sign-s3')
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    #S3_BUCKET = "alllearndatabucket"
+    #S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -2084,6 +2084,7 @@ def requestUserAccess():
     adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+school_id+"'")).first()
     print(adminEmail)
     print('User Type:'+str(quser_type))
+    
     if adminEmail!=None:
         userTableDetails = User.query.filter_by(username=requestorUsername).first()
         userTableDetails.school_id=school_id
@@ -4251,6 +4252,7 @@ def classDelivery():
 @login_required
 def contentManager():
     topic_list=None
+    
     formContent = ContentManager()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     formContent.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
@@ -6126,8 +6128,25 @@ def createSubscription():
 
 
 # Routes for New Task
+
 @app.route('/studentHomeWork')
+@login_required
 def studentHomeWork():
+    user_type = current_user.user_type
+    if user_type==134:
+        user_id = User.query.filter_by(id=current_user.id).first()
+        student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+        print('class_sec_id:'+str(student_id.class_sec_id))
+        homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
+        homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+        homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+        print(homeworkDetailQuery)
+        homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
+        print('student_id:'+str(student_id.student_id))
+    return render_template('studentHomeWork.html',disconn=1,student_id=student_id.student_id,homeworkData=homeworkData)
+
+@app.route('/HomeWork')
+def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -6148,61 +6167,100 @@ def studentHomeWork():
     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
     homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+    print(homeworkDetailQuery)
     homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('studentHomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
+    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
-@app.route('/indivHomeWorkDetail/')
-def indivHomeWorkDetail():
+@app.route('/homeworkReview')
+@login_required
+def homeworkReview():
     homework_id = request.args.get('homework_id')
-    homework_id = homework_id.split('_')[1]
-    student_id = request.args.get('student_id')    
-    studHomeWorkData = " select sq.sq_id as sq_id, question,sq.homework_id,homework_response_id , sp.student_id, answer from student_homework_response ssr "
-    studHomeWorkData = studHomeWorkData  + " right join homework_questions sq on "
-    studHomeWorkData = studHomeWorkData  +  " sq.homework_id =ssr.homework_id and "
-    studHomeWorkData = studHomeWorkData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
-    studHomeWorkData = studHomeWorkData  +  " left join student_profile sp "
-    studHomeWorkData = studHomeWorkData  +  " on sp.student_id =ssr.student_id "
-    studHomeWorkData = studHomeWorkData  +  " where sq.homework_id =" + str(homework_id)
-    homeworkQuestions = db.session.execute(text(studHomeWorkData)).fetchall()
-    return render_template('_indivhomeworkDetail.html',homeworkQuestions=homeworkQuestions,student_id=student_id,homework_id=homework_id)
+    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
+    homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
+    homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
+    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).first()
+    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name)
 
-@app.route('/updateHomeWorkAnswer',methods=["GET","POST"])
-def updateHomeWorkAnswer():
+@app.route('/indivHomeworkReview',methods=['GET','POST'])
+@login_required
+def indivHomeworkReview():
+    homework_name = request.args.get('homework_name') 
+    student_id = request.args.get('student_id')
+    homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
+    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
+    reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    print(reviewData)
+    reviewData = db.session.execute(text(reviewData)).fetchall()
+    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
+
+@app.route('/indivHomeworkDetail',methods=['GET','POST'])
+@login_required
+def indivHomeWorkDetail():
+    homework_id = request.args.get('homework_id') 
+    user_id = User.query.filter_by(id=current_user.id).first()
+    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
+    return render_template('_indivHomeWorkDetail.html',homeworkQuestions=homeworkQuestions,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
+
+@app.route('/addAnswerRemark',methods=["GET","POST"])
+def addAnswerRemark():
+    remark = request.form.get('remark')
+    student_id = request.args.get('student_id')
+    sq_id = request.args.get('sq_id')
+    remarkAdd = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id).first()
+    if remarkAdd!=None:
+        remarkAdd.teacher_remark = remark
+        db.session.commit()
+    return jsonify(['0'])
+
+checkValue = ''
+@app.route('/addHomeworkAnswer',methods=["GET","POST"])
+def addHomeworkAnswer():
     sq_id_list = request.form.getlist('sq_id')
-    homework_response_id_list = request.form.getlist('homework_response_id')
     answer_list = request.form.getlist('answer')
     homework_id = request.form.get('homework_id')
-    student_id = request.form.get('student_id')
+    print('add homework answer')
+    user_id = User.query.filter_by(id=current_user.id).first()
+    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
-        if homework_response_id_list[i]!='None':
-            studentHomeWorkAnsUpdate = StudentHomeWorkResponse.query.filter_by(sq_id=sq_id_list[i], homework_response_id=homework_response_id_list[i]).first()
-            studentHomeWorkAnsUpdate.answer = answer_list[i]
-            homeworkDetailRow = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()            
-        else:
-            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
-            db.session.add(addNewHomeWorkResponse)
+        addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+            student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
+        db.session.add(addNewHomeWorkResponse)
     db.session.commit()
     return jsonify(['0'])
 
+
 @app.route('/addNewHomeWork',methods=["GET","POST"])
-def addNewHomeWork():    
+def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
+    contentType = request.form.getlist('contentType')
+    contentName = request.form.getlist('contentName')
+    homeworkContent = request.form.get('homeworkContent')
+    print('inside addNew Homework')
+    print(homeworkContent)
+    for i in range(len(contentName)):
+        print(contentName[i])
+    for i in range(len(contentType)):
+        print('content type:'+str(contentType[i]))
     questionCount = len(questions)
     class_val = request.form.get('class')
     section = request.form.get('section')
     class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=class_val,section=section).first()
     newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
-        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today())
+        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today(),attachment=homeworkContent)
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+    for i in range(questionCount):        
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=96,ref_url=contentName[i])
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0'])
