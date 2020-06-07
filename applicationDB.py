@@ -843,7 +843,9 @@ class ModuleDetail(db.Model):
     module_id = db.Column(db.Integer,primary_key=True)
     module_name=db.Column(db.String(100),nullable=True)
     description = db.Column(db.String(300),nullable=True)
-    page_link = db.Column(db.String(200),nullable=True)
+    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    module_url = db.Column(db.String(200),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 
@@ -852,6 +854,8 @@ class ModuleAccess(db.Model):
     access_id =  db.Column(db.Integer,primary_key=True)
     user_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     module_id = db.Column(db.ForeignKey('module_detail.module_id'),nullable=True)
+    module_name = db.Column(db.String(50), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 class TagDetail(db.Model):
@@ -872,49 +876,70 @@ class StudentTag(db.Model):
     last_modified_date=db.Column(db.DateTime)
 
 
-class InventoryDetail(db.Model):
-    __tablename__ = "inventory_detail"
-    inv_id = db.Column(db.Integer, primary_key=True)
-    inv_name = db.Column(db.String(200), nullable=False)
-    inv_description = db.Column(db.String(500), nullable=False) 
-    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    total_stock = db.Column(db.Float, nullable=False)
-    stock_out = db.Column(db.Float, nullable=False)
-    item_rate = db.Column(db.Float, nullable=False)
-    total_cost = db.Column(db.Float, nullable=False)
-    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
-    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
-    is_archived = db.Column(db.String(1),nullable=True)    
-    last_modified_date=db.Column(db.DateTime, nullable=False)
-
-
-class InventoryAllocationStudent(db.Model):
-    __tablename__ = "inventory_allocation_stud"
-    alloc_id = db.Column(db.Integer, primary_key=True)
-    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
-    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
-    count = db.Column(db.Float, nullable=False)
-    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
-    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    is_archived = db.Column(db.String(1),nullable=True)    
-    last_modified_date=db.Column(db.DateTime, nullable=False)
+#class InventoryDetail(db.Model):
+#    __tablename__ = "inventory_detail"
+#    inv_id = db.Column(db.Integer, primary_key=True)
+#    inv_name = db.Column(db.String(200), nullable=False)
+#    inv_description = db.Column(db.String(500), nullable=False) 
+#    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    total_stock = db.Column(db.Float, nullable=False)
+#    stock_out = db.Column(db.Float, nullable=False)
+#    item_rate = db.Column(db.Float, nullable=False)
+#    total_cost = db.Column(db.Float, nullable=False)
+#    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+#    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
+#
+#
+#class InventoryAllocationStudent(db.Model):
+#    __tablename__ = "inventory_allocation_stud"
+#    alloc_id = db.Column(db.Integer, primary_key=True)
+#    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
+#    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
+#    count = db.Column(db.Float, nullable=False)
+#    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
+#    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
 
 
 class LiveClass(db.Model):
     __tablename__='live_class'
     live_class_id = db.Column(db.Integer, primary_key=True)
-    class_val= db.Column(db.String(100), nullable=False)
+    class_sec_id= db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-    chapter_num = db.Column(db.Integer, nullable=True)
+    #chapter_num = db.Column(db.Integer, nullable=True)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
     start_time = db.Column(db.String(30), nullable = False)
     end_time = db.Column(db.String(30), nullable = False)
     status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
     teacher_name = db.Column(db.String(100), nullable=True)
-    class_link = db.Column(db.String(200), nullable=True)
-    phone_number = db.Column(db.String(30), nullable=True)
+    conf_link = db.Column(db.String(200), nullable=True)
+    #phone_number = db.Column(db.String(30), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
-    school_name = db.Column(db.String(100), nullable=True)
+    #school_name = db.Column(db.String(100), nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+
+#class ModuleDetail(db.Model):
+#    __tablename__ = "module_mapping"
+#    module_id = db.Column(db.Integer, primary_key=True)
+#    module_name = db.Column(db.String(50), nullable=False)
+#    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+#    module_url = db.Column(db.String(200),nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)
+#
+#
+#class UserModuleMapping(db.Model):
+#    __tablename__ ="user_module_mapping"
+#    umm_id = db.Column(db.Integer, primary_key=True)
+#    user_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    module_id = db.Column(db.ForeignKey('module_detail.module_id'), nullable=True)
+#    module_name = db.Column(db.String(50), nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)

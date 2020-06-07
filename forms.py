@@ -330,3 +330,12 @@ class postJobForm(FlaskForm):
     num_of_openings = IntegerField('Number of Openings',widget=NumberInput(min=0,max=100,step=1))
     
     
+class AddLiveClassForm(FlaskForm):
+    class_val=StringField('Class', validators=[DataRequired()])     
+    subject=StringField('Subject', validators=[DataRequired()])    
+    book_chapter=StringField('Book')                
+    start_time = StringField('Start Time', validators=[DataRequired()])
+    end_time = StringField('End Time', validators=[DataRequired()]) 
+    status = StringField('Status', validators=[DataRequired()])     
+    conference_link = StringField('Conference link', validators=[DataRequired()])     
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
