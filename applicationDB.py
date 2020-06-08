@@ -160,7 +160,7 @@ class Survivor(db.Model):
 class ClassSection(db.Model):
     __tablename__ = "class_section"
     class_sec_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     section=db.Column(db.String(1),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)    
     student_count= db.Column(db.Integer,nullable=True)
@@ -185,7 +185,7 @@ class Topic(db.Model):
     #content_id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, primary_key=True)
     topic_name = db.Column(db.String(100),nullable=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     unit_num=db.Column(db.Integer, nullable=True)
     chapter_num = db.Column(db.Integer,nullable=True)
     chapter_name= db.Column(db.String(120), nullable=True)
@@ -213,7 +213,7 @@ class BoardClass(db.Model):
     board_class_id = db.Column(db.Integer,primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
 
 
@@ -221,7 +221,7 @@ class BoardClassSubject(db.Model):
     __tablename__ = "board_class_subject"
     bcs_id = db.Column(db.Integer,primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     is_archived = db.Column(db.String(1),nullable=True)
@@ -233,7 +233,7 @@ class BoardClassSubjectBooks(db.Model):
     __tablename__ = "board_class_subject_books"
     bcsb_id = db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id = db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
     is_archived = db.Column(db.String(1), nullable=True)
@@ -257,7 +257,7 @@ class StudentClassSecDetail(db.Model):
     student_class_sec_id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     section=db.Column(db.String(1), nullable=True)
     is_current = db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)
@@ -284,7 +284,7 @@ class TopicTracker(db.Model):
 class BookDetails(db.Model):
     __tablename__ = "book_details"
     book_id = db.Column(db.Integer, primary_key=True)
-    class_val = db.Column(db.Integer,nullable=True)
+    class_val = db.Column(db.String(20),nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
     book_link= db.Column(db.String(500)) 
@@ -299,7 +299,7 @@ class BookDetails(db.Model):
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
     question_id = db.Column(db.Integer, primary_key=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_description=db.Column(db.String(1000),nullable=True)
@@ -336,7 +336,7 @@ class TestDetails(db.Model):
     test_id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     test_type=db.Column(db.String(120),nullable=True)
     region_id=db.Column(db.ForeignKey('message_detail.msg_id'))    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'))
@@ -832,7 +832,7 @@ class ContentDetail(db.Model):
     archive_status = db.Column(db.String(1),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     last_modified_date=db.Column(db.DateTime)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
