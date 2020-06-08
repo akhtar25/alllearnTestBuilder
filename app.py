@@ -4262,13 +4262,9 @@ def contentManager():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     formContent.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     formContent.subject_name.choices = ''
-    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     formContent.chapter_num.choices = ''
-    # [(str(i.chapter_num), "Chapter - "+str(i.chapter_num)) for i in Topic.query.with_entities(Topic.chapter_num).distinct().order_by(Topic.chapter_num).all()]
-    formContent.topics.choices = ''
-    # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    formContent.content_type.choices = ''
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    formContent.topics.choices = ''    
+    formContent.content_type.choices = ''    
     form=QuestionBankQueryForm() # resusing form used in question bank 
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
