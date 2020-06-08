@@ -6198,7 +6198,7 @@ def indivHomeworkReview():
     homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
     reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
     reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
-    print(reviewData)
+    #print(reviewData)
     reviewData = db.session.execute(text(reviewData)).fetchall()
     return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
 
@@ -6211,7 +6211,7 @@ def indivHomeWorkDetail():
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
     #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
 
-    homeworkDataQQuery = " select hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer from student_homework_response shr "
+    homeworkDataQQuery = " select hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
     homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
     homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
     homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
@@ -6225,12 +6225,15 @@ def indivHomeWorkDetail():
 def addAnswerRemark():
     remark = request.form.getlist('remark')
     student_id = request.args.get('student_id')
-    sq_id_list = request.args.getlist('sq_id')
+    sq_id_list = request.form.getlist('sq_id')
+    print('######'+str(len(sq_id_list) ))
     for i in range(len(sq_id_list)):
-        remarkData = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i]).first()        
-        if remarkData!=None:
-            print('################################e   entered remark section')
-            remarkData.teacher_remark = remark
+        remarkData = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i]).first()  
+
+        print('################################e   entered remark section')
+        print(str(StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i])))
+        if remarkData!=None:            
+            remarkData.teacher_remark = remark[i]
     db.session.commit()
     return jsonify(['0'])
 

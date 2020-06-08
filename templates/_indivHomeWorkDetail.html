@@ -12,6 +12,10 @@
                 {%else%}
                 <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
                 {%endif%}
+                {%if row.teacher_remark%}
+                Teacher Remark:
+                <input type="text" name="remark" value="{{row.teacher_remark}}" disabled style="font-size: large;width: 300px;">
+                {%endif%}
                 <input type="hidden" name="sq_id" value="{{row.sq_id}}">
                 {%if row.ref_url!=''%}
                 {% if row.ref_type==98 %}
