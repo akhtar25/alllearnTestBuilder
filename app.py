@@ -1835,8 +1835,9 @@ def liveClass():
     #    db.session.add(liveClassData)
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
-    #    flash('New class listed successfully!')                
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type))    
+    #    flash('New class listed successfully!')         
+    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),studentDetails=studentDetails)    
 
 #end of live class section
 
@@ -6147,7 +6148,8 @@ def studentHomeWork():
         print(homeworkDetailQuery)
         homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
         print('student_id:'+str(student_id.student_id))
-    return render_template('studentHomeWork.html',disconn=1,student_id=student_id.student_id,homeworkData=homeworkData)
+        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+    return render_template('studentHomeWork.html',student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
 
 @app.route('/HomeWork')
 def HomeWork():
