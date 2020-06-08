@@ -1,53 +1,70 @@
 <div class="content">
-    {%if homeworkQuestions%}
+    {%if homeworkDataRows%}
     <form id="homeworkAnswerForm">
-        <input type="hidden" name="homework_id" value="{{homework_id}}">
-        <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name.homework_name}}</h3>
+        <input type="hidden" name="homework_id" value="{{homework_id}}">        
+        <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name.homework_name}}</h3>        
         <ol>
-        {%for row in homeworkQuestions%}        
-        <li>
-        <h4>{{row.question}}</h4>
-        <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
-        <input type="hidden" name="sq_id" value="{{row.sq_id}}">
-        {%if row.ref_url!=''%}
-        {% if row.ref_type==98 %}
-        <img style="border:1px solid gray; width:251px; height: 115px;float: left;" id="preview" src="{{row.ref_url}}">
-        {% elif row.ref_type==96 %}
-        <iframe src="{{row.ref_url}}" id="iframeDiv" style="width: 251px;height: 115px;float: left;margin-top: 16;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-        {% elif row.ref_type==97 %}
-        <audio controls id="audioDiv" style="width: 251px;height: 115px;float: left;margin-top: 16px;"><source src="{{row.ref_url}}"></audio>
-        {% else %}
-        <embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}" type="application/pdf">
-        {% endif %}
-        {%endif%}
-        </li>        
-        {%endfor%}    
-    </ol>
-        <a href="#" style="margin-top: 120px;" id="homeworkAnsBTN" class="green btn">Save</a>
-    </form>
+            {%for row in homeworkDataRows%}
+            <li>
+                <h4>{{row.question}}</h4>                
+                {%if row.answer%}
+                <input type="text" name="answer" placeholder="Add Answer" value="{{row.answer}}" style="font-size: large;">                
+                {%else%}
+                <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
+                {%endif%}
+                <input type="hidden" name="sq_id" value="{{row.sq_id}}">
+                {%if row.ref_url!=''%}
+                {% if row.ref_type==98 %}
+                <img style="border:1px solid gray; width:251px; height: 115px;float: left;" id="preview"
+                    src="{{row.ref_url}}">
+                {% elif row.ref_type==96 %}
+                <!--<a href="{{row.ref_url}}" target="_blank">See attached video</a>-->
+                
+                    <div class="center">
+                <iframe src="{{row.ref_url}}" id="iframeDiv"
+                    style="width: 300px;float: left;margin-top: 16;position:inherit;" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe><br><br><br><br><br><br><br><br>
+                    </div>
+                {% elif row.ref_type==97 %}
+                <a href="{{row.ref_url}}" target="_blank">Hear attached audio</a>
+                <!--<audio controls id="audioDiv" style="width: 251px;height: 115px;float: left;margin-top: 16px;">
+                    <source src="{{row.ref_url}}"></audio>-->
+                {% else %}
+                <a href="{{row.ref_url}}" target="_blank">See attached file</a>
+                <!--<embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}"
+                    type="application/pdf">-->
+                {% endif %}
+                {%endif%}
+            </li>
+            {%endfor%}
+        </ol>    
+        <a href="#" id="homeworkAnsBTN" class="green btn right">Save</a>
+    </form>    
     {%else%}
     <h5 class="grey-text">No questions in this Homework</h5>
     {%endif%}
 
 </div>
 <script>
-    $('#homeworkAnsBTN').click(function($e){
+    $('#homeworkAnsBTN').click(function ($e) {
         $e.preventDefault();
         var form = $('#homeworkAnswerForm');
         //$('#errorSurveyUpdate').hide();
         $.ajax({
-                url: "/addHomeworkAnswer",
-                type: "POST",
-                data: form.serialize(),
-                success: function (updateResponse) {                    
-                    M.toast({html: '<h4>Homework Answer Added</h4>'});
-                    var elem = $('#homeworkModal');
-                var instance = M.Modal.getInstance(elem);                   
+            url: "/addHomeworkAnswer",
+            type: "POST",
+            data: form.serialize(),
+            success: function (updateResponse) {
+                M.toast({
+                    html: '<h4>Homework Answer Added</h4>'
+                });
+                var elem = $('#homeworkModal');
+                var instance = M.Modal.getInstance(elem);
                 instance.close();
-                },
-            error: function (xhr) {                
+            },
+            error: function (xhr) {
                 //$('#errorSurveyUpdate').show();
             }
-            })
+        })
     });
 </script>

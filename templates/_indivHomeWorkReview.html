@@ -26,11 +26,13 @@
                 <input type="hidden" name="sq_id" value="{{row.sq_id}}">
                 <input type="text" disabled name="answer" placeholder="Answer" value="A. {{row.answer}}"
                     style="font-size: large;">
-                {% if row.teacher_remark!=None and row.teacher_remark!=''  %}
-                Remark<input type="text" disable name="remark"  value="{{row.teacher_remark}}"
-                    style="margin-left:10px;">
+                {% if row.teacher_remark %}
+                Remark &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="text" disable name="remark"  value="{{row.teacher_remark}}"
+                    style="margin-left:10px;width: 200px;">
                 {% else %}
-                Enter remark<input type="text" name="remark"  style="margin-left:10px;" />
+                Enter remark&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="text" name="remark"  style="margin-left:10px;width: 200px;" />
                 {% endif %}
             </li>
         
