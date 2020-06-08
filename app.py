@@ -6181,6 +6181,7 @@ def HomeWork():
 def homeworkReview():
     homework_id = request.args.get('homework_id')
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #homeworkRevData = "select *from fn_student_homework_status("+str(teacherRow.school_id)+","+str(homework_id)+")"
     homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
     homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
     homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
@@ -6197,7 +6198,7 @@ def indivHomeworkReview():
     homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
     reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
     reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
-    print(reviewData)
+    #print(reviewData)
     reviewData = db.session.execute(text(reviewData)).fetchall()
     return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
 
@@ -6208,18 +6209,32 @@ def indivHomeWorkDetail():
     user_id = User.query.filter_by(id=current_user.id).first()
     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
-    return render_template('_indivHomeWorkDetail.html',homeworkQuestions=homeworkQuestions,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
+    #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
+
+    homeworkDataQQuery = " select hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
+    homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
+    homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
+    homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
+    homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
+    homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
+
+    return render_template('_indivHomeWorkDetail.html',homeworkDataRows=homeworkDataRows,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
 
 @app.route('/addAnswerRemark',methods=["GET","POST"])
 def addAnswerRemark():
-    remark = request.form.get('remark')
+    remark = request.form.getlist('remark')
     student_id = request.args.get('student_id')
-    sq_id = request.args.get('sq_id')
-    remarkAdd = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id).first()
-    if remarkAdd!=None:
-        remarkAdd.teacher_remark = remark
-        db.session.commit()
+    sq_id_list = request.form.getlist('sq_id')
+    print('######'+str(len(sq_id_list) ))
+    for i in range(len(sq_id_list)):
+        remarkData = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i]).first()  
+
+        print('################################e   entered remark section')
+        print(str(StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i])))
+        if remarkData!=None:            
+            remarkData.teacher_remark = remark[i]
+    db.session.commit()
     return jsonify(['0'])
 
 checkValue = ''
@@ -6239,19 +6254,67 @@ def addHomeworkAnswer():
     return jsonify(['0'])
 
 
+def get_yt_video_id(url):
+    """Returns Video_ID extracting from the given url of Youtube
+    
+    Examples of URLs:
+      Valid:
+        'http://youtu.be/_lOT2p_FCvA',
+        'www.youtube.com/watch?v=_lOT2p_FCvA&feature=feedu',
+        'http://www.youtube.com/embed/_lOT2p_FCvA',
+        'http://www.youtube.com/v/_lOT2p_FCvA?version=3&amp;hl=en_US',
+        'https://www.youtube.com/watch?v=rTHlyTphWP0&index=6&list=PLjeDyYvG6-40qawYNR4juzvSOg-ezZ2a6',
+        'youtube.com/watch?v=_lOT2p_FCvA',
+      
+      Invalid:
+        'youtu.be/watch?v=_lOT2p_FCvA',
+    """
+    from urllib.parse import urlparse, parse_qs
+
+    if url.startswith(('youtu', 'www')):
+        url = 'http://' + url
+    embeddingURL = "https://www.youtube.com/embed/"
+    query = urlparse(url)
+    
+    if 'youtube' in query.hostname:
+        if query.path == '/watch':
+            return "96", embeddingURL + parse_qs(query.query)['v'][0]
+        elif query.path.startswith(('/embed/', '/v/')):
+            return "96",embeddingURL + query.path.split('/')[2]
+    elif 'youtu.be' in query.hostname:
+        return "96",embeddingURL + query.path[1:]
+    else:
+        return "97",url
+
+
+def checkContentType(contentName):
+    with urlopen(contentName) as response:
+        info = response.info()
+        contentTypeVal = info.get_content_type()
+        splittedContentType = contentTypeVal.split('/')
+        if splittedContentType[1]=='pdf' or splittedContentType[1]=='msword':
+            return "99"
+        elif splittedContentType[0]=='audio':
+            return "97"
+        elif splittedContentType[1]=='image':
+            return "98"
+        else:
+            return "227"
+
+
 @app.route('/addNewHomeWork',methods=["GET","POST"])
 def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
-    contentType = request.form.getlist('contentType')
+    #contentType = request.form.getlist('contentType')
     contentName = request.form.getlist('contentName')
     homeworkContent = request.form.get('homeworkContent')
     print('inside addNew Homework')
     print(homeworkContent)
     for i in range(len(contentName)):
         print(contentName[i])
-    for i in range(len(contentType)):
-        print('content type:'+str(contentType[i]))
+    #for i in range(len(contentType)):
+    #    print('content type:'+str(contentType[i]))
     questionCount = len(questions)
     class_val = request.form.get('class')
     section = request.form.get('section')
@@ -6261,11 +6324,22 @@ def addNewHomeWork():
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):        
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=96,ref_url=contentName[i])
+        
+    for i in range(questionCount):           
+        if contentName[i] !='':               
+            refType ,contentName[i] = get_yt_video_id(contentName[i])
+            if refType!=96:
+                refType= checkContentType(contentName[i])                
+        else:
+            refType=226
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=int(refType),ref_url=contentName[i])
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
-    return jsonify(['0'])
+    return jsonify(['0:'+ str(currentHomeWork.homework_id)])
+
+
+
+
 
 
 @app.route('/archiveHomeWork')
