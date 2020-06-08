@@ -3,13 +3,13 @@
     <form id="homeworkAnswerForm">
         <input type="hidden" name="homework_id" value="{{homework_id}}">
         <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name.homework_name}}</h3>
-        {%for row in homeworkQuestions%}
         <ol>
+        {%for row in homeworkQuestions%}        
         <li>
         <h4>{{row.question}}</h4>
         <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
         <input type="hidden" name="sq_id" value="{{row.sq_id}}">
-        
+        {%if row.ref_url!=''%}
         {% if row.ref_type==98 %}
         <img style="border:1px solid gray; width:251px; height: 115px;float: left;" id="preview" src="{{row.ref_url}}">
         {% elif row.ref_type==96 %}
@@ -19,9 +19,10 @@
         {% else %}
         <embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}" type="application/pdf">
         {% endif %}
-        </li>
-        </ol>
+        {%endif%}
+        </li>        
         {%endfor%}    
+    </ol>
         <a href="#" style="margin-top: 120px;" id="homeworkAnsBTN" class="green btn">Save</a>
     </form>
     {%else%}

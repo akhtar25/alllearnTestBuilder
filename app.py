@@ -333,8 +333,8 @@ def account():
 
 @app.route('/sign-s3')
 def sign_s3():
-    #S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    S3_BUCKET = "alllearndatabucketv2"
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    #S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -6197,8 +6197,8 @@ def indivHomeworkReview():
     homework_name = request.args.get('homework_name') 
     student_id = request.args.get('student_id')
     homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
-    reviewData = "select hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark from homework_questions hq left join student_homework_response shr "
-    reviewData = reviewData + "on hq.homework_id = shr.homework_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
+    reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
     print(reviewData)
     reviewData = db.session.execute(text(reviewData)).fetchall()
     return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
@@ -6217,9 +6217,11 @@ def indivHomeWorkDetail():
 def addAnswerRemark():
     remark = request.form.get('remark')
     student_id = request.args.get('student_id')
-    remarkAdd = StudentHomeWorkResponse.query.filter_by(student_id=student_id).first()
-    remarkAdd.teacher_remark = remark
-    db.session.commit()
+    sq_id = request.args.get('sq_id')
+    remarkAdd = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id).first()
+    if remarkAdd!=None:
+        remarkAdd.teacher_remark = remark
+        db.session.commit()
     return jsonify(['0'])
 
 checkValue = ''
@@ -6232,9 +6234,9 @@ def addHomeworkAnswer():
     user_id = User.query.filter_by(id=current_user.id).first()
     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
-            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-                student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
-            db.session.add(addNewHomeWorkResponse)
+        addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+            student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
+        db.session.add(addNewHomeWorkResponse)
     db.session.commit()
     return jsonify(['0'])
 
@@ -6261,8 +6263,8 @@ def addNewHomeWork():
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=contentType[i],ref_url=contentName[i])
+    for i in range(questionCount):        
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=96,ref_url=contentName[i])
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0'])
