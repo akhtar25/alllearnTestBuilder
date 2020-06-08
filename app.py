@@ -679,7 +679,7 @@ def teacherDirectory():
             print(teacher_name)
             for i in range(len(teacher_name)):
                 if teacher_class[i]!='select':
-                    class_sec_id=ClassSection.query.filter_by(class_val=int(teacher_class[i]),section=teacher_class_section[i]).first()
+                    class_sec_id=ClassSection.query.filter_by(class_val=str(teacher_class[i]),section=teacher_class_section[i]).first()
                     teacher_data=TeacherProfile(teacher_name=teacher_name[i],school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,email=teacher_email[i],subject_id=int(teacher_subject[i]),last_modified_date= datetime.now(), registration_date = datetime.now())
                     db.session.add(teacher_data)
                 else:
@@ -1169,9 +1169,13 @@ def index():
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
     teacher_id = TeacherProfile.query.filter_by(user_id=user.id).first() 
+    
     school_id = SchoolProfile.query.filter_by(school_name=school_name_val).first()
+    
     if user.user_type==71:
-        classExist = ClassSection.query.filter_by(school_id=school_id.school_id,class_teacher=teacher_id.teacher_id).first()
+        classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
+        print('Insert new school')
+        print(classExist)
         if classExist==None:
             fromSchoolRegistration = True
        
@@ -1180,9 +1184,9 @@ def index():
             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            classValues = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs where school_id="+ str(teacher_id.school_id)+" ORDER BY class_val_int"
+            classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
             classValues = db.session.execute(text(classValues)).fetchall()
-            classValuesGeneral = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs ORDER BY class_val_int"
+            classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
             classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
             bookName = BookDetails.query.all()
