@@ -5898,11 +5898,7 @@ def studentProfile():
             value=1
         #print(qstudent_id)
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value,user_type_val=current_user.user_type, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag)
-        flag = 0
-        if current_user.user_type==134:
-            disconn=1
-        else:
-            disconn=0
+        flag = 0       
         #print(qstudent_id)
         return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type))
 
