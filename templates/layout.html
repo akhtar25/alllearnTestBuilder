@@ -73,6 +73,16 @@
                     <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
                   </li>
                   <li>
+                    <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+                  </li>
+                  <li>
+                    <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
+                  </li>
+                  <li>
+                    <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
+                  </li>
+                  
+                  <li>
                     <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
                     </li>
           {% else %}
