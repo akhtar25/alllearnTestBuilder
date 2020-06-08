@@ -1180,9 +1180,9 @@ def index():
             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            classValues = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs where school_id="+ str(teacher_id.school_id)+" ORDER BY class_val_int"
+            classValues = "SELECT distinct class_val AS class_val_int FROM class_section cs where school_id="+ str(teacher_id.school_id)+" ORDER BY class_val_int"
             classValues = db.session.execute(text(classValues)).fetchall()
-            classValuesGeneral = "SELECT distinct CAST(class_val as int) AS class_val_int FROM class_section cs ORDER BY class_val_int"
+            classValuesGeneral = "SELECT distinct class_val  AS class_val_int FROM class_section cs ORDER BY class_val_int"
             classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
             bookName = BookDetails.query.all()
