@@ -132,7 +132,9 @@
             <li>
                 <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
               </li>             
-              
+              <li>
+                <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
+              </li>
               
               <li>
                   <a style="color: green;"  href="{{url_for('classRegistration')}}">Add Class</a>
@@ -155,6 +157,7 @@
 
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
+
           {% if current_user.is_anonymous %}
           <li style="color: green;">
             <a style="color: green;"  href="{{ url_for('login') }}">Login</a>
@@ -203,18 +206,19 @@
           <li>
             <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
           </li>
-          <!-- <li>
-              <a style="color: green;"  href="{{url_for('classRegistration')}}">Add Class</a>
-            </li> -->
+          {%if user_type_val==135%}
           <li>
               <a style="color: green;"  href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
             </li>
+            {% endif %}
             <li>
                 <a style="color: green;"  href="{{url_for('syllabus')}}">Syllabus</a>
               </li>
+              {%if user_type_val==135%}
               <li>
                 <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
               </li>
+              {% endif %}
               <li>
                 <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
               </li>
@@ -265,9 +269,9 @@
             <li>
               <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
             </li> 
-            <li>
+            <!--<li>
               <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
-            </li> 
+            </li>--> 
             <li>
                 <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
                   <i class="material-icons right" style="font-size: 40px">account_circle </i>
@@ -289,12 +293,15 @@
                   {%elif user_type_val=='134'%}
                   <li>
                     <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
-                    </a>
+                    </a>                            
                   </li>
                   <li>
                     <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">Homework
                     </a>
                   </li>
+                  <li>
+                  <a style="color: green;font-size:15px;" href="{{url_for('contentManager')}}">Content Manager</a>
+                </li>
                   <li>
                     <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
                   </li>
@@ -316,9 +323,9 @@
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown5">Performance</a>
           </li>
-          <li>
+          <!--<li>
               <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown6">Hiring</a>
-            </li>
+            </li>-->
           <li item-width="100px">
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown1">More
               <i class="material-icons right" style="font-size: 40px">menu </i>

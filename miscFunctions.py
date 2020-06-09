@@ -29,7 +29,12 @@ import pandas as pd
 import pprint
 
 def subjects(class_val):
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    user_type_val = current_user.user_type
+    teacher_id = ''
+    if user_type_val == 134:
+        teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
     subject_name_list=[]
@@ -49,7 +54,12 @@ def subjects(class_val):
     return subjectArray
 
 def chapters(class_val,subject_id):
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    user_type_val = current_user.user_type
+    teacher_id = ''
+    if user_type_val == 134:
+        teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     chapter_id = Topic.query.with_entities(Topic.chapter_num,Topic.chapter_name).distinct().filter_by(class_val=str(class_val),subject_id=subject_id,board_id=board_id).order_by(Topic.chapter_num).all()
     print('Class value:'+str(class_val)+' Subject ID:'+str(subject_id))
