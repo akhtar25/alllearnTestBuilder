@@ -4310,20 +4310,20 @@ def loadContent():
     if public=='true':
         if reference!='':
             contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-            topic_id=int(selected_topic),is_private='N',content_type=contentTypeId,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
+            topic_id=int(selected_topic),is_private='N',content_type=contentTypeId,school_id=teacher_id.school_id,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
         else:
             contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-            topic_id=int(selected_topic),is_private='N',content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
+            topic_id=int(selected_topic),is_private='N',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
     else:
         if reference!='':
             contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-            topic_id=int(selected_topic),is_private='Y',content_type=contentTypeId,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
+            topic_id=int(selected_topic),is_private='Y',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
         else:
             contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
-            topic_id=int(selected_topic),is_private='Y',content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
+            topic_id=int(selected_topic),is_private='Y',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
     db.session.commit()
     return "Upload"
@@ -4334,7 +4334,12 @@ def contentDetails():
     content = "select cd.last_modified_date, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
-    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' order by cd.last_modified_date desc limit 5 "
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' "
+    content = content + "union "
+    content = content + "select cd.last_modified_date, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+    content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+    content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' order by last_modified_date desc limit 5"
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
     
