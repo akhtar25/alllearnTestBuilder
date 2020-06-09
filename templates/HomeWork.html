@@ -178,13 +178,14 @@ function uploadFile(file, s3Data, url){
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
         clicks=clicks+1;        
-        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Optional Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="98" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="99" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="96" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="97" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType" name="contentType" value=""><br/></div><div id="uploadContent" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
+        $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Optional Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="98" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="99" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="96" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="97" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType'+clicks+'" name="contentType'+clicks+'" value=""><br/></div><div id="uploadContent'+clicks+'" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl'+clicks+'" name="contentName'+clicks+'" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
     });
 
-    function contentOption(contentType){
-      document.getElementById('contentType').value=contentType.value;
+    function contentOption(contentType,x){
+      var str = x.toString();
+      document.getElementById('contentType'+str).value=contentType.value;
       console.log('Insert option');
-      $("#uploadContent").show();
+      $("#uploadContent"+str).show();
     }
 
  

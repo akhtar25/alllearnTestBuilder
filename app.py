@@ -1022,6 +1022,9 @@ def studentRegistration():
                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
                 class_sec=ClassSection.query.filter_by(class_val=str(row['class_val']),section=row['section'],school_id=teacher_id.school_id).first()
+                print(str(row['class_val']))
+                print(row['section'])
+                print(teacher_id.school_id)
                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
                 date = row['dob']
                 li = date.split('/',3)
@@ -6245,15 +6248,16 @@ def addHomeworkAnswer():
 def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
-    contentType = request.form.getlist('contentType')
-    contentName = request.form.getlist('contentName')
+    
+    #contentName = request.form.getlist('contentName')
     homeworkContent = request.form.get('homeworkContent')
     print('inside addNew Homework')
     print(homeworkContent)
-    for i in range(len(contentName)):
-        print(contentName[i])
-    for i in range(len(contentType)):
-        print('content type:'+str(contentType[i]))
+    #for i in range(len(contentName)):
+    #    print(contentName[i])
+    #for i in range(len(contentType)):
+    #    print('content type:'+str(contentType[i]))
+    
     questionCount = len(questions)
     class_val = request.form.get('class')
     section = request.form.get('section')
@@ -6263,8 +6267,14 @@ def addNewHomeWork():
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):        
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=96,ref_url=contentName[i])
+    for i in range(1,questionCount+1):   
+        print(index)
+        print(i)
+        contentType = request.form.getlist('contentType'+str(i))  
+        contentName = request.form.getlist('contentName'+str(i)) 
+        print(contentType[i-1])
+        print(contentName[i-1])  
+        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i-1], is_archived='N',last_modified_date=datetime.today(),ref_type=contentType[i-1],ref_url=contentName[i-1])
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0'])
