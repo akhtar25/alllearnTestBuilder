@@ -265,9 +265,9 @@
           </ul>
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
-            {% if current_user.is_anonymous or disconn == 1 %}
+            {% if current_user.is_anonymous and disconn == 1 and user_type_val!='134' %}
             <li>
-              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
+              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs{{user_type_val}}</a>
             </li> 
             <!--<li>
               <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>

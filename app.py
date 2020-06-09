@@ -4262,6 +4262,7 @@ def contentManager():
     topic_list=None
     user_type_val = current_user.user_type
     formContent = ContentManager()
+    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
     teacher_id = ''
     if user_type_val==134:
         teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
@@ -4287,7 +4288,10 @@ def contentManager():
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=user_type_val)
-    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=user_type_val)
+    if user_type_val==134:
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(user_type_val),studentDetails=studentDetails)
+    else:
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(user_type_val))
 
 
 @app.route('/loadContent',methods=['GET','POST'])
