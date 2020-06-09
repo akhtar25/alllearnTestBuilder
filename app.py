@@ -500,6 +500,7 @@ def admin():
     query = "select count(*) from public.user where user_type='161'"
     query2 = "SELECT count(*) FROM public.user WHERE last_seen >=current_date - 30;"
     count = db.session.execute(text(query)).fetchall()
+    user_type_val = current_user.user_type
     min_user_count = db.session.execute(text(query2)).first()
     schoolDetails = SchoolProfile.query.all()
     teacherDetails = TeacherProfile.query.all()
@@ -555,7 +556,7 @@ def admin():
     #     num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
+    return render_template('admin.html',count=num,user_type_val=user_type_val,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
 
 
 @app.route('/promoteStudent',methods=['POST','GET'])
@@ -1195,6 +1196,8 @@ def index():
             generalBoard = MessageDetails.query.filter_by(category='Board').all()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+    if user.user_type==135:
+        return redirect(url_for('admin'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
@@ -6144,6 +6147,7 @@ def studentHomeWork():
     return render_template('studentHomeWork.html',student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
 
 @app.route('/HomeWork')
+@login_required
 def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
