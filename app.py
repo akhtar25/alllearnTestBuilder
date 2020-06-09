@@ -4360,12 +4360,10 @@ def contentManagerDetails():
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     for topic in topicList:
 
-        contentList = ContentDetail.query.filter_by(topic_id=int(topic),archive_status='N',is_private='N').all()
-        privateContentList = ContentDetail.query.filter_by(topic_id=int(topic),archive_status='N',is_private='Y').all()
-        for private in privateContentList:
-            school_id = TeacherProfile.query.filter_by(teacher_id=private.uploaded_by).first()
-            if teacher_id.school_id==school_id.school_id:
-                contents.append(privateContentList)
+        contentList = "select *from content_detail cd where is_private = 'N' and archive_status = 'N' and topic_id='"+str(topic)+"' union select *from content_detail cd2 where is_private = 'Y' and archive_status = 'N' and topic_id='"+str(topic)+"' and school_id = '"+str(teacher_id.school_id)+"'"
+        print(contentList)
+        contentList = db.session.execute(text(contentList)).fetchall()
+        
         if len(contentList)!=0:
             contents.append(contentList)
     if len(contents)==0:
