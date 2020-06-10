@@ -4474,9 +4474,9 @@ def feedbackCollection():
         class_val = request.form['class_val']
         section = request.form['section']
         subject_id = request.form['subject_id']
-
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #sidebar queries
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         # end of sidebarm
 

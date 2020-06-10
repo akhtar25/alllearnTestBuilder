@@ -169,14 +169,20 @@
           </ul>
           <div class="box-footer">
               <div id="modal2" class="modal">
-                  <div class="modal-content" style="height:504px;">
+                  <div class="modal-content" style="height:504px;position: relative;overflow-y: auto;max-height: 415px;">
                     <h4 style="text-align: center;">Add Content</h4>
                     <form action="" method="POST" enctype="multipart/form-data">
                       {{ form.hidden_tag() }}
                       <div class="form-group " style="padding-top:5px;">
                         <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
-                          <div class="col-sm-3" style="display:flex;">
-                              <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                          <div class="col-sm-12" style="display:flex;">
+                              <label style="width:110px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;">
+                              <p style="margin-left:100px;">
+                                <label>
+                                  <input type="checkbox" id="public" value="Y" />
+                                  <span>public</span>
+                                </label>
+                              </p>
                           </div>
                         </div>
                         <div class="row" style="margin-left: 30px;margin-bottom: 10px;margin-top: 15px;">
@@ -550,8 +556,9 @@ selected_class.onchange = function()  {
   }
 
     var data="";
+    var public = document.querySelector('#public').checked;
     $.ajax({
-    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference,
+    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference+"&public="+public,
     type: "get",
     data: data,
     success: function(response) {   
@@ -559,7 +566,7 @@ selected_class.onchange = function()  {
     },
     error: function(xhr) {
     alert("error occurred while loading question");
-    }
+    } 
   }); 
             }
             
