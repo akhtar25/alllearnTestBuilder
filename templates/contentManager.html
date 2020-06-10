@@ -66,10 +66,12 @@
             </div>
         </div>
     </form>
+        {% if user_type_val!='134' %}
         <div class="addContentDiv">
             <button style="margin-left: 1000px;"
                 class="btn waves-light green lighten-1 white-text" type="button"><a href="#" onclick="addContentId();" data-target="modal2" class="waves-effect waves-light modal-trigger" style="color: white;">Add Content</a></button>
         </div>
+        {% endif %}
         <!-- Model -->
 
         <div id="modal2" class="modal">
@@ -79,8 +81,14 @@
                     {{ formContent.hidden_tag() }}
                     <div class="form-group " style="padding-top:5px;">
                       <div class="row" style="margin-left: 15px;margin-bottom: 10px;margin-top: 15px;">
-                        <div class="col-sm-3" style="display:flex;">
-                            <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                        <div class="col-sm-12" style="display:flex;">
+                            <label style="width:110px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;">
+                            <p style="margin-left:100px;">
+                              <label>
+                                <input type="checkbox" id="public" value="Y" />
+                                <span>public</span>
+                              </label>
+                            </p>
                         </div>
                       </div>
                       <div class="row" id="classDetailsDiv">
@@ -186,7 +194,7 @@
                             </embed>                           
                         </div>
                           </div>
-                          <p><button onclick="M.toast({html: 'I am a toast'})" class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
+                          <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
                             </form>
                             <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
                 </div>
@@ -463,6 +471,7 @@ selected_class.onchange = function()  {
             var fileValue = document.getElementById("file-input").value;
             var contentUrlValue = document.getElementById("contentUrl").value;
             var contentName = document.getElementById('contentNameDiv').value;
+            
             console.log(classValue);
 
             if(contentName==''){
@@ -557,11 +566,17 @@ selected_class.onchange = function()  {
   }
 
     var data="";
+    var public = document.querySelector('#public').checked;
+    console.log('public:'+public);
     $.ajax({
-    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference,
+    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference+"&public="+public,
     type: "get",
     data: data,
-    success: function(response) {       
+    success: function(response) {  
+      M.toast({html: '<h4>Content uploaded</h4>'});  
+      var elem = $('#modal2')
+      var instance = M.Modal.getInstance(elem);                   
+      instance.close();   
     },
     error: function(xhr) {
     window.alert("error occurred while loading question");

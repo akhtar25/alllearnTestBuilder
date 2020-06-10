@@ -76,7 +76,7 @@
                     <td>{{homeworkRow.question_count}}</td>
                     <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
                     <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
-                        <i class="material-icons small">delete</i></a>
+                        <i class="material-icons small">delete</i></a></td>
                 </tr>
                 {%endfor%}
             </tbody>
@@ -96,20 +96,21 @@
 
 <div id="createModal1" class="modal" style="background-color: white;padding-top: 20px;">
     <div class="modal-content" style="height:100%;overflow-y: auto;">
+      <span class="red-text" id="errorMSGSpan"></span>
         <form id="addSurveyForm">
             <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="HomeWork Name" required>
             <input type="hidden" name="class" value="{{qclass_val}}"/>
             <input type="hidden" name="section" value="{{qsection}}"/>
             <h4 class="grey-text">HomeWork Questions/ Tasks</h4>
-            <div id="questionDiv" style="max-width: 80%;"></div>
+            <ol><div id="questionDiv" style="max-width: 80%;"></div></ol>
             <a href="#" id="addQuestionBTN">
                 <i class="material-icons" class="green center">add_circle</i> 
                 <span style="font-size: large;">Add Question</span></a>
             <br><br>
             <div>
-                <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="initUpload();" accept="image/*"/><br>
+                <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="initUpload();"/><br>
                 <input type="hidden" id="homeworkContent" name="homeworkContent" value="">
-                <a href="#" id="addSurveyDataBTN" class="btn green right">Create HomeWork</a>
+                <a href="#" id="addHWDataBTN" class="btn green right">Create HomeWork</a>
             </div>
         </form>
     </div>
@@ -135,8 +136,9 @@ function uploadFile(file, s3Data, url){
             document.getElementById('homeworkContent').value = url;
           }
           else{
-            window.alert("this is where the problem is");
-            alert('Could not upload file.');
+            //window.alert("this is where the problem is");
+            $('#errorMSGSpan').html('Could not upload file.');
+            //alert('Could not upload file.');
           }
         }
       };
@@ -156,7 +158,7 @@ function uploadFile(file, s3Data, url){
             uploadFile(file, response.data, response.url);
           } 
           else{
-            alert('Could not get signed URL.');
+            $('#errorMSGSpan').html('Could not get signed URL.');           
           }
         }
       };
@@ -178,7 +180,11 @@ function uploadFile(file, s3Data, url){
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
         clicks=clicks+1;        
+<<<<<<< HEAD
         $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question"><label>Optional Content Type:</label><br><div style="display: flex;"><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="98" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="99" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="96" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span><label><input class="with-gap" id="contentTypeId" name="contentChoice'+clicks+'" type="radio" value="97" onclick="contentOption(this,'+clicks+');"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span><input type="hidden" id="contentType'+clicks+'" name="contentType'+clicks+'" value=""><br/></div><div id="uploadContent'+clicks+'" style="display: none;"><div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl'+clicks+'" name="contentName'+clicks+'" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div><input type="hidden" id="reference" name="reference" value=""></div>');
+=======
+        $('#questionDiv').append('<li><input type="text" name="questionInput" placeholder="Add Question"><br>Optional Content URL:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="contentName" style="width:200px" placeholder="eg. Youtube video or pdf"></li>');
+>>>>>>> master
     });
 
     function contentOption(contentType,x){
@@ -189,7 +195,7 @@ function uploadFile(file, s3Data, url){
     }
 
  
-$('#addSurveyDataBTN').click(function($e){
+$('#addHWDataBTN').click(function($e){
     $e.preventDefault();
     var form = $('#addSurveyForm'); 
     var surveyName = $('#surveyName').val();   
@@ -197,16 +203,20 @@ $('#addSurveyDataBTN').click(function($e){
             url: "/addNewHomeWork",
             type: "POST",
             data: form.serialize(),
-            success: function (formResponse) {        
-                if (formResponse=='0'){     
+            success: function (formResponse) { 
+              var returnVal = String(formResponse).split(':');
+                if (returnVal[0]=='0'){                       
                     $('#questionDiv').html('');                  
                     $("#surveyTable tbody").append( 
-                    '<tr>'+   
-                    '<td>'+surveyName+'</td>'+
+                    '<tr>'+  
+                      
+                    '<td>'+'<a href="{{url_for('homeworkReview')}}'+'?homework_id='+returnVal[1]+'">'+surveyName+'</a>'+'</td>'+
                     '<td>0</td>'+
                     '<td>'+clicks+'</td>'+
                     '<td>Now</td>'+
-                    '<td>-</td>'+
+                    '<td>-<td>'+
+                    //'<td><a title="Delete Need" name="'+returnVal[1] + '" href="#" class=" btn-floating btn-small orange deleteBTNClass">'+
+                     //   '<i class="material-icons small">delete</i></a></td>'+
                      '</tr>'
                 );                
                 $('#remark').val('');
@@ -217,11 +227,11 @@ $('#addSurveyDataBTN').click(function($e){
                 clicks = 0;
             }
             else{
-                window.alert("Error");
+                $('#errorMSGSpan').html('Error.');  
             }
             },
             error: function (xhr) {
-                window.alert("Error while creating homework");
+              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
             }
         });       
 });   
