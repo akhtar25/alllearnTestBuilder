@@ -115,7 +115,11 @@ def before_request():
 #helper methods
 def schoolNameVal():
     if current_user.is_authenticated:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
+        teacher_id = ''
+        if current_user.user_type==134:
+            teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        else:
+            teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
         if teacher_id != None:
             print(teacher_id.school_id)
             school_name_row=SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
