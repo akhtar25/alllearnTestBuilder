@@ -6400,6 +6400,127 @@ def archiveHomeWork():
 
 # End
 
+# start
+def conversion(num):
+    strings = []
+    for integ in num:
+        strings.append(str(integ))
+    a_string = "".join(strings)
+    an_integer = int(a_string)
+    return(an_integer)
+      
+def convList(left):
+    res = [int(x) for x in str(left)]
+    return res
+def cal(num): 
+    digit = len(num) 
+    print(digit)
+    powTen = pow(10, digit - 1) 
+    res = []
+
+    
+    an_integer = conversion(num)
+    res.append(num)
+    for i in range(digit - 1):
+        firstDigit = an_integer // powTen
+        left = (an_integer * 10 + firstDigit - (firstDigit * powTen * 10))
+        an_integer = left
+        out = convList(an_integer)
+        res.append(out)
+    return res 
+
+# Route for Schedule or Time Table
+@app.route('/timeTable',methods=['POST','GET'])
+def timeTable():
+    form = timeTableForm()
+    if request.method=='POST':
+        slots = request.form.get('slots')
+        class_value = request.form.get('class_value')
+        start = request.form.getlist('start')
+        end = request.form.getlist('end')
+        slotTime = []
+        for (s,e) in itertools.zip_longest(start,end):
+            slotTime.append(s+'-'+e)
+        print('inside timeTable')
+        nDays = request.form.get('nDays')
+        noTeachers = request.form.get('noTeachers')
+        nameTeacher = request.form.getlist('nameTeacher')
+        nameSubject = request.form.getlist('nameSubject')
+        subject = request.form.getlist('subject')
+        time = request.form.getlist('time')
+        day = request.form.getlist('day')
+        batches = request.form.get('batches')
+        totalTime = 0
+        for ti in time:
+            print('Time:'+str(ti))
+            if ti:
+                totalTime = totalTime + int(ti)
+        totalSlots = int(nDays)*int(slots)
+        print('Total slots:'+str(totalSlots))
+        print('Total Time:'+str(totalTime))
+        perSlots = []
+        for s in range(int(slots)):
+            
+            perSlots.append(s+1)
+        slotsoutput = cal(perSlots)
+
+        print('slot output print')
+        print(slotsoutput)
+        t=1
+        z=0
+        for l in subject:
+            print(l)
+            if(l):
+                z=z+1
+        print('No of Subjects:'+str(z))
+        if totalSlots>=totalTime:
+
+            for arr1 in slotsoutput:
+                
+                    # print('inside nSlot')
+                    # print(j)
+                print('Section:'+str(t))
+                for j in range(0,int(nDays)):
+                    print(j)
+                    print(day[j])
+                    print(subject)
+                    print('length of Subject Array :'+str(len(subject)))
+                    for i in range(0,z):
+                        print('subject')
+                        print(subject[i])
+                        print('Time:'+str(time[i]))
+                        if int(time[i])>int(slots):
+                            rem_time = int(time[i])-int(slots)
+                            for q in range(0,rem_time):
+                                insertData = "insert into time_detail(class_value, days, subject, teacher, slotno,section) values("+str(class_value)+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
+                               
+                        else:
+                            insertData = "insert into time_detail(class_value, days, subject, teacher, slotno,section) values("+str(class_value)+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
+                        db.session.execute(text(insertData))
+                t=t+1
+        db.session.commit()
+
+        scheduleData = "select *from schedule_detail"
+        scheduleData = db.session.execute(text(scheduleData)).fetchall()
+        flash('Data is Submitted')
+        return render_template('timeTable.html',form=form,scheduleData=scheduleData,slotTime=slotTime,slotsoutput=slotsoutput)
+    
+    return render_template('timeTable.html',form=form)
+
+@app.route('/allTeachers',methods=['GET','POST'])
+def allTeachers():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    class_val = request.args.get('class_value') 
+    query = "select teacher_name, description as subject_name,tp.teacher_id from teacher_subject ts inner join teacher_profile tp on tp.teacher_id = ts.teacher_id inner join message_detail md on md.msg_id = ts.subject_id where ts.school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(class_val)+"'"
+    teachersData = db.session.execute(text(query)).fetchall()
+    teacherList = []
+    for teacher in teachersData:
+        teacherList.append(str(teacher.teacher_name)+':'+str(teacher.subject_name)+':'+str(teacher.teacher_id))
+    return jsonify([teacherList])
+
+#End
+
 
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
