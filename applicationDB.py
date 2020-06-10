@@ -867,6 +867,27 @@ class TagDetail(db.Model):
     archive_status = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
+class ScheduleDetail(db.Model):
+    __tablename__ = "schedule_detail"
+    slot_id = db.Column(db.Integer, primary_key=True)
+    slot_no = db.Column(db.Integer, nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True) 
+    days_name= db.Column(db.String(20))
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
+class TeacherSubject(db.Model):
+    __tablename__ = "teacher_subject"
+    teacher_subj_id = db.Column(db.Integer, primary_key=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
 class StudentTag(db.Model):
     __tablename__="student_tag"
     stud_tag_id =  db.Column(db.Integer,primary_key=True)
