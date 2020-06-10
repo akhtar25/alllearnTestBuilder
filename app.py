@@ -6351,18 +6351,6 @@ def checkContentType(contentName):
 def addNewHomeWork():     
     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     questions = request.form.getlist('questionInput')
-<<<<<<< HEAD
-    
-    #contentName = request.form.getlist('contentName')
-    homeworkContent = request.form.get('homeworkContent')
-    print('inside addNew Homework')
-    print(homeworkContent)
-    #for i in range(len(contentName)):
-    #    print(contentName[i])
-    #for i in range(len(contentType)):
-    #    print('content type:'+str(contentType[i]))
-    
-=======
     #contentType = request.form.getlist('contentType')
     contentName = request.form.getlist('contentName')
     homeworkContent = request.form.get('homeworkContent')
@@ -6372,7 +6360,6 @@ def addNewHomeWork():
         print(contentName[i])
     #for i in range(len(contentType)):
     #    print('content type:'+str(contentType[i]))
->>>>>>> master
     questionCount = len(questions)
     class_val = request.form.get('class')
     section = request.form.get('section')
@@ -6382,16 +6369,6 @@ def addNewHomeWork():
     db.session.add(newHomeWorkRow)
     db.session.commit()
     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
-<<<<<<< HEAD
-    for i in range(1,questionCount+1):   
-        print(index)
-        print(i)
-        contentType = request.form.getlist('contentType'+str(i))  
-        contentName = request.form.getlist('contentName'+str(i)) 
-        print(contentType[i-1])
-        print(contentName[i-1])  
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i-1], is_archived='N',last_modified_date=datetime.today(),ref_type=contentType[i-1],ref_url=contentName[i-1])
-=======
         
     for i in range(questionCount):           
         if contentName[i] !='':               
@@ -6401,7 +6378,6 @@ def addNewHomeWork():
         else:
             refType=226
         newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=int(refType),ref_url=contentName[i])
->>>>>>> master
         db.session.add(newHomeWorkQuestion)
     db.session.commit()
     return jsonify(['0:'+ str(currentHomeWork.homework_id)])
