@@ -38,9 +38,15 @@
                 <!--<embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}"
                     type="application/pdf">-->
                 {% endif %}
+                {% if row.attachment %}
+                <a href="{{row.attachment}}" target="_blank">See attached </a>
+                {% endif %}
                 {%endif%}
             </li>
             {%endfor%}
+            {% if homeworkAttach.attachment %}
+                <a href="{{homeworkAttach.attachment}}" target="_blank">see attachment</a>
+            {% endif %}
         </ol>    
         <a href="#" id="homeworkAnsBTN" class="green btn right">Save</a>
     </form>    

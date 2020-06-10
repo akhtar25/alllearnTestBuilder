@@ -214,11 +214,9 @@
             <li>
                 <a style="color: green;"  href="{{url_for('syllabus')}}">Syllabus</a>
               </li>
-              {%if user_type_val==135%}
               <li>
                 <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
               </li>
-              {% endif %}
               <li>
                 <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
               </li>
@@ -265,9 +263,29 @@
           </ul>
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
-            {% if current_user.is_anonymous and disconn == 1 and user_type_val!='134' %}
+          {%if user_type_val=='134' %}
+          <li>
+            <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
+            </a>                            
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">Homework
+            </a>
+          </li>
+          <li>
+          <a style="color: green;font-size:15px;" href="{{url_for('contentManager')}}">Content Manager</a>
+        </li>
+          <li>
+            <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
+              <i class="material-icons right" style="font-size: 40px">account_circle </i>
+            </a>
+          </li>
+            {% elif current_user.is_anonymous or disconn == 1  %}
             <li>
-              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs{{user_type_val}}</a>
+              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
             </li> 
             <!--<li>
               <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
@@ -290,26 +308,7 @@
                       <i class="material-icons right" style="font-size: 40px">account_circle </i>
                     </a>
                   </li>
-                  {%elif user_type_val=='134'%}
-                  <li>
-                    <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
-                    </a>                            
-                  </li>
-                  <li>
-                    <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">Homework
-                    </a>
-                  </li>
-                  <li>
-                  <a style="color: green;font-size:15px;" href="{{url_for('contentManager')}}">Content Manager</a>
-                </li>
-                  <li>
-                    <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
-                  </li>
-                  <li>
-                    <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
-                      <i class="material-icons right" style="font-size: 40px">account_circle </i>
-                    </a>
-                  </li>
+                  
             {%else%}
           <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
