@@ -556,7 +556,7 @@ def admin():
     #     num2 = c2.count
     print('Count'+str(num))
     print('Count2:'+str(num2))
-    return render_template('admin.html',count=num,user_type_val=user_type_val,schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
+    return render_template('admin.html',count=num,user_type_val=str(current_user.user_type),schoolDetails=schoolDetails,school_count=school_count,teacher_count=teacher_count,student_count=student_count,teacherDetails=teacherDetails,user_count=user_count,min_user_count=min_user_count,user_type_count=user_type_count,perSchool=perSchool,perTeacher=perTeacher,perStudent=perStudent)
 
 
 @app.route('/promoteStudent',methods=['POST','GET'])
@@ -4289,9 +4289,9 @@ def contentManager():
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=user_type_val)
     if user_type_val==134:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(user_type_val),studentDetails=studentDetails)
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(user_type_val))
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type))
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -6259,9 +6259,10 @@ def indivHomeWorkDetail():
     homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
     homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
     homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    print(homeworkDataQQuery)
     homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
-
-    return render_template('_indivHomeWorkDetail.html',homeworkDataRows=homeworkDataRows,homework_name=homework_name,homework_id=homework_id,student_id=student_id)
+    homeworkAttach = db.session.execute(text("select attachment from homework_detail where homework_id='"+str(homework_id)+"'")).first()
+    return render_template('_indivHomeWorkDetail.html',homeworkDataRows=homeworkDataRows,homework_name=homework_name,homework_id=homework_id,student_id=student_id,homeworkAttach=homeworkAttach)
 
 @app.route('/addAnswerRemark',methods=["GET","POST"])
 def addAnswerRemark():
