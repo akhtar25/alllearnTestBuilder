@@ -831,13 +831,13 @@ class ContentDetail(db.Model):
     topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)    
     archive_status = db.Column(db.String(1),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
-    last_modified_date=db.Column(db.DateTime)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     class_val=db.Column(db.String(20),nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    
+    last_modified_date=db.Column(db.DateTime)
     
 class ModuleDetail(db.Model):
     __tablename__="module_detail"
@@ -866,6 +866,27 @@ class TagDetail(db.Model):
     description=db.Column(db.String(200),nullable=True)
     tag_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     archive_status = db.Column(db.String(1),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
+class ScheduleDetail(db.Model):
+    __tablename__ = "schedule_detail"
+    slot_id = db.Column(db.Integer, primary_key=True)
+    slot_no = db.Column(db.Integer, nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True) 
+    days_name= db.Column(db.String(20))
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
+class TeacherSubjectClass(db.Model):
+    __tablename__ = "teacher_subject_class"
+    teacher_subj_id = db.Column(db.Integer, primary_key=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class StudentTag(db.Model):
