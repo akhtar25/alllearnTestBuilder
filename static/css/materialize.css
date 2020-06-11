@@ -13,6 +13,7 @@
     margin: auto;
     margin-top: 20px;
   }
+  
   .selectTable{
     height: 400px;
     position: relative;
@@ -5126,6 +5127,22 @@ small {
 }
 .boardClass{
   cursor: pointer;
+}
+.classData{
+  color:black;
+  cursor: pointer;
+}
+.classData:hover{
+  color: white;
+  background-color: lightseagreen;
+}
+.teacherData{
+  color:black;
+  cursor: pointer;
+}
+.teacherData:hover{
+  color: white;
+  background-color: lightseagreen;
 }
 .generalBoardClass{
   cursor: pointer;
