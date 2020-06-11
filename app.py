@@ -6430,8 +6430,8 @@ def cal(num):
     return res 
 
 # Route for Schedule or Time Table
-@app.route('/timeTable',methods=['POST','GET'])
-def timeTable():
+@app.route('/schedule',methods=['POST','GET'])
+def schedule():
     form = timeTableForm()
     if request.method=='POST':
         slots = request.form.get('slots')
@@ -6505,7 +6505,7 @@ def timeTable():
         flash('Data is Submitted')
         return render_template('timeTable.html',form=form,scheduleData=scheduleData,slotTime=slotTime,slotsoutput=slotsoutput)
     
-    return render_template('timeTable.html',form=form)
+    return render_template('schedule.html',form=form)
 
 @app.route('/allTeachers',methods=['GET','POST'])
 def allTeachers():
