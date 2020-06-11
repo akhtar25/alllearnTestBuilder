@@ -878,8 +878,8 @@ class ScheduleDetail(db.Model):
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
-class TeacherSubject(db.Model):
-    __tablename__ = "teacher_subject"
+class TeacherSubjectClass(db.Model):
+    __tablename__ = "teacher_subject_class"
     teacher_subj_id = db.Column(db.Integer, primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
