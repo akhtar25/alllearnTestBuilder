@@ -309,9 +309,23 @@
 <script src="../static/js/pdfLoader.js"></script>
 <script>
 
-$(document).ready(function(){
-  $('.reference_data').css('display','block');
-});
+$(document).ready(function () {
+    $('.reference_data').css('display', 'block');
+    //$('#whiteboardDiv').hide();    
+    $('#bookDiv').hide();
+  });
+
+
+  $('#whiteboardTab').click(function () {
+    $('#whiteboardDiv').show();
+
+    $('#bookDiv').hide();
+  });
+
+  $('#bookTab').click(function () {
+    $('#whiteboardDiv').hide();
+    $('#bookDiv').show();
+  });
 
 $('#show').click(function(){
   $('#classDetailsDiv').show();
