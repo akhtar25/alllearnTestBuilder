@@ -19,6 +19,7 @@
         <li class="tab col s3"><a class="active" href="#teacherRowsDiv">Directory</a></li>
         <li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>
         <li class="tab col s3"><a href="#payrollReport">Report</a></li>
+        <li class="tab col s3"><a id="allocation" href="#teacherAllocation">Teacher Allocation</a></li>
     </ul>
     <br>
 
@@ -97,6 +98,9 @@
                 {%endfor%}
             </tbody>
         </table>
+    </div>
+    <div id="teacherAllocation">
+        <div id="teacherAllocationDiv"></div>
     </div>
 </div>
 <script>
@@ -270,5 +274,19 @@
         }
         row_id.appendChild(div);
     }
+
+    $('#allocation').click(function(){
+        $.ajax({
+            url: "/teacherAllocation",
+            type: "get",
+            data: '',
+            success: function (response) {
+                $('#teacherAllocationDiv').html(response);
+            },
+            error: function(xhr){
+                alert('error occured while fetching template');
+            }
+    });
+    });
 </script>
 {% endblock %}
