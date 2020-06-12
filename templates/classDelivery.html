@@ -1,5 +1,6 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
+  <script src="../static/js/painterro-1.0.35.min.js"></script>
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
       <!-- sidebar: style can be found in sidebar.less -->      
@@ -32,9 +33,32 @@
   </div>
   <!--------------------------------------------------------------------------------------------->
   <div class="content-wrapper" style="background-color: white;">
+    <div class="row" style="margin-top: 15px;">
+      <div>
+        <ul class="tabs">
+          <li class="tab col s3"><a href="#" id="whiteboardTab">Whiteboard</a></li>
+          <li class="tab col s3"><a href="#" id="bookTab">Book</a></li>
+        </ul>
+        <p class="grey-text">See whiteboard controls at the bottom</p>
+      </div>
+    </div>    
     <div class="row" style=" height:800px;">
       <section class="col-xs-8">
-        <div class="box">
+        <div id="whiteboardDiv" >         
+          <h3>
+            Whiteboard
+          </h3>
+         
+        <div id="whiteboardBox" style="width: 300; height: 800px;">
+          <script>
+            Painterro({
+              id: 'whiteboardBox',
+              activeColor: '#00ff00',
+            }).show();
+          </script>
+        </div>
+      </div>
+        <div id="bookDiv">
           <div class="box-header">
             <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;"> Class:
               {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
@@ -309,9 +333,26 @@
 <script src="../static/js/pdfLoader.js"></script>
 <script>
 
-$(document).ready(function(){
-  $('.reference_data').css('display','block');
-});
+$(document).ready(function () {
+    $('.reference_data').css('display', 'block');
+    //$('#whiteboardDiv').hide();    
+    $('#bookDiv').hide();    
+    $('.modal').modal();
+    $('.materialboxed').materialbox();
+    $('.tabs').tabs();        
+  });
+
+
+  $('#whiteboardTab').click(function () {
+    $('#whiteboardDiv').show();
+
+    $('#bookDiv').hide();
+  });
+
+  $('#bookTab').click(function () {
+    $('#whiteboardDiv').hide();
+    $('#bookDiv').show();
+  });
 
 $('#show').click(function(){
   $('#classDetailsDiv').show();
@@ -333,10 +374,7 @@ function readUrl(input){
   }
 }
 
-$(document).ready(function(){
-    $('.modal').modal();
-    $('.materialboxed').materialbox();
-  });
+
 
 $('#topicBtn').click(function(){
   $('.reference_data').css('display','none');
@@ -679,12 +717,6 @@ $('html, body').animate({
   });
 
 
-  // Or with jQuery
-
-  $(document).ready(function(){
-    console.log('Inside model');
-    $('.modal').modal();
-  });
 
 
     function checkedBox(){
