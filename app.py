@@ -4291,11 +4291,14 @@ def contentManager():
         session['chapter_num']=form.chapter_num.data    
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
-        return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=user_type_val)
+        if user_type_val==134:
+            return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+        else:
+            return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     if user_type_val==134:
         return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type))
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -4339,15 +4342,15 @@ def loadContent():
 @app.route('/contentDetails',methods=['GET','POST'])
 def contentDetails():
     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    content = "select cd.last_modified_date, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+    content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
     content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' "
     content = content + "union "
-    content = content + "select cd.last_modified_date, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+    content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
-    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' order by last_modified_date desc limit 5"
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N') order by content_id desc limit 5"
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
     
@@ -4373,7 +4376,7 @@ def contentManagerDetails():
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     for topic in topicList:
 
-        contentList = "select *from content_detail cd where is_private = 'N' and archive_status = 'N' and topic_id='"+str(topic)+"' union select *from content_detail cd2 where is_private = 'Y' and archive_status = 'N' and topic_id='"+str(topic)+"' and school_id = '"+str(teacher_id.school_id)+"'"
+        contentList = "select *from content_detail cd where is_private = 'N' and archive_status = 'N' and topic_id='"+str(topic)+"' union select *from content_detail cd2 where is_private = 'Y' and archive_status = 'N' and topic_id='"+str(topic)+"' and school_id = '"+str(teacher_id.school_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and topic_id='"+str(topic)+"')"
         print(contentList)
         contentList = db.session.execute(text(contentList)).fetchall()
         
@@ -4474,9 +4477,9 @@ def feedbackCollection():
         class_val = request.form['class_val']
         section = request.form['section']
         subject_id = request.form['subject_id']
-
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #sidebar queries
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()
+        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         # end of sidebarm
 
