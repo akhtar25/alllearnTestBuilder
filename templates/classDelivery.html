@@ -44,7 +44,7 @@
     <div class="row" style=" height:800px;">
       <section class="col-xs-8">
         <div id="whiteboardDiv" >         
-          <h3 class="box-title">
+          <h3>
             Whiteboard
           </h3>
         <div id="whiteboardBox" style="width: 300; height: 800px;">
@@ -334,7 +334,10 @@
 $(document).ready(function () {
     $('.reference_data').css('display', 'block');
     //$('#whiteboardDiv').hide();    
-    $('#bookDiv').hide();
+    $('#bookDiv').hide();    
+    $('.modal').modal();
+    $('.materialboxed').materialbox();
+    $('.tabs').tabs();        
   });
 
 
@@ -369,10 +372,7 @@ function readUrl(input){
   }
 }
 
-$(document).ready(function(){
-    $('.modal').modal();
-    $('.materialboxed').materialbox();
-  });
+
 
 $('#topicBtn').click(function(){
   $('.reference_data').css('display','none');
@@ -715,12 +715,6 @@ $('html, body').animate({
   });
 
 
-  // Or with jQuery
-
-  $(document).ready(function(){
-    console.log('Inside model');
-    $('.modal').modal();
-  });
 
 
     function checkedBox(){
