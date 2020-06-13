@@ -1926,7 +1926,12 @@ def user(username):
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status=143"
             accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
-        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type))
+        teacherData = "select distinct teacher_name, description as subject_name, cs.class_val, cs.section,cs.class_sec_id from teacher_subject_class tsc "
+        teacherData = teacherData + "inner join teacher_profile tp on tsc.teacher_id = tp.teacher_id "
+        teacherData = teacherData + "inner join class_section cs on tsc.class_sec_id = cs.class_sec_id "
+        teacherData = teacherData + "inner join message_detail md on tsc.subject_id = md.msg_id where tsc.school_id = '"+str(teacher.school_id)+"' and tsc.teacher_id = '"+str(teacher.teacher_id)+"' and tsc.is_archived = 'N' order by cs.class_sec_id"
+        teacherData = db.session.execute(text(teacherData)).fetchall()
+        return render_template('user.html', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
 
 
 @app.route('/login', methods=['GET', 'POST'])
