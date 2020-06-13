@@ -417,6 +417,7 @@ def reset_password(token):
 @login_required
 def schoolProfile():
     print('User Type Id:'+str(current_user.user_type))
+    studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
     if current_user.user_type==134:
         teacherRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     else:
@@ -431,7 +432,7 @@ def schoolProfile():
     value=0
     #if current_user.user_type==134:
     #    value=1
-    return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value,user_type_val=str(current_user.user_type))
+    return render_template('schoolProfile.html', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 
 
@@ -5919,6 +5920,7 @@ def studentProfile():
     qsponsor_name = request.args.get('sponsor_name')
     qsponsor_id = request.args.get('sponsor_id')
     qamount = request.args.get('amount')
+    studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
 
     if qstudent_id==None or qstudent_id=='':
         form=studentDirectoryForm()
@@ -5947,17 +5949,17 @@ def studentProfile():
         form.student_name.choices = ''
         flag = 1
 
-        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type))
+        return render_template('studentProfileNew.html',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
         value=0
         flag = 0
         if current_user.user_type==72:
             value=1
         #print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag,user_type_val=str(current_user.user_type))
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=value, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         flag = 0       
         #print(qstudent_id)
-        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type))
+        return render_template('studentProfileNew.html',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 #Addition of new section to conduct student surveys
 @app.route('/studentSurveys')
