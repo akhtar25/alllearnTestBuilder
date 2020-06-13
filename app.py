@@ -6435,7 +6435,6 @@ def cal(num):
 # Route for Schedule or Time Table
 @app.route('/schedule',methods=['POST','GET'])
 def schedule():
-    form = timeTableForm()
     if request.method=='POST':
         slots = request.form.get('slots')
         class_value = request.form.get('class_value')
