@@ -149,7 +149,7 @@ $('#class_value').blur(function(){
               responseArr = response.toString().split(',');
               for(var i=0;i<responseArr.length;i++){
                 console.log(responseArr[i]);
-                subTimeHtml = subTimeHtml+ '<li><label>'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" disabled/><label>Time(hours)**</label><input type="text" id="time1" name="time" style="width:50px;"/></li>';
+                subTimeHtml = subTimeHtml+ '<li><label>'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /><label>Time(hours)**</label><input type="text" id="time1" name="time" style="width:50px;"/></li>';
               }
               $('#addSubTime').html(subTimeHtml);
             },

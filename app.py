@@ -6440,7 +6440,7 @@ def schedule():
     print('inside schedule function')
     # print(slots)
     form = SingleStudentRegistration()
-    teacher = TeacherProfile.query.filter_by()
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     if request.method == 'POST':
         slots = request.form.get('slots')
         class_value = request.form.get('class_value')
@@ -6518,18 +6518,22 @@ def schedule():
                         print('subject')
                         print(subject[i])
                         print('Time:'+str(time[i]))
+                        print(chr(ord('@')+t))
+                        class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
+                        print('query')
+                        print(class_sec_id)
+                        class_sec_id = db.session.execute(text(class_sec_id)).first()
+                        subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+                        subject_id = db.session.execute(text(subject_id)).first()
+                        teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id).first()
                         if int(time[i])>int(slots):
                             rem_time = int(time[i])-int(slots)
                             for q in range(0,rem_time):
-                                class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"'"
-                                class_sec_id = db.session.execute(text(class_sec_id)).first()
-                                subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
-                                subject_id = db.session.execute(text(subject_id)).first()
-                                # teacher_id = Teacher
-                                insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slotno) values("+str(class_sec_id.class_sec_id)+",'"+str()+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
+                                
+                                insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
                                 
                         else:
-                            insertData = "insert into time_detail(class_value, days, subject, teacher, slotno,section) values("+str(class_value)+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
+                            insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
                         db.session.execute(text(insertData))
                 t=t+1
         db.session.commit()
@@ -6549,7 +6553,7 @@ def allSubjects():
     class_val = request.args.get('class_value') 
     print(class_val)
     print(teacher_id.school_id)
-    subjects = BoardClassSubject.query.filter_by(class_val = class_val,school_id=teacher_id.school_id).all()
+    subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id).all()
     subjectList = []
     for subject in subjects:
         subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
