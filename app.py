@@ -6505,36 +6505,41 @@ def schedule():
         if totalSlots>=totalTime:
 
             for arr1 in finalSlot:
-                    
-                        # print('inside nSlot')
-                        # print(j)
-                print('Section:'+str(t))
-                for j in range(0,int(nDays)):
-                    print(j)
-                    print(day[j])
-                    print(subject)
-                    print('length of Subject Array :'+str(len(subject)))
-                    for i in range(0,z):
-                        print('subject')
-                        print(subject[i])
-                        print('Time:'+str(time[i]))
-                        print(chr(ord('@')+t))
-                        class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
-                        print('query')
-                        print(class_sec_id)
-                        class_sec_id = db.session.execute(text(class_sec_id)).first()
-                        subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
-                        subject_id = db.session.execute(text(subject_id)).first()
-                        teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id).first()
-                        if int(time[i])>int(slots):
-                            rem_time = int(time[i])-int(slots)
-                            for q in range(0,rem_time):
-                                
-                                insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
-                                
-                        else:
-                            insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
-                        db.session.execute(text(insertData))
+                if t<=int(batches):    
+                            # print('inside nSlot')
+                            # print(j)
+                    print('Section:'+str(t))
+                    for j in range(0,int(nDays)):
+                        print(j)
+                        print(day[j])
+                        print(subject)
+                        print('length of Subject Array :'+str(len(subject)))
+                        for i in range(0,z):
+                            print('subject')
+                            print(subject[i])
+                            print('Time:'+str(time[i]))
+                            print(chr(ord('@')+t))
+                            class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
+                            print('query')
+                            print(class_sec_id)
+                            class_sec_id = db.session.execute(text(class_sec_id)).first()
+                            subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+                            subject_id = db.session.execute(text(subject_id)).first()
+                            teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
+                            if int(time[i])>int(slots):
+                                rem_time = int(time[i])-int(slots)
+                                for q in range(0,rem_time):
+                                    if teacher_id:
+                                        insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
+                                    else:
+                                        insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(arr1[i])+")"
+                                    
+                            else:
+                                if teacher_id:
+                                    insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(teacher_id.teacher_id)+","+str(arr1[i])+")"
+                                else:
+                                    insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, slot_no) values("+str(class_sec_id.class_sec_id)+","+str(teacher.school_id)+",'"+str(day[j])+"',"+str(subject_id.msg_id)+","+str(arr1[i])+")"
+                            db.session.execute(text(insertData))
                 t=t+1
         db.session.commit()
 
