@@ -4,8 +4,7 @@
     <h3>Schedule Details</h3>
     <h5>
         <form action="" method="POST" enctype="multipart/form-data">
-        <div class="timeTableForm">
-            {{ form.hidden_tag() }}
+        <form id="timeTableForm">
             <div class="form-group " style="padding-top:5px;">
             <div class="row">
             <div class="slots" style="display: flex;">
@@ -13,11 +12,11 @@
                 <label>No Of Slots:</label>
                 <input type="text" id="slots" name="slots" style="width:50px;"/></br>
             </div>
-            <div style="margin-left:50px;width:177px;">
+            <div style="margin-left:50px;width:120px;">
                 <label>Class:</label>
-                <input type="text" id="class_value" name="class_value" style="width:50px;"/></br>
+                <input type="text" name="class_value" id="class_value" style="width:50px;"/></br>
             </div>
-          <div style="width:177px;">
+          <div style="width:165px;">
             <label>No of Sections:</label>
             <input type="text" id="batches" name="batches" style="width:50px;"/></br>
         </div>
@@ -29,12 +28,7 @@
           <label>No of Teachers</label>
           <input type="text" id="noTeachers" name="noTeachers" style="width:50px;"/></br>
         </div> -->
-        <div class="subjectDetails">
-          <label>Subject</label>
-          <input type="text" id="subject1" name="subject" style="width:50px;"/>
-          <label>Time(hours)**</label>
-          <input type="text" id="time1" name="time" style="width:50px;"/></br>
-          <i class="fa fa-plus" aria-hidden="true"></i>
+        
       </div>
           </div>
           <div style="display: flex;">
@@ -42,9 +36,9 @@
             </div>
             <div class="teachers" id="options" style="width: 177px;">
             </div>
-            <div style="width:177px;">
+            <div style="width:158px;">
             </div>
-            <div class="noOfDays">
+            <div class="noOfDays" style="margin-left: -64px;">
                 
                 <p>
                     <label>
@@ -83,43 +77,19 @@
                     </label>
                   </p>
             </div>
-            <!-- <div class="teacherDetails">
-                
-                <label>Name</label>
-                <input type="text" id="nameTeacher1" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject1" name="nameSubject" style="width:50px;"/></br>
-                <label>Name</label>
-                <input type="text" id="nameTeacher2" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject2" name="nameSubject" style="width:50px;"/></br>
-                <label>Name</label>
-                <input type="text" id="nameTeacher3" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject3" name="nameSubject" style="width:50px;"/></br>
-                <label>Name</label>
-                <input type="text" id="nameTeacher4" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject4" name="nameSubject" style="width:50px;"/></br>
-                <label>Name</label>
-                <input type="text" id="nameTeacher5" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject5" name="nameSubject" style="width:50px;"/></br>
-                <label>Name</label>
-                <input type="text" id="nameTeacher6" name="nameTeacher" style="width:50px;"/>
-                <label>Subject</label>
-                <input type="text" id="nameSubject6" name="nameSubject" style="width:50px;"/></br>
-            </div> -->
-            
+            <div class="subjectDetails" style="margin-left: 120px;">
+              <ul id="addSubTime">
+              
+            </ul>
           </div>
             
           
-            <div class="button" style="text-align: center;">
-                <button class="btn waves-light green lighten-1 white-text" type="submit" value="submit">Confirm</button>
+            <div class="button" style="text-align: right;margin-top: 240px;">
+                <button class="btn waves-light green lighten-1 white-text" id="submit" value="submit">Confirm</button>
             </div>
         </div>
         </div>
-    </div>
+      </form>
 </form>
     </h5>
     {% for  slot in slotsoutput %}
@@ -153,38 +123,8 @@
 
 <script>
 
-  $('#class_value').blur(function(){
-    var class_v = $('#class_value').val();
-    $('#options').show();
-    $.ajax({
-            url: "/allTeachers?class_value=" + class_v,
-            type: "get",
-            data: "",
-            success: function (response) {                
-              responseArr = response.toString().split(',');
-              console.log(responseArr);
-              var optionHtml = '';
-              console.log(responseArr.length)
-              if(responseArr.length>2){
-              for(var i=0;i<responseArr.length;i++){
-                var teacher_name = responseArr[i].toString().split(':')[0];
-                var subject_name = responseArr[i].toString().split(':')[1];
-                var teacher_id = responseArr[i].toString().split(':')[2];
-                console.log(teacher_name+' '+subject_name+' '+teacher_id);
-                optionHtml = optionHtml + '<p><label><input type="checkbox" name="teacher" value='+teacher_id+' /><span>'+teacher_name+' - '+subject_name+'</span></label></p>'
-              }
-              }
-              if(optionHtml){
-              $('.teachers').html(optionHtml);
-              }else{
-                optionHtml = '<p>No data available</p>'
-              }
-              $('.teachers').html(optionHtml);
-            },
-            error: function (xhr) {
-                window.alert("error occurred while fetching teachers list");
-            }
-        });
+  $('#addSubTime').click(function(){
+
   });
 
   $("#slots").blur(function(){
@@ -196,9 +136,52 @@
   $('.Time').html(input);
 });
 
+$('#class_value').blur(function(){
+    console.log('inside class_val blur');
+    var class_v = $('#class_value').val();
+    $.ajax({
+            url: "/allSubjects?class_value=" + class_v,
+            type: "get",
+            data: "",
+            success: function (response) {
+              subTimeHtml = '';  
+              console.log(response);  
+              responseArr = response.toString().split(',');
+              for(var i=0;i<responseArr.length;i++){
+                console.log(responseArr[i]);
+                subTimeHtml = subTimeHtml+ '<li><label>'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" disabled/><label>Time(hours)**</label><input type="text" id="time1" name="time" style="width:50px;"/></li>';
+              }
+              $('#addSubTime').html(subTimeHtml);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching subjects list");
+            }
+        });
+  });
+
+
 $(document).ready(function(){
     $('select').formSelect();
   });
+
+  $('#submit').click(function(){
+    $e.preventDefault(); 
+    var form = $('#timeTableForm');  
+    $.ajax({
+            url: "/schedule",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+              
+           
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating timetable Please try again.');  
+            }
+        });
+  });
+
+
 </script>
 
 {% endblock %}

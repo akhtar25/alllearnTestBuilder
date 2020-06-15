@@ -3,6 +3,7 @@ from send_email import welcome_email, send_password_reset_email, user_access_req
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
+import itertools
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
 from forms import createSubscriptionForm,ClassRegisterForm,postJobForm, AddLiveClassForm
@@ -6435,7 +6436,12 @@ def cal(num):
 # Route for Schedule or Time Table
 @app.route('/schedule',methods=['POST','GET'])
 def schedule():
-    if request.method=='POST':
+    # slots = request.form.get('slots')
+    print('inside schedule function')
+    # print(slots)
+    form = SingleStudentRegistration()
+    teacher = TeacherProfile.query.filter_by()
+    if request.method == 'POST':
         slots = request.form.get('slots')
         class_value = request.form.get('class_value')
         start = request.form.getlist('start')
@@ -6443,7 +6449,7 @@ def schedule():
         slotTime = []
         for (s,e) in itertools.zip_longest(start,end):
             slotTime.append(s+'-'+e)
-        print('inside timeTable')
+        print('inside schedule')
         nDays = request.form.get('nDays')
         noTeachers = request.form.get('noTeachers')
         nameTeacher = request.form.getlist('nameTeacher')
@@ -6462,9 +6468,30 @@ def schedule():
         print('Total Time:'+str(totalTime))
         perSlots = []
         for s in range(int(slots)):
-            
+                
             perSlots.append(s+1)
         slotsoutput = cal(perSlots)
+
+        for slot in range(len(slotsoutput)):
+            print('slot'+str(slot))
+            print(slotsoutput[slot])
+        finalSlot = []
+        indexSlot = []
+        print('outside while loop')
+        p=0
+        print('length of slots output')
+        print(len(slotsoutput))
+        while p<len(slotsoutput):
+            print('inside while loop')
+            r = randint(0,len(slotsoutput)-1)
+            if r not in indexSlot:
+                p=p+1
+                indexSlot.append(r)
+        print(indexSlot)
+        for index in indexSlot:
+            finalSlot.append(slotsoutput[index])
+        print(finalSlot)
+        
 
         print('slot output print')
         print(slotsoutput)
@@ -6477,10 +6504,10 @@ def schedule():
         print('No of Subjects:'+str(z))
         if totalSlots>=totalTime:
 
-            for arr1 in slotsoutput:
-                
-                    # print('inside nSlot')
-                    # print(j)
+            for arr1 in finalSlot:
+                    
+                        # print('inside nSlot')
+                        # print(j)
                 print('Section:'+str(t))
                 for j in range(0,int(nDays)):
                     print(j)
@@ -6494,8 +6521,13 @@ def schedule():
                         if int(time[i])>int(slots):
                             rem_time = int(time[i])-int(slots)
                             for q in range(0,rem_time):
-                                insertData = "insert into time_detail(class_value, days, subject, teacher, slotno,section) values("+str(class_value)+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
-                               
+                                class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"'"
+                                class_sec_id = db.session.execute(text(class_sec_id)).first()
+                                subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+                                subject_id = db.session.execute(text(subject_id)).first()
+                                # teacher_id = Teacher
+                                insertData = "insert into schedule_detail(class_sec_id,school_id, days_name, subject_id, teacher_id, slotno) values("+str(class_sec_id.class_sec_id)+",'"+str()+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
+                                
                         else:
                             insertData = "insert into time_detail(class_value, days, subject, teacher, slotno,section) values("+str(class_value)+",'"+str(day[j])+"','"+str(subject[i])+"','"+str(nameTeacher[i])+"',"+str(arr1[i])+",'"+chr(ord('@')+t)+"')"
                         db.session.execute(text(insertData))
@@ -6504,25 +6536,29 @@ def schedule():
 
         scheduleData = "select *from schedule_detail"
         scheduleData = db.session.execute(text(scheduleData)).fetchall()
-        flash('Data is Submitted')
-        return render_template('timeTable.html',form=form,scheduleData=scheduleData,slotTime=slotTime,slotsoutput=slotsoutput)
+        flash('Data is Submitted') 
+        return render_template('schedule.html',scheduleData=scheduleData,slotTime=slotTime,slotsoutput=slotsoutput,form=form)
+    return render_template('schedule.html')
     
-    return render_template('schedule.html',form=form)
 
-@app.route('/allTeachers',methods=['GET','POST'])
-def allTeachers():
+@app.route('/allSubjects',methods=['GET','POST'])
+def allSubjects():
+    print('inside all Subjects')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     class_val = request.args.get('class_value') 
-    query = "select teacher_name, description as subject_name,tp.teacher_id from teacher_subject ts inner join teacher_profile tp on tp.teacher_id = ts.teacher_id inner join message_detail md on md.msg_id = ts.subject_id where ts.school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(class_val)+"'"
-    teachersData = db.session.execute(text(query)).fetchall()
-    teacherList = []
-    for teacher in teachersData:
-        teacherList.append(str(teacher.teacher_name)+':'+str(teacher.subject_name)+':'+str(teacher.teacher_id))
-    return jsonify([teacherList])
+    print(class_val)
+    print(teacher_id.school_id)
+    subjects = BoardClassSubject.query.filter_by(class_val = class_val,school_id=teacher_id.school_id).all()
+    subjectList = []
+    for subject in subjects:
+        subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
+        subject_name = db.session.execute(text(subject_name)).first()
+        
+        subjectList.append(str(subject_name.description))
+    return jsonify([subjectList])
 
 #End
-
 
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
