@@ -1,0 +1,206 @@
+
+<div class="container ">
+    <div class="row" id="titleTeacherAllocation">
+        <div class="row">
+            <div class="section2">
+                <section class="plans-container" id="plans">
+                    <!-- <h2 class="textCenter">General</h2> -->
+                    <article class="col s12 m6 l4 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Teacher</div>
+    
+                                <ul class="collection ">
+                                        {% for teacher in teacherNames %}
+                                        <a href="javascript:void(0);"><li class="collection-item teacherData" id="{{teacher.teacher_id}}" onclick="loadClasses('{{teacher.teacher_id}}')">
+                                            {{teacher.teacher_name}}
+                                        </li></a>
+                                        {% endfor %}
+                                </ul>
+                                <!-- <input type='text' id="SearchBox" name="SearchBox" onKeyUp="keyStroke()" value="Hello"/>
+    <div >Did You Mean:<a id='suggestionLink' href='#' onclick='fixSuggestions(this); return false;'></a></div> -->
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <article class="col s12 m6 l4 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Classes</div>
+    
+    
+                                <ul class="collection classGen" id="" style="max-height:380px;position:relative;overflow-y:auto">
+                                </ul>
+                                <div id="teacherClassesLoader" style="display: none;">
+                                    <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>                        
+                                </div>
+                        </div>
+                    </article>
+                    <article class="col s12 m6 l4 ">
+                        <div class="card  z-depth-4">
+                            <div class="card-image">
+                            </div>
+                            <div class="card-content ">
+                                <div class="card-title">Subjects</div>
+    
+    
+                                <ul class="collection subjectList" id="" style="max-height:380px;position:relative;overflow-y:auto">
+    
+                                </ul>
+                                <button style="border-radius:15px;display: none;margin-left:125px;" class="btn waves-light green lighten-1 white-text" type="button" id="addClassSubject" onclick="addClassSubjectBtn();"><a href="javascript:void(0);" style="color: white;">Submit</a></button>
+                                <div id="msgClass"></div>
+                                <div id="teacherSubjectsLoader" style="display: none;">
+                                    <img src="../static/images/smallLoader.gif" style="width:100%">
+                                </div>                        
+                                </div>
+    
+                        </div>
+                    </article>
+                    
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var addTeacherId = '';
+    function loadClasses(teacher_id){
+        $('.subjectList').hide();
+        $('#addClassSubject').hide();
+        addTeacherId = teacher_id;
+        $('#teacherClassesLoader').show();
+        $('.classGen').hide();
+        {% for teacher in teacherNames %}
+            $('#{{teacher.teacher_id}}').css('background-color','');
+            $('#{{teacher.teacher_id}}').css('color','');
+        {% endfor %}
+        var ids = "#"+teacher_id.toString();
+        $(ids).css('background-color','lightseagreen');
+        $(ids).css('color','white');
+        $.ajax({
+            url: "/loadClasses?teacher_id=" + teacher_id,
+            type: "get",
+            data: '',
+            success: function (response) {
+                responseArr = response.toString().split(',')
+                console.log('inside loadClasses');
+                console.log(responseArr);
+                var classesHtml = '';
+              for(var i=0;i<responseArr.length;i++){
+                  class_val = responseArr[i].toString().split(':')[0];
+                  class_sec_id = responseArr[i].toString().split(':')[1];
+                  section = responseArr[i].toString().split(':')[2];
+                  check = responseArr[i].toString().split(':')[3];
+                  if(check=='false'){
+                classesHtml = classesHtml + '<a href="javascript:void(0);"><li class="collection-item classData" id="'+class_sec_id+'class" onclick="loadSubject('+class_sec_id+','+teacher_id+')">'+class_val+' - '+section+'</li></a>';
+                  }else{
+                    classesHtml = classesHtml + '<a href="javascript:void(0);"><li class="collection-item classData" id="'+class_sec_id+'class" onclick="loadSubject('+class_sec_id+','+teacher_id+')">'+class_val+' - '+section+'<i id="mark" class="material-icons" style="color:green;font-size:20px;margin-left:10px;">check</i></li></a>';
+                  }
+              }
+               $('.classGen').html(classesHtml); 
+               $('#teacherClassesLoader').hide();
+               $('.classGen').show();
+                
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching class list");
+            }
+        });
+    }
+    var addClassSecId = '';
+    function loadSubject(class_sec_id,teacher_id){
+        
+        addClassSecId = class_sec_id;
+        $('#teacherSubjectsLoader').show();
+        $('.subjectList').hide();
+        $('#addClassSubject').hide();
+        {% for class_sec_id in class_sec_ids %}
+            $("#{{class_sec_id.class_sec_id}}class").css('background-color','');
+            $("#{{class_sec_id.class_sec_id}}class").css('color','');
+        {% endfor %}
+        var ids = "#"+class_sec_id.toString()+"class";
+        $(ids).css('background-color','lightseagreen');
+        $(ids).css('color','white');
+        $.ajax({
+            url: "/loadSubject?class_sec_id=" + class_sec_id+"&teacher_id="+teacher_id,
+            type: "get",
+            data: '',
+            success: function (response) {
+                responseArr = response.toString().split(',')
+                console.log('inside loadSubjects');
+                console.log(responseArr);
+                var subjectHtml = '';
+              for(var i=0;i<responseArr.length;i++){
+                  subject_name = responseArr[i].toString().split(':')[0];
+                  check = responseArr[i].toString().split(":")[1];
+                  console.log(check);
+                  if(response){
+                if(check=='false'){
+                    console.log('inside check is false')
+                subjectHtml = subjectHtml + '<a href="javascript:void(0);"><li class="collection-item" id="'+subject_name+'"><p><label><input type="checkbox" name="subjList" value="'+subject_name+'" /><span>'+subject_name+'</span></label></p></li></a>';
+                }else{
+                    subjectHtml = subjectHtml + '<a href="javascript:void(0);"><li class="collection-item notAvailable" id="'+subject_name+'"><p><label><input type="checkbox" name="subjList" value="'+subject_name+'" checked/><span>'+subject_name+'</span></label></p></li></a>';
+                }
+                $('#addClassSubject').show();
+                  }else{
+                      subjectHtml = subjectHtml + '<li class="collection-item">Not Available</li>';
+                      
+                  }
+              }
+               $('.subjectList').html(subjectHtml); 
+               $('#teacherSubjectsLoader').hide();
+               $('.subjectList').show();
+               
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching subject list");
+            }
+        });
+    }
+
+
+    function addClassSubjectBtn(){
+        console.log('inside addClassSubject');
+        console.log(addTeacherId);
+        console.log(addClassSecId);
+        console.log('inside addClassSubject');
+        
+        var Subjects = [];
+            $.each($("input[name='subjList']:checked"), function(){
+                Subjects.push($(this).val());
+            });
+            
+            console.log(Subjects);
+            if(Subjects.length>0){
+            Subjects = JSON.stringify(Subjects);
+            
+            $.ajax({
+            url: "/addTeacherClassSubject?class_sec_id=" + addClassSecId+"&teacher_id="+addTeacherId,
+            type: "POST",
+            contentType: "application/json",
+            data: Subjects,
+            success: function (response) {
+                if(response){
+                    $('#msgClass').html("<h6 style='color:red'>*No change</h6>")
+                }else{
+                M.toast({html: 'Subject successfully alloted to Teacher'});
+                $('#msgClass').hide();
+                }
+                loadSubject(addClassSecId,addTeacherId);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching subject list");
+            }
+        });}
+        else{
+            $('#msgClass').html("<h6 style='color:red'>*No change</h6>");
+            $('#msgClass').show();
+        }
+    }
+</script>
