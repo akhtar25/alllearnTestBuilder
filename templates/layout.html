@@ -72,14 +72,16 @@
                   <!--<li>
                     <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
                   </li>-->
-                  <!--<li>
-                    <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
-                  </li>-->
+                  
                   <li>
                     <a style="color: green;"  href="{{url_for('qrSessionScannerStudent')}}">Tests</a>
                   </li>
+                  
                   <li>
                     <a style="color: green;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
+                  </li>
+                  <li>
+                    <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
                   </li>
                   <li>
                     <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
@@ -206,7 +208,7 @@
           <li>
             <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
           </li>
-          {%if user_type_val==135%}
+          {%if user_type_val=='135'%}
           <li>
               <a style="color: green;"  href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
             </li>
