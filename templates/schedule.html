@@ -9,21 +9,36 @@
             <div class="form-group " style="padding-top:5px;">
             <div class="row">
             <div class="slots" style="display: flex;">
-            <div>
-                <label>No Of Slots:</label>
-                <input type="text" id="slots" name="slots" style="width:50px;"/></br>
+            
+            <div style="margin-left:15px;">
+              <div class="col-sm-3">
+                <div style="width:115px;">
+                    {{ form1.class_val.label(class='labelsize') }}
+                    <br>
+                    {% if form1.class_val.errors %}
+                    {{ form1.class_val(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form1.class_val.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form1.class_val(class='form-control',id='classVal') }}
+                    {% endif %}
+                </div>
             </div>
-            <div style="margin-left:50px;width:120px;">
-                <label>Class:</label>
-                <input type="text" name="class_value" id="class_value" style="width:50px;"/></br>
             </div>
-          <div style="width:165px;">
+            <div style="margin-left:68px;width:180px;">
+              <label>No Of Slots:</label>
+              <input type="number" id="slots" onKeyPress="return false;" name="slots" style="width:50px;"/></br>
+          </div>
+          <!-- <div style="width:165px;">
             <label>No of Sections:</label>
             <input type="text" id="batches" name="batches" style="width:50px;"/></br>
-        </div>
+        </div> -->
         <div style="width:230px;">
             <label>No of Days (per week)</label>
-            <input type="text" id="nDays" name="nDays" style="width:50px;"/></br>
+            <input type="number" id="nDays" name="nDays" onKeyPress="return false;" min="1" max="6" style="width:50px;"/></br>
         </div>
         <!-- <div>
           <label>No of Teachers</label>
@@ -33,13 +48,14 @@
       </div>
           </div>
           <div style="display: flex;">
+            <div class="subjectDetails" style="width:210px;">
+              <ul id="addSubTime">
+              
+            </ul>
+          </div>
             <div class="Time" style="width: 177px;">
             </div>
-            <div class="teachers" id="options" style="width: 177px;">
-            </div>
-            <div style="width:158px;">
-            </div>
-            <div class="noOfDays" style="margin-left: -64px;">
+            <div class="noOfDays" style="margin-left:15px;">
                 
                 <p>
                     <label>
@@ -78,11 +94,7 @@
                     </label>
                   </p>
             </div>
-            <div class="subjectDetails" style="margin-left: 120px;">
-              <ul id="addSubTime">
-              
-            </ul>
-          </div>
+            
             
           
             <div class="button" style="text-align: right;margin-top: 240px;">
@@ -93,26 +105,54 @@
       </form>
 </form>
    
-  {% endfor %}
   </div>
   <div class="row">
+    <div class="col-sm-2">
+      <div style="width:150px;">
+        {{ form.class_section.label(class='labelsize') }}
+        <br>
+        {% if form.class_section.errors %}
+        {{ form.class_section(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+            {% for error in form.class_section.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        {{ form.class_section(class='form-control') }}
+        {% endif %}
+      </div>
+      <input type='hidden' name='checkIndx' id='checkIndx' />
+  </div> 
+  
+  </div>
+  <div class="row">
+    <div id="timeTableDiv">
 
-    <div class="input-field col s12">
-      <select>
-        <option value="" disabled selected>Choose class</option>
-        <option value="1">Option 1</option>
-        
-      </select>
-      <label>Materialize Select</label>
     </div>
   </div>
 </div>
 
 <script>
-
-  $('#addSubTime').click(function(){
-
-  });
+  var class_section = document.getElementById('class_section');
+  classSection = class_section.value;
+  var res = classSection.split("-");
+  var class_val = res[0];
+  var section = res[1];
+  class_section.onchange = function(){
+    console.log('inside function of class section');
+    $.ajax({
+            url: "/fetchTimeTable?class_value=" + class_val+"&section="+section,
+            type: "get",
+            data: "",
+            success: function (response) {
+              $('#timeTableDiv').html(response);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching timetable");
+            }
+        });
+  };
 
   $("#slots").blur(function(){
   var slots = $('#slots').val();
@@ -123,9 +163,24 @@
   $('.Time').html(input);
 });
 
-$('#class_value').blur(function(){
-    console.log('inside class_val blur');
-    var class_v = $('#class_value').val();
+// $("#slots").attr({
+//    "max" : maxSub,
+//    "min" : 1
+// });
+
+var class_select = document.getElementById("classVal");
+var maxSub = '';
+var optionHTMLClass = '';
+    $(document).ready(function(){
+        $('#classVal').val("na");
+        console.log("CLass Value:"+class_select.value);
+        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+    });
+class_select.onchange = function(){
+  var class_v = class_select.value;
+    console.log('inside class_val onchange');
+    console.log('class'+class_v);
     $.ajax({
             url: "/allSubjects?class_value=" + class_v,
             type: "get",
@@ -134,9 +189,15 @@ $('#class_value').blur(function(){
               subTimeHtml = '';  
               console.log(response);  
               responseArr = response.toString().split(',');
+              maxSub = responseArr.length;
+              $("#slots").attr({
+                  "max" : maxSub,
+                  "min" : 1
+              });
               for(var i=0;i<responseArr.length;i++){
+                
                 console.log(responseArr[i]);
-                subTimeHtml = subTimeHtml+ '<li><label>'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /><label>Time(hours)**</label><input type="text" id="time1" name="time" style="width:50px;"/></li>';
+                subTimeHtml = subTimeHtml+ '<li><label>Time(hr)</label><input type="number" onKeyPress="return false;" id="time1" min="1" max="'+maxSub+'" name="time" style="width:50px;"/><label style="margin-left:15px;">'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /></li>';
               }
               $('#addSubTime').html(subTimeHtml);
             },
@@ -144,12 +205,12 @@ $('#class_value').blur(function(){
                 window.alert("error occurred while fetching subjects list");
             }
         });
-  });
+  };
 
 
-$(document).ready(function(){
-    $('select').formSelect();
-  });
+// $(document).ready(function(){
+//     $('select').formSelect();
+//   });
 
   $('#submit').click(function(){
     $e.preventDefault(); 

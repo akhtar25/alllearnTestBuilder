@@ -6446,13 +6446,21 @@ def schedule():
     # slots = request.form.get('slots')
     print('inside schedule function')
     # print(slots)
-    form = SingleStudentRegistration()
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    form = studentDirectoryForm()
+    form1=QuestionBankQueryForm()
+    form1.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()]
+    
+    available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+    class_list = classChecker(available_class)
+    form.class_section.choices = class_list
     if request.method == 'POST':
         slots = request.form.get('slots')
-        class_value = request.form.get('class_value')
+        class_value = str(form1.class_val.data)
         start = request.form.getlist('start')
         end = request.form.getlist('end')
+        sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
+        batches = len(sections)
         slotTime = []
         for (s,e) in itertools.zip_longest(start,end):
             slotTime.append(s+'-'+e)
@@ -6464,7 +6472,7 @@ def schedule():
         subject = request.form.getlist('subject')
         time = request.form.getlist('time')
         day = request.form.getlist('day')
-        batches = request.form.get('batches')
+        # batches = request.form.get('batches')
         totalTime = 0
         for ti in time:
             print('Time:'+str(ti))
@@ -6549,13 +6557,29 @@ def schedule():
                             db.session.execute(text(insertData))
                 t=t+1
         db.session.commit()
-
-        scheduleData = "select *from schedule_detail"
-        scheduleData = db.session.execute(text(scheduleData)).fetchall()
+        print('slot Data')
+        print(slotTime)
         flash('Data is Submitted') 
-        return render_template('schedule.html',scheduleData=scheduleData,slotTime=slotTime,slotsoutput=slotsoutput,form=form)
-    return render_template('schedule.html')
+        return render_template('schedule.html',slotTime=slotTime,slotsoutput=slotsoutput,form=form,form1=form1)
+    return render_template('schedule.html',form=form,form1=form1)
     
+@app.route('/fetchTimeTable',methods=['GET','POST'])
+def fetchTimeTable():
+    class_val = request.args.get('class_value')
+    section = request.args.get('section')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print(class_val)
+    print(section)
+    print(teacher.school_id)
+    class_section = ClassSection.query.filter_by(class_val=str(class_val),section = section, school_id= teacher.school_id).first()
+
+    query = "select *from fn_time_table("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
+    print(query)
+    timeTableData = db.session.execute(text(query)).fetchall()
+    print(timeTableData)
+    for data in timeTableData:
+        print(data)
+    return render_template('_timeTable.html',timeTableData=timeTableData)
 
 @app.route('/allSubjects',methods=['GET','POST'])
 def allSubjects():

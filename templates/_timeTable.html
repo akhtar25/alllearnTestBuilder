@@ -1,0 +1,24 @@
+<div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th>periods</th>
+        <th>Monday</th>
+        <th>Tuesday</th>
+        <th>Wednesday </th>
+        <th>Thursday</th> 
+        <th>Friday</th>
+        <th>Saturday</th>                        
+      </tr>
+      {% for eachRow in timeTableData%}
+      <tr style="margin-top:5px;">
+        <td>{{eachRow.period_no}}</td>
+        <td>{{eachRow.monday}}</td>     
+        <td>{{eachRow.tuesday}}</td>     
+        <td>{{eachRow.wednesday}}</td>                                       
+        <td>{{eachRow.thursday}}</td>
+        <td>{{eachRow.friday}}</td>
+        <td>{{eachRow.saturday}}</td>
+      </tr>
+           {% endfor %}
+    </table>
+  </div>
