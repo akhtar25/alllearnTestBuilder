@@ -876,6 +876,7 @@ class ScheduleDetail(db.Model):
     days_name= db.Column(db.String(20))
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherSubjectClass(db.Model):
