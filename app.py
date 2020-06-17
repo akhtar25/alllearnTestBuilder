@@ -338,8 +338,8 @@ def account():
 
 @app.route('/sign-s3')
 def sign_s3():
-    #S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    S3_BUCKET = "alllearndatabucketv2"
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    #S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
