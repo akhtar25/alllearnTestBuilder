@@ -191,12 +191,13 @@
                 <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;margin-left: 13px;">Conduct Test</a>
             </li>
           </ul>
+        </form>
           <div class="box-footer">
               <div id="modal2" class="modal">
                   <div class="modal-content" style="height:504px;position: relative;overflow-y: auto;max-height: 415px;">
                     <h4 style="text-align: center;">Add Content</h4>
-                    <form action="" method="POST" enctype="multipart/form-data">
-                      {{ form.hidden_tag() }}
+                    <!-- <form action="" method="POST" enctype="multipart/form-data"> -->
+                      <!-- {{ form.hidden_tag() }} -->
                       <div class="form-group " style="padding-top:5px;">
                         <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
                           <div class="col-sm-12" style="display:flex;">
@@ -316,7 +317,7 @@
                             </div>
                             </div>
                             <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
-                              </form>
+                              <!-- </form> -->
                               <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
                   </div>
                 </div>
@@ -324,7 +325,7 @@
             <input type="text" name="class_val" value="{{ currClassSecDet.class_val }}" style="display: none;">
             <input type="text" name="section" value="{{ currClassSecDet.section }} " style="display: none;">
           </div>
-        </form>
+        <!-- </form> -->
       </section>
     </div>
   </div>

@@ -1,5 +1,18 @@
 <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+    <table class="table table-hover table-striped" style="width:250px;">
+        <tr>
+            <th>Subject Name</th>
+            <th>Teacher Name</th>
+        </tr>
+        {% for row in fetchTeacher %}
+        <tr style="margin-top:5px;">
+            <td>{{row.subject_name}}</td>
+            <td>{{row.teacher_name}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <table class="table table-hover table-striped">
       <tr>
         <th>periods</th>
         <th>Monday</th>

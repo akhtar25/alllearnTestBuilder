@@ -4,149 +4,212 @@
   <div class="row">
     <h3>Schedule Details</h3>
     <h5>
-        <form action="" method="POST" enctype="multipart/form-data">
-        <form id="timeTableForm">
-            <div class="form-group " style="padding-top:5px;">
-            <div class="row">
-            <div class="slots" style="display: flex;">
-            
-            <div style="margin-left:15px;">
-              <div class="col-sm-3">
-                <div style="width:115px;">
-                    {{ form1.class_val.label(class='labelsize') }}
-                    <br>
-                    {% if form1.class_val.errors %}
-                    {{ form1.class_val(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form1.class_val.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
+      <ul class="collapsible">
+        <li class="active">
+          <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">insert_chart</i>Create Schedule</div>
+          <div class="collapsible-body">
+            <form action="" method="POST" enctype="multipart/form-data">
+              <form id="timeTableForm">
+                  <div class="form-group " style="padding-top:5px;">
+                  <div class="row">
+                    <section class="plans-container" id="plans">
+                      <div style="display: flex;">
+                      <h4 style="margin-left:25px;">Step 1</h4>
+                      <h4 style="margin-left:320px;">Step 2</h4>
                     </div>
-                    {% else %}
-                    {{ form1.class_val(class='form-control',id='classVal') }}
-                    {% endif %}
+                      <article class="col s12 m6 l4 ">
+                        <div class="card  z-depth-4">
+                          <div class="card-image">
+                          </div>
+                    <div class="col-sm-6" style="margin-bottom: 20px;">
+                      <div style="width:150px;">
+                          {{ form1.class_val.label(class='labelsize') }}
+                          <br>
+                          {% if form1.class_val.errors %}
+                          {{ form1.class_val(class="form-control form-control-lg is-invalid") }}
+                          <div class="invalid-feedback">
+                              {% for error in form1.class_val.errors %}
+                              <span>{{ error }}</span>
+                              {% endfor %}
+                          </div>
+                          {% else %}
+                          {{ form1.class_val(class='form-control',id='classVal') }}
+                          {% endif %}
+                      </div>
+                  </div>
+                  <div class="subjectDetails" style="width:260px;margin-left: 20px;">
+                    <table id = "subTable" style="display: none;">
+                      <thead>
+                      <tr>
+                        <th><label style="margin-left: 15px;">Subjects</label></th>
+                        <th><label>Periods per week</label></th>
+                      </tr>
+                    </thead>
+                    <tbody id="addSubTime">
+      
+                    </tbody>
+                    </table>
                 </div>
+                  
+              </div>
+              </article>
+                  <article class="col s12 m6 l4 ">
+                    <div class="card  z-depth-4">
+                      <div class="card-image">
+                      </div>
+                <div style="margin-left:68px;width:200px;">
+                  <label>No of periods per day:</label>
+                  <input type="number" id="slots" onKeyPress="return false;" name="slots" style="width:50px;"/></br>
+              </div>
+            <div style="width:230px;margin-left: 70px;">
+                <label>No of Days (per week)</label>
+                <input type="number" id="nDays" name="nDays" onKeyPress="return false;" min="1" max="6" style="width:50px;"/></br>
             </div>
-            </div>
-            <div style="margin-left:68px;width:180px;">
-              <label>No Of Slots:</label>
-              <input type="number" id="slots" onKeyPress="return false;" name="slots" style="width:50px;"/></br>
+                  <div class="noOfDays" style="margin-left:68px;">
+                      
+                      <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Monday" />
+                            <span>Monday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Tuesday" />
+                            <span>Tuesday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Wednesday" />
+                            <span>Wednesday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Thursday" />
+                            <span>Thursday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Friday" />
+                            <span>Friday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Saturday" />
+                            <span>Saturday</span>
+                          </label>
+                        </p>
+                  </div>
+                </div>
+              </article>
+            </section>
+      
+            <div class="button" style="text-align: center;margin-top: 340px;">
+              <button class="btn waves-light green lighten-1 white-text" id="submit" value="submit">Submit</button>
           </div>
-          <!-- <div style="width:165px;">
-            <label>No of Sections:</label>
-            <input type="text" id="batches" name="batches" style="width:50px;"/></br>
-        </div> -->
-        <div style="width:230px;">
-            <label>No of Days (per week)</label>
-            <input type="number" id="nDays" name="nDays" onKeyPress="return false;" min="1" max="6" style="width:50px;"/></br>
-        </div>
-        <!-- <div>
-          <label>No of Teachers</label>
-          <input type="text" id="noTeachers" name="noTeachers" style="width:50px;"/></br>
-        </div> -->
-        
-      </div>
-          </div>
-          <div style="display: flex;">
-            <div class="subjectDetails" style="width:210px;">
-              <ul id="addSubTime">
-              
-            </ul>
-          </div>
-            <div class="Time" style="width: 177px;">
-            </div>
-            <div class="noOfDays" style="margin-left:15px;">
+          </div> 
                 
-                <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Monday" />
-                      <span>Monday</span>
-                    </label>
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Tuesday" />
-                      <span>Tuesday</span>
-                    </label>
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Wednesday" />
-                      <span>Wednesday</span>
-                    </label>
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Thursday" />
-                      <span>Thursday</span>
-                    </label>
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Friday" />
-                      <span>Friday</span>
-                    </label>
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="day" value="Saturday" />
-                      <span>Saturday</span>
-                    </label>
-                  </p>
-            </div>
-            
-            
-          
-            <div class="button" style="text-align: right;margin-top: 240px;">
-                <button class="btn waves-light green lighten-1 white-text" id="submit" value="submit">Confirm</button>
-            </div>
-        </div>
-        </div>
+                  
+              
+            </form>
       </form>
-</form>
+          </div>
+        </li>
+        <li>
+          <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">view_module</i>View Schedule</div>
+          <div class="collapsible-body">
+            <div class="row">
+              <div class="col-sm-2">
+                <div style="width:170px;">
+                  {{ form.class_section.label(class='labelsize') }}
+                  <br>
+                  {% if form.class_section.errors %}
+                  {{ form.class_section(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                      {% for error in form.class_section.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                  </div>
+                  {% else %}
+                  {{ form.class_section(class='form-control') }}
+                  {% endif %}
+                </div>
+                <input type='hidden' name='checkIndx' id='checkIndx' />
+            </div> 
+            
+            </div>
+            <div class="row">
+              <div id="timeTableDiv">
+          
+              </div>
+            </div>
+            <div class="button" id="download" style="text-align: right;display: none;">
+              <button class="btn waves-light green lighten-1 white-text" id="download">Download</button>
+          </div>
+          </div>
+        </li>
+      </ul>
+       
    
   </div>
-  <div class="row">
-    <div class="col-sm-2">
-      <div style="width:150px;">
-        {{ form.class_section.label(class='labelsize') }}
-        <br>
-        {% if form.class_section.errors %}
-        {{ form.class_section(class="form-control form-control-lg is-invalid") }}
-        <div class="invalid-feedback">
-            {% for error in form.class_section.errors %}
-            <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        {% else %}
-        {{ form.class_section(class='form-control') }}
-        {% endif %}
-      </div>
-      <input type='hidden' name='checkIndx' id='checkIndx' />
-  </div> 
   
-  </div>
-  <div class="row">
-    <div id="timeTableDiv">
 
-    </div>
-  </div>
+
 </div>
 
 <script>
+
+
+$(document).ready(function(){
+  $('.button').hide();
+});
+$('input.day').on('change', function(evt) {
+  var limit = document.getElementById('nDays').value;
+  console.log(limit);
+  console.log($("input[name='day']:checked").length);
+   if($("input[name='day']:checked").length < limit) {
+      console.log('if check length is less then limit ');
+       
+       $('.button').hide();
+   }else{
+    console.log('if check length is greater then or equal to limit ');
+        $('.button').show();
+   }
+});
+var class_select = document.getElementById("classVal");
+var optionHTMLClass = '';
+    $(document).ready(function () {
+        $('#classVal').val("na");
+        optionHTMLClass += '<option value="na" disabled selected> Select Class </option>';
+        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+    });
+
+
   var class_section = document.getElementById('class_section');
-  classSection = class_section.value;
-  var res = classSection.split("-");
-  var class_val = res[0];
-  var section = res[1];
+  var optionHTMLClassSection = '';
+    $(document).ready(function () {
+        $('#classVal').val("na");
+        optionHTMLClassSection += '<option value="na" disabled selected> Select Class Section </option>';
+        class_section.innerHTML = optionHTMLClassSection + class_section.innerHTML;
+    });
   class_section.onchange = function(){
+    classSection = class_section.value;
+    var res = classSection.split("-");
+    var class_val = res[0];
+    var section = res[1];
     console.log('inside function of class section');
+    console.log('Section:'+section);
     $.ajax({
             url: "/fetchTimeTable?class_value=" + class_val+"&section="+section,
             type: "get",
             data: "",
             success: function (response) {
               $('#timeTableDiv').html(response);
+              $('#download').show();
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching timetable");
@@ -168,16 +231,10 @@
 //    "min" : 1
 // });
 
-var class_select = document.getElementById("classVal");
 var maxSub = '';
-var optionHTMLClass = '';
-    $(document).ready(function(){
-        $('#classVal').val("na");
-        console.log("CLass Value:"+class_select.value);
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-    });
+
 class_select.onchange = function(){
+  $('#subTable').show();
   var class_v = class_select.value;
     console.log('inside class_val onchange');
     console.log('class'+class_v);
@@ -186,6 +243,7 @@ class_select.onchange = function(){
             type: "get",
             data: "",
             success: function (response) {
+
               subTimeHtml = '';  
               console.log(response);  
               responseArr = response.toString().split(',');
@@ -197,9 +255,10 @@ class_select.onchange = function(){
               for(var i=0;i<responseArr.length;i++){
                 
                 console.log(responseArr[i]);
-                subTimeHtml = subTimeHtml+ '<li><label>Time(hr)</label><input type="number" onKeyPress="return false;" id="time1" min="1" max="'+maxSub+'" name="time" style="width:50px;"/><label style="margin-left:15px;">'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /></li>';
+                subTimeHtml = subTimeHtml+ '<tr><td><label style="margin-left:15px;">'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /></td><td><input type="number" onKeyPress="return false;" id="time1" min="1" max="'+maxSub+'" name="time" style="width:50px;"/></td></tr>';
               }
               $('#addSubTime').html(subTimeHtml);
+              
             },
             error: function (xhr) {
                 window.alert("error occurred while fetching subjects list");
@@ -229,6 +288,9 @@ class_select.onchange = function(){
         });
   });
 
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
 
 </script>
 
