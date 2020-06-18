@@ -1198,7 +1198,11 @@ def index():
             bookName = BookDetails.query.all()
             chapterNum = Topic.query.distinct().all()
             topicId = Topic.query.all()
-            generalBoard = MessageDetails.query.filter_by(category='Board').all()
+            generalBoardId = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+            print('teacher and board ids')
+            print(teacher_id.school_id)
+            print(generalBoardId.board_id)
+            generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==135:
@@ -2127,7 +2131,7 @@ def syllabus():
     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
+    classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
     classValues = db.session.execute(text(classValues)).fetchall()
     classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
     classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
@@ -2135,9 +2139,8 @@ def syllabus():
     bookName = BookDetails.query.all()
     chapterNum = Topic.query.distinct().all()
     topicId = Topic.query.all()
-    generalBoardId = "select distinct board_id from topic_detail td"
-    generalBoardId = db.session.execute(text(generalBoardId)).first()
-    generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).all()
+    generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
     return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
 
 @app.route('/addSyllabus',methods=['GET','POST'])
@@ -2278,7 +2281,7 @@ def fetchRemSubjects():
     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id.board_id,school_id=teacher.school_id,is_archived='Y').all()
     subjectArray=[]
     generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
-    generalSubjects = generalSubjects + "where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id.board_id)+"' and md.msg_id not in (select distinct msg_id from message_detail md "
+    generalSubjects = generalSubjects + "where md.msg_id not in (select distinct msg_id from message_detail md "
     generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
     generalSubjects = generalSubjects + ")  order by description"
     generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
@@ -2331,7 +2334,7 @@ def addChapter():
     for topic in topics:
         print('inside for')
         print(topic)
-        topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic,board_id=board_id.board_id).first()
+        topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
         existInTT = TopicTracker.query.filter_by(topic_id=topic_id.topic_id,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
         
         if existInTT:
@@ -2859,7 +2862,8 @@ def fetchRemChapters():
                 print(chapter)
             i=i+1
         else:
-            num = "/"+str(num)
+            if len(queryChapters)>0:
+                num = "/"+str(num)
         print(chapter)
         chapterArray.append(str(num)+":"+str(chapter))
     for ch in chapterArray:
@@ -3067,6 +3071,8 @@ def chapterTopic():
 @app.route('/fetchChapters',methods=['GET','POST'])
 def fetchChapters():
     book_id=request.args.get('bookId')
+    print('inside fetchChapters')
+    print('Book Id:'+str(book_id))
     class_val=request.args.get('class_val')
     # board_id=request.args.get('board_id')
     subject=request.args.get('subject')

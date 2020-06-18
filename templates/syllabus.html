@@ -54,11 +54,9 @@
                             <div class="card-title">Boards</div>
 
                             <ul class="collection " id="boardDiv">
-                            {% for board in generalBoard %}
-                                    <li class="collection-item generalBoardClass" id="{{board.msg_id}}">
-                                        {{board.description}}
+                                    <li class="collection-item generalBoardClass" id="{{generalBoard.msg_id}}">
+                                        {{generalBoard.description}}
                                     </li>
-                            {% endfor %}
                             </ul>
                             <!-- <input type='text' id="SearchBox" name="SearchBox" onKeyUp="keyStroke()" value="Hello"/>
 <div >Did You Mean:<a id='suggestionLink' href='#' onclick='fixSuggestions(this); return false;'></a></div> -->
@@ -223,10 +221,17 @@
                                 </div><br>
                                 <div class="classTextBoxes">
                                 <div class="srollBox">
-                                <input type="number" class="class" placeholder="Class" style="text-align:center;width:130px;" onKeyPress="return false;" max="12" min="1">
-                                <div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn1" onclick="addTextBtn();">
-                                <i class="fas fa-plus-circle"></i>
-                                </div></div>
+                                <input type="text" class="class" placeholder="Class" style="text-align:center;width:130px;">
+                                <div class="sectionDiv"></div>
+                                <!-- <div class="textWithBtn"> -->
+                                    <!-- <input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"> -->
+                                    <a href="javascript:void(0);" id="addTextBtn1" onclick="addTextBtn();">
+                                        <!-- <i class="fas fa-plus-circle"></i> -->
+                                        <i class="material-icons" class="green center">add_circle</i> 
+                                        <span style="font-size: large;">Add Sections</span>
+                                    </a>
+                                
+                            <!-- </div> -->
                                 <div id="newTextBoxes"></div></br>
                                 </div>
                                 <div class="classBtn">
@@ -354,11 +359,14 @@
                                             <div class="newChapterDiv" style="display:none;margin-top: -55px;">
                                             <span class="chapterTextlabel">Chapter</span></t><input type="text" style="width: 300px;margin-left:20px;margin-right:20px;color:black;font-size:14px;" id="chapterFocus" spellcheck="true" class="chapterText"><span class="chapNoTextlabel">Ch no.</span><input type="text" style="width:40px;margin-left:10px;color:black;font-size:14px;" class="chapNoText"></br>
                                             <h5 id="suggBoxChapter">suggest:<a style="margin-left:5px;" id="correctWordChapter" onclick="insertWordChapter();"></a></h5>
-                                            <span class="topicTextlabel">Topic</span></t>
-                                            <div class="allTextBoxes">
-                                            <input type="text" style="width:400px;margin-left:68px;color:black;font-size:14px;" class="topicText" spellcheck="true"><a id="addRowBtn1" class="iconAdd" onclick="appendRow();"><i class="fas fa-plus-circle"></i></a></br>
-                                            <div id="newTextbox"></div>
-                                            </div>
+                                            <div id="newTextbox" style="position: relative;max-height: 80px;overflow-y: auto;"></div>
+                                            <a href="#" class="allTextBoxes" onclick="appendRow();">
+                                            <!-- <input type="text" style="width:400px;margin-left:68px;color:black;font-size:14px;" class="topicText"id="" spellcheck="true"> -->
+                                            <!-- <a id="addRowBtn1" class="iconAdd" onclick="appendRow();"> -->
+                                                <!-- <i class="fas fa-plus-circle"></i></a></br> -->
+                                                <i class="material-icons" class="green center">add_circle</i> 
+                                                <span style="font-size: large;">Add Topic</span>
+                                            </a>
                                             <h5 id="suggBoxTopic">suggest:<a style="margin-left:5px;" id="correctWordTopic" onclick="insertWordTopic();"></a></h5>
                                             </div>
                                             <span class="chapterTopic" style="display:none;">Choose topics</span></br>
@@ -477,14 +485,15 @@ $(document).ready(function(){
 
     var z = 1;
     function addTextBtn(){
-        var ids = '#addTextBtn'+z;
-          $('#addTextBtn1').hide();
-          $(ids).hide();
-        var d = document.getElementById('newTextBoxes');
-        console.log('inside addTextBtn');
-        console.log(ids);
-        z=z+1;
-        d.innerHTML += '<div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn'+z+'" onclick="addTextBtn();"><i class="fas fa-plus-circle"></i></div></div>';
+        // var ids = '#addTextBtn'+z;
+        //   $('#addTextBtn1').hide();
+        //   $(ids).hide();
+        // var d = document.getElementById('newTextBoxes');
+        // console.log('inside addTextBtn');
+        // console.log(ids);
+         z=z+1;
+        // d.innerHTML += '<div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn'+z+'" onclick="addTextBtn();"><i class="fas fa-plus-circle"></i></div></div>';
+        $('.sectionDiv').append('<input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1">');
     }
 
     function insertWord(){
@@ -689,10 +698,13 @@ $(document).ready(function(){
         var sectionArray = [];
         $('.section').each(function(){
             var section_values = $(this).val();
+            console.log('Sections:'+section_values);
             if(section_values){
             sectionArray.push(section_values);
             }
+            console.log(sectionArray);
         });
+        console.log('Sections :'+sectionArray);
         for(var i=0;i<sectionArray.length;i++){
             console.log('Section:'+sectionArray[i]);
         }
@@ -791,8 +803,8 @@ $(document).ready(function(){
                      sections = sections.replace(/;/g,",");
                     console.log('sections:'+sections)
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'specific" onClick="loadSubjects(' +
-                            +"\""+class_val +"\""+ ')" name=' +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'specific" onClick="loadSubjects(\'' +
+                        class_val + '\')" name=' +
                         selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
                 }
@@ -819,6 +831,7 @@ $(document).ready(function(){
 
 
     function onclickChapterAdd(){
+        $('#newTextbox').html('');
         $('#modal1').css('height','70%');
         $('#otherChapter').show();
         $('#otherTopic').hide();
@@ -849,6 +862,7 @@ $(document).ready(function(){
     }
 
     function onclickTopicAdd(){
+        $('#newTextbox').html('');
         $('#modal1').css('height','61%');
         $('#otherChapter').hide();
         $('#otherTopic').show();
@@ -878,18 +892,20 @@ $(document).ready(function(){
 
     var x=1
     function appendRow()
-    { var ids = '#addRowBtn'+x;
-          $(ids).hide();
-        var d = document.getElementById('newTextbox');
-        console.log('inside appendRow');
-        console.log(ids);
+    { 
+        // var ids = '#addRowBtn'+x;
+        //   $(ids).hide();
+        // var d = document.getElementById('newTextbox');
+        // console.log('inside appendRow');
+        // console.log(ids);
         x=x+1;
-        d.innerHTML += "<input type='text' style='width:400px;margin-left:68px;color:black;font-size:14px;' id='topic"+x+"' class='topicText' onkeyup = 'spellCheckTopic();'><a id='addRowBtn"+x+"' class='iconAdd' onclick='appendRow();'><i class='fas fa-plus-circle'></i></a></br>";
-        
+        // d.innerHTML += "<input type='text' style='width:400px;margin-left:68px;color:black;font-size:14px;' id='topic"+x+"' class='topicText' onkeyup = 'spellCheckTopic();'><a id='addRowBtn"+x+"' class='iconAdd' onclick='appendRow();'><i class='fas fa-plus-circle'></i></a></br>";
+        $('#newTextbox').append("<input type='text' style='width:400px;margin-left:68px;color:black;font-size:14px;' id='topic' class='topicText' onkeyup = 'spellCheckTopic();'>");
     }
 
     function showClassText(){
         console.log('inside show class text');
+        $('.sectionDiv').html('');
         $('.classTextBoxes').show();
         $('.classCol').hide();
         $('.classBtn').show();
@@ -995,9 +1011,20 @@ $(document).ready(function(){
     var ul = document.getElementById('remSub');
       ul.onclick = function(event) {
       var target = event.target;
-      
+      var p = 0;
+      for(var i=0;i<selSub.length;i++){
+        if(selSub[i].toString()==event.target.innerHTML){
+            console.log('already selected');
+            p=1;
+            break;
+        }
+      }
+      if(p==0){
       console.log(event.target.innerHTML);
       selSub.push(event.target.innerHTML);
+      }else{
+        selSub.pop(event.target.innerHTML); 
+      }
 }; 
     var selectedChapters = [];
     var ul = document.getElementById('remchapt');
@@ -1658,9 +1685,11 @@ $(document).ready(function(){
             type: "get",
             data: '',
             success: function (response) {
+                var topicHTMLRecords = "";
+                if(response){
                 responseArr = response.toString().split('/,/');
                 //alert(responseArr.length);
-                var topicHTMLRecords = "";
+                
                 for (var i = 0; i < responseArr.length; i++) {
                     var topicID = responseArr[i].toString().split(':')[0];
                     var topicName = responseArr[i].toString().split(':')[1];
@@ -1670,6 +1699,9 @@ $(document).ready(function(){
                             topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+"\""+classforTopics+"\""+','+subjectIdforTopics+','+boardforTopics+','+chapterNumforTopics+'); >' + topicName +
                         '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                 }
+            }else{
+                topicHTMLRecords = topicHTMLRecords + "<li>Not Available</li>";
+            }
                 $("#topicDiv").html(topicHTMLRecords);
                 
                 
@@ -2001,6 +2033,7 @@ $(document).ready(function(){
     }
     var colorArray = [];
     function onColorTopic(topicId){
+        console.log(colorArray);
         var c = 0;
         for(var i=0;i<colorArray.length;i++){
             if(colorArray[i].toString==topicId.toString){
@@ -2332,7 +2365,7 @@ $(document).ready(function(){
         $('#msgClass').html('');
         $('.classTextBoxes').hide();
         $('.classBtn').hide();
-        
+        $('.sectionDiv').html('');
         $('#classloader').show();
         $.ajax({
             url: "/syllabusClasses?board_id=" + selectedBoardID,
