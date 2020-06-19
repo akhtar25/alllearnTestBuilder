@@ -449,6 +449,10 @@ def schoolRegistration():
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
     if form.validate_on_submit():
+        user = User.query.filter_by(id=current_user.id).first()
+        user.user_type = 71
+        user.access_status = 145
+        db.session.commit()
         selected_sub_id = request.form.get('selected_sub_id')        
         address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         if address_id is None:
@@ -1186,7 +1190,6 @@ def index():
             fromSchoolRegistration = True
        
             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-            teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
@@ -2275,6 +2278,7 @@ def fetchSubjects():
 
 @app.route('/fetchRemSubjects',methods=['GET','POST'])
 def fetchRemSubjects():
+    print('inside fetchRemSubjects')
     class_val = request.args.get('class_val')
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
@@ -2282,10 +2286,12 @@ def fetchRemSubjects():
     subjectArray=[]
     generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
     generalSubjects = generalSubjects + "where md.msg_id not in (select distinct msg_id from message_detail md "
-    generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
+    generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' "
     generalSubjects = generalSubjects + ")  order by description"
+    print('Query: '+str(generalSubjects))
     generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
+    print(subjects)
     subjects = db.session.execute(text(subjects)).fetchall()
     for val in subjects:
         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
@@ -2744,7 +2750,7 @@ def fetchRemBooks():
     distinctBooks = ''
     distinctBooks = "select distinct book_name from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and "
     distinctBooks = distinctBooks + "book_name not in (select distinct book_name from book_details bd inner join board_class_subject_books bcsb on bd.book_id = bcsb.book_id "
-    distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"')"
+    distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y')"
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     distinctBooksInBCSB = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooksInBCSB = distinctBooksInBCSB + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y' order by bd.book_name"
@@ -2802,7 +2808,7 @@ def fetchRemChapters():
     
     queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"') "
     queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
-    queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
+    queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"' and tt.is_archived = 'Y') order by chapter_num"
     print('print chapters from general')
     print(queryChapters)
     queryChapters = db.session.execute(text(queryChapters)).fetchall()
@@ -3000,7 +3006,7 @@ def chapterTopic():
         remTopics = "select distinct topic_name ,topic_id from topic_detail td where class_val = '"+str(class_val)+"' and subject_id  = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' and topic_id not in "
         remTopics = remTopics + "(select distinct td.topic_id from topic_detail td inner join topic_tracker tt on "
         remTopics = remTopics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and "
-        remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and class_val='"+str(class_val)+"' and subject_id='"+str(subject_id.msg_id)+"') order by topic_id"
+        remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.is_archived = 'Y' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and class_val='"+str(class_val)+"' and subject_id='"+str(subject_id.msg_id)+"') order by topic_id"
         print('inside Rem topics')
         print('Rem Topics:'+str(remTopics))
         remTopics = db.session.execute(text(remTopics)).fetchall()

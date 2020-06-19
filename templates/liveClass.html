@@ -170,6 +170,7 @@
         //$('#loader').show();
         var live_class_id = $(this).attr("name");
         $.ajax({
+            
             url: "/archiveLiveClass?live_class_id=" + live_class_id,
             type: "get",
             data: '',
