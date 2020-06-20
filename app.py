@@ -1823,7 +1823,7 @@ def liveClass():
     else:
         return redirect(url_for('index'))
 
-    allLiveClassQuery = "select distinct t1.class_sec_id, t2.class_val, t2.section "
+    allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
     allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, DATE(start_time) as start_time, status, teacher_name, "
     allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
     allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
