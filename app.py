@@ -1817,11 +1817,12 @@ def liveClass():
     if current_user.user_type==71 or current_user.user_type==135 or current_user.user_type==139:
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id = teacherData.school_id 
+        studentDetails=""
     elif current_user.user_type==134:
-        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()  
-        #studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
-        school_id = studentData.school_id
-    else:
+        #studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
+        school_id = studentDetails.school_id
+    else:        
         return redirect(url_for('index'))
 
     print('##########Data:'+str(school_id))
@@ -1850,7 +1851,7 @@ def liveClass():
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
     #    flash('New class listed successfully!')               
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now())    
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now(),studentDetails=studentDetails)    
 
 #end of live class section
 
