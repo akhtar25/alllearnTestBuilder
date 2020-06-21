@@ -1818,21 +1818,25 @@ def liveClass():
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id = teacherData.school_id 
     elif current_user.user_type==134:
-        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()    
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+        #studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
         school_id = studentData.school_id
     else:
         return redirect(url_for('index'))
 
+    print('##########Data:'+str(school_id))
     allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
-    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, DATE(start_time) as start_time, status, teacher_name, "
+    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
     allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
     allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
     allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
     allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
-    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where end_time::time<CURRENT_TIME and t1.school_id= " +str(school_id) 
-    print('Query:'+str(allLiveClassQuery))
+    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(school_id) 
+    allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"
+    
     try:
-        allLiveClasses = db.session.execute(text(allLiveClassQuery)).fetchall()
+        allLiveClasses = db.session.execute(allLiveClassQuery).fetchall()
+        print('##########Data:'+str(allLiveClasses))
     except:
         allLiveClasses = ""
 
@@ -1845,9 +1849,8 @@ def liveClass():
     #    db.session.add(liveClassData)
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
-    #    flash('New class listed successfully!')         
-    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),studentDetails=studentDetails)    
+    #    flash('New class listed successfully!')               
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now())    
 
 #end of live class section
 
