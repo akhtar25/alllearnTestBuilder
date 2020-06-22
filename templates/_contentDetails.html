@@ -3,11 +3,15 @@
         <h3></h3>
         <div class="card id">
             <div class="card-body">
+                {% if flag %}
+                <div id="table" class="table-bordered" style="overflow-y: auto; height:500px; position: relative;margin-top: -21px;">
+                {% else %}
                 <div id="table" class="table-bordered" style="overflow-y: auto; height:340px; position: relative;margin-top: -21px;">
+                {% endif %}
         <table>
                     {% for content in contents %}    
                     <div class="row z-depth-1" style="padding-left:15px;padding-top:20px;margin-top: -18px;">  
-                                 <div class="col s12 m6 l5 center-align">
+                                 <div class="col s12 m6 l5">
                             {%if content.content_type==92%}
              
                             <video class="responsive-video" >
@@ -15,7 +19,7 @@
                                     </video>
                                     {%elif content.content_type==96%}
         
-                                    <iframe src="{{content.reference_link}}" style="height: 130px;width: 180px;margin-top: 15px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    <iframe src="{{content.reference_link}}" style="height: 130px;width: 180px;margin-top: 10px;margin-left: 15px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                               {%elif content.content_type==93 or content.content_type==97 %}  
                               <audio controls style="margin-top: 60px;width:180px;">
                                       <source src="{{content.reference_link}}">

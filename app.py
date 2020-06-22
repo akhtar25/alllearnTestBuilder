@@ -3450,8 +3450,11 @@ def testBuilder():
     form.chapter_num.choices= ''
     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    test_papers = MessageDetails.query.filter_by(category='Test type').all()
     # print(request.form['class_val'])
     # print(request.form['subject_id'])
+    available_class = "select distinct class_val,class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' order by class_sec_id"
+    available_class = db.session.execute(text(available_class)).fetchall()
     if request.method=='POST':
         if request.form['test_date']=='':
             # flash('Select Date')
@@ -3468,7 +3471,95 @@ def testBuilder():
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('testBuilder.html',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
-    return render_template('testBuilder.html',form=form,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+    return render_template('testBuilder.html',form=form,available_class=available_class,test_papers=test_papers,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+
+@app.route('/filterQuestionsfromTopic',methods=['GET','POST'])
+def filterQuestionsfromTopic():
+    topics = request.get_json()
+    for topic in topics:
+        print('topic:'+str(topic))
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    test_type = request.args.get('test_type')
+    print('Class feedback:'+str(test_type))
+    questions = []
+    if topics:
+        for topic in topics:
+            if test_type == 'Class Feedback':
+                if class_val!=None:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic,question_type='MCQ1').all()
+                else:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic,question_type='MCQ1').all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
+            else:
+                if class_val!=None:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).all()
+                else:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).all()   
+            questions.append(questionList)
+    else:
+        if test_type == 'Class Feedback':
+            if class_val!=None:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',question_type='MCQ1').all()
+            else:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,question_type='MCQ1').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',question_type='MCQ1').all()
+        else:
+            if class_val!=None:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
+            else:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N').all() 
+        return render_template('testBuilderQuestions.html',questions=questionList)
+    if len(questionList)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        return render_template('testBuilderQuestions.html',questions=questions,flagTopic = 'true')
+
+
+@app.route('/fetchRequiredQues',methods=['GET','POST'])
+def fetchRequiredQues():
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    
+    if class_val!=None:
+        if subject_id!=None:
+            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
+        else:
+            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
+    else:
+        if subject_id!=None:
+            questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
+        else:
+            questionList = QuestionDetails.query.filter_by(archive_status='N').all()
+    if len(questionList)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        print('returning template'+ str(questionList))
+        return render_template('testBuilderQuestions.html',questions=questionList)
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])  
 def testBuilderQuestions():
@@ -3487,16 +3578,28 @@ def testBuilderQuestions():
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
-    print('Inside Test builder file upload Test Type value:'+str(session.get('test_type_val',None)))
+    class_val = request.args.get('class_val')
+    test_type = request.args.get('test_type')
+    subject_id = request.args.get('subject_id')
+    subject_name = MessageDetails.query.filter_by(msg_id=subject_id).first()
+    date = request.args.get('date')
+    print('class_val:'+str(class_val))
+    print('test_type:'+str(test_type))
+    print('subject_id:'+str(subject_id))
+    print('Date:'+str(date))
+    print('Inside Test builder file upload Test Type value:'+str(test_type))
     #question_list=request.get_json()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
     data=request.get_json()
     question_list=data[0]
     count_marks=data[1]
     document = Document()
+    print('Date')
+    print(date)
     document.add_heading(schoolNameVal(), 0)
-    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
-    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(date) , 1)
+    document.add_heading("Subject : "+str(subject_name.description),2)
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     #For every selected question add the question description
@@ -3523,7 +3626,7 @@ def testBuilderFileUpload():
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
     #naming file here
-    file_name=str(teacher_id.school_id)+str(session.get('class_val',"0"))+str(session.get('sub_name',"0"))+str(session.get('test_type_val',"0"))+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+    file_name=str(teacher_id.school_id)+str(class_val)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
     file_name = file_name.replace(" ", "")
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
@@ -3537,9 +3640,9 @@ def testBuilderFileUpload():
     ###### Inserting record in the Test Detail table
     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
 
-    testDetailsUpd = TestDetails(test_type=session.get('test_type_val',None), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        board_id='1001', subject_id=int(session.get('sub_id',None)),class_val=session.get('class_val',"0"),date_of_creation=datetime.now(),
-        date_of_test=str(session.get('date',None)), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+    testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
+        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.now(),
+        date_of_test=str(date), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
     db.session.add(testDetailsUpd)
     db.session.commit()
 
@@ -4284,10 +4387,9 @@ def contentManager():
     formContent.topics.choices = ''    
     formContent.content_type.choices = ''    
     form=QuestionBankQueryForm() # resusing form used in question bank 
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= ''
-    form.chapter_num.choices= ''
-    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    available_class = "select distinct class_val,class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' order by class_sec_id"
+    available_class = db.session.execute(text(available_class)).fetchall()
+ 
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
@@ -4304,7 +4406,7 @@ def contentManager():
     if user_type_val==134:
         return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -4369,6 +4471,151 @@ def contentDetails():
             print("Content List"+str(c.content_name))    
         
         return render_template('_contentDetails.html',contents=contentDetail)
+
+@app.route('/filterContentfromTopic',methods=['GET','POST'])
+def filterContentfromTopic():
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_value = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    print(class_value)
+    print(subject_id)
+    topic_list = request.get_json()
+    for topic in topic_list:
+        print(topic)
+        if topic:
+            print('topic exist')
+        else:
+            print('topic not exist')
+    # contentList = "select *from content_detail cd where is_private = 'N' "
+    # contentList = contentList + " and archive_status = 'N' "
+    content = ''
+    for topic in topic_list:
+        if class_value != None:
+            if subject_id!=None:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+            else:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+        else:
+            if subject_id!=None:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+            else:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.topic_id='"+str(topic)+"') order by content_id desc limit 10"
+
+    if content:
+        contentDetail = db.session.execute(text(content)).fetchall()
+    else:
+        return jsonify(["NS"])
+    
+    if len(contentDetail)==0:
+        print("No data present in the content manager details")
+        return jsonify(["NA"])
+    else:
+        print(len(contentDetail))
+        for c in contentDetail:
+            print("Content List"+str(c.content_name)) 
+        flag = 'true'
+        return render_template('_contentDetails.html',contents=contentDetail,flag=flag)
+
+@app.route('/recentContentDetails',methods=['GET','POST'])
+def recentContentDetails():
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_value = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    print(class_value)
+    print(subject_id)
+    # contentList = "select *from content_detail cd where is_private = 'N' "
+    # contentList = contentList + " and archive_status = 'N' "
+
+    if class_value != None:
+        if subject_id!=None:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' ) order by content_id desc"
+        else:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' ) order by content_id desc"
+    else:
+        if subject_id!=None:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.subject_id= '"+str(subject_id)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.subject_id= '"+str(subject_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.subject_id= '"+str(subject_id)+"' ) order by content_id desc"
+        else:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N') order by content_id desc limit 10"
+
+    contentDetail = db.session.execute(text(content)).fetchall()
+    
+    if len(contentDetail)==0:
+        print("No data present in the content manager details")
+        return jsonify(["NA"])
+    else:
+        print(len(contentDetail))
+        for c in contentDetail:
+            print("Content List"+str(c.content_name)) 
+        flag = 'true'
+        return render_template('_contentDetails.html',contents=contentDetail,flag=flag)
+    # if contentList:
+    #     return render_template('_contentManagerDetails.html',contents=contentList)
+    # else:
+    #     return jsonify(["NA"])
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
@@ -5654,7 +5901,36 @@ def questionFile():
     # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
 
+@app.route('/addChapterTopics',methods=['GET','POST'])
+def addChapterTopics():
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
 
+    query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
+    query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
+    query = query + "inner join book_details bd on td.book_id = bd.book_id "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' order by td.chapter_num "
+    chapters = db.session.execute(text(query)).fetchall()
+    chaptersArray = []
+    for chapter in chapters:
+        chaptersArray.append(str(chapter.book_name)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(chapter.topic_id))
+    
+    return jsonify([chaptersArray])
+
+
+@app.route('/addClass',methods=['GET','POST'])
+def addClass():
+    class_val = request.args.get('class_val')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),board_id=board_id.board_id,school_id=teacher_id.school_id).all()
+    subjectArray = []
+    for subject in subjects:
+        subject_name = "select description as subject_name from message_detail where msg_id='"+str(subject.subject_id)+"'"
+        subject_name = db.session.execute(text(subject_name)).first()
+        subjectArray.append(str(subject.subject_id)+":"+str(subject_name.subject_name))
+
+    return jsonify([subjectArray])
 
 @app.route('/topperList')
 def topperList():
@@ -5707,7 +5983,7 @@ def subject_list(class_val):
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
+        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
         subject_name_list=[]
 
         for id in subject_id:

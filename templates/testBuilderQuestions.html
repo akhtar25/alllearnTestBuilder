@@ -14,8 +14,48 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% if flagTopic=='true' %}
                     {% for q in questions %}
                     {% for question in q %}
+                    <tr>
+                        <td>
+                                {% if q.question_type=='MCQ1' %}                        
+                                <ul>
+                                        <li>
+                                          <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                        
+                                         <!-- Modal Structure  -->                                         
+                                        <div id="modal2" class="modal" style="background-color:white;">
+                                                <div id="questionloader1" style="display: none;">
+                                                        <img src="../static/images/loader.gif">
+                                                    </div>
+                                            <div class="modal-content" id="content" style="display:none;">
+                                            <p><div id="questionDataList"></div> </p> 
+                                            
+                                            </div>
+                                        </div> 
+                                        </li>
+                                </ul>
+                        {% else %}
+                            <h5>
+                                {{ question.question_description }}
+                            </h5>
+                        {% endif %}
+                            
+                        </td>
+                        <td> {{ question.question_type }} </td>
+                        <td><label for="{{ question.question_id }}">
+                                <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
+                                    value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
+                            </label>
+                        </td>
+
+                        <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
+                                id="{{ question.question_id }}select"></td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                    {% else %}
+                    {% for question in questions %}
                     <tr>
                         <td>
                                 {% if question.question_type=='MCQ1' %}                        
@@ -52,7 +92,7 @@
                                 id="{{ question.question_id }}select"></td>
                     </tr>
                     {% endfor %}
-                    {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -60,6 +100,11 @@
 </div> 
 <div style="float:right; width:130px; border:1px solid;">
     <p style="font-weight:bold;">Total Marks : <span id='marks'></span></p>
+</div>
+<div class="col-sm-2">
+    <div class="input-field col s12">
+    <input type="text" class="datepicker" id="test_date" name="test_date" placeholder="Exam Date">
+    </div>
 </div>
 <p><button id="questionSubmitBtn" style="margin-top:22px; margin-left:5px;"
         class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></p>
@@ -79,8 +124,11 @@
   // Or with jQuery
 
 
+
+
   $(document).ready(function(){
     $('.modal').modal();
+    $('#questionSubmitBtn').prop('disabled',true);
   });
 
 
@@ -142,4 +190,10 @@
                     document.getElementsByTagName("head")[0].appendChild(script);
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
                     })();
+
+                    $(document).ready(function(){
+                        $('.datepicker').datepicker();
+                    });
+
+                    
 </script>

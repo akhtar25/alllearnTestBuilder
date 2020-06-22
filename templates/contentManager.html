@@ -1,71 +1,40 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
     <h3>Content Manager</h3>
-    <form action="" method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
         <div class="form-group " style="padding-top:5px;">
             <div class="row">
-                <div class="col-sm-3">
-                    <div style="width:250px;">
-                        {{ form.class_val.label(class='labelsize') }}
-                        <br>
-                        {% if form.class_val.errors %}
-                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.class_val.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.class_val(class='form-control',id='classVal') }}
-                        {% endif %}
-                    </div>
+                <div class="col-sm-2">
+                  <div class="input-field col s12">
+                    <select id="selectClass">
+                      <option value="" disabled selected>Select Class</option>
+                      {% for class in available_class %}
+                      <option value="{{class.class_val}}">{{class.class_val}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
                 </div>
                 <div class="col-sm-2">
-                        <div style="width:150px;">
-                            {{ form.subject_name.label(class='labelsize') }}
-                            <div id='loader' style='display: none; float: right;'>
-                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                            </div>
-                            <br>
-                            {% if form.subject_name.errors %}
-                            {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.subject_name.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.subject_name(class='form-control',id='subId') }}
-                            {% endif %}
-                        </div>
+                  <div class="input-field col s12">
+                    <select id="selectSubject">
+                      <option value="" disabled selected>Select Subject</option>
+                      
+                    </select>
+                  </div>
                     </div>
                 <div class="col-sm-3">
-                        <div style="width:250px;">
-                            {{ form.chapter_num.label(class='labelsize') }}
-                            <div id='loader1' style='display: none; float: right;'>
-                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                            </div>
-                            <br>
-                            {% if form.chapter_num.errors %}
-                            {{ form.chapter_num(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.chapter_num.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.chapter_num(class='form-control',id='chapno') }}
-                            {% endif %}
-                        </div>
+                  <div class="input-field col s12">
+                    <select multiple id="selectChapters">
+                      <option value="" disabled selected>Select Chapters and topics</option>
+                      
+                    </select>
+                  </div>
                     </div>
                 <div class="col-sm-2">
                     <p><button style="margin-top:22px; margin-left:5px;"
-                            class="btn waves-light green lighten-1 white-text" id="topic" type="submit">Load Topics</button></p>
+                            class="btn waves-light green lighten-1 white-text" id="filter">Filter Selected Topics</button></p>
                 </div>
             </div>
         </div>
-    </form>
         {% if user_type_val!='134' %}
         <div class="addContentDiv">
             <button style="margin-left: 1000px;"
@@ -217,82 +186,264 @@
             {% endif %}
         </div>
         <span id="message" style="color:Red;display: none;float:left;"></span>
-        <div class="col-sm-9" id="contentDiv">
-                <div id="loaderDiv" style="display: none;padding-left: 300px;">
-                    <img src="../static/images/loader.gif">
-                </div>
+        <div class="col-sm-9" id="contentDiv" style="margin-left: 200px;width: 750px;" >
+                
         </div>
+        <div id="loaderDiv" style="display: none;padding-left: 300px;margin-top: 80px;margin-bottom: 100px;">
+          <img src="../static/images/loader.gif">
+      </div>
     </div>
     <div id="filebox" style="display: none;">
     </div>
 </div>
 <script type="text/javascript">
-    var count_marks = 0;
-    var class_select = document.getElementById("classVal");
-    var subject_select = document.getElementById("subId");
-    var chapter_num_select = document.getElementById("chapno");
-    var optionHTMLClass = '';
-    var optionHTMLSubject = '';
-    var optionHTMLChapter = '';
-    $(document).ready(function(){
-        $('#classVal').val("na");
-        console.log("CLass Value:"+class_select.value);
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
-        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-        chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+
+$(document).ready(function(){
+    $('#selectClass').formSelect();
+    $('#selectSubject').formSelect();
+    $('#selectChapters').formSelect();
+    $('#filter').prop('disabled', true);
+  });
+
+
+  var select_class = document.getElementById('selectClass');
+  var select_subject = document.getElementById('selectSubject');
+  
+  select_class.onchange = function(){
+    console.log('inside select class function');
+    var class_val = select_class.value;
+   
+    $.ajax({
+            url: "/addClass?class_val="+class_val,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+              console.log('inside success');
+                console.log(response);
+                responseArr = response.toString().split(',');
+                var optionHTML = '<option value="" disabled selected>Select Subject</option>';
+              for(var i=0;i<responseArr.length;i++){
+                var subject_id = responseArr[i].toString().split(':')[0];
+                var subject_name = responseArr[i].toString().split(':')[1];
+                console.log(subject_id);
+                console.log(subject_name);
+                optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';
+                
+              }
+              console.log(optionHTML);
+              console.log(select_subject);
+              select_subject.innerHTML = optionHTML;
+              $('#selectSubject').formSelect();
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading subject");
+            }
+        });
+
+        // Load Data on class onchange
+        $('#loaderDiv').show();
+        $('#contentDiv').hide();
+        $.ajax({
+            url: "/recentContentDetails?class_val="+class_val,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                // $("#loaderDiv").hide();
+                console.log(response);
+                if (response=="NA"){
+                    // $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
+                    $("#contentDiv").html('<h3 class="grey-text">No recent content found</h5>');
+                }
+                else{
+                $("#contentDiv").html(response);
+                
+            }
+            $('#loaderDiv').hide();
+            $('#contentDiv').show();
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
+            }
+        });
+  }
+  var select_chapter = document.getElementById('selectChapters');
+  select_subject.onchange = function(){
+    var subject_id = select_subject.value;
+    var class_val = select_class.value; 
+    $.ajax({
+      url: "/addChapterTopics?class_val="+class_val+"&subject_id="+subject_id,
+      type:"POST",
+      contentType:"/application/json",
+      data:"",
+      success: function(response){
+        responseArr = response.toString().split(',');
+        var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
+        var bookNames = []; 
+        for(var i=0;i<responseArr.length;i++){
+          var book_name = responseArr[i].toString().split(':')[0];
+          var topic_name = responseArr[i].toString().split(':')[1];
+          var chapter_name = responseArr[i].toString().split(':')[2];
+          var topic_id = responseArr[i].toString().split(':')[3];
+          
+                      
+                      
+                      if(bookNames.includes(book_name)==false){
+                        console.log(bookNames);
+                        console.log('value:'+bookNames.includes(book_name));
+                        optionHTML +=  '<optgroup label="'+book_name+'"></optgroup>';
+                      
+                      }  
+                      bookNames.push(book_name);                  
+                optionHTML += '<option value="'+topic_id+'" name="topic_ids"> '+chapter_name+' - '+topic_name+'</option></optgroup>';
+        }
+        select_chapter.innerHTML = optionHTML;
+        $('#selectChapters').formSelect();
+      },
+      error: function(xhr){
+        window.alert('error occured while loading chapters');
+      }
     });
+
+    // load data on subject onchange
+    $('#loaderDiv').show();
+    $('#contentDiv').hide();
+    $.ajax({
+            url: "/recentContentDetails?class_val="+class_val+"&subject_id="+subject_id,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                // $("#loaderDiv").hide();
+                console.log(response);
+                if (response=="NA"){
+                    // $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
+                    $("#contentDiv").html('<h3 class="grey-text">No recent content found</h5>');
+                }
+                else{
+                $("#contentDiv").html(response);
+            }
+            $('#loaderDiv').hide();
+            $('#contentDiv').show();
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
+            }
+        });
+
+
+  }
+
+  select_chapter.onchange = function(){
+    var arr = select_chapter.value;
+    if(arr.length!=0){
+    $('#filter').prop('disabled', false);
+    }else{
+      $('#filter').prop('disabled', true);
+    }
+  }
+
+  $('#filter').click(function(){
+    $('#loaderDiv').show();
+    $('#contentDiv').hide();
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var topics = $('#selectChapters').val();
+    alert(topics);
+    var topicList = JSON.stringify(topics);
+    $.ajax({
+            url: "/filterContentfromTopic?class_val="+class_val+"&subject_id="+subject_id,
+            type: "POST",
+            contentType: "application/json",
+            data: topicList,
+            success: function (response) {
+                // $("#loaderDiv").hide();
+                console.log(response);
+                if (response=="NA"){
+                    // $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
+                    $("#contentDiv").html('<h3 class="grey-text">No recent content found</h5>');
+                }else
+                {
+                $("#contentDiv").html(response);
+            }
+            $('#loaderDiv').hide();
+            $('#contentDiv').show();
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
+            }
+        });
+  });
+
+
+
+    // var count_marks = 0;
+    // var class_select = document.getElementById("classVal");
+    // var subject_select = document.getElementById("subId");
+    // var chapter_num_select = document.getElementById("chapno");
+    // var optionHTMLClass = '';
+    // var optionHTMLSubject = '';
+    // var optionHTMLChapter = '';
+    // $(document).ready(function(){
+    //     $('#classVal').val("na");
+    //     console.log("CLass Value:"+class_select.value);
+    //     optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+    //     class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+    //     optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+    //     subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+    //     optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+    //     chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+    // });
     
-    class_select.onchange = function()  {
-        class_val = class_select.value;
+    // class_select.onchange = function()  {
+    //     class_val = class_select.value;
          
-         $("#loader").show();
-         console.log('Inside class value Onchange')
-         fetch('/questionBuilder/' + class_val).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader").hide();    
-                     var optionHTML = '';
-                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
-                     for (var subject of data.subjects) {
-                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-                 }
-                 subject_select.innerHTML = optionHTML;
-             })
+    //      $("#loader").show();
+    //      console.log('Inside class value Onchange')
+    //      fetch('/questionBuilder/' + class_val).then(function(response) {
+    //          response.json().then(function(data) {
+    //                  $("#loader").hide();    
+    //                  var optionHTML = '';
+    //                  optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+    //                  for (var subject of data.subjects) {
+    //                  optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+    //              }
+    //              subject_select.innerHTML = optionHTML;
+    //          })
              
-         });
+    //      });
          
-     }
+    //  }
     
      
-     subject_select.onchange=function()  {
-        class_val = class_select.value;
-        subject_id = subject_select.value;
-        console.log('Inside subject_select on change')
-        $("#loader1").show();
-        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
-            response.json().then(function(data){
-                $("#loader1").hide();
-                var optionHTML = '';
-                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
-                for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
-                  }
-                  chapter_num_select.innerHTML =  optionHTML;
-            })
-        });
-     }
+    //  subject_select.onchange=function()  {
+    //     class_val = class_select.value;
+    //     subject_id = subject_select.value;
+    //     console.log('Inside subject_select on change')
+    //     $("#loader1").show();
+    //     fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+    //         response.json().then(function(data){
+    //             $("#loader1").hide();
+    //             var optionHTML = '';
+    //             optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+    //             for (var chapterNo of data.chapterNum){
+    //                 optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
+    //               }
+    //               chapter_num_select.innerHTML =  optionHTML;
+    //         })
+    //     });
+    //  }
 
-     $(document).ready(function(){      
-        var optionHTMLChapter='';
-        classValue = document.getElementById('classVal').value;
-        if(classValue=='na'){
-            var val = 'na';
-            optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-        chapter_num_select.innerHTML = optionHTMLChapter;
-        }
-     });
+    //  $(document).ready(function(){      
+    //     var optionHTMLChapter='';
+    //     classValue = document.getElementById('classVal').value;
+    //     if(classValue=='na'){
+    //         var val = 'na';
+    //         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+    //     chapter_num_select.innerHTML = optionHTMLChapter;
+    //     }
+    //  });
 
      $('#topic').click(function(){
             classValue = document.getElementById('classVal').value;
@@ -324,32 +475,19 @@
             
         });
      
-     $("#loadContentBTN").click(function(){
-        var topic_list = document.getElementsByName('topicCheckbox');
-        var checkboxesChecked = [];
-        for (var i = 0; i < topic_list.length; i++) {
-            // And stick the checked ones onto an array...
-            if (topic_list[i].checked) {
-                checkboxesChecked.push(topic_list[i].value);
-            }
-        }
-        console.log(checkboxesChecked[0]);
-        checkboxesChecked = JSON.stringify(checkboxesChecked);
-        console.log(checkboxesChecked);
+     $(document).ready(function(){
+        
         $.ajax({
-            url: "/contentManagerDetails",
+            url: "/recentContentDetails",
             type: "POST",
             contentType: "application/json",
-            data: checkboxesChecked,
-            beforeSend: function() {             
-              $("#loaderDiv").show();
-           },
+            data: "",
             success: function (response) {
-                $("#loaderDiv").hide();
+                // $("#loaderDiv").hide();
                 console.log(response);
                 if (response=="NA"){
-                    console
-                    $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
+                    // $("#contentDiv").html('<h3 class="grey-text">No content found under the selected topic(s).</h3><br><h5>You may add new content by clicking on the \'Add Content\' button</h5>');
+                    $("#contentDiv").html('<h3 class="grey-text">No recent content found</h5>');
                 }
                 else{
                 $("#contentDiv").html(response);
@@ -792,6 +930,10 @@ selected_class.onchange = function()  {
     (() => {
       document.getElementById('file-input').onchange = initUpload;
     })();
+
+
+
+   
 </script>
 
 {%endblock%}
