@@ -3459,7 +3459,7 @@ def testBuilder():
     test_papers = MessageDetails.query.filter_by(category='Test type').all()
     # print(request.form['class_val'])
     # print(request.form['subject_id'])
-    available_class = "select distinct class_val,section from class_section where school_id='"+str(teacher_id.school_id)+"'"
+    available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
     available_class = db.session.execute(text(available_class)).fetchall()
     if request.method=='POST':
         if request.form['test_date']=='':

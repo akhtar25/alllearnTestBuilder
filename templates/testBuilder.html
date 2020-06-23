@@ -9,7 +9,7 @@
                         <select id="selectClass">
                           <option value="" disabled selected>Select Class</option>
                           {% for class in available_class %}
-                          <option value="{{class.class_val}}">{{class.class_val}} - {{class.section}}</option>
+                          <option value="{{class.class_val}}">{{class.class_val}}</option>
                           {% endfor %}
                         </select>
                       </div>
@@ -69,7 +69,7 @@
             {% endif %}
         </div>
         <span id="message" style="color:Red;display: none;float:left;"></span>
-        <div class="col-sm-9" id="questions" style="margin-left: 100px;">
+        <div class="col-sm-9" id="questions" style="">
             
         </div>
         <div id="questionloader" style="display: none;padding-left: 300px;margin-top: 80px;margin-bottom: 100px;">
