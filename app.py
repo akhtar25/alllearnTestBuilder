@@ -3459,7 +3459,7 @@ def testBuilder():
     test_papers = MessageDetails.query.filter_by(category='Test type').all()
     # print(request.form['class_val'])
     # print(request.form['subject_id'])
-    available_class = "select distinct class_val,class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' order by class_sec_id"
+    available_class = "select distinct class_val,section from class_section where school_id='"+str(teacher_id.school_id)+"'"
     available_class = db.session.execute(text(available_class)).fetchall()
     if request.method=='POST':
         if request.form['test_date']=='':
@@ -3512,8 +3512,9 @@ def filterQuestionsfromTopic():
                     if subject_id!=None:
                         questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).all()
                     else:
-                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).all()   
-            questions.append(questionList)
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).all() 
+            if questionList:  
+                questions.append(questionList)
     else:
         if test_type == 'Class Feedback':
             if class_val!=None:
@@ -3538,7 +3539,7 @@ def filterQuestionsfromTopic():
                 else:
                     questionList = QuestionDetails.query.filter_by(archive_status='N').all() 
         return render_template('testBuilderQuestions.html',questions=questionList)
-    if len(questionList)==0:
+    if len(questions)==0:
         print('returning 1')
         return jsonify(['1'])
     else:
@@ -4407,7 +4408,7 @@ def contentManager():
     formContent.topics.choices = ''    
     formContent.content_type.choices = ''    
     form=QuestionBankQueryForm() # resusing form used in question bank 
-    available_class = "select distinct class_val,class_sec_id from class_section where school_id='"+str(teacher_id.school_id)+"' order by class_sec_id"
+    available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
     available_class = db.session.execute(text(available_class)).fetchall()
  
     if request.method=='POST':
@@ -4509,6 +4510,8 @@ def filterContentfromTopic():
     # contentList = "select *from content_detail cd where is_private = 'N' "
     # contentList = contentList + " and archive_status = 'N' "
     content = ''
+    contents = []
+    l=1
     for topic in topic_list:
         if class_value != None:
             if subject_id!=None:
@@ -4552,21 +4555,25 @@ def filterContentfromTopic():
                 content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
                 content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
                 content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.topic_id='"+str(topic)+"') order by content_id desc limit 10"
-
-    if content:
         contentDetail = db.session.execute(text(content)).fetchall()
-    else:
-        return jsonify(["NS"])
-    
-    if len(contentDetail)==0:
+        if contentDetail:
+            contents.append(contentDetail)
+
+    # if contents:
+    #     contentDetail = db.session.execute(text(content)).fetchall()
+    # else:
+    #     return jsonify(["NS"])
+    print('length of list:'+str(len(contentDetail)))
+    if len(contents)==0:
         print("No data present in the content manager details")
         return jsonify(["NA"])
     else:
-        print(len(contentDetail))
-        for c in contentDetail:
-            print("Content List"+str(c.content_name)) 
+        print(len(contents))
+        # for c in contentDetail:
+        #     print("Content List"+str(c.content_name)) 
         flag = 'true'
-        return render_template('_contentDetails.html',contents=contentDetail,flag=flag)
+        flagTopic = 'true'
+        return render_template('_contentDetails.html',contents=contents,flag=flag,flagTopic=flagTopic)
 
 @app.route('/recentContentDetails',methods=['GET','POST'])
 def recentContentDetails():
@@ -5932,8 +5939,20 @@ def addChapterTopics():
     query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' order by td.chapter_num "
     chapters = db.session.execute(text(query)).fetchall()
     chaptersArray = []
+    i=1
     for chapter in chapters:
-        chaptersArray.append(str(chapter.book_name)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(chapter.topic_id))
+        if len(chapters)>1:
+            book = chapter.book_name
+            ch = chapter.topic_id
+            if i==1:
+                ch = str(ch)+"/"
+            elif i==len(chapters):
+                book = "/"+str(book)
+            else:
+                book = "/"+str(book)
+                ch = str(ch)+"/"
+            i=i+1
+        chaptersArray.append(str(book)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(ch))
     
     return jsonify([chaptersArray])
 

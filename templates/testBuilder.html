@@ -9,7 +9,7 @@
                         <select id="selectClass">
                           <option value="" disabled selected>Select Class</option>
                           {% for class in available_class %}
-                          <option value="{{class.class_val}}">{{class.class_val}}</option>
+                          <option value="{{class.class_val}}">{{class.class_val}} - {{class.section}}</option>
                           {% endfor %}
                         </select>
                       </div>
@@ -170,7 +170,7 @@ $(document).ready(function(){
       contentType:"/application/json",
       data:"",
       success: function(response){
-        responseArr = response.toString().split(',');
+        responseArr = response.toString().split('/,/');
         var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
         var bookNames = []; 
         for(var i=0;i<responseArr.length;i++){
@@ -443,7 +443,7 @@ $('#filter').click(function(){
     var test_type = select_test.value;
     var date = $('#test_date').val();
     topics = $('#selectChapters').val();
-        $("#questionSubmitBtn").attr("disabled", true);
+        $("#questionSubmitBtn").prop("disabled", true);
         $("#questionSubmitLoader").show();
         var questions_list = document.getElementsByName('questionsCheckbox');
         var checkboxesChecked = [];
@@ -486,7 +486,7 @@ $('#filter').click(function(){
             success: function (response) {
                 $("#filebox").show();
                 $("#filebox").html(response);
-                $("#questionSubmitBtn").attr("disabled", false);
+                $("#questionSubmitBtn").prop("disabled", true);
                 $("#questionSubmitLoader").hide();
             },
             error: function (xhr) {

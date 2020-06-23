@@ -278,7 +278,7 @@ $(document).ready(function(){
       contentType:"/application/json",
       data:"",
       success: function(response){
-        responseArr = response.toString().split(',');
+        responseArr = response.toString().split('/,/');
         var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
         var bookNames = []; 
         for(var i=0;i<responseArr.length;i++){
@@ -350,7 +350,6 @@ $(document).ready(function(){
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var topics = $('#selectChapters').val();
-    alert(topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
             url: "/filterContentfromTopic?class_val="+class_val+"&subject_id="+subject_id,
