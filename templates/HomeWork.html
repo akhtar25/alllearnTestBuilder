@@ -1,0 +1,253 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <div class="hold-transition skin-blue sidebar-mini">  
+        <div id="sidebarDiv" >   
+            <div class="main-sidebar" style="margin-top:15px;">
+                <section class="sidebar">                     
+                      <ul class="sidebar-menu table-responsive" data-widget="tree">
+                          {% for singleClass in distinctClasses %}
+                                 <li class="treeview">
+                                   
+                                   <a href="#">
+                                    <i class="glyphicon glyphicon-education"></i>
+                                    <span>Class {{singleClass[0]}}</span>
+                                    <span class="pull-right-container">
+                                      <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                                    </span>
+                                  </a>                                                    
+                                   <ul class="treeview-menu">                            
+                                      {% for classsection in classSections %}
+                                         {% if classsection.class_val|string == singleClass[0]|string %}
+                                     <li><a href="{{ url_for('HomeWork',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                                      {% endif %}
+                                     {% endfor %}
+                                   </ul>                                                      
+                                 </li>
+                                 {% endfor %}                
+                 <ul>                  
+                </section>
+                <!-- /.sidebar -->
+            </div>
+        </div>
+    <div class="content-wrapper" style="background-color: white;">
+    <section class="content">
+        <div class="box-header">
+            <h3 class="box-title">HomeWork</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>        
+          </div>
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div>
+            <div id="surveyBox" name="surveyBox">
+            </div>
+            <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
+                    class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
+            <a href="#createModal1" id="addSurveyBTN" class="modal-trigger btn green right">Add HomeWork</a>
+            <br>
+        </div>
+        <div id="buttonbox" style="display:none;">
+            <p><button class="btn waves-light green lighten-1 white-text"
+                    style="margin-top: 5px; margin-top:5px; margin-left:550px;" type="submit" id="submit" name="submit"
+                    value="submit">Confirm</button></p>
+        </div>
+    </form>
+    <br>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#teacherRowsDiv">HomeWork</a></li>
+        <!--<li class="tab col s3"><a href="#newPayrollDiv">Payroll Data</a></li>-->
+        <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
+    </ul>
+    <br>
+
+    <div id="surveyRowsDiv">
+        <table class="highlight" id="surveyTable">
+            <thead>              
+                <th>HomeWork</th>
+                <th>Student Responses</th>
+                <th>Question Count</th>
+                <th>Created On</th>
+                <th>Delete</th>
+            </thead>
+            <tbody>
+                {%for homeworkRow in homeworkDetailRow%}
+                <tr id="{{homeworkRow.homework_id}}">         
+                    <td>
+                        <a href="{{url_for('homeworkReview',homework_id=homeworkRow.homework_id)}}">{{homeworkRow.homework_name}}</a>
+                    </td>
+                    <td>{{homeworkRow.student_responses}}</td>
+                    <td>{{homeworkRow.question_count}}</td>
+                    <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
+                    <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                        <i class="material-icons small">delete</i></a></td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+
+        <br><br>
+    </div>
+</section>
+</div>
+</div>
+</div>
+
+<div id="displaySurveyModal" class="modal" style="background-color: white;padding-top: 20px;">
+    <div class="modal-content" style="height:100%">
+        </div>
+</div>
+
+<div id="createModal1" class="modal" style="background-color: white;padding-top: 20px;">
+    <div class="modal-content" style="height:100%;overflow-y: auto;">
+      <span class="red-text" id="errorMSGSpan"></span>
+        <form id="addSurveyForm">
+            <input type="text" style="font-size:xx-large" name='homeworkName' id="surveyName" placeholder="HomeWork Name" required>
+            <input type="hidden" name="class" value="{{qclass_val}}"/>
+            <input type="hidden" name="section" value="{{qsection}}"/>
+            <h4 class="grey-text">HomeWork Questions/ Tasks</h4>
+            <ol><div id="questionDiv" style="max-width: 80%;"></div></ol>
+            <a href="#" id="addQuestionBTN">
+                <i class="material-icons" class="green center">add_circle</i> 
+                <span style="font-size: large;">Add Question</span></a>
+            <br><br>
+            <div>
+                <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="initUpload();"/><br>
+                <input type="hidden" id="homeworkContent" name="homeworkContent" value="">
+                <a href="#" id="addHWDataBTN" class="btn green right">Create HomeWork</a>
+            </div>
+        </form>
+    </div>
+</div>
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+
+
+
+function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+      }
+      postData.append('file', file);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            console.log(url);
+            document.getElementById('homeworkContent').value = url;
+          }
+          else{
+            //window.alert("this is where the problem is");
+            $('#errorMSGSpan').html('Could not upload file.');
+            //alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      var type = file.type;
+      var ImageName = file.name;
+      console.log('File Name:'+type);
+      console.log('file type:'+ImageName);
+      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=homework`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            uploadFile(file, response.data, response.url);
+          } 
+          else{
+            $('#errorMSGSpan').html('Could not get signed URL.');           
+          }
+        }
+      };
+      xhr.send();
+    }
+    function initUpload(){
+      const files = document.getElementById('file-input').files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      console.log('FileName:'+file);
+      getSignedRequest(file);
+    }
+
+    $(document).ready(function () {
+        $('.modal').modal();
+    });
+    var clicks = 0;
+    $('#addQuestionBTN').click(function () {
+        clicks=clicks+1;        
+        $('#questionDiv').append('<li><input type="text" name="questionInput" placeholder="Add Question"><br>Optional Content URL:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="contentName" style="width:200px" placeholder="eg. Youtube video or pdf"></li>');
+    });
+
+    function contentOption(contentType){
+      document.getElementById('contentType').value=contentType.value;
+      console.log('Insert option');
+      $("#uploadContent").show();
+    }
+
+ 
+$('#addHWDataBTN').click(function($e){
+    $e.preventDefault();
+    var form = $('#addSurveyForm'); 
+    var surveyName = $('#surveyName').val();   
+    $.ajax({
+            url: "/addNewHomeWork",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+              var returnVal = String(formResponse).split(':');
+                if (returnVal[0]=='0'){                       
+                    $('#questionDiv').html('');                  
+                    $("#surveyTable tbody").append( 
+                    '<tr>'+  
+                      
+                    '<td>'+'<a href="{{url_for('homeworkReview')}}'+'?homework_id='+returnVal[1]+'">'+surveyName+'</a>'+'</td>'+
+                    '<td>0</td>'+
+                    '<td>'+clicks+'</td>'+
+                    '<td>Now</td>'+
+                    '<td>-<td>'+
+                    //'<td><a title="Delete Need" name="'+returnVal[1] + '" href="#" class=" btn-floating btn-small orange deleteBTNClass">'+
+                     //   '<i class="material-icons small">delete</i></a></td>'+
+                     '</tr>'
+                );                
+                $('#remark').val('');
+                M.toast({html: '<h4>New HomeWork Created</h4>'});
+                var elem = $('#createModal1')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+                clicks = 0;
+            }
+            else{
+                $('#errorMSGSpan').html('Error.');  
+            }
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+            }
+        });       
+});   
+
+$('.deleteBTNClass').click(function () {
+            var survey_id = $(this).attr("name");
+            $.ajax({
+                url: "/archiveHomeWork?homework_id="+survey_id,
+                type: "get",
+                data: '',
+                success: function (archiveResponse) {
+                    if (archiveResponse=='0'){
+                        var surveyWithHash = '#'+survey_id;
+                        $(surveyWithHash).remove();
+                        M.toast({html: '<h4>HomeWork deleted!</h4>'})
+                    }
+                    else{
+                        M.toast({html: '<h4>Error deleting homework!</h4>'})
+                    }                 
+                }
+            })
+        });
+</script>
+{% endblock %}

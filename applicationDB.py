@@ -160,7 +160,7 @@ class Survivor(db.Model):
 class ClassSection(db.Model):
     __tablename__ = "class_section"
     class_sec_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     section=db.Column(db.String(1),nullable=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)    
     student_count= db.Column(db.Integer,nullable=True)
@@ -185,12 +185,12 @@ class Topic(db.Model):
     #content_id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, primary_key=True)
     topic_name = db.Column(db.String(100),nullable=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     unit_num=db.Column(db.Integer, nullable=True)
     chapter_num = db.Column(db.Integer,nullable=True)
     chapter_name= db.Column(db.String(120), nullable=True)
     start_date= db.Column(db.DateTime, nullable=True)
-    end_date= db.Column(db.DateTime, nullable=True)
+    end_date= db.Column(db.DateTime, nullable=True)    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id= db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
@@ -213,7 +213,7 @@ class BoardClass(db.Model):
     board_class_id = db.Column(db.Integer,primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_det_id = db.Column(db.ForeignKey('board_detail.board_det_id'),nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
 
 
@@ -221,7 +221,7 @@ class BoardClassSubject(db.Model):
     __tablename__ = "board_class_subject"
     bcs_id = db.Column(db.Integer,primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     is_archived = db.Column(db.String(1),nullable=True)
@@ -233,7 +233,7 @@ class BoardClassSubjectBooks(db.Model):
     __tablename__ = "board_class_subject_books"
     bcsb_id = db.Column(db.Integer,primary_key=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_id = db.Column(db.ForeignKey('book_details.book_id'), nullable=True)
     is_archived = db.Column(db.String(1), nullable=True)
@@ -257,7 +257,7 @@ class StudentClassSecDetail(db.Model):
     student_class_sec_id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
-    class_val = db.Column(db.Integer, nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
     section=db.Column(db.String(1), nullable=True)
     is_current = db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)
@@ -284,7 +284,7 @@ class TopicTracker(db.Model):
 class BookDetails(db.Model):
     __tablename__ = "book_details"
     book_id = db.Column(db.Integer, primary_key=True)
-    class_val = db.Column(db.Integer,nullable=True)
+    class_val = db.Column(db.String(20),nullable=True)
     subject_id= db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     book_name= db.Column(db.String(120))
     book_link= db.Column(db.String(500)) 
@@ -299,7 +299,7 @@ class BookDetails(db.Model):
 class QuestionDetails(db.Model):
     __tablename__ = "question_details"
     question_id = db.Column(db.Integer, primary_key=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     board_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     question_description=db.Column(db.String(1000),nullable=True)
@@ -336,7 +336,7 @@ class TestDetails(db.Model):
     test_id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
-    class_val=db.Column(db.Integer,nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     test_type=db.Column(db.String(120),nullable=True)
     region_id=db.Column(db.ForeignKey('message_detail.msg_id'))    
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'))
@@ -498,6 +498,41 @@ class studentQROptions(db.Model):
     student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
     option = db.Column(db.String(1), nullable=True)
     qr_link = db.Column(db.String(200), nullable=True)
+
+# Tables for HomeWork Module
+class HomeWorkDetail(db.Model):
+    __tablename__ = "homework_detail"
+    homework_id = db.Column(db.Integer, primary_key=True)
+    homework_name = db.Column(db.String(200), nullable=False)
+    class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+    question_count = db.Column(db.Integer, nullable=False)
+    attachment = db.Column(db.String(200),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class HomeWorkQuestions(db.Model):
+    __tablename__="homework_questions"
+    sq_id = db.Column(db.Integer, primary_key=True)
+    homework_id = db.Column(db.ForeignKey('homework_detail.homework_id'),nullable=False)
+    question = db.Column(db.String(200), nullable=False)
+    ref_url = db.Column(db.String(200),nullable=True)
+    ref_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+class StudentHomeWorkResponse(db.Model):
+    __tablename__ = "student_homework_response"
+    homework_response_id = db.Column(db.Integer, primary_key=True)
+    homework_id = db.Column(db.ForeignKey('homework_detail.homework_id'),nullable=False)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'),nullable=False)
+    sq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
+    answer = db.Column(db.String(200), nullable=True)
+    teacher_remark  = db.Column(db.String(100), nullable=True)
+    last_modified_date = db.Column(db.DateTime,nullable=False)
+
+# End
 
 
 class SurveyDetail(db.Model):
@@ -796,19 +831,21 @@ class ContentDetail(db.Model):
     topic_id=db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)    
     archive_status = db.Column(db.String(1),nullable=True)
     uploaded_by = db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
-    last_modified_date=db.Column(db.DateTime)
-    class_val=db.Column(db.Integer,nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
+    class_val=db.Column(db.String(20),nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     content_type=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    
+    last_modified_date=db.Column(db.DateTime)
     
 class ModuleDetail(db.Model):
     __tablename__="module_detail"
     module_id = db.Column(db.Integer,primary_key=True)
     module_name=db.Column(db.String(100),nullable=True)
     description = db.Column(db.String(300),nullable=True)
-    page_link = db.Column(db.String(200),nullable=True)
+    module_type = db.Column(db.String(50),nullable=True)
+    module_url = db.Column(db.String(200),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 
@@ -817,6 +854,8 @@ class ModuleAccess(db.Model):
     access_id =  db.Column(db.Integer,primary_key=True)
     user_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     module_id = db.Column(db.ForeignKey('module_detail.module_id'),nullable=True)
+    module_name = db.Column(db.String(50), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
 class TagDetail(db.Model):
@@ -828,6 +867,27 @@ class TagDetail(db.Model):
     archive_status = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
+#class ScheduleDetail(db.Model):
+    #__tablename__ = "schedule_detail"
+    #slot_id = db.Column(db.Integer, primary_key=True)
+    #slot_no = db.Column(db.Integer, nullable=True)
+    #school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    #class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True) 
+    #days_name= db.Column(db.String(20))
+    #subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    #teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    #last_modified_date=db.Column(db.DateTime)
+
+class TeacherSubjectClass(db.Model):
+    __tablename__ = "teacher_subject_class"
+    teacher_subj_id = db.Column(db.Integer, primary_key=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+
 class StudentTag(db.Model):
     __tablename__="student_tag"
     stud_tag_id =  db.Column(db.Integer,primary_key=True)
@@ -835,3 +895,72 @@ class StudentTag(db.Model):
     tag_id =  db.Column(db.ForeignKey('tag_detail.tag_id'),nullable=True)
     archive_status = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
+
+
+#class InventoryDetail(db.Model):
+#    __tablename__ = "inventory_detail"
+#    inv_id = db.Column(db.Integer, primary_key=True)
+#    inv_name = db.Column(db.String(200), nullable=False)
+#    inv_description = db.Column(db.String(500), nullable=False) 
+#    inv_category = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    total_stock = db.Column(db.Float, nullable=False)
+#    stock_out = db.Column(db.Float, nullable=False)
+#    item_rate = db.Column(db.Float, nullable=False)
+#    total_cost = db.Column(db.Float, nullable=False)
+#    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+#    school_id = db.Column(db.ForeignKey('school_profile.school_id'),nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
+#
+#
+#class InventoryAllocationStudent(db.Model):
+#    __tablename__ = "inventory_allocation_stud"
+#    alloc_id = db.Column(db.Integer, primary_key=True)
+#    inv_id = db.Column(db.ForeignKey('inventory_detail.inv_id'), nullable=False)
+#    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
+#    count = db.Column(db.Float, nullable=False)
+#    allocation_type = db.Column(db.String(1), nullable=True) # P =Permanent; T=Temporary
+#    allocation_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    is_archived = db.Column(db.String(1),nullable=True)    
+#    last_modified_date=db.Column(db.DateTime, nullable=False)
+
+
+class LiveClass(db.Model):
+    __tablename__='live_class'
+    live_class_id = db.Column(db.Integer, primary_key=True)
+    class_sec_id= db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+    #chapter_num = db.Column(db.Integer, nullable=True)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)    
+    start_time = db.Column(db.DateTime, nullable = True)
+    end_time = db.Column(db.DateTime, nullable = True)
+    status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    teacher_name = db.Column(db.String(100), nullable=True)
+    conf_link = db.Column(db.String(200), nullable=True)
+    #phone_number = db.Column(db.String(30), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
+    #school_name = db.Column(db.String(100), nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+
+#class ModuleDetail(db.Model):
+#    __tablename__ = "module_mapping"
+#    module_id = db.Column(db.Integer, primary_key=True)
+#    module_name = db.Column(db.String(50), nullable=False)
+#    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+#    module_url = db.Column(db.String(200),nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)
+#
+#
+#class UserModuleMapping(db.Model):
+#    __tablename__ ="user_module_mapping"
+#    umm_id = db.Column(db.Integer, primary_key=True)
+#    user_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+#    module_id = db.Column(db.ForeignKey('module_detail.module_id'), nullable=True)
+#    module_name = db.Column(db.String(50), nullable=True)
+#    is_archived = db.Column(db.String(1),nullable=False)
+#    last_modified_date = db.Column(db.DateTime, nullable=False)

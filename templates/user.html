@@ -63,20 +63,20 @@
                         <span style="white-space: pre-line">{{user.experience}}</span>
                     </div>
                 </tr>
-                <tr>
-                    <div class="section">
-                        <h3>Assigned Classes</h3>
-                        <span style="white-space: pre-line">{{teacher.class_sec_id}}</span>
-                    </div>
-                </tr>
-                <tr>
-                    <div class="section">
-                        <h3>Subjects Taught</h3>
-                        <span style="white-space: pre-line">{{teacher.subject_name}}</span>
-                    </div>
-                </tr>
+                
 
             </table>
+            <h3>Class Subject Allocation</h3>
+            <table class="highlight">
+                {% for row in teacherData %}
+                <tr>
+                    
+                    <td>{{row.class_val}} - {{row.section}}</td>
+                    <td>{{row.subject_name}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
         </div>
 
         {% if accessRequestListRows | length > 0 %}

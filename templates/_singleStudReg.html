@@ -622,10 +622,10 @@ var class_select = document.getElementById("class_val");
   }
   
 }
-
+var c=0;
 function val(){
   console.log('Inside second function');
-  var c = 1;
+  var c = c+1;
   if(document.getElementById('guardianfname')){
     guardian_first_name2 = '';
     console.log('Guardian2 name:')
@@ -691,7 +691,7 @@ function val(){
 
     $('#submit').click(function(){
       console.log('Inside Submit button function');
-
+      
       first_name = document.getElementById('first_name').value;
       gender = document.getElementById('gender').value;
       birthdate = document.getElementById('birthdate').value;
@@ -706,11 +706,14 @@ function val(){
       section = document.getElementById('section').value;
       roll_number = document.getElementById('roll_number').value;
       school_admn_no = document.getElementById('school_admn_no').value;
-      guardian_first_name = document.getElementById('guardian_first_name').value;
+      
+      var c = val();
+      if(c==1){
+        guardian_first_name = document.getElementById('guardian_first_name').value;
       guardian_email = document.getElementById('guardian_email').value;
       guardian_phone = document.getElementById('guardian_phone').value;
       relation = document.getElementById('relation').value;
-      var c = val();
+      }
       if(c==2){
         guardian_first_name2 = document.getElementById('guardianfname').value;
         guardian_email2 = document.getElementById('guardianemail').value;

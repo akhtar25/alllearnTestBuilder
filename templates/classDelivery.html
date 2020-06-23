@@ -1,5 +1,6 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
+  <script src="../static/js/painterro-1.0.35.min.js"></script>
   <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
       <!-- sidebar: style can be found in sidebar.less -->      
@@ -9,14 +10,15 @@
           <li class="treeview">
             <a href="#">
               <i class="glyphicon glyphicon-education"></i>
+              
               <span>Class {{singleClass[0]}}</span>
               <span class="pull-right-container">
-                <span class="label label-primary pull-right">{{singleClass[1]}}</span>
+                <span class="label label-primary pull-right">{{singleClass[2]}}</span>
               </span>
             </a>
             <ul class="treeview-menu">
               {% for classsection in classsections %}
-              {% if classsection.class_val==singleClass[0] %}
+              {% if classsection.class_val|string==singleClass[0]|string %}
               <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i
                     class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
               {% endif %}
@@ -31,9 +33,32 @@
   </div>
   <!--------------------------------------------------------------------------------------------->
   <div class="content-wrapper" style="background-color: white;">
+    <div class="row" style="margin-top: 15px;">
+      <div>
+        <ul class="tabs">
+          <li class="tab col s3"><a href="#" id="whiteboardTab">Whiteboard</a></li>
+          <li class="tab col s3"><a href="#" id="bookTab">Book</a></li>
+        </ul>
+        <p class="grey-text">See whiteboard controls at the bottom</p>
+      </div>
+    </div>    
     <div class="row" style=" height:800px;">
       <section class="col-xs-8">
-        <div class="box">
+        <div id="whiteboardDiv" >         
+          <h3>
+            Whiteboard
+          </h3>
+         
+        <div id="whiteboardBox" style="width: 300; height: 800px;">
+          <script>
+            Painterro({
+              id: 'whiteboardBox',
+              activeColor: '#00ff00',
+            }).show();
+          </script>
+        </div>
+      </div>
+        <div id="bookDiv">
           <div class="box-header">
             <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;"> Class:
               {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
@@ -172,14 +197,20 @@
           </ul>
           <div class="box-footer">
               <div id="modal2" class="modal">
-                  <div class="modal-content" style="height:504px;">
+                  <div class="modal-content" style="height:504px;position: relative;overflow-y: auto;max-height: 415px;">
                     <h4 style="text-align: center;">Add Content</h4>
                     <form action="" method="POST" enctype="multipart/form-data">
                       {{ form.hidden_tag() }}
                       <div class="form-group " style="padding-top:5px;">
                         <div class="row" style="margin-left: 15px;margin-bottom: 0px;">
-                          <div class="col-sm-3" style="display:flex;">
-                              <label style="width:200px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;margin-left: -10px;margin-right:-210px;">
+                          <div class="col-sm-12" style="display:flex;">
+                              <label style="width:110px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;">
+                              <p style="margin-left:100px;">
+                                <label>
+                                  <input type="checkbox" id="public" value="Y" />
+                                  <span>public</span>
+                                </label>
+                              </p>
                           </div>
                         </div>
                         <div class="row" style="margin-left: 30px;margin-bottom: 10px;margin-top: 15px;">
@@ -306,9 +337,26 @@
 <script src="../static/js/pdfLoader.js"></script>
 <script>
 
-$(document).ready(function(){
-  $('.reference_data').css('display','block');
-});
+$(document).ready(function () {
+    $('.reference_data').css('display', 'block');
+    //$('#whiteboardDiv').hide();    
+    $('#bookDiv').hide();    
+    $('.modal').modal();
+    $('.materialboxed').materialbox();
+    $('.tabs').tabs();        
+  });
+
+
+  $('#whiteboardTab').click(function () {
+    $('#whiteboardDiv').show();
+
+    $('#bookDiv').hide();
+  });
+
+  $('#bookTab').click(function () {
+    $('#whiteboardDiv').hide();
+    $('#bookDiv').show();
+  });
 
 $('#show').click(function(){
   $('#classDetailsDiv').show();
@@ -330,10 +378,7 @@ function readUrl(input){
   }
 }
 
-$(document).ready(function(){
-    $('.modal').modal();
-    $('.materialboxed').materialbox();
-  });
+
 
 $('#topicBtn').click(function(){
   $('.reference_data').css('display','none');
@@ -553,8 +598,9 @@ selected_class.onchange = function()  {
   }
 
     var data="";
+    var public = document.querySelector('#public').checked;
     $.ajax({
-    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference,
+    url: "/loadContent?selected_class_value="+ selected_class_value + "&selected_subject_value="+ selected_subject_value+"&selected_chapter_value="+selected_chapter_value+"&selected_topic_value="+selected_topic_value+"&contentName="+contentName+"&contentTypeId="+contentTypeId+"&contentUrl="+contentUrl+"&reference="+reference+"&public="+public,
     type: "get",
     data: data,
     success: function(response) {   
@@ -562,7 +608,7 @@ selected_class.onchange = function()  {
     },
     error: function(xhr) {
     alert("error occurred while loading question");
-    }
+    } 
   }); 
             }
             
@@ -675,12 +721,6 @@ $('html, body').animate({
   });
 
 
-  // Or with jQuery
-
-  $(document).ready(function(){
-    console.log('Inside model');
-    $('.modal').modal();
-  });
 
 
     function checkedBox(){
