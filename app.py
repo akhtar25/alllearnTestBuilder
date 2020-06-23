@@ -2401,6 +2401,23 @@ def addNewSubject():
 def addNewBook():
     bookName = request.args.get('book')
     bookLink = request.args.get('bookLink')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    bookName = bookName.strip()
+    for x in bookName.lower(): 
+        if x in punctuations: 
+            bookName = bookName.replace(x, "") 
+            print(bookName)
+        else:
+            break
+    bookName = bookName.strip()
+    bookLink = bookLink.strip()
+    for x in bookLink.lower(): 
+        if x in punctuations: 
+            bookLink = bookLink.replace(x, "") 
+            print(bookLink)
+        else:
+            break
+    bookLink = bookLink.strip()
     book = bookName.title()
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
@@ -2430,7 +2447,20 @@ def checkForChapter():
     subject = request.args.get('subject')
     chapterNum = request.args.get('chapter_num')
     bookId = request.args.get('bookId')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    for x in chapterNum: 
+        if x in punctuations: 
+            chapterNum = chapterNum.replace(x, "") 
+            print(chapterNum)
+        else:
+            break
     chapterName = request.args.get('chapter_name')
+    for x in chapterName.lower(): 
+        if x in punctuations: 
+            chapterName = chapterName.replace(x, "") 
+            print(chapterName)
+        else:
+            break
     subject_id= MessageDetails.query.filter_by(description=subject).first()
     print('Book Id:'+str(bookId))
     book = BookDetails.query.filter_by(book_id=bookId).first()
@@ -2549,7 +2579,7 @@ def addNewTopic():
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
     chapter_num = request.args.get('chapter_num')
-    
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
@@ -2561,6 +2591,15 @@ def addNewTopic():
     print('Book ID:'+str(bookId.book_id))
     for topic in topics:
         print(topic)
+        topic = topic.strip()
+        for x in topic: 
+            if x in punctuations: 
+                topic = topic.replace(x, "") 
+                print(topic)
+            else:
+                break
+        topic = topic.strip()
+        topic = topic.capitalize()
         if bookId:
             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id,teacher_id=teacher_id.teacher_id)
         db.session.add(insertTopic)
@@ -2580,9 +2619,25 @@ def addNewChapter():
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
+    chapter = chapter.strip()
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    for x in chapter.lower(): 
+        if x in punctuations: 
+            chapter = chapter.replace(x, "") 
+            print(chapter)
+        else:
+            break
+    chapter = chapter.strip()
     chapter = chapter.capitalize() 
     chapter_num = request.args.get('chapter_num')
-    
+    chapter_num = chapter_num.strip()
+    for x in chapter_num: 
+        if x in punctuations: 
+            chapter_num = chapter_num.replace(x, "") 
+            print(chapter_num)
+        else:
+            break
+    chapter_num = chapter_num.strip()
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
@@ -2598,6 +2653,15 @@ def addNewChapter():
     maxChapterNum = int(maxChapterNum[0]) + 1
     for topic in topics:
         print(topic)
+        topic = topic.strip()
+        for x in topic: 
+            if x in punctuations: 
+                topic = topic.replace(x, "") 
+                print(topic)
+            else:
+                break
+        topic = topic.strip()
+        topic = topic.capitalize()
         if chapter_num:
             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
         else:
@@ -2734,11 +2798,12 @@ def syllabusBooks():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
-        print(val.book_name)
         book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
+        print(str(book_id.book_id)+':'+str(val.book_name))
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
         return jsonify([bookArray])  
@@ -2895,6 +2960,7 @@ def fetchBooks():
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
