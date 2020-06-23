@@ -16,6 +16,8 @@ import datetime as dt
 from datetime import date
 from datetime import timedelta
 from datetime import datetime
+from pytz import timezone
+from tzlocal import get_localzone
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
 from flask import g, jsonify
@@ -1822,22 +1824,27 @@ def liveClass():
     if current_user.user_type==71 or current_user.user_type==135 or current_user.user_type==139:
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id = teacherData.school_id 
+        studentDetails=""
     elif current_user.user_type==134:
-        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()    
-        school_id = studentData.school_id
-    else:
+        #studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
+        school_id = studentDetails.school_id
+    else:        
         return redirect(url_for('index'))
 
-    allLiveClassQuery = "select distinct t1.class_sec_id, t2.class_val, t2.section "
-    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, DATE(start_time) as start_time, status, teacher_name, "
+    print('##########Data:'+str(school_id))
+    allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
+    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
     allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
     allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
     allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
     allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
-    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where end_time::time<CURRENT_TIME and t1.school_id= " +str(school_id) 
-
+    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(school_id) 
+    allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"
+    
     try:
-        allLiveClasses = db.session.execute(text(allLiveClassQuery)).fetchall()
+        allLiveClasses = db.session.execute(allLiveClassQuery).fetchall()
+        print('##########Data:'+str(allLiveClasses))
     except:
         allLiveClasses = ""
 
@@ -1850,9 +1857,8 @@ def liveClass():
     #    db.session.add(liveClassData)
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
-    #    flash('New class listed successfully!')         
-    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),studentDetails=studentDetails)    
+    #    flash('New class listed successfully!')               
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now(),studentDetails=studentDetails)    
 
 #end of live class section
 
@@ -4193,7 +4199,7 @@ def leaderBoard():
     return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
 
-@app.route('/classDelivery')
+@app.route('/classDelivery',methods=['GET','POST'])
 @login_required
 def classDelivery():
     form = ContentManager()
@@ -4213,30 +4219,7 @@ def classDelivery():
     qsubject_id=request.args.get('subject_id')
     qclass_sec_id = request.args.get('class_sec_id')
     retake = request.args.get('retake')
-    #new changes under liveClass
-    qconf_link = request.args.get('conf_link')
-    qduration = request.args.get('duration')
-    #if qduration!=None and qduration!='':
-    #    end_time = datetime.now() + timedelta(hours=float(qduration))
-    #else:
-    end_time = datetime.now() + timedelta(hours=1)
-    #liveClassCheck = LiveClass.query.filter(is_archived='N', class_sec_id=qclass_sec_id, subject_id = qsubject_id, status='Active', end_time =datetime.now()).first()
-
-    liveClassQuery = "select count(*) as row_count from live_class where is_archived='N' and class_sec_id='"+str(qclass_sec_id)+"' and subject_id='"+str(qsubject_id)+"' " 
-    liveClassQuery = liveClassQuery + "and status='Active' and end_time::time>CURRENT_TIME"
-    liveClassCheck = db.session.execute(text(liveClassQuery)).first()
-    print('#################'+str(liveClassCheck))
-
-    if liveClassCheck.row_count==0:
-        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
-            start_time = datetime.today(), end_time = end_time, status = "Active", teacher_id=teacher.teacher_id, 
-            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
-            is_archived = 'N',last_modified_date = dt.datetime.now())        
-        db.session.add(liveClassData)
-        db.session.commit()  
-    #end of liveClass changes
-
-    #print('this is retake val: '+str(retake))
+  
     contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
     subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
     subName = ''
@@ -4273,7 +4256,44 @@ def classDelivery():
     topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
     topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
     topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+    # new changes for live classes
+    if request.method=='POST':
+        print('post method')
+        # print(request.form('duration'))
+        # print(request.form('conferenceLink'))
+        qconf_link = request.args.get('conf_link')
+        qduration = request.args.get('duration')
+        print(qconf_link)
+        print(qduration)
+        if qduration!=None or qduration!='':
+            print('if duration is not empty')
+            print(int(qduration))
+            end_time = datetime.now() + timedelta(hours=int(qduration))
+            print(end_time)
+        else:
+            print('if duration is empty') 
+            end_time = datetime.now() + timedelta(hours=1)
+        print('Start time')
         
+        format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+        now_utc = datetime.now(timezone('UTC'))
+        print(now_utc.strftime(format))
+    # Convert to local time zone
+        now_local = now_utc.astimezone(get_localzone())
+        print(now_local.strftime(format))
+        end_utc = end_time.now(timezone('UTC'))
+        end_local = end_time.astimezone(get_localzone())
+        print(end_local.strftime(format))
+        print('end time')
+        
+        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+            start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+            is_archived = 'N',last_modified_date = now_local.strftime(format))        
+        db.session.add(liveClassData)
+        db.session.commit() 
+        return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
     return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
 
 

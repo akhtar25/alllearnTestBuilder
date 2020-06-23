@@ -62,6 +62,7 @@
   <div class="modal-content" id="">
     <h4>Start Live Class</h4>
     <h6 id="chosenTopicDetail"></h6>
+    <form action="" id="liveClassForm" method="POST">
     <ol>
       <li><h5>Start a live session</h5>
         <a href="https://meet.google.com" target="_blank"><img src="../static/images/meet_img.png" width="150px"></a>
@@ -69,10 +70,11 @@
         OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a href="https://zoom.us/start/videomeeting" target="_blank"><img src="../static/images/zoom_img.png" width="150px"></a>
       </li>
-      <li>Enter the conference link: <input type="text" placeholder="Conference link" id="conferenceLink"></li>
-      <li>Class duration: <input type="text" placeholder="Duration in hours" id="duration"></li>
-      <a href="#" class="btn green" id="saveConfBTN">Save and Start class</a> <a class="right" href="#" id="skipAndStartBTN">Skip</a>
+      <li>Enter the conference link: <input type="text" placeholder="Conference link" id="conferenceLink" name="conferenceLink"></li>
+      <li>Class duration: <input type="text" placeholder="Duration in hours" id="duration" name="duration"></li>
+      <button class="btn waves-light green lighten-1 white-text" id="saveConfBTN" type="submit">Save and Start class</button> <a class="right" href="#" id="skipAndStartBTN">Skip</a>
     </ol>  
+  </form>
   </div>
 </div>
 
@@ -92,38 +94,47 @@
     });
   });
 
-
+ var subject_id = '';
+ var class_sec_id = '';
+ var topic_id = '';
  $('.startliveClassBTN').click(function(){
   var classParams = $(this).attr("name");
   var res = classParams.split("-");
-  //window.alert(classParams);
-  //$('#chosenTopicDetail').html(res[1]);  
-  var classDeliveryURL = "{{url_for('classDelivery')}}";
+  class_sec_id = res[0];
+  subject_id = res[1];
+  topic_id = res[2];
+
+  
+   var classDeliveryURL = "{{url_for('classDelivery')}}";
   classDeliveryURL = classDeliveryURL+ "?class_sec_id="+res[0]+"&subject_id="+res[1]+ "&topic_id="+res[2]+ "&retake=N";
   
   $('#skipAndStartBTN').attr('href',classDeliveryURL);
-  $('#saveConfBTN').attr('href',classDeliveryURL);
-  //if($('#conferenceLink').val() != '') {
-  //  classDeliveryURL=classDeliveryURL+"&conf_link"+ $('#conferenceLink').val();
-  //}  
-//
-  //
+  // $('#saveConfBTN').attr('href',classDeliveryURL);
+ 
   
  }); 
 
- $('#conferenceLink').blur(function() {
-        if($('#conferenceLink').val() != '') {
-          $('#saveConfBTN').attr("disabled", false);
-
-          var hrefVal =  $('#saveConfBTN').attr('href');
+ $('#duration').blur(function() {
+        if($('#conferenceLink').val() != '' && $('#duration').val() != '') {
+           $('#saveConfBTN').attr("disabled", false);
+           var url = "/classDelivery?class_sec_id="+class_sec_id+"&subject_id="+subject_id+ "&topic_id="+topic_id+ "&retake=N&duration="+$('#duration').val()+"&conf_link="+$('#conferenceLink').val();
+          $('#liveClassForm').attr("action", url);
+          //  var classParams = $(this).attr("name");
+          //   var res = classParams.split("-");
+          //  $('#liveClassForm').attr('action', 'http://uri-for-button1.com');
+          // var hrefVal =  $('#saveConfBTN').attr('href');
           
-          hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
+          // hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
           
-          if($('#duration').val() != '') {
-            hrefVal=hrefVal + '&duration='+$('#duration').val();
-          }
+          // if($('#duration').val() == '') {
+          //   console.log('if duration is empty');
+          //   hrefVal=hrefVal + '&duration=';
+          // }else{
+          //   console.log('if duration is not empty');
+          //   hrefVal=hrefVal + '&duration='+$('#duration').val();
+          // }
 
-          $('#saveConfBTN').attr('href',hrefVal);
+          // $('#saveConfBTN').attr('href',hrefVal);
         }
         else{
           $('#saveConfBTN').attr("disabled", true);

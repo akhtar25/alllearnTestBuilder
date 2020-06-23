@@ -1,10 +1,10 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-    {%if current_user.is_authenticated%}
+   
     <!--<div class="right">
         <a href="#modal1" class="modal-trigger green btn">Add Class</a>
     </div>-->
-    {%endif%}
+
     <!--<div id="modal1" class="modal" style="background-color:white;height: 400px;">
         <div class="modal-content" id="">
             <form action="" method="POST" enctype="multipart/form-data">
@@ -131,19 +131,21 @@
                 <th>Chapter and Topic</th>
                 <th>Teacher</th>
                 <th>Start Time</th>
+                <th>End Time</th>
                 <th>Status</th>
                 <th>Join</th>
                 <!--<th>Delete</th>-->
             </thead>
             <tbody>
                 {%if allLiveClasses!=None%}
-                {%for liveClass in allLiveClasses %}
+                {%for liveClass in allLiveClasses %}                
                 <tr style="line-height: 24px;" id="{{liveClass.live_class_id}}">
                     <td>{{liveClass.class_val}} - {{liveClass.section}}</td>
                     <td>{{liveClass.subject}}</td>
                     <td>{{liveClass.topic_name}}</td>
                     <td>{{liveClass.teacher_name}}</td>
-                    <td>{{liveClass.start_time}}</td>
+                    <td>{{liveClass.start_time.strftime('%d %B %y - %I:%M:%S')}}</td>
+                    <td>{{liveClass.end_time.strftime('%d %B %y - %I:%M:%S')}}</td>
                     <td>{{liveClass.status}}</td>
                     <td><a href="{{liveClass.conf_link}}" target="_blank">Join</a></td>
                     {%if current_user.is_authenticated %}
