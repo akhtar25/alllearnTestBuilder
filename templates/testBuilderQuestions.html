@@ -105,9 +105,12 @@
     <div class="input-field col s12">
     <input type="text" class="datepicker" id="test_date" name="test_date" placeholder="Exam Date">
     </div>
+
 </div>
-<p><button id="questionSubmitBtn" style="margin-top:22px; margin-left:5px;"
-        class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></p>
+
+<a class="tooltipped" data-position="bottom" data-tooltip="Select Test Type"><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
+        class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></a>
+    
 </div>
 
 <div id="questionloader" style="display: none;padding-left: 300px;">
@@ -117,12 +120,12 @@
 {% endif %}
 <script>
 
-  
 
-  
 
   // Or with jQuery
-
+  $(document).ready(function(){
+    $('.tooltipped').tooltip();
+  });
 
 
 

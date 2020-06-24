@@ -221,6 +221,7 @@ $(document).ready(function(){
             success: function (response) {
               console.log('inside success');
                 console.log(response);
+                if(response){
                 responseArr = response.toString().split(',');
                 var optionHTML = '<option value="" disabled selected>Select Subject</option>';
               for(var i=0;i<responseArr.length;i++){
@@ -231,6 +232,9 @@ $(document).ready(function(){
                 optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';
                 
               }
+            }else{
+              optionHTML += '<option value=""  disabled selected>No data available</option>';
+            }
               console.log(optionHTML);
               console.log(select_subject);
               select_subject.innerHTML = optionHTML;
@@ -278,6 +282,7 @@ $(document).ready(function(){
       contentType:"/application/json",
       data:"",
       success: function(response){
+        if(response){
         responseArr = response.toString().split('/,/');
         var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
         var bookNames = []; 
@@ -298,6 +303,9 @@ $(document).ready(function(){
                       bookNames.push(book_name);                  
                 optionHTML += '<option value="'+topic_id+'" name="topic_ids"> '+chapter_name+' - '+topic_name+'</option></optgroup>';
         }
+      }else{
+              optionHTML += '<option value=""  disabled selected>No data available</option>';
+            }
         select_chapter.innerHTML = optionHTML;
         $('#selectChapters').formSelect();
       },

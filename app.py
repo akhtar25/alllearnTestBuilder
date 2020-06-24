@@ -5954,7 +5954,10 @@ def addChapterTopics():
             i=i+1
         chaptersArray.append(str(book)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(ch))
     
-    return jsonify([chaptersArray])
+    if chaptersArray:
+        return jsonify([chaptersArray])
+    else:
+        return ""
 
 
 @app.route('/addClass',methods=['GET','POST'])
@@ -5969,7 +5972,10 @@ def addClass():
         subject_name = db.session.execute(text(subject_name)).first()
         subjectArray.append(str(subject.subject_id)+":"+str(subject_name.subject_name))
 
-    return jsonify([subjectArray])
+    if subjectArray:
+        return jsonify([subjectArray])
+    else:
+        return ""
 
 @app.route('/topperList')
 def topperList():

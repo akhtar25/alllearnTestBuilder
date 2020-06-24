@@ -24,17 +24,17 @@
                 </div>
                 <div class="col-sm-3">
                     <div class="input-field col s12">
-                        <select multiple id="selectChapters">
+                        <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
                           <option value="" disabled selected>Select Chapters and topics</option>
                           
                         </select>
                       </div>
                     </div>
-                    <div class="col-sm-2">
+                    <!-- <div class="col-sm-2">
                         <p><button style="margin-top:22px; margin-left:5px;"
                                 class="btn waves-light green lighten-1 white-text" id="filter">Filter Selected Topics</button></p>
-                    </div>
-                    <div class="col-sm-2" style="margin-left: 30px;">
+                    </div> -->
+                    <div class="col-sm-2" style="">
                         <div class="input-field col s12">
                             <select id="selectTest" name="selectTest">
                                 <option value="" disabled selected>Select Test Paper</option>
@@ -121,6 +121,7 @@ $(document).ready(function(){
             success: function (response) {
               console.log('inside success');
                 console.log(response);
+                if(response){
                 responseArr = response.toString().split(',');
                 var optionHTML = '<option value="" disabled selected>Select Subject</option>';
               for(var i=0;i<responseArr.length;i++){
@@ -131,6 +132,9 @@ $(document).ready(function(){
                 optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';
                 
               }
+            }else{
+                optionHTML +='<option value="">No data available</option>';
+            }
               console.log(optionHTML);
               console.log(select_subject);
               select_subject.innerHTML = optionHTML;
@@ -170,8 +174,9 @@ $(document).ready(function(){
       contentType:"/application/json",
       data:"",
       success: function(response){
+        if(response){
         responseArr = response.toString().split('/,/');
-        var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
+        var optionHTML = '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
         var bookNames = []; 
         for(var i=0;i<responseArr.length;i++){
           var book_name = responseArr[i].toString().split(':')[0];
@@ -190,7 +195,9 @@ $(document).ready(function(){
                       bookNames.push(book_name);                  
                 optionHTML += '<option value="'+topic_id+'" name="topic_ids"> '+chapter_name+' - '+topic_name+'</option></optgroup>';
         }
-        
+    }else{
+        optionHTML += '<option value="" name="topic_ids" disabled selected>No data available</option>'
+    }
         select_chapter.innerHTML = optionHTML;
         $('#selectChapters').formSelect();
       },
@@ -199,7 +206,7 @@ $(document).ready(function(){
       }
     });
     $('#testBuilderQuestions').hide();
-    $('questions').hide();
+    $("questions").hide();
     $('#questionloader').show();
     
     $.ajax({
@@ -209,9 +216,9 @@ $(document).ready(function(){
             data: "",
             
             success: function (response) {
-                $('#questionloader').hide();
                 $('#testBuilderQuestions').show();
-                $('#questions').show(); 
+                $("#questions").show();  
+                $('#questionloader').hide(); 
                 if(response==1){
                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
                   
@@ -220,7 +227,9 @@ $(document).ready(function(){
                     $("#questions").html(response);
                     
                 }  
-                             
+                console.log('loader hide');
+                
+                        
             },
             error: function (xhr) {
                 window.alert("error occurred while loading question");
@@ -251,41 +260,41 @@ select_chapter.onchange = function(){
   }
 
 var topics = '';
-$('#filter').click(function(){
-    $('#testBuilderQuestions').hide();
-    $('questions').hide();
-    $('#questionloader').show();
-    var subject_id = select_subject.value;
-    var class_val = select_class.value;
-    topics = $('#selectChapters').val();
-    var topicList = JSON.stringify(topics);
-    $.ajax({
-            url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id,
-            type: "POST",
-            contentType: "application/json",
-            data: topicList,
-            success: function (response) {
-                // $("#loaderDiv").hide();
-                $('#questionloader').hide();
-                $('#testBuilderQuestions').show();
-                $('#questions').show();
-                console.log(response);
-                if(response==1){
-                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+// $('#filter').click(function(){
+//     $('#testBuilderQuestions').hide();
+//     $('questions').hide();
+//     $('#questionloader').show();
+//     var subject_id = select_subject.value;
+//     var class_val = select_class.value;
+//     topics = $('#selectChapters').val();
+//     var topicList = JSON.stringify(topics);
+//     $.ajax({
+//             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id,
+//             type: "POST",
+//             contentType: "application/json",
+//             data: topicList,
+//             success: function (response) {
+//                 // $("#loaderDiv").hide();
+//                 $('#questionloader').hide();
+//                 $('#testBuilderQuestions').show();
+//                 $('#questions').show();
+//                 console.log(response);
+//                 if(response==1){
+//                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
                   
-                }
-                else{
-                    $("#questions").html(response);
+//                 }
+//                 else{
+//                     $("#questions").html(response);
                     
-                } 
-            $('#loaderDiv').hide();
-            $('#contentDiv').show();
-            },
-            error: function (xhr) { 
-                window.alert("error occurred while loading contents");
-            }
-        });
-  });
+//                 } 
+//             $('#loaderDiv').hide();
+//             $('#contentDiv').show();
+//             },
+//             error: function (xhr) { 
+//                 window.alert("error occurred while loading contents");
+//             }
+//         });
+//   });
 
   var select_test = document.getElementById('selectTest');
   select_test.onchange = function(){
@@ -329,8 +338,8 @@ $('#filter').click(function(){
                     $("#questions").html(response);
                     
                 } 
-            $('#loaderDiv').hide();
-            $('#contentDiv').show();
+                
+          
             },
             error: function (xhr) { 
                 window.alert("error occurred while loading contents");
@@ -479,7 +488,7 @@ $('#filter').click(function(){
         console.log(data_list);
         data_list = JSON.stringify(data_list);
         $.ajax({
-            url: "/testBuilderFileUpload?class_val="+class_val+"&subject_id="+subject_id+"&test_type"+test_type+"&date="+date,
+            url: "/testBuilderFileUpload?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&date="+date,
             type: "POST",
             contentType: "application/json",
             data: data_list,
