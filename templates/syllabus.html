@@ -293,7 +293,7 @@
                                 </div>
                                 <div class="card-content ">
                                     <div class="card-title">Books</div>
-    
+                                <input type="hidden" id="bookChapterId" value="">
                                 <div id='divBook' style="display: none;">
                                 <ul class="collection " id="bookDiv" style="max-height:380px;position:relative;overflow-y:auto">
     
@@ -342,7 +342,7 @@
                                 </a>
                                 </div>
                                 <!-- Model -->
-                                    <div id="modal1" class="modal" style="height:67%;width:42%;">
+                                    <div id="modal1" class="modal" style="height:67%;width:42%;overflow-y: auto;">
                                         <div class="modal-content" style="padding-bottom:15px;">
                                           <div class="remchapters" style="display:none;">
                                             <span class="sugTextChapters">Choose existing chapters</span></br>
@@ -756,7 +756,7 @@ $(document).ready(function(){
             success: function (response) {
                 console.log('inside success of addClassSection');
                 console.log(response);
-                if(response){
+                if(response&&response!='NA'){
                     console.log('class already exist');
                     console.log(response);
                     var response_val = response.toString().split(':')
@@ -765,7 +765,13 @@ $(document).ready(function(){
                     console.log("Class:'"+class_val+"'and section:'"+section+"' already exist");
                     $('#msgClass').html("<h6 style='color:red'>*class "+class_val+" - "+section+" already exist</h6>");
                     $('#msgClass').show();
-                }else{
+                }
+                else if(response=='NA'){
+                    $('#msgClass').html("<h6 style='color:red'>*please enter valid class and section</h6>");
+                    $('#msgClass').show();
+                }
+                else
+                {
                     console.log('class not exist');
                     insertClass(sectionArray,class_value);
                 }
@@ -1278,7 +1284,7 @@ $(document).ready(function(){
     
 
     function addInputNewChapter(res){
-        if(res){
+        if(res&& res!='NA'){
             var chapterName = $('.chapterText').val();
             var chapter_num = $('.chapNoText').val();
             $('#divChapter').hide();
@@ -1297,9 +1303,15 @@ $(document).ready(function(){
         
         });
         insertNewChapter(subjectforChapters,classforChapters,bookIdforChapters,chapterName,chapter_num,topicArray);
-        }else{
+        }
+        else if(res=='NA'){
+            $('#msg').html('<h5 style="color:red">*please enter valid chapter</h5>');
+            $('#msg').show();
+            $('#msg').css('visibility','unset');
+        }
+        else{
             console.log('inside else chapter number exist');
-            $('#msg').html('<h5 style="color:red">chapter already exist</h5>');
+            $('#msg').html('<h5 style="color:red">*chapter already exist</h5>');
             $('#msg').show();
             $('#msg').css('visibility','unset');
         }
@@ -1697,7 +1709,7 @@ $(document).ready(function(){
                     topicHTMLRecords = topicHTMLRecords +
                         '<a href="#modal2" class="modal-trigger"><li class="topicItem" style="padding: 10px 5px;" name = "' +
                             topicID + '" id="' + topicID + 'topic" onClick=loadQuestions("' + topicID +'",'+"\""+classforTopics+"\""+','+subjectIdforTopics+','+boardforTopics+','+chapterNumforTopics+'); >' + topicName +
-                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
+                        '</li></a><div class="delIconTopics" onclick=deleteTopicFunc('+topicID+'); style="margin-top:-30px;color:orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div>';
                 }
             }else{
                 topicHTMLRecords = topicHTMLRecords + "<li>Not Available</li>";
@@ -1719,8 +1731,9 @@ $(document).ready(function(){
 
   function fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapters,boardIdforChapters){
       console.log('inside fetch chapters:'+bookIdforChapters);
+      var bookIds = $('#bookChapterId').val();
       $.ajax({
-          url: "/fetchChapters?class_val="+classforChapters+"&subject="+subjectforChapters+"&bookId="+bookIdforChapters,
+          url: "/fetchChapters?class_val="+classforChapters+"&subject="+subjectforChapters+"&bookId="+bookIds,
           type: "POST",
           contentType: "application/json",
           data: "",
@@ -1742,8 +1755,8 @@ $(document).ready(function(){
                     // alert(chapterNum + " and " + chapterName);
                     var parameters ="\""+chapterName + "\"" + "," + "\"" + subjectforChapters +"\"," + subjectIdforChapters + "," + classforChapters + "," + boardIdforChapters+","+chapterNum;
                     chapterHTMLRecords = chapterHTMLRecords +
-                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ','+"\"" + classforChapters +"\""+ ',' + boardIdforChapters+','+chapterNum+','+bookIdforChapters+'); >' + chapterName +
-                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:forestgreen;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
+                    '<a href="javascript:void(0);"><li class="chapterColor chapterItem'+chapterNum+'" style="padding: 10px 5px;" id="'+chapterName+'" onClick=loadTopics("' + subjectforChapters +'",'+ subjectIdforChapters + ','+"\"" + classforChapters +"\""+ ',' + boardIdforChapters+','+chapterNum+','+bookIds+'); >' + chapterName +
+                            '</li><div class="delIconChapter" onclick=deleteChapterFunc('+chapterNum+'); style="margin-top:-30px;color:orangered;opacity: 70%;"><i class="fas fa-minus-circle" id="deleteIcon"></i></div></a>';
                 }
                 }else{
                     chapterHTMLRecords = chapterHTMLRecords + '<li style="padding: 10px 5px;">No data available</li>'
@@ -2819,6 +2832,7 @@ $(document).ready(function(){
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
         console.log('inside load chapters'+selectedBookId);
+        $('#bookChapterId').val(selectedBookId);
         $('#divChapter').hide();
         $('.chapterCol').hide();
         $('.remBooks').hide();
