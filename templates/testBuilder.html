@@ -113,7 +113,7 @@ $(document).ready(function(){
     }
     var class_val = select_class.value;
    
-    $.ajax({
+    $.ajax({ 
             url: "/addClass?class_val="+class_val,
             type: "POST",
             contentType: "application/json",
@@ -307,6 +307,7 @@ var topics = '';
     if(subject_id && class_val && test_type && date && topics){
         console.log('if all are not empty');
         $('#questionSubmitBtn').prop('disabled',false);
+        $('#remove').removeClass("tooltipped");
     }else{
         console.log('if all are empty');
         $('#questionSubmitBtn').prop('disabled',true);

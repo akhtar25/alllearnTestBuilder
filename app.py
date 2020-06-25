@@ -5932,11 +5932,11 @@ def questionFile():
 def addChapterTopics():
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
     query = query + "inner join book_details bd on td.book_id = bd.book_id "
-    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' order by td.chapter_num "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' order by td.chapter_num "
     chapters = db.session.execute(text(query)).fetchall()
     chaptersArray = []
     i=1
