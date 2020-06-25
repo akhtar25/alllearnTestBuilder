@@ -103,7 +103,7 @@
 </div>
 <div class="col-sm-2">
     <div class="input-field col s12">
-    <input type="text" class="datepicker" id="test_date" name="test_date" placeholder="Exam Date">
+    <input type="text" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
     </div>
 
 </div>
@@ -119,6 +119,22 @@
 
 {% endif %}
 <script>
+
+    function validation(){
+    console.log('inside test_date');
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    var date = $('#test_date').val();
+    topics = $('#selectChapters').val();
+    if(subject_id && class_val && test_type && topics){
+        console.log('if all are not empty');
+        $('#questionSubmitBtn').prop('disabled',false);
+    }else{
+        console.log('if all are empty');
+        $('#questionSubmitBtn').prop('disabled',true);
+    }
+    }
 
 
 
