@@ -2535,7 +2535,7 @@ $(document).ready(function(){
         $('.subCol').hide();
         // end
         classforSubject = selectedClassVal;
-        {% for class in classValues %}
+        {% for class in classValuesGeneral %}
             var desc = "{{class.class_val}}";
             console.log(desc);
             var clasId = '#'+desc.toString()+"specific";

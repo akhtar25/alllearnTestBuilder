@@ -491,17 +491,18 @@ def schoolRegistration():
         board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
         boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
         school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+        classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
         classValues = db.session.execute(text(classValues)).fetchall()
-        classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+        classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
         classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
         subjectValues = MessageDetails.query.filter_by(category='Subject').all()
         bookName = BookDetails.query.all()
         chapterNum = Topic.query.distinct().all()
         topicId = Topic.query.all()
-        generalBoard = MessageDetails.query.filter_by(category='Board').all()
+        generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+        generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
         fromSchoolRegistration = True
-        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
@@ -2150,6 +2151,8 @@ def syllabus():
     topicId = Topic.query.all()
     generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
+    for clas in classValues:
+        print('Class value:'+str(clas.class_val))
     return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
 
 @app.route('/addSyllabus',methods=['GET','POST'])
