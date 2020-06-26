@@ -1372,16 +1372,19 @@ $(document).ready(function(){
             data: "",
             success: function (response) {
                 console.log(response);
-                if(response){
-                $('#msgBook').html("<h5 style='color:red;margin-top:-10px;padding:10px;'>'"+response+"' book already exist</h5>");
+                if(response=="NA"){
+                    $('#msgBook').html("<h5 style='color:red;margin-top:-10px;padding:10px;'>*please enter valid book name</h5>");
                 $('#msgBook').show();
                 }
-                else{
+                else if(response==''){
                     $('#inputBookBtn').hide();
                     $('#bookText').hide();
                     $('#bookLink').hide();
                     $('#Bookloader').show();
                     insertNewBook(book,bookLink,subjectforBooks,classforBooks);
+                }else{
+                $('#msgBook').html("<h5 style='color:red;margin-top:-10px;padding:10px;'>'"+response+"' book already exist</h5>");
+                $('#msgBook').show();
                 }
             },
             error: function (xhr) {
@@ -1598,8 +1601,13 @@ $(document).ready(function(){
             contentType: "application/json",
             data: "",
             success: function (response) {
+                if(response=="NA"){
+                    $('#msgBook').html("<h5 style='color:red;margin-top:-10px;padding:10px;'>*please enter valid book name</h5>");
+                    $('#msgBook').show();
+                }else{
                 console.log(response);
-                  fetchBooks(classforBooks,subjectforBooks,subjectIdforBooks,boardforBooks);                        
+                  fetchBooks(classforBooks,subjectforBooks,subjectIdforBooks,boardforBooks);         
+                }               
             },
             error: function (xhr) {
                 $("#msg").html("<h5 style='color:red'>Error occurred while adding new book</h5>");

@@ -2406,7 +2406,7 @@ def addNewSubject():
 def addNewBook():
     bookName = request.args.get('book')
     bookLink = request.args.get('bookLink')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     bookName = bookName.strip()
     for x in bookName.lower(): 
         if x in punctuations: 
@@ -2414,6 +2414,8 @@ def addNewBook():
             print(bookName)
         else:
             break
+    if bookName==None or bookName=='':
+        return "NA"
     bookName = bookName.strip()
     bookLink = bookLink.strip()
     for x in bookLink.lower(): 
@@ -2452,7 +2454,7 @@ def checkForChapter():
     subject = request.args.get('subject')
     chapterNum = request.args.get('chapter_num')
     bookId = request.args.get('bookId')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     for x in chapterNum: 
         if x in punctuations: 
             chapterNum = chapterNum.replace(x, "") 
@@ -2538,8 +2540,18 @@ def checkForBook():
     book = book.title()
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    bookName = book.strip()
+    for x in bookName.lower(): 
+        if x in punctuations: 
+            bookName = bookName.replace(x, "") 
+            print(bookName)
+        else:
+            break
+    if bookName==None or bookName=='':
+        return "NA"
     subject_id = MessageDetails.query.filter_by(category='Subject',description=subject).first()
-    checkBook = BookDetails.query.filter_by(book_name=book,class_val=class_val,subject_id=subject_id.msg_id).first()
+    checkBook = BookDetails.query.filter_by(book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
     if checkBook:
         return (book)
     else:
@@ -2565,7 +2577,7 @@ def checkforClassSection():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     print('inside checkforClassSection')
     print(sections)
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_+~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     class_val = class_val.strip()
     print('before remove punc class:'+str(class_val))
     if class_val==None or class_val=='':
@@ -2583,7 +2595,7 @@ def checkforClassSection():
         # class_section = class_section.split(':')
         # class_val = class_section[0]
         # section = class_section[1]
-        punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+        punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
         section = section.strip()
         for x in section.lower(): 
             if x in punctuations: 
@@ -2612,7 +2624,7 @@ def addNewTopic():
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
     chapter_num = request.args.get('chapter_num')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
@@ -2653,7 +2665,7 @@ def addNewChapter():
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
     chapter = chapter.strip()
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     for x in chapter.lower(): 
         if x in punctuations: 
             chapter = chapter.replace(x, "") 
