@@ -45,7 +45,7 @@
                                     
                                     <div>
                                         
-                                        <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name}}</a></span></h3>
+                                        <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                     </div>
                                 </div>
                                 <div>
@@ -102,7 +102,7 @@
                                         
                                         <div>
                                             
-                                            <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name}}</a></span></h3>
+                                            <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                         </div>
                                     </div>
                                     <div>
@@ -130,3 +130,8 @@
         </div>
         </div>       
         </div>
+        <script>
+            $(document).ready(function(){
+    $('.modal').modal();
+  });
+        </script>

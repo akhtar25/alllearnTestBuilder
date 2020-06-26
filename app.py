@@ -3541,7 +3541,7 @@ def filterQuestionsfromTopic():
         return render_template('testBuilderQuestions.html',questions=questionList)
     if len(questions)==0:
         print('returning 1')
-        return jsonify(['1'])
+        return jsonify(['1']) 
     else:
         return render_template('testBuilderQuestions.html',questions=questions,flagTopic = 'true')
 

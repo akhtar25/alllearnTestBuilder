@@ -4,6 +4,10 @@
  * MIT License (https://raw.githubusercontent.com/Dogfalo/materialize/master/LICENSE)
  */
 
+ .dropdown-content li > a, .dropdown-content li > span {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
  /* CSS for promote Student */
 
 

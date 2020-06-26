@@ -19,7 +19,7 @@
                     {% for question in q %}
                     <tr>
                         <td>
-                                {% if q.question_type=='MCQ1' %}                        
+                                {% if question.question_type=='MCQ1' %}                        
                                 <ul>
                                         <li>
                                           <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                        
@@ -53,7 +53,7 @@
                                 id="{{ question.question_id }}select"></td>
                     </tr>
                     {% endfor %}
-                    {% endfor %}
+                    {% endfor %} 
                     {% else %}
                     {% for question in questions %}
                     <tr>
@@ -101,15 +101,21 @@
 <div style="float:right; width:130px; border:1px solid;">
     <p style="font-weight:bold;">Total Marks : <span id='marks'></span></p>
 </div>
-<div class="col-sm-2">
+<div class="col-sm-6" style="display: flex;">
     <div class="input-field col s12">
     <input type="text" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
     </div>
 
+    <a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
+        class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></a>
+
+        <div id='questionSubmitLoader' style='display: none; float: right;margin-top: 15px;'>
+            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+        </div>
+
 </div>
 
-<a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
-        class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></a>
+
     
 </div>
 
@@ -119,6 +125,9 @@
 
 {% endif %}
 <script>
+    
+
+
 
     function validation(){
     console.log('inside test_date');
