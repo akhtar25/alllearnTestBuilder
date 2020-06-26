@@ -2314,18 +2314,19 @@ def fetchRemSubjects():
 
 @app.route('/addSubject',methods=['GET','POST'])
 def addSubject():
-    subjectVal = request.args.get('subject')
+    subject_id = request.args.get('subject')
     board_id=request.args.get('board')
     class_val=request.args.get('class_val')
-    subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
+    print('Subject:'+str(subject_id))
+    # subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
+    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id,school_id=teacher_id.school_id).first()
     if subjExist==None:
-        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
+        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
         db.session.add(addSubject)
         db.session.commit()
     else:
-        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
+        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
         insertSubject.is_archived = 'N'
         db.session.add(insertSubject)
         db.session.commit()
@@ -2349,27 +2350,28 @@ def addChapter():
     for topic in topics:
         print('inside for')
         print(topic)
-        topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
-        existInTT = TopicTracker.query.filter_by(topic_id=topic_id.topic_id,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
+        # topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
+        existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
         
         if existInTT:
             updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
             print(updateTT)
             updateTT = db.session.execute(text(updateTT))
         else:
-            insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+            insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
             db.session.add(insertTT)
         db.session.commit()
     return ("data updated successfully")
 
 @app.route('/addBook',methods=['GET','POST'])
 def addBook():
-    book = request.args.get('book')
+    book_id = request.args.get('book')
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
-    bookIds = BookDetails.query.filter_by(book_name=book,class_val=class_val,subject_id=subject_id.msg_id).all()
+    book = BookDetails.query.filter_by(book_id=book_id,class_val=class_val,subject_id=subject_id.msg_id).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
     for book_id in bookIds:
         updateBCSB = BoardClassSubjectBooks.query.filter_by(school_id=teacher_id.school_id,class_val=class_val,
@@ -2563,12 +2565,17 @@ def checkforClassSection():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     print('inside checkforClassSection')
     print(sections)
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_+~'''
     class_val = class_val.strip()
-    for x in class_val.lower(): 
+    print('before remove punc class:'+str(class_val))
+    if class_val==None or class_val=='':
+        print('if clas_val is none')
+        return "NB"
+    
+    for x in class_val: 
         if x in punctuations: 
             class_val = class_val.replace(x, "") 
-            print(class_val)
+            print('after remove punc class:'+str(class_val))
             return "NA"
         else:
             break
@@ -2585,7 +2592,9 @@ def checkforClassSection():
                 return "NA"
             else:
                 break
-
+        if section==None or section=='':
+            print('if section is none')
+            return "NB"
         print('class_val:'+class_val)
         print('section:'+section.upper())
         checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
@@ -2951,6 +2960,7 @@ def fetchRemChapters():
                 if len(queryChapters)>0:
                     print('if queryChapters is not null')
                     num = "/"+str(num)
+                    chapter = chapter + "/"
                 else:
                     chapter = chapter + "/"
                     print(chapter)

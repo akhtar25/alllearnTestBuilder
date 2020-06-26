@@ -22,6 +22,7 @@
                 
             </div> 
             {% endif %}
+            <div id="msg"></div>
         <div class="col lg s12" id="unselect">
             <ul class="tabs">
                 {% if fromSchoolRegistration==False %}
@@ -756,7 +757,7 @@ $(document).ready(function(){
             success: function (response) {
                 console.log('inside success of addClassSection');
                 console.log(response);
-                if(response&&response!='NA'){
+                if(response&&response!='NA'&&response!='NB'){
                     console.log('class already exist');
                     console.log(response);
                     var response_val = response.toString().split(':')
@@ -767,6 +768,10 @@ $(document).ready(function(){
                     $('#msgClass').show();
                 }
                 else if(response=='NA'){
+                    $('#msgClass').html("<h6 style='color:red'>*please enter valid class and section</h6>");
+                    $('#msgClass').show();
+                }
+                else if(response=='NB'){
                     $('#msgClass').html("<h6 style='color:red'>*please enter valid class and section</h6>");
                     $('#msgClass').show();
                 }
@@ -1076,16 +1081,16 @@ $(document).ready(function(){
         console.log('chapter name:'+selectedChapters[i]);
             chapter = selectedChapters[i];
         }
-        for(var j=0;j<selectedTopics.length;j++){
+        for(var j=0;j<colorArray.length;j++){
         
-        console.log('topic name:'+selectedTopics[i]);
+        console.log('topic name:'+colorArray[i]);
         }
         if(chapter==''){
             $('#msg').html("<h5 style='color:red;margin-top:-8px;'>please select chapter</h5>");
             $('#msg').show();
             console.log('if chapter is null');
         }else
-        if(selectedTopics.length==0){
+        if(colorArray.length==0){
              $('#msg').html("<h5 style='color:red;margin-top:-8px;'>please add topics</h5>");
             $('#msg').show();
             console.log('if topic is null');
@@ -1097,7 +1102,7 @@ $(document).ready(function(){
         $('#suggBoxChapter').hide();
         $('#suggBoxTopic').hide();
         $('.modal.open').modal('close');
-        insertTopic(subjectforChapters,classforChapters,chapter,selectedTopics);
+        insertTopic(subjectforChapters,classforChapters,chapter,colorArray);
         }
     }
 
@@ -1108,15 +1113,15 @@ $(document).ready(function(){
         console.log('chapter name:'+selectedChapters[i]);
             chapter = selectedChapters[i];
         }
-        for(var j=0;j<selectedTopics.length;j++){
+        for(var j=0;j<colorArray.length;j++){
         
-        console.log('topic name:'+selectedTopics[i]);
+        console.log('topic name:'+colorArray[i]);
         }
         if(selectedChapters.length==0){
             $('#msg').html("<h5 style='color:red;margin-top:-8px;'>please select chapter</h5>");
             $('#msg').show();
         }else 
-        if(selectedTopics.length==0){
+        if(colorArray.length==0){
             $('#msg').html("<h5 style='color:red;margin-top:-8px;'>please add topics</h5>");
             $('#msg').show();
         }else{
@@ -1128,7 +1133,7 @@ $(document).ready(function(){
         $('#chapterloader').show();
         
         $('.modal.open').modal('close');
-        insertChapter(subjectforChapters,classforChapters,chapter,selectedTopics);
+        insertChapter(subjectforChapters,classforChapters,chapter,colorArray);
         }
     }
 
@@ -1335,7 +1340,7 @@ $(document).ready(function(){
                 // fetchChapters(bookIdforChapters,subjectforChapters,classforChapters);                        
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching chapters</h5>");
             }
             
         });
@@ -1380,7 +1385,7 @@ $(document).ready(function(){
                 }
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while checking validation for book</h5>");
             }
         });
     }
@@ -1426,7 +1431,7 @@ $(document).ready(function(){
                                     
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while checking validation for subjects</h5>");
             }
         });
     }
@@ -1445,10 +1450,10 @@ $(document).ready(function(){
       
     //   $('.subCol').hide();
       $('#Bookloader').show();
-      for(var i=0;i<selBok.length;i++){
-          console.log(selBok.length);
-          console.log(selBok[i]);
-            insertBook(selBok[i],classforBooks,subjectforBooks,i,selBok.length);
+      for(var i=0;i<arrSub.length;i++){
+          console.log(arrSub.length);
+          console.log(arrSub[i]);
+            insertBook(arrSub[i],classforBooks,subjectforBooks,i,arrSub.length);
           console.log('after insert Book Data');
         }
       }else{
@@ -1471,10 +1476,10 @@ $(document).ready(function(){
       $('.subCol').hide();
         $('#subjectloader').show();
       console.log('inside addBtn');
-      for(var i=0;i<selSub.length;i++){
-          console.log(selSub.length);
-          console.log(selSub[i]);
-            insertSubject(selSub[i],classforSubject,boardforSub,i,selSub.length);
+      for(var i=0;i<arrSub.length;i++){
+          console.log(arrSub.length);
+          console.log(arrSub[i]);
+            insertSubject(arrSub[i],classforSubject,boardforSub,i,arrSub.length);
           console.log('after insert Data');
         }
         // fetchSubject(classforSubject,boardforSub);
@@ -1494,7 +1499,7 @@ $(document).ready(function(){
                 fetchTopics(boardforTopics,subjectIdforTopics,subjectforTopics,classforTopics,chapterNumforTopics,bookIdforTopics);                       
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while deleting topics</h5>");
             }
         });
   }
@@ -1511,7 +1516,7 @@ $(document).ready(function(){
                 fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                       
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while deleting chapter</h5>");
             }
         });
   }
@@ -1528,7 +1533,7 @@ $(document).ready(function(){
                 fetchBooks(classforBooks,subjectforBooks,subjectIdforBooks,boardforBooks);                       
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while deleting book</h5>");
             }
         });
   }
@@ -1545,7 +1550,7 @@ $(document).ready(function(){
 
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while deleting subject</h5>");
             }
         });
   }
@@ -1564,7 +1569,7 @@ $(document).ready(function(){
                  fetchTopics(boardforTopics,subjectIdforTopics,subjectforTopics,classforTopics,chapterNumforTopics,bookIdforTopics);                        
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while adding new topic</h5>");
             }
         });
   }
@@ -1581,7 +1586,7 @@ $(document).ready(function(){
                   fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                        
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while addinjg new chapter</h5>");
             }
         });
   }
@@ -1597,7 +1602,7 @@ $(document).ready(function(){
                   fetchBooks(classforBooks,subjectforBooks,subjectIdforBooks,boardforBooks);                        
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while adding new book</h5>");
             }
         });
   }
@@ -1613,7 +1618,7 @@ $(document).ready(function(){
                   fetchSubject(classforSubject,boardforSub);                        
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while inserting new subject</h5>");
             }
         });
   }
@@ -1630,7 +1635,7 @@ $(document).ready(function(){
                 fetchTopics(boardforTopics,subjectIdforTopics,subjectforTopics,classforTopics,chapterNumforTopics,bookIdforTopics);                      
             },
             error: function (xhr) {
-                window.alert("error occurred while adding chapters");
+                $("#msg").html("<h5 style='color:red'>Error occurred while inesrting topic list</h5>");
             }
         });
   }
@@ -1644,10 +1649,11 @@ $(document).ready(function(){
             contentType: "application/json",
             data: topicName,
             success: function (response) {
+                colorArray = [];
                 fetchChapters(classforChapters,subjectforChapters,subjectIdforChapters,bookIdforChapter,boardIdforChapters);                     
             },
             error: function (xhr) {
-                window.alert("error occurred while adding chapters");
+                $("#msg").html("<h5 style='color:red'>Error occurred while inserting chapter list</h5>");
             }
         });
   }
@@ -1663,10 +1669,11 @@ $(document).ready(function(){
                 if(index==length-1){
                  fetchBooks(classforBooks,subjectforBooks,subjectIdforBooks,boardforBooks); 
                  selBok = [];
+                 arrSub = [];
                 }                           
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while inserting book list</h5>");
             }
         });
   }
@@ -1682,10 +1689,11 @@ $(document).ready(function(){
                 if(index==length-1){
                  fetchSubject(classforSubject,boardforSub); 
                  selSub = [];
+                 arrSub = [];
                 }                           
             },
             error: function (xhr) {
-                window.alert("error occurred while adding indivisual Subject");
+                w$("#msg").html("<h5 style='color:red'>Error occurred while inserting subject list</h5>");
             }
         });
   }
@@ -1724,7 +1732,7 @@ $(document).ready(function(){
                 $('#topicloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching topic list</h5>");
             }
         });
   }
@@ -1774,7 +1782,7 @@ $(document).ready(function(){
                 // $('#chapterloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching chapter list</h5>");
             }
       });
   }
@@ -1822,7 +1830,7 @@ $(document).ready(function(){
                 $('#Bookloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching book list</h5>");
             }
       });
   }
@@ -1876,7 +1884,7 @@ $(document).ready(function(){
                                              
             },
             error: function (xhr) {
-                window.alert("error occurred while display Subject Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching subject list</h5>");
             }
         });
   }
@@ -1940,7 +1948,7 @@ $(document).ready(function(){
                 $('#subjectloader').hide();
                 },
             error: function (xhr) {
-                window.alert("error occurred while display suggestion subjects");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching remaining subject list</h5>");
             }
         });
     }
@@ -1983,7 +1991,7 @@ $(document).ready(function(){
                 
                 },
             error: function (xhr) {
-                window.alert("error occurred while display Subject Subject");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching remaining chapters list</h5>");
             }
         });
     }
@@ -2041,29 +2049,28 @@ $(document).ready(function(){
                 
             },
             error: function(xhr){
-                window.alert('error occurred while loading topics');
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching topic list</h5>");
             }
         });
     }
     var colorArray = [];
     function onColorTopic(topicId){
         console.log(colorArray);
+        var ids = '#'+topicId+'id';
         var c = 0;
         for(var i=0;i<colorArray.length;i++){
-            if(colorArray[i].toString==topicId.toString){
+            if(colorArray[i]==topicId){
                 c = 1;
+                colorArray.splice(i,1);
+                $(ids).css('background-color','');
+                $(ids).css('color','');
+                break;
             }
         }
         if(c==0){        
-        var ids = '#'+topicId+'id';
         $(ids).css('background-color','lightseagreen');
         $(ids).css('color','white');
         colorArray.push(topicId);
-        }else{
-            var ids = '#'+topicId+'id';
-            $(ids).css('background-color','');
-            $(ids).css('color','');
-            colorArray.pop(topicId);
         }
     }
 
@@ -2109,7 +2116,7 @@ $(document).ready(function(){
                 $('#Bookloader').hide();
                 },
             error: function (xhr) {
-                window.alert("error occurred while display Books");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching book list</h5>");
             }
         });
     }
@@ -2172,11 +2179,31 @@ $(document).ready(function(){
         console.log('inside remSubList');
         fetchRemSubjects(classforSubject);
     }
-
+    var arrSub = [];
     function onColor(subject){
         var ids = '#'+subject+'id';
         $(ids).css('background-color','lightseagreen');
         $(ids).css('color','white');
+        var z=0;
+        console.log(arrSub);
+        for(var i=0;i<arrSub.length;i++){
+            if(arrSub[i]==subject){
+                z=1;
+                arrSub.splice(i,1);
+                $(ids).css('background-color','');
+                $(ids).css('color','');
+                console.log('if element is not color:'+subject);
+                break;
+            }            
+        }
+        if(z==0){
+            console.log('if element is color:'+subject);
+            arrSub.push(subject);
+            $(ids).css('background-color','lightseagreen');
+            $(ids).css('color','white');
+        }
+        console.log('final array:');
+        console.log(arrSub);
     }
 
     function addClassSubjectBtn(){
@@ -2224,7 +2251,7 @@ $(document).ready(function(){
 
             },
             error: function (xhr) {
-                window.alert("error occurred while adding syllabus");
+                $("#msg").html("<h5 style='color:red'>Error occurred while adding syllabus </h5>");
             }
         });
     }
@@ -2351,7 +2378,7 @@ $(document).ready(function(){
                 
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching class list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching class list</h5>");
             }
         });
     });
@@ -2418,7 +2445,7 @@ $(document).ready(function(){
                 
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching class list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching class list</h5>");
             }
         });
     });
@@ -2505,7 +2532,7 @@ $(document).ready(function(){
                 $('#generalSubjectLoader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching subject list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching subject list</h5>");
             }
         });
     }
@@ -2599,7 +2626,7 @@ $(document).ready(function(){
                 $('#subjectloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching subject list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching subject list</h5>");
             }
         });
         
@@ -2670,7 +2697,7 @@ $(document).ready(function(){
                 
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching book list</h5>");
             }
         });
     }
@@ -2751,7 +2778,7 @@ $(document).ready(function(){
                 $('#Bookloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching book list</h5>");
             }
         });
         
@@ -2817,7 +2844,7 @@ $(document).ready(function(){
                 
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching chapter list</h5>");
             }
         });
     }
@@ -2901,7 +2928,7 @@ $(document).ready(function(){
                 $('#chapterloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching chapter list</h5>");
             }
         });
         
@@ -2954,7 +2981,7 @@ $(document).ready(function(){
                 $('#generalTopicLoader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching topic list</h5>");
             }
         });
     }
@@ -3027,7 +3054,7 @@ $(document).ready(function(){
                 $('#topicloader').hide();
             },
             error: function (xhr) {
-                window.alert("error occurred while fetching book list");
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching topic list</h5>");
             }
         });
         
@@ -3087,7 +3114,7 @@ $(document).ready(function(){
                 
             },
             error:function(xhr){
-
+                $("#msg").html("<h5 style='color:red'>Error occurred while fetching questions list</h5>");
             }
         });
     }
