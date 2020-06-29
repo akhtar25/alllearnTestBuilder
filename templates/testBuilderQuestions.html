@@ -106,9 +106,9 @@
     <input type="text" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
     </div>
 
-    <a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
+    <a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"></a><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
         class="btn waves-light green lighten-1 white-text" onclick="questionFile();">Submit</button></a>
-
+        <!-- <h6 id="msg" style="margin-left: 15px;color:red;">*Test type is mandatory</h6> -->
         <div id='questionSubmitLoader' style='display: none; float: right;margin-top: 15px;'>
             <img src='../static/images/spinner.gif' width='25px' height='25px'>
         </div>
@@ -125,11 +125,24 @@
 
 {% endif %}
 <script>
+
+var today = new Date();
+
+$(".datepicker").datepicker({
+    changeMonth: true,
+    changeYear: true,
+    minDate: today // set the minDate to the today's date
+    // you can add other options here
+});
+
+// $(document).ready(function(){
+//                         $('.datepicker').datepicker();
+                        // $( "#datepicker" ).datepicker({ minDate: 0});
+                    // });
     
 
-
-
     function validation(){
+    
     console.log('inside test_date');
     var subject_id = select_subject.value;
     var class_val = select_class.value;
@@ -219,9 +232,7 @@
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
                     })();
 
-                    $(document).ready(function(){
-                        $('.datepicker').datepicker();
-                    });
+                    
 
                     
 </script>
