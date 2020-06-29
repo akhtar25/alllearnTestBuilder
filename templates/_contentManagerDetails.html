@@ -5,8 +5,7 @@
     <div class="card-body">
         <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;">
 <table>
-            {% for c in contents %}      
-            {%for content in c %}    
+            {% for content in contents %}   
             <div class="row z-depth-1" style="padding-left:15px;padding-top:20px;margin-top: -18px;">  
                          <div class="col s12 m6 l5 center-align">
                     {%if content.content_type==92%}
@@ -57,7 +56,6 @@
                     </div>                                                   
                 </div>
 
-                {% endfor %}
                 {% endfor %}
             </table>
         </div>        
