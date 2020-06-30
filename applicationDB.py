@@ -843,7 +843,7 @@ class ModuleDetail(db.Model):
     module_id = db.Column(db.Integer,primary_key=True)
     module_name=db.Column(db.String(100),nullable=True)
     description = db.Column(db.String(300),nullable=True)
-    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    module_type = db.Column(db.String(50),nullable=True)
     module_url = db.Column(db.String(200),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
