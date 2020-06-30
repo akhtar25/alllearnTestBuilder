@@ -46,9 +46,13 @@
                       </tr>
                     </thead>
                     <tbody id="addSubTime">
-      
+                      
                     </tbody>
+                    
                     </table>
+                    <div id="subjectloader" style="display:none;margin-left:60px;">
+                    <img src="../static/images/loader.gif">
+                  </div>
                 </div>
                   
               </div>
@@ -234,7 +238,8 @@ var optionHTMLClass = '';
 var maxSub = '';
 
 class_select.onchange = function(){
-  $('#subTable').show();
+  $('#subTable').hide();
+  $('#subjectloader').show();
   var class_v = class_select.value;
     console.log('inside class_val onchange');
     console.log('class'+class_v);
@@ -257,7 +262,9 @@ class_select.onchange = function(){
                 console.log(responseArr[i]);
                 subTimeHtml = subTimeHtml+ '<tr><td><label style="margin-left:15px;">'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /></td><td><input type="number" onKeyPress="return false;" id="time1" min="1" max="'+maxSub+'" name="time" style="width:50px;"/></td></tr>';
               }
+              $('#subjectloader').hide();
               $('#addSubTime').html(subTimeHtml);
+              $('#subTable').show();
               
             },
             error: function (xhr) {
