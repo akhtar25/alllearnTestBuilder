@@ -151,9 +151,10 @@
           
               </div>
             </div>
-            <div class="button" id="download" style="text-align: right;display: none;">
+            <div class="downloadBtn" id="download" style="text-align: right;">
               <button class="btn waves-light green lighten-1 white-text" id="download">Download</button>
           </div>
+          <a href="" id="downloadUrl" style="display: none;" download>Download</a>
           </div>
         </li>
       </ul>
@@ -166,6 +167,26 @@
 </div>
 
 <script>
+
+$('#download').click(function(){
+  $.ajax({
+            url: "/downloadTimeTable?class_value=" + class_val+"&section="+section,
+            type: "POST",
+            data: "",
+            success: function (response) {
+              console.log('inside download success');
+              console.log(response);
+              for(var i=0;i<response.length;i++){
+                console.log(response[i]);
+              $('#downloadUrl').attr("href",response[i]);
+              }
+              $('#downloadUrl')[0].click();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching timetable");
+            }
+        });
+});
 
 
 $(document).ready(function(){
@@ -200,11 +221,13 @@ var optionHTMLClass = '';
         optionHTMLClassSection += '<option value="na" disabled selected> Select Class Section </option>';
         class_section.innerHTML = optionHTMLClassSection + class_section.innerHTML;
     });
-  class_section.onchange = function(){
+
     classSection = class_section.value;
     var res = classSection.split("-");
     var class_val = res[0];
     var section = res[1];
+  class_section.onchange = function(){
+    
     console.log('inside function of class section');
     console.log('Section:'+section);
     $.ajax({

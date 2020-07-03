@@ -3,6 +3,7 @@ from send_email import welcome_email, send_password_reset_email, user_access_req
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
+import csv
 import itertools
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
@@ -50,9 +51,6 @@ from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
 import calendar
-
-#from flask_material import Material
-
 #app=Flask(__name__)
 app=FlaskAPI(__name__)
 #csp = {
@@ -6572,6 +6570,40 @@ def fetchTimeTable():
     print(fetchTeacher)
     return render_template('_timeTable.html',timeTableData=timeTableData,fetchTeacher=fetchTeacher)
 
+@app.route('/downloadTimeTable',methods=['GET','POST'])
+def downloadTimeTable():
+    print('inside download time table')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    # fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_section.class_sec_id)+")"
+    # print(fetchTeacher)
+    # fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+    filepath = '/Users/alllearn/Desktop/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
+    with open(filepath, 'w', newline='') as file:
+        writer = csv.writer(file)
+        for class_sec_id in class_sec_ids:
+            fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+            print(fetchTeacher)
+            
+            fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+            writer.writerow(["Subject Name", "Teacher Name"])
+            # writer.writerow(["", "Name", "Contribution"])
+            for teacher in fetchTeacher:
+                print(teacher.subject_name)
+                print(teacher.teacher_name)
+                writer.writerow([teacher.subject_name,teacher.teacher_name])
+                # os.remove(filepath)
+                print('File path')
+                print(filepath)
+            query = "select *from fn_time_table("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+            print(query)
+            timeTableData = db.session.execute(text(query)).fetchall()
+            writer.writerow(["Periods", "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])
+            for table in timeTableData:
+                writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
+    return jsonify([filepath])
+
 @app.route('/allSubjects',methods=['GET','POST'])
 def allSubjects():
     print('inside all Subjects')
@@ -6686,7 +6718,7 @@ if __name__=="__main__":
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
     app.run(host=os.getenv('IP', '0.0.0.0'),         
-        port=int(os.getenv('PORT', 8001))
+        port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         )
     #app.run()
