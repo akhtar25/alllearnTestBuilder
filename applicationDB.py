@@ -479,6 +479,7 @@ class StudentProfile(db.Model):
     sponsored_amount = db.Column(db.Integer, nullable=True)
     sponsored_on = db.Column(db.DateTime, nullable=True)
     sponsored_till = db.Column(db.DateTime, nullable=True)
+    is_archived= db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
