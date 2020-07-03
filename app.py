@@ -1187,8 +1187,8 @@ def index():
     
     if user.user_type==71:
         classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
-        print('Insert new school')
-        print(classExist)
+        #print('Insert new school')
+        #print(classExist)
         if classExist==None:
             fromSchoolRegistration = True
        
@@ -1205,9 +1205,9 @@ def index():
             chapterNum = Topic.query.distinct().all()
             topicId = Topic.query.all()
             generalBoardId = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
-            print('teacher and board ids')
-            print(teacher_id.school_id)
-            print(generalBoardId.board_id)
+            #print('teacher and board ids')
+            #print(teacher_id.school_id)
+            #print(generalBoardId.board_id)
             generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
@@ -3900,6 +3900,51 @@ def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
     return render_template('studentfeedbackreporttemp.html',student_name=student_name)
 
+
+@app.route('/sendComm',methods=["GET","POST"])
+def sendComm():
+    if method=="POST":
+        commType = request.form.get('commType')
+        message = request.form.get('message')  
+        class_sec_id = request.form.get('class_sec_id')  
+        if class_sec_id !=None and class_sec_id !="":
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            #insert into communication detail table
+            commDataAdd=CommunicationDetail(message = message,status=231 , school_id=teacherData.school_id,             
+            teacher_id=teacherData.teacher_id,last_modified_date =datetime.today())
+            db.session.add(commDataAdd)
+            #db.session.flush()
+            db.session.commit() 
+            getStudNumQuery = "select student_id, phone from student_profile sp where class_sec_id ="+ str(class_sec_id)
+            #studentProfileData = StudentProfile.query.distinct().filter_by(class_sec_id=class_sec_id).all()
+            studentPhones = db.session.execute(getStudNumQuery).fetchall()
+            if studentPhones!=None:
+                if commType=='sms':
+                    apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+                    apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+                    apiPath = apiPath + "contacts="+studentPhones+"&senderid=GLOBAL&"
+                    apiPath = apiPath + "msg="+ message
+                    print(apiPath)
+                    ##Sending message here
+                    #try:
+                        #r = requests.post(apiPath)
+                        #print(r.text)
+                        #returnData = r.json()
+                        #return returnData["value"]
+                    #except:
+                    #    return jsonify(['1'])
+                    ##Message sent
+                    #for val in studentPhones:
+                    #    commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                    #commDataAdd.status=232
+                    #db.commit()
+                    #r = requests.post(apiPath)
+                    #print(r.text)
+                    #returnData = r.json()
+                    #return returnData["value"]
+    return render_template('/sendComm.html')
+
+
 @app.route('/class')
 @login_required
 def classCon(): 
@@ -3914,7 +3959,7 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         count = 0
         for section in classSections:
-            print("Class Section:"+section.section)
+            #print("Class Section:"+section.section)
             #this section is to load the page for the first class section if no query value has been provided
             if count==0:
                 getClassVal = section.class_val
@@ -3944,16 +3989,28 @@ def classCon():
         topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
         topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
         topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
-        print('this is the number of topicRows' + str(len(topicRows)))
+        #print('this is the number of topicRows' + str(len(topicRows)))
 
-        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
-        courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
-        courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
+        #courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
+        #courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
+        #courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
+        #courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
         #endOfQueries  
         #db.session.execute(text('call sp_performance_detail_load_feedback()'))
-        db.session.commit()      
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,user_type_val=str(current_user.user_type))
+        #db.session.commit()    
+        
+        #Summary query
+        summaryQuery = "with perfCTE as(select round(avg(student_score ),2) as avgClassPerfomance "
+        summaryQuery = summaryQuery + " from performance_detail pd where class_sec_id ="+ str(selectedClassSection.class_sec_id)
+        summaryQuery = summaryQuery + "), studCountCTE as (select count(student_id) studcount from student_profile "
+        summaryQuery = summaryQuery + " sp where class_sec_id =" + str(selectedClassSection.class_sec_id) 
+        summaryQuery = summaryQuery + ") select t1.avgclassperfomance as avgclassperfomance, t2.studcount as studcount "
+        summaryQuery = summaryQuery +" from perfCTE t1, studCountCTE t2"
+        #print(summaryQuery)
+        summaryData = db.session.execute(text(summaryQuery)).first()
+        # End of query section 
+        
+        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, user_type_val=str(current_user.user_type))
     else:
         return redirect(url_for('login'))    
 
