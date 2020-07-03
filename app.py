@@ -51,7 +51,7 @@ from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
 import calendar
-
+from urllib.parse import quote,urlparse, parse_qs
 #from flask_material import Material
 
 #app=Flask(__name__)
@@ -3903,10 +3903,10 @@ def studentfeedbackreporttemp():
 
 @app.route('/sendComm',methods=["GET","POST"])
 def sendComm():
-    if method=="POST":
+    if request.method=="POST":
         commType = request.form.get('commType')
-        message = request.form.get('message')  
-        class_sec_id = request.form.get('class_sec_id')  
+        message = request.form.get('message')
+        class_sec_id = request.form.get('class_sec_id')
         if class_sec_id !=None and class_sec_id !="":
             teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             #insert into communication detail table
@@ -3915,34 +3915,37 @@ def sendComm():
             db.session.add(commDataAdd)
             #db.session.flush()
             db.session.commit() 
-            getStudNumQuery = "select student_id, phone from student_profile sp where class_sec_id ="+ str(class_sec_id)
-            #studentProfileData = StudentProfile.query.distinct().filter_by(class_sec_id=class_sec_id).all()
+            getStudNumQuery = "select student_id, phone from student_profile sp where class_sec_id ="+ str(class_sec_id)            
             studentPhones = db.session.execute(getStudNumQuery).fetchall()
+            phoneList =[]
+            for phoneRow in studentPhones:
+                if phoneRow.phone!=None and phoneRow.phone!='':
+                    phoneList.append(phoneRow.phone)
             if studentPhones!=None:
                 if commType=='sms':
                     apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
                     apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
-                    apiPath = apiPath + "contacts="+studentPhones+"&senderid=GLOBAL&"
-                    apiPath = apiPath + "msg="+ message
+                    apiPath = apiPath + "contacts="+str(phoneList).replace('[','').replace(']','').replace('\'','').replace(' ','')+"&senderid=GLOBAL&"
+                    apiPath = apiPath + "msg="+ quote(message)
                     print(apiPath)
                     ##Sending message here
-                    #try:
-                        #r = requests.post(apiPath)
-                        #print(r.text)
-                        #returnData = r.json()
-                        #return returnData["value"]
-                    #except:
-                    #    return jsonify(['1'])
-                    ##Message sent
-                    #for val in studentPhones:
-                    #    commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
-                    #commDataAdd.status=232
-                    #db.commit()
-                    #r = requests.post(apiPath)
-                    #print(r.text)
-                    #returnData = r.json()
-                    #return returnData["value"]
-    return render_template('/sendComm.html')
+                    try:
+                        r = requests.post(apiPath)                    
+                        returnData = str(r.text)
+                        print(returnData)
+                        if "SMS-SHOOT-ID" in returnData:
+                            for val in studentPhones:
+                                commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                                db.session.add(commTransAdd)
+                            commDataAdd.status=232
+                            db.session.commit()                                        
+                            return jsonify(['0'])
+                        else:
+                            return jsonify(['1'])                    
+                    except:
+                        return jsonify(['1'])
+                    ##Message sent                    
+    return jsonify(['1'])
 
 
 @app.route('/class')
@@ -6828,7 +6831,7 @@ def get_yt_video_id(url):
       Invalid:
         'youtu.be/watch?v=_lOT2p_FCvA',
     """
-    from urllib.parse import urlparse, parse_qs
+    
 
     if url.startswith(('youtu', 'www')):
         url = 'http://' + url

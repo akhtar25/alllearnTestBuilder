@@ -53,12 +53,16 @@
               </div>
               <div class="col-xs-3">
                 <h4 class="grey-text">Today's Attendance</h4>
+                {%if summaryData.attendancetoday%}
                 <h3 class="green-text">{{summaryData.attendancetoday}}</h3>
+                {%else%}
+                <h3 class="green-text">NA</h3>
+                {%endif%}
               </div>              
               <div class="col-xs-3">
                 <h4 class="grey-text">Actions</h4>
                 <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
-                <a href="#">Mark Attendance</a>
+                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>
               </div>
             </div>
           </div>
@@ -113,7 +117,7 @@
     <h4>Send SMS to students of {{qclass_val}} - {{qsection}}</h4>
     <form id="sendSMSForm">
     <div class="input-field ">
-      <textarea id="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
+      <textarea id="message" name="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
     </div>
     <input type="hidden" id="commType" name="commType" value="sms">
     <input type="hidden" id="class_sec_id" name="class_sec_id" value="{{class_sec_id}}">
@@ -121,12 +125,11 @@
     <a href="#" id="sendSMSBTN" class="btn green right">Send SMS</a>
   </form>
   <div id="sendSuccessMSG" style="display: none;">  
-  <img src="../static/images/tick.gif" style="padding-left: 400px;" id="loaderDiv">
+  <!--<img src="../static/images/tick.gif" style="width: 100px;" class="center">-->
   <h4 class="green-text">Message sent successfully to all students</h4>
   <!--<span id="successSendList"></span>-->
-  <span class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students</span>
 </div>
-
+  <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
     </div>
 </div>
 
@@ -164,7 +167,7 @@
 <script>
   $('#closeCourseDetailsButton').click(function () {
     $('#classTrackerDiv').show();
-    $('#completeCourseDetailsDiv').hide();
+    $('#completeCourseDetailsDiv').hide();    
   })
 
   $('#backButton').click(function () {
@@ -177,6 +180,9 @@
   
   
   $('#sendSMSBTN').click(function($e){
+    $('#smsSendErrorMSG').hide();
+    $('#sendSMSBTN').fadeTo("fast", 0.5).removeAttr("href");
+    $('#sendSMSBTN').html('Please wait...');
   var form = $('#sendSMSForm');     
     $.ajax({
             url: "/sendComm",
@@ -184,21 +190,23 @@
             data: form.serialize(),
             success: function (formResponse) {        
                 if (formResponse=='1'){   
-                    $('#smsSendErrorMSG').display();
-                    //$('#questionDiv').html('');                                                    
-                    $('#remark').val('');
-                //M.toast({html: '<h4>New HomeWork Created</h4>'});
-                //var elem = $('#createModal')
-                //var instance = M.Modal.getInstance(elem);                   
-                //instance.close();
+                    $('#smsSendErrorMSG').show();                       
                 //clicks = 0;
             }
             else{
-                
+                //$('#sendSuccessMSG').show();  
+              M.toast({html: '<h4>New Message Sent</h4>'});
+                var elem = $('#smsModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
             }
+            $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+            $('#sendSMSBTN').html('Send SMS');
             },
             error: function (xhr) {
-                window.alert("Error while creating homework");
+              $('#smsSendErrorMSG').show();
+              $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+              $('#sendSMSBTN').html('Send SMS');
             }
         }); 
   });      
