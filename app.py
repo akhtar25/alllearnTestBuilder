@@ -320,10 +320,33 @@ def classSecCheck():
             return 'Y'
 
 
-@app.route('/practiceTest')
-def practiceTest():
+@app.route('/practiceTest',methods=["GET","POST"])
+def practiceTest():    
+    if request.method=="POST":
+        board = request.form.get('board')
+        class_val = request.form.get('class_val')
+        email = current_user.email     
+        print("board:"+ str(board))
+        print("class_val:" +str(class_val))
+        schoolRow = SchoolProfile.query.filter_by(school_name="AllLearn "+str(board)).first()
+        print("school id:" +str(schoolRow.school_id))
+        classSectionRow = ClassSection.query.filter_by(school_id=schoolRow.school_id, class_val=str(class_val)).first()
+        print("class sec id:"+ str(classSectionRow.class_sec_id))
+        checkStudTable= StudentProfile.query.filter_by(email=current_user.email).first()
+        if checkStudTable==None or checkStudTable=="":
+            studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
+                school_id=schoolRow.school_id,class_sec_id=classSectionRow.class_sec_id,
+                phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
+                roll_number=000,last_modified_date=datetime.today())
+            db.session.add(studentDataAdd)
+            #updating the public.user table
+            current_user.user_type=234
+            current_user.access_status=145
+            current_user.school_id=schoolRow.school_id
+            current_user.last_modified_date=datetime.today()
+            db.session.commit()        
     studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('/practiceTest.html',studentData=studentData)
+    return render_template('/practiceTest.html',studentData=studentData, disconn=1)
 
 
 @app.route('/normal')
@@ -862,15 +885,15 @@ def studentRegistration():
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
                 studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
                 studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
-                print('Query:'+str(studProfile))
+                #print('Query:'+str(studProfile))
 
                 profileImg = db.session.execute(text(studProfile))
-                print(studentDetails)
-                if request.form['birthdate']:
-                    print('DOB:'+str(request.form['birthdate']))
-                print('Student id:'+str(student_id))
-                print('First Name:'+str(studentDetails.first_name))
-                print('Image url:'+str(request.form['profile_image']))
+                #print(studentDetails)
+                #if request.form['birthdate']:
+                    #print('DOB:'+str(request.form['birthdate']))
+                #print('Student id:'+str(student_id))
+                #print('First Name:'+str(studentDetails.first_name))
+                #print('Image url:'+str(request.form['profile_image']))
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
@@ -1220,6 +1243,8 @@ def index():
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==135:
         return redirect(url_for('admin'))
+    if user.user_type==234:
+        return redirect(url_for('practiceTest'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))

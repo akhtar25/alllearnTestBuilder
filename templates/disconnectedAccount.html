@@ -11,38 +11,33 @@
               class="material-icons">person_add</i>
             <p><span style="font-size: 10px;" class="white-text right green badge z-depth-1">New</span><span
                 style="font-size: large;">Write Practice Tests</span><br><br>
-              For any student who wants to practice tests</p>
+              Free practice tests for all students</p>
           </div>
           <div class="collapsible-body yellow lighten-4">
 
-            <form>
+            <form action="{{url_for('practiceTest')}}" method="post">
               <div class="row ">
                 <div class="col-xs-4">
-                  <span style="font-size: medium;">Are you a student of allLearn's partner school?</span>
+                  <span style="font-size: medium;">Are you a student of <strong>allLearn's partner school?</strong></span>
                   <p>
                     <label>
-                      <input name="group1" type="radio" />
-                      <span style="font-size: medium;">Yes</span>
-                    </label>
-                    <label>
-                      <input name="group1" type="radio" />
+                      <input name="partnerStudent" type="radio" class="practiceInput" value="No"/>
                       <span style="font-size: medium;">No</span>
                     </label>
                     <label>
-                      <input name="group1" type="radio" />
-                      <span style="font-size: medium;">Don't Know</span>
+                      <input name="partnerStudent" type="radio" class="practiceInput" value="Yes"/>
+                      <span style="font-size: medium;">Yes</span>
                     </label>
                   </p>
                 </div>
                 <div class="col-xs-3">
                   <span style="font-size: medium;">Board</span>
                   <div class="input-field">
-                    <select>
-                      <option value="" disabled selected>Choose your option</option>
-                      
+                    <select name="board" class="practiceInput"  id="board">
+                      <option value="" disabled selected>Choose your option</option>                      
                       {%if boardRows%}
                       {%for row in boardRows%}                      
-                      <option value="{{row.msg_id}}">{{row.description}}</option>
+                      <option value="{{row.description}}"  >{{row.description}}</option>
                       {%endfor%}
                       {%endif%}                      
                     </select>
@@ -51,7 +46,7 @@
                 <div class="col-xs-3">
                   <span style="font-size: medium;">Class</span>
                   <div class="input-field" style="z-index:100001">
-                    <select >
+                    <select name="class_val" id="class_val" class="practiceInput">
                       <option value="" disabled selected>Choose your option</option>
                       {%if classRows%}
                       {%for row in classRows%}                      
@@ -59,15 +54,15 @@
                       {%endfor%}
                       {%endif%} 
                     </select>
-
                   </div>
                 </div>
                 <div class="col-xs-2">
                   <br>
-                  <button class="green right btn " id="practiceTestBTN" type="submit">Get Started</button>
+                  <button class="green right btn " id="practiceStart" type="submit">Get Started</button>
                 </div>
               </div>             
             </form>
+            <div id="partnerStudentMSG" style="display: none;"><span class="green-text" style="font-size: medium; ">Please contact your school for login details. <br>You will also have access to practice test page in your account</span></div>
           </div>
         </li>
         <li>
@@ -168,6 +163,7 @@
     $('.collapsible').collapsible();
     $('.dropdown-trigger').dropdown();
     $('select').formSelect();
+    $('#practiceStart').prop('disabled', true);
   });
 
 
@@ -201,24 +197,23 @@
   });
 
 
-  $('#practiceTestBTN').click(function(){
-    $.ajax({
-      url: "/requestUserAccess?username=" + username + "&school_id=" + school_id + "&about_me=" + about_me +
-        "&user_type=" + user_type,
-      type: "get",
-      data: data,
-      success: function (response) {
-        if (response == '0') {
-          $("#mainDiv").hide();
-          $("#accessRequestedAlreadyDiv").show();
-        } else {
-          $('#invalidSchoolIdDiv').show();
-        }
-      },
-      error: function (xhr) {
-        window.alert("error occurred while requesting access");
+  $('.practiceInput').change(function(){
+    var partnerStudent = $("input[name='partnerStudent']:checked").val();
+    var board =$("#board").val();
+    var class_val = $("#class_val").val();
+    //window.alert(partnerStudent);
+    //window.alert(board);
+    //window.alert(class_val);
+    if (partnerStudent!=null && board!=null && class_val!=null){
+      if (partnerStudent=='Yes'){        
+        $('#partnerStudentMSG').show();
+        $('#practiceStart').prop('disabled', true);
       }
-    });
+      else{
+        $('#partnerStudentMSG').hide();        
+        $('#practiceStart').prop('disabled', false);
+      }      
+    }
   });
 </script>
 {%endblock%}
