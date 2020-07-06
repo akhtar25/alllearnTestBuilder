@@ -319,6 +319,13 @@ def classSecCheck():
         else:
             return 'Y'
 
+
+@app.route('/practiceTest')
+def practiceTest():
+    studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    return render_template('/practiceTest.html',studentData=studentData)
+
+
 @app.route('/normal')
 def normal():
     return 'Normal'
@@ -583,22 +590,22 @@ def promoteStudent():
     studentListQuery = "select sp.student_id,sp.school_id ,full_name , section ,class_val ,section from student_profile sp inner join class_section cs on sp.class_sec_id =cs.class_sec_id where sp.school_id='"+str(teacher_id.school_id)+"'"
     studentList = db.session.execute(studentListQuery).fetchall()
     if request.method == 'POST':
-        print('Inside post request')    
+        #print('Inside post request')    
         flash('Student promoted successfully')
         classSecBefore = form.class_section1.data
         classSecAfter = form.class_section2.data
-        print('Class Section after')
-        print(classSecAfter)
+        #print('Class Section after')
+        #print(classSecAfter)
         resClassSection = classSecAfter.split("-")
         classAfter = resClassSection[0]
-        print(classAfter)
+        #print(classAfter)
         sectionAfter = resClassSection[1]
-        print(sectionAfter)
+        #print(sectionAfter)
         value = request.form.getlist('checkbox')
         for i in range(len(value)):
-            print(value[i])
+            #print(value[i])
             studentPromote = StudentProfile.query.filter_by(student_id=str(value[i])).first()
-            print(studentPromote.full_name)
+            #print(studentPromote.full_name)
             classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=str(classAfter),section=str(sectionAfter),school_id=str(teacher_id.school_id)).first()
             studentPromote.class_sec_id = classSection.class_sec_id
             db.session.commit()
@@ -624,13 +631,13 @@ def classRegistration():
     form = ClassRegisterForm()
     #if form.validate_on_submit():
     if request.method == 'POST':
-        print('passed validation')
+        #print('passed validation')
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
 
         for i in range(len(class_val)):
-            print('there is a range')
+            #print('there is a range')
             class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=teacherRow.school_id)
             db.session.add(class_data)
         
@@ -1424,11 +1431,15 @@ def disconnectedAccount():
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
+    #added under the change for practice test module
+    boardRows = MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()
+    classRows = BoardClassSubject.query.with_entities(BoardClassSubject.class_val).distinct().order_by(BoardClassSubject.class_val.desc()).all()
+
     if userDetailRow.user_type==72:
         print('Inside Guardian condition')
         return redirect(url_for('guardianDashboard'))
     if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
-        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow, boardRows=boardRows,classRows=classRows)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:

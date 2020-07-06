@@ -1,0 +1,376 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <br>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#testSummaryDiv">Home</a></li>
+        <li class="tab col s3"><a href="#testHistory">Test History</a></li>
+        <!-- <li class="tab col s3"><a href="#payrollReport">Report</a></li>
+        <li class="tab col s3"><a id="allocation" href="#teacherAllocation">Teacher Allocation</a></li>-->
+    </ul>
+    <br>
+    <a href="#startTestModal" id="startTestBTN" class="modal-trigger right btn green">Start Practice Test</a><br>
+    <h4 class="">Hi, {{studentData.full_name}}</h4>
+    <div id="practiceTestDiv" class="col-xs-12 row ">
+        <!--<div id="pointsDiv"  class="">
+            <h5 >Points earned: <span class="green-text">240{{studentData.points_earned}}</span> </h5>
+            <h5 >Level: <span class="blue-text">Pro {{studentData.current_level}}</span></h5>
+        </div>-->
+
+        <div class="row " id="testSummaryDiv">
+            <div class="box">
+                <!--<div class="box-header">
+                <h3 class="box-title">Class Summary</h3>
+              </div>-->
+                <div class="box-body table-responsive no-padding">
+                    <div class="col-xs-3">
+                        <h4 class="grey-text">Tests Taken</h4>
+                        {%if studentData.tests_taken%}
+                        <h3 class="green-text">{{studentData.tests_taken}}</h3>
+                        {%else%}
+                        <h3 class="green-text">11</h3>
+                        {%endif%}
+                    </div>
+                    <div class="col-xs-3">
+                        <h4 class="grey-text">Average Performance</h4>
+                        {%if studentData.avg_performance%}
+                        <h3 class="blue-text">{{studentData.avg_performance}}%</h3>
+                        {%else%}
+                        <h3 class="blue-text">71%</h3>
+                        {%endif%}
+                    </div>
+                    <div class="col-xs-3">
+                        <h4 class="grey-text">Strength Subjects</h4>
+                        {%if studentData.strength_subjects%}
+                        <h3 class="green-text">{{studentData.strength_subjects}}</h3>
+                        {%else%}
+                        <h3 class="green-text">English and Hindi</h3>
+                        {%endif%}
+                    </div>
+                    <div class="col-xs-3">
+                        <h4 class="grey-text">Points earned</h4>
+                        {%if studentData.points_earned%}
+                        <h3 class="blue-text">240{{studentData.points_earned}}</h3>
+                        <h5>Level: <span class="purple-text">Pro {{studentData.current_level}}</span></h5>
+                        {%else%}
+                        <h3 class="blue-text">240 <span class="purple-text" style="font-size: 14px;"><b>PRO</b>
+                                {{studentData.current_level}}</span></h3>
+                        {%endif%}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="testHistory">
+            <table class="highlight">
+                <thead>
+                    <th>Subject</th>
+                    <th>Topics</th>
+                    <th>Test Date</th>
+                    <th>Performance</th>
+                    <th>See Report</th>
+                </thead>
+                <tbody>
+                    {%if testHistory%}
+                    {%for row in testHistory%}
+                    <tr>
+                        <td>{{row.subject}}</td>
+                        <td><a href="#" class="seeTopicsBTNClass">See Topics</a></td>
+                        <td>{{row.test_date.strftime('%d %B %Y')}}</td>
+                        <td>{{row.performance}}</td>
+                        <td><a href="#" class="seeReportClass"></a></td>
+                    </tr>
+                    {%endfor%}
+                    {%endif%}
+                </tbody>
+            </table>
+        </div>
+        <br><br>
+    </div>
+
+</div>
+
+<div id="startTestModal" class="modal">
+    <div class="modal-content" style="height: 100%;">
+        <!--<img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">-->
+        <h4 class="grey-text">Configure Test </h4><h5>For CBSE Class 5</h5>
+        <div class="row">
+       <!-- <div class="subSelectionDiv col-xs-4" style="overflow-y: auto;border:1px">
+            <h4 class="grey-text center">Subject</h4>
+            <ul class="collection">
+                <a href="#" class="subjectBTNClass">
+                    <li class="z-depth-1 collection-item blue darken-1" style="margin-bottom: 2px;"><span
+                            class="white-text ">English</span><i class="material-icons right white-text">send</i></li>
+                </a>
+                <a href="#" class="subjectBTNClass">
+                    <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
+                            class="white-text ">Hindi</span><i class="material-icons right white-text">send</i></li>
+                </a>
+                <a href="#" class="subjectBTNClass">
+                    <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
+                            class="white-text ">Science</span><i class="material-icons right white-text">send</i></li>
+                </a>
+            </ul>
+            {%if subjectList%}
+            {%for row in subjectList%}
+            <a href="#" class="subjectBTNClass" id="{{row.subject}}">
+                <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
+                        class="white-text ">{{row.subject}}</span><i class="material-icons right white-text">send</i></li>
+            </a>
+            {%endfor%}
+            {%endif%}
+        </div>
+
+        <div class="topicSelectionDiv col-xs-4" style="overflow-y: auto;">
+            <h4 class="grey-text center">Topics</h4> 
+            <div style="border-width: 2px;border: palevioletred;" class="center">
+            <p>
+                <label>
+                  <input type="checkbox" />
+                  <span style="font-family: Arial">Topic 1</span>
+                </label>
+              </p>   
+              <p>
+                <label>
+                  <input type="checkbox" />
+                  <span style="font-family: Arial">Topic 2</span>
+                </label>
+              </p>  
+              <p>
+                <label>
+                  <input type="checkbox" />
+                  <span style="font-family: Arial">Topic 3</span>
+                </label>
+              </p>    
+            </div>         
+        </div>-->
+        <div class="col-xs-4">
+            <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
+                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+            </div>
+            <div class="input-field col s12">
+                
+                <select id="selectSubject">
+                  <option value="" disabled selected>Select Subject</option>
+                  
+                </select>
+              </div>
+        </div>
+        <div class="col-xs-4">
+            <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
+                <img src='../static/images/spinner.gif' width='25px' height='25px'>
+            </div>
+            <div class="input-field col s12">
+                <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
+                  <option value="" disabled selected>Select Chapters and topics</option>
+                  
+                </select>
+              </div>
+            </div>
+        <div class="questionenterDiv col-xs-3" style="overflow-y: auto;">
+            <h4 class="grey-text center">Question Count</h4> 
+            <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount" name="qcount" >
+        </div>
+    </div>
+    <div class="row">
+        <a href="#" class="btn green right">Start Test</a>
+    </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.tabs').tabs();
+        $('.modal').modal();
+        $('select').formSelect();
+
+      
+    });
+
+    var select_chapter = document.getElementById('selectChapters');
+  select_subject.onchange = function(){
+    $("#filebox").html('');
+      $('#chapterLoader').show();
+      $('#selectChapters').html('');
+      console.log('inside subject onchange');
+      var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    var date = $('#test_date').val();
+    topics = $('#selectChapters').val();
+    if(subject_id && class_val && test_type && date && topics){
+        console.log('if all are not empty');
+        $('#questionSubmitBtn').prop('disabled',false);
+    }else{
+        console.log('if all are empty');
+        $('#questionSubmitBtn').prop('disabled',true);
+    }
+    var subject_id = select_subject.value;
+    var class_val = select_class.value; 
+    
+    
+    $.ajax({
+      url: "/addChapterTopics?class_val="+class_val+"&subject_id="+subject_id,
+      type:"POST",
+      contentType:"/application/json",
+      data:"",
+      success: function(response){
+        if(response){
+        responseArr = response.toString().split('/,/');
+        var optionHTML = '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
+        var bookNames = []; 
+        for(var i=0;i<responseArr.length;i++){
+          var book_name = responseArr[i].toString().split(':')[0];
+          var topic_name = responseArr[i].toString().split(':')[1];
+          var chapter_name = responseArr[i].toString().split(':')[2];
+          var topic_id = responseArr[i].toString().split(':')[3];                                                      
+                      if(bookNames.includes(book_name)==false){
+                        console.log(bookNames);
+                        console.log('value:'+bookNames.includes(book_name));
+                        optionHTML +=  '<optgroup label="'+book_name+'"></optgroup>';
+                      
+                      }  
+                      bookNames.push(book_name);                  
+                optionHTML += '<option value="'+topic_id+'" name="topic_ids"> '+chapter_name+' - '+topic_name+'</option></optgroup>';
+        }
+    }else{
+        optionHTML += '<option value="" name="topic_ids" disabled selected>No data available</option>'
+    }
+        select_chapter.innerHTML = optionHTML;
+        $('#chapterLoader').hide();
+
+        $('#selectChapters').formSelect();
+      },
+      error: function(xhr){
+        window.alert('error occured while loading chapters');
+      }
+    });
+    $('#testBuilderQuestions').hide();
+    $("questions").hide();
+    $('#questionloader').show();    
+}
+
+
+
+
+
+
+    $('#startTestBTN').click(function () {
+        $('#loaderDiv').show();
+        var data = "";
+
+        $.ajax({
+            url: "/payrollMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck,
+            type: "get",
+            data: data,
+            success: function (response) {
+                $('#questionloader').hide();
+                $('#salaryUpdateDiv').show();
+                $("#salaryUpdateDiv").html(response);
+                console.log('Fetched payroll data from server')
+            },
+            error: function (xhr) {
+                $('#questionloader').hide();
+                window.alert("error occurred while submitting data");
+            }
+        });
+    });
+
+
+
+    $.ajax({ 
+            url: "/addClass?class_val="+class_val,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+              console.log('inside success');
+                console.log(response);
+                if(response){
+                responseArr = response.toString().split(',');
+                var optionHTML = '<option value="" disabled selected>Select Subject</option>';
+              for(var i=0;i<responseArr.length;i++){
+                var subject_id = responseArr[i].toString().split(':')[0];
+                var subject_name = responseArr[i].toString().split(':')[1];
+                console.log(subject_id);
+                console.log(subject_name);
+                optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';
+                
+              }
+            }else{
+                optionHTML +='<option value="">No data available</option>';
+            }
+              console.log(optionHTML);
+              console.log(select_subject);
+              select_subject.innerHTML = optionHTML;
+                $('#subjectLoader').hide();
+              $('#selectSubject').formSelect();
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading subject");
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    $('.selection').change(function () {
+        $('#salaryUpdateDiv').html('');
+        var monthSelectCheck = $('#addMonthSelect').val();
+        var yearSelectCheck = $('#addYearSelect').val();
+        if (monthSelectCheck != null && yearSelectCheck != null) {
+            //alert(monthSelectCheck);
+            //alert(yearSelectCheck);
+            $('#questionloader').show();
+            //ajax fetch from server    
+            var data = "";
+            $.ajax({
+                url: "/payrollMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#questionloader').hide();
+                    $('#salaryUpdateDiv').show();
+                    $("#salaryUpdateDiv").html(response);
+                    console.log('Fetched payroll data from server')
+                },
+                error: function (xhr) {
+                    $('#questionloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+
+            $('#salaryUpdateDiv').show();
+        } else {
+            $('#salaryUpdateDiv').hide();
+        }
+    });
+
+    $('#allocation').click(function () {
+        $.ajax({
+            url: "/teacherAllocation",
+            type: "get",
+            data: '',
+            success: function (response) {
+                $('#teacherAllocationDiv').html(response);
+            },
+            error: function (xhr) {
+                alert('error occured while fetching template');
+            }
+        });
+    });
+</script>
+{% endblock %}
