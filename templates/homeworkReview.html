@@ -14,11 +14,11 @@
                 <tr>
                     <td>{{homeworkRow.student_name}}</td>
                     {% if homeworkRow.ans_count==homeworkRow.qcount %}
-                    <td>completed</td>
+                    <td>Completed</td>
                     {% else %}
-                    <td>pending</td>
+                    <td>Pending</td>
                     {% endif %}
-                    <td><a href="#reviewModal" onclick="getReview('{{homework_name}}','{{homeworkRow.student_id}}');" class="modal-trigger" >Review</a></td>
+                    <td><a href="#reviewModal" onclick="getReview('{{homework_id}}','{{homeworkRow.student_id}}');" class="modal-trigger" >Review</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -46,7 +46,7 @@
         $('#homeworkReviewDiv').html('');
         $('#homeworkLoader').show();    
         $.ajax({
-                url: "/indivHomeworkReview?homework_name="+homeworkId+"&student_id="+studentId,
+                url: "/indivHomeworkReview?homework_id="+homeworkId+"&student_id="+studentId,
                 type: "get",
                 data: '',
                 success: function (homeworkResponse) {

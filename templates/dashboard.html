@@ -518,7 +518,7 @@ var class_section = document.getElementById('class_section1')
           }
             },
             error: function (xhr) {
-                window.alert("error occurred while loading performance bar chart");
+                console.log("error occurred while loading performance bar chart");
             }
           
           });
@@ -614,7 +614,7 @@ function passStudentList(data){
         $('#pieChartloader').hide();
           },
             error: function (xhr) {
-                window.alert("error occurred while loading performance pie chart");
+                console.log("error occurred while loading performance pie chart");
             }
         });
         });
@@ -720,7 +720,7 @@ function passStudentList(data){
           }
             },
             error: function (xhr) {
-                window.alert("error occurred while loading performance bar chart");
+                console.log("error occurred while loading performance bar chart");
             }
           });
       });

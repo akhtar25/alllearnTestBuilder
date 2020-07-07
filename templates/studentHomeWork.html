@@ -18,10 +18,10 @@
                 <td>{{eachRow.homework_name}}</td>                
                 <td>{{eachRow.last_modified_date.strftime('%d %B %Y')}}</td>
                 <td>{{eachRow.question_count}}</td>
-                {% if eachRow.question_count==eachRow.ans_count %}
-                <td>Completed</td>
+                {% if eachRow.ans_count >0%}
+                <td>Submitted</td>
                 {% else %}
-                <td>Pending - {{eachRow.ans_count}}/{{eachRow.question_count}}</td>
+                <td>Pending - {{eachRow.question_count}} Qs</td>
                 {% endif %}
                 <td><a href="#homeworkModal" onclick="getQuestions('{{eachRow.homework_id}}');" id="open" class="modal-trigger btn green right" >Open</a></td>
               </tr>
