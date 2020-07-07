@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
+from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
@@ -805,26 +805,27 @@ def singleStudReg():
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
         guardianDetail2 = ''
-        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp " 
-        query = query + "inner join address_detail ad on ad.address_id=sp.address_id "
-        query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id " 
-        query = query + "inner join message_detail md on md.msg_id=sp.gender where sp.student_id='"+str(student_id)+"'"
+        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp "                 
+        query = query + "inner join message_detail md on md.msg_id=sp.gender "
+        query = query + "left join class_section cs on cs.class_sec_id=sp.class_sec_id " 
+        query = query + "left join address_detail ad on ad.address_id=sp.address_id "
+        query = query + "where sp.student_id='"+str(student_id)+"'"
         # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
         # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
         studentDetailRow = db.session.execute(text(query)).first()
         queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
         guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
-        print('Guardain Detail1 :')
-        print(guardianDetail1)
+        #print('Guardain Detail1 :')
+        #print(guardianDetail1)
         guardianDetail2 = ''
         if guardianDetail1!=None:
-            print('If guardian Detail1 is not empty')
+            #print('If guardian Detail1 is not empty')
             queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
             guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
         # print(guardianDetail1)
         # print(guardianDetail2)
-        print('Name:'+str(studentDetailRow.first_name))
-        print('Gender:'+str(studentDetailRow.class_val))
+        #print('Name:'+str(studentDetailRow.first_name))
+        #print('Gender:'+str(studentDetailRow.class_val))
         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
 
 
@@ -835,13 +836,10 @@ def studentRegistration():
     form=SingleStudentRegistration()
     if request.method=='POST':
         print('Inside Student Registration')
-        if form.submit.data:
-            
+        if form.submit.data:            
             studentId = request.form['tag']
             print('Student Id:'+str(studentId))
-            if studentId:
-                
-
+            if studentId:                
                 print('Inside Student update when student id is not empty')
                 student_id = request.form['tag']
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -878,10 +876,14 @@ def studentRegistration():
                 studentDetails.roll_number=int(form.roll_number.data)
                 studentDetails.school_adm_number=form.school_admn_no.data
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
-                db.session.commit()
-                studentClassSec.class_sec_id = class_sec.class_sec_id
-                studentClassSec.class_val = str(form.class_val.data)
-                studentClassSec.section = form.section.data
+                if studentClassSec!=None and studentClassSec!="":
+                    studentClassSec.class_sec_id = class_sec.class_sec_id
+                    studentClassSec.class_val = str(form.class_val.data)
+                    studentClassSec.section = form.section.data
+                else:
+                    studentClassSecAdd = StudentClassSecDetail(student_id=student_id, class_sec_id=class_sec.class_sec_id, 
+                        class_val=str(form.class_val.data), section=form.section.data, is_current='Y', last_modified_date=datetime.today())
+                    db.session.add(studentClassSecAdd)
                 db.session.commit()
                 first_name=request.form.getlist('guardian_first_name')
                 last_name=request.form.getlist('guardian_last_name')
@@ -941,7 +943,7 @@ def studentRegistration():
                 # guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
                 # email=email[i],phone=phone[i],student_id=student_data.student_id)
                 db.session.commit()
-                flash('Data Updated Successfully!')
+                flash(Markup('Data Updated Successfully! Go to <a href="/studentProfile"> Student Directory</a>?'))
                 return render_template('studentRegistration.html',studentId=student_id,user_type_val=str(current_user.user_type))
 
 
@@ -6380,10 +6382,17 @@ def indivStudentProfile():
     x = range(4)    
 
     #section for fetching surveys
-    surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
+    try:
+        surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
+    except:
+        surveyRows=[]
+        print('survey error')
 
     for n in x:               
-        optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+        if studentProfileRow!=None and studentProfileRow!="":
+            optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+        else:
+            optionURL=""
         qrArray.append(optionURL)
         #print(optionURL)
     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
