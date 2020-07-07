@@ -548,6 +548,7 @@ class StudentHomeWorkResponse(db.Model):
     sq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
     answer = db.Column(db.String(200), nullable=True)
     teacher_remark  = db.Column(db.String(100), nullable=True)
+    #is_archived = db.Column(db.String(1), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
 # End

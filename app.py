@@ -6710,6 +6710,7 @@ def studentHomeWork():
         homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
         homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
         homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+        homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
         print(homeworkDetailQuery)
         homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
         print('student_id:'+str(student_id.student_id))
@@ -6739,6 +6740,7 @@ def HomeWork():
     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
     homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+    homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
     print(homeworkDetailQuery)
     homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
@@ -6758,19 +6760,28 @@ def homeworkReview():
     homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).first()
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name)
+    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name,homework_id=homework_id)
 
 @app.route('/indivHomeworkReview',methods=['GET','POST'])
 @login_required
 def indivHomeworkReview():
-    homework_name = request.args.get('homework_name') 
+    homework_id = request.args.get('homework_id') 
     student_id = request.args.get('student_id')
-    homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
-    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
-    reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    #homework_id = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    #reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
+    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark "
+    #from homework_questions hq left join student_homework_response shr "
+    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    reviewData = reviewData + " from homework_detail hd inner join homework_questions hq on "
+    reviewData = reviewData + " hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+    reviewData = reviewData + " left join student_homework_response shr on "
+    reviewData = reviewData + " hq.sq_id =shr.sq_id and shr.student_id = " + str(student_id)
+    reviewData = reviewData + " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+    reviewData = reviewData + " where student_id ="+ str(student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id ) "
     #print(reviewData)
-    reviewData = db.session.execute(text(reviewData)).fetchall()
-    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
+    reviewData = db.session.execute(text(reviewData)).fetchall()    
+    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,student_id=student_id)
 
 @app.route('/indivHomeworkDetail',methods=['GET','POST'])
 @login_required
@@ -6781,12 +6792,23 @@ def indivHomeWorkDetail():
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
     #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
 
-    homeworkDataQQuery = " select hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
-    homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
-    homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
-    homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
-    homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
-    homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    #homeworkDataQQuery = " select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
+    #homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
+    #homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
+    #homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
+    #homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
+    #homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    #homeworkDataQQuery = homeworkDataQQuery +  " and homework_response_id in "
+    #homeworkDataQQuery = homeworkDataQQuery +  " (select min(homework_response_id )from student_homework_response shr "
+    #homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) + " and homework_id ="+ str(homework_id) +" group by sq_id ) "
+    homeworkDataQQuery = "select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , shr.student_id, answer,teacher_remark "
+    homeworkDataQQuery = homeworkDataQQuery +  " from homework_detail hd inner join homework_questions hq "
+    homeworkDataQQuery = homeworkDataQQuery +  " on hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+    homeworkDataQQuery = homeworkDataQQuery +  " left join student_homework_response shr on "
+    homeworkDataQQuery = homeworkDataQQuery +  " hq.sq_id =shr.sq_id and shr.student_id =" + str(student_id.student_id)
+    homeworkDataQQuery = homeworkDataQQuery +  " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+    homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id )"
+
     print(homeworkDataQQuery)
     homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
     homeworkAttach = db.session.execute(text("select attachment from homework_detail where homework_id='"+str(homework_id)+"'")).first()
@@ -6818,9 +6840,16 @@ def addHomeworkAnswer():
     user_id = User.query.filter_by(id=current_user.id).first()
     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
-        addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-            student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
-        db.session.add(addNewHomeWorkResponse)
+        checkStudentReponse = StudentHomeWorkResponse.query.filter_by(student_id=student_id.student_id,sq_id=sq_id_list[i]).first()
+        if checkStudentReponse==None or checkStudentReponse=="":
+            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+                student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
+            db.session.add(addNewHomeWorkResponse)
+            print("Not present")
+        else:
+            return jsonify(['1'])
+        #    checkStudentReponse.answer=answer_list[i]
+        #    print("Already present")
     db.session.commit()
     return jsonify(['0'])
 

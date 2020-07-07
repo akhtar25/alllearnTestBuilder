@@ -5,7 +5,8 @@
         <ol>
         {%for row in reviewData%}        
             <li>
-                <h4>{{row.question}}</h4>
+               <h4>{{row.question}}</h4>        
+               <div class="row">
                 {% if row.ref_url!='' %}
                 {% if row.ref_type==98 %}
                 <img style="border:1px solid rgb(155, 115, 115); width:251px; height: 115px;margin-left: 90px;float: right;"
@@ -23,9 +24,16 @@
                     src="{{row.ref_url}}" type="application/pdf">
                 {% endif %}
                 {% endif %}
+            </div>        
+            <div class="row">           
                 <input type="hidden" name="sq_id" value="{{row.sq_id}}">
-                <input type="text" disabled name="answer" placeholder="Answer" value="A. {{row.answer}}"
-                    style="font-size: large;">
+                {%if row.answer%}
+                <span class="grey-text">Answered:</span> <input type="text" class="green-text" name="answer" placeholder="Add Answer" value="{{row.answer}}" style="font-size: large;" disabled>
+                {%else%}
+                <input type="text" name="answer" placeholder="Not yet answered" style="font-size: large;" disabled>
+                {%endif%}
+                </div>
+                <div class="row">
                 {% if row.teacher_remark %}
                 Remark &nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="text" disable name="remark"  value="{{row.teacher_remark}}"
@@ -34,6 +42,7 @@
                 Enter remark&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="text" name="remark"  style="margin-left:10px;width: 200px;" />
                 {% endif %}
+                </div>
             </li>
         
         {%endfor%}
