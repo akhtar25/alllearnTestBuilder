@@ -27,7 +27,7 @@
                         {%if studentData.tests_taken%}
                         <h3 class="green-text">{{studentData.tests_taken}}</h3>
                         {%else%}
-                        <h3 class="green-text">11</h3>
+                        <h3 class="green-text">NA</h3>
                         {%endif%}
                     </div>
                     <div class="col-xs-3">
@@ -35,7 +35,7 @@
                         {%if avg_performance%}
                         <h3 class="blue-text">{{avg_performance}}%</h3>
                         {%else%}
-                        <h3 class="blue-text">71%</h3>
+                        <h3 class="blue-text">NA</h3>
                         {%endif%}
                     </div>
                     <div class="col-xs-3">
@@ -43,16 +43,16 @@
                         {%if studentData.strength_subjects%}
                         <h3 class="green-text">{{studentData.strength_subjects}}</h3>
                         {%else%}
-                        <h3 class="green-text">English and Hindi</h3>
+                        <h3 class="green-text">NA</h3>
                         {%endif%}
                     </div>
                     <div class="col-xs-3">
                         <h4 class="grey-text">Points earned</h4>
                         {%if studentData.points_earned%}
-                        <h3 class="blue-text">240{{studentData.points_earned}}</h3>
-                        <h5>Level: <span class="purple-text">Pro {{studentData.current_level}}</span></h5>
+                        <h3 class="blue-text">{{studentData.points_earned}}</h3>
+                        <h5>Level: <span class="purple-text"> {{studentData.current_level}}</span></h5>
                         {%else%}
-                        <h3 class="blue-text">240 <span class="purple-text" style="font-size: 14px;"><b>PRO</b>
+                        <h3 class="blue-text">NA <span class="purple-text" style="font-size: 14px;"><b>NA</b>
                                 {{studentData.current_level}}</span></h3>
                         {%endif%}
                     </div>

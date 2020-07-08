@@ -349,8 +349,7 @@ def practiceTest():
     studentDataQuery = "with temptable as "
     studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
     studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
-    studentDataQuery = studentDataQuery + " (select distinct question_id from test_questions t1 inner join session_detail t2 on "
-    studentDataQuery = studentDataQuery + " t1.test_id=t2.test_id ) ) "
+    studentDataQuery = studentDataQuery + " (select question_id from response_capture rc2 where student_id ="+ str(studentProfile.student_id)+") ) "
     studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
     studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
     studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
@@ -364,7 +363,10 @@ def practiceTest():
     studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
     studentData = db.session.execute(text(studentDataQuery)).first()
     if studentData!=None or studentData!="":
-        avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
+        try:
+            avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
+        except:
+            avg_performance=0
     else:
         avg_performance = 0
     
@@ -4184,11 +4186,14 @@ def startPracticeTest():
     questionIDList = []
     if topics:
         for topic in topics:
-            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),
-                subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').all()
+            #questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
+            questionListQuery = "select *from question_details where archive_status='N' and question_type='MCQ1' and topic_id=" + str(topic)
+            questionListQuery = questionListQuery + " order by random() " #limit " +  str(qcount)
+            questionList = db.session.execute(text(questionListQuery)).fetchall()
             if questionList:  
                 for q in questionList:
-                    questions.append(q)   
+                    if len(questions)< int(qcount):
+                        questions.append(q)   
     for val in questions:        
         print(str(val))
         total_marks = total_marks + val.suggested_weightage
@@ -4199,6 +4204,7 @@ def startPracticeTest():
         date_of_test=str(datetime.today()), school_id=studentData.school_id)
     db.session.add(testDetailsAdd)
     db.session.commit()
+    print('test_id:'+str(testDetailsAdd.test_id))
     print('Data feed to test details complete')
 
     ##### This section to insert values into test questions table #####        
@@ -4211,7 +4217,7 @@ def startPracticeTest():
     ##Create response session ID
     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
     responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
-    
+    print('resp session id:'+str(responseSessionID))
     print('Response ID generated')
 
     ##Create session
@@ -4246,8 +4252,8 @@ def feedbackCollectionStudDev():
             section=classSectionRow.section,questionListSize=questionListSize,
             resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
-        flash('This is not a valid id')
-        return redirect('index',disconn=1)
+        flash('This is not a valid id or there are no question in this test')
+        return redirect('index')
         #return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
