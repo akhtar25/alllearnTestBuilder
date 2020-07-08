@@ -345,8 +345,46 @@ def practiceTest():
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
             db.session.commit()        
-    studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('/practiceTest.html',studentData=studentData, disconn=1)
+    studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    studentDataQuery = "with temptable as "
+    studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
+    studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
+    studentDataQuery = studentDataQuery + " (select distinct question_id from test_questions t1 inner join session_detail t2 on "
+    studentDataQuery = studentDataQuery + " t1.test_id=t2.test_id ) ) "
+    studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
+    studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
+    studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
+    studentDataQuery = studentDataQuery + " from response_capture rc inner join student_profile sp on "
+    studentDataQuery = studentDataQuery + " rc.student_id=sp.student_id "
+    studentDataQuery = studentDataQuery + " inner join question_details qd on "
+    studentDataQuery = studentDataQuery + " qd.question_id=rc.question_id, total_marks_cte         "
+    studentDataQuery = studentDataQuery + " group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage ) "
+    studentDataQuery = studentDataQuery + " ,temp2 as (select count(distinct resp_session_id) as tests_taken "
+    studentDataQuery = studentDataQuery + " , student_id from response_capture group by student_id) "
+    studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
+    studentData = db.session.execute(text(studentDataQuery)).first()
+    if studentData!=None or studentData!="":
+        avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
+    else:
+        avg_performance = 0
+    
+    #fetch subject list
+    subjectQuery = "select cs.class_val as class_val, m1.msg_id as msg_id,description from board_class_subject bcs "
+    subjectQuery = subjectQuery + " inner join message_detail m1 on "
+    subjectQuery = subjectQuery + " bcs.subject_id =m1.msg_id inner join "
+    subjectQuery = subjectQuery + " student_profile sp on sp.school_id =bcs.school_id inner join "
+    subjectQuery = subjectQuery + " class_section cs on cs.class_sec_id  = sp.class_sec_id "
+    subjectQuery = subjectQuery + " and bcs.class_val  = cs.class_val "
+    subjectQuery = subjectQuery + " and sp.student_id ="+ str(studentProfile.student_id)
+    subjectData = db.session.execute(subjectQuery).fetchall()
+    
+    class_val = ""
+    if subjectData!=None and subjectData!="":
+        for row in subjectData:
+            class_val = row.class_val
+            
+    return render_template('/practiceTest.html',studentData=studentData, disconn=1,
+        studentProfile=studentProfile, avg_performance=avg_performance, subjectData=subjectData, class_val=class_val)
 
 
 @app.route('/normal')
@@ -2253,13 +2291,13 @@ def syllabusClasses():
     distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
-        print(val.class_val)
+        #print(val.class_val)
         sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
         # sectionsString = ''
         sectionsString = '['
         i=1
         for section in sections:
-            print(len(sections))
+            #print(len(sections))
             if i<len(sections):
                 sectionsString = sectionsString + str(section.section)+';'
             else:
@@ -2408,7 +2446,10 @@ def addBook():
     subject = request.args.get('subject')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
-    book = BookDetails.query.filter_by(book_id=book_id,class_val=class_val,subject_id=subject_id.msg_id).first()
+    print("class_val"+str(class_val))
+    print("subject id"+str(subject_id.msg_id))
+    print("book id"+str(book_id))
+    book = BookDetails.query.filter_by(book_id=book_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
     for book_id in bookIds:
@@ -4115,6 +4156,76 @@ def mobQuestionLoader():
         return render_template('qrSessionScanner.html')
 
 
+
+
+@app.route('/startPracticeTest', methods=['GET', 'POST'])
+def startPracticeTest():
+    topics = request.get_json()
+    for topic in topics:
+        print('topic:'+str(topic))
+    difficulty = request.args.get('difficulty')    
+    qcount = request.args.get('qcount')
+    subject_id = request.args.get('subject_id')
+    class_val = request.args.get('class_val')
+    print('difficulty:'+str(difficulty))
+    print('qcount:'+str(qcount))
+    print('subject_id:'+str(subject_id))
+    print('class_val:'+str(class_val))
+    #subject_id
+    #board_id = request.args.get('board_id')
+    #topicList = request.form.getlist('topicList')
+
+    studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
+
+    #Collection Questions
+    questions = []
+    total_marks = 0
+    questionIDList = []
+    if topics:
+        for topic in topics:
+            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),
+                subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').all()
+            if questionList:  
+                for q in questionList:
+                    questions.append(q)   
+    for val in questions:        
+        print(str(val))
+        total_marks = total_marks + val.suggested_weightage
+        questionIDList.append(val.question_id)
+    ##Create test
+    testDetailsAdd = TestDetails(test_type='100', total_marks=str(total_marks),last_modified_date= datetime.today(),
+        board_id=str(schoolData.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.today(),
+        date_of_test=str(datetime.today()), school_id=studentData.school_id)
+    db.session.add(testDetailsAdd)
+    db.session.commit()
+    print('Data feed to test details complete')
+
+    ##### This section to insert values into test questions table #####        
+    for questionVal in questions:
+        testQuestionInsert= TestQuestions(test_id=testDetailsAdd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now())
+        db.session.add(testQuestionInsert)
+    db.session.commit()
+    
+    print('Data feed to test questions complete')
+    ##Create response session ID
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+    
+    print('Response ID generated')
+
+    ##Create session
+    if len(questions) >0:
+        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
+            class_sec_id=studentData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
+        db.session.add(sessionDetailRowInsert)
+        db.session.commit()        
+
+    print('Data feed to session detail completed')
+    ## Start test
+    return jsonify([responseSessionID])    
+
+
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
@@ -4136,7 +4247,8 @@ def feedbackCollectionStudDev():
             resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
         flash('This is not a valid id')
-        return render_template('qrSessionScannerStudent.html',disconn=1)
+        return redirect('index',disconn=1)
+        #return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
 @app.route('/updateQuestion')
@@ -6154,11 +6266,17 @@ def questionFile():
 def addChapterTopics():
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.user_type==71:
+        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        school_id = teacherData.school_id
+    else:
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        school_id = studentData.school_id
+
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
     query = query + "inner join book_details bd on td.book_id = bd.book_id "
-    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' order by td.chapter_num "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(school_id)+"' order by td.chapter_num "
     chapters = db.session.execute(text(query)).fetchall()
     chaptersArray = []
     i=1

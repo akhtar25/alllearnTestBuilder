@@ -360,9 +360,7 @@ var topics = '';
                 else{
                     $("#questions").html(response);
                     
-                } 
-                
-          
+                }                           
             },
             error: function (xhr) { 
                 window.alert("error occurred while loading contents");
@@ -467,7 +465,7 @@ var topics = '';
     //             window.alert("error occurred while loading question");
     //         }
     //     });
-    // }
+    // }sd
     
     function questionFile() {
         var subject_id = select_subject.value;
@@ -488,9 +486,7 @@ var topics = '';
                                     'extensions: ["tex2jax.js"],' +
                                     'jax: ["input/TeX","output/HTML-CSS"]' +
                                 '});' +
-                                'MathJax.Hub.Startup.onload();';
-                                
-
+                                'MathJax.Hub.Startup.onload();';                                
                     if (window.opera) {script.innerHTML = config}
                                 else {script.text = config}
 

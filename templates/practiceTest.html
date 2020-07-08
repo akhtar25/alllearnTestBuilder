@@ -8,7 +8,7 @@
         <li class="tab col s3"><a id="allocation" href="#teacherAllocation">Teacher Allocation</a></li>-->
     </ul>
     <br>
-    <a href="#startTestModal" id="startTestBTN" class="modal-trigger right btn green">Start Practice Test</a><br>
+    <a href="#startTestModal" id="startTestModalBTN" class="modal-trigger right btn green">Start Practice Test</a><br>
     <h4 class="">Hi, {{studentData.full_name}}</h4>
     <div id="practiceTestDiv" class="col-xs-12 row ">
         <!--<div id="pointsDiv"  class="">
@@ -32,8 +32,8 @@
                     </div>
                     <div class="col-xs-3">
                         <h4 class="grey-text">Average Performance</h4>
-                        {%if studentData.avg_performance%}
-                        <h3 class="blue-text">{{studentData.avg_performance}}%</h3>
+                        {%if avg_performance%}
+                        <h3 class="blue-text">{{avg_performance}}%</h3>
                         {%else%}
                         <h3 class="blue-text">71%</h3>
                         {%endif%}
@@ -89,94 +89,84 @@
 
 </div>
 
-<div id="startTestModal" class="modal">
-    <div class="modal-content" style="height: 100%;">
+<div id="startTestModal" class="modal" style="width: 400px;overflow-y: auto;">
+    <div class="modal-content">
         <!--<img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">-->
+        <span id="errorDisplay"></span>
         <h4 class="grey-text">Configure Test </h4>
-        <h5>For CBSE Class 5</h5>
+        <h5><b>Class {{class_val}}</b></h5>
         <div class="row">
-            <!-- <div class="subSelectionDiv col-xs-4" style="overflow-y: auto;border:1px">
-            <h4 class="grey-text center">Subject</h4>
-            <ul class="collection">
-                <a href="#" class="subjectBTNClass">
-                    <li class="z-depth-1 collection-item blue darken-1" style="margin-bottom: 2px;"><span
-                            class="white-text ">English</span><i class="material-icons right white-text">send</i></li>
-                </a>
-                <a href="#" class="subjectBTNClass">
-                    <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
-                            class="white-text ">Hindi</span><i class="material-icons right white-text">send</i></li>
-                </a>
-                <a href="#" class="subjectBTNClass">
-                    <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
-                            class="white-text ">Science</span><i class="material-icons right white-text">send</i></li>
-                </a>
-            </ul>
-            {%if subjectList%}
-            {%for row in subjectList%}
-            <a href="#" class="subjectBTNClass" id="{{row.subject}}">
-                <li class="z-depth-1 collection-item blue darken-1 " style="margin-bottom: 2px;"><span
-                        class="white-text ">{{row.subject}}</span><i class="material-icons right white-text">send</i></li>
-            </a>
-            {%endfor%}
-            {%endif%}
-        </div>
-
-        <div class="topicSelectionDiv col-xs-4" style="overflow-y: auto;">
-            <h4 class="grey-text center">Topics</h4> 
-            <div style="border-width: 2px;border: palevioletred;" class="center">
-            <p>
-                <label>
-                  <input type="checkbox" />
-                  <span style="font-family: Arial">Topic 1</span>
-                </label>
-              </p>   
-              <p>
-                <label>
-                  <input type="checkbox" />
-                  <span style="font-family: Arial">Topic 2</span>
-                </label>
-              </p>  
-              <p>
-                <label>
-                  <input type="checkbox" />
-                  <span style="font-family: Arial">Topic 3</span>
-                </label>
-              </p>    
-            </div>         
-        </div>-->
-            <div class="col-xs-4">
+            <div class="col-xs-10">
                 <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
                     <img src='../static/images/spinner.gif' width='25px' height='25px'>
                 </div>
-                <div class="input-field col s12">
-                    <h4 class="grey-text">Select Subject</h4>
+                <div class="input-field">
+                    <h4 class="grey-text">Subject</h4>
                     <select id="selectSubject">
                         <option value="" disabled selected>Select Subject</option>
-
+                        {%if subjectData%}
+                        {%for subject in subjectData%}
+                        <option value="{{subject.msg_id}}">{{subject.description}}</option>
+                        {%endfor%}
+                        {%endif%}
                     </select>
                 </div>
-            </div>
-            <div class="col-xs-4">
-                <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
-                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                </div>
-                <div class="input-field col s12">
-                    <h4 class="grey-text">Select Chapters and Topics</h4>
-                    <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
-                        <option value="" disabled selected>Select Chapters and topics</option>
-
-                    </select>
-                </div>
-            </div>
-            <div class="questionenterDiv col-xs-3" style="overflow-y: auto;">
-                <br>
-                <h4 class="grey-text">Question Count</h4>
-                <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount"
-                    name="qcount">
             </div>
         </div>
         <div class="row">
-            <a href="#" class="btn green right">Start Test</a>
+            <div class="col-xs-10">
+                <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
+                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                </div>
+                <div class="input-field">
+                    <h4 class="grey-text">Chapters and Topics</h4>
+                    <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
+                        <option value="" disabled selected>Select Chapters and topics</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10">
+                <div class="input-field" >
+                    <h4 class="grey-text">Difficulty Preference</h4>
+                    <select id="difficulty" >
+                        <option value="" disabled selected>Select Level</option>
+                        <option value="E">Easy</option>
+                        <option value="Me">Medium</option>
+                        <option value="H">Hard</option>
+                        <option value="Ma">Master</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10">
+                <div class="questionenterDiv ">
+                    <br>
+                    <div class="input-field">
+                        <h4 class="grey-text">Question Count</h4>
+                        <!--  <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount"
+                        name="qcount">-->
+                        <select id="qcount" style="font-family: Arial;">
+                            <option value="" disabled selected>Question Count</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="center">
+                <a href="#" class="btn green " id="startTestBTN" style="width: 150px;">Start</a>
+                <span id="errorStartMSG" class="orange-text" style="display: none;">Error occurred while starting test. Please try again.</span>
+            </div>
         </div>
     </div>
 </div>
@@ -190,27 +180,39 @@
 
     });
 
+    //$("#qcount").on("keypress keyup blur", function (e) {
+    //    $(this).val($(this).val().replace(/^[a-zA-Z]+$/, ""));
+    //    if ($(this).val()>100)
+    //    {
+    //        $("#qcount").prop('disable',true);
+    //    }
+    //    if ((e.which < 48 || e.which > 57)) {
+    //        e.preventDefault();
+    //    }
+    //});
+
     var select_chapter = document.getElementById('selectChapters');
-    select_subject.onchange = function () {
+
+    $('#selectSubject').change(function () {
+        //select_subject.onchange = function () {
         $("#filebox").html('');
         $('#chapterLoader').show();
         $('#selectChapters').html('');
         console.log('inside subject onchange');
-        var subject_id = select_subject.value;
-        var class_val = select_class.value;
-        var test_type = select_test.value;
-        var date = $('#test_date').val();
-        topics = $('#selectChapters').val();
-        if (subject_id && class_val && test_type && date && topics) {
-            console.log('if all are not empty');
-            $('#questionSubmitBtn').prop('disabled', false);
-        } else {
-            console.log('if all are empty');
-            $('#questionSubmitBtn').prop('disabled', true);
-        }
-        var subject_id = select_subject.value;
-        var class_val = select_class.value;
+        var subject_id = $('#selectSubject').val();
 
+        var class_val = "{{class_val}}";
+        //var test_type = select_test.value;
+        //var date = $('#test_date').val();
+        //topics = $('#selectChapters').val();
+        //if (subject_id && class_val && test_type && date && topics) {
+        //    console.log('if all are not empty');
+        //    $('#questionSubmitBtn').prop('disabled', false);
+        //} else {
+        //    console.log('if all are empty');
+        //    $('#questionSubmitBtn').prop('disabled', true);
+        //}
+        //var subject_id = select_subject.value;
 
         $.ajax({
             url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
@@ -232,11 +234,11 @@
                             console.log(bookNames);
                             console.log('value:' + bookNames.includes(book_name));
                             optionHTML += '<optgroup label="' + book_name + '"></optgroup>';
-
                         }
                         bookNames.push(book_name);
-                        optionHTML += '<option value="' + topic_id + '" name="topic_ids"> ' +
-                            chapter_name + ' - ' + topic_name + '</option></optgroup>';
+                        optionHTML += '<option value="' + topic_id +
+                            '" name="topic_ids"><span style="font-size:14;font-family:Arial;"> ' +
+                            chapter_name + ' - ' + topic_name + '</span></option></optgroup>';
                     }
                 } else {
                     optionHTML +=
@@ -248,136 +250,45 @@
                 $('#selectChapters').formSelect();
             },
             error: function (xhr) {
-                window.alert('error occured while loading chapters');
+                //window.alert('error occured while loading chapters');
+                $('#errorDisplay').html(
+                    '<span class="red-text">Error occurred while loading chapters. <br>Please try again</span>'
+                )
             }
         });
         $('#testBuilderQuestions').hide();
         $("questions").hide();
         $('#questionloader').show();
-    }
-
-
-
-
+    });
 
 
     $('#startTestBTN').click(function () {
-        $('#loaderDiv').show();
-        var data = "";
-
+        var topics = $('#selectChapters').val();
+        var difficulty =  $('#difficulty').val();
+        var qcount =  $('#qcount').val();
+        var selectSubject =  $('#selectSubject').val();
+        var class_val =  "{{class_val}}";
+        var topicList = JSON.stringify(topics);
         $.ajax({
-            url: "/payrollMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck,
-            type: "get",
-            data: data,
+            url: "/startPracticeTest?difficulty=" + difficulty + "&qcount=" + qcount + "&subject_id=" + selectSubject + "&class_val=" + class_val,
+            type: "POST",
+            contentType: "application/json",
+            data: topicList,
             success: function (response) {
-                $('#questionloader').hide();
-                $('#salaryUpdateDiv').show();
-                $("#salaryUpdateDiv").html(response);
-                console.log('Fetched payroll data from server')
+                if (response==1){
+                    $('#errorStartMSG').show();
+                }
+                else{
+                    $('#errorStartMSG').hide();                    
+                    window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + response;
+                }
             },
             error: function (xhr) {
-                $('#questionloader').hide();
-                window.alert("error occurred while submitting data");
+                $('#errorStartMSG').html('Error in fetching server response. Please try again.');
             }
         });
     });
 
 
-
-    $.ajax({
-        url: "/addClass?class_val=" + class_val,
-        type: "POST",
-        contentType: "application/json",
-        data: "",
-        success: function (response) {
-            console.log('inside success');
-            console.log(response);
-            if (response) {
-                responseArr = response.toString().split(',');
-                var optionHTML = '<option value="" disabled selected>Select Subject</option>';
-                for (var i = 0; i < responseArr.length; i++) {
-                    var subject_id = responseArr[i].toString().split(':')[0];
-                    var subject_name = responseArr[i].toString().split(':')[1];
-                    console.log(subject_id);
-                    console.log(subject_name);
-                    optionHTML += '<option value="' + subject_id + '">' + subject_name + '</option>';
-
-                }
-            } else {
-                optionHTML += '<option value="">No data available</option>';
-            }
-            console.log(optionHTML);
-            console.log(select_subject);
-            select_subject.innerHTML = optionHTML;
-            $('#subjectLoader').hide();
-            $('#selectSubject').formSelect();
-        },
-        error: function (xhr) {
-            window.alert("error occurred while loading subject");
-        }
-    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    $('.selection').change(function () {
-        $('#salaryUpdateDiv').html('');
-        var monthSelectCheck = $('#addMonthSelect').val();
-        var yearSelectCheck = $('#addYearSelect').val();
-        if (monthSelectCheck != null && yearSelectCheck != null) {
-            //alert(monthSelectCheck);
-            //alert(yearSelectCheck);
-            $('#questionloader').show();
-            //ajax fetch from server    
-            var data = "";
-            $.ajax({
-                url: "/payrollMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck,
-                type: "get",
-                data: data,
-                success: function (response) {
-                    $('#questionloader').hide();
-                    $('#salaryUpdateDiv').show();
-                    $("#salaryUpdateDiv").html(response);
-                    console.log('Fetched payroll data from server')
-                },
-                error: function (xhr) {
-                    $('#questionloader').hide();
-                    window.alert("error occurred while submitting data");
-                }
-            });
-
-
-            $('#salaryUpdateDiv').show();
-        } else {
-            $('#salaryUpdateDiv').hide();
-        }
-    });
-
-    $('#allocation').click(function () {
-        $.ajax({
-            url: "/teacherAllocation",
-            type: "get",
-            data: '',
-            success: function (response) {
-                $('#teacherAllocationDiv').html(response);
-            },
-            error: function (xhr) {
-                alert('error occured while fetching template');
-            }
-        });
-    });
 </script>
 {% endblock %}
