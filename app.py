@@ -337,7 +337,7 @@ def practiceTest():
             studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
                 school_id=schoolRow.school_id,class_sec_id=classSectionRow.class_sec_id,
                 phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
-                roll_number=000,last_modified_date=datetime.today())
+                roll_number=000,last_modified_date=datetime.today(), email=current_user.email)
             db.session.add(studentDataAdd)
             #updating the public.user table
             current_user.user_type=234
@@ -345,7 +345,13 @@ def practiceTest():
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
             db.session.commit()        
-    studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            print('New entry made into the student table')
+
+    if current_user.is_anonymous:    
+        studentProfile = StudentProfile.query.filter_by(user_id=886).first()  #staging anonymous username f
+    else:
+        studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+
     studentDataQuery = "with temptable as "
     studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
     studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
@@ -369,7 +375,6 @@ def practiceTest():
             avg_performance=0
     else:
         avg_performance = 0
-    
     #fetch subject list
     subjectQuery = "select cs.class_val as class_val, m1.msg_id as msg_id,description from board_class_subject bcs "
     subjectQuery = subjectQuery + " inner join message_detail m1 on "
@@ -379,12 +384,11 @@ def practiceTest():
     subjectQuery = subjectQuery + " and bcs.class_val  = cs.class_val "
     subjectQuery = subjectQuery + " and sp.student_id ="+ str(studentProfile.student_id)
     subjectData = db.session.execute(subjectQuery).fetchall()
-    
     class_val = ""
     if subjectData!=None and subjectData!="":
         for row in subjectData:
             class_val = row.class_val
-            
+    
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
         studentProfile=studentProfile, avg_performance=avg_performance, subjectData=subjectData, class_val=class_val)
 
@@ -6272,12 +6276,16 @@ def questionFile():
 def addChapterTopics():
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    if current_user.user_type==71:
-        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        school_id = teacherData.school_id
-    else:
-        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=886).first()
         school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
 
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
@@ -6309,9 +6317,22 @@ def addChapterTopics():
 @app.route('/addClass',methods=['GET','POST'])
 def addClass():
     class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),board_id=board_id.board_id,school_id=teacher_id.school_id).all()
+
+    ##########
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=886).first()
+        school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
+    ##########
+    #teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
+    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),school_id=school_id).all()
     subjectArray = []
     for subject in subjects:
         subject_name = "select description as subject_name from message_detail where msg_id='"+str(subject.subject_id)+"'"
