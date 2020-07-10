@@ -4175,7 +4175,7 @@ def startPracticeTest():
     print('class_val:'+str(class_val))
     #subject_id
     #board_id = request.args.get('board_id')
-    #topicList = request.form.getlist('topicList')
+    #topicList = request.form.getlist('topicList')adsfsdfasdf
 
     studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
     schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
