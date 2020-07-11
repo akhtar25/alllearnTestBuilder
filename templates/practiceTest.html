@@ -1,12 +1,12 @@
 {% extends "layout.html" %} {% block content %}
+<link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
 {%if current_user.is_anonymous%}
-<video autoplay muted loop id="myVideo"
-style="position: absolute;right: 0;width: 100%;">
-<source src="../static/images/vid1.mp4" type="video/mp4">
+<video autoplay muted loop id="myVideo" style="position: absolute;right: 0;width: 100%;">
+    <source src="../static/images/vid1.mp4" type="video/mp4">
 </video>
 {%endif%}
-<div style="background-image: linear-gradient(180deg,lightyellow, white,white);">
-   
+<div style="background-image: linear-gradient(180deg,rgb(250, 243, 178), white,white);">
+
     <div class="container">
         <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
         <br>
@@ -20,12 +20,14 @@ style="position: absolute;right: 0;width: 100%;">
         <!--<a href="#startTestModal" id="startTestModalBTN" class="modal-trigger right btn green">Start Practice Test</a><br>-->
         <!--<h4 class="">Hi, {{studentData.full_name}}</h4>-->
         <div id="mainDiv">
-            {%if current_user.is_anonymous%}           
+            {%if current_user.is_anonymous%}
             <div class="col-xs-6 row">
-                <span style="font-size: 48px;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for exams needn't be tough. </b></span><br><span style="font-size: 24px;text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice test now.</b></span>
+                <span style="font-size: 48px;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for exams
+                        needn't be tough. </b></span><br><span style="font-size: 24px;text-shadow: 1px 1px 1px black;"
+                    class="white-text"><b>Start practice test now.</b></span>
             </div>
             {%endif%}
-            <div id="practiceTestDiv" class="col-xs-12 row " >
+            <div id="practiceTestDiv" class="col-xs-12 row ">
                 <!--<div id="pointsDiv"  class="">
             <h5 >Points earned: <span class="green-text">240{{studentData.points_earned}}</span> </h5>
             <h5 >Level: <span class="blue-text">Pro {{studentData.current_level}}</span></h5>
@@ -37,9 +39,9 @@ style="position: absolute;right: 0;width: 100%;">
               <i class="material-icons">close</i>
             </div>
           </form>-->
-          {%if current_user.is_anonymous==false%}
-          <h4>Start a test</h4>
-          {%endif%}
+                {%if current_user.is_anonymous==false%}
+                <h4>Start a test</h4>
+                {%endif%}
                 <div id="testConfigurationDiv">
                     <div class="z-depth-1 hoverable"
                         style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;background-image: linear-gradient(135deg, whitesmoke, white); ">
@@ -47,7 +49,7 @@ style="position: absolute;right: 0;width: 100%;">
                             <div class="col-xs-1">
                                 <div class="input-field">
                                     <h4 class="grey-text">Class</h4>
-                                    <select id="class_val">                                        
+                                    <select id="class_val">
                                         <option selected value="6">6</option>
                                         <option value="7">7</option>
                                         <option value="8">8</option>
@@ -65,22 +67,24 @@ style="position: absolute;right: 0;width: 100%;">
                                 <div class="input-field">
                                     <h4 class="grey-text">Subject</h4>
                                     <select id="selectSubject">
-                                        <option value="" disabled selected>Select Subject</option>                                        
+                                        <option value="" disabled selected>Select Subject</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-xs-5">
                                 <!--The search should show Book-Chapter-Topic-->
                                 <h4 class="grey-text">Enter Chapter/Topic</h4>
-                                <div class="chips chips-autocomplete"><i class="material-icons right">search</i></div>
+                                <!--<div class="chips chips-autocomplete" id="topicSearch" data-hover="true" data-constrainWidth="false" style="width:400px" name="topicSearch"><i
+                                        class="material-icons right">search</i></div>-->
+                                <input class="magicsearch" id="topicSearch" placeholder="Search Topics...">
                             </div>
                             <div class="col-xs-2">
                                 <div class="input-field">
-                                    <h4 class="grey-text">Difficulty Preference</h4>                                    
-                                    <select id="difficulty">                                        
+                                    <h4 class="grey-text">Difficulty Preference</h4>
+                                    <select id="difficulty">
                                         <option value="E">Easy</option>
                                         <option selected value="Me">Medium</option>
-                                        <option value="H">Hard</option>                                        
+                                        <option value="H">Hard</option>
                                     </select>
                                 </div>
                             </div>
@@ -89,7 +93,7 @@ style="position: absolute;right: 0;width: 100%;">
                                     <h4 class="grey-text">Question Count</h4>
                                     <!--  <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount"
                     name="qcount">-->
-                                    <select id="qcount" style="font-family: Arial;">                                        
+                                    <select id="qcount" style="font-family: Arial;">
                                         <option value="5">5</option>
                                         <option value="10">10</option>
                                         <option selected value="20">20</option>
@@ -107,6 +111,7 @@ style="position: absolute;right: 0;width: 100%;">
                                 <br>
                                 <a href="#" class="btn green hoverable" id="startTestBTN" style="width: 150px;">Start
                                     Test</a>
+                                <button type="button" name="button" id="button">Button</button>
                                 <span id="errorStartMSG" class="orange-text" style="display: none;">Error occurred while
                                     starting test. Please try again.</span>
                             </div>
@@ -115,9 +120,9 @@ style="position: absolute;right: 0;width: 100%;">
                 </div>
                 <br><br>
                 {%if current_user.is_anonymous==false%}
-               <div class="row z-depth-1 hoverable" id="testSummaryDiv" style="border-radius: 25px;padding: 20px; ">
+                <div class="row z-depth-1 hoverable" id="testSummaryDiv" style="border-radius: 25px;padding: 20px; ">
                     <h4>Performance Summary</h4>
-                    <div class="box">                     
+                    <div class="box">
                         <div class="box-body table-responsive no-padding">
                             <div class="col-xs-3">
                                 <h4 class="grey-text">Tests Taken</h4>
@@ -277,59 +282,52 @@ style="position: absolute;right: 0;width: 100%;">
         $('.tabs').tabs();
         $('.modal').modal();
         $('select').formSelect();
-
-
-        $('.chips-autocomplete').chips({
-            placeholder: 'Enter Chapter/Topic',
-            secondaryPlaceholder: '+More',
-            autocompleteOptions: {
-                data: {
-                    'Apple': null,
-                    'Microsoft': null,
-                    'Google': null
-                },
-                limit: Infinity,
-                minLength: 0
-            }
-        });
-
     });
 
 
-$('#class_val').change(function(){
-    //$('#selectSubject').html('<option value="" disabled selected>Select Subject</option>');
-    $.ajax({ 
-            url: "/addClass?class_val="+$('#class_val').val(),
+    $('#class_val').change(function () {
+        //$('#selectSubject').html('<option value="" disabled selected>Select Subject</option>');
+        $('#subjectLoader').show();
+        $.ajax({
+            url: "/addClass?class_val=" + $('#class_val').val(),
             type: "POST",
             contentType: "application/json",
             data: "",
             success: function (response) {
-              console.log('inside success');
+                console.log('inside success');
                 console.log(response);
-                if(response){
-                responseArr = response.toString().split(',');
-                var optionHTML = '<option value="" disabled selected>Select Subject</option>';
-              for(var i=0;i<responseArr.length;i++){
-                var subject_id = responseArr[i].toString().split(':')[0];
-                var subject_name = responseArr[i].toString().split(':')[1];
-                console.log(subject_id);
-                console.log(subject_name);
-                optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';                
-              }
-            }else{
-                optionHTML +='<option value="">No data available</option>';
-            }
-              console.log(optionHTML);
-              //console.log(select_subject);
-              $('#selectSubject').innerHTML = optionHTML;
-              $('#subjectLoader').hide();
-              $('#selectSubject').formSelect();
+                if (response) {
+                    responseArr = response.toString().split(',');
+                    var optionHTML = '<option value="" disabled selected>Select Subject</option>';
+                    for (var i = 0; i < responseArr.length; i++) {
+                        var subject_id = responseArr[i].toString().split(':')[0];
+                        var subject_name = responseArr[i].toString().split(':')[1];
+                        console.log(subject_id);
+                        console.log(subject_name);
+
+                        //////////////                
+                        //////////////
+
+                        optionHTML += '<option value="' + subject_id + '">' + subject_name +
+                            '</option>';
+                    }
+
+
+                } else {
+                    optionHTML += '<option value="">No data available</option>';
+                }
+                console.log(optionHTML);
+                //console.log(select_subject);
+                $('#selectSubject').html(optionHTML);
+                $('#subjectLoader').hide();
+                $('#selectSubject').formSelect();
             },
-            error: function (xhr) { 
+            error: function (xhr) {
                 window.alert("error occurred while loading subject");
+                $('#subjectLoader').hide();
             }
         });
-});
+    });
 
 
     //$("#qcount").on("keypress keyup blur", function (e) {
@@ -354,18 +352,6 @@ $('#class_val').change(function(){
         var subject_id = $('#selectSubject').val();
 
         var class_val = "{{class_val}}";
-        //var test_type = select_test.value;
-        //var date = $('#test_date').val();
-        //topics = $('#selectChapters').val();
-        //if (subject_id && class_val && test_type && date && topics) {
-        //    console.log('if all are not empty');
-        //    $('#questionSubmitBtn').prop('disabled', false);
-        //} else {
-        //    console.log('if all are empty');
-        //    $('#questionSubmitBtn').prop('disabled', true);
-        //}
-        //var subject_id = select_subject.value;
-
         $.ajax({
             url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
             type: "POST",
@@ -377,29 +363,61 @@ $('#class_val').change(function(){
                     var optionHTML =
                         '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
                     var bookNames = [];
-                    for (var i = 0; i < responseArr.length; i++) {
-                        var book_name = responseArr[i].toString().split(':')[0];
-                        var topic_name = responseArr[i].toString().split(':')[1];
-                        var chapter_name = responseArr[i].toString().split(':')[2];
-                        var topic_id = responseArr[i].toString().split(':')[3];
-                        if (bookNames.includes(book_name) == false) {
-                            console.log(bookNames);
-                            console.log('value:' + bookNames.includes(book_name));
-                            optionHTML += '<optgroup label="' + book_name + '"></optgroup>';
-                        }
-                        bookNames.push(book_name);
-                        optionHTML += '<option value="' + topic_id +
-                            '" name="topic_ids"><span style="font-size:14;font-family:Arial;"> ' +
-                            chapter_name + ' - ' + topic_name + '</span></option></optgroup>';
-                    }
-                } else {
-                    optionHTML +=
-                        '<option value="" name="topic_ids" disabled selected>No data available</option>'
-                }
-                select_chapter.innerHTML = optionHTML;
-                $('#chapterLoader').hide();
+                    var dataSource = [];
+                    if (response != '') {                        
+                        for (var i = 0; i < responseArr.length; i++) {
+                            var book_name = responseArr[i].toString().split(':')[0];
+                            var topic_name = responseArr[i].toString().split(':')[1];
+                            var chapter_name = responseArr[i].toString().split(':')[2];
+                            var topic_id = responseArr[i].toString().split(':')[3];
+                            dataSource.push({
+                                id: topic_id,
+                                topic_name: topic_name,
+                                chapter_name: chapter_name,
+                                book_name: book_name
+                            });
 
-                $('#selectChapters').formSelect();
+                        }
+                    }
+                    $('#topicSearch').magicsearch({
+                        dataSource: dataSource,
+                        fields: ['book_name', 'topic_name', 'chapter_name'],
+                        id: 'id',
+                        format: '%book_name% - %chapter_name% - %topic_name%',
+                        multiple: true,
+                        multiField: 'topic_name',
+                        dropdownMaxItem: 20,
+                        multiStyle: {
+                            space: 5,
+                            width: 200
+                        },
+                        focusShow: true
+                    });
+                } else {              
+                        var tempData = [];
+                        tempData.push({
+                            id: "0",
+                            topic_name: "No Topics Found",
+                        });
+                        $('#topicSearch').magicsearch({
+                            dataSource: tempData,
+                            fields: ['topic_name'],
+                            id: 'id',
+                            format: '%topic_name%',
+                            multiple: false,
+                            multiField: 'topic_name',
+                            dropdownMaxItem: 20,
+                            multiStyle: {
+                                space: 5,
+                                width: 200
+                            },
+                            focusShow: true
+                        });
+                }
+                //select_chapter.innerHTML = optionHTML;
+                //$('#chapterLoader').hide();
+                //
+                //$('#selectChapters').formSelect();
             },
             error: function (xhr) {
                 //window.alert('error occured while loading chapters');
@@ -413,6 +431,31 @@ $('#class_val').change(function(){
         $('#questionloader').show();
     });
 
+
+    $('#button').click(function () {
+        //$('#topicSearch').trigger('clear');
+        //window.alert($('#topicSearch').attr('data-id'));
+        var tempData = [];
+        tempData.push({
+            id: "0",
+            topic_name: "No Topics Found",
+        });
+        $('#topicSearch').magicsearch({
+            dataSource: tempData,
+            fields: ['topic_name'],
+            id: 'id',
+            format: '%topic_name%',
+            multiple: false,
+            multiField: 'topic_name',
+            dropdownMaxItem: 20,
+            multiStyle: {
+                space: 5,
+                width: 200
+            },
+            focusShow: true
+        });
+        //$('#topicSearch').attr('disable',true);
+    });
 
     $('#startTestBTN').click(function () {
         var topics = $('#selectChapters').val();
@@ -441,4 +484,5 @@ $('#class_val').change(function(){
         });
     });
 </script>
+
 {% endblock %}
