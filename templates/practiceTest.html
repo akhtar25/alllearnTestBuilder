@@ -323,7 +323,7 @@
                 $('#selectSubject').formSelect();
             },
             error: function (xhr) {
-                window.alert("error occurred while loading subject");
+                $('#errorStartMSG').html("Error occurred while loading subject");
                 $('#subjectLoader').hide();
             }
         });

@@ -25,7 +25,7 @@
     background-color: #e4e4e4;
     padding-right: 15px;
     border-radius: 3px;
-    border: 1px solid #aaa; }
+    border: 1px solid rgb(183, 184, 182); }
     .magicsearch-wrapper .multi-item span {
       text-overflow: ellipsis;
       overflow: hidden;
@@ -38,7 +38,7 @@
   .magicsearch-wrapper .multi-item-close {
     display: block;
     position: absolute;
-    width: 12px;
+    width: 15px;
     height: 12px;
     right: 3px; }
     .magicsearch-wrapper .multi-item-close:before, .magicsearch-wrapper .multi-item-close:after {
@@ -46,7 +46,7 @@
       height: 2px;
       width: 12px;
       display: block;
-      background-color: #999;
+      background-color: rgb(14, 13, 13);
       border-radius: 2px;
       position: absolute;
       top: 5px;
