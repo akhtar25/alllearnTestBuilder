@@ -5,7 +5,7 @@
     <source src="../static/images/vid1.mp4" type="video/mp4">
 </video>
 {%endif%}
-<div style="background-image: linear-gradient(180deg,rgb(250, 243, 178), white,white);">
+<div style="background-image: linear-gradient(180deg,rgb(250, 247, 220),white);">
 
     <div class="container">
         <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
@@ -50,13 +50,14 @@
                                 <div class="input-field">
                                     <h4 class="grey-text">Class</h4>
                                     <select id="class_val">
-                                        <option selected value="6">6</option>
+                                        <option value="" disabled selected>Class</option>
+                                        <option value="6">6</option>
                                         <option value="7">7</option>
                                         <option value="8">8</option>
                                         <option value="9">9</option>
                                         <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
+                                        <!--<option value="11">11</option>
+                                        <option value="12">12</option>-->
                                     </select>
                                 </div>
                             </div>
@@ -67,7 +68,7 @@
                                 <div class="input-field">
                                     <h4 class="grey-text">Subject</h4>
                                     <select id="selectSubject">
-                                        <option value="" disabled selected>Select Subject</option>
+                                        <option value="" disabled selected>Subject</option>
                                     </select>
                                 </div>
                             </div>
@@ -350,50 +351,51 @@
         $('#selectChapters').html('');
         console.log('inside subject onchange');
         var subject_id = $('#selectSubject').val();
+        if (subject_id != '') {
+            //var class_val = $('#class_val').val();
+            var class_val = "{{class_val}}";
+            $.ajax({
+                url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
+                type: "POST",
+                contentType: "/application/json",
+                data: "",
+                success: function (response) {
+                    if (response) {
+                        responseArr = response.toString().split('/,/');
+                        var optionHTML =
+                            '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
+                        var bookNames = [];
+                        var dataSource = [];
+                        if (response != '') {
+                            for (var i = 0; i < responseArr.length; i++) {
+                                var book_name = responseArr[i].toString().split(':')[0];
+                                var topic_name = responseArr[i].toString().split(':')[1];
+                                var chapter_name = responseArr[i].toString().split(':')[2];
+                                var topic_id = responseArr[i].toString().split(':')[3];
+                                dataSource.push({
+                                    id: topic_id,
+                                    topic_name: topic_name,
+                                    chapter_name: chapter_name,
+                                    book_name: book_name
+                                });
 
-        var class_val = "{{class_val}}";
-        $.ajax({
-            url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
-            type: "POST",
-            contentType: "/application/json",
-            data: "",
-            success: function (response) {
-                if (response) {
-                    responseArr = response.toString().split('/,/');
-                    var optionHTML =
-                        '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
-                    var bookNames = [];
-                    var dataSource = [];
-                    if (response != '') {                        
-                        for (var i = 0; i < responseArr.length; i++) {
-                            var book_name = responseArr[i].toString().split(':')[0];
-                            var topic_name = responseArr[i].toString().split(':')[1];
-                            var chapter_name = responseArr[i].toString().split(':')[2];
-                            var topic_id = responseArr[i].toString().split(':')[3];
-                            dataSource.push({
-                                id: topic_id,
-                                topic_name: topic_name,
-                                chapter_name: chapter_name,
-                                book_name: book_name
-                            });
-
+                            }
                         }
-                    }
-                    $('#topicSearch').magicsearch({
-                        dataSource: dataSource,
-                        fields: ['book_name', 'topic_name', 'chapter_name'],
-                        id: 'id',
-                        format: '%book_name% - %chapter_name% - %topic_name%',
-                        multiple: true,
-                        multiField: 'topic_name',
-                        dropdownMaxItem: 20,
-                        multiStyle: {
-                            space: 5,
-                            width: 200
-                        },
-                        focusShow: true
-                    });
-                } else {              
+                        $('#topicSearch').magicsearch({
+                            dataSource: dataSource,
+                            fields: ['book_name', 'topic_name', 'chapter_name'],
+                            id: 'id',
+                            format: '%book_name% - %chapter_name% - %topic_name%',
+                            multiple: true,
+                            multiField: 'topic_name',
+                            dropdownMaxItem: 20,
+                            multiStyle: {
+                                space: 5,
+                                width: 200
+                            },
+                            focusShow: true
+                        });
+                    } else {
                         var tempData = [];
                         tempData.push({
                             id: "0",
@@ -409,26 +411,27 @@
                             dropdownMaxItem: 20,
                             multiStyle: {
                                 space: 5,
-                                width: 200
+                                width: 120
                             },
                             focusShow: true
                         });
+                    }
+                    //select_chapter.innerHTML = optionHTML;
+                    //$('#chapterLoader').hide();
+                    //
+                    //$('#selectChapters').formSelect();
+                },
+                error: function (xhr) {
+                    //window.alert('error occured while loading chapters');
+                    $('#errorDisplay').html(
+                        '<span class="red-text">Error occurred while loading chapters. <br>Please try again</span>'
+                    )
                 }
-                //select_chapter.innerHTML = optionHTML;
-                //$('#chapterLoader').hide();
-                //
-                //$('#selectChapters').formSelect();
-            },
-            error: function (xhr) {
-                //window.alert('error occured while loading chapters');
-                $('#errorDisplay').html(
-                    '<span class="red-text">Error occurred while loading chapters. <br>Please try again</span>'
-                )
-            }
-        });
-        $('#testBuilderQuestions').hide();
-        $("questions").hide();
-        $('#questionloader').show();
+            });
+            $('#testBuilderQuestions').hide();
+            $("questions").hide();
+            $('#questionloader').show();
+        }
     });
 
 
@@ -450,7 +453,7 @@
             dropdownMaxItem: 20,
             multiStyle: {
                 space: 5,
-                width: 200
+                width: 120
             },
             focusShow: true
         });
@@ -458,30 +461,40 @@
     });
 
     $('#startTestBTN').click(function () {
-        var topics = $('#selectChapters').val();
+        //var topics = $('#selectChapters').val();
         var difficulty = $('#difficulty').val();
         var qcount = $('#qcount').val();
         var selectSubject = $('#selectSubject').val();
-        var class_val = "{{class_val}}";
-        var topicList = JSON.stringify(topics);
-        $.ajax({
-            url: "/startPracticeTest?difficulty=" + difficulty + "&qcount=" + qcount + "&subject_id=" +
-                selectSubject + "&class_val=" + class_val,
-            type: "POST",
-            contentType: "application/json",
-            data: topicList,
-            success: function (response) {
-                if (response == 1) {
-                    $('#errorStartMSG').show();
-                } else {
-                    $('#errorStartMSG').hide();
-                    window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + response;
+        var class_val = $('#class_val').val();
+        var topics = $('#topicSearch').attr('data-id')
+        //var topicList = JSON.stringify(topics);
+        //window.alert(topicList);
+        var testing = 0;
+        if (testing != 1) {
+            $.ajax({
+                url: "/startPracticeTest?difficulty=" + difficulty + "&qcount=" + qcount +
+                    "&subject_id=" +
+                    selectSubject + "&class_val=" + class_val+ "&topics="+topics,
+                type: "POST",
+                contentType: "application/json",
+                data: topics,
+                success: function (response) {
+                    window.alert(response);
+                    if (response == 1) {
+                        $('#errorStartMSG').show();
+                    } else {
+                        $('#errorStartMSG').hide();
+                        window.location.href = "/feedbackCollectionStudDev?resp_session_id=" +
+                            response;
+                    }
+                },
+                error: function (xhr) {
+                    window.alert('Error in fetching server response. Please try again.');
+                    $('#errorStartMSG').html(
+                    'Error in fetching server response. Please try again.');
                 }
-            },
-            error: function (xhr) {
-                $('#errorStartMSG').html('Error in fetching server response. Please try again.');
-            }
-        });
+            });
+        }
     });
 </script>
 

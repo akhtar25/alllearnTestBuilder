@@ -45,6 +45,7 @@ from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
 import string
+import random
 import requests
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
@@ -344,11 +345,15 @@ def practiceTest():
             current_user.access_status=145
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
+            if session['anonUser']!="" and session['anonUser']!=None:
+                splitVals = str(session['anonUser']).split('_')
+                respSessionID = splitVals[1]
+                print("Resp Session ID of older test: "+str(respSessionID))
             db.session.commit()        
             print('New entry made into the student table')
 
     if current_user.is_anonymous:    
-        studentProfile = StudentProfile.query.filter_by(user_id=886).first()  #staging anonymous username f
+        studentProfile = StudentProfile.query.filter_by(user_id=886).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
 
@@ -4166,9 +4171,12 @@ def mobQuestionLoader():
 
 @app.route('/startPracticeTest', methods=['GET', 'POST'])
 def startPracticeTest():
-    topics = request.get_json()
-    for topic in topics:
-        print('topic:'+str(topic))
+    #topics = request.get_json()
+    #for topic in topics:
+    
+    topics = request.args.getlist('topics')
+    print('topic:'+str(topics))
+    topicsList = str(topics).replace('[','').replace(']','').replace('\'','')
     difficulty = request.args.get('difficulty')    
     qcount = request.args.get('qcount')
     subject_id = request.args.get('subject_id')
@@ -4181,23 +4189,26 @@ def startPracticeTest():
     #board_id = request.args.get('board_id')
     #topicList = request.form.getlist('topicList')adsfsdfasdf
 
-    studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=886).first()
+    else:
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
     schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
-
+    classSecData = ClassSection.query.filter_by(school_id=studentData.school_id, class_val=str(class_val)).first()
     #Collection Questions
     questions = []
     total_marks = 0
     questionIDList = []
     if topics:
-        for topic in topics:
+        #for topic in topics:
             #questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
-            questionListQuery = "select *from question_details where archive_status='N' and question_type='MCQ1' and topic_id=" + str(topic)
-            questionListQuery = questionListQuery + " order by random() " #limit " +  str(qcount)
-            questionList = db.session.execute(text(questionListQuery)).fetchall()
-            if questionList:  
-                for q in questionList:
-                    if len(questions)< int(qcount):
-                        questions.append(q)   
+        questionListQuery = "select *from question_details where archive_status='N' and question_type='MCQ1' and topic_id in (" + str(topicsList) + ")"
+        questionListQuery = questionListQuery + " order by random() " #limit " +  str(qcount)
+        questionList = db.session.execute(text(questionListQuery)).fetchall()
+        if questionList:  
+            for q in questionList:
+                if len(questions)< int(qcount):
+                    questions.append(q)   
     for val in questions:        
         print(str(val))
         total_marks = total_marks + val.suggested_weightage
@@ -4220,20 +4231,28 @@ def startPracticeTest():
     print('Data feed to test questions complete')
     ##Create response session ID
     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+    #if current_user.is_anonymous:
+    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(classSecData.class_sec_id).strip()
+    #else:
+    #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
     print('resp session id:'+str(responseSessionID))
     print('Response ID generated')
+    if current_user.is_anonymous:
+        session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
+        print("This is the value of anon user: " + session['anonUser'])
 
     ##Create session
     if len(questions) >0:
         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
-            class_sec_id=studentData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
+            class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
         db.session.add(sessionDetailRowInsert)
         db.session.commit()        
 
-    print('Data feed to session detail completed')
-    ## Start test
-    return jsonify([responseSessionID])    
+        print('Data feed to session detail completed')
+        ## Start test
+        return jsonify([responseSessionID])    
+    else:
+        return jsonify(['1'])    
 
 
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
@@ -5227,7 +5246,6 @@ def loadQuestion():
 
 # route for fetching next question and updating db for each response from student - tablet assessment process
 @app.route('/loadQuestionStud')
-@login_required
 def loadQuestionStud():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
@@ -5239,7 +5257,10 @@ def loadQuestionStud():
     last_q_id =  request.args.get('last_q_id')    
     print('Before String conversion:'+resp_session_id)
     print('This is the response session id in: ' + str(resp_session_id) )
-    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:        
+        studentRow=StudentProfile.query.filter_by(user_id=886).first()
+    else:
+        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
@@ -5259,7 +5280,9 @@ def loadQuestionStud():
             ansCheck='Y'
         else:
             ansCheck='N'
+             
         print('Class:'+str(studentRow.class_sec_id))
+
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
             class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
