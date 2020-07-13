@@ -6757,9 +6757,9 @@ def homeworkReview():
     homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
     homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
     homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
-    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()
-    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).first()
+    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()    
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id,class_sec_id=homework_name.class_sec_id ).first()
     return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name,homework_id=homework_id)
 
 @app.route('/indivHomeworkReview',methods=['GET','POST'])
