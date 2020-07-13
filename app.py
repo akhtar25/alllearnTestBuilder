@@ -6579,8 +6579,12 @@ def downloadTimeTable():
     # fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
-    filepath = '/Users/alllearn/Desktop/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
+    filepath = 'static/images/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
     with open(filepath, 'w', newline='') as file:
+        
+        print('file')
+        
+        file.write('Introduction \n')
         writer = csv.writer(file)
         for class_sec_id in class_sec_ids:
             fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
@@ -6600,6 +6604,7 @@ def downloadTimeTable():
             print(query)
             timeTableData = db.session.execute(text(query)).fetchall()
             writer.writerow(["Periods", "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])
+            
             for table in timeTableData:
                 writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
     return jsonify([filepath])
