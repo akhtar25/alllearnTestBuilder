@@ -2404,7 +2404,7 @@ $(document).ready(function(){
 
     $('.boardClass').click(function () {
         var classHTMLRecords = "";
-        
+        $("#msg").html('');
         $('.classCol').hide();
         selectedBoardID = this.id;
         boardforSub = selectedBoardID;
@@ -2550,6 +2550,7 @@ $(document).ready(function(){
     var bookArray = [];
     var classforSubject = '';
     function loadSubjects(selectedClassVal) {
+        $("#msg").html('');
         console.log('selected class value:'+selectedClassVal);
         $('#divSubject').hide();
         $('#searchId').hide();
@@ -2716,6 +2717,7 @@ $(document).ready(function(){
         var boardforBooks = '';
     function loadBooks(selectedSubjectVal, selectedSubjectID, selectedClassVal, selectedBoardID) {
         //$('#selected_sub_id').val($(this).attr("name"));
+        $("#msg").html('');
         // alert("We're in load books function " + selectedSubjectVal + selectedClassVal + selectedBoardID);
         selectedSubjectVal = selectedSubjectVal.replace(/_/g," ");
         $('#divBook').hide();
@@ -2866,6 +2868,7 @@ $(document).ready(function(){
     function loadChapters( selectedSubjectVal, selectedBookId,selectedSubjectID, selectedClassVal, selectedBoardID) {
         // alert(selectedSubjectID + "this is the subject id");
         // alert(selectedSubjectVal + "this is the subject val");
+        $("#msg").html('');
         console.log('inside load chapters'+selectedBookId);
         $('#bookChapterId').val(selectedBookId);
         $('#divChapter').hide();
@@ -3006,6 +3009,7 @@ $(document).ready(function(){
     var subjectforTopics = '';
     function loadTopics( selectedSubjectVal,  selectedSubjectID, selectedClassVal, selectedBoardID, selectedChapterNum,selectedBookId) {
         var s = '.chapterItem'+selectedChapterNum;
+        $("#msg").html('');
         // var chapterId = '#'+selectedChapterNum.toString();
         // console.log(chapterId);
         console.log('inside loadTopics:'+selectedBookId);
@@ -3071,6 +3075,7 @@ $(document).ready(function(){
     function loadQuestions(selectedTopicId,selectedClassVal,selectedSubjectID){
         var topicsId = '#'+selectedTopicId.toString()+'topic';
         var topicsIdGeneral = '#'+selectedTopicId.toString()+'general';
+        $("#msg").html('');
         console.log('inside loadQuestions');
         console.log('Topic id:'+selectedTopicId);
         console.log('Chapter num:'+chapterNumforTopics);
