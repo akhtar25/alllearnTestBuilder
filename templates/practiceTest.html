@@ -4,8 +4,10 @@
 <video autoplay muted loop id="myVideo" style="position: absolute;right: 0;width: 100%;">
     <source src="../static/images/vid1.mp4" type="video/mp4">
 </video>
+{%else%}
+<div style="position: absolute;right: 0;width: 100%;background-image: linear-gradient(135deg, rgb(249, 250, 181), white);"></div>
 {%endif%}
-<div style="background-image: linear-gradient(180deg,rgb(250, 247, 220),white);">
+<div >
 
     <div class="container">
         <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
@@ -38,13 +40,13 @@
               <input id="search" type="search" required>
               <i class="material-icons">close</i>
             </div>
-          </form>-->
-                {%if current_user.is_anonymous==false%}
-                <h4>Start a test</h4>
-                {%endif%}
+          </form>-->                
                 <div id="testConfigurationDiv">
                     <div class="z-depth-1 hoverable"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;background-image: linear-gradient(135deg, whitesmoke, white); ">
+                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; background-color: white;">
+                        {%if current_user.is_anonymous==false%}
+                <h4>Start a test</h4>
+                {%endif%}
                         <div class="row">
                             <div class="col-xs-1">
                                 <div class="input-field">
@@ -121,7 +123,7 @@
                 </div>
                 <br><br>
                 {%if current_user.is_anonymous==false%}
-                <div class="row z-depth-1 hoverable" id="testSummaryDiv" style="border-radius: 25px;padding: 20px; ">
+                <div class="row z-depth-1 hoverable" id="testSummaryDiv" style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
                     <h4>Performance Summary</h4>
                     <div class="box">
                         <div class="box-body table-responsive no-padding">
@@ -163,7 +165,7 @@
                     </div>
                 </div>
 
-                <div id="testHistory" style="border-radius: 25px;padding: 20px; " class="z-depth-1 hoverable row">
+                <div id="testHistory" style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; " class="z-depth-1 hoverable row">
                     <h4>Test History</h4>
                     <table class="highlight">
                         <thead>
@@ -353,7 +355,7 @@
         var subject_id = $('#selectSubject').val();
         if (subject_id != '') {
             //var class_val = $('#class_val').val();
-            var class_val = "{{class_val}}";
+            var class_val = "1";
             $.ajax({
                 url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
                 type: "POST",
@@ -479,10 +481,15 @@
                 contentType: "application/json",
                 data: topics,
                 success: function (response) {
-                    window.alert(response);
+                    //window.alert(response);
                     if (response == 1) {
                         $('#errorStartMSG').show();
-                    } else {
+                    }
+                    else if(response == 2){
+                        $('#errorStartMSG').hide();
+                        window.location.href = "/login";
+                    }
+                     else {
                         $('#errorStartMSG').hide();
                         window.location.href = "/feedbackCollectionStudDev?resp_session_id=" +
                             response;

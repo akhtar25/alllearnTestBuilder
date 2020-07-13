@@ -345,10 +345,19 @@ def practiceTest():
             current_user.access_status=145
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
-            if session['anonUser']!="" and session['anonUser']!=None:
+            if session.get('anonUser'):
                 splitVals = str(session['anonUser']).split('_')
                 respSessionID = splitVals[1]
+                session['anonUser'] = False
                 print("Resp Session ID of older test: "+str(respSessionID))
+                ###Section to update the test results of anon user with the new student id in resp capture
+                respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+                respUPDQuery = respUPDQuery + " and class_sec_id=" + str(studentDataAdd.student_id) 
+                respUPDQuery = respUPDQuery + " where resp_session_id="+ str(respSessionID)
+                db.session.execute(respUPDQuery)
+                db.session.commit()
+                ###
+                
             db.session.commit()        
             print('New entry made into the student table')
 
@@ -4237,9 +4246,24 @@ def startPracticeTest():
     #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
     print('resp session id:'+str(responseSessionID))
     print('Response ID generated')
+    #print("This is the value of anon user before setup: " + session['anonUser'])
+    #if session['anonUser']:
+    #    print('###########session is true')
+    #    print(session['anonUser'])
+    #else:
+    #    print('###########session is false')
+    #    print(session['anonUser'])
     if current_user.is_anonymous:
-        session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
-        print("This is the value of anon user: " + session['anonUser'])
+        if session.get('anonUser'):
+            print('the anon user is true')
+            flash('Please login to start any further tests')
+            return jsonify(['2']) 
+        else:
+            session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
+            print("This is the value of anon user: " + session['anonUser'])            
+    else:
+        print('last segment. anon user is false')
+        session['anonUser']==False
 
     ##Create session
     if len(questions) >0:
@@ -5315,20 +5339,13 @@ def loadQuestionStud():
         print('Marks Scored Query:'+marksScoredQuery)
         print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(totalMarksVal.total_marks))
-        marksPercentage=0
-        marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        
+        try:
+            marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        except:
+            marksPercentage=0        
+        
         print('Marks Percentage:'+str(marksPercentage))
-        # try:
-        #     print('Inside try')
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     print(marksPercentage)
-        # except:
-        #     marksPercentage=0
-
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
