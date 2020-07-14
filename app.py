@@ -340,48 +340,67 @@ def practiceTest():
                 phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
                 roll_number=000,last_modified_date=datetime.today(), email=current_user.email)
             db.session.add(studentDataAdd)
+            
             #updating the public.user table
             current_user.user_type=234
             current_user.access_status=145
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
-            if session.get('anonUser'):
-                splitVals = str(session['anonUser']).split('_')
-                respSessionID = splitVals[1]
-                session['anonUser'] = False
-                print("Resp Session ID of older test: "+str(respSessionID))
-                ###Section to update the test results of anon user with the new student id in resp capture
-                respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
-                respUPDQuery = respUPDQuery + " and class_sec_id=" + str(studentDataAdd.student_id) 
-                respUPDQuery = respUPDQuery + " where resp_session_id="+ str(respSessionID)
-                db.session.execute(respUPDQuery)
-                db.session.commit()
-                ###
+            db.session.commit() 
+        #try:
+        if session.get('anonUser'):
+            splitVals = str(session['anonUser']).split('_')
+            respSessionID = splitVals[1]
+            session['anonUser'] = False
+            print("Resp Session ID of older test: "+str(respSessionID))
+            ###Section to update the test results of anon user with the new student id in resp capture
+            respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+            respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
+            respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
+            print(str(respUPDQuery))
+            db.session.execute(text(respUPDQuery))
                 
-            db.session.commit()        
-            print('New entry made into the student table')
+        #except:
+        #    print('error occurred. response cap not updated.')
+        #    pass
+        db.session.commit()        
+        print('New entry made into the student table')
 
     if current_user.is_anonymous:    
         studentProfile = StudentProfile.query.filter_by(user_id=886).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if studentProfile==None:
+        studentData=""
+        
+    else:        
+        studentDataQuery = "with temptable as "
+        studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
+        studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
+        studentDataQuery = studentDataQuery + " (select question_id from response_capture rc2 where student_id ="+ str(studentProfile.student_id)+") ) "
+        studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
+        studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
+        studentDataQuery = studentDataQuery + " from response_capture rc inner join student_profile sp on "
+        studentDataQuery = studentDataQuery + " rc.student_id=sp.student_id "
+        studentDataQuery = studentDataQuery + " inner join question_details qd on "
+        studentDataQuery = studentDataQuery + " qd.question_id=rc.question_id, total_marks_cte         "
+        studentDataQuery = studentDataQuery + " group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage ) "
+        studentDataQuery = studentDataQuery + " ,temp2 as (select count(distinct resp_session_id) as tests_taken "
+        studentDataQuery = studentDataQuery + " , student_id from response_capture group by student_id) "
+        studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
+        studentData = db.session.execute(text(studentDataQuery)).first()
 
-    studentDataQuery = "with temptable as "
-    studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
-    studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
-    studentDataQuery = studentDataQuery + " (select question_id from response_capture rc2 where student_id ="+ str(studentProfile.student_id)+") ) "
-    studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
-    studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
-    studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
-    studentDataQuery = studentDataQuery + " from response_capture rc inner join student_profile sp on "
-    studentDataQuery = studentDataQuery + " rc.student_id=sp.student_id "
-    studentDataQuery = studentDataQuery + " inner join question_details qd on "
-    studentDataQuery = studentDataQuery + " qd.question_id=rc.question_id, total_marks_cte         "
-    studentDataQuery = studentDataQuery + " group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage ) "
-    studentDataQuery = studentDataQuery + " ,temp2 as (select count(distinct resp_session_id) as tests_taken "
-    studentDataQuery = studentDataQuery + " , student_id from response_capture group by student_id) "
-    studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
-    studentData = db.session.execute(text(studentDataQuery)).first()
+        performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(studentProfile.student_id)+ "'"    
+        perfRows = db.session.execute(text(performanceQuery)).fetchall()
+
+        testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(studentProfile.student_id)+ "'"
+        testCount = db.session.execute(text(testCountQuery)).first()
+
+        #section for test history query
+        testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(studentProfile.student_id)+")"
+        testHistory = db.session.execute(testHistoryQuery).fetchall()
+        ##end of test history query
     if studentData!=None or studentData!="":
         try:
             avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
@@ -389,22 +408,10 @@ def practiceTest():
             avg_performance=0
     else:
         avg_performance = 0
-    #fetch subject list
-    subjectQuery = "select cs.class_val as class_val, m1.msg_id as msg_id,description from board_class_subject bcs "
-    subjectQuery = subjectQuery + " inner join message_detail m1 on "
-    subjectQuery = subjectQuery + " bcs.subject_id =m1.msg_id inner join "
-    subjectQuery = subjectQuery + " student_profile sp on sp.school_id =bcs.school_id inner join "
-    subjectQuery = subjectQuery + " class_section cs on cs.class_sec_id  = sp.class_sec_id "
-    subjectQuery = subjectQuery + " and bcs.class_val  = cs.class_val "
-    subjectQuery = subjectQuery + " and sp.student_id ="+ str(studentProfile.student_id)
-    subjectData = db.session.execute(subjectQuery).fetchall()
-    class_val = ""
-    if subjectData!=None and subjectData!="":
-        for row in subjectData:
-            class_val = row.class_val
+    
     
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
-        studentProfile=studentProfile, avg_performance=avg_performance, subjectData=subjectData, class_val=class_val)
+        studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount)
 
 
 @app.route('/normal')
