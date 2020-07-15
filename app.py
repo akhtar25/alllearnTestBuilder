@@ -391,7 +391,8 @@ def practiceTest():
         studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
         studentData = db.session.execute(text(studentDataQuery)).first()
 
-        performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(studentProfile.student_id)+ "'"    
+        #performanceQuery = "select *from fn_leaderboard_responsecapture () where student_id='"+str(studentProfile.student_id)+ "'"
+        performanceQuery = "select *from fn_leaderboard_responsecapture ("+str(studentProfile.student_id)+")"
         perfRows = db.session.execute(text(performanceQuery)).fetchall()
 
         testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(studentProfile.student_id)+ "'"
@@ -401,6 +402,10 @@ def practiceTest():
         testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(studentProfile.student_id)+")"
         testHistory = db.session.execute(testHistoryQuery).fetchall()
         ##end of test history query
+
+        #other recent test takers
+        recentTestTakersQuery = "select *from fn_student_test_taken_details() order by test_taken_on desc limit 10"
+        recentTestTakers = db.session.execute(recentTestTakersQuery).fetchall()
     if studentData!=None or studentData!="":
         try:
             avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
@@ -411,7 +416,8 @@ def practiceTest():
     
     
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
-        studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount)
+        studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
+        recentTestTakers=recentTestTakers)
 
 
 @app.route('/normal')
@@ -5705,7 +5711,8 @@ def studentPerformanceGraph():
       
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-    
+    fromPractice = request.args.get('fromPractice')
+    print('##### this is the value of fromPractice: '+ str(fromPractice))
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
@@ -5717,13 +5724,19 @@ def studentPerformanceGraph():
     
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     fromTestPerformance=0
-          
-    studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
-    studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
-    studPerformanceQuery = studPerformanceQuery + "inner join "
-    studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
-    studPerformanceQuery = studPerformanceQuery + "and "
-    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"
+    
+    if fromPractice=='1':
+        print('######using newer query')
+        studPerformanceQuery = "select test_date as date, CAST(perf_percentage AS INTEGER) as student_score, subject as description"
+        studPerformanceQuery = studPerformanceQuery + " from fn_student_performance_response_capture("+str(student_id)+") "
+    else:
+        print('#######using older query')
+        studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
+        studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
+        studPerformanceQuery = studPerformanceQuery + "inner join "
+        studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+        studPerformanceQuery = studPerformanceQuery + "and "
+        studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"            
     
 
     studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()

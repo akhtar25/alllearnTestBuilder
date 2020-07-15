@@ -274,7 +274,7 @@
     $(document).ready(function () {        
         var data = "";
         $.ajax({
-            url: "/studentPerformanceGraph?student_id=" + {{student_id}},
+            url: "/studentPerformanceGraph?student_id=" + "{{student_id}}",
             type: "get",
             data: data,
             success: function (response) {                

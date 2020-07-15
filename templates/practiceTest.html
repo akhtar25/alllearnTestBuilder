@@ -1,5 +1,12 @@
 {% extends "layout.html" %} {% block content %}
 <link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
+
+<style>
+    .colorClass{
+        background-color: white;
+    }
+</style>
+
 <div style="overflow:hidden;position: absolute;height: 90%;">
     {%if current_user.is_anonymous%}
     <video autoplay muted loop id="myVideo" style="width:100%; ">
@@ -15,7 +22,7 @@ justify-content: center;">
         {%else%}
         <div class="container" style="  display: flex;
     align-items: center;
-    justify-content: center;background-image: linear-gradient(0deg, rgb(246, 250, 224), white);">
+    justify-content: center;background-image: linear-gradient(0deg,white, rgb(250, 255, 224), white);">
             {%endif%}
             <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
             <br>
@@ -53,8 +60,8 @@ justify-content: center;">
             </div>
           </form>-->
                     <div id="testConfigurationDiv" style="margin-bottom: 10%;">
-                        <div class="z-depth-1 hoverable"
-                            style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; background-color: rgb(255, 255, 255);">
+                        <div class="z-depth-1 hoverable colorClass"
+                            style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
                             {%if current_user.is_anonymous==false%}
                             <div class="row">
                                 <h4 style="padding-left: 10px;">Start a test</h4>
@@ -120,6 +127,10 @@ justify-content: center;">
                                     </div>
                                 </div>
                             </div>
+                            <span id="errorStartMSG" class="orange-text" style="display: none;font-size: large;">Error
+                                occurred
+                                while
+                                starting test. Please try again.</span>
                         </div>
                         <div class="row">
                             <div class="">
@@ -129,17 +140,14 @@ justify-content: center;">
                                         style="width: 150px;">Start
                                         Test</a>
                                     <!--<button type="button" name="button" id="button">Button</button>-->
-                                    <span id="errorStartMSG" class="orange-text" style="display: none;">Error occurred
-                                        while
-                                        starting test. Please try again.</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <br><br>
                     {%if current_user.is_anonymous==false%}
-                    <div class="row z-depth-1 hoverable" id="testSummaryDiv"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;background-color: white;margin-top: -10%; ">
+                    <div class="row z-depth-1 hoverable colorClass" id="testSummaryDiv"
+                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;margin-top: -10%; ">
                         <h4>Performance Summary</h4>
                         <div class="box">
                             <div class="box-body table-responsive no-padding">
@@ -187,37 +195,84 @@ justify-content: center;">
                                 <div id='studentPerformanceGraphDiv'> Loading graph...</div>
                             </div>
                             <div class="col-xs-6">
-                                <h4 class="grey-text">Subject Level Performance</h4>
-                                {%if perfRows|length>0%}
-                                <table class='responsive-table' style='font-size: 18px;'>
-                                    <thead>
-                                        {%for rows in perfRows%}
-                                        <th>{{rows.subject}}</th>
-                                        {%endfor%}
-                                    </thead>
-                                    <tbody>
-                                        <tr>
+                                <div id="subjectPerfDiv">
+                                    <h4 class="grey-text">Subject Level Performance</h4>
+                                    {%if perfRows|length>0%}
+                                    <table class='responsive-table' style='font-size: 18px;'>
+                                        <thead>
                                             {%for rows in perfRows%}
-                                            {%if rows.student_score > 49%}
-                                            <td class='green-text'>{{rows.student_score}}</td>
-                                            {%else%}
-                                            <td class='red-text'>{{rows.student_score}}</td>
-                                            {%endif%}
+                                            <th>{{rows.subject}} <br><span style="font-size: 12px;">Class {{rows.class_val}}</span></th>
                                             {%endfor%}
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                {%else%}
-                                <h5>No Info Present</h5>
-                                {%endif%}
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                {%for rows in perfRows%}
+                                                {%if rows.student_score > 49%}
+                                                <td class='green-text'>{{rows.student_score}}</td>
+                                                {%else%}
+                                                <td class='red-text'>{{rows.student_score}}</td>
+                                                {%endif%}
+                                                {%endfor%}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <br><br><br>
+                                    {%else%}
+                                    <h5>No Info Present</h5><br><br><br>
+                                    {%endif%}
+                                </div>
+
+                                <div id="recentTestTakerDiv">
+                                    <div id="recentTestTakers">
+
+                                        <h4 class="grey-text">Recent Test Takers</h4>
+
+                                        <table class="highlight">
+                                            <thead>
+                                                <th>Name</th>
+                                                <th>Class/Level</th>
+                                                <th>Subject</th>
+                                                <th>Performance</th>
+                                                <!--<th>Test Date</th>-->
+                                                <th>Challenge</th>
+                                            </thead>
+                                            <tbody>
+                                                {%if recentTestTakers%}
+                                                {%for row in recentTestTakers%}
+                                                <tr>
+                                                    <td>{{row.first_name}}</td>
+                                                    <td>{{row.class_val}}</td>
+                                                    <td>{{row.subject}}</td>
+                                                    <td>{{row.perf_percentage}}</td>
+                                                    <!--<td>{{row.test_taken_on.strftime('%d %B %Y')}}</td>-->
+                                                    <td><a href="#" class="">Beat the
+                                                        score</a></td>
+                                                    <!--<td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
+                                                            score</a></td>-->
+                                                </tr>
+                                                {%endfor%}
+                                                {%else%}
+                                                <!--<span>No Test history found</span>-->
+                                                <tr >
+                                                    <td>Parag</td>
+                                                    <td>7</td>
+                                                    <td>English</td>
+                                                    <td>78%</td>                                                    
+                                                    <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
+                                                            score</a></td>
+                                                </tr>
+                                                {%endif%}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
                     </div>
 
                     <div id="testHistory"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; background-color: white;"
-                        class="z-depth-1 hoverable row">
+                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;"
+                        class="z-depth-1 hoverable row colorClass">
                         <h4>Test History</h4>
                         <table class="highlight">
 
@@ -261,47 +316,8 @@ justify-content: center;">
                         
                     </div>-->
 
-                    <!--<div id="recentTestTakers"
-                        style="border-radius: 25px;margin-top: 8%;border: 2px solid #73AD21;padding: 10px; background-color: white;"
-                        class="z-depth-1 hoverable row">
 
-                        <h4 class="grey-text">Recent Test Takers</h4>
-
-                        <table class="highlight">
-                            <thead>
-                                <th>Name</th>
-                                <th>Class/Level</th>
-                                <th>Subject</th>
-                                <th>Performance</th>
-                                <th>Test Date</th>
-                                <th>Challenge</th>
-                            </thead>
-                            <tbody>
-                                {%if recentTestTakers%}
-                                {%for row in recentTestTakers%}
-                                <tr>
-                                    <td>{{row.first_name}}</td>
-                                    <td>{{row.class_val}}</td>
-                                    <td>{{row.subject}}</td>
-                                    <td>{{row.performance}}</td>
-                                    <td>{{row.test_taken_on.strftime('%d %B %Y')}}</td>
-                                    <td><a href="{{url_for(feedbackCollection)}}" class="">Beat their score</a></td>
-                                </tr>
-                                {%endfor%}
-                                {%else%}
-                                <h4 class="grey-text">No Test history found</h4>
-                                <tr style="font-size: large;">
-                                    <td>Parag</td>
-                                    <td>7</td>
-                                    <td>English</td>
-                                    <td>78%</td>
-                                    <td>24th Jul '20</td>
-                                    <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the score</a></td>
-                                </tr>
-                                {%endif%}
-                            </tbody>
-                        </table>
-                    </div>
+                    <!--
                     <div id="detailsDiv" class="row">
                         <div class="col-xs-2">
                             <img src="../static/images/cartoonMainpage.PNG" width="100px">
@@ -401,15 +417,18 @@ justify-content: center;">
 
 
     </div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script>
         $(document).ready(function () {
             $('.tabs').tabs();
             $('.modal').modal();
             $('select').formSelect();
+
             $(document).ready(function () {
 
                 $.ajax({
-                    url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}",
+                    url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}" +
+                        "&fromPractice=1",
                     type: "get",
                     data: "",
                     success: function (response) {
@@ -577,26 +596,16 @@ justify-content: center;">
 
         $('#button').click(function () {
             //$('#topicSearch').trigger('clear');
-            //window.alert($('#topicSearch').attr('data-id'));
-            var tempData = [];
-            tempData.push({
-                id: "0",
-                topic_name: "No Topics Found",
-            });
-            $('#topicSearch').magicsearch({
-                dataSource: tempData,
-                fields: ['topic_name'],
-                id: 'id',
-                format: '%topic_name%',
-                multiple: false,
-                multiField: 'topic_name',
-                dropdownMaxItem: 20,
-                multiStyle: {
-                    space: 5,
-                    width: 120
-                },
-                focusShow: true
-            });
+            var topicTemp = $('#topicSearch').attr('data-id');
+            //window.alert(topicTemp);
+            if (topicTemp == undefined) {
+                window.alert("undefined val");
+            } else if (topicTemp == "") {
+                window.alert('blank val');
+            } else {
+                window.alert('something else');
+            }
+
             //$('#topicSearch').attr('disable',true);
         });
 
@@ -613,7 +622,7 @@ justify-content: center;">
             //var topicList = JSON.stringify(topics);
             //window.alert(topicList);
             var testing = 0;
-            if (testing != 1) {
+            if (topics != undefined && topics != "") {
                 $.ajax({
                     url: "/startPracticeTest?difficulty=" + difficulty + "&qcount=" + qcount +
                         "&subject_id=" +
@@ -637,11 +646,16 @@ justify-content: center;">
                         }
                     },
                     error: function (xhr) {
-                        window.alert('Error in fetching server response. Please try again.');
+                        //window.alert('Error in fetching server response. Please try again.');
+                        $('#errorStartMSG').show();
                         $('#errorStartMSG').html(
                             'Error in fetching server response. Please try again.');
                     }
                 });
+            } else {
+                $('#errorStartMSG').show();
+                $('#errorStartMSG').html(
+                    'Please select a topic.');
             }
         });
     </script>
