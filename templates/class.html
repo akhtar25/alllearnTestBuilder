@@ -62,7 +62,8 @@
               <div class="col-xs-3">
                 <h4 class="grey-text">Actions</h4>
                 <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
-                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>
+                <a  href="#loginChkModal" class="modal-trigger">Check Login Data</a><br>
+                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>                
               </div>
             </div>
           </div>
@@ -132,6 +133,38 @@
   <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
     </div>
 </div>
+
+
+<div class="modal" id="loginChkModal">
+  <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
+<div id="loadingData" style="display: none;">
+Loading information...
+</div>
+<div id="loginInfoDiv">
+  <table>
+    <thead>
+      <th>Student Name</th>
+      <th>Last Login Date</th>
+    </th>
+    <tbody>
+      {%if loginData%}
+      {%for row in loginData%}      
+      <tr>
+        <td>{{row.student_name}}</td>
+        {%if row.last_login%}
+        <td>{{row.last_login.strftime('%d %B %Y')}}</td>
+        {%else%}
+        <td>NA</td>
+        {%endif%}
+      </tr>
+      {%endfor%}
+      {%endif%}      
+    </tbody>
+  </table>
+</div>
+  </div>
+</div>
+
 
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>

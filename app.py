@@ -2077,7 +2077,7 @@ def user(username):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print('Inside login')
-    if current_user.is_authenticated:
+    if current_user.is_authenticated:        
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
@@ -4122,13 +4122,10 @@ def classCon():
         topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
         #print('this is the number of topicRows' + str(len(topicRows)))
 
-        #courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
-        #courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
-        #courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        #courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
-        #endOfQueries  
-        #db.session.execute(text('call sp_performance_detail_load_feedback()'))
-        #db.session.commit()    
+        ##Section for login info
+        loginDataQuery = "select *from fn_student_last_login("+str(selectedClassSection.class_sec_id)+")"
+        loginData = db.session.execute(loginDataQuery).fetchall()
+        ##
         
         #Summary query
         summaryQuery = "with perfCTE as(select round(avg(student_score ),2) as avgClassPerfomance "
@@ -4141,7 +4138,9 @@ def classCon():
         summaryData = db.session.execute(text(summaryQuery)).first()
         # End of query section 
         
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, user_type_val=str(current_user.user_type))
+        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
+            qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
+            topicRows=topicRows, user_type_val=str(current_user.user_type), loginData=loginData)
     else:
         return redirect(url_for('login'))    
 
