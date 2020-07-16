@@ -1,8 +1,7 @@
 {% extends "layout.html" %} {% block content %}
 <link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
-
 <style>
-    .colorClass{
+    .colorClass {
         background-color: white;
     }
 </style>
@@ -77,7 +76,7 @@ justify-content: center;">
                                             <option value="7">7</option>
                                             <option value="8">8</option>
                                             <option value="9">9</option>
-                                            <option value="10">10</option>                                        
+                                            <option value="10">10</option>
                                             <!--<option value="11">11</option>
                                         <option value="12">12</option>-->
                                         </select>
@@ -146,8 +145,12 @@ justify-content: center;">
                     </div>
                     <br><br>
                     {%if current_user.is_anonymous==false%}
+                    <div class="right" style="margin-top: -10%;">
+                        <a href="#contributeQuestionModal" class="btn cyan modal-trigger">Contribute a question</a>
+                        <!--<i class="material-icons blue-text">info_outline</i>-->
+                    </div>
                     <div class="row z-depth-1 hoverable colorClass" id="testSummaryDiv"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;margin-top: -10%; ">
+                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; margin-top: -5%;">
                         <h4>Performance Summary</h4>
                         <div class="box">
                             <div class="box-body table-responsive no-padding">
@@ -175,16 +178,21 @@ justify-content: center;">
                                     <h3 class="blue-text">NA</h3>
                                     {%endif%}
                                 </div>
-                                
                                 <div class="col-xs-3">
-                                    <h4 class="grey-text">Points earned</h4>
-                                    {%if studentData.points_earned%}
-                                    <h3 class="blue-text">{{studentData.points_earned}}</h3>
-                                    <h5>Level: <span class="purple-text"> {{studentData.current_level}}</span></h5>
+                                    <span style="font-size: large;" class="grey-text">Points earned</span><!--&nbsp;&nbsp;<i class="material-icons blue-text small" >info_outline</i>-->
+                                    {%if studentProfile%}
+                                    <h3 class="blue-text">{{studentProfile.points}}
+                                        
+                                        <!--<span class="purple-text"
+                                        style="font-size: 14px;"><b>NA</b>
+                                        {{studentProfile.current_level}}</span>-->
+                                    </h3>
                                     {%else%}
-                                    <h3 class="blue-text">NA <span class="purple-text"
+                                    <h3 class="blue-text">0
+                                        <!--<span class="purple-text"
                                             style="font-size: 14px;"><b>NA</b>
-                                            {{studentData.current_level}}</span></h3>
+                                            {{studentProfile.current_level}}</span>-->
+                                    </h3>
                                     {%endif%}
                                 </div>
                             </div>
@@ -210,14 +218,14 @@ justify-content: center;">
                                         </thead>
                                         <tbody>
                                             {%for row in perfRows%}
-                                            <tr>                                                
+                                            <tr>
                                                 <td>{{row.class_val}}</td>
-                                                <td>{{row.subject}}</td>                                                
+                                                <td>{{row.subject}}</td>
                                                 {%if row.student_score > 49%}
                                                 <td class='green-text'>{{row.student_score}}</td>
                                                 {%else%}
                                                 <td class='red-text'>{{row.student_score}}</td>
-                                                {%endif%}                                                
+                                                {%endif%}
                                             </tr>
                                             {%endfor%}
                                         </tbody>
@@ -231,12 +239,12 @@ justify-content: center;">
                                 <div id="leaderBoardDiv">
                                     <div id="leaderboardData">
 
-                                        <h4 class="grey-text">Top Scorers for Class {{class_val}}</h4>
+                                        <h4 class="grey-text">Subject Toppers for Class {{class_val}}</h4>
 
                                         <table class="highlight">
                                             <thead>
-                                                <th>Name</th>     
-                                                <th>Class</th>                                           
+                                                <th>Name</th>
+                                                <th>Class</th>
                                                 <th>Subject</th>
                                                 <th>Performance</th>
                                                 <!--<th>Ask for advice</th>
@@ -249,14 +257,14 @@ justify-content: center;">
                                                     <td>{{row.first_name}}</td>
                                                     <td>{{row.class_val}}</td>
                                                     <td>{{row.subject}}</td>
-                                                    <td>{{row.student_score}}</td>                                                    
+                                                    <td>{{row.student_score}}</td>
                                                     <!--<td><a href="#" class="">Ask for advice</a></td>
                                                     <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
                                                             score</a></td>-->
                                                 </tr>
                                                 {%endfor%}
                                                 {%else%}
-                                                <span>No Test history found</span>                                                
+                                                <span>No Test history found</span>
                                                 {%endif%}
                                             </tbody>
                                         </table>
@@ -267,7 +275,7 @@ justify-content: center;">
                     </div>
 
                     <div id="testHistory"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;"
+                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;max-height: 500px;overflow-y: auto;"
                         class="z-depth-1 hoverable row colorClass">
                         <h4>Test History</h4>
                         <table class="highlight">
@@ -330,6 +338,17 @@ justify-content: center;">
             </div>
         </div>
 
+        <div id="contributeQuestionModal" class="modal">
+            <div class="modal-content" style="height: 100%;">
+                <h3 class="orange-text">You are not yet eligible to contribute a question.</h3><br>
+                <h4>To be eligible, you must:</h4>
+                <ol>
+                    <li><h4>Have an <b>average performance</b> of more than <b>65%</b></h4></li>
+                    <li><h4>Have taken <b>at least 10 tests</b> of <b>Medium</b> level</h4></li>
+                </ol><br><br>
+                <h4 class="green-text">Every question contribution gets you 3 points</h4>
+            </div>
+        </div>
         <!--<div id="startTestModal" class="modal" style="width: 400px;overflow-y: auto;">
         <div class="modal-content">            
             <span id="errorDisplay"></span>

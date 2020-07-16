@@ -338,7 +338,7 @@ def practiceTest():
             studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
                 school_id=schoolRow.school_id,class_sec_id=classSectionRow.class_sec_id,
                 phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
-                roll_number=000,last_modified_date=datetime.today(), email=current_user.email)
+                roll_number=000,last_modified_date=datetime.today(), email=current_user.email,points=10)
             db.session.add(studentDataAdd)
             
             #updating the public.user table
@@ -4253,8 +4253,10 @@ def startPracticeTest():
     ##Create test
     testDetailsAdd = TestDetails(test_type='100', total_marks=str(total_marks),last_modified_date= datetime.today(),
         board_id=str(schoolData.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.today(),
-        date_of_test=str(datetime.today()), school_id=studentData.school_id)
+        date_of_test=str(datetime.today()), school_id=studentData.school_id)        
     db.session.add(testDetailsAdd)
+    if current_user.is_anonymous==False:
+        studentData.points= int(studentData.points) + 1
     db.session.commit()
     print('test_id:'+str(testDetailsAdd.test_id))
     print('Data feed to test details complete')
@@ -5374,6 +5376,8 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
+        studentRow.points = int(studentRow.points) + 1
+        db.session.commit()
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
