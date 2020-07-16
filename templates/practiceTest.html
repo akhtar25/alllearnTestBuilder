@@ -77,7 +77,7 @@ justify-content: center;">
                                             <option value="7">7</option>
                                             <option value="8">8</option>
                                             <option value="9">9</option>
-                                            <option value="10">10</option>
+                                            <option value="10">10</option>                                        
                                             <!--<option value="11">11</option>
                                         <option value="12">12</option>-->
                                         </select>
@@ -153,10 +153,18 @@ justify-content: center;">
                             <div class="box-body table-responsive no-padding">
                                 <div class="col-xs-3">
                                     <h4 class="grey-text">Tests Taken</h4>
-                                    {%if studentData.tests_taken%}
-                                    <h3 class="green-text">{{studentData.tests_taken}}</h3>
+                                    {%if testCount.tests_taken%}
+                                    <h3 class="green-text">{{testCount.tests_taken}}</h3>
                                     {%else%}
                                     <h3 class="green-text">NA</h3>
+                                    {%endif%}
+                                </div>
+                                <div class="col-xs-3">
+                                    <h4 class="grey-text">Questions Answered</h4>
+                                    {%if questionsAnswered%}
+                                    <h3 class="green-text">{{questionsAnswered.qanswered}}</h3>
+                                    {%else%}
+                                    <h3 class="green-text">0</h3>
                                     {%endif%}
                                 </div>
                                 <div class="col-xs-3">
@@ -167,14 +175,7 @@ justify-content: center;">
                                     <h3 class="blue-text">NA</h3>
                                     {%endif%}
                                 </div>
-                                <div class="col-xs-3">
-                                    <h4 class="grey-text">Strength Subjects</h4>
-                                    {%if studentData.strength_subjects%}
-                                    <h3 class="green-text">{{studentData.strength_subjects}}</h3>
-                                    {%else%}
-                                    <h3 class="green-text">NA</h3>
-                                    {%endif%}
-                                </div>
+                                
                                 <div class="col-xs-3">
                                     <h4 class="grey-text">Points earned</h4>
                                     {%if studentData.points_earned%}
@@ -195,25 +196,30 @@ justify-content: center;">
                                 <div id='studentPerformanceGraphDiv'> Loading graph...</div>
                             </div>
                             <div class="col-xs-6">
-                                <div id="subjectPerfDiv">
+                                <div id="subjectPerfDiv" style="overflow-y: auto;max-height: 400px;">
                                     <h4 class="grey-text">Subject Level Performance</h4>
                                     {%if perfRows|length>0%}
                                     <table class='responsive-table' style='font-size: 18px;'>
                                         <thead>
-                                            {%for rows in perfRows%}
+                                            <th>Class</th>
+                                            <th>Subject</th>
+                                            <th>Avg Score</th>
+                                            <!--{%for rows in perfRows%}
                                             <th>{{rows.subject}} <br><span style="font-size: 12px;">Class {{rows.class_val}}</span></th>
-                                            {%endfor%}
+                                            {%endfor%}-->
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                {%for rows in perfRows%}
-                                                {%if rows.student_score > 49%}
-                                                <td class='green-text'>{{rows.student_score}}</td>
+                                            {%for row in perfRows%}
+                                            <tr>                                                
+                                                <td>{{row.class_val}}</td>
+                                                <td>{{row.subject}}</td>                                                
+                                                {%if row.student_score > 49%}
+                                                <td class='green-text'>{{row.student_score}}</td>
                                                 {%else%}
-                                                <td class='red-text'>{{rows.student_score}}</td>
-                                                {%endif%}
-                                                {%endfor%}
+                                                <td class='red-text'>{{row.student_score}}</td>
+                                                {%endif%}                                                
                                             </tr>
+                                            {%endfor%}
                                         </tbody>
                                     </table>
                                     <br><br><br>
@@ -222,45 +228,35 @@ justify-content: center;">
                                     {%endif%}
                                 </div>
 
-                                <div id="recentTestTakerDiv">
-                                    <div id="recentTestTakers">
+                                <div id="leaderBoardDiv">
+                                    <div id="leaderboardData">
 
-                                        <h4 class="grey-text">Recent Test Takers</h4>
+                                        <h4 class="grey-text">Top Scorers for Class {{class_val}}</h4>
 
                                         <table class="highlight">
                                             <thead>
-                                                <th>Name</th>
-                                                <th>Class/Level</th>
+                                                <th>Name</th>     
+                                                <th>Class</th>                                           
                                                 <th>Subject</th>
                                                 <th>Performance</th>
-                                                <!--<th>Test Date</th>-->
-                                                <th>Challenge</th>
+                                                <!--<th>Ask for advice</th>
+                                                <th>Challenge</th>-->
                                             </thead>
                                             <tbody>
-                                                {%if recentTestTakers%}
-                                                {%for row in recentTestTakers%}
+                                                {%if leaderboardData%}
+                                                {%for row in leaderboardData%}
                                                 <tr>
                                                     <td>{{row.first_name}}</td>
                                                     <td>{{row.class_val}}</td>
                                                     <td>{{row.subject}}</td>
-                                                    <td>{{row.perf_percentage}}</td>
-                                                    <!--<td>{{row.test_taken_on.strftime('%d %B %Y')}}</td>-->
-                                                    <td><a href="#" class="">Beat the
-                                                        score</a></td>
-                                                    <!--<td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
+                                                    <td>{{row.student_score}}</td>                                                    
+                                                    <!--<td><a href="#" class="">Ask for advice</a></td>
+                                                    <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
                                                             score</a></td>-->
                                                 </tr>
                                                 {%endfor%}
                                                 {%else%}
-                                                <!--<span>No Test history found</span>-->
-                                                <tr >
-                                                    <td>Parag</td>
-                                                    <td>7</td>
-                                                    <td>English</td>
-                                                    <td>78%</td>                                                    
-                                                    <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
-                                                            score</a></td>
-                                                </tr>
+                                                <span>No Test history found</span>                                                
                                                 {%endif%}
                                             </tbody>
                                         </table>

@@ -391,11 +391,16 @@ def practiceTest():
         studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
         studentData = db.session.execute(text(studentDataQuery)).first()
 
+        #getting class_val for the student
+        classDataQuery = "select *from class_section cs where class_sec_id="+ str(studentProfile.class_sec_id)
+        classData = db.session.execute(classDataQuery).first()
+        class_val = classData.class_val
+
         #performanceQuery = "select *from fn_leaderboard_responsecapture () where student_id='"+str(studentProfile.student_id)+ "'"
-        performanceQuery = "select *from fn_leaderboard_responsecapture ("+str(studentProfile.student_id)+")"
+        performanceQuery = "select *from fn_leaderboard_responsecapture() where student_id ='"+str(studentProfile.student_id)+"' order by class_val desc" # and class_val='"+str(class_val)+"'"
         perfRows = db.session.execute(text(performanceQuery)).fetchall()
 
-        testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(studentProfile.student_id)+ "'"
+        testCountQuery = "select sum(test_taken) as tests_taken from fn_leaderboard_ResponseCapture() where student_id='"+str(studentProfile.student_id)+ "'"
         testCount = db.session.execute(text(testCountQuery)).first()
 
         #section for test history query
@@ -404,8 +409,19 @@ def practiceTest():
         ##end of test history query
 
         #other recent test takers
-        recentTestTakersQuery = "select *from fn_student_test_taken_details() order by test_taken_on desc limit 10"
-        recentTestTakers = db.session.execute(recentTestTakersQuery).fetchall()
+        #recentTestTakersQuery = "select *from fn_student_test_taken_details() order by test_taken_on desc limit 10"
+        #recentTestTakers = db.session.execute(recentTestTakersQuery).fetchall()        
+        #Questions answered
+        questionsAnsweredQuery = "select count(*) as qanswered from response_capture where student_id="+str(studentProfile.student_id)
+        questionsAnswered = db.session.execute(questionsAnsweredQuery).first()
+        #leaderboard data
+        leaderboardQuery = "SELECT student_id,first_name,SUBJECT,student_score,class_val"
+        leaderboardQuery = leaderboardQuery + " FROM fn_leaderboard_ResponseCapture() M "
+        leaderboardQuery = leaderboardQuery + " WHERE M.student_score = "
+        leaderboardQuery = leaderboardQuery + " (SELECT MAX(MM.student_score) FROM fn_leaderboard_ResponseCapture() MM where class_val='"+str(class_val)+"' GROUP BY "
+        leaderboardQuery = leaderboardQuery + " MM.SUBJECT having  MM.SUBJECT =M.subject)"
+        leaderboardQuery = leaderboardQuery + " order by student_score desc"
+        leaderboardData = db.session.execute(leaderboardQuery).fetchall()
     if studentData!=None or studentData!="":
         try:
             avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
@@ -417,7 +433,7 @@ def practiceTest():
     
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
         studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
-        recentTestTakers=recentTestTakers)
+        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered)
 
 
 @app.route('/normal')
