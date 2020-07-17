@@ -17,6 +17,9 @@ class Config(object):
     "https://accounts.google.com/.well-known/openid-configuration")
     ALLLEARN_INTERNAL_KEY = os.environ.get('ALLLEARN_INTERNAL_KEY')
     IMPACT_HOST = os.environ.get('IMPACT_HOST')
+    #New value for anonymous user id passed as a dev for practice test pages
+    ANONYMOUS_USERID = os.environ.get('ANONYMOUS_USERID')
+    ANONYMOUS_USERID = 886
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
     #IMPACT_HOST = "alllearnimpactstaging.herukoapp.com"
     #IMPACT_HOST = "http://127.0.0.1:8000"

@@ -367,7 +367,7 @@ def practiceTest():
         print('New entry made into the student table')
 
     if current_user.is_anonymous:    
-        studentProfile = StudentProfile.query.filter_by(user_id=886).first()  #staging anonymous username f        
+        studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
     if studentProfile==None:
@@ -1297,6 +1297,7 @@ def edit_profile():
 @login_required 
 def index():
     #print('Inside index')
+    #print("########This is the request url: "+str(request.url))
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
@@ -1332,7 +1333,7 @@ def index():
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==135:
         return redirect(url_for('admin'))
-    if user.user_type==234:
+    if user.user_type==234 or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url)):
         return redirect(url_for('practiceTest'))
     if user.user_type==72:
         #print('Inside guardian')
@@ -4227,7 +4228,7 @@ def startPracticeTest():
     #topicList = request.form.getlist('topicList')adsfsdfasdf
 
     if current_user.is_anonymous:
-        studentData = StudentProfile.query.filter_by(user_id=886).first()
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
         studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
     schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
@@ -5312,7 +5313,7 @@ def loadQuestionStud():
     print('Before String conversion:'+resp_session_id)
     print('This is the response session id in: ' + str(resp_session_id) )
     if current_user.is_anonymous:        
-        studentRow=StudentProfile.query.filter_by(user_id=886).first()
+        studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
         studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
@@ -6356,7 +6357,7 @@ def addChapterTopics():
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
     if current_user.is_anonymous:
-        studentData = StudentProfile.query.filter_by(user_id=886).first()
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
         if current_user.user_type==71:
@@ -6399,7 +6400,7 @@ def addClass():
 
     ##########
     if current_user.is_anonymous:
-        studentData = StudentProfile.query.filter_by(user_id=886).first()
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
         if current_user.user_type==71:

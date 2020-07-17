@@ -17,7 +17,7 @@
 
             <form action="{{url_for('practiceTest')}}" method="post">
               <div class="row ">
-                <div class="col-xs-4">
+                <!--<div class="col-xs-4">
                   <span style="font-size: medium;">Are you a student of <strong>allLearn's partner school?</strong></span>
                   <p>
                     <label>
@@ -29,7 +29,7 @@
                       <span style="font-size: medium;">Yes</span>
                     </label>
                   </p>
-                </div>
+                </div>-->
                 <div class="col-xs-3">
                   <span style="font-size: medium;">Board</span>
                   <div class="input-field">
@@ -48,11 +48,16 @@
                   <div class="input-field" style="z-index:100001">
                     <select name="class_val" id="class_val" class="practiceInput">
                       <option value="" disabled selected>Choose your option</option>
-                      {%if classRows%}
+                      <!--{%if classRows%}
                       {%for row in classRows%}                      
                       <option value="{{row.class_val}}">{{row.class_val}}</option>
                       {%endfor%}
-                      {%endif%} 
+                      {%endif%} -->
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
                     </select>
                   </div>
                 </div>
@@ -197,23 +202,23 @@
   });
 
 
-  $('.practiceInput').change(function(){
-    var partnerStudent = $("input[name='partnerStudent']:checked").val();
-    var board =$("#board").val();
-    var class_val = $("#class_val").val();
-    //window.alert(partnerStudent);
-    //window.alert(board);
-    //window.alert(class_val);
-    if (partnerStudent!=null && board!=null && class_val!=null){
-      if (partnerStudent=='Yes'){        
-        $('#partnerStudentMSG').show();
-        $('#practiceStart').prop('disabled', true);
-      }
-      else{
-        $('#partnerStudentMSG').hide();        
-        $('#practiceStart').prop('disabled', false);
-      }      
-    }
-  });
+  //$('.practiceInput').change(function(){
+  //  var partnerStudent = $("input[name='partnerStudent']:checked").val();
+  //  var board =$("#board").val();
+  //  var class_val = $("#class_val").val();
+  //  //window.alert(partnerStudent);
+  //  //window.alert(board);
+  //  //window.alert(class_val);
+  //  if (partnerStudent!=null && board!=null && class_val!=null){
+  //    if (partnerStudent=='Yes'){        
+  //      $('#partnerStudentMSG').show();
+  //      $('#practiceStart').prop('disabled', true);
+  //    }
+  //    else{
+  //      $('#partnerStudentMSG').hide();        
+  //      $('#practiceStart').prop('disabled', false);
+  //    }      
+  //  }
+  //});
 </script>
 {%endblock%}

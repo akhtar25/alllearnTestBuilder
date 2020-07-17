@@ -21,7 +21,7 @@ justify-content: center;">
         {%else%}
         <div class="container" style="  display: flex;
     align-items: center;
-    justify-content: center;background-image: linear-gradient(0deg,white, rgb(215, 248, 172), white);">
+    justify-content: center;background-image: linear-gradient(0deg, rgb(243, 250, 214), white);">
             {%endif%}
             <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
             <br>
@@ -451,7 +451,9 @@ justify-content: center;">
                         $("#studentPerformanceGraphDiv").html(response);
                     },
                     error: function (xhr) {
-                        window.alert("error occurred while fetching graph");
+                        //window.alert("error occurred while fetching graph");
+                        $('#errorStartMSG').html("Error occurred while fetching performance graph");
+                    $('#errorStartMSG').show();
                     }
                 });
             });
@@ -612,7 +614,7 @@ justify-content: center;">
         $('#button').click(function () {
             //$('#topicSearch').trigger('clear');
             var topicTemp = $('#topicSearch').attr('data-id');
-            window.alert(topicTemp);
+            //window.alert(topicTemp);
             //if (topicTemp == undefined) {
             //    window.alert("undefined val");
             //} else if (topicTemp == "") {
@@ -635,7 +637,7 @@ justify-content: center;">
             var class_val = $('#class_val').val();
             var topics = $('#topicSearch').attr('data-id');        
             //var topicList = JSON.stringify(topics);
-            window.alert(topics);
+            //window.alert(topics);
             var testing = 0;
             if (topics != undefined && topics != "") {
                 $.ajax({
