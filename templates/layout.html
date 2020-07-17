@@ -358,7 +358,7 @@
                 <!-- {%if row[2] not in lis %} -->
                   <li>
                     
-                    <a class="subheader">{{row[2]}}</a>
+                    <a class="subheader" style="margin-left: -15px;font-size: 16px;">{{row[2]}}</a>
                     
                   </li>
                   <!-- {% endif %} -->
@@ -548,7 +548,7 @@
   <script src="../static/js/datatables.js"></script>
   <script>
 $(document).ready(function(){
-  $('.sidenav').sidenav();
+  // $('.sidenav').sidenav();
   //alert('1');
 if ('{{session["classSecVal"]}}'=='N'){
   //alert('1');
@@ -576,6 +576,18 @@ if ('{{session["classSecVal"]}}'=='N'){
 function EnableLinks() {
   //$('a.' + 'classSpecLink').attr('href','#')
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, {edge:'right',closeOnClick: true});
+  });
+
+// $('.button-collapse').sideNav({
+//       menuWidth: 300,
+//       closeOnClick: true,
+//       edge: 'right', // <--- CHECK THIS OUT
+//     }
+//   );
 
 
 // Show sideNav

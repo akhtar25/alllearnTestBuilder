@@ -6377,7 +6377,8 @@ def indivStudentProfile():
     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
-    
+    print('Student Id')
+    print(studentProfileQuery)
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
