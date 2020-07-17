@@ -542,10 +542,10 @@ justify-content: center;">
                             var dataSource = [];
                             if (response != '') {
                                 for (var i = 0; i < responseArr.length; i++) {
-                                    var book_name = responseArr[i].toString().split(':')[0];
-                                    var topic_name = responseArr[i].toString().split(':')[1];
-                                    var chapter_name = responseArr[i].toString().split(':')[2];
-                                    var topic_id = responseArr[i].toString().split(':')[3];
+                                    var book_name = responseArr[i].toString().split('@')[0];
+                                    var topic_name = responseArr[i].toString().split('@')[1];
+                                    var chapter_name = responseArr[i].toString().split('@')[2];
+                                    var topic_id = responseArr[i].toString().split('@')[3];
                                     dataSource.push({
                                         id: topic_id,
                                         topic_name: topic_name,
@@ -562,10 +562,10 @@ justify-content: center;">
                                 format: '%book_name% - %chapter_name% - %topic_name%',
                                 multiple: true,
                                 multiField: 'topic_name',
-                                dropdownMaxItem: 20,
+                                dropdownMaxItem: 8,
                                 multiStyle: {
                                     space: 5,
-                                    width: 200
+                                    width: 150
                                 },
                                 focusShow: true
                             });
@@ -612,14 +612,14 @@ justify-content: center;">
         $('#button').click(function () {
             //$('#topicSearch').trigger('clear');
             var topicTemp = $('#topicSearch').attr('data-id');
-            //window.alert(topicTemp);
-            if (topicTemp == undefined) {
-                window.alert("undefined val");
-            } else if (topicTemp == "") {
-                window.alert('blank val');
-            } else {
-                window.alert('something else');
-            }
+            window.alert(topicTemp);
+            //if (topicTemp == undefined) {
+            //    window.alert("undefined val");
+            //} else if (topicTemp == "") {
+            //    window.alert('blank val');
+            //} else {
+            //    window.alert('something else');
+            //}
 
             //$('#topicSearch').attr('disable',true);
         });
@@ -633,9 +633,9 @@ justify-content: center;">
             var qcount = $('#qcount').val();
             var selectSubject = $('#selectSubject').val();
             var class_val = $('#class_val').val();
-            var topics = $('#topicSearch').attr('data-id')
+            var topics = $('#topicSearch').attr('data-id');        
             //var topicList = JSON.stringify(topics);
-            //window.alert(topicList);
+            window.alert(topics);
             var testing = 0;
             if (topics != undefined && topics != "") {
                 $.ajax({

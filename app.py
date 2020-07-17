@@ -6385,7 +6385,7 @@ def addChapterTopics():
                 book = "/"+str(book)
                 ch = str(ch)+"/"
             i=i+1
-        chaptersArray.append(str(book)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(ch))
+        chaptersArray.append(str(book)+"@"+str(chapter.topic_name)+"@"+str(chapter.chapter_name)+"@"+str(ch))
     
     if chaptersArray:
         return jsonify([chaptersArray])
