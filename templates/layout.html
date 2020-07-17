@@ -158,6 +158,7 @@
 
 
       <div id="nonSearchDiv">
+        
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
 
           {% if current_user.is_anonymous %}
@@ -197,6 +198,8 @@
           </li>
           {% endif %}
         </ul>
+
+
 
         <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">          
             <li>
@@ -265,8 +268,8 @@
           </ul>
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
-          {%if user_type_val=='134' %}
-          <li>
+          {%if user_type_val=='' %}
+          <!-- <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
             </a>                            
           </li>
@@ -279,12 +282,12 @@
         </li>
           <li>
             <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
-          </li>
-          <li>
+          </li> -->
+          <!-- <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
-          </li>
+          </li> -->
             {% elif current_user.is_anonymous or disconn == 1  %}
             <li>
               <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
@@ -312,7 +315,7 @@
                   </li>
                   
             {%else%}
-          <li>
+          <!-- <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
           </li>   
           <li>
@@ -323,14 +326,53 @@
           </li>
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown5">Performance</a>
-          </li>
+          </li> -->
           <!--<li>
               <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown6">Hiring</a>
             </li>-->
+            <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
+                <i class="material-icons right" style="font-size: 40px">account_circle </i>
+              </a>
+            </li>
+            <li>
+              <!-- <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;"> -->
+                <span style="font-size: 15px;color: green;">More</span>
+              <!-- </a> -->
+            </li>
           <li item-width="100px">
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown1">More
-              <i class="material-icons right" style="font-size: 40px">menu </i>
-            </a>
+            <!-- <span style="font-size: 15px;color: green;">More</span> -->
+            <!-- <a href="#!" data-target="slide-out" class="sidenav-trigger show-on-large" style="color: green; font-size:15px;">More -->
+              <ul id="slide-out" class="sidenav">
+                <li><div class="user-view" style="height:150px;">
+                  <div class="background" style="height:185px;">
+                    {% if session['schoolPicture'] %}
+                    <img src="{{session['schoolPicture']}}" style="height:185px;">
+                    {% else %}
+                    <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg" style="height:185px;">
+                    {% endif %}
+                  </div>
+                </div></li>
+                {% set lis = [] %}
+                {%  for row in session['moduleDet']%}
+                <!-- {%if row[2] not in lis %} -->
+                  <li>
+                    
+                    <a class="subheader">{{row[2]}}</a>
+                    
+                  </li>
+                  <!-- {% endif %} -->
+                  <!-- {{ lis.append(row[2]) }} -->
+                  <li>
+                    <a style="color: green; font-size:15px;"  href="{{row[1]}}">{{row[0]}}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+              
+              <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
+              <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;"><i class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a> 
+              
+            <!-- </a> -->
           </li>
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
@@ -534,5 +576,8 @@ if ('{{session["classSecVal"]}}'=='N'){
 function EnableLinks() {
   //$('a.' + 'classSpecLink').attr('href','#')
 }
+
+
+// Show sideNav
   </script>
 </html>

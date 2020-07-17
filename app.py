@@ -1351,10 +1351,14 @@ def index():
         testCount = db.session.execute(testCount).first()
         lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
-        #print(lastWeekTestCount)
+        # print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
+        print('user type value')
+        print(session['moduleDet'])
+        query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"'"
+        moduleDetRow = db.session.execute(query).fetchall()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
+            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount,moduleDetRow=moduleDetRow)
 
 @app.route('/performanceChart',methods=['GET','POST'])
 def performanceChart():
@@ -1975,6 +1979,40 @@ def login():
         #setting global variables
         session['classSecVal'] = classSecCheck()
         session['schoolName'] = schoolNameVal()
+        session['userType'] = current_user.user_type
+        school_id = ''
+        print('user type')
+        print(session['userType'])
+        if session['userType']==71:
+            school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        elif session['userType']==134:
+            school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        else:
+            school_id = User.query.filter_by(id=current_user.id).first()
+        school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+        session['schoolPicture'] = school_pro.school_picture
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and md.is_archived = 'N' order by module_type"
+        moduleDetRow = db.session.execute(query).fetchall()
+        print('School profile')
+        print(session['schoolPicture'])
+        # det_list = [1,2,3,4,5]
+        session['moduleDet'] = []
+        detList = session['moduleDet']
+        
+        for det in moduleDetRow:
+            eachList = []
+            print(det.module_name)
+            print(det.module_url)
+            eachList.append(det.module_name)
+            eachList.append(det.module_url)
+            eachList.append(det.module_type)
+            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+            detList.append(eachList)
+        session['moduleDet'] = detList
+        for each in session['moduleDet']:
+            print('module_name'+str(each[0]))
+            print('module_url'+str(each[1]))
+            print('module_type'+str(each[2]))
         print(session['schoolName'])
 
         return redirect(next_page)        
