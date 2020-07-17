@@ -1980,18 +1980,23 @@ def login():
         session['classSecVal'] = classSecCheck()
         session['schoolName'] = schoolNameVal()
         session['userType'] = current_user.user_type
+        session['username'] = current_user.username
+        print('user name')
+        print(session['username'])
         school_id = ''
         print('user type')
         print(session['userType'])
+        session['studentId'] = ''
         if session['userType']==71:
             school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         elif session['userType']==134:
             school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            session['studentId'] = school_id.student_id
         else:
             school_id = User.query.filter_by(id=current_user.id).first()
         school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
         session['schoolPicture'] = school_pro.school_picture
-        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and md.is_archived = 'N' order by module_type"
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         moduleDetRow = db.session.execute(query).fetchall()
         print('School profile')
         print(session['schoolPicture'])
@@ -4647,10 +4652,8 @@ def contentManager():
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         else:
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    if user_type_val==134:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    else:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
+    
+    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,studentDetails=studentDetails,available_class=available_class)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -4800,7 +4803,11 @@ def filterContentfromTopic():
 
 @app.route('/recentContentDetails',methods=['GET','POST'])
 def recentContentDetails():
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacher = ''
+    if current_user.user_type==71:
+        teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    elif current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
     class_value = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
     print(class_value)
@@ -6760,7 +6767,11 @@ def studentHomeWork():
 def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacherRow = ''
+    if current_user.user_type==71:
+        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     count = 0
     for section in classSections:
@@ -6784,7 +6795,7 @@ def HomeWork():
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
+    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
 @app.route('/homeworkReview')
 @login_required
