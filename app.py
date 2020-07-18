@@ -4367,7 +4367,7 @@ def startPracticeTest():
         total_marks = total_marks + val.suggested_weightage
         questionIDList.append(val.question_id)
     ##Create test
-    testDetailsAdd = TestDetails(test_type='100', total_marks=str(total_marks),last_modified_date= datetime.today(),
+    testDetailsAdd = TestDetails(test_type='238', total_marks=str(total_marks),last_modified_date= datetime.today(),
         board_id=str(schoolData.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.today(),
         date_of_test=str(datetime.today()), school_id=studentData.school_id)        
     db.session.add(testDetailsAdd)
