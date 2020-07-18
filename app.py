@@ -368,7 +368,8 @@ def practiceTest():
 
     if current_user.is_anonymous:    
         if ("school.alllearn" in str(request.url)):
-            return redirect(url_for('dashboard'))
+            print('#######this is the request url: '+ str(request.url))
+            return redirect(url_for('index'))
         studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
