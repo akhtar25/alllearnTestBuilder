@@ -298,10 +298,10 @@ $(document).ready(function(){
         var optionHTML = '<option value="" disabled selected>Select Chapters and topics</option>';
         var bookNames = []; 
         for(var i=0;i<responseArr.length;i++){
-          var book_name = responseArr[i].toString().split(':')[0];
-          var topic_name = responseArr[i].toString().split(':')[1];
-          var chapter_name = responseArr[i].toString().split(':')[2];
-          var topic_id = responseArr[i].toString().split(':')[3];
+          var book_name = responseArr[i].toString().split('@')[0];
+          var topic_name = responseArr[i].toString().split('@')[1];
+          var chapter_name = responseArr[i].toString().split('@')[2];
+          var topic_id = responseArr[i].toString().split('@')[3];
           
                       
                       

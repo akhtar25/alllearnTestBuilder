@@ -1,0 +1,680 @@
+{% extends "layout.html" %} {% block content %}
+<link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
+<style>
+    .colorClass {
+        background-color: white;
+    }
+</style>
+
+<div style="overflow:hidden;position: absolute;height: 90%;">
+    {%if current_user.is_anonymous%}
+    <video autoplay muted loop id="myVideo" style="width:100%; ">
+        <source src="../static/images/vid1.mp4" type="video/mp4">
+    </video>
+    {%endif%}
+</div>
+<div>
+    {%if current_user.is_anonymous%}
+    <div class="container" style="  display: flex;
+align-items: center;
+justify-content: center;">
+        {%else%}
+        <div class="container" style="  display: flex;
+    align-items: center;
+    justify-content: center;background-image: linear-gradient(45deg,#E4EBF2 , transparent);">
+            {%endif%}
+            <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
+            <br>
+            <!--<ul class="tabs">
+        <li class="tab col s3"><a class="active" href="#testSummaryDiv">Home</a></li>
+        <li class="tab col s3"><a href="#testHistory">Test History</a></li>-->
+            <!-- <li class="tab col s3"><a href="#payrollReport">Report</a></li>
+        <li class="tab col s3"><a id="allocation" href="#teacherAllocation">Teacher Allocation</a></li>-->
+            <!--</ul>-->
+            <br>
+            <!--<a href="#startTestModal" id="startTestModalBTN" class="modal-trigger right btn green">Start Practice Test</a><br>-->
+
+            <div id="mainDiv">
+                {%if current_user.is_anonymous%}
+                <div class="col-xs-6 row">
+                    <span id="mainText" style="font-size: 3vw;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
+                            exams
+                            needn't be tough. </b></span><br><span id="subText"
+                        style="font-size: 2vw;text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
+                            test now.</b></span>
+                </div>
+                {%else%}
+                <h4 class="">Welcome back {{studentData.full_name}}!</h4>
+                {%endif%}
+                <div id="practiceTestDiv" class="col-xs-12 row ">
+                    <!--<div id="pointsDiv"  class="">
+            <h5 >Points earned: <span class="green-text">240{{studentData.points_earned}}</span> </h5>
+            <h5 >Level: <span class="blue-text">Pro {{studentData.current_level}}</span></h5>
+        </div>-->
+
+                    <!--  <form>
+            <div class="input-field">
+              <input id="search" type="search" required>
+              <i class="material-icons">close</i>
+            </div>
+          </form>-->
+                    <div id="testConfigurationDiv" style="margin-bottom: 10%;">
+                        <div class="z-depth-2 hoverable colorClass"
+                            style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
+                            {%if current_user.is_anonymous==false%}
+                            <div class="row">
+                                <h4 style="padding-left: 10px;">Start a test</h4>
+                            </div>
+                            {%endif%}
+                            <div class="row">
+                                <div class="col-xs-1">
+                                    <div class="input-field">
+                                        <h4 class="grey-text">Class</h4>
+                                        <select id="class_val">
+                                            <option value="" disabled selected>Class</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                            <!--<option value="11">11</option>
+                                        <option value="12">12</option>-->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2">
+                                    <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
+                                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                    </div>
+                                    <div class="input-field">
+                                        <h4 class="grey-text">Subject</h4>
+                                        <select id="selectSubject">
+                                            <option value="" disabled selected>Subject</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-5">
+                                    <!--The search should show Book-Chapter-Topic-->
+                                    <h4 class="grey-text">Enter Chapter/Topic</h4>
+                                    <!--<div class="chips chips-autocomplete" id="topicSearch" data-hover="true" data-constrainWidth="false" style="width:400px" name="topicSearch"><i
+                                        class="material-icons right">search</i></div>-->
+                                    <input class="magicsearch" id="topicSearch" placeholder="Search Topics...">
+                                </div>
+                                <div class="col-xs-2">
+                                    <div class="input-field">
+                                        <h4 class="grey-text">Difficulty Preference</h4>
+                                        <select id="difficulty">
+                                            <option value="E">Easy</option>
+                                            <option selected value="Me">Medium</option>
+                                            <option value="H">Hard</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2">
+                                    <div class="input-field">
+                                        <h4 class="grey-text">Question Count</h4>
+                                        <!--  <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount"
+                    name="qcount">-->
+                                        <select id="qcount" style="font-family: Arial;">
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option selected value="20">20</option>
+                                            <option value="30">30</option>
+                                            <option value="40">40</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="errorStartMSG" class="orange-text" style="display: none;font-size: large;">Error
+                                occurred
+                                while
+                                starting test. Please try again.</span>
+                        </div>
+                        <div class="row">
+                            <div class="">
+                                <div class="center">
+                                    <br>
+                                    <a href="#" class="btn green hoverable" id="startTestBTN"
+                                        style="width: 150px;">Start
+                                        Test</a>
+                                    <!--<button type="button" name="button" id="button">Button</button>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    {%if current_user.is_anonymous==false%}
+                    <div class="right" style="margin-top: -10%;">
+                        <a href="#contributeQuestionModal" class="btn cyan modal-trigger">Contribute a question</a>
+                        <!--<i class="material-icons blue-text">info_outline</i>-->
+                    </div>
+                    <div class="row z-depth-1 hoverable colorClass" id="testSummaryDiv"
+                        style="border-radius: 25px;border: 2px solid white;padding: 10px; margin-top: -5%;">
+                        <h4>Performance Summary</h4>
+                        <div class="box">
+                            <div class="box-body table-responsive no-padding">
+                                <div class="col-xs-3">
+                                    <h4 class="grey-text">Tests Taken</h4>
+                                    {%if testCount.tests_taken%}
+                                    <h3 class="green-text">{{testCount.tests_taken}}</h3>
+                                    {%else%}
+                                    <h3 class="green-text">NA</h3>
+                                    {%endif%}
+                                </div>
+                                <div class="col-xs-3">
+                                    <h4 class="grey-text">Questions Answered</h4>
+                                    {%if questionsAnswered%}
+                                    <h3 class="green-text">{{questionsAnswered.qanswered}}</h3>
+                                    {%else%}
+                                    <h3 class="green-text">0</h3>
+                                    {%endif%}
+                                </div>
+                                <div class="col-xs-3">
+                                    <h4 class="grey-text">Average Performance</h4>
+                                    {%if avg_performance%}
+                                    <h3 class="blue-text">{{avg_performance}}%</h3>
+                                    {%else%}
+                                    <h3 class="blue-text">NA</h3>
+                                    {%endif%}
+                                </div>
+                                <div class="col-xs-3">
+                                    <span style="font-size: large;" class="grey-text">Points earned</span><!--&nbsp;&nbsp;<i class="material-icons blue-text small" >info_outline</i>-->
+                                    {%if studentProfile%}
+                                    <h3 class="blue-text">{{studentProfile.points}}
+                                        
+                                        <!--<span class="purple-text"
+                                        style="font-size: 14px;"><b>NA</b>
+                                        {{studentProfile.current_level}}</span>-->
+                                    </h3>
+                                    {%else%}
+                                    <h3 class="blue-text">0
+                                        <!--<span class="purple-text"
+                                            style="font-size: 14px;"><b>NA</b>
+                                            {{studentProfile.current_level}}</span>-->
+                                    </h3>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="col-xs-6">
+                                <div class="divider"></div>
+                                <h4 class='grey-text'>Performance Graph</h4>
+                                <div id='studentPerformanceGraphDiv'> Loading graph...</div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div id="subjectPerfDiv" style="overflow-y: auto;max-height: 400px;">
+                                    <h4 class="grey-text">Subject Level Performance</h4>
+                                    {%if perfRows|length>0%}
+                                    <table class='responsive-table' style='font-size: 18px;'>
+                                        <thead>
+                                            <th>Class</th>
+                                            <th>Subject</th>
+                                            <th>Avg Score</th>
+                                            <!--{%for rows in perfRows%}
+                                            <th>{{rows.subject}} <br><span style="font-size: 12px;">Class {{rows.class_val}}</span></th>
+                                            {%endfor%}-->
+                                        </thead>
+                                        <tbody>
+                                            {%for row in perfRows%}
+                                            <tr>
+                                                <td>{{row.class_val}}</td>
+                                                <td>{{row.subject}}</td>
+                                                {%if row.student_score > 49%}
+                                                <td class='green-text'>{{row.student_score}}</td>
+                                                {%else%}
+                                                <td class='red-text'>{{row.student_score}}</td>
+                                                {%endif%}
+                                            </tr>
+                                            {%endfor%}
+                                        </tbody>
+                                    </table>
+                                    <br><br><br>
+                                    {%else%}
+                                    <h5>No Info Present</h5><br><br><br>
+                                    {%endif%}
+                                </div>
+
+                                <div id="leaderBoardDiv">
+                                    <div id="leaderboardData">
+
+                                        <h4 class="grey-text">Subject Toppers for Class {{class_val}}</h4>
+
+                                        <table class="highlight">
+                                            <thead>
+                                                <th>Name</th>
+                                                <th>Class</th>
+                                                <th>Subject</th>
+                                                <th>Performance</th>
+                                                <!--<th>Ask for advice</th>
+                                                <th>Challenge</th>-->
+                                            </thead>
+                                            <tbody>
+                                                {%if leaderboardData%}
+                                                {%for row in leaderboardData%}
+                                                <tr>
+                                                    <td>{{row.first_name}}</td>
+                                                    <td>{{row.class_val}}</td>
+                                                    <td>{{row.subject}}</td>
+                                                    <td>{{row.student_score}}</td>
+                                                    <!--<td><a href="#" class="">Ask for advice</a></td>
+                                                    <td><a href="{{url_for('feedbackCollection')}}" class="">Beat the
+                                                            score</a></td>-->
+                                                </tr>
+                                                {%endfor%}
+                                                {%else%}
+                                                <span>No Test history found</span>
+                                                {%endif%}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="testHistory"
+                        style="border-radius: 25px;border: 2px solid white;padding: 10px;max-height: 500px;overflow-y: auto;"
+                        class="z-depth-1 hoverable row colorClass">
+                        <h4>Test History</h4>
+                        <table class="highlight">
+
+                            <thead>
+                                <th>Subject</th>
+                                <th>Topics</th>
+                                <th>Test Date</th>
+                                <th>Performance</th>
+                                <th>See Report</th>
+                            </thead>
+                            {%if testHistory%}
+                            <tbody>
+                                {%for row in testHistory%}
+                                <tr>
+                                    <td>{{row.subject}}</td>
+                                    <td>{{row.topics}}</td>
+                                    <td>{{row.test_date.strftime('%d %B %Y')}}</td>
+
+                                    <td>{{row.perf_percentage}}%</td>
+                                    <td><a target="_blank"
+                                            href="{{url_for('studentFeedbackReport', student_id=studentData.student_id, studentName=studentData.full_name, resp_session_id = row.resp_session_id)}}"
+                                            class="seeReportClass">See Report</a></td>
+                                </tr>
+                                {%endfor%}
+                            </tbody>
+                            {%else%}
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span style="font-size: larger;" class="grey-text">No Test history found</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            {%endif%}
+                        </table>
+                    </div>
+                    {%else%}
+                    <!-- <div class="right" style="background-color: grey;opacity: 0.4;">
+                        
+                        <h4> More about us</h4>
+                        
+                    </div>-->
+
+
+                    <!--
+                    <div id="detailsDiv" class="row">
+                        <div class="col-xs-2">
+                            <img src="../static/images/cartoonMainpage.PNG" width="100px">
+                        </div>
+                        <div class="col-xs-4">
+                            <h1 class="green-text">Got suggestions for us</h1>
+                        </div>
+                       
+                    </div>-->
+                    {%endif%}
+                    <br><br>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="contributeQuestionModal" class="modal">
+            <div class="modal-content" style="height: 100%;">
+                <h3 class="orange-text">You are not yet eligible to contribute a question.</h3><br>
+                <h4>To be eligible, you must:</h4>
+                <ol>
+                    <li><h4>Have an <b>average performance</b> of more than <b>65%</b></h4></li>
+                    <li><h4>Have taken <b>at least 10 tests</b> of <b>Medium</b> level</h4></li>
+                </ol><br><br>
+                <h4 class="green-text">Every question contribution gets you 3 points</h4>
+            </div>
+        </div>
+        <!--<div id="startTestModal" class="modal" style="width: 400px;overflow-y: auto;">
+        <div class="modal-content">            
+            <span id="errorDisplay"></span>
+            <h4 class="grey-text">Configure Test </h4>
+            <h5><b>Class {{class_val}}</b></h5>
+            <div class="row">
+                <div class="col-xs-10">
+                    <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                    </div>
+                    <div class="input-field">
+                        <h4 class="grey-text">Subject</h4>
+                        <select id="selectSubject">
+                            <option value="" disabled selected>Select Subject</option>
+                            {%if subjectData%}
+                            {%for subject in subjectData%}
+                            <option value="{{subject.msg_id}}">{{subject.description}}</option>
+                            {%endfor%}
+                            {%endif%}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-10">
+                    <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                    </div>
+                    <div class="input-field">
+                        <h4 class="grey-text">Chapters and Topics</h4>
+                        <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
+                            <option value="" disabled selected>Select Chapters and topics</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-10">
+                    <div class="input-field">
+                        <h4 class="grey-text">Difficulty Preference</h4>
+                        <select id="difficulty">
+                            <option value="" disabled selected>Select Level</option>
+                            <option value="E">Easy</option>
+                            <option value="Me">Medium</option>
+                            <option value="H">Hard</option>
+                            <option value="Ma">Master</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-10">
+                    <div class="questionenterDiv ">
+                        <br>
+                        <div class="input-field">
+                            <h4 class="grey-text">Question Count</h4>
+                            <select id="qcount" style="font-family: Arial;">
+                                <option value="" disabled selected>Question Count</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="40">40</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="center">
+                    <a href="#" class="btn green " id="startTestBTN" style="width: 150px;">Start</a>
+                    <span id="errorStartMSG" class="orange-text" style="display: none;">Error occurred while starting
+                        test.
+                        Please try again.</span>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+
+    </div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.tabs').tabs();
+            $('.modal').modal();
+            $('select').formSelect();
+
+            $(document).ready(function () {
+
+                $.ajax({
+                    url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}" +
+                        "&fromPractice=1",
+                    type: "get",
+                    data: "",
+                    success: function (response) {
+                        $("#studentPerformanceGraphDiv").show();
+                        $("#studentPerformanceGraphDiv").html(response);
+                    },
+                    error: function (xhr) {
+                        //window.alert("error occurred while fetching graph");
+                        $('#errorStartMSG').html("Error occurred while fetching performance graph");
+                    $('#errorStartMSG').show();
+                    }
+                });
+            });
+        });
+
+
+        $('#class_val').change(function () {
+            //$('#selectSubject').html('<option value="" disabled selected>Select Subject</option>');
+            $('#subjectLoader').show();
+            $.ajax({
+                url: "/addClass?class_val=" + $('#class_val').val(),
+                type: "POST",
+                contentType: "application/json",
+                data: "",
+                success: function (response) {
+                    console.log('inside success');
+                    console.log(response);
+                    if (response) {
+                        responseArr = response.toString().split(',');
+                        var optionHTML =
+                            '<option value="" disabled selected>Select Subject</option>';
+                        for (var i = 0; i < responseArr.length; i++) {
+                            var subject_id = responseArr[i].toString().split(':')[0];
+                            var subject_name = responseArr[i].toString().split(':')[1];
+                            console.log(subject_id);
+                            console.log(subject_name);
+
+                            //////////////                
+                            //////////////
+
+                            optionHTML += '<option value="' + subject_id + '">' + subject_name +
+                                '</option>';
+                        }
+
+
+                    } else {
+                        optionHTML += '<option value="">No data available</option>';
+                    }
+                    console.log(optionHTML);
+                    //console.log(select_subject);
+                    $('#selectSubject').html(optionHTML);
+                    $('#subjectLoader').hide();
+                    $('#selectSubject').formSelect();
+                },
+                error: function (xhr) {
+                    $('#errorStartMSG').html("Error occurred while loading subject");
+                    $('#errorStartMSG').show();
+                    $('#subjectLoader').hide();
+                }
+            });
+        });
+
+
+        //$("#qcount").on("keypress keyup blur", function (e) {
+        //    $(this).val($(this).val().replace(/^[a-zA-Z]+$/, ""));
+        //    if ($(this).val()>100)
+        //    {
+        //        $("#qcount").prop('disable',true);
+        //    }
+        //    if ((e.which < 48 || e.which > 57)) {
+        //        e.preventDefault();
+        //    }
+        //});
+
+        var select_chapter = document.getElementById('selectChapters');
+
+        $('#selectSubject').change(function () {
+            //select_subject.onchange = function () {
+            $("#filebox").html('');
+            $('#chapterLoader').show();
+            $('#selectChapters').html('');
+            console.log('inside subject onchange');
+            var subject_id = $('#selectSubject').val();
+            if (subject_id != '') {
+                var class_val = $('#class_val').val();
+                //var class_val = "1";
+                $.ajax({
+                    url: "/addChapterTopics?class_val=" + class_val + "&subject_id=" + subject_id,
+                    type: "POST",
+                    contentType: "/application/json",
+                    data: "",
+                    success: function (response) {
+                        if (response) {
+                            responseArr = response.toString().split('/,/');
+                            var optionHTML =
+                                '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
+                            var bookNames = [];
+                            var dataSource = [];
+                            if (response != '') {
+                                for (var i = 0; i < responseArr.length; i++) {
+                                    var book_name = responseArr[i].toString().split('@')[0];
+                                    var topic_name = responseArr[i].toString().split('@')[1];
+                                    var chapter_name = responseArr[i].toString().split('@')[2];
+                                    var topic_id = responseArr[i].toString().split('@')[3];
+                                    dataSource.push({
+                                        id: topic_id,
+                                        topic_name: topic_name,
+                                        chapter_name: chapter_name,
+                                        book_name: book_name
+                                    });
+
+                                }
+                            }
+                            $('#topicSearch').magicsearch({
+                                dataSource: dataSource,
+                                fields: ['book_name', 'topic_name', 'chapter_name'],
+                                id: 'id',
+                                format: '%book_name% - %chapter_name% - %topic_name%',
+                                multiple: true,
+                                multiField: 'topic_name',
+                                dropdownMaxItem: 8,
+                                multiStyle: {
+                                    space: 5,
+                                    width: 150
+                                },
+                                focusShow: true
+                            });
+                        } else {
+                            var tempData = [];
+                            tempData.push({
+                                id: "0",
+                                topic_name: "No Topics Found",
+                            });
+                            $('#topicSearch').magicsearch({
+                                dataSource: tempData,
+                                fields: ['topic_name'],
+                                id: 'id',
+                                format: '%topic_name%',
+                                multiple: false,
+                                multiField: 'topic_name',
+                                dropdownMaxItem: 20,
+                                multiStyle: {
+                                    space: 5,
+                                    width: 120
+                                },
+                                focusShow: true
+                            });
+                        }
+                        //select_chapter.innerHTML = optionHTML;
+                        //$('#chapterLoader').hide();
+                        //
+                        //$('#selectChapters').formSelect();
+                    },
+                    error: function (xhr) {
+                        //window.alert('error occured while loading chapters');
+                        $('#errorDisplay').html(
+                            '<span class="red-text">Error occurred while loading chapters. <br>Please try again</span>'
+                        )
+                    }
+                });
+                $('#testBuilderQuestions').hide();
+                $("questions").hide();
+                $('#questionloader').show();
+            }
+        });
+
+
+        $('#button').click(function () {
+            //$('#topicSearch').trigger('clear');
+            var topicTemp = $('#topicSearch').attr('data-id');
+            //window.alert(topicTemp);
+            //if (topicTemp == undefined) {
+            //    window.alert("undefined val");
+            //} else if (topicTemp == "") {
+            //    window.alert('blank val');
+            //} else {
+            //    window.alert('something else');
+            //}
+
+            //$('#topicSearch').attr('disable',true);
+        });
+
+        $('#startTestBTN').click(function () {
+            $('#errorStartMSG').hide();
+            $('#startTestBTN').val('Starting...');
+            $('#startTestBTN').prop('disable', true);
+            //var topics = $('#selectChapters').val();
+            var difficulty = $('#difficulty').val();
+            var qcount = $('#qcount').val();
+            var selectSubject = $('#selectSubject').val();
+            var class_val = $('#class_val').val();
+            var topics = $('#topicSearch').attr('data-id');        
+            //var topicList = JSON.stringify(topics);
+            //window.alert(topics);
+            var testing = 0;
+            if (topics != undefined && topics != "") {
+                $.ajax({
+                    url: "/startPracticeTest?difficulty=" + difficulty + "&qcount=" + qcount +
+                        "&subject_id=" +
+                        selectSubject + "&class_val=" + class_val + "&topics=" + topics,
+                    type: "POST",
+                    contentType: "application/json",
+                    data: topics,
+                    success: function (response) {
+                        //window.alert(response);
+                        if (response == 1) {
+                            $('#errorStartMSG').show();
+                            $('#startTestBTN').val('Start Test');
+                            $('#startTestBTN').prop('disable', false);
+                        } else if (response == 2) {
+                            $('#errorStartMSG').hide();
+                            window.location.href = "/login";
+                        } else {
+                            $('#errorStartMSG').hide();
+                            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" +
+                                response;
+                        }
+                    },
+                    error: function (xhr) {
+                        //window.alert('Error in fetching server response. Please try again.');
+                        $('#errorStartMSG').show();
+                        $('#errorStartMSG').html(
+                            'Error in fetching server response. Please try again.');
+                    }
+                });
+            } else {
+                $('#errorStartMSG').show();
+                $('#errorStartMSG').html(
+                    'Please select a topic.');
+            }
+        });
+    </script>
+
+    {% endblock %}
