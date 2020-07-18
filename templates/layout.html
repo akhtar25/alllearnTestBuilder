@@ -38,7 +38,16 @@
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv" >
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
+          {%if current_user.is_anonymous %} 
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> 
+          {% else %}
+          {% if session['school_logo'] %}
+          <img src="{{session['school_logo']}}" width="150px" style="margin-top:-20px;">
+          {% else %}
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> 
+          {% endif %}
+          {% endif %}
+          {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -404,6 +413,9 @@
                     {% endif %}
                   </li>
                 {% endfor %}
+                <li>
+                  <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px" style="margin-left:80px;"> 
+                </li>
               </ul>
               
               <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
