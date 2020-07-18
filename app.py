@@ -5492,8 +5492,9 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
-        studentRow.points = int(studentRow.points) + 1
-        db.session.commit()
+        if studentRow.points!=None and studentRow.points!="":
+            studentRow.points = int(studentRow.points) + 1
+            db.session.commit()
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
