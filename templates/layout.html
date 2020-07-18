@@ -1,219 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>  
+
+<head>
   <script>
-    !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
-    analytics.load("FrWwjPc7G57S32WmNNc6UjtS3uUXrF64");
-    analytics.page();
-    }}();
+    ! function () {
+      var analytics = window.analytics = window.analytics || [];
+      if (!analytics.initialize)
+        if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice.");
+        else {
+          analytics.invoked = !0;
+          analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset",
+            "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"
+          ];
+          analytics.factory = function (t) {
+            return function () {
+              var e = Array.prototype.slice.call(arguments);
+              e.unshift(t);
+              analytics.push(e);
+              return analytics
+            }
+          };
+          for (var t = 0; t < analytics.methods.length; t++) {
+            var e = analytics.methods[t];
+            analytics[e] = analytics.factory(e)
+          }
+          analytics.load = function (t, e) {
+            var n = document.createElement("script");
+            n.type = "text/javascript";
+            n.async = !0;
+            n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js";
+            var a = document.getElementsByTagName("script")[0];
+            a.parentNode.insertBefore(n, a);
+            analytics._loadOptions = e
+          };
+          analytics.SNIPPET_VERSION = "4.1.0";
+          analytics.load("FrWwjPc7G57S32WmNNc6UjtS3uUXrF64");
+          analytics.page();
+        }
+    }();
   </script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" type="image/png" href="#" /> {% if title %}
-  <title>allLearn  - {{ title }}</title>
+  <title>allLearn - {{ title }}</title>
   {% else %}
   <title>allLearn</title>
-  {% endif %}  
+  {% endif %}
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src='https://kit.fontawesome.com/a076d05399.js'></script>
-  <script type=”text/javascript” src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type=”text/javascript” src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
   <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML">
-</script>
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML">
+  </script>
   <script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">  
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="../static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
   <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
   <link rel="stylesheet" href="../static/bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-</script>
+  </script>
 
   <link rel="stylesheet" href="../static/css/AdminLTE.min.css">
   <link rel="stylesheet" href="../static/css/datatables.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
+
 <body>
-  <nav class="white lighten-5 green-text header" role="navigation" style="height: 100px; color: blanchedalmond" >
+  <nav class="white lighten-5 green-text header" role="navigation" style="height: 100px; color: blanchedalmond">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
-      <div id="logoDiv" >
+      <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
-          {%if current_user.is_anonymous %} 
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> 
+          {%if current_user.is_anonymous %}
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% else %}
           {% if session['school_logo'] %}
           <img src="{{session['school_logo']}}" width="150px" style="margin-top:-20px;">
           {% else %}
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"> 
+          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% endif %}
           {% endif %}
-          {%if current_user.is_anonymous %} {% else %} {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'> {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
+          {%if current_user.is_anonymous %} {% else %}
+          {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'>
+            {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="sidenav" id="mobile-demo">
-          {% if current_user.is_anonymous %}
-          <li style="color: green;">
-            <a style="color: green;" href="{{ url_for('login') }}">Login</a>
-          </li>
-          <li style="color: green;">
-            <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
-          </li>
-          {% elif disconn == 1 %}
-          <li>
-              <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-            </li>
-            <li>
-                <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
-                </li>
-            {%elif user_type_val=='161'%}
-            <li>
-                <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-              </li>
-              <li>
-                  <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
-                </li>   
-                <li>
-                    <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
-                  </li>
+        {% if current_user.is_anonymous %}
+        <li style="color: green;">
+          <a style="color: green;" href="{{ url_for('login') }}">Login</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="{{ url_for('register') }}">Register</a>
+        </li>
+        {% elif disconn == 1 %}
+        <li>
+          <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+        {%elif user_type_val=='161'%}
+        <li>
+          <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" href="{{url_for('openJobs')}}">Jobs</a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+        </li>
 
-                  {%elif user_type_val=='134'%}
-                  <!--<li>
+        {%elif user_type_val=='134'%}
+        <!--<li>
                     <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
                   </li>-->
-                  
-                  <li>
-                    <a style="color: green;"  href="{{url_for('qrSessionScannerStudent')}}">Tests</a>
-                  </li>
-                  
-                  <li>
-                    <a style="color: green;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
-                  </li>
-                  <li>
-                    <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
-                  </li>
-                  <li>
-                    <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
-                  </li>
-                  
-                  <li>
-                    <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-          {% else %}
-          <li>
-            <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
-          </li>   
-          <li>
-              <a style="color: green; font-size: 15px;"  href="{{url_for('jobPosts')}}">Job Posts</a>
-            </li>
-            <li>
-                <a style="color: green; font-size: 15px;"  href="{{url_for('postJob')}}">Post New Job</a>
-            </li>          
-          <li>              
-            <a class='classSecLinks' style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('classCon')}}">Class</a>
-          </li>
-          <li>
-              <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
-            </li>
-            <li>
-              <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
-            </li>
-            <li>
-              <a style="color: green;" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
-            </li>
-            <li>
-                <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
-              </li>  
-              <!--<li>
+
+        <li>
+          <a style="color: green;" href="{{url_for('qrSessionScannerStudent')}}">Tests</a>
+        </li>
+
+        <li>
+          <a style="color: green;" href="{{url_for('studentHomeWork')}}">HomeWork</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{url_for('liveClass')}}">Live Class</a>
+        </li>
+
+        <li>
+          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+        {% else %}
+        <li>
+          <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+        <li>
+          <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
+        </li>
+        <li>
+          <a style="color: green; font-size: 15px;" href="{{url_for('postJob')}}">Post New Job</a>
+        </li>
+        <li>
+          <a class='classSecLinks' style="color: green; font-size:15px;" class='classSpecLink'
+            href="{{url_for('classCon')}}">Class</a>
+        </li>
+        <li>
+          <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test
+            Builder</a>
+        </li>
+        <li>
+          <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test
+            Papers</a>
+        </li>
+        <li>
+          <a style="color: green;" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
+        </li>
+        <li>
+          <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
+        </li>
+        <!--<li>
                 <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
               </li>-->
-              
-              <li>
-                  <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('leaderBoard')}}">Leaderboard</a>
-              </li>
-              <li>
-                  <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
-                </li>
-              <li>
-                  <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
-                </li>
-          <li>
-              <a style="color: green;" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
-            </li>              
-            <li>
-                <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
-              </li>             
-              <li>
-                <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
-              </li>
-              
-              <li>
-                  <a style="color: green;"  href="{{url_for('classRegistration')}}">Add Class</a>
-                </li>
-              <li>
-                  <a style="color: green;"  href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
-                </li>
-            <li>
-              <a style="color: green;"  href="{{url_for('help')}}">Help</a>
-            </li>
-            <li>
-                <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
-                </li>
-                {%endif%}
-        </ul>  
-        
-        
+
+        <li>
+          <a style="color: green; font-size: 15px;" class='classSpecLink'
+            href="{{url_for('leaderBoard')}}">Leaderboard</a>
+        </li>
+        <li>
+          <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback
+            Report</a>
+        </li>
+        <li>
+          <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+        </li>
+        <li>
+          <a style="color: green;" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
+        </li>
+        <li>
+          <a style="color: green;" class='classSpecLink' href="{{url_for('questionBank')}}">Question Bank</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{url_for('HomeWork')}}">HomeWork</a>
+        </li>
+
+        <li>
+          <a style="color: green;" href="{{url_for('classRegistration')}}">Add Class</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{url_for('help')}}">Help</a>
+        </li>
+        <li>
+          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+        {%endif%}
+      </ul>
+
+      <!--This is the menu on top-->
+
+      <ul id="solutionDropdown" class="dropdown-content green-text" style="color: green;">        
+        <li style="color: green;">
+          <a style="color: green;" href="{{ url_for('index') }}">School ERP</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://impact.alllearn.in">NGO Crowdfunding</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="{{url_for('openJobs')}}">Teaching Jobs</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="{{url_for('practiceTest')}}">Test Prep</a>
+        </li>
+      </ul>
+
+      <ul id="moreDropDown" class="dropdown-content green-text" style="color: green;">        
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/blog">Blog</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/about-us">Team</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/contact-us">Contact Us</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/faq">FAQs</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/terms-of-use">Terms of Use</a>
+        </li>
+        <li style="color: green;">
+          <a style="color: green;" href="https://www.all.alllearn.in/privacy-policy">Privacy Policy</a>
+        </li>
+      </ul>
+
+
 
 
 
       <div id="nonSearchDiv">
-        
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
-
           {% if current_user.is_anonymous %}
           <li style="color: green;">
-            <a style="color: green;"  href="{{ url_for('login') }}">Login</a>
+            <a style="color: green;" href="{{ url_for('login') }}">Login</a>
           </li>
 
           <li style="color: green;">
-            <a style="color: green;"  href="{{ url_for('register') }}">Register</a>
+            <a style="color: green;" href="{{ url_for('register') }}">Register</a>
           </li>
           {% else %}
           {%if user_type_val==72 %}
           <li>
-            <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
           </li>
           {%elif user_type_val=='134'%}
-            <li>
-                <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">Student Profile</a>
-              </li>
-            <!-- <li>
+          <li>
+            <a style="color: green;"
+              href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">Student Profile</a>
+          </li>
+          <!-- <li>
                 <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
               </li>         -->
           {%elif user_type_val!='161'%}
           <li>
-              <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-            </li>
+            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+          </li>
           <!-- <li>
               <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
             </li> -->
-            {%else%}
-            <li>
-                <a style="color: green;"  href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-              </li>
-            {%endif%}
+          {%else%}
           <li>
-          <a style="color: green;"  href="{{ url_for('logout') }}">Logout</a>
+            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+          </li>
+          {%endif%}
+          <li>
+            <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
           </li>
           {% endif %}
         </ul>
 
 
 
-        <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">          
-            <li>
-                <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
-              </li>
+        <ul id="dropdown1" class="dropdown-content green-text" style="color: green;">
+          <li>
+            <a style="color: green;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+          </li>
           <li>
             <a style="color: green;" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
           </li>
@@ -222,19 +301,19 @@
           </li>
           {%if user_type_val=='135'%}
           <li>
-              <a style="color: green;"  href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
-            </li>
-            {% endif %}
-            <li>
-                <a style="color: green;"  href="{{url_for('syllabus')}}">Syllabus</a>
-              </li>
-              <li>
-                <a style="color: green;"  href="{{url_for('HomeWork')}}">HomeWork</a>
-              </li>
-              <li>
-                <a style="color: green;"  href="{{url_for('liveClass')}}">Live Class</a>
-              </li>
- 
+            <a style="color: green;" href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
+          </li>
+          {% endif %}
+          <li>
+            <a style="color: green;" href="{{url_for('syllabus')}}">Syllabus</a>
+          </li>
+          <li>
+            <a style="color: green;" href="{{url_for('HomeWork')}}">HomeWork</a>
+          </li>
+          <li>
+            <a style="color: green;" href="{{url_for('liveClass')}}">Live Class</a>
+          </li>
+
           <li>
             <a style="color: green;" href="{{url_for('help')}}">Help</a>
           </li>
@@ -242,39 +321,43 @@
 
         <ul id="dropdown4" class="dropdown-content green-text" style="color: green;">
           <li>
-            <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
+            <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('testBuilder')}}">Test
+              Builder</a>
           </li>
           <li>
-            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
+            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPapers')}}">Test
+              Papers</a>
           </li>
           <li>
             <a style="color: green;" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
           </li>
           <li>
-              <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
-            </li>          
+            <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
+          </li>
         </ul>
 
         <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
-<!--          <li>
+          <!--          <li>
             <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
           </li>-->
           <li>
-              <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('leaderBoard')}}">Leaderboard</a>
+            <a style="color: green; font-size: 15px;" class='classSpecLink'
+              href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
           <li>
-              <a style="color: green;font-size: 15px;" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
-            </li>
+            <a style="color: green;font-size: 15px;" class='classSpecLink'
+              href="{{url_for('classPerformance')}}">Feedback Report</a>
+          </li>
         </ul>
 
         <ul id="dropdown6" class="dropdown-content green-text" style="color: green;">
-            <li>
-              <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
-            </li>
-            <li>
-                <a style="color: green; font-size: 15px;"  href="{{url_for('postJob')}}">Post New Job</a>
-            </li>
-          </ul>
+          <li>
+            <a style="color: green; font-size: 15px;" href="{{url_for('jobPosts')}}">Job Posts</a>
+          </li>
+          <li>
+            <a style="color: green; font-size: 15px;" href="{{url_for('postJob')}}">Post New Job</a>
+          </li>
+        </ul>
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
           {%if user_type_val=='' %}
@@ -290,63 +373,85 @@
            <li>
             <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
           </li>   -->
-           <!--<li>
+          <!--<li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li> -->
-            {% elif current_user.is_anonymous or disconn == 1  %}
-            <!-- <li>
+          {% elif current_user.is_anonymous or disconn == 1  %}
+          <!-- <li>
               <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
             </li>  -->
-            <!--<li>
+          <!--<li>
               <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
-            </li>--> 
+            </li>-->
+            {%if current_user.is_anonymous%}
             <li>
-                <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
-                  <i class="material-icons right" style="font-size: 40px">account_circle </i>
-                </a>
-              </li>                 
-            {% else %}
-            {%if user_type_val=='161'%}
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in" target="_blank">
+               About Us
+              </a>
+            </li>
             <li>
-                <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
-              </li>   
-              <li>
-                  <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
-                </li>     
-                  <li>
-                    <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
-                      <i class="material-icons right" style="font-size: 40px">account_circle </i>
-                    </a>
-                  </li>
-                  
-            {%else%}
-            {% if session['userType']==71 or session['userType']==135 %}
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+                data-target="solutionDropdown">
+               Our Solutions
+              </a>
+            </li>
             <li>
-            <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
-          </li>   
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+                data-target="moreDropDown">
+               More
+              </a>
+            </li>
+            {%endif%}
           <li>
-            <a class='classSpecLink' style="color: green; font-size:15px;"  href="{{url_for('classCon')}}">Class</a>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="dropdown2">
+             <i class="material-icons right" style="font-size: 40px">account_circle </i>
+            </a>
+          </li>
+          {% else %}
+          {%if user_type_val=='161'%}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('openJobs')}}">Jobs</a>
           </li>
           <li>
-            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('leaderBoard')}}">Leaderboard</a>
-        </li>
-        {% endif %} 
-        {% if session['userType']==134 %}
-        <li>
-          <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
-          </a>                            
-        </li>
-        <li>
-          <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">Homework
-          </a>
-        </li>
-        
-         <li>
-          <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
-        </li>
-        {% endif %}
+            <a style="color: green; font-size:15px;" href="{{url_for('appliedJobs')}}">Applied Jobs</a>
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="dropdown2">
+              <i class="material-icons right" style="font-size: 40px">account_circle </i>
+            </a>
+          </li>
+
+          {%else%}
+          {% if session['userType']==71 or session['userType']==135 %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+          </li>
+          <li>
+            <a class='classSpecLink' style="color: green; font-size:15px;" href="{{url_for('classCon')}}">Class</a>
+          </li>
+          <li>
+            <a style="color: green; font-size: 15px;" class='classSpecLink'
+              href="{{url_for('leaderBoard')}}">Leaderboard</a>
+          </li>
+          {% endif %}
+          {% if session['userType']==134 %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('qrSessionScannerStudent')}}">Tests
+            </a>
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+            </a>
+          </li>
+
+          <li>
+            <a style="color: green;font-size: 15px;" href="{{url_for('liveClass')}}">Live Class</a>
+          </li>
+          {% endif %}
           <!--<li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown4">Tests</a>
           </li>
@@ -356,75 +461,81 @@
           <!--<li>
               <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown6">Hiring</a>
             </li>-->
-            <!-- <li>
+          <!-- <li>
               <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
                 <i class="material-icons right" style="font-size: 40px">account_circle </i>
               </a>
             </li> -->
-            <li>
-              <!-- <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;"> -->
-                <span style="font-size: 15px;color: green;">Menu</span>
-              <!-- </a> -->
-            </li>
+          <li>
+            <!-- <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;"> -->
+            <span style="font-size: 15px;color: green;">Menu</span>
+            <!-- </a> -->
+          </li>
           <li item-width="100px">
             <!-- <span style="font-size: 15px;color: green;">More</span> -->
             <!-- <a href="#!" data-target="slide-out" class="sidenav-trigger show-on-large" style="color: green; font-size:15px;">More -->
-              <ul id="slide-out" class="sidenav">
-                <li>
-                  {% if session['userType']==71 %}
-                  <div class="user-view" style="height:180px;">
+            <ul id="slide-out" class="sidenav">
+              <li>
+                {% if session['userType']==71 %}
+                <div class="user-view" style="height:180px;">
                   {% else %}
                   <div class="user-view" style="height:170px;">
-                  {% endif %}
-                  <div class="background" style="height:185px;">
-                    {% if session['schoolPicture'] %}
-                    <img src="{{session['schoolPicture']}}" style="height:185px;">
-                    {% else %}
-                    <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg" style="height:185px;">
                     {% endif %}
+                    <div class="background" style="height:185px;">
+                      {% if session['schoolPicture'] %}
+                      <img src="{{session['schoolPicture']}}" style="height:185px;">
+                      {% else %}
+                      <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg"
+                        style="height:185px;">
+                      {% endif %}
+                    </div>
                   </div>
-                </div></li>
-                {% set lis = [] %}
-                {%  for row in session['moduleDet']%}
-                <!-- {%if row[2] not in lis %} -->
-                  <li>
-                    
-                    <a class="subheader" style="margin-left: -15px;font-size: 16px;">{{row[2]}}</a>
-                    
-                  </li>
-                  <!-- {% endif %} -->
-                  <!-- {{ lis.append(row[2]) }} -->
-                  <li>
-                    {% if session['userType']==71 or session['userType']==135 %}
-                    {% if row[0]=='My Profile' %}
-                    <a style="color: green; font-size:20px;"  href='{{row[1]}}/{{session["username"]}}'>{{row[0]}}</a>
-                    {% else %}
-                    <a style="color: green; font-size:20px;"  href="{{row[1]}}">{{row[0]}}</a>
-                    {% endif %}
-                    {% endif %}
-                    
-                    {% if session['userType']==134 %}
-                    {% if row[0]=='Student Directory' %}
-                    <a style="color: green; font-size:20px;"  href='{{row[1]}}?student_id={{session["studentId"]}}'>Student Profile</a>
-                    {% else %}
-                    <a style="color: green; font-size:20px;"  href="{{row[1]}}">{{row[0]}}</a>
-                    {% endif %}
+              </li>
+              {% set lis = [] %}
+              {%  for row in session['moduleDet']%}
+              <!-- {%if row[2] not in lis %} -->
+              <li>
 
-                    {% endif %}
-                  </li>
-                {% endfor %}
-                <li>
-                  <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px" style="margin-left:80px;"> 
-                </li>
-              </ul>
-              
-              <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
-              <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;"><i class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a> 
-              
+                <a class="subheader" style="margin-left: -15px;font-size: 16px;">{{row[2]}}</a>
+
+              </li>
+              <!-- {% endif %} -->
+              <!-- {{ lis.append(row[2]) }} -->
+              <li>
+                {% if session['userType']==71 or session['userType']==135 %}
+                {% if row[0]=='My Profile' %}
+                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{session["username"]}}'>{{row[0]}}</a>
+                {% else %}
+                <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
+                {% endif %}
+                {% endif %}
+
+                {% if session['userType']==134 %}
+                {% if row[0]=='Student Directory' %}
+                <a style="color: green; font-size:20px;" href='{{row[1]}}?student_id={{session["studentId"]}}'>Student
+                  Profile</a>
+                {% else %}
+                <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
+                {% endif %}
+
+                {% endif %}
+              </li>
+              {% endfor %}
+              <li>
+                <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px"
+                  style="margin-left:80px;">
+              </li>
+            </ul>
+
+            <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
+            <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;"><i
+                class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a>
+
             <!-- </a> -->
           </li>
           <li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="dropdown2">
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
@@ -436,9 +547,9 @@
           {%endif%}
           {% endif %}
         </ul>
-  
+
       </div>
-     
+
       <div id="searchDiv">
         <form method="get" action="{{ url_for('search') }}" id="search-2">
           <div class="input-field">
@@ -467,178 +578,187 @@
     {%block content%} {%endblock%}
   </div>
 
-<script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
-<script src="../static/bower_components/jquery-ui/jquery-ui.min.js"></script>
-<script src="../static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="../static/js/materialize.min.js"></script>
-<script src="../static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
-<script src="../static/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-<script src="../static/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-<script src="../static/bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
-<script src="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
-<script src="../static/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-<script src="../static/js/adminlte.min.js"></script>
-<script src="../static/js/websiteJS.js"></script>
-<script>
-//$(document).ready(function(){
-//  $('.sidenav').sidenav();
-//  
-//});
-</script>
-<script src="../static/js/jquery.magicsearch.js"></script>
+  <script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../static/bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <script src="../static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../static/js/materialize.min.js"></script>
+  <script src="../static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+  <script src="../static/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+  <script src="../static/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+  <script src="../static/bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
+  <script src="../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+  <script src="../static/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+  <script src="../static/js/adminlte.min.js"></script>
+  <script src="../static/js/websiteJS.js"></script>
+  <script>
+    //$(document).ready(function(){
+    //  $('.sidenav').sidenav();
+    //  
+    //});
+  </script>
+  <script src="../static/js/jquery.magicsearch.js"></script>
 
 </body>
 <footer class="page-footer black ">
-    <div class="container">
-      <div class="row">
-        <div class="col l6 s12">
-            <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
-                <strong>WhatsApp <span>for any issues/queries</span>: 99103 68828 </strong>
-            </p>
-          <p class="white-text text-lighten-4 left-align" style="font-size: 20px;"><strong>email:
+  <div class="container">
+    <div class="row">
+      <div class="col l6 s12">
+        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
+          <strong>WhatsApp <span>for any issues/queries</span>: 99103 68828 </strong>
+        </p>
+        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;"><strong>email:
             contact@alllearn.in</strong>
-          </p>
-               
-        </div>
-        <div class="col l2 s12">
-          <ul>
-            <li>
-              <a class="white-text" class='classSpecLink' href="http://www.fb.me/alllearn.in">Facebook</a>
-            </li>
-            <li>
-                <a class="white-text" class='classSpecLink' href="https://www.instagram.com/alllearn_/">Instagram</a>
-              </li>
-              <li>
-                  <a class="white-text" class='classSpecLink' href="https://www.youtube.com/channel/UCva7EZtfhlSGgYDQ7yPavvQ">YouTube</a>
-                </li>
-                <li>
-                    <a class="white-text" class='classSpecLink' href="{{url_for('privacyPolicy')}}">Privacy Policy</a>
-                  </li>
-                  <li>
-                      <a class="white-text" class='classSpecLink' href="../static/docs/termsAndConditions.pdf">Terms and Conditions</a>
-                    </li>
-          </ul>
-              </div>
-              {%if (disconn != 1) and (current_user.username) and user_type_val!='161' and user_type_val!='134' %} 
-              <div class="col l2 s12">
-                  <ul>    
-              <li>
-                <a class="white-text" class='classSpecLink' href="{{url_for('index')}}">Dashboard</a>
-              </li>
+        </p>
 
-              <li>
-                <a class="white-text" class='classSpecLink' href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
-              </li>
-              <li>
-                  <a class="white-text"  class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
-                </li>              
-                <li>
-                  <a class="white-text"  class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
-                </li>   
-                <li>
-                    <a class="white-text" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
-                  </li>                        
-                  <li>
-                      <a  class="white-text" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
-                    </li>  
-                    <li>
-                        <a class="white-text"  class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
-                      </li>
-                      <li>
-                          <a class="white-text" class='classSpecLink' href="{{url_for('jobPosts')}}">Job Posts</a>
-                        </li>
-                        <li>
-                            <a class="white-text" class='classSpecLink' href="{{url_for('postJob')}}">Post New Job</a>
-                        </li>
-          </ul>
-        </div>
-        <div class="col l2 s12">
-            <ul>
-              
-                <!--<li>
+      </div>
+      <div class="col l2 s12">
+        <ul>
+          <li>
+            <a class="white-text" class='classSpecLink' href="http://www.fb.me/alllearn.in">Facebook</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="https://www.instagram.com/alllearn_/">Instagram</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink'
+              href="https://www.youtube.com/channel/UCva7EZtfhlSGgYDQ7yPavvQ">YouTube</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('privacyPolicy')}}">Privacy Policy</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="../static/docs/termsAndConditions.pdf">Terms and
+              Conditions</a>
+          </li>
+        </ul>
+      </div>
+      {%if (disconn != 1) and (current_user.username) and user_type_val!='161' and user_type_val!='134' %}
+      <div class="col l2 s12">
+        <ul>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('index')}}">Dashboard</a>
+          </li>
+
+          <li>
+            <a class="white-text" class='classSpecLink'
+              href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('classPerformance')}}">Feedback Report</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('jobPosts')}}">Job Posts</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('postJob')}}">Post New Job</a>
+          </li>
+        </ul>
+      </div>
+      <div class="col l2 s12">
+        <ul>
+
+          <!--<li>
                   <a class="white-text" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
                 </li>-->
           <li>
-              <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
-            </li>
-            <li>
-                <a class="white-text" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
-              </li>
-              <li>
-                  <a class="white-text" class='classSpecLink' href="{{url_for('classRegistration')}}">Add Class</a>
-                </li>
-              <li>
-                  <a class="white-text" class='classSpecLink' href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
-                </li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('classRegistration')}}">Add Class</a>
+          </li>
+          <li>
+            <a class="white-text" class='classSpecLink' href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
+          </li>
           <li>
             <a class="white-text" class='classSpecLink' href="{{url_for('help')}}">Help</a>
-          </li>        
+          </li>
           <li>
-              <a class="white-text" class='classSpecLink' href="{{ url_for('schoolProfile') }}">School Profile</a>
-            </li>        
-          </ul>
-          </div>      
-          {% endif %}
+            <a class="white-text" class='classSpecLink' href="{{ url_for('schoolProfile') }}">School Profile</a>
+          </li>
+        </ul>
       </div>
+      {% endif %}
     </div>
-    <div class="footer-copyright">
-      <div class="container">        
-        <span><a class="yellow-text text-lighten-5" class='classSpecLink' href="http://www.alllearn.in" target="_blank"> &copy; 2019 Alllearn Solutions Private Limited</a></span>
-          <span class="pull-right">1.3.1.0 Beta</span>
-      </div>
+  </div>
+  <div class="footer-copyright">
+    <div class="container">
+      <span><a class="yellow-text text-lighten-5" class='classSpecLink' href="http://www.alllearn.in" target="_blank">
+          &copy; 2019 Alllearn Solutions Private Limited</a></span>
+      <span class="pull-right">1.3.1.0 Beta</span>
     </div>
-  </footer>
-  <script src="../static/js/jquery.dataTables.min.js"></script>
-  <!-- <script src='https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js'></script> -->
-  <script src='https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js'></script>
+  </div>
+</footer>
+<script src="../static/js/jquery.dataTables.min.js"></script>
+<!-- <script src='https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js'></script> -->
+<script src='https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js'></script>
 <script src='https://cdn.datatables.net/buttons/1.3.1/js/buttons.print.min.js'></script>
 <script src='https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js'></script>
-  <script src="../static/js/autoComplete.js"></script>
-  <script src="../static/js/datatables.js"></script>
-  <script>
-$(document).ready(function(){
-  // $('.sidenav').sidenav();
-  //alert('1');
-if ('{{session["classSecVal"]}}'=='N'){
-  //alert('1');
-  DisableLinks();
-}
-//else{
-//  EnableLinks();
-//}
-  
-});
-// $(document).ready(function(){
-//       $("#st").removeClass("sorting_asc");
-//       $('#datatable').dataTable( {
-//         "order": [ 3, 'desc' ]
-//       } );
-          
-//     });
+<script src="../static/js/autoComplete.js"></script>
+<script src="../static/js/datatables.js"></script>
+<script>
+  $(document).ready(function () {
+    // $('.sidenav').sidenav();
+    //alert('1');
+    if ('{{session["classSecVal"]}}' == 'N') {
+      //alert('1');
+      DisableLinks();
+    }
+    //else{
+    //  EnableLinks();
+    //}
 
-    function DisableLinks() {
-      //alert('2');
-    $('.classSpecLink').attr('href','#');
-    $('.classSpecLink').attr('title','Enter class details to access this link');
-    //$('.classSpecLink').addClass("classSpecLink disabled");
-}
-function EnableLinks() {
-  //$('a.' + 'classSpecLink').attr('href','#')
-}
+  });
+  // $(document).ready(function(){
+  //       $("#st").removeClass("sorting_asc");
+  //       $('#datatable').dataTable( {
+  //         "order": [ 3, 'desc' ]
+  //       } );
 
-document.addEventListener('DOMContentLoaded', function() {
+  //     });
+
+  //function DisableLinks() {
+  //  //alert('2');
+  //  $('.classSpecLink').attr('href', '#');
+  //  $('.classSpecLink').attr('title', '');
+  //  //$('.classSpecLink').addClass("classSpecLink disabled");
+  //}
+
+  function EnableLinks() {
+    //$('a.' + 'classSpecLink').attr('href','#')
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('.sidenav');
-    var instances = M.Sidenav.init(elems, {edge:'right',closeOnClick: true});
+    var instances = M.Sidenav.init(elems, {
+      edge: 'right',
+      closeOnClick: true
+    });
   });
 
-// $('.button-collapse').sideNav({
-//       menuWidth: 300,
-//       closeOnClick: true,
-//       edge: 'right', // <--- CHECK THIS OUT
-//     }
-//   );
+  // $('.button-collapse').sideNav({
+  //       menuWidth: 300,
+  //       closeOnClick: true,
+  //       edge: 'right', // <--- CHECK THIS OUT
+  //     }
+  //   );
 
 
-// Show sideNav
-  </script>
+  // Show sideNav
+</script>
+
 </html>

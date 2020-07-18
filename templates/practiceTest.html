@@ -21,7 +21,7 @@ justify-content: center;">
         {%else%}
         <div class="container" style="  display: flex;
     align-items: center;
-    justify-content: center;background-image: linear-gradient(0deg, rgb(243, 250, 214), white);">
+    justify-content: center;background-image: linear-gradient(45deg,#E4EBF2 , transparent);">
             {%endif%}
             <!--style="background-image: linear-gradient(135deg, lightgreen, white);"-->
             <br>
@@ -37,10 +37,10 @@ justify-content: center;">
             <div id="mainDiv">
                 {%if current_user.is_anonymous%}
                 <div class="col-xs-6 row">
-                    <span style="font-size: 48px;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
+                    <span id="mainText" style="font-size: 3vw;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
                             exams
-                            needn't be tough. </b></span><br><span
-                        style="font-size: 24px;text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
+                            needn't be tough. </b></span><br><span id="subText"
+                        style="font-size: 2vw;text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
                             test now.</b></span>
                 </div>
                 {%else%}
@@ -59,7 +59,7 @@ justify-content: center;">
             </div>
           </form>-->
                     <div id="testConfigurationDiv" style="margin-bottom: 10%;">
-                        <div class="z-depth-1 hoverable colorClass"
+                        <div class="z-depth-2 hoverable colorClass"
                             style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
                             {%if current_user.is_anonymous==false%}
                             <div class="row">
@@ -150,7 +150,7 @@ justify-content: center;">
                         <!--<i class="material-icons blue-text">info_outline</i>-->
                     </div>
                     <div class="row z-depth-1 hoverable colorClass" id="testSummaryDiv"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; margin-top: -5%;">
+                        style="border-radius: 25px;border: 2px solid white;padding: 10px; margin-top: -5%;">
                         <h4>Performance Summary</h4>
                         <div class="box">
                             <div class="box-body table-responsive no-padding">
@@ -275,7 +275,7 @@ justify-content: center;">
                     </div>
 
                     <div id="testHistory"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px;max-height: 500px;overflow-y: auto;"
+                        style="border-radius: 25px;border: 2px solid white;padding: 10px;max-height: 500px;overflow-y: auto;"
                         class="z-depth-1 hoverable row colorClass">
                         <h4>Test History</h4>
                         <table class="highlight">

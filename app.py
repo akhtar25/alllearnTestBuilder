@@ -327,12 +327,12 @@ def practiceTest():
         board = request.form.get('board')
         class_val = request.form.get('class_val')
         email = current_user.email     
-        print("board:"+ str(board))
-        print("class_val:" +str(class_val))
+        #print("board:"+ str(board))
+        #print("class_val:" +str(class_val))
         schoolRow = SchoolProfile.query.filter_by(school_name="AllLearn "+str(board)).first()
-        print("school id:" +str(schoolRow.school_id))
+        #print("school id:" +str(schoolRow.school_id))
         classSectionRow = ClassSection.query.filter_by(school_id=schoolRow.school_id, class_val=str(class_val)).first()
-        print("class sec id:"+ str(classSectionRow.class_sec_id))
+        #print("class sec id:"+ str(classSectionRow.class_sec_id))
         checkStudTable= StudentProfile.query.filter_by(email=current_user.email).first()
         if checkStudTable==None or checkStudTable=="":
             studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
@@ -367,12 +367,13 @@ def practiceTest():
         print('New entry made into the student table')
 
     if current_user.is_anonymous:    
+        if ("school.alllearn" in str(request.url)):
+            return redirect(url_for('dashboard'))
         studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
     if studentProfile==None:
-        studentData=""
-        
+        studentData=""        
     else:        
         studentDataQuery = "with temptable as "
         studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
@@ -4687,7 +4688,7 @@ def rename(dataframe):
 def leaderBoard():
     form = LeaderBoardQueryForm()
     qclass_val = request.args.get("class_val")
-    print('class:'+str(qclass_val))
+    #print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
@@ -4702,8 +4703,8 @@ def leaderBoard():
         
 
         leaderBoardData = leaderboardContent(qclass_val)
-        print('Type')
-        print(type(leaderBoardData))
+        #print('Type')
+        #print(type(leaderBoardData))
         column_names = ["a", "b", "c"]
         datafr = pd.DataFrame(columns = column_names)
         if type(leaderBoardData)!=type(datafr):
@@ -4725,9 +4726,9 @@ def leaderBoard():
             
             d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
             df3 = leaderBoard.drop(['studentid'],axis=1)
-            print('DF3:')
-            print(df3)
-            print('print new dataframe')
+            #print('DF3:')
+            #print(df3)
+            #print('print new dataframe')
             
             df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
             df1.rename(columns = {'student_name':'Student'}, inplace = True)
@@ -4735,12 +4736,12 @@ def leaderBoard():
             df1.rename(columns = {'section':'Section'}, inplace = True)
             df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
             df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-            print(df1)
-            print('Excluding columns')
-            print(df2)
-            # rename(df2)
-            print('LeaderBoard Data:')
-            print(leaderBoardData)
+            #print(df1)
+            #print('Excluding columns')
+            #print(df2)
+            ## rename(df2)
+            #print('LeaderBoard Data:')
+            #print(leaderBoardData)
             data = []
             
 
@@ -4751,16 +4752,16 @@ def leaderBoard():
             columnNames = ''
             col = ''
             subColumn = ''
-            print('Size of dataframe:'+str(len(subjHeader)))
+            #print('Size of dataframe:'+str(len(subjHeader)))
             for subhead in subjHeader:
                 subColumn = subhead
-                print('Header with Subject Name')
-                print(subhead)
+                #print('Header with Subject Name')
+                #print(subhead)
             for h in header:
                 columnNames = h
             for headAll in headerAll: 
                 colAll = headAll
-            print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+            #print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
             n= int(len(subColumn)/2)
             ndf = df2.drop(['studentid'],axis=1)
             newDF = ndf.iloc[:,0:n]
@@ -4768,10 +4769,10 @@ def leaderBoard():
             
             df5 = pd.concat([newDF, new1DF], axis=1)
             DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
-            print('New DF')
-            print(DFW)
+            #print('New DF')
+            #print(DFW)
             dat = pd.concat([d,DFW], axis=1)
-            print(dat)
+            #print(dat)
             subHeader = ''
             for row in dat.values.tolist():
                 data.append(row)
@@ -4783,12 +4784,12 @@ def leaderBoard():
             for column in subHead:
                 col = column
             subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
-            print(subject)
+            #print(subject)
             subj = []
 
-            for d in data:
-                print('In data Student id')
-                print(data[0])
+            #for d in data:
+            #    print('In data Student id')
+            #    print(data[0])
             
             for sub in subject:
                 li = []
@@ -4796,25 +4797,23 @@ def leaderBoard():
                 for col in subColumn:
                     if i!=len(subColumn)/2:
                         c = col.split('_')
-                        print(c[0])
-                        print(sub.msg_id)
+                        #print(c[0])
+                        #print(sub.msg_id)
                         if(c[0]==str(sub.msg_id)):
-                            print(c[0])
-                            print(sub.msg_id)
-                            
-                            
+                            #print(c[0])
+                            #print(sub.msg_id)                                                        
                             li.append(sub.msg_id)
                             li.append(sub.description)
                             subj.append(li)
                             break
                     i=i+1
                     
-            print('List with Subjects')
-            print(subj)
-            for s in subj:
-                print(s[0])
-                print(s[1])
-            print('Inside subjects')
+            #print('List with Subjects')
+            #print(subj)
+            #for s in subj:
+            #    print(s[0])
+            #    print(s[1])
+            #print('Inside subjects')
             classSecCheckVal=classSecCheck()
             return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
