@@ -26,10 +26,12 @@
 
 <script>
     id = '{{studentId}}';
+    console.log('inside id');
+    console.log(id);
     $(document).ready(function(){
       
       console.log('Inside Student Registration Id'+id);
-      if(id){
+      if(id!='None'){
         $('#upload_type1').click();
         $('.row').hide();
       }
@@ -39,9 +41,15 @@
     var upload_type2=document.getElementById('upload_type2')
     var new_form=document.getElementById('new')
     upload_type1.onclick=function(){
+      var path = '';
+      if(id!='None'){
+         path = "/singleStudReg?student_id="+id;
+      }else{
+        path = "/singleStudReg?student_id=";
+      }
         $(function(){
             $.ajax({
-                  url: "/singleStudReg?student_id="+id,
+                  url: path,
                   type: "get",
                   success: function(response) {
                     $("#new").show(); 
