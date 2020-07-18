@@ -340,7 +340,7 @@ def account():
 @app.route('/sign-s3')
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    #S3_BUCKET = "alllearndatabucketv2"
+    # S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -464,11 +464,23 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input'] 
-
+        school_logo=request.files['school_logo']
+        school_logo_name=request.form['file-input-logo'] 
         school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
+        if school_logo_name!='':
+            print('School logo Details')
+            print(school_logo)
+            print(school_logo_name)
+            school = SchoolProfile.query.get(school_id.school_id)
+            school.school_logo = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name
+            client = boto3.client('s3', region_name='ap-south-1')
+            client.upload_fileobj(school_logo , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name,ExtraArgs={'ACL':'public-read'})
         if school_picture_name!='':
+            print('School picture Details')
+            print(school_picture)
+            print(school_picture_name)
             school = SchoolProfile.query.get(school_id.school_id)
             school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
             client = boto3.client('s3', region_name='ap-south-1')
