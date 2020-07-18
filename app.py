@@ -1332,7 +1332,8 @@ def index():
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==135:
         return redirect(url_for('admin'))
-    if user.user_type==234 or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url)):
+    if user.user_type==234:
+    #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
         return redirect(url_for('practiceTest'))
     if user.user_type==72:
         #print('Inside guardian')
