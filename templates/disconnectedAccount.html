@@ -202,23 +202,23 @@
   });
 
 
-  //$('.practiceInput').change(function(){
-  //  var partnerStudent = $("input[name='partnerStudent']:checked").val();
-  //  var board =$("#board").val();
-  //  var class_val = $("#class_val").val();
-  //  //window.alert(partnerStudent);
-  //  //window.alert(board);
-  //  //window.alert(class_val);
-  //  if (partnerStudent!=null && board!=null && class_val!=null){
-  //    if (partnerStudent=='Yes'){        
-  //      $('#partnerStudentMSG').show();
-  //      $('#practiceStart').prop('disabled', true);
-  //    }
-  //    else{
-  //      $('#partnerStudentMSG').hide();        
-  //      $('#practiceStart').prop('disabled', false);
-  //    }      
-  //  }
-  //});
+  $('.practiceInput').change(function(){
+    //var partnerStudent = $("input[name='partnerStudent']:checked").val();
+    var board =$("#board").val();
+    var class_val = $("#class_val").val();
+    //window.alert(partnerStudent);
+    //window.alert(board);
+    //window.alert(class_val);
+    if (board!=null && class_val!=null){
+      //if (partnerStudent=='Yes'){        
+        //$('#partnerStudentMSG').show();
+     //   $('#practiceStart').prop('disabled', true);
+     // }
+    //  else{
+        //$('#partnerStudentMSG').hide();        
+        $('#practiceStart').prop('disabled', false);
+    //  }      
+    }
+  });
 </script>
 {%endblock%}
