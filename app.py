@@ -320,7 +320,7 @@ def classSecCheck():
         else:
             return 'Y'
 
-
+@app.route('/',methods=["GET","POST"])
 @app.route('/practiceTest',methods=["GET","POST"])
 def practiceTest():    
     if request.method=="POST":
@@ -1291,7 +1291,6 @@ def edit_profile():
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
 
-@app.route('/')
 @app.route('/index')
 @app.route('/dashboard')
 @login_required 
