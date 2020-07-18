@@ -175,6 +175,17 @@
                         <input type="hidden" id="file-input" name="file-input" value="">
                         <input type="hidden" id="file-src" name="file-src" value="">
                     </div>
+                    <!-- Start code for school logo -->
+                    <img style="border:1px solid gray; width:200px; height: 150px;margin-top: 70px;" id="preview_logo"
+                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG"><br>
+                    <br>
+                    <div class="col-sm-3">
+                        <input type="file" id="school_logo" name="school_logo"
+                            style="height: 30px; margin-top: 10px;"><br>
+                        <input type="hidden" id="file-input-logo" name="file-input-logo" value="">
+                        <input type="hidden" id="file-src-logo" name="file-src-logo" value="">
+                    </div>
+                    <!-- End code for school logo -->
                 </div>
             </div>
             <!-- <div id="classbox" name="classbox">
@@ -377,8 +388,25 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+    function readURLLogo(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                alert($("#school_logo").val());
+                $('#preview_logo').attr('src', e.target.result);
+                $('#file-src-logo').val($("#school_logo").val());
+                $('#file-input-logo').val(input.files[0].name);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
     $("#school_image").change(function () {
         readURL(this);
+    });
+    $("#school_logo").change(function () {
+        readURLLogo(this);
     });
 </script>
 

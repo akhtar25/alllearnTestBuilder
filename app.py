@@ -2006,6 +2006,7 @@ def feeManagement():
     classSections=ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
+    
     return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections)
 
 
