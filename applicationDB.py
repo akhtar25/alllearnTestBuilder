@@ -606,6 +606,7 @@ class SchoolProfile(db.Model):
     org_leaving_reason=db.Column(db.String(500),nullable=True)    
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     school_picture = db.Column(db.String(500), nullable=True)
+    school_logo = db.Column(db.String(500), nullable=True)
     school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     sub_id =  db.Column(db.ForeignKey('subscription_detail.sub_id'), nullable=True)
     next_bill_due = db.Column(db.DateTime, nullable=True)
