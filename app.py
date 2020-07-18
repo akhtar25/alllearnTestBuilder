@@ -119,7 +119,7 @@ def before_request():
 def schoolNameVal():
     if current_user.is_authenticated:
         teacher_id = ''
-        if current_user.user_type==134:
+        if current_user.user_type==134 or current_user.user_type==234:
             teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
