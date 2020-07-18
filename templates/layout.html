@@ -395,7 +395,7 @@
                   <!-- {% endif %} -->
                   <!-- {{ lis.append(row[2]) }} -->
                   <li>
-                    {% if session['userType']==71 %}
+                    {% if session['userType']==71 or session['userType']==135 %}
                     {% if row[0]=='My Profile' %}
                     <a style="color: green; font-size:20px;"  href='{{row[1]}}/{{session["username"]}}'>{{row[0]}}</a>
                     {% else %}

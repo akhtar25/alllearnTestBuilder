@@ -727,7 +727,7 @@ def teacherDirectory():
         payrollReportQuery= payrollReportQuery+" group  by month, year "
         payrollReportData = db.session.execute(payrollReportQuery).fetchall()
         #end of payroll report section
-        allTeachers = TeacherProfile.query.filter_by(school_id = teacher_id.school_id).all()
+        allTeachers = TeacherProfile.query.filter_by(teacher_id = teacher_id.teacher_id).all()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
         class_list=[('select','Select')]
         section_list=[]
@@ -1269,7 +1269,7 @@ def index():
             generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
-    if user.user_type==135:
+    if user.user_type==139 or user.user_type==136:
         return redirect(url_for('admin'))
     if user.user_type==72:
         #print('Inside guardian')
