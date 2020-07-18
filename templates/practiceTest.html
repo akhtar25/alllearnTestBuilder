@@ -4,12 +4,17 @@
     .colorClass {
         background-color: white;
     }
+    @media screen and (max-width: 650px) {
+    #myVideo {
+        display: none;
+    }
+}
 </style>
 
 <div style="overflow:hidden;position: absolute;height: 90%;">
     {%if current_user.is_anonymous%}
     <video autoplay muted loop id="myVideo" style="width:100%; ">
-        <source src="../static/images/vid1.mp4" type="video/mp4">
+        <source src="../static/images/vid1.m4v" type="video/mp4">
     </video>
     {%endif%}
 </div>
