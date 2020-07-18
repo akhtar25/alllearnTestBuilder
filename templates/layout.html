@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <script data-ad-client="ca-pub-5168304191768047" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
     ! function () {
       var analytics = window.analytics = window.analytics || [];
@@ -243,9 +244,6 @@
       </ul>
 
 
-
-
-
       <div id="nonSearchDiv">
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}
@@ -269,17 +267,17 @@
           <!-- <li>
                 <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
               </li>         -->
-          {%elif user_type_val!='161'%}
-          <li>
+          {%elif user_type_val!='161' and  user_type_val!='234' %}
+          <!--<li>
             <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>
+          </li>-->
           <!-- <li>
               <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
             </li> -->
           {%else%}
-          <li>
+          <!--<li>
             <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>
+          </li>-->
           {%endif%}
           <li>
             <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
@@ -387,7 +385,12 @@
             </li>-->
             {%if current_user.is_anonymous%}
             <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in" target="_blank">
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="{{url_for('practiceTest')}}">
+               Home
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
                About Us
               </a>
             </li>

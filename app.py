@@ -374,7 +374,13 @@ def practiceTest():
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
     if studentProfile==None:
-        studentData=""        
+        studentData=""      
+        testHistory=""  
+        perfRows=""
+        testCount = 0
+        leaderboardData = ""
+        class_val=""
+        questionsAnswered=0
     else:        
         studentDataQuery = "with temptable as "
         studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
@@ -2119,7 +2125,7 @@ def user(username):
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
-    else:
+    else:        
         schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
         print(schoolAdminRow[0][0])
         accessRequestListRows=""
