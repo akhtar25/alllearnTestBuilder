@@ -2001,7 +2001,12 @@ def success():
 @app.route('/feeManagement')
 @login_required
 def feeManagement():
-    return render_template('feeManagement.html')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall() 
+    classSections=ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+    qclass_val = request.args.get('class_val')
+    qsection=request.args.get('section')
+    return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections)
 
 
 @app.route('/privacyPolicy')

@@ -1,7 +1,128 @@
  {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3> Fee Management</h3>
+    
     <!-- Editable table -->
+
+    <!-- left sidenav Menu for classes -->
+    <div class="hold-transition skin-blue sidebar-mini">
+    <div id="sidebarDiv">
+      <div class="main-sidebar" style="margin-top:15px;">
+        <section class="sidebar">
+          <ul class="sidebar-menu table-responsive" data-widget="tree">
+            {% for singleClass in distinctClasses %}
+            <li class="treeview">
+
+              <a href="#">
+                <i class="glyphicon glyphicon-education"></i>
+                <span>Class {{singleClass[0]}}</span>
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% for classsection in classsections %}
+                {% if classsection.class_val|string == singleClass[0]|string %}
+                <li><a
+                    href="{{ url_for('feeManagement',class_val=classsection.class_val, section=classsection.section) }}"><i
+                      class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
+        </section>
+        <!-- /.sidebar -->
+      </div>
+    </div>
+    </div>
+    <!-- End -->
+    <div class="content-wrapper" style="background-color: white;">
+      <h3> Fee Management</h3>
+      <div class="row"  id="summaryDiv">
+          <div class="box-header">
+            <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
+              Section: {{qsection}}</span>
+          </div>
+        </div>
+      <div class="row">
+        <h4 class="grey-text" style="margin-left15px;">Choose Month and Year</h4>
+        <div class="input-field col-md-3">
+            <select id="addMonthSelect" class="selection">
+                <option value="" disabled selected>Select Month</option>
+            </select>
+        </div>
+        <div class="input-field col-md-3">
+            <select id="addYearSelect" class="selection">
+                <option value="" disabled selected>Select Year</option>
+            </select>
+        </div>
+      </div>
+
+      <!-- Start Summary Box -->
+      <div class="card">
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Summary Box</h3>
+        <div class="card-body">
+          <div id="table" class="table-editable">
+            <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
+                <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
+            </a>
+        </span>-->
+            <table class="table table-bordered table-responsive-md table-striped text-center">
+              <tr>
+                <th class="text-center">Student Name</th>
+                <th class="text-center">Class</th>
+                <th class="text-center">Section</th>
+                <th class="text-center">Unpaid Months</th>
+                <th class="text-center">Paid</th>
+              </tr>
+              <tr>
+                <td class="pt-3-half" contenteditable="false">Ayushi Rautela</td>
+                <td class="pt-3-half" contenteditable="false">1</td>
+                <td class="pt-3-half" contenteditable="false">A</td>
+                <td class="pt-3-half" contenteditable="false">1</td>                        
+                <td>
+                  <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+                </td>
+              </tr>
+              <!-- This is our clonable table line -->
+              <tr>
+                <td class="pt-3-half" contenteditable="false">Aditi Semwal</td>
+                <td class="pt-3-half" contenteditable="false">2</td>
+                <td class="pt-3-half" contenteditable="false">B</td>
+                <td class="pt-3-half" contenteditable="false">1</td>
+                <td>
+                  <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+                </td>
+              </tr>
+              <!-- This is our clonable table line -->
+              <tr>
+                <td class="pt-3-half" contenteditable="false">Ashish Singh</td>
+                <td class="pt-3-half" contenteditable="false">4</td>
+                <td class="pt-3-half" contenteditable="false">A</td>
+                <td class="pt-3-half" contenteditable="false">2</td>
+                <td>
+                  <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+                </td>
+              </tr>
+              <!-- This is our clonable table line -->
+              <!--<tr class="hide">-->
+                <tr>
+                <td class="pt-3-half" contenteditable="false">Anchal Jelta</td>
+                <td class="pt-3-half" contenteditable="false">6</td>
+                <td class="pt-3-half" contenteditable="false">A</td>
+                <td class="pt-3-half" contenteditable="false">1</td>
+                <td>
+                  <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- End Summary Box -->
+    
+
 <div class="card">
     <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Unpaid this month</h3>
     <div class="card-body">
@@ -67,4 +188,40 @@
   </div>
   <!-- Editable table -->
 </div>
+</div>
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+
+$(document).ready(function () {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var qntYears = 4;
+        var selectYear = $("#addYearSelect");
+        var selectMonth = $("#addMonthSelect");
+        var currentYear = new Date().getFullYear();
+
+        for (var y = 0; y < qntYears; y++) {
+            let date = new Date(currentYear);
+            var yearElem = document.createElement("option");
+            yearElem.value = currentYear;
+            yearElem.textContent = currentYear;
+            selectYear.append(yearElem);
+            currentYear--;
+        }
+
+        for (var m = 0; m < 12; m++) {
+            let monthNum = new Date(2018, m).getMonth()
+            let month = monthNames[monthNum];
+            var monthElem = document.createElement("option");
+            monthElem.value = parseInt(monthNum) + 1;
+            monthElem.textContent = month;
+            selectMonth.append(monthElem);
+        }
+
+        $('.tabs').tabs();
+        $('select').formSelect();
+    });
+
+</script>
 {%endblock%}
