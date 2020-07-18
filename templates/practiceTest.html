@@ -140,9 +140,9 @@ justify-content: center;">
                             <div class="">
                                 <div class="center">
                                     <br>
-                                    <a href="#" class="btn green hoverable" id="startTestBTN"
+                                    <button class="btn green hoverable" id="startTestBTN"
                                         style="width: 150px;">Start
-                                        Test</a>
+                                        Test</button>
                                     <!--<button type="button" name="button" id="button">Button</button>-->
                                 </div>
                             </div>
@@ -459,6 +459,8 @@ justify-content: center;">
                         //window.alert("error occurred while fetching graph");
                         $('#errorStartMSG').html("Error occurred while fetching performance graph");
                     $('#errorStartMSG').show();
+                    $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);
                     }
                 });
             });
@@ -507,6 +509,8 @@ justify-content: center;">
                     $('#errorStartMSG').html("Error occurred while loading subject");
                     $('#errorStartMSG').show();
                     $('#subjectLoader').hide();
+                    $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);
                 }
             });
         });
@@ -606,7 +610,9 @@ justify-content: center;">
                         //window.alert('error occured while loading chapters');
                         $('#errorDisplay').html(
                             '<span class="red-text">Error occurred while loading chapters. <br>Please try again</span>'
-                        )
+                        );
+                        $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);
                     }
                 });
                 $('#testBuilderQuestions').hide();
@@ -631,10 +637,13 @@ justify-content: center;">
             //$('#topicSearch').attr('disable',true);
         });
 
-        $('#startTestBTN').click(function () {
+        $('#startTestBTN').click(function () {            
             $('#errorStartMSG').hide();
-            $('#startTestBTN').val('Starting...');
-            $('#startTestBTN').prop('disable', true);
+            $('#startTestBTN').html('Starting Test...');
+            $('#startTestBTN').attr('disabled',true);
+            //if ($('#startTestBTN').hasClass('disabled')) return false;
+
+            //$(this).fadeTo("fast", .5).removeAttr("href");
             //var topics = $('#selectChapters').val();
             var difficulty = $('#difficulty').val();
             var qcount = $('#qcount').val();
@@ -658,6 +667,8 @@ justify-content: center;">
                             $('#errorStartMSG').show();
                             $('#startTestBTN').val('Start Test');
                             $('#startTestBTN').prop('disable', false);
+                            $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);
                         } else if (response == 2) {
                             $('#errorStartMSG').hide();
                             window.location.href = "/login";
@@ -671,13 +682,17 @@ justify-content: center;">
                         //window.alert('Error in fetching server response. Please try again.');
                         $('#errorStartMSG').show();
                         $('#errorStartMSG').html(
-                            'Error in fetching server response. Please try again.');
+                            'Error in fetching server response. Please try again.');   
+                            $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);                         
                     }
                 });
             } else {
                 $('#errorStartMSG').show();
                 $('#errorStartMSG').html(
                     'Please select a topic.');
+                    $('#startTestBTN').html('Start Test');
+                            $('#startTestBTN').attr('disabled',false);
             }
         });
     </script>
