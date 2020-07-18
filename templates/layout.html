@@ -322,7 +322,7 @@
                   </li>
                   
             {%else%}
-            {% if session['userType']==71 %}
+            {% if session['userType']==71 or session['userType']==135 %}
             <li>
             <a style="color: green; font-size:15px;"  href="{{url_for('index')}}">Dashboard</a>
           </li>   
