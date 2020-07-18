@@ -669,8 +669,8 @@ class TeacherPayrollDetail(db.Model):
 #end of teacher payroll tables
 
 
-class FeeManagement(db.Model):
-    __tablename__ = "school_fee_mgt"
+class FeeDetail(db.Model):
+    __tablename__ = "fee_detail"
     fee_trans_id=db.Column(db.Integer, primary_key=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     student_id=db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
@@ -679,8 +679,10 @@ class FeeManagement(db.Model):
     due_date = db.Column(db.DateTime,nullable=True)
     fee_amount = db.Column(db.Integer,nullable=True)
     fee_paid_amount = db.Column(db.Integer,nullable=True)
-    is_paid = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    delay_reason = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    paid_status = db.Column(db.String(1),nullable=False)
+    delay_reason = db.Column(db.String(100),nullable=True)
     outstanding_amount = db.Column(db.Integer,nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)    
 
