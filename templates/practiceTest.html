@@ -4,9 +4,44 @@
     .colorClass {
         background-color: white;
     }
+    @media screen and (min-width: 750px) {
+        #rowWidthHide{
+     display: block;
+    }
+    #rowWidthShow{
+        display: none;
+    }
+    #mainText{
+        font-size: 3vw;
+    }
+    #subText{
+        font-size: 2vw;
+    }
+    }
     @media screen and (max-width: 650px) {
     #myVideo {
         display: none;
+    }
+    #mainText{
+        font-size: 5vw;
+    }
+    #subText{
+        font-size: 4vw;
+    }
+    #classMob{
+        width: 50%;
+    }
+    #topicMob{
+        width: 90%;
+    }
+    #rowWidthHide{
+     display: none;
+    }
+    #rowWidthShow{
+        display: block;
+    }
+    #textMain{
+        width: 225px;
     }
 }
 </style>
@@ -41,11 +76,11 @@ justify-content: center;">
 
             <div id="mainDiv">
                 {%if current_user.is_anonymous%}
-                <div class="col-xs-6 row">
-                    <span id="mainText" style="font-size: 3vw;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
+                <div class="col-xs-6 row" id="textMain">
+                    <span id="mainText" style="text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
                             exams
                             needn't be tough. </b></span><br><span id="subText"
-                        style="font-size: 2vw;text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
+                        style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
                             test now.</b></span>
                 </div>
                 {%else%}
@@ -64,14 +99,86 @@ justify-content: center;">
             </div>
           </form>-->
                     <div id="testConfigurationDiv" style="margin-bottom: 10%;">
-                        <div class="z-depth-2 hoverable colorClass"
+                        <div class="z-depth-2 hoverable colorClass" id="testBox"
                             style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
                             {%if current_user.is_anonymous==false%}
                             <div class="row">
                                 <h4 style="padding-left: 10px;">Start a test</h4>
                             </div>
                             {%endif%}
-                            <div class="row">
+                            <!-- Start for mobile -->
+                            <div id="rowWidthShow">
+                                <div class="row">
+                                    <div class="col-xs-1" id="classMob">
+                                        <div class="input-field">
+                                            <h4 class="grey-text">Class</h4>
+                                            <select id="class_val">
+                                                <option value="" disabled selected>Class</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                <option value="9">9</option>
+                                                <option value="10">10</option>
+                                                <!--<option value="11">11</option>
+                                            <option value="12">12</option>-->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2" id="classMob">
+                                        <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
+                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                        </div>
+                                        <div class="input-field">
+                                            <h4 class="grey-text">Subject</h4>
+                                            <select id="selectSubject">
+                                                <option value="" disabled selected>Subject</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-5" id="topicMob">
+                                        <!--The search should show Book-Chapter-Topic-->
+                                        <h4 class="grey-text">Enter Chapter/Topic</h4>
+                                        <!--<div class="chips chips-autocomplete" id="topicSearch" data-hover="true" data-constrainWidth="false" style="width:400px" name="topicSearch"><i
+                                            class="material-icons right">search</i></div>-->
+                                        <input class="magicsearch" id="topicSearch" placeholder="Search Topics...">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2" id="classMob">
+                                        <div class="input-field">
+                                            <h4 class="grey-text">Difficulty Preference</h4>
+                                            <select id="difficulty">
+                                                <option value="E">Easy</option>
+                                                <option selected value="Me">Medium</option>
+                                                <option value="H">Hard</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2" id="classMob">
+                                        <div class="input-field">
+                                            <h4 class="grey-text">Question Count</h4>
+                                            <!--  <input style="font-size: xx-large;" class="green-text" type="number" min="0" max="100" id="qcount"
+                        name="qcount">-->
+                                            <select id="qcount" style="font-family: Arial;">
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option selected value="20">20</option>
+                                                <option value="30">30</option>
+                                                <option value="40">40</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End for mobile -->
+                            <div class="row" id="rowWidthHide">
                                 <div class="col-xs-1">
                                     <div class="input-field">
                                         <h4 class="grey-text">Class</h4>
