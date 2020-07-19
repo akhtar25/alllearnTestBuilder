@@ -7,6 +7,7 @@
       <th class="text-center">Paid Status</th>
       <th class="text-center">Delay Reason</th>
     </tr>
+    {% set amount = '' %}
     {% for row in feeStatusDataRows %}
     <tr>
       <td class="pt-3-half" contenteditable="false">
@@ -20,9 +21,13 @@
         <a href="{{ url_for('studentProfile', student_id=row.student_id) }}" target="_blank">{{row.student_name}}</a>
         {% endif %}
         </td>
-      <td class="pt-3-half" contenteditable="false">
-          {{row.fee_amount}}
-          <input type="hidden" value="{{row.fee_amount}}" id="total_amount">
+      <td class="total_amount pt-3-half" contenteditable="false">
+          
+          {% if row.fee_amount %}
+            {% set amount = row.fee_amount %}
+          {% endif %}
+          {{amount}}
+          <input type="hidden" value="{{amount}}" id="total_amount">
         </td>
       <td class="pt-3-half" contenteditable="false">
         {% if row.paid_amount %}
@@ -64,8 +69,8 @@
   </table>
   <script>
       $('#paid_amount').keyup(function(){
-        var total_amount = $('#total_amount').val();
-        var paid_amount = $('#paid_amount').val();
+        var total_amount = $(this).parents("tr").find(".total_amount").text();
+        var paid_amount = $(this).val();
         alert(total_amount);
         alert(paid_amount);
         if(total_amount==paid_amount){
