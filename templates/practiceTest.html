@@ -8,6 +8,17 @@
     #myVideo {
         display: none;
     }
+    #testBox{
+    width: 300px;
+    position: relative;
+    overflow-x: auto;
+    }
+    #rowWidth{
+        width: 900px;
+    }
+    #textMain{
+        width: 225px;
+    }
 }
 </style>
 
@@ -41,7 +52,7 @@ justify-content: center;">
 
             <div id="mainDiv">
                 {%if current_user.is_anonymous%}
-                <div class="col-xs-6 row">
+                <div class="col-xs-6 row" id="textMain">
                     <span id="mainText" style="font-size: 3vw;text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
                             exams
                             needn't be tough. </b></span><br><span id="subText"
@@ -64,14 +75,14 @@ justify-content: center;">
             </div>
           </form>-->
                     <div id="testConfigurationDiv" style="margin-bottom: 10%;">
-                        <div class="z-depth-2 hoverable colorClass"
+                        <div class="z-depth-2 hoverable colorClass" id="testBox"
                             style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
                             {%if current_user.is_anonymous==false%}
                             <div class="row">
                                 <h4 style="padding-left: 10px;">Start a test</h4>
                             </div>
                             {%endif%}
-                            <div class="row">
+                            <div class="row" id="rowWidth">
                                 <div class="col-xs-1">
                                     <div class="input-field">
                                         <h4 class="grey-text">Class</h4>

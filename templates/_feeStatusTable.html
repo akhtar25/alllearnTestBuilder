@@ -1,0 +1,75 @@
+<table class="table table-bordered table-responsive-md table-striped text-center">
+    <tr>
+      <th class="text-center">Student Name</th>
+      <th class="text-center">Fee Amount</th>
+      <th class="text-center">Paid Amount</th>
+      <th class="text-center">Pending Amount</th>
+      <th class="text-center">Paid Status</th>
+      <th class="text-center">Delay Reason</th>
+    </tr>
+    {% for row in feeStatusDataRows %}
+    <tr>
+      <td class="pt-3-half" contenteditable="false">
+        {%if row.profile_picture!= None %}
+        <img class="responsive-img circle" src="{{row.profile_picture}}" width="50px">
+        {%else%}
+        <img class="responsive-img circle" width="50px"
+            src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+        {%endif%}
+        {% if row.student_name!= None %}
+        <a href="{{ url_for('studentProfile', student_id=row.student_id) }}" target="_blank">{{row.student_name}}</a>
+        {% endif %}
+        </td>
+      <td class="pt-3-half" contenteditable="false">
+          {{row.fee_amount}}
+          <input type="hidden" value="{{row.fee_amount}}" id="total_amount">
+        </td>
+      <td class="pt-3-half" contenteditable="false">
+        {% if row.paid_amount %}
+            {{row.paid_amount}}
+        {% else %}
+        <input type="text" id="paid_amount" placeholder="fill amount" style="text-align: center;">
+        {% endif %}
+        </td>
+      <td class="pt-3-half" contenteditable="false">
+        {% if row.rem_amount %}
+          {{row.rem_amount}}
+        {% else %}
+        <input type="text" id="rem_amount" placeholder="fill pending amount" style="text-align: center;">
+        {% endif %}
+        </td>   
+        <td>
+            {%if row.paid_status=='Y'%}
+                    <label>
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+                    {%else%}
+                    <label style="display:none" class="postUpdateCheck">
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+
+                    {%endif%}
+        </td>
+      <td class="pt-3-half" contenteditable="false">
+        {% if row.delay_reason %}
+          {{row.delay_reason}}
+        {% else %}
+        <input type="text" id="delay_reason" placeholder="fill delay reason" style="text-align: center;">
+        {% endif %}
+        </td>                     
+    </tr>
+    {% endfor %}
+  </table>
+  <script>
+      $('#paid_amount').keyup(function(){
+        var total_amount = $('#total_amount').val();
+        var paid_amount = $(this).val();
+        alert(total_amount);
+        alert(paid_amount);
+        if(total_amount==paid_amount){
+            $('.postUpdateCheck').show();
+        }
+      });
+  </script>

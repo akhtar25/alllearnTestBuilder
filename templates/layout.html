@@ -97,6 +97,28 @@
         <li style="color: green;">
           <a style="color: green;" href="{{ url_for('register') }}">Register</a>
         </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="{{url_for('practiceTest')}}">
+               Home
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
+               About Us
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+                data-target="solutionDropdown">
+               Our Solutions
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+                data-target="moreDropDown">
+               More
+              </a>
+            </li>
         {% elif disconn == 1 %}
         <li>
           <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
