@@ -852,7 +852,7 @@ def teacherDirectory():
         payrollReportQuery= payrollReportQuery+" group  by month, year "
         payrollReportData = db.session.execute(payrollReportQuery).fetchall()
         #end of payroll report section
-        allTeachers = TeacherProfile.query.filter_by(teacher_id = teacher_id.teacher_id).all()
+        allTeachers = TeacherProfile.query.filter_by(school_id = teacher_id.school_id).all()
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
         class_list=[('select','Select')]
         section_list=[]
@@ -7411,7 +7411,7 @@ def teacherAllocation():
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     fetchTeacherNameQuery = "select distinct tp.teacher_name,tp.teacher_id from teacher_profile tp "
-    fetchTeacherNameQuery = fetchTeacherNameQuery + "inner join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
+    fetchTeacherNameQuery = fetchTeacherNameQuery + "left join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
     fetchTeacherNameQuery = fetchTeacherNameQuery + "where tp.school_id='"+str(teacher_id.school_id)+"'"
     print(fetchTeacherNameQuery)
     teacherNames = db.session.execute(text(fetchTeacherNameQuery)).fetchall()
