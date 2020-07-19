@@ -366,10 +366,10 @@ def practiceTest():
         db.session.commit()        
         print('New entry made into the student table')
 
-    if current_user.is_anonymous:    
-        if ("school.alllearn" in str(request.url)):
+    if ("school.alllearn" in str(request.url)):
             print('#######this is the request url: '+ str(request.url))
             return redirect(url_for('index'))
+    if current_user.is_anonymous:            
         studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
     else:
         studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
