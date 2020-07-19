@@ -45,7 +45,7 @@
           </div>
         </div>
       <div class="row">
-        <h4 class="grey-text" style="margin-left15px;">Choose Month and Year</h4>
+        <h4 class="grey-text" style="margin-left:15px;">Choose Month and Year</h4>
         <div class="input-field col-md-3">
             <select id="addMonthSelect" class="selection">
                 <option value="" disabled selected>Select Month</option>
@@ -59,96 +59,35 @@
       </div>
 
       <!-- Start Summary Box -->
-      <div class="card">
-        <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Summary Box</h3>
+      <div class="card" id="boxDiv" style="display: none;">
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4" style="margin-left: 400px;">Summary Box</h3>
         <div class="card-body">
-          <div id="table" class="table-editable">
-            <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
-                <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
-            </a>
-        </span>-->
-            <table class="table table-bordered table-responsive-md table-striped text-center">
-              <tr>
-                <th class="text-center">Fee collected</th>
-                <th class="text-center">Unpaid fee</th>
-                <th class="text-center">No. of paid students count</th>
-                <th class="text-center">No. of unpaid students count</th>
-              </tr>
-              <tr>
-                <td class="pt-3-half" contenteditable="false">Ayushi Rautela</td>
-                <td class="pt-3-half" contenteditable="false">1</td>
-                <td class="pt-3-half" contenteditable="false">A</td>
-                <td class="pt-3-half" contenteditable="false">1</td>                        
-                
-              </tr>
-            </table>
+          <div id="summaryBoxDiv" class="table-editable">
+            
           </div>
         </div>
       </div>
-
+      <div id="summaryloader" style="margin-left:160px;display: none;">
+        <img src="../static/images/smallLoader.gif" style="height: 150px;">
+    </div>
       <!-- End Summary Box -->
     
 
-<div class="card">
-    <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Unpaid this month</h3>
+<div class="card" id="feeDiv" style="display: none;">
+    <h3 class="card-header text-center font-weight-bold text-uppercase py-4" style="margin-left:410px;">Fee status</h3>
     <div class="card-body">
-      <div id="table" class="table-editable">
+      <div id="feeStatusDiv" class="table-editable" style="position: relative;height: 400px;overflow-y: auto;">
         <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
             <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
         </a>
     </span>-->
-        <table class="table table-bordered table-responsive-md table-striped text-center">
-          <tr>
-            <th class="text-center">Student Name</th>
-            <th class="text-center">Class</th>
-            <th class="text-center">Section</th>
-            <th class="text-center">Unpaid Months</th>
-            <th class="text-center">Paid</th>
-          </tr>
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Ayushi Rautela</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">1</td>                        
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Aditi Semwal</td>
-            <td class="pt-3-half" contenteditable="false">2</td>
-            <td class="pt-3-half" contenteditable="false">B</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Ashish Singh</td>
-            <td class="pt-3-half" contenteditable="false">4</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">2</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <!--<tr class="hide">-->
-            <tr>
-            <td class="pt-3-half" contenteditable="false">Anchal Jelta</td>
-            <td class="pt-3-half" contenteditable="false">6</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-        </table>
+        
       </div>
     </div>
   </div>
+  <div id="feeStatusloader" style="margin-left:160px;display: none;">
+    <img src="../static/images/smallLoader.gif" style="height: 150px;">
+</div>
   <div>
       <h4><a href="#">See complete list</a></h4>
   </div>
@@ -188,6 +127,64 @@ $(document).ready(function () {
         $('.tabs').tabs();
         $('select').formSelect();
     });
+
+    var selectYear = document.getElementById('addYearSelect')
+    selectYear.onchange = function(){
+      $('#summaryBoxDiv').html('');
+      var monthSelectCheck = $('#addMonthSelect').val();
+      var yearSelectCheck = $('#addYearSelect').val();
+      var class_val = "{{qclass_val}}";
+      var section = "{{qsection}}";
+      if (monthSelectCheck != null && yearSelectCheck != null) {
+        $('#boxDiv').hide();
+        $('#summaryloader').show();
+        
+        var data = "";
+        $.ajax({
+                url: "/feeMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck+"&class_val="+class_val+"&section="+section,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#summaryloader').hide();
+                    
+                    $("#summaryBoxDiv").html(response);
+                    $('#boxDiv').show();
+                    console.log('Fetched fee data from server')
+                },
+                error: function (xhr) {
+                    $('#summaryloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+            // fee Status table
+            $('#feeDiv').hide();
+        $('#feeStatusloader').show();
+        
+        var data = "";
+        $.ajax({
+                url: "/feeStatusDetail?month=" + monthSelectCheck + "&year=" + yearSelectCheck+"&class_val="+class_val+"&section="+section,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#feeStatusloader').hide();
+                    
+                    $("#feeStatusDiv").html(response);
+                    $('#feeDiv').show();
+                    console.log('Fetched fee data from server')
+                },
+                error: function (xhr) {
+                    $('#feeStatusloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+            // End
+      }else{
+        $('#boxDiv').hide();
+        $('#feeDiv').hide();
+      }
+    };
 
 </script>
 {%endblock%}

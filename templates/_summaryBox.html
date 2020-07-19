@@ -1,0 +1,17 @@
+<table class="table table-bordered table-responsive-md table-striped text-center">
+    <tr>
+      <th class="text-center">Fee collected</th>
+      <th class="text-center">Unpaid fee</th>
+      <th class="text-center">No. of paid students count</th>
+      <th class="text-center">No. of unpaid students count</th>
+    </tr>
+    {% for row in feeDetailRow %}
+    <tr>
+      <td class="pt-3-half" contenteditable="false">{{row.collected_fee}}</td>
+      <td class="pt-3-half" contenteditable="false">{{row.unpaid_fee}}</td>
+      <td class="pt-3-half" contenteditable="false">{{row.no_of_unpaid_students}}</td>
+      <td class="pt-3-half" contenteditable="false">{{row.no_of_paid_students}}</td>                        
+      
+    </tr>
+    {% endfor %}
+  </table>

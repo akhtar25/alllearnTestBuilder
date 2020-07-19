@@ -704,7 +704,50 @@ def teacherDirectory():
             flash('Successful registration !')            
         return render_template('teacherDirectory.html',form=form, payrollReportData=payrollReportData,allTeachers=allTeachers,user_type_val=str(current_user.user_type))
 
+# New Section added to manage feeDetail
+@app.route('/feeMonthData')
+def feeMonthData():
+    qmonth = request.args.get('month')
+    qyear = request.args.get('year')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+    print(qmonth+ ' '+qyear)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #days in month
+    daysInMonth = monthrange(int(qyear),int(qmonth))
+    daysInMonth = int(daysInMonth[1])
+    feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
+    feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount) as no_of_unpaid_students , "
+    feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount) as no_of_paid_students "
+    feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
+    feeDetailRow = db.session.execute(text(feeDetail)).fetchall()
+    return render_template('_summaryBox.html',feeDetailRow=feeDetailRow)
 
+# New Section added to manage fee status
+@app.route('/feeStatusDetail')
+def feeStatusDetail():
+    qmonth = request.args.get('month')
+    qyear = request.args.get('year')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+    print(qmonth+ ' '+qyear)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #days in month
+    daysInMonth = monthrange(int(qyear),int(qmonth))
+    daysInMonth = int(daysInMonth[1])
+    feeStatusDataQuery = "select sp.student_id as student_id, sp.profile_picture as profile_picture, sp.full_name as student_name, fd.fee_amount as fee_amount,fd.fee_paid_amount as paid_amount, fd.outstanding_amount as rem_amount, fd.paid_status as paid_status,fd.delay_reason"
+    feeStatusDataQuery = feeStatusDataQuery + " from student_profile  sp left join "
+    feeStatusDataQuery = feeStatusDataQuery + "fee_detail fd on fd.student_id=sp.student_id "
+    feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
+    feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
+    print(str(len(feeStatusDataRows)))
+    return render_template('_feeStatusTable.html',feeStatusDataRows=feeStatusDataRows)
 #New Section added to manage payroll
 @app.route('/payrollMonthData')
 def payrollMonthData():
@@ -2006,7 +2049,6 @@ def feeManagement():
     classSections=ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    
     return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections)
 
 
