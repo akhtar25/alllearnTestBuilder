@@ -1,8 +1,9 @@
 {% extends "layout.html" %} {% block content %}
 <link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
 <style>
+    
     .colorClass {
-        background-color: white;
+        background-color: white;        
     }
     @media screen and (min-width: 750px) {
         #rowWidthHide{
@@ -13,20 +14,30 @@
     }
     #mainText{
         font-size: 3vw;
+        color: rgb(204, 238, 81);
     }
     #subText{
         font-size: 2vw;
+        color: whitesmoke;
     }
     }
     @media screen and (max-width: 650px) {
-    #myVideo {
+        {%if current_user.is_anonymous%}
+        body{
+        background-color: rgb(68, 68, 67);
+    }
+    {%endif%}
+        #myVideo {
         display: none;
     }
     #mainText{
-        font-size: 5vw;
+        font-size: 6vw;        
+        color: rgb(204, 238, 81);
+        text-shadow: white;
     }
     #subText{
         font-size: 4vw;
+        color:grey;
     }
     #classMob{
         width: 50%;
@@ -57,7 +68,7 @@
     {%if current_user.is_anonymous%}
     <div class="container" style="  display: flex;
 align-items: center;
-justify-content: center;">
+justify-content: center;" id="containerDiv">
         {%else%}
         <div class="container" style="  display: flex;
     align-items: center;
@@ -77,11 +88,10 @@ justify-content: center;">
             <div id="mainDiv">
                 {%if current_user.is_anonymous%}
                 <div class="col-xs-6 row" id="textMain">
-                    <span id="mainText" style="text-shadow: 1px 1px 1px black;" class="lime-text"><b>Preparing for
+                    <span id="mainText" style="text-shadow: 1px 1px 1px black;" ><b>Preparing for
                             exams
                             needn't be tough. </b></span><br><span id="subText"
-                        style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Start practice
-                            test now.</b></span>
+                        style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Start a practice test now.</b></span>
                 </div>
                 {%else%}
                 <h4 class="">Welcome back {{studentData.full_name}}!</h4>
@@ -118,7 +128,7 @@ justify-content: center;">
                                                 <option value="7">7</option>
                                                 <option value="8">8</option>
                                                 <option value="9">9</option>
-                                                <option value="10">10</option>
+                                                <!--<option value="10">10</option>-->
                                                 <!--<option value="11">11</option>
                                             <option value="12">12</option>-->
                                             </select>
@@ -550,9 +560,8 @@ justify-content: center;">
             $('.tabs').tabs();
             $('.modal').modal();
             $('select').formSelect();
-
-            $(document).ready(function () {
-
+ 
+ {%if current_user.is_anonymous==False%}
                 $.ajax({
                     url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}" +
                         "&fromPractice=1",
@@ -569,8 +578,8 @@ justify-content: center;">
                     $('#startTestBTN').html('Start Test');
                             $('#startTestBTN').attr('disabled',false);
                     }
-                });
-            });
+                });    
+                {%endif%}   
         });
 
 
