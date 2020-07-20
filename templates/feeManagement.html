@@ -57,6 +57,7 @@
             </select>
         </div>
       </div>
+      
 
       <!-- Start Summary Box -->
       <div class="card" id="boxDiv" style="display: none;">
@@ -71,6 +72,22 @@
         <img src="../static/images/smallLoader.gif" style="height: 150px;">
     </div>
       <!-- End Summary Box -->
+      <div class="row">
+        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Configure</a></button>
+      </div>
+      <!-- Modal structure -->
+      <div id="modal1" class="modal" style="height:160px;width: 330px;">
+        <div class="modal-content" style="height:156px;">
+          <h4>Set Fee for Class: {{qclass_val}} | Section: {{qsection}}  </h4>
+          
+          <input type="text" id="fee" placeholder="Enter Total Fee" style="width:150px;">
+          <button style="margin-left: 22px;" class="btn waves-light green lighten-1 white-text" type="button" id="Set"><a href="javascript:void(0);" style="color: white;">Set</a></button>
+        </div>
+        <!-- <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+        </div> -->
+      </div>
+      <!-- End -->
     
 
 <div class="card" id="feeDiv" style="display: none;">
@@ -85,17 +102,22 @@
       </div>
     </div>
   </div>
+  <br>
+  <a href="#" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a>
+  <br><br>
   <div id="feeStatusloader" style="margin-left:160px;display: none;">
     <img src="../static/images/smallLoader.gif" style="height: 150px;">
 </div>
-  <div>
-      <h4><a href="#">See complete list</a></h4>
-  </div>
   <!-- Editable table -->
 </div>
 </div>
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
+
+
+$(document).ready(function(){
+    $('.modal').modal();
+  });
 
 $(document).ready(function () {
         const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -149,6 +171,8 @@ $(document).ready(function () {
                     
                     $("#summaryBoxDiv").html(response);
                     $('#boxDiv').show();
+                    $('#configure').show();
+                    
                     console.log('Fetched fee data from server')
                 },
                 error: function (xhr) {
@@ -167,11 +191,21 @@ $(document).ready(function () {
                 type: "get",
                 data: data,
                 success: function (response) {
-                    $('#feeStatusloader').hide();
                     
+                    $('#feeStatusloader').hide();
+                    $('#saveFeeDataBTN').show();
                     $("#feeStatusDiv").html(response);
                     $('#feeDiv').show();
                     console.log('Fetched fee data from server')
+                    var amt = $('.tt_amt').val();
+                    console.log('Total amount:'+amt);
+                    if(amt!=''||amt!=None){
+                      console.log(amt);
+                      $('#configure').prop('disabled','true');
+                    }else{
+
+                      $('#configure').prop('disabled','false');
+                    }
                 },
                 error: function (xhr) {
                     $('#feeStatusloader').hide();
@@ -185,6 +219,12 @@ $(document).ready(function () {
         $('#feeDiv').hide();
       }
     };
+
+    $('#Set').click(function(){
+      var total_fee = $('#fee').val();
+      alert(total_fee);
+      $('.total_amount').html(total_fee);
+    });
 
 </script>
 {%endblock%}

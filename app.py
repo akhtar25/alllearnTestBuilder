@@ -747,7 +747,13 @@ def feeStatusDetail():
     feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
     feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
     print(str(len(feeStatusDataRows)))
-    return render_template('_feeStatusTable.html',feeStatusDataRows=feeStatusDataRows)
+    total_amount = FeeDetail.query.filter_by(month=qmonth,year=qyear,school_id=teacherDataRow.school_id,class_sec_id=class_sec_id.class_sec_id).first()
+    total_amt = ''
+    if total_amount:
+        total_amt = total_amount.fee_amount
+    print('Total amount')
+    print(total_amt)
+    return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
 #New Section added to manage payroll
 @app.route('/payrollMonthData')
 def payrollMonthData():
@@ -767,6 +773,57 @@ def payrollMonthData():
     print(str(len(payrollDataRows)))
     return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
 
+@app.route('/updateFeeData', methods=['GET','POST'])
+def updateFeeData():
+    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    qmonth = request.form.get('qmonth')
+    qyear = request.form.get('qyear')
+    total_amt = request.args.get('total_amt')
+    qclass_val = request.form.get('qclass_val')
+    qsection = request.form.get('qsection')
+    class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
+    student_id_list = request.form.getlist('student_id')
+    paid_amount_list = request.form.getlist('paid_amount')
+    rem_amount_list = request.form.getlist('rem_amount')
+    delay_reason_list = request.form.getlist('delay_reason')
+    count_list = []
+    for i in range(len(paid_amount_list)):
+        if paid_amount_list[i]:
+            print('counter:'+str(i))
+            print('paid amount:'+str(paid_amount_list[i]))
+            count_list.append(i)
+    # print(paid_amount_list)
+    print('count_list length:'+str(len(count_list)))
+    for i in range(len(count_list)):
+        print('inside for loop')
+        print(count_list[i])
+        if paid_amount_list[count_list[i]]:
+            indivFeeRecord = FeeDetail.query.filter_by(student_id=student_id_list[count_list[i]], month=qmonth, year=qyear).first()
+            if indivFeeRecord and indivFeeRecord.outstanding_amount!=0:
+                print('if record already exist:'+str(paid_amount_list[count_list[i]]))
+                indivFeeRecord.fee_amount = total_amt
+                indivFeeRecord.fee_paid_amount = paid_amount_list[count_list[i]]
+                indivFeeRecord.outstanding_amount = rem_amount_list[count_list[i]]
+                indivFeeRecord.delay_reason = delay_reason_list[count_list[i]]
+                print('pending amount:'+str(rem_amount_list[count_list[i]]))
+                if rem_amount_list[count_list[i]]==0 or rem_amount_list[count_list[i]]=='0':
+                    indivFeeRecord.paid_status = 'Y'
+                else:
+                    indivFeeRecord.paid_status = 'N'
+            elif indivFeeRecord==None or indivFeeRecord=='':
+                print('Adding new values:'+str(paid_amount_list[count_list[i]]))
+                
+                if paid_amount_list[count_list[i]]==total_amt:
+                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+                    ,paid_status='Y',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+                else:
+                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+                    ,paid_status='N',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+                db.session.add(feeInsert)
+    db.session.commit()
+    return jsonify(['0'])
 
 @app.route('/updatePayrollData', methods=['GET','POST'])
 def updatePayrollData():
