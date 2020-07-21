@@ -1,10 +1,11 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container" style="text-align: center;">
     <div class='row ' style="display: inline-block; ">
-        
-        <div class='input-field col s12' style="text-align: left;">
-<h2 style="color:Green">Sign In</h2>
-<!--
+
+        <div class='input-field col s12 z-depth-1 hoverable'
+            style="text-align: left;border-radius: 25px;border: 2px solid #73AD21;padding: 10px;">
+            <h2 style="color:Green">Sign In</h2>
+            <!--
 <div class="btn white  col s4 m4 right ">
     <a href="#" style="text-transform:none" class="">
         <div class="left ">
@@ -14,38 +15,42 @@
     </a>
 </div>
 -->
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.email.label }}
-        <br> {{ form.email(size=64) }} {% for error in form.email.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.password.label }}
-        <br> {{ form.password(size=32) }} {% for error in form.password.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-        <p>
-            <label>
-                <input id="remember_me" name="remember_me" type="checkbox">
-                <span>Remember Me</span>
-            </label>
-        </p>    
-    
-    <p> <button class="btn-large waves-effect waves-light green white-text" type="submit">Sign In</button>
-    </p>
- 
-</form><br>
-<p>
-        <a href="{{ url_for('reset_password_request') }}">Forgot Your Password?</a>
-    </p>
-<p>New User?
-    <a  class="btn cyan " href="{{ url_for('register') }}">Click to Sign Up!</a>
-</p>
-
+            <form action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.email.label }}
+                    <br> {{ form.email(size=64) }} {% for error in form.email.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.password.label }}
+                    <br> {{ form.password(size=32) }} {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    <label>
+                        <input id="remember_me" name="remember_me" type="checkbox">
+                        <span style="font-family:Arial;">Remember Me</span>
+                    </label>
+                </p>
+                <div class="center">
+                    <button class="btn-large waves-effect waves-light green white-text" type="submit">Sign In</button>
+                </div>
+            </form><br>
+            <div class="row center">
+                <table class="center">
+                    <tr>
+                        <td><a href="{{ url_for('reset_password_request') }}">Forgot Your Password?</a>
+                        </td>
+                        <td class="right">
+                            New User?<br>
+                            <a class="btn cyan " href="{{ url_for('register') }}">Click to Sign Up!</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-</div></div>
 {% endblock %}

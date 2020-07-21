@@ -64,6 +64,7 @@
               {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
           </div>
           <!-- /.box-header -->
+          {% if bookDet.book_link %}
           <span id="bookLinkIDSpan" style="display: None;">{{bookDet.book_link}}</span>
           <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
           <div style="width: 600px; height: 800px; overflow-y: auto">
@@ -79,6 +80,9 @@
             <a href="{{bookDet.book_link}}" target="_blank"><button id="zoominbutton" class="btn btn-primary">Open in
                 full screen</button></a>
           </div>
+          {% else %}
+          <h3 class="grey-text">Book preview not available</h3>
+          {% endif %}
           <br>
           <br>
         </div>

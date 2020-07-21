@@ -72,7 +72,11 @@
                     <td>
                         <a href="{{url_for('homeworkReview',homework_id=homeworkRow.homework_id)}}">{{homeworkRow.homework_name}}</a>
                     </td>
-                    <td>{{homeworkRow.student_responses}}</td>
+                    {%if homeworkRow.student_responses%}
+                    <td>Received</td>
+                    {%else%}
+                    <td>Not Received</td>
+                    {%endif%}
                     <td>{{homeworkRow.question_count}}</td>
                     <td>{{homeworkRow.last_modified_date.strftime('%d %B %Y')}}</td>
                     <td><a title="Delete Need" name="{{homeworkRow.homework_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">

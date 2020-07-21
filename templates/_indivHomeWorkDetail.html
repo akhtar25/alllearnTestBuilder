@@ -5,43 +5,45 @@
         <h3 style="margin-left:30px ;margin-bottom: 20px;">{{homework_name.homework_name}}</h3>        
         <ol>
             {%for row in homeworkDataRows%}
-            <li>
+            <li >
+               
                 <h4>{{row.question}}</h4>                
+  
+            <div class="row">
+                <input type="hidden" name="sq_id" value="{{row.sq_id}}">
+                {% if row.ref_url!='' %}
+                {% if row.ref_type==98 %}
+                <img style="border:1px solid rgb(155, 115, 115); width:251px; height: 115px;margin-left: 90px;float: right;"
+                    id="preview" src="{{row.ref_url}}">
+                {% elif row.ref_type==96 %}
+                <iframe src="{{row.ref_url}}" id="iframeDiv"
+                    style="width: 251px;height: 115px;float: left;margin-top: 16;margin-right: 10;" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                {% elif row.ref_type==97 %} 
+                <audio controls id="audioDiv"
+                    style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;">
+                    <source src="{{row.ref_url}}"></audio>
+                {% else %}
+                <a href="{{row.ref_url}}" target="_blank">See Attached File</a>
+                <!--<embed width="251" height="115" id="docDiv" style="margin-left: 90px;float: right;margin-top: -15px;"
+                    src="{{row.ref_url}}" type="application/pdf">-->
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="row">
                 {%if row.answer%}
-                <input type="text" name="answer" placeholder="Add Answer" value="{{row.answer}}" style="font-size: large;">                
+                <span class="grey-text">Answered:</span> <input type="text" class="green-text" name="answer" placeholder="Add Answer" value="{{row.answer}}" style="font-size: large;" disabled>
                 {%else%}
                 <input type="text" name="answer" placeholder="Add Answer" style="font-size: large;">
                 {%endif%}
+            </div>            
+            <div class="row">
                 {%if row.teacher_remark%}
                 Teacher Remark:
                 <input type="text" name="remark" value="{{row.teacher_remark}}" disabled style="font-size: large;width: 300px;">
                 {%endif%}
-                <input type="hidden" name="sq_id" value="{{row.sq_id}}">
-                {%if row.ref_url!=''%}
-                {% if row.ref_type==98 %}
-                <img style="border:1px solid gray; width:251px; height: 115px;float: left;" id="preview"
-                    src="{{row.ref_url}}">
-                {% elif row.ref_type==96 %}
-                <!--<a href="{{row.ref_url}}" target="_blank">See attached video</a>-->
-                
-                    <div class="center">
-                <iframe src="{{row.ref_url}}" id="iframeDiv"
-                    style="width: 300px;float: left;margin-top: 16;position:inherit;" frameborder="0"
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe><br><br><br><br><br><br><br><br>
-                    </div>
-                {% elif row.ref_type==97 %}
-                <a href="{{row.ref_url}}" target="_blank">Hear attached audio</a>
-                <!--<audio controls id="audioDiv" style="width: 251px;height: 115px;float: left;margin-top: 16px;">
-                    <source src="{{row.ref_url}}"></audio>-->
-                {% else %}
-                <a href="{{row.ref_url}}" target="_blank">See attached file</a>
-                <!--<embed width="251" height="115" id="docDiv" style="float: left;" src="{{row.ref_url}}"
-                    type="application/pdf">-->
-                {% endif %}
-                {% if row.attachment %}
-                <a href="{{row.attachment}}" target="_blank">See attached </a>
-                {% endif %}
-                {%endif%}
+            </div>
+            
             </li>
             {%endfor%}
             {% if homeworkAttach.attachment %}
@@ -57,6 +59,7 @@
 </div>
 <script>
     $('#homeworkAnsBTN').click(function ($e) {
+        $('#homeworkAnsBTN').prop('disable',true);
         $e.preventDefault();
         var form = $('#homeworkAnswerForm');
         //$('#errorSurveyUpdate').hide();
@@ -65,12 +68,22 @@
             type: "POST",
             data: form.serialize(),
             success: function (updateResponse) {
+                if (updateResponse=="0"){
                 M.toast({
                     html: '<h4>Homework Answer Added</h4>'
                 });
                 var elem = $('#homeworkModal');
                 var instance = M.Modal.getInstance(elem);
                 instance.close();
+            }
+            else{
+                M.toast({
+                    html: '<h4>Answer Updated</h4>'
+                });
+                var elem = $('#homeworkModal');
+                var instance = M.Modal.getInstance(elem);
+                instance.close();
+            }
             },
             error: function (xhr) {
                 //$('#errorSurveyUpdate').show();

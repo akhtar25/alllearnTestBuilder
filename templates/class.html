@@ -1,118 +1,250 @@
 {%extends "layout.html"%} {%block content%}
-<div class="container" >
-<div class="hold-transition skin-blue sidebar-mini">    
-<div id="sidebarDiv" >   
-    <div class="main-sidebar" style="margin-top:15px;">
-        <section class="sidebar">                     
-              <ul class="sidebar-menu table-responsive" data-widget="tree">
-                  {% for singleClass in distinctClasses %}
-                         <li class="treeview">
-                           
-                           <a href="#">
-                            <i class="glyphicon glyphicon-education"></i>
-                            <span>Class {{singleClass[0]}}</span>
-                            <span class="pull-right-container">
-                              <span class="label label-primary pull-right">{{singleClass[2]}}</span>
-                            </span>
-                          </a>                                                    
-                           <ul class="treeview-menu">                            
-                              {% for classsection in classsections %}
-                                 {% if classsection.class_val|string == singleClass[0]|string %}
-                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
-                              {% endif %}
-                             {% endfor %}
-                           </ul>                                                      
-                         </li>
-                         {% endfor %}                
-         <ul>                  
+<div class="container">
+  <div class="hold-transition skin-blue sidebar-mini">
+    <div id="sidebarDiv">
+      <div class="main-sidebar" style="margin-top:15px;">
+        <section class="sidebar">
+          <ul class="sidebar-menu table-responsive" data-widget="tree">
+            {% for singleClass in distinctClasses %}
+            <li class="treeview">
+
+              <a href="#">
+                <i class="glyphicon glyphicon-education"></i>
+                <span>Class {{singleClass[0]}}</span>
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% for classsection in classsections %}
+                {% if classsection.class_val|string == singleClass[0]|string %}
+                <li><a
+                    href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i
+                      class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
         </section>
         <!-- /.sidebar -->
+      </div>
+    </div>
+    <div class="content-wrapper" style="background-color: white;">
+      <section class="content">
+        <div class="row"  id="summaryDiv">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
+                Section: {{qsection}}</span>
+            </div>
+            <div class="box-body table-responsive no-padding">
+              <div class="col-xs-3">
+                <h4 class="grey-text">Average Performance</h4>
+                {%if summaryData.avgclassperfomance!=None%}
+                <h3 class="green-text">{{summaryData.avgclassperfomance}}%</h3>
+                {%else%}
+                <h3 class="green-text">NA</h3>
+                {%endif%}
+              </div>
+              <div class="col-xs-3">
+                <h4 class="grey-text">Total Students</h4>
+                <h3 class="blue-text">{{summaryData.studcount}}</h3>
+              </div>
+              <div class="col-xs-3">
+                <h4 class="grey-text">Today's Attendance</h4>
+                {%if summaryData.attendancetoday%}
+                <h3 class="green-text">{{summaryData.attendancetoday}}</h3>
+                {%else%}
+                <h3 class="green-text">NA</h3>
+                {%endif%}
+              </div>              
+              <div class="col-xs-3">
+                <h4 class="grey-text">Actions</h4>
+                <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
+                <a  href="#loginChkModal" class="modal-trigger">Check Login Data</a><br>
+                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>                
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="box" id="classTrackerDiv">
+              <div class="box-header">
+                <h3 class="box-title">Class Tracker</h3>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                  <tr>
+                    <th>Subject</th>
+                    <th>Topic Coverage</th>
+                    <th>Total Topics</th>
+                    <th>Last Updated </th>
+                    <th> &nbsp; &nbsp; &nbsp; See Topics</th>
+                  </tr>
+                  {% for eachRow in topicRows%}
+                  <tr style="margin-top:5px;">
+                    <td>{{eachRow.subject_name}}</td>
+                    <td>{{eachRow.topics_covered}}</td>
+                    <td>{{eachRow.total_topics}}</td>
+                    <td>{{eachRow.last_updated_date}}</td>
+                    <td><button class="courseDetailsButton btn green lighten-1" id="courseDetailsButton"
+                        name="{{eachRow.subject_id}}">See Topics</button><span style="display: none;"
+                        name="subjectIdSpan"></span></td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </div>
+              <!-- /.box-body -->
+            </div>
+
+            <div id="completeCourseDetailsDiv"></div>
+            <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+          </div>
+
+          <div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1"
+              id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>
+          <!-- /.box -->
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="smsModal" style="height: 400px;width: 450px;">
+  <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
+    <h4>Send SMS to students of {{qclass_val}} - {{qsection}}</h4>
+    <form id="sendSMSForm">
+    <div class="input-field ">
+      <textarea id="message" name="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
+    </div>
+    <input type="hidden" id="commType" name="commType" value="sms">
+    <input type="hidden" id="class_sec_id" name="class_sec_id" value="{{class_sec_id}}">
+    <br>
+    <a href="#" id="sendSMSBTN" class="btn green right">Send SMS</a>
+  </form>
+  <div id="sendSuccessMSG" style="display: none;">  
+  <!--<img src="../static/images/tick.gif" style="width: 100px;" class="center">-->
+  <h4 class="green-text">Message sent successfully to all students</h4>
+  <!--<span id="successSendList"></span>-->
+</div>
+  <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
     </div>
 </div>
-<div class="content-wrapper" style="background-color: white;">
-    <section class="content">
-        <div class="row">
-                
-                <div class="col-xs-12">
-                  <div class="box" id="classTrackerDiv">
-                    <div class="box-header">
-                      <h3 class="box-title">Class Tracker</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>        
-                    </div>
-                    <!-- /.box-header -->
-                    <div class="box-body table-responsive no-padding">
-                      <table class="table table-hover">
-                        <tr>
-                          <th>Subject</th>
-                          <th>Topic Coverage</th>
-                          <th>Total Topics</th>
-                          <th>Last Updated </th>
-                          <th> &nbsp; &nbsp; &nbsp; See Topics</th>                         
-                        </tr>
-                        {% for eachRow in topicRows%}
-                        <tr style="margin-top:5px;">
-                          <td>{{eachRow.subject_name}}</td>
-                          <td>{{eachRow.topics_covered}}</td>     
-                          <td>{{eachRow.total_topics}}</td>     
-                          <td>{{eachRow.last_updated_date}}</td>                                       
-                          <td><button class="courseDetailsButton btn green lighten-1" id="courseDetailsButton" name="{{eachRow.subject_id}}">See Topics</button><span style="display: none;" name="subjectIdSpan"></span></td>
-                        </tr>
-                             {% endfor %}
-                      </table>
-                    </div>
-                    <!-- /.box-body -->
-                  </div>
-                  
-                  <div id="completeCourseDetailsDiv"></div>
-                  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
-                </div>               
-                
-                <div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>   
-                  <!-- /.box -->                              
-        </div>
-    </section>
+
+
+<div class="modal" id="loginChkModal">
+  <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
+<div id="loadingData" style="display: none;">
+Loading information...
 </div>
+<div id="loginInfoDiv">
+  <table>
+    <thead>
+      <th>Student Name</th>
+      <th>Last Login Date</th>
+    </th>
+    <tbody>
+      {%if loginData%}
+      {%for row in loginData%}      
+      <tr>
+        <td>{{row.student_name}}</td>
+        {%if row.last_login%}
+        <td>{{row.last_login.strftime('%d %B %Y')}}</td>
+        {%else%}
+        <td>NA</td>
+        {%endif%}
+      </tr>
+      {%endfor%}
+      {%endif%}      
+    </tbody>
+  </table>
 </div>
+  </div>
 </div>
+
+
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
-  $('.courseDetailsButton').click(function(){
-                $('#loaderDiv').show();
-                $('#classTrackerDiv').hide();                 
-                
-                var subject_id_val = $(this).attr('name');
-                console.log(subject_id_val);
-                var data="";
-                $.ajax({
-                  url: "/topicList?class_sec_id="+ {{ class_sec_id }} +"&subject_id="+ subject_id_val,
-                  type: "get",
-                  data: data,
-                  success: function(response) {
-                    $("#completeCourseDetailsDiv").html(response);    
-                    $('#completeCourseDetailsDiv').show();   
-                    $('#backButton').show();   
-                    $('#loaderDiv').hide();                   
-                  },
-                  error: function(xhr) {
-                    console.log("error occurred while loading data");
-                  }
-                });      
-                       
-            });
-            
-            </script>
-            <script>
-            $('#closeCourseDetailsButton').click(function(){    
+   $(document).ready(function () {   
+        $('.modal').modal();
+        $('input#input_text, textarea#message').characterCounter();
+   });
+
+  $('.courseDetailsButton').click(function () {
+    $('#loaderDiv').show();
+    $('#classTrackerDiv').hide();
+    $('#summaryDiv').hide();
+    var subject_id_val = $(this).attr('name');
+    console.log(subject_id_val);
+    var data = "";
+    $.ajax({
+      url: "/topicList?class_sec_id=" + {{class_sec_id}} + "&subject_id=" + subject_id_val,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $("#completeCourseDetailsDiv").html(response);
+        $('#completeCourseDetailsDiv').show();
+        $('#backButton').show();
+        $('#loaderDiv').hide();
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+
+  });
+</script>
+<script>
+  $('#closeCourseDetailsButton').click(function () {
     $('#classTrackerDiv').show();
+    $('#completeCourseDetailsDiv').hide();    
+  })
+
+  $('#backButton').click(function () {
+    $('#backButton').hide();
+    $('#classTrackerDiv').show();
+    $('#completeCourseDetailsDiv').html('');
     $('#completeCourseDetailsDiv').hide();
-})
-            </script>
-            <script>
-              $('#backButton').click(function(){
-                $('#backButton').hide();
-                $('#classTrackerDiv').show(); 
-                $('#completeCourseDetailsDiv').html('');
-                $('#completeCourseDetailsDiv').hide();
-              })
-            </script>
+    $('#summaryDiv').show();
+  })
+  
+  
+  $('#sendSMSBTN').click(function($e){
+    $('#smsSendErrorMSG').hide();
+    $('#sendSMSBTN').fadeTo("fast", 0.5).removeAttr("href");
+    $('#sendSMSBTN').html('Please wait...');
+  var form = $('#sendSMSForm');     
+    $.ajax({
+            url: "/sendComm",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {        
+                if (formResponse=='1'){   
+                    $('#smsSendErrorMSG').show();                       
+                //clicks = 0;
+            }
+            else{
+                //$('#sendSuccessMSG').show();  
+              M.toast({html: '<h4>New Message Sent</h4>'});
+                var elem = $('#smsModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+            }
+            $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+            $('#sendSMSBTN').html('Send SMS');
+            },
+            error: function (xhr) {
+              $('#smsSendErrorMSG').show();
+              $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+              $('#sendSMSBTN').html('Send SMS');
+            }
+        }); 
+  });      
+
+
+</script>
 
 {%endblock%}

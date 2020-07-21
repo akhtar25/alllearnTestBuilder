@@ -100,6 +100,9 @@
         </table>
     </div>
     <div id="teacherAllocation">
+        <div id="teacherAllocloader" style="padding-left: 300px;padding-top: 100px;display: none;">
+            <img src="../static/images/loader.gif">
+                </div>
         <div id="teacherAllocationDiv"></div>
     </div>
 </div>
@@ -276,15 +279,21 @@
     }
 
     $('#allocation').click(function(){
+        $('#teacherAllocationDiv').hide();
+        $('#teacherAllocloader').show();
         $.ajax({
             url: "/teacherAllocation",
             type: "get",
             data: '',
             success: function (response) {
                 $('#teacherAllocationDiv').html(response);
+                $('#teacherAllocationDiv').show();
+                $('#teacherAllocloader').hide();
             },
             error: function(xhr){
-                alert('error occured while fetching template');
+                console.log('error occured while fetching template');
+                $('#teacherAllocloader').hide();
+                $('#teacherAllocationDiv').show();
             }
     });
     });

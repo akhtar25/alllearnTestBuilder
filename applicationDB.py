@@ -479,6 +479,8 @@ class StudentProfile(db.Model):
     sponsored_amount = db.Column(db.Integer, nullable=True)
     sponsored_on = db.Column(db.DateTime, nullable=True)
     sponsored_till = db.Column(db.DateTime, nullable=True)
+    points = db.Column(db.Integer,nullable=True)    #points section added for public test page
+    is_archived= db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime,nullable=True)
 
 
@@ -498,6 +500,23 @@ class studentQROptions(db.Model):
     student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
     option = db.Column(db.String(1), nullable=True)
     qr_link = db.Column(db.String(200), nullable=True)
+
+class CommunicationDetail(db.Model):
+    __tablename__="communication_detail"
+    comm_id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(1000), nullable=False)
+    status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=False)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)    
+
+
+class CommunicationTransaction(db.Model):
+    __tablename__="communication_transaction"
+    comm_tran_id = db.Column(db.Integer, primary_key=True)
+    comm_id = db.Column(db.ForeignKey('communication_detail.comm_id'), nullable=False)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=False)
+    last_modified_date = db.Column(db.DateTime,nullable=False)    
 
 # Tables for HomeWork Module
 class HomeWorkDetail(db.Model):
@@ -530,6 +549,7 @@ class StudentHomeWorkResponse(db.Model):
     sq_id = db.Column(db.ForeignKey('homework_questions.sq_id'), nullable=False)
     answer = db.Column(db.String(200), nullable=True)
     teacher_remark  = db.Column(db.String(100), nullable=True)
+    #is_archived = db.Column(db.String(1), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=False)
 
 # End
@@ -586,6 +606,7 @@ class SchoolProfile(db.Model):
     org_leaving_reason=db.Column(db.String(500),nullable=True)    
     address_id = db.Column(db.ForeignKey('address_detail.address_id'), nullable=True)
     school_picture = db.Column(db.String(500), nullable=True)
+    school_logo = db.Column(db.String(500), nullable=True)
     school_admin = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     sub_id =  db.Column(db.ForeignKey('subscription_detail.sub_id'), nullable=True)
     next_bill_due = db.Column(db.DateTime, nullable=True)
@@ -648,8 +669,8 @@ class TeacherPayrollDetail(db.Model):
 #end of teacher payroll tables
 
 
-class FeeManagement(db.Model):
-    __tablename__ = "school_fee_mgt"
+class FeeDetail(db.Model):
+    __tablename__ = "fee_detail"
     fee_trans_id=db.Column(db.Integer, primary_key=True)
     school_id=db.Column(db.ForeignKey('school_profile.school_id'),nullable=True)
     student_id=db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
@@ -658,8 +679,10 @@ class FeeManagement(db.Model):
     due_date = db.Column(db.DateTime,nullable=True)
     fee_amount = db.Column(db.Integer,nullable=True)
     fee_paid_amount = db.Column(db.Integer,nullable=True)
-    is_paid = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    delay_reason = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    paid_status = db.Column(db.String(1),nullable=False)
+    delay_reason = db.Column(db.String(100),nullable=True)
     outstanding_amount = db.Column(db.Integer,nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)    
 
@@ -932,9 +955,9 @@ class LiveClass(db.Model):
     class_sec_id= db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=False)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
     #chapter_num = db.Column(db.Integer, nullable=True)
-    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)
-    start_time = db.Column(db.String(30), nullable = False)
-    end_time = db.Column(db.String(30), nullable = False)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'),nullable=True)    
+    start_time = db.Column(db.DateTime, nullable = True)
+    end_time = db.Column(db.DateTime, nullable = True)
     status = db.Column(db.String(10), nullable = False) # Upcoming; Over; Ongoing
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=False)
     teacher_name = db.Column(db.String(100), nullable=True)

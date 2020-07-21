@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
+from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
@@ -18,6 +18,8 @@ import datetime as dt
 from datetime import date
 from datetime import timedelta
 from datetime import datetime
+from pytz import timezone
+from tzlocal import get_localzone
 from flask_moment import Moment
 from elasticsearch import Elasticsearch
 from flask import g, jsonify
@@ -45,12 +47,19 @@ from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
 import string
+import random
 import requests
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
 import calendar
+<<<<<<< HEAD
+=======
+from urllib.parse import quote,urlparse, parse_qs
+#from flask_material import Material
+
+>>>>>>> master
 #app=Flask(__name__)
 app=FlaskAPI(__name__)
 #csp = {
@@ -115,7 +124,7 @@ def before_request():
 def schoolNameVal():
     if current_user.is_authenticated:
         teacher_id = ''
-        if current_user.user_type==134:
+        if current_user.user_type==134 or current_user.user_type==234:
             teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
@@ -316,6 +325,130 @@ def classSecCheck():
         else:
             return 'Y'
 
+@app.route('/',methods=["GET","POST"])
+@app.route('/practiceTest',methods=["GET","POST"])
+def practiceTest():    
+    if request.method=="POST":
+        board = request.form.get('board')
+        class_val = request.form.get('class_val')
+        email = current_user.email     
+        #print("board:"+ str(board))
+        #print("class_val:" +str(class_val))
+        schoolRow = SchoolProfile.query.filter_by(school_name="AllLearn "+str(board)).first()
+        #print("school id:" +str(schoolRow.school_id))
+        classSectionRow = ClassSection.query.filter_by(school_id=schoolRow.school_id, class_val=str(class_val)).first()
+        #print("class sec id:"+ str(classSectionRow.class_sec_id))
+        checkStudTable= StudentProfile.query.filter_by(email=current_user.email).first()
+        if checkStudTable==None or checkStudTable=="":
+            studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
+                school_id=schoolRow.school_id,class_sec_id=classSectionRow.class_sec_id,
+                phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
+                roll_number=000,last_modified_date=datetime.today(), email=current_user.email,points=10)
+            db.session.add(studentDataAdd)
+            
+            #updating the public.user table
+            current_user.user_type=234
+            current_user.access_status=145
+            current_user.school_id=schoolRow.school_id
+            current_user.last_modified_date=datetime.today()
+            db.session.commit() 
+        #try:
+        if session.get('anonUser'):
+            splitVals = str(session['anonUser']).split('_')
+            respSessionID = splitVals[1]
+            session['anonUser'] = False
+            print("Resp Session ID of older test: "+str(respSessionID))
+            ###Section to update the test results of anon user with the new student id in resp capture
+            respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+            respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
+            respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
+            print(str(respUPDQuery))
+            db.session.execute(text(respUPDQuery))
+                
+        #except:
+        #    print('error occurred. response cap not updated.')
+        #    pass
+        db.session.commit()        
+        print('New entry made into the student table')
+
+    if ("school.alllearn" in str(request.url)):
+            print('#######this is the request url: '+ str(request.url))
+            return redirect(url_for('index'))
+    if current_user.is_anonymous:            
+        studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
+    else:
+        studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if studentProfile==None:
+        studentData=""      
+        testHistory=""  
+        perfRows=""
+        testCount = 0
+        leaderboardData = ""
+        class_val=""
+        questionsAnswered=0
+    else:        
+        studentDataQuery = "with temptable as "
+        studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
+        studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
+        studentDataQuery = studentDataQuery + " (select question_id from response_capture rc2 where student_id ="+ str(studentProfile.student_id)+") ) "
+        studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
+        studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
+        studentDataQuery = studentDataQuery + " from response_capture rc inner join student_profile sp on "
+        studentDataQuery = studentDataQuery + " rc.student_id=sp.student_id "
+        studentDataQuery = studentDataQuery + " inner join question_details qd on "
+        studentDataQuery = studentDataQuery + " qd.question_id=rc.question_id, total_marks_cte         "
+        studentDataQuery = studentDataQuery + " group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage ) "
+        studentDataQuery = studentDataQuery + " ,temp2 as (select count(distinct resp_session_id) as tests_taken "
+        studentDataQuery = studentDataQuery + " , student_id from response_capture group by student_id) "
+        studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
+        studentData = db.session.execute(text(studentDataQuery)).first()
+
+        #getting class_val for the student
+        classDataQuery = "select *from class_section cs where class_sec_id="+ str(studentProfile.class_sec_id)
+        classData = db.session.execute(classDataQuery).first()
+        class_val = classData.class_val
+
+        #performanceQuery = "select *from fn_leaderboard_responsecapture () where student_id='"+str(studentProfile.student_id)+ "'"
+        performanceQuery = "select *from fn_leaderboard_responsecapture() where student_id ='"+str(studentProfile.student_id)+"' order by class_val desc" # and class_val='"+str(class_val)+"'"
+        perfRows = db.session.execute(text(performanceQuery)).fetchall()
+
+        testCountQuery = "select sum(test_taken) as tests_taken from fn_leaderboard_ResponseCapture() where student_id='"+str(studentProfile.student_id)+ "'"
+        testCount = db.session.execute(text(testCountQuery)).first()
+
+        #section for test history query
+        testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(studentProfile.student_id)+")"
+        testHistory = db.session.execute(testHistoryQuery).fetchall()
+        ##end of test history query
+
+        #other recent test takers
+        #recentTestTakersQuery = "select *from fn_student_test_taken_details() order by test_taken_on desc limit 10"
+        #recentTestTakers = db.session.execute(recentTestTakersQuery).fetchall()        
+        #Questions answered
+        questionsAnsweredQuery = "select count(*) as qanswered from response_capture where student_id="+str(studentProfile.student_id)
+        questionsAnswered = db.session.execute(questionsAnsweredQuery).first()
+        #leaderboard data
+        leaderboardQuery = "SELECT student_id,first_name,SUBJECT,student_score,class_val"
+        leaderboardQuery = leaderboardQuery + " FROM fn_leaderboard_ResponseCapture() M "
+        leaderboardQuery = leaderboardQuery + " WHERE M.student_score = "
+        leaderboardQuery = leaderboardQuery + " (SELECT MAX(MM.student_score) FROM fn_leaderboard_ResponseCapture() MM where class_val='"+str(class_val)+"' GROUP BY "
+        leaderboardQuery = leaderboardQuery + " MM.SUBJECT having  MM.SUBJECT =M.subject)"
+        leaderboardQuery = leaderboardQuery + " order by student_score desc"
+        leaderboardData = db.session.execute(leaderboardQuery).fetchall()
+    if studentData!=None or studentData!="":
+        try:
+            avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
+        except:
+            avg_performance=0
+    else:
+        avg_performance = 0
+    
+    
+    return render_template('/practiceTest.html',studentData=studentData, disconn=1,
+        studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
+        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered)
+
+
 @app.route('/normal')
 def normal():
     return 'Normal'
@@ -337,7 +470,7 @@ def account():
 @app.route('/sign-s3')
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    #S3_BUCKET = "alllearndatabucketv2"
+    # S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -448,6 +581,10 @@ def schoolRegistration():
     form = SchoolRegistrationForm()
     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
     if form.validate_on_submit():
+        user = User.query.filter_by(id=current_user.id).first()
+        user.user_type = 71
+        user.access_status = 145
+        db.session.commit()
         selected_sub_id = request.form.get('selected_sub_id')        
         address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
         if address_id is None:
@@ -457,11 +594,23 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input'] 
-
+        school_logo=request.files['school_logo']
+        school_logo_name=request.form['file-input-logo'] 
         school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
+        if school_logo_name!='':
+            print('School logo Details')
+            print(school_logo)
+            print(school_logo_name)
+            school = SchoolProfile.query.get(school_id.school_id)
+            school.school_logo = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name
+            client = boto3.client('s3', region_name='ap-south-1')
+            client.upload_fileobj(school_logo , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name,ExtraArgs={'ACL':'public-read'})
         if school_picture_name!='':
+            print('School picture Details')
+            print(school_picture)
+            print(school_picture_name)
             school = SchoolProfile.query.get(school_id.school_id)
             school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
             client = boto3.client('s3', region_name='ap-south-1')
@@ -471,7 +620,51 @@ def schoolRegistration():
         db.session.add(teacher)
         db.session.commit()
         newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()        
+        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first() 
+        session['school_logo'] = newSchool.school_logo 
+        session['schoolPicture'] = newSchool.school_picture   
+        # Session variable code start
+        session['schoolName'] = schoolNameVal()
+        session['userType'] = current_user.user_type
+        session['username'] = current_user.username
+        
+        print('user name')
+        print(session['username'])
+        school_id = ''
+        print('user type')
+        print(session['userType'])
+        session['studentId'] = ''
+        # if session['userType']==71:
+        #     school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        # elif session['userType']==134:
+        #     school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        #     session['studentId'] = school_id.student_id
+        # else:
+        #     school_id = User.query.filter_by(id=current_user.id).first()
+        # school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+        # session['school_logo'] = ''
+        # if school_pro:
+        #     session['school_logo'] = school_pro.school_logo
+        #     session['schoolPicture'] = school_pro.school_picture
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        moduleDetRow = db.session.execute(query).fetchall()
+        print('School profile')
+        # print(session['schoolPicture'])
+        # det_list = [1,2,3,4,5]
+        session['moduleDet'] = []
+        detList = session['moduleDet']
+        
+        for det in moduleDetRow:
+            eachList = []
+            print(det.module_name)
+            print(det.module_url)
+            eachList.append(det.module_name)
+            eachList.append(det.module_url)
+            eachList.append(det.module_type)
+            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+            detList.append(eachList)
+        session['moduleDet'] = detList
+        # End code   
         newSchool.school_admin = newTeacherRow.teacher_id
 
         db.session.commit()
@@ -484,17 +677,18 @@ def schoolRegistration():
         board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
         boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
         school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        classValues = "select distinct class_val from class_section cs where school_id  = '"+str(teacher_id.school_id)+"' order by class_val"
+        classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
         classValues = db.session.execute(text(classValues)).fetchall()
-        classValuesGeneral = "select distinct class_val from class_section cs order by class_val"
+        classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
         classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
         subjectValues = MessageDetails.query.filter_by(category='Subject').all()
         bookName = BookDetails.query.all()
         chapterNum = Topic.query.distinct().all()
         topicId = Topic.query.all()
-        generalBoard = MessageDetails.query.filter_by(category='Board').all()
+        generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+        generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
         fromSchoolRegistration = True
-        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
@@ -575,22 +769,22 @@ def promoteStudent():
     studentListQuery = "select sp.student_id,sp.school_id ,full_name , section ,class_val ,section from student_profile sp inner join class_section cs on sp.class_sec_id =cs.class_sec_id where sp.school_id='"+str(teacher_id.school_id)+"'"
     studentList = db.session.execute(studentListQuery).fetchall()
     if request.method == 'POST':
-        print('Inside post request')    
+        #print('Inside post request')    
         flash('Student promoted successfully')
         classSecBefore = form.class_section1.data
         classSecAfter = form.class_section2.data
-        print('Class Section after')
-        print(classSecAfter)
+        #print('Class Section after')
+        #print(classSecAfter)
         resClassSection = classSecAfter.split("-")
         classAfter = resClassSection[0]
-        print(classAfter)
+        #print(classAfter)
         sectionAfter = resClassSection[1]
-        print(sectionAfter)
+        #print(sectionAfter)
         value = request.form.getlist('checkbox')
         for i in range(len(value)):
-            print(value[i])
+            #print(value[i])
             studentPromote = StudentProfile.query.filter_by(student_id=str(value[i])).first()
-            print(studentPromote.full_name)
+            #print(studentPromote.full_name)
             classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=str(classAfter),section=str(sectionAfter),school_id=str(teacher_id.school_id)).first()
             studentPromote.class_sec_id = classSection.class_sec_id
             db.session.commit()
@@ -616,13 +810,13 @@ def classRegistration():
     form = ClassRegisterForm()
     #if form.validate_on_submit():
     if request.method == 'POST':
-        print('passed validation')
+        #print('passed validation')
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
 
         for i in range(len(class_val)):
-            print('there is a range')
+            #print('there is a range')
             class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=teacherRow.school_id)
             db.session.add(class_data)
         
@@ -797,26 +991,27 @@ def singleStudReg():
         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
         form.section.choices= section_list
         guardianDetail2 = ''
-        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp " 
-        query = query + "inner join address_detail ad on ad.address_id=sp.address_id "
-        query = query + "inner join class_section cs on cs.class_sec_id=sp.class_sec_id " 
-        query = query + "inner join message_detail md on md.msg_id=sp.gender where sp.student_id='"+str(student_id)+"'"
+        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp "                 
+        query = query + "inner join message_detail md on md.msg_id=sp.gender "
+        query = query + "left join class_section cs on cs.class_sec_id=sp.class_sec_id " 
+        query = query + "left join address_detail ad on ad.address_id=sp.address_id "
+        query = query + "where sp.student_id='"+str(student_id)+"'"
         # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
         # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
         studentDetailRow = db.session.execute(text(query)).first()
         queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
         guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
-        print('Guardain Detail1 :')
-        print(guardianDetail1)
+        #print('Guardain Detail1 :')
+        #print(guardianDetail1)
         guardianDetail2 = ''
         if guardianDetail1!=None:
-            print('If guardian Detail1 is not empty')
+            #print('If guardian Detail1 is not empty')
             queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
             guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
         # print(guardianDetail1)
         # print(guardianDetail2)
-        print('Name:'+str(studentDetailRow.first_name))
-        print('Gender:'+str(studentDetailRow.class_val))
+        #print('Name:'+str(studentDetailRow.first_name))
+        #print('Gender:'+str(studentDetailRow.class_val))
         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
 
 
@@ -827,13 +1022,10 @@ def studentRegistration():
     form=SingleStudentRegistration()
     if request.method=='POST':
         print('Inside Student Registration')
-        if form.submit.data:
-            
+        if form.submit.data:            
             studentId = request.form['tag']
             print('Student Id:'+str(studentId))
-            if studentId:
-                
-
+            if studentId:                
                 print('Inside Student update when student id is not empty')
                 student_id = request.form['tag']
                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -847,15 +1039,15 @@ def studentRegistration():
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
                 studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
                 studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
-                print('Query:'+str(studProfile))
+                #print('Query:'+str(studProfile))
 
                 profileImg = db.session.execute(text(studProfile))
-                print(studentDetails)
-                if request.form['birthdate']:
-                    print('DOB:'+str(request.form['birthdate']))
-                print('Student id:'+str(student_id))
-                print('First Name:'+str(studentDetails.first_name))
-                print('Image url:'+str(request.form['profile_image']))
+                #print(studentDetails)
+                #if request.form['birthdate']:
+                    #print('DOB:'+str(request.form['birthdate']))
+                #print('Student id:'+str(student_id))
+                #print('First Name:'+str(studentDetails.first_name))
+                #print('Image url:'+str(request.form['profile_image']))
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
@@ -870,10 +1062,14 @@ def studentRegistration():
                 studentDetails.roll_number=int(form.roll_number.data)
                 studentDetails.school_adm_number=form.school_admn_no.data
                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
-                db.session.commit()
-                studentClassSec.class_sec_id = class_sec.class_sec_id
-                studentClassSec.class_val = str(form.class_val.data)
-                studentClassSec.section = form.section.data
+                if studentClassSec!=None and studentClassSec!="":
+                    studentClassSec.class_sec_id = class_sec.class_sec_id
+                    studentClassSec.class_val = str(form.class_val.data)
+                    studentClassSec.section = form.section.data
+                else:
+                    studentClassSecAdd = StudentClassSecDetail(student_id=student_id, class_sec_id=class_sec.class_sec_id, 
+                        class_val=str(form.class_val.data), section=form.section.data, is_current='Y', last_modified_date=datetime.today())
+                    db.session.add(studentClassSecAdd)
                 db.session.commit()
                 first_name=request.form.getlist('guardian_first_name')
                 last_name=request.form.getlist('guardian_last_name')
@@ -933,7 +1129,7 @@ def studentRegistration():
                 # guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
                 # email=email[i],phone=phone[i],student_id=student_data.student_id)
                 db.session.commit()
-                flash('Data Updated Successfully!')
+                flash(Markup('Data Updated Successfully! Go to <a href="/studentProfile"> Student Directory</a>?'))
                 return render_template('studentRegistration.html',studentId=student_id,user_type_val=str(current_user.user_type))
 
 
@@ -1164,12 +1360,12 @@ def edit_profile():
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
 
-@app.route('/')
 @app.route('/index')
 @app.route('/dashboard')
 @login_required 
 def index():
     #print('Inside index')
+    #print("########This is the request url: "+str(request.url))
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
@@ -1179,13 +1375,12 @@ def index():
     
     if user.user_type==71:
         classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
-        print('Insert new school')
-        print(classExist)
+        #print('Insert new school')
+        #print(classExist)
         if classExist==None:
             fromSchoolRegistration = True
        
             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-            teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
@@ -1197,11 +1392,18 @@ def index():
             bookName = BookDetails.query.all()
             chapterNum = Topic.query.distinct().all()
             topicId = Topic.query.all()
-            generalBoard = MessageDetails.query.filter_by(category='Board').all()
+            generalBoardId = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+            #print('teacher and board ids')
+            #print(teacher_id.school_id)
+            #print(generalBoardId.board_id)
+            generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
-    if user.user_type==135:
+    if user.user_type==139 or user.user_type==136:
         return redirect(url_for('admin'))
+    if user.user_type==234:
+    #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
+        return redirect(url_for('practiceTest'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
@@ -1338,10 +1540,14 @@ def index():
         testCount = db.session.execute(testCount).first()
         lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
-        #print(lastWeekTestCount)
+        # print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
+        print('user type value')
+        print(session['moduleDet'])
+        query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"'"
+        moduleDetRow = db.session.execute(query).fetchall()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
+            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount,moduleDetRow=moduleDetRow)
 
 @app.route('/performanceChart',methods=['GET','POST'])
 def performanceChart():
@@ -1413,11 +1619,15 @@ def disconnectedAccount():
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
+    #added under the change for practice test module
+    boardRows = MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()
+    classRows = BoardClassSubject.query.with_entities(BoardClassSubject.class_val).distinct().order_by(BoardClassSubject.class_val.desc()).all()
+
     if userDetailRow.user_type==72:
         print('Inside Guardian condition')
         return redirect(url_for('guardianDashboard'))
     if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
-        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow, boardRows=boardRows,classRows=classRows)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
@@ -1814,22 +2024,27 @@ def liveClass():
     if current_user.user_type==71 or current_user.user_type==135 or current_user.user_type==139:
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id = teacherData.school_id 
+        studentDetails=""
     elif current_user.user_type==134:
-        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()    
-        school_id = studentData.school_id
-    else:
+        #studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
+        school_id = studentDetails.school_id
+    else:        
         return redirect(url_for('index'))
 
-    allLiveClassQuery = "select distinct t1.class_sec_id, t2.class_val, t2.section "
-    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, DATE(start_time) as start_time, status, teacher_name, "
+    print('##########Data:'+str(school_id))
+    allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
+    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
     allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
     allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
     allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
     allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
-    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where end_time::time<CURRENT_TIME and t1.school_id= " +str(school_id) 
-
+    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(school_id) 
+    allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"
+    
     try:
-        allLiveClasses = db.session.execute(text(allLiveClassQuery)).fetchall()
+        allLiveClasses = db.session.execute(allLiveClassQuery).fetchall()
+        print('##########Data:'+str(allLiveClasses))
     except:
         allLiveClasses = ""
 
@@ -1842,9 +2057,8 @@ def liveClass():
     #    db.session.add(liveClassData)
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
-    #    flash('New class listed successfully!')         
-    studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
-    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),studentDetails=studentDetails)    
+    #    flash('New class listed successfully!')               
+    return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now(),studentDetails=studentDetails)    
 
 #end of live class section
 
@@ -1916,7 +2130,7 @@ def user(username):
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
-    else:
+    else:        
         schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
         print(schoolAdminRow[0][0])
         accessRequestListRows=""
@@ -1937,7 +2151,7 @@ def user(username):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print('Inside login')
-    if current_user.is_authenticated:
+    if current_user.is_authenticated:        
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
@@ -1958,6 +2172,49 @@ def login():
         #setting global variables
         session['classSecVal'] = classSecCheck()
         session['schoolName'] = schoolNameVal()
+        session['userType'] = current_user.user_type
+        session['username'] = current_user.username
+        
+        print('user name')
+        print(session['username'])
+        school_id = ''
+        print('user type')
+        print(session['userType'])
+        session['studentId'] = ''
+        if session['userType']==71:
+            school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        elif session['userType']==134:
+            school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            session['studentId'] = school_id.student_id
+        else:
+            school_id = User.query.filter_by(id=current_user.id).first()
+        school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+        session['school_logo'] = ''
+        if school_pro:
+            session['school_logo'] = school_pro.school_logo
+            session['schoolPicture'] = school_pro.school_picture
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        moduleDetRow = db.session.execute(query).fetchall()
+        print('School profile')
+        print(session['schoolPicture'])
+        # det_list = [1,2,3,4,5]
+        session['moduleDet'] = []
+        detList = session['moduleDet']
+        
+        for det in moduleDetRow:
+            eachList = []
+            print(det.module_name)
+            print(det.module_url)
+            eachList.append(det.module_name)
+            eachList.append(det.module_url)
+            eachList.append(det.module_type)
+            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+            detList.append(eachList)
+        session['moduleDet'] = detList
+        for each in session['moduleDet']:
+            print('module_name'+str(each[0]))
+            print('module_url'+str(each[1]))
+            print('module_type'+str(each[2]))
         print(session['schoolName'])
 
         return redirect(next_page)        
@@ -2126,17 +2383,18 @@ def syllabus():
     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
+    classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
     classValues = db.session.execute(text(classValues)).fetchall()
-    classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
+    classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
     classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
     bookName = BookDetails.query.all()
     chapterNum = Topic.query.distinct().all()
     topicId = Topic.query.all()
-    generalBoardId = "select distinct board_id from topic_detail td"
-    generalBoardId = db.session.execute(text(generalBoardId)).first()
-    generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).all()
+    generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+    generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
+    for clas in classValues:
+        print('Class value:'+str(clas.class_val))
     return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
 
 @app.route('/addSyllabus',methods=['GET','POST'])
@@ -2199,13 +2457,13 @@ def syllabusClasses():
     distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
-        print(val.class_val)
+        #print(val.class_val)
         sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
         # sectionsString = ''
         sectionsString = '['
         i=1
         for section in sections:
-            print(len(sections))
+            #print(len(sections))
             if i<len(sections):
                 sectionsString = sectionsString + str(section.section)+';'
             else:
@@ -2271,17 +2529,20 @@ def fetchSubjects():
 
 @app.route('/fetchRemSubjects',methods=['GET','POST'])
 def fetchRemSubjects():
+    print('inside fetchRemSubjects')
     class_val = request.args.get('class_val')
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id.board_id,school_id=teacher.school_id,is_archived='Y').all()
     subjectArray=[]
     generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
-    generalSubjects = generalSubjects + "where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id.board_id)+"' and md.msg_id not in (select distinct msg_id from message_detail md "
+    generalSubjects = generalSubjects + "where md.msg_id not in (select distinct msg_id from message_detail md "
     generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
     generalSubjects = generalSubjects + ")  order by description"
+    print('Query: '+str(generalSubjects))
     generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
+    print(subjects)
     subjects = db.session.execute(text(subjects)).fetchall()
     for val in subjects:
         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
@@ -2295,18 +2556,19 @@ def fetchRemSubjects():
 
 @app.route('/addSubject',methods=['GET','POST'])
 def addSubject():
-    subjectVal = request.args.get('subject')
+    subject_id = request.args.get('subject')
     board_id=request.args.get('board')
     class_val=request.args.get('class_val')
-    subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
+    print('Subject:'+str(subject_id))
+    # subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
+    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id,school_id=teacher_id.school_id).first()
     if subjExist==None:
-        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
+        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
         db.session.add(addSubject)
         db.session.commit()
     else:
-        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
+        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
         insertSubject.is_archived = 'N'
         db.session.add(insertSubject)
         db.session.commit()
@@ -2321,7 +2583,7 @@ def addChapter():
     chapterName = request.args.get('chapterName')
     
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     chapter_num = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName).first()
@@ -2330,29 +2592,40 @@ def addChapter():
     for topic in topics:
         print('inside for')
         print(topic)
-        topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic,board_id=board_id.board_id).first()
-        existInTT = TopicTracker.query.filter_by(topic_id=topic_id.topic_id,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
-        
-        if existInTT:
-            updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
-            print(updateTT)
-            updateTT = db.session.execute(text(updateTT))
-        else:
-            insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(insertTT)
-        db.session.commit()
+        # topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
+        for class_sec_id in class_sec_ids:
+            existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
+            
+            if existInTT:
+                updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic)+"'"
+                print(updateTT)
+                updateTT = db.session.execute(text(updateTT))
+            else:
+                insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(insertTT)
+            db.session.commit()
     return ("data updated successfully")
 
 @app.route('/addBook',methods=['GET','POST'])
 def addBook():
-    book = request.args.get('book')
+    book_id = request.args.get('book')
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
-    bookIds = BookDetails.query.filter_by(book_name=book,class_val=class_val,subject_id=subject_id.msg_id).all()
-    
+    print("class_val"+str(class_val))
+    print("subject id"+str(subject_id.msg_id))
+    print("book id"+str(book_id))
+    book = BookDetails.query.filter_by(book_id=book_id).first()
+    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     for book_id in bookIds:
+        topic_Ids = Topic.query.filter_by(book_id=book_id.book_id,class_val=class_val,subject_id=subject_id.msg_id).all()
+        for topic_id in topic_Ids:
+            for class_sec_id in class_sec_ids:
+                insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(insertTT)
+            db.session.commit()
         updateBCSB = BoardClassSubjectBooks.query.filter_by(school_id=teacher_id.school_id,class_val=class_val,
         subject_id=subject_id.msg_id,book_id=book_id.book_id).first()
         if updateBCSB:
@@ -2385,6 +2658,25 @@ def addNewSubject():
 def addNewBook():
     bookName = request.args.get('book')
     bookLink = request.args.get('bookLink')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    bookName = bookName.strip()
+    for x in bookName.lower(): 
+        if x in punctuations: 
+            bookName = bookName.replace(x, "") 
+            print(bookName)
+        else:
+            break
+    if bookName==None or bookName=='':
+        return "NA"
+    bookName = bookName.strip()
+    bookLink = bookLink.strip()
+    for x in bookLink.lower(): 
+        if x in punctuations: 
+            bookLink = bookLink.replace(x, "") 
+            print(bookLink)
+        else:
+            break
+    bookLink = bookLink.strip()
     book = bookName.title()
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
@@ -2414,7 +2706,22 @@ def checkForChapter():
     subject = request.args.get('subject')
     chapterNum = request.args.get('chapter_num')
     bookId = request.args.get('bookId')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    for x in chapterNum: 
+        if x in punctuations: 
+            chapterNum = chapterNum.replace(x, "") 
+            print(chapterNum)
+            return "NA"
+        else:
+            break
     chapterName = request.args.get('chapter_name')
+    for x in chapterName.lower(): 
+        if x in punctuations: 
+            chapterName = chapterName.replace(x, "") 
+            print(chapterName)
+            return "NA"
+        else:
+            break
     subject_id= MessageDetails.query.filter_by(description=subject).first()
     print('Book Id:'+str(bookId))
     book = BookDetails.query.filter_by(book_id=bookId).first()
@@ -2485,8 +2792,18 @@ def checkForBook():
     book = book.title()
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    bookName = book.strip()
+    for x in bookName.lower(): 
+        if x in punctuations: 
+            bookName = bookName.replace(x, "") 
+            print(bookName)
+        else:
+            break
+    if bookName==None or bookName=='':
+        return "NA"
     subject_id = MessageDetails.query.filter_by(category='Subject',description=subject).first()
-    checkBook = BookDetails.query.filter_by(book_name=book,class_val=class_val,subject_id=subject_id.msg_id).first()
+    checkBook = BookDetails.query.filter_by(book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
     if checkBook:
         return (book)
     else:
@@ -2512,10 +2829,36 @@ def checkforClassSection():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     print('inside checkforClassSection')
     print(sections)
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    class_val = class_val.strip()
+    print('before remove punc class:'+str(class_val))
+    if class_val==None or class_val=='':
+        print('if clas_val is none')
+        return "NB"
+    
+    for x in class_val: 
+        if x in punctuations: 
+            class_val = class_val.replace(x, "") 
+            print('after remove punc class:'+str(class_val))
+            return "NA"
+        else:
+            break
     for section in sections:
         # class_section = class_section.split(':')
         # class_val = class_section[0]
         # section = class_section[1]
+        punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+        section = section.strip()
+        for x in section.lower(): 
+            if x in punctuations: 
+                section = section.replace(x, "") 
+                print(section)
+                return "NA"
+            else:
+                break
+        if section==None or section=='':
+            print('if section is none')
+            return "NB"
         print('class_val:'+class_val)
         print('section:'+section.upper())
         checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
@@ -2533,7 +2876,7 @@ def addNewTopic():
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
     chapter_num = request.args.get('chapter_num')
-    
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
@@ -2545,6 +2888,15 @@ def addNewTopic():
     print('Book ID:'+str(bookId.book_id))
     for topic in topics:
         print(topic)
+        topic = topic.strip()
+        for x in topic: 
+            if x in punctuations: 
+                topic = topic.replace(x, "") 
+                print(topic)
+            else:
+                break
+        topic = topic.strip()
+        topic = topic.capitalize()
         if bookId:
             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id,teacher_id=teacher_id.teacher_id)
         db.session.add(insertTopic)
@@ -2564,12 +2916,28 @@ def addNewChapter():
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
+    chapter = chapter.strip()
+    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+    for x in chapter.lower(): 
+        if x in punctuations: 
+            chapter = chapter.replace(x, "") 
+            print(chapter)
+        else:
+            break
+    chapter = chapter.strip()
     chapter = chapter.capitalize() 
     chapter_num = request.args.get('chapter_num')
-    
+    chapter_num = chapter_num.strip()
+    for x in chapter_num: 
+        if x in punctuations: 
+            chapter_num = chapter_num.replace(x, "") 
+            print(chapter_num)
+        else:
+            break
+    chapter_num = chapter_num.strip()
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     # bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"'"
     # bookId = db.session.execute(text(bookId)).first()
@@ -2582,6 +2950,15 @@ def addNewChapter():
     maxChapterNum = int(maxChapterNum[0]) + 1
     for topic in topics:
         print(topic)
+        topic = topic.strip()
+        for x in topic: 
+            if x in punctuations: 
+                topic = topic.replace(x, "") 
+                print(topic)
+            else:
+                break
+        topic = topic.strip()
+        topic = topic.capitalize()
         if chapter_num:
             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
         else:
@@ -2592,8 +2969,9 @@ def addNewChapter():
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
         else:
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id).first()
-        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-        db.session.add(insertTopicTracker)
+        for class_sec_id in class_sec_ids:
+            insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(insertTopicTracker)
         db.session.commit()
     return ("Add new Chapter")
 
@@ -2718,11 +3096,12 @@ def syllabusBooks():
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
-        print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
+        print(str(book_id.book_id)+':'+str(val.book_name))
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
         return jsonify([bookArray])  
@@ -2741,17 +3120,19 @@ def fetchRemBooks():
     distinctBooks = "select distinct book_name from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and "
     distinctBooks = distinctBooks + "book_name not in (select distinct book_name from book_details bd inner join board_class_subject_books bcsb on bd.book_id = bcsb.book_id "
     distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"')"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     distinctBooksInBCSB = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooksInBCSB = distinctBooksInBCSB + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y' order by bd.book_name"
     distinctBooksInBCSB = db.session.execute(text(distinctBooksInBCSB)).fetchall()
+    print(distinctBooksInBCSB)
     bookArray=[]
     for val in distinctBooks:
         print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     for value in distinctBooksInBCSB:
-        book_id = BookDetails.query.filter_by(book_name=value.book_name).first()
+        book_id = BookDetails.query.filter_by(book_name=value.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
         bookArray.append(str(book_id.book_id)+':'+str(value.book_name))
     if bookArray:
         return jsonify([bookArray])
@@ -2846,6 +3227,7 @@ def fetchRemChapters():
                 if len(queryChapters)>0:
                     print('if queryChapters is not null')
                     num = "/"+str(num)
+                    chapter = chapter + "/"
                 else:
                     chapter = chapter + "/"
                     print(chapter)
@@ -2858,7 +3240,8 @@ def fetchRemChapters():
                 print(chapter)
             i=i+1
         else:
-            num = "/"+str(num)
+            if len(queryChapters)>0:
+                num = "/"+str(num)
         print(chapter)
         chapterArray.append(str(num)+":"+str(chapter))
     for ch in chapterArray:
@@ -2878,11 +3261,12 @@ def fetchBooks():
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
         print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
         return jsonify([bookArray])
@@ -3066,6 +3450,8 @@ def chapterTopic():
 @app.route('/fetchChapters',methods=['GET','POST'])
 def fetchChapters():
     book_id=request.args.get('bookId')
+    print('inside fetchChapters')
+    print('Book Id:'+str(book_id))
     class_val=request.args.get('class_val')
     # board_id=request.args.get('board_id')
     subject=request.args.get('subject')
@@ -3450,8 +3836,11 @@ def testBuilder():
     form.chapter_num.choices= ''
     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    test_papers = MessageDetails.query.filter_by(category='Test type').all()
     # print(request.form['class_val'])
     # print(request.form['subject_id'])
+    available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
+    available_class = db.session.execute(text(available_class)).fetchall()
     if request.method=='POST':
         if request.form['test_date']=='':
             # flash('Select Date')
@@ -3468,7 +3857,96 @@ def testBuilder():
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('testBuilder.html',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
-    return render_template('testBuilder.html',form=form,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+    return render_template('testBuilder.html',form=form,available_class=available_class,test_papers=test_papers,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+
+@app.route('/filterQuestionsfromTopic',methods=['GET','POST'])
+def filterQuestionsfromTopic():
+    topics = request.get_json()
+    for topic in topics:
+        print('topic:'+str(topic))
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    test_type = request.args.get('test_type')
+    print('Class feedback:'+str(test_type))
+    questions = []
+    if topics:
+        for topic in topics:
+            if test_type == 'Class Feedback':
+                if class_val!=None:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic,question_type='MCQ1').all()
+                else:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic,question_type='MCQ1').all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
+            else:
+                if class_val!=None:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).all()
+                else:
+                    if subject_id!=None:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).all() 
+            if questionList:  
+                questions.append(questionList)
+    else:
+        if test_type == 'Class Feedback':
+            if class_val!=None:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',question_type='MCQ1').all()
+            else:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,question_type='MCQ1').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',question_type='MCQ1').all()
+        else:
+            if class_val!=None:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
+            else:
+                if subject_id!=None:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(archive_status='N').all() 
+        return render_template('testBuilderQuestions.html',questions=questionList)
+    if len(questions)==0:
+        print('returning 1')
+        return jsonify(['1']) 
+    else:
+        return render_template('testBuilderQuestions.html',questions=questions,flagTopic = 'true')
+
+
+@app.route('/fetchRequiredQues',methods=['GET','POST'])
+def fetchRequiredQues():
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    
+    if class_val!=None:
+        if subject_id!=None:
+            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
+        else:
+            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
+    else:
+        if subject_id!=None:
+            questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
+        else:
+            questionList = QuestionDetails.query.filter_by(archive_status='N').all()
+    if len(questionList)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        print('returning template'+ str(questionList))
+        return render_template('testBuilderQuestions.html',questions=questionList)
 
 @app.route('/testBuilderQuestions',methods=['GET','POST'])  
 def testBuilderQuestions():
@@ -3487,16 +3965,28 @@ def testBuilderQuestions():
 
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
-    print('Inside Test builder file upload Test Type value:'+str(session.get('test_type_val',None)))
+    class_val = request.args.get('class_val')
+    test_type = request.args.get('test_type')
+    subject_id = request.args.get('subject_id')
+    subject_name = MessageDetails.query.filter_by(msg_id=subject_id).first()
+    date = request.args.get('date')
+    print('class_val:'+str(class_val))
+    print('test_type:'+str(test_type))
+    print('subject_id:'+str(subject_id))
+    print('Date:'+str(date))
+    print('Inside Test builder file upload Test Type value:'+str(test_type))
     #question_list=request.get_json()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
     data=request.get_json()
     question_list=data[0]
     count_marks=data[1]
     document = Document()
+    print('Date')
+    print(date)
     document.add_heading(schoolNameVal(), 0)
-    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
-    document.add_heading("Subject : "+session.get('sub_name',None),2)
+    document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(date) , 1)
+    document.add_heading("Subject : "+str(subject_name.description),2)
     document.add_heading("Total Marks : "+str(count_marks),3)
     p = document.add_paragraph()
     #For every selected question add the question description
@@ -3523,7 +4013,7 @@ def testBuilderFileUpload():
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
     #naming file here
-    file_name=str(teacher_id.school_id)+str(session.get('class_val',"0"))+str(session.get('sub_name',"0"))+str(session.get('test_type_val',"0"))+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+    file_name=str(teacher_id.school_id)+str(class_val)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
     file_name = file_name.replace(" ", "")
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
@@ -3537,9 +4027,9 @@ def testBuilderFileUpload():
     ###### Inserting record in the Test Detail table
     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
 
-    testDetailsUpd = TestDetails(test_type=session.get('test_type_val',None), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        board_id='1001', subject_id=int(session.get('sub_id',None)),class_val=session.get('class_val',"0"),date_of_creation=datetime.now(),
-        date_of_test=str(session.get('date',None)), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+    testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
+        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.now(),
+        date_of_test=str(date), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
     db.session.add(testDetailsUpd)
     db.session.commit()
 
@@ -3666,6 +4156,54 @@ def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
     return render_template('studentfeedbackreporttemp.html',student_name=student_name)
 
+
+@app.route('/sendComm',methods=["GET","POST"])
+def sendComm():
+    if request.method=="POST":
+        commType = request.form.get('commType')
+        message = request.form.get('message')
+        class_sec_id = request.form.get('class_sec_id')
+        if class_sec_id !=None and class_sec_id !="":
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            #insert into communication detail table
+            commDataAdd=CommunicationDetail(message = message,status=231 , school_id=teacherData.school_id,             
+            teacher_id=teacherData.teacher_id,last_modified_date =datetime.today())
+            db.session.add(commDataAdd)
+            #db.session.flush()
+            db.session.commit() 
+            getStudNumQuery = "select student_id, phone from student_profile sp where class_sec_id ="+ str(class_sec_id)            
+            studentPhones = db.session.execute(getStudNumQuery).fetchall()
+            phoneList =[]
+            for phoneRow in studentPhones:
+                if phoneRow.phone!=None and phoneRow.phone!='':
+                    phoneList.append(phoneRow.phone)
+            if studentPhones!=None:
+                if commType=='sms':
+                    apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+                    apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+                    apiPath = apiPath + "contacts="+str(phoneList).replace('[','').replace(']','').replace('\'','').replace(' ','')+"&senderid=GLOBAL&"
+                    apiPath = apiPath + "msg="+ quote(message)
+                    print(apiPath)
+                    ##Sending message here
+                    try:
+                        r = requests.post(apiPath)                    
+                        returnData = str(r.text)
+                        print(returnData)
+                        if "SMS-SHOOT-ID" in returnData:
+                            for val in studentPhones:
+                                commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                                db.session.add(commTransAdd)
+                            commDataAdd.status=232
+                            db.session.commit()                                        
+                            return jsonify(['0'])
+                        else:
+                            return jsonify(['1'])                    
+                    except:
+                        return jsonify(['1'])
+                    ##Message sent                    
+    return jsonify(['1'])
+
+
 @app.route('/class')
 @login_required
 def classCon(): 
@@ -3680,7 +4218,7 @@ def classCon():
         classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
         count = 0
         for section in classSections:
-            print("Class Section:"+section.section)
+            #print("Class Section:"+section.section)
             #this section is to load the page for the first class section if no query value has been provided
             if count==0:
                 getClassVal = section.class_val
@@ -3710,16 +4248,27 @@ def classCon():
         topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
         topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
         topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
-        print('this is the number of topicRows' + str(len(topicRows)))
+        #print('this is the number of topicRows' + str(len(topicRows)))
 
-        courseDetailQuery = "select t1.*,  t2.description as subject from topic_detail t1, message_detail t2 "
-        courseDetailQuery = courseDetailQuery + "where t1.subject_id=t2.msg_id "
-        courseDetailQuery = courseDetailQuery + "and class_val= '" + str(qclass_val)+ "'"
-        courseDetails= db.session.execute(text(courseDetailQuery)).fetchall()        
-        #endOfQueries  
-        #db.session.execute(text('call sp_performance_detail_load_feedback()'))
-        db.session.commit()      
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections, qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,topicRows=topicRows, courseDetails=courseDetails,user_type_val=str(current_user.user_type))
+        ##Section for login info
+        loginDataQuery = "select *from fn_student_last_login("+str(selectedClassSection.class_sec_id)+")"
+        loginData = db.session.execute(loginDataQuery).fetchall()
+        ##
+        
+        #Summary query
+        summaryQuery = "with perfCTE as(select round(avg(student_score ),2) as avgClassPerfomance "
+        summaryQuery = summaryQuery + " from performance_detail pd where class_sec_id ="+ str(selectedClassSection.class_sec_id)
+        summaryQuery = summaryQuery + "), studCountCTE as (select count(student_id) studcount from student_profile "
+        summaryQuery = summaryQuery + " sp where class_sec_id =" + str(selectedClassSection.class_sec_id) 
+        summaryQuery = summaryQuery + ") select t1.avgclassperfomance as avgclassperfomance, t2.studcount as studcount "
+        summaryQuery = summaryQuery +" from perfCTE t1, studCountCTE t2"
+        #print(summaryQuery)
+        summaryData = db.session.execute(text(summaryQuery)).first()
+        # End of query section 
+        
+        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
+            qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
+            topicRows=topicRows, user_type_val=str(current_user.user_type), loginData=loginData)
     else:
         return redirect(url_for('login'))    
 
@@ -3783,6 +4332,111 @@ def mobQuestionLoader():
         return render_template('qrSessionScanner.html')
 
 
+
+
+@app.route('/startPracticeTest', methods=['GET', 'POST'])
+def startPracticeTest():
+    #topics = request.get_json()
+    #for topic in topics:
+    
+    topics = request.args.getlist('topics')
+    print('topic:'+str(topics))
+    topicsList = str(topics).replace('[','').replace(']','').replace('\'','')
+    difficulty = request.args.get('difficulty')    
+    qcount = request.args.get('qcount')
+    subject_id = request.args.get('subject_id')
+    class_val = request.args.get('class_val')
+    print('difficulty:'+str(difficulty))
+    print('qcount:'+str(qcount))
+    print('subject_id:'+str(subject_id))
+    print('class_val:'+str(class_val))
+    #subject_id
+    #board_id = request.args.get('board_id')
+    #topicList = request.form.getlist('topicList')adsfsdfasdf
+
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    else:
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
+    classSecData = ClassSection.query.filter_by(school_id=studentData.school_id, class_val=str(class_val)).first()
+    #Collection Questions
+    questions = []
+    total_marks = 0
+    questionIDList = []
+    if topics:
+        #for topic in topics:
+            #questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
+        questionListQuery = "select *from question_details where archive_status='N' and question_type='MCQ1' and topic_id in (" + str(topicsList) + ")"
+        questionListQuery = questionListQuery + " order by random() " #limit " +  str(qcount)
+        questionList = db.session.execute(text(questionListQuery)).fetchall()
+        if questionList:  
+            for q in questionList:
+                if len(questions)< int(qcount):
+                    questions.append(q)   
+    for val in questions:        
+        print(str(val))
+        total_marks = total_marks + val.suggested_weightage
+        questionIDList.append(val.question_id)
+    ##Create test
+    testDetailsAdd = TestDetails(test_type='238', total_marks=str(total_marks),last_modified_date= datetime.today(),
+        board_id=str(schoolData.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.today(),
+        date_of_test=str(datetime.today()), school_id=studentData.school_id)        
+    db.session.add(testDetailsAdd)
+    if current_user.is_anonymous==False:
+        studentData.points= int(studentData.points) + 1
+    db.session.commit()
+    print('test_id:'+str(testDetailsAdd.test_id))
+    print('Data feed to test details complete')
+
+    ##### This section to insert values into test questions table #####        
+    for questionVal in questions:
+        testQuestionInsert= TestQuestions(test_id=testDetailsAdd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now())
+        db.session.add(testQuestionInsert)
+    db.session.commit()
+    
+    print('Data feed to test questions complete')
+    ##Create response session ID
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    #if current_user.is_anonymous:
+    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(classSecData.class_sec_id).strip()
+    #else:
+    #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+    print('resp session id:'+str(responseSessionID))
+    print('Response ID generated')
+    #print("This is the value of anon user before setup: " + session['anonUser'])
+    #if session['anonUser']:
+    #    print('###########session is true')
+    #    print(session['anonUser'])
+    #else:
+    #    print('###########session is false')
+    #    print(session['anonUser'])
+    if current_user.is_anonymous:
+        if session.get('anonUser'):
+            print('the anon user is true')
+            flash('Please login to start any further tests')
+            return jsonify(['2']) 
+        else:
+            session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
+            print("This is the value of anon user: " + session['anonUser'])            
+    else:
+        print('last segment. anon user is false')
+        session['anonUser']==False
+
+    ##Create session
+    if len(questions) >0:
+        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
+            class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
+        db.session.add(sessionDetailRowInsert)
+        db.session.commit()        
+
+        print('Data feed to session detail completed')
+        ## Start test
+        return jsonify([responseSessionID])    
+    else:
+        return jsonify(['1'])    
+
+
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
@@ -3803,8 +4457,9 @@ def feedbackCollectionStudDev():
             section=classSectionRow.section,questionListSize=questionListSize,
             resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
-        flash('This is not a valid id')
-        return render_template('qrSessionScannerStudent.html',disconn=1)
+        flash('This is not a valid id or there are no question in this test')
+        return redirect('index')
+        #return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
 @app.route('/updateQuestion')
@@ -4046,7 +4701,7 @@ def rename(dataframe):
 def leaderBoard():
     form = LeaderBoardQueryForm()
     qclass_val = request.args.get("class_val")
-    print('class:'+str(qclass_val))
+    #print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
@@ -4061,8 +4716,8 @@ def leaderBoard():
         
 
         leaderBoardData = leaderboardContent(qclass_val)
-        print('Type')
-        print(type(leaderBoardData))
+        #print('Type')
+        #print(type(leaderBoardData))
         column_names = ["a", "b", "c"]
         datafr = pd.DataFrame(columns = column_names)
         if type(leaderBoardData)!=type(datafr):
@@ -4084,9 +4739,9 @@ def leaderBoard():
             
             d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
             df3 = leaderBoard.drop(['studentid'],axis=1)
-            print('DF3:')
-            print(df3)
-            print('print new dataframe')
+            #print('DF3:')
+            #print(df3)
+            #print('print new dataframe')
             
             df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
             df1.rename(columns = {'student_name':'Student'}, inplace = True)
@@ -4094,12 +4749,12 @@ def leaderBoard():
             df1.rename(columns = {'section':'Section'}, inplace = True)
             df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
             df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-            print(df1)
-            print('Excluding columns')
-            print(df2)
-            # rename(df2)
-            print('LeaderBoard Data:')
-            print(leaderBoardData)
+            #print(df1)
+            #print('Excluding columns')
+            #print(df2)
+            ## rename(df2)
+            #print('LeaderBoard Data:')
+            #print(leaderBoardData)
             data = []
             
 
@@ -4110,16 +4765,16 @@ def leaderBoard():
             columnNames = ''
             col = ''
             subColumn = ''
-            print('Size of dataframe:'+str(len(subjHeader)))
+            #print('Size of dataframe:'+str(len(subjHeader)))
             for subhead in subjHeader:
                 subColumn = subhead
-                print('Header with Subject Name')
-                print(subhead)
+                #print('Header with Subject Name')
+                #print(subhead)
             for h in header:
                 columnNames = h
             for headAll in headerAll: 
                 colAll = headAll
-            print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+            #print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
             n= int(len(subColumn)/2)
             ndf = df2.drop(['studentid'],axis=1)
             newDF = ndf.iloc[:,0:n]
@@ -4127,10 +4782,10 @@ def leaderBoard():
             
             df5 = pd.concat([newDF, new1DF], axis=1)
             DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
-            print('New DF')
-            print(DFW)
+            #print('New DF')
+            #print(DFW)
             dat = pd.concat([d,DFW], axis=1)
-            print(dat)
+            #print(dat)
             subHeader = ''
             for row in dat.values.tolist():
                 data.append(row)
@@ -4142,12 +4797,12 @@ def leaderBoard():
             for column in subHead:
                 col = column
             subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
-            print(subject)
+            #print(subject)
             subj = []
 
-            for d in data:
-                print('In data Student id')
-                print(data[0])
+            #for d in data:
+            #    print('In data Student id')
+            #    print(data[0])
             
             for sub in subject:
                 li = []
@@ -4155,25 +4810,23 @@ def leaderBoard():
                 for col in subColumn:
                     if i!=len(subColumn)/2:
                         c = col.split('_')
-                        print(c[0])
-                        print(sub.msg_id)
+                        #print(c[0])
+                        #print(sub.msg_id)
                         if(c[0]==str(sub.msg_id)):
-                            print(c[0])
-                            print(sub.msg_id)
-                            
-                            
+                            #print(c[0])
+                            #print(sub.msg_id)                                                        
                             li.append(sub.msg_id)
                             li.append(sub.description)
                             subj.append(li)
                             break
                     i=i+1
                     
-            print('List with Subjects')
-            print(subj)
-            for s in subj:
-                print(s[0])
-                print(s[1])
-            print('Inside subjects')
+            #print('List with Subjects')
+            #print(subj)
+            #for s in subj:
+            #    print(s[0])
+            #    print(s[1])
+            #print('Inside subjects')
             classSecCheckVal=classSecCheck()
             return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
@@ -4181,7 +4834,7 @@ def leaderBoard():
     return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
 
-@app.route('/classDelivery')
+@app.route('/classDelivery',methods=['GET','POST'])
 @login_required
 def classDelivery():
     form = ContentManager()
@@ -4201,30 +4854,7 @@ def classDelivery():
     qsubject_id=request.args.get('subject_id')
     qclass_sec_id = request.args.get('class_sec_id')
     retake = request.args.get('retake')
-    #new changes under liveClass
-    qconf_link = request.args.get('conf_link')
-    qduration = request.args.get('duration')
-    #if qduration!=None and qduration!='':
-    #    end_time = datetime.now() + timedelta(hours=float(qduration))
-    #else:
-    end_time = datetime.now() + timedelta(hours=1)
-    #liveClassCheck = LiveClass.query.filter(is_archived='N', class_sec_id=qclass_sec_id, subject_id = qsubject_id, status='Active', end_time =datetime.now()).first()
-
-    liveClassQuery = "select count(*) as row_count from live_class where is_archived='N' and class_sec_id='"+str(qclass_sec_id)+"' and subject_id='"+str(qsubject_id)+"' " 
-    liveClassQuery = liveClassQuery + "and status='Active' and end_time::time>CURRENT_TIME"
-    liveClassCheck = db.session.execute(text(liveClassQuery)).first()
-    print('#################'+str(liveClassCheck))
-
-    if liveClassCheck.row_count==0:
-        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
-            start_time = datetime.today(), end_time = end_time, status = "Active", teacher_id=teacher.teacher_id, 
-            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
-            is_archived = 'N',last_modified_date = dt.datetime.now())        
-        db.session.add(liveClassData)
-        db.session.commit()  
-    #end of liveClass changes
-
-    #print('this is retake val: '+str(retake))
+  
     contentData = ContentDetail.query.filter_by(topic_id=int(qtopic_id),archive_status='N').all()
     subject_name = MessageDetails.query.filter_by(msg_id=qsubject_id).all()
     subName = ''
@@ -4261,7 +4891,44 @@ def classDelivery():
     topicTrackerQuery = topicTrackerQuery + " and t2.class_sec_id = '" + str(qclass_sec_id) + "'"
     topicTrackerQuery = topicTrackerQuery + " and t1.subject_id= '" + str(qsubject_id ) + "' order by chapter_num"
     topicTrackerDetails= db.session.execute(text(topicTrackerQuery)).fetchall()
+    # new changes for live classes
+    if request.method=='POST':
+        print('post method')
+        # print(request.form('duration'))
+        # print(request.form('conferenceLink'))
+        qconf_link = request.args.get('conf_link')
+        qduration = request.args.get('duration')
+        print(qconf_link)
+        print(qduration)
+        if qduration!=None or qduration!='':
+            print('if duration is not empty')
+            print(int(qduration))
+            end_time = datetime.now() + timedelta(hours=int(qduration))
+            print(end_time)
+        else:
+            print('if duration is empty') 
+            end_time = datetime.now() + timedelta(hours=1)
+        print('Start time')
         
+        format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+        now_utc = datetime.now(timezone('UTC'))
+        print(now_utc.strftime(format))
+    # Convert to local time zone
+        now_local = now_utc.astimezone(get_localzone())
+        print(now_local.strftime(format))
+        end_utc = end_time.now(timezone('UTC'))
+        end_local = end_time.astimezone(get_localzone())
+        print(end_local.strftime(format))
+        print('end time')
+        
+        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+            start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+            is_archived = 'N',last_modified_date = now_local.strftime(format))        
+        db.session.add(liveClassData)
+        db.session.commit() 
+        return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
     return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
 
 
@@ -4284,10 +4951,9 @@ def contentManager():
     formContent.topics.choices = ''    
     formContent.content_type.choices = ''    
     form=QuestionBankQueryForm() # resusing form used in question bank 
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= ''
-    form.chapter_num.choices= ''
-    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+    available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
+    available_class = db.session.execute(text(available_class)).fetchall()
+ 
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
@@ -4301,10 +4967,8 @@ def contentManager():
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         else:
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    if user_type_val==134:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    else:
-        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    
+    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,studentDetails=studentDetails,available_class=available_class)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -4369,6 +5033,161 @@ def contentDetails():
             print("Content List"+str(c.content_name))    
         
         return render_template('_contentDetails.html',contents=contentDetail)
+
+@app.route('/filterContentfromTopic',methods=['GET','POST'])
+def filterContentfromTopic():
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_value = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    print(class_value)
+    print(subject_id)
+    topic_list = request.get_json()
+    for topic in topic_list:
+        print(topic)
+        if topic:
+            print('topic exist')
+        else:
+            print('topic not exist')
+    # contentList = "select *from content_detail cd where is_private = 'N' "
+    # contentList = contentList + " and archive_status = 'N' "
+    content = ''
+    contents = []
+    l=1
+    for topic in topic_list:
+        if class_value != None:
+            if subject_id!=None:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+            else:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+        else:
+            if subject_id!=None:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.subject_id= '"+str(subject_id)+"' and cd.topic_id='"+str(topic)+"' ) order by content_id desc"
+            else:
+                content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.topic_id='"+str(topic)+"' "
+                content = content + "union "
+                content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+                content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+                content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+                content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.topic_id='"+str(topic)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.topic_id='"+str(topic)+"') order by content_id desc limit 10"
+        contentDetail = db.session.execute(text(content)).fetchall()
+        if contentDetail:
+            contents.append(contentDetail)
+
+    # if contents:
+    #     contentDetail = db.session.execute(text(content)).fetchall()
+    # else:
+    #     return jsonify(["NS"])
+    print('length of list:'+str(len(contentDetail)))
+    if len(contents)==0:
+        print("No data present in the content manager details")
+        return jsonify(["NA"])
+    else:
+        print(len(contents))
+        # for c in contentDetail:
+        #     print("Content List"+str(c.content_name)) 
+        flag = 'true'
+        flagTopic = 'true'
+        return render_template('_contentDetails.html',contents=contents,flag=flag,flagTopic=flagTopic)
+
+@app.route('/recentContentDetails',methods=['GET','POST'])
+def recentContentDetails():
+    teacher = ''
+    if current_user.user_type==71 or current_user.user_type==135 :
+        teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    elif current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    class_value = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    print(class_value)
+    print(subject_id)
+    # contentList = "select *from content_detail cd where is_private = 'N' "
+    # contentList = contentList + " and archive_status = 'N' "
+
+    if class_value != None:
+        if subject_id!=None:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' and cd.subject_id='"+str(subject_id)+"' ) order by content_id desc"
+        else:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(class_value)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.class_val='"+str(class_value)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.class_val='"+str(class_value)+"' ) order by content_id desc"
+    else:
+        if subject_id!=None:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.subject_id= '"+str(subject_id)+"' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and cd.subject_id= '"+str(subject_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N' and cd.subject_id= '"+str(subject_id)+"' ) order by content_id desc"
+        else:
+            content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' "
+            content = content + "union "
+            content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+            content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+            content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+            content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N') order by content_id desc limit 10"
+
+    contentDetail = db.session.execute(text(content)).fetchall()
+    
+    if len(contentDetail)==0:
+        print("No data present in the content manager details")
+        return jsonify(["NA"])
+    else:
+        print(len(contentDetail))
+        for c in contentDetail:
+            print("Content List"+str(c.content_name)) 
+        flag = 'true'
+        return render_template('_contentDetails.html',contents=contentDetail,flag=flag)
+    # if contentList:
+    #     return render_template('_contentManagerDetails.html',contents=contentList)
+    # else:
+    #     return jsonify(["NA"])
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
@@ -4609,7 +5428,6 @@ def loadQuestion():
 
 # route for fetching next question and updating db for each response from student - tablet assessment process
 @app.route('/loadQuestionStud')
-@login_required
 def loadQuestionStud():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
@@ -4621,7 +5439,10 @@ def loadQuestionStud():
     last_q_id =  request.args.get('last_q_id')    
     print('Before String conversion:'+resp_session_id)
     print('This is the response session id in: ' + str(resp_session_id) )
-    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:        
+        studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    else:
+        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
@@ -4641,7 +5462,9 @@ def loadQuestionStud():
             ansCheck='Y'
         else:
             ansCheck='N'
+             
         print('Class:'+str(studentRow.class_sec_id))
+
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
             class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
@@ -4674,20 +5497,16 @@ def loadQuestionStud():
         print('Marks Scored Query:'+marksScoredQuery)
         print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(totalMarksVal.total_marks))
-        marksPercentage=0
-        marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        
+        try:
+            marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        except:
+            marksPercentage=0        
+        
         print('Marks Percentage:'+str(marksPercentage))
-        # try:
-        #     print('Inside try')
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     print(marksPercentage)
-        # except:
-        #     marksPercentage=0
-
+        if studentRow.points!=None and studentRow.points!="":
+            studentRow.points = int(studentRow.points) + 1
+            db.session.commit()
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
@@ -5040,7 +5859,8 @@ def studentPerformanceGraph():
       
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-    
+    fromPractice = request.args.get('fromPractice')
+    print('##### this is the value of fromPractice: '+ str(fromPractice))
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
@@ -5052,13 +5872,19 @@ def studentPerformanceGraph():
     
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     fromTestPerformance=0
-          
-    studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
-    studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
-    studPerformanceQuery = studPerformanceQuery + "inner join "
-    studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
-    studPerformanceQuery = studPerformanceQuery + "and "
-    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"
+    
+    if fromPractice=='1':
+        print('######using newer query')
+        studPerformanceQuery = "select test_date as date, CAST(perf_percentage AS INTEGER) as student_score, subject as description"
+        studPerformanceQuery = studPerformanceQuery + " from fn_student_performance_response_capture("+str(student_id)+") "
+    else:
+        print('#######using older query')
+        studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
+        studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
+        studPerformanceQuery = studPerformanceQuery + "inner join "
+        studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+        studPerformanceQuery = studPerformanceQuery + "and "
+        studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"            
     
 
     studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
@@ -5654,7 +6480,77 @@ def questionFile():
     # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
 
+@app.route('/addChapterTopics',methods=['GET','POST'])
+def addChapterTopics():
+    class_val = request.args.get('class_val')
+    subject_id = request.args.get('subject_id')
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+        school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
 
+    query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
+    query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
+    query = query + "inner join book_details bd on td.book_id = bd.book_id "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(school_id)+"' order by td.chapter_num "
+    chapters = db.session.execute(text(query)).fetchall()
+    chaptersArray = []
+    i=1
+    for chapter in chapters:
+        if len(chapters)>1:
+            book = chapter.book_name
+            ch = chapter.topic_id
+            if i==1:
+                ch = str(ch)+"/"
+            elif i==len(chapters):
+                book = "/"+str(book)
+            else:
+                book = "/"+str(book)
+                ch = str(ch)+"/"
+            i=i+1
+        chaptersArray.append(str(book)+"@"+str(chapter.topic_name)+"@"+str(chapter.chapter_name)+"@"+str(ch))
+    
+    if chaptersArray:
+        return jsonify([chaptersArray])
+    else:
+        return ""
+
+
+@app.route('/addClass',methods=['GET','POST'])
+def addClass():
+    class_val = request.args.get('class_val')
+
+    ##########
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+        school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
+    ##########
+    #teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
+    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),school_id=school_id).all()
+    subjectArray = []
+    for subject in subjects:
+        subject_name = "select description as subject_name from message_detail where msg_id='"+str(subject.subject_id)+"'"
+        subject_name = db.session.execute(text(subject_name)).first()
+        subjectArray.append(str(subject.subject_id)+":"+str(subject_name.subject_name))
+
+    if subjectArray:
+        return jsonify([subjectArray])
+    else:
+        return ""
 
 @app.route('/topperList')
 def topperList():
@@ -5707,7 +6603,7 @@ def subject_list(class_val):
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        subject_id=Topic.query.with_entities(Topic.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
+        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
         subject_name_list=[]
 
         for id in subject_id:
@@ -5833,7 +6729,8 @@ def indivStudentProfile():
     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
-    
+    print('Student Id')
+    print(studentProfileQuery)
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
@@ -5875,10 +6772,17 @@ def indivStudentProfile():
     x = range(4)    
 
     #section for fetching surveys
-    surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
+    try:
+        surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
+    except:
+        surveyRows=[]
+        print('survey error')
 
     for n in x:               
-        optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+        if studentProfileRow!=None and studentProfileRow!="":
+            optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+        else:
+            optionURL=""
         qrArray.append(optionURL)
         #print(optionURL)
     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
@@ -6196,6 +7100,7 @@ def studentHomeWork():
         homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
         homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
         homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+        homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
         print(homeworkDetailQuery)
         homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
         print('student_id:'+str(student_id.student_id))
@@ -6207,7 +7112,11 @@ def studentHomeWork():
 def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacherRow = ''
+    if current_user.user_type==71:
+        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     count = 0
     for section in classSections:
@@ -6225,12 +7134,13 @@ def HomeWork():
     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
     homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+    homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
     print(homeworkDetailQuery)
     homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
+    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
 
 @app.route('/homeworkReview')
 @login_required
@@ -6241,22 +7151,31 @@ def homeworkReview():
     homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
     homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
     homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
-    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()
-    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).first()
+    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()    
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name)
+    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id,class_sec_id=homework_name.class_sec_id ).first()
+    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name,homework_id=homework_id)
 
 @app.route('/indivHomeworkReview',methods=['GET','POST'])
 @login_required
 def indivHomeworkReview():
-    homework_name = request.args.get('homework_name') 
+    homework_id = request.args.get('homework_id') 
     student_id = request.args.get('student_id')
-    homework_id = HomeWorkDetail.query.filter_by(homework_name=homework_name).first()
-    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
-    reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    #homework_id = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+    #reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
+    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark "
+    #from homework_questions hq left join student_homework_response shr "
+    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+    reviewData = reviewData + " from homework_detail hd inner join homework_questions hq on "
+    reviewData = reviewData + " hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+    reviewData = reviewData + " left join student_homework_response shr on "
+    reviewData = reviewData + " hq.sq_id =shr.sq_id and shr.student_id = " + str(student_id)
+    reviewData = reviewData + " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+    reviewData = reviewData + " where student_id ="+ str(student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id ) "
     #print(reviewData)
-    reviewData = db.session.execute(text(reviewData)).fetchall()
-    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,homework_name=homework_name,student_id=student_id)
+    reviewData = db.session.execute(text(reviewData)).fetchall()    
+    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,student_id=student_id)
 
 @app.route('/indivHomeworkDetail',methods=['GET','POST'])
 @login_required
@@ -6267,12 +7186,23 @@ def indivHomeWorkDetail():
     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
     #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
 
-    homeworkDataQQuery = " select hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
-    homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
-    homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
-    homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
-    homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
-    homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    #homeworkDataQQuery = " select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
+    #homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
+    #homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
+    #homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
+    #homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
+    #homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+    #homeworkDataQQuery = homeworkDataQQuery +  " and homework_response_id in "
+    #homeworkDataQQuery = homeworkDataQQuery +  " (select min(homework_response_id )from student_homework_response shr "
+    #homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) + " and homework_id ="+ str(homework_id) +" group by sq_id ) "
+    homeworkDataQQuery = "select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , shr.student_id, answer,teacher_remark "
+    homeworkDataQQuery = homeworkDataQQuery +  " from homework_detail hd inner join homework_questions hq "
+    homeworkDataQQuery = homeworkDataQQuery +  " on hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+    homeworkDataQQuery = homeworkDataQQuery +  " left join student_homework_response shr on "
+    homeworkDataQQuery = homeworkDataQQuery +  " hq.sq_id =shr.sq_id and shr.student_id =" + str(student_id.student_id)
+    homeworkDataQQuery = homeworkDataQQuery +  " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+    homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id )"
+
     print(homeworkDataQQuery)
     homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
     homeworkAttach = db.session.execute(text("select attachment from homework_detail where homework_id='"+str(homework_id)+"'")).first()
@@ -6304,9 +7234,16 @@ def addHomeworkAnswer():
     user_id = User.query.filter_by(id=current_user.id).first()
     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
     for i in range(len(sq_id_list)):
-        addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-            student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
-        db.session.add(addNewHomeWorkResponse)
+        checkStudentReponse = StudentHomeWorkResponse.query.filter_by(student_id=student_id.student_id,sq_id=sq_id_list[i]).first()
+        if checkStudentReponse==None or checkStudentReponse=="":
+            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+                student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
+            db.session.add(addNewHomeWorkResponse)
+            print("Not present")
+        else:
+            return jsonify(['1'])
+        #    checkStudentReponse.answer=answer_list[i]
+        #    print("Already present")
     db.session.commit()
     return jsonify(['0'])
 
@@ -6326,7 +7263,7 @@ def get_yt_video_id(url):
       Invalid:
         'youtu.be/watch?v=_lOT2p_FCvA',
     """
-    from urllib.parse import urlparse, parse_qs
+    
 
     if url.startswith(('youtu', 'www')):
         url = 'http://' + url
@@ -6697,7 +7634,7 @@ def teacherAllocation():
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     fetchTeacherNameQuery = "select distinct tp.teacher_name,tp.teacher_id from teacher_profile tp "
-    fetchTeacherNameQuery = fetchTeacherNameQuery + "inner join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
+    fetchTeacherNameQuery = fetchTeacherNameQuery + "left join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
     fetchTeacherNameQuery = fetchTeacherNameQuery + "where tp.school_id='"+str(teacher_id.school_id)+"'"
     print(fetchTeacherNameQuery)
     teacherNames = db.session.execute(text(fetchTeacherNameQuery)).fetchall()
