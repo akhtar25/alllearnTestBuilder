@@ -54,12 +54,9 @@ from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
 import calendar
-<<<<<<< HEAD
-=======
 from urllib.parse import quote,urlparse, parse_qs
 #from flask_material import Material
 
->>>>>>> master
 #app=Flask(__name__)
 app=FlaskAPI(__name__)
 #csp = {
