@@ -875,7 +875,6 @@ def feeStatusDetail():
     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
     print(qmonth+ ' '+qyear)
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #days in month
     daysInMonth = monthrange(int(qyear),int(qmonth))
     daysInMonth = int(daysInMonth[1])
