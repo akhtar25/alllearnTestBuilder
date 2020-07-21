@@ -5185,15 +5185,11 @@ def filterContentfromTopic():
 
 @app.route('/recentContentDetails',methods=['GET','POST'])
 def recentContentDetails():
-<<<<<<< HEAD
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-=======
     teacher = ''
     if current_user.user_type==71 or current_user.user_type==135 :
         teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     elif current_user.user_type==134:
         teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
->>>>>>> master
     class_value = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
     print(class_value)
