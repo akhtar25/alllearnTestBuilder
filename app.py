@@ -45,6 +45,7 @@ from sqlalchemy.inspection import inspect
 import hashlib
 from random import randint
 import string
+import random
 import requests
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
@@ -118,7 +119,7 @@ def before_request():
 def schoolNameVal():
     if current_user.is_authenticated:
         teacher_id = ''
-        if current_user.user_type==134:
+        if current_user.user_type==134 or current_user.user_type==234:
             teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()        
@@ -318,6 +319,130 @@ def classSecCheck():
             return 'N'            
         else:
             return 'Y'
+
+@app.route('/',methods=["GET","POST"])
+@app.route('/practiceTest',methods=["GET","POST"])
+def practiceTest():    
+    if request.method=="POST":
+        board = request.form.get('board')
+        class_val = request.form.get('class_val')
+        email = current_user.email     
+        #print("board:"+ str(board))
+        #print("class_val:" +str(class_val))
+        schoolRow = SchoolProfile.query.filter_by(school_name="AllLearn "+str(board)).first()
+        #print("school id:" +str(schoolRow.school_id))
+        classSectionRow = ClassSection.query.filter_by(school_id=schoolRow.school_id, class_val=str(class_val)).first()
+        #print("class sec id:"+ str(classSectionRow.class_sec_id))
+        checkStudTable= StudentProfile.query.filter_by(email=current_user.email).first()
+        if checkStudTable==None or checkStudTable=="":
+            studentDataAdd = StudentProfile(first_name=current_user.first_name,last_name=current_user.last_name,full_name=current_user.first_name +" " + current_user.last_name,
+                school_id=schoolRow.school_id,class_sec_id=classSectionRow.class_sec_id,
+                phone=current_user.phone,school_adm_number="prac_"+ str(current_user.id), user_id=current_user.id,
+                roll_number=000,last_modified_date=datetime.today(), email=current_user.email,points=10)
+            db.session.add(studentDataAdd)
+            
+            #updating the public.user table
+            current_user.user_type=234
+            current_user.access_status=145
+            current_user.school_id=schoolRow.school_id
+            current_user.last_modified_date=datetime.today()
+            db.session.commit() 
+        #try:
+        if session.get('anonUser'):
+            splitVals = str(session['anonUser']).split('_')
+            respSessionID = splitVals[1]
+            session['anonUser'] = False
+            print("Resp Session ID of older test: "+str(respSessionID))
+            ###Section to update the test results of anon user with the new student id in resp capture
+            respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+            respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
+            respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
+            print(str(respUPDQuery))
+            db.session.execute(text(respUPDQuery))
+                
+        #except:
+        #    print('error occurred. response cap not updated.')
+        #    pass
+        db.session.commit()        
+        print('New entry made into the student table')
+
+    if ("school.alllearn" in str(request.url)):
+            print('#######this is the request url: '+ str(request.url))
+            return redirect(url_for('index'))
+    if current_user.is_anonymous:            
+        studentProfile = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()  #staging anonymous username f        
+    else:
+        studentProfile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if studentProfile==None:
+        studentData=""      
+        testHistory=""  
+        perfRows=""
+        testCount = 0
+        leaderboardData = ""
+        class_val=""
+        questionsAnswered=0
+    else:        
+        studentDataQuery = "with temptable as "
+        studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
+        studentDataQuery = studentDataQuery + " select sum(suggested_weightage) as total_weightage, count(*) as num_of_questions  from question_details where question_id in "
+        studentDataQuery = studentDataQuery + " (select question_id from response_capture rc2 where student_id ="+ str(studentProfile.student_id)+") ) "
+        studentDataQuery = studentDataQuery + " select distinct sp.roll_number, sp.full_name, sp.student_id, "
+        studentDataQuery = studentDataQuery + " SUM(CASE WHEN rc.is_correct='Y' THEN qd.suggested_weightage ELSE 0 end) AS  points_scored , "
+        studentDataQuery = studentDataQuery + " total_marks_cte.total_weightage "
+        studentDataQuery = studentDataQuery + " from response_capture rc inner join student_profile sp on "
+        studentDataQuery = studentDataQuery + " rc.student_id=sp.student_id "
+        studentDataQuery = studentDataQuery + " inner join question_details qd on "
+        studentDataQuery = studentDataQuery + " qd.question_id=rc.question_id, total_marks_cte         "
+        studentDataQuery = studentDataQuery + " group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage ) "
+        studentDataQuery = studentDataQuery + " ,temp2 as (select count(distinct resp_session_id) as tests_taken "
+        studentDataQuery = studentDataQuery + " , student_id from response_capture group by student_id) "
+        studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
+        studentData = db.session.execute(text(studentDataQuery)).first()
+
+        #getting class_val for the student
+        classDataQuery = "select *from class_section cs where class_sec_id="+ str(studentProfile.class_sec_id)
+        classData = db.session.execute(classDataQuery).first()
+        class_val = classData.class_val
+
+        #performanceQuery = "select *from fn_leaderboard_responsecapture () where student_id='"+str(studentProfile.student_id)+ "'"
+        performanceQuery = "select *from fn_leaderboard_responsecapture() where student_id ='"+str(studentProfile.student_id)+"' order by class_val desc" # and class_val='"+str(class_val)+"'"
+        perfRows = db.session.execute(text(performanceQuery)).fetchall()
+
+        testCountQuery = "select sum(test_taken) as tests_taken from fn_leaderboard_ResponseCapture() where student_id='"+str(studentProfile.student_id)+ "'"
+        testCount = db.session.execute(text(testCountQuery)).first()
+
+        #section for test history query
+        testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(studentProfile.student_id)+")"
+        testHistory = db.session.execute(testHistoryQuery).fetchall()
+        ##end of test history query
+
+        #other recent test takers
+        #recentTestTakersQuery = "select *from fn_student_test_taken_details() order by test_taken_on desc limit 10"
+        #recentTestTakers = db.session.execute(recentTestTakersQuery).fetchall()        
+        #Questions answered
+        questionsAnsweredQuery = "select count(*) as qanswered from response_capture where student_id="+str(studentProfile.student_id)
+        questionsAnswered = db.session.execute(questionsAnsweredQuery).first()
+        #leaderboard data
+        leaderboardQuery = "SELECT student_id,first_name,SUBJECT,student_score,class_val"
+        leaderboardQuery = leaderboardQuery + " FROM fn_leaderboard_ResponseCapture() M "
+        leaderboardQuery = leaderboardQuery + " WHERE M.student_score = "
+        leaderboardQuery = leaderboardQuery + " (SELECT MAX(MM.student_score) FROM fn_leaderboard_ResponseCapture() MM where class_val='"+str(class_val)+"' GROUP BY "
+        leaderboardQuery = leaderboardQuery + " MM.SUBJECT having  MM.SUBJECT =M.subject)"
+        leaderboardQuery = leaderboardQuery + " order by student_score desc"
+        leaderboardData = db.session.execute(leaderboardQuery).fetchall()
+    if studentData!=None or studentData!="":
+        try:
+            avg_performance = round(((studentData.points_scored/studentData.total_weightage) *100),2)
+        except:
+            avg_performance=0
+    else:
+        avg_performance = 0
+    
+    
+    return render_template('/practiceTest.html',studentData=studentData, disconn=1,
+        studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
+        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered)
+
 
 @app.route('/normal')
 def normal():
@@ -583,22 +708,22 @@ def promoteStudent():
     studentListQuery = "select sp.student_id,sp.school_id ,full_name , section ,class_val ,section from student_profile sp inner join class_section cs on sp.class_sec_id =cs.class_sec_id where sp.school_id='"+str(teacher_id.school_id)+"'"
     studentList = db.session.execute(studentListQuery).fetchall()
     if request.method == 'POST':
-        print('Inside post request')    
+        #print('Inside post request')    
         flash('Student promoted successfully')
         classSecBefore = form.class_section1.data
         classSecAfter = form.class_section2.data
-        print('Class Section after')
-        print(classSecAfter)
+        #print('Class Section after')
+        #print(classSecAfter)
         resClassSection = classSecAfter.split("-")
         classAfter = resClassSection[0]
-        print(classAfter)
+        #print(classAfter)
         sectionAfter = resClassSection[1]
-        print(sectionAfter)
+        #print(sectionAfter)
         value = request.form.getlist('checkbox')
         for i in range(len(value)):
-            print(value[i])
+            #print(value[i])
             studentPromote = StudentProfile.query.filter_by(student_id=str(value[i])).first()
-            print(studentPromote.full_name)
+            #print(studentPromote.full_name)
             classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=str(classAfter),section=str(sectionAfter),school_id=str(teacher_id.school_id)).first()
             studentPromote.class_sec_id = classSection.class_sec_id
             db.session.commit()
@@ -624,13 +749,13 @@ def classRegistration():
     form = ClassRegisterForm()
     #if form.validate_on_submit():
     if request.method == 'POST':
-        print('passed validation')
+        #print('passed validation')
         class_val=request.form.getlist('class_val')
         class_section=request.form.getlist('section')
         student_count=request.form.getlist('student_count')
 
         for i in range(len(class_val)):
-            print('there is a range')
+            #print('there is a range')
             class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=teacherRow.school_id)
             db.session.add(class_data)
         
@@ -974,15 +1099,15 @@ def studentRegistration():
                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
                 studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
                 studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
-                print('Query:'+str(studProfile))
+                #print('Query:'+str(studProfile))
 
                 profileImg = db.session.execute(text(studProfile))
-                print(studentDetails)
-                if request.form['birthdate']:
-                    print('DOB:'+str(request.form['birthdate']))
-                print('Student id:'+str(student_id))
-                print('First Name:'+str(studentDetails.first_name))
-                print('Image url:'+str(request.form['profile_image']))
+                #print(studentDetails)
+                #if request.form['birthdate']:
+                    #print('DOB:'+str(request.form['birthdate']))
+                #print('Student id:'+str(student_id))
+                #print('First Name:'+str(studentDetails.first_name))
+                #print('Image url:'+str(request.form['profile_image']))
                 studentDetails.first_name=form.first_name.data
                 studentDetails.last_name=form.last_name.data
                 studentDetails.gender=gender.msg_id
@@ -1295,12 +1420,12 @@ def edit_profile():
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
 
-@app.route('/')
 @app.route('/index')
 @app.route('/dashboard')
 @login_required 
 def index():
     #print('Inside index')
+    #print("########This is the request url: "+str(request.url))
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
@@ -1336,6 +1461,9 @@ def index():
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     if user.user_type==135:
         return redirect(url_for('admin'))
+    if user.user_type==234:
+    #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
+        return redirect(url_for('practiceTest'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
@@ -1547,11 +1675,15 @@ def disconnectedAccount():
     userDetailRow=User.query.filter_by(username=current_user.username).first()
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
 
+    #added under the change for practice test module
+    boardRows = MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()
+    classRows = BoardClassSubject.query.with_entities(BoardClassSubject.class_val).distinct().order_by(BoardClassSubject.class_val.desc()).all()
+
     if userDetailRow.user_type==72:
         print('Inside Guardian condition')
         return redirect(url_for('guardianDashboard'))
     if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
-        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow)
+        return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow, boardRows=boardRows,classRows=classRows)
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
@@ -2054,7 +2186,7 @@ def user(username):
     if school_name_val ==None:
         print('did we reach here')
         return redirect(url_for('disconnectedAccount'))
-    else:
+    else:        
         schoolAdminRow = db.session.execute(text("select school_admin from school_profile where school_id ='"+ str(teacher.school_id)+"'")).fetchall()
         print(schoolAdminRow[0][0])
         accessRequestListRows=""
@@ -2343,13 +2475,13 @@ def syllabusClasses():
     distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
     for val in distinctClasses:
-        print(val.class_val)
+        #print(val.class_val)
         sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
         # sectionsString = ''
         sectionsString = '['
         i=1
         for section in sections:
-            print(len(sections))
+            #print(len(sections))
             if i<len(sections):
                 sectionsString = sectionsString + str(section.section)+';'
             else:
@@ -2498,7 +2630,10 @@ def addBook():
     subject = request.args.get('subject')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
-    book = BookDetails.query.filter_by(book_id=book_id,class_val=class_val,subject_id=subject_id.msg_id).first()
+    print("class_val"+str(class_val))
+    print("subject id"+str(subject_id.msg_id))
+    print("book id"+str(book_id))
+    book = BookDetails.query.filter_by(book_id=book_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
     for book_id in bookIds:
@@ -4262,6 +4397,111 @@ def mobQuestionLoader():
         return render_template('qrSessionScanner.html')
 
 
+
+
+@app.route('/startPracticeTest', methods=['GET', 'POST'])
+def startPracticeTest():
+    #topics = request.get_json()
+    #for topic in topics:
+    
+    topics = request.args.getlist('topics')
+    print('topic:'+str(topics))
+    topicsList = str(topics).replace('[','').replace(']','').replace('\'','')
+    difficulty = request.args.get('difficulty')    
+    qcount = request.args.get('qcount')
+    subject_id = request.args.get('subject_id')
+    class_val = request.args.get('class_val')
+    print('difficulty:'+str(difficulty))
+    print('qcount:'+str(qcount))
+    print('subject_id:'+str(subject_id))
+    print('class_val:'+str(class_val))
+    #subject_id
+    #board_id = request.args.get('board_id')
+    #topicList = request.form.getlist('topicList')adsfsdfasdf
+
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    else:
+        studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    schoolData = SchoolProfile.query.filter_by(school_id = studentData.school_id).first()
+    classSecData = ClassSection.query.filter_by(school_id=studentData.school_id, class_val=str(class_val)).first()
+    #Collection Questions
+    questions = []
+    total_marks = 0
+    questionIDList = []
+    if topics:
+        #for topic in topics:
+            #questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').all()
+        questionListQuery = "select *from question_details where archive_status='N' and question_type='MCQ1' and topic_id in (" + str(topicsList) + ")"
+        questionListQuery = questionListQuery + " order by random() " #limit " +  str(qcount)
+        questionList = db.session.execute(text(questionListQuery)).fetchall()
+        if questionList:  
+            for q in questionList:
+                if len(questions)< int(qcount):
+                    questions.append(q)   
+    for val in questions:        
+        print(str(val))
+        total_marks = total_marks + val.suggested_weightage
+        questionIDList.append(val.question_id)
+    ##Create test
+    testDetailsAdd = TestDetails(test_type='238', total_marks=str(total_marks),last_modified_date= datetime.today(),
+        board_id=str(schoolData.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.today(),
+        date_of_test=str(datetime.today()), school_id=studentData.school_id)        
+    db.session.add(testDetailsAdd)
+    if current_user.is_anonymous==False:
+        studentData.points= int(studentData.points) + 1
+    db.session.commit()
+    print('test_id:'+str(testDetailsAdd.test_id))
+    print('Data feed to test details complete')
+
+    ##### This section to insert values into test questions table #####        
+    for questionVal in questions:
+        testQuestionInsert= TestQuestions(test_id=testDetailsAdd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now())
+        db.session.add(testQuestionInsert)
+    db.session.commit()
+    
+    print('Data feed to test questions complete')
+    ##Create response session ID
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    #if current_user.is_anonymous:
+    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(classSecData.class_sec_id).strip()
+    #else:
+    #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+    print('resp session id:'+str(responseSessionID))
+    print('Response ID generated')
+    #print("This is the value of anon user before setup: " + session['anonUser'])
+    #if session['anonUser']:
+    #    print('###########session is true')
+    #    print(session['anonUser'])
+    #else:
+    #    print('###########session is false')
+    #    print(session['anonUser'])
+    if current_user.is_anonymous:
+        if session.get('anonUser'):
+            print('the anon user is true')
+            flash('Please login to start any further tests')
+            return jsonify(['2']) 
+        else:
+            session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
+            print("This is the value of anon user: " + session['anonUser'])            
+    else:
+        print('last segment. anon user is false')
+        session['anonUser']==False
+
+    ##Create session
+    if len(questions) >0:
+        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
+            class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
+        db.session.add(sessionDetailRowInsert)
+        db.session.commit()        
+
+        print('Data feed to session detail completed')
+        ## Start test
+        return jsonify([responseSessionID])    
+    else:
+        return jsonify(['1'])    
+
+
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
@@ -4282,8 +4522,9 @@ def feedbackCollectionStudDev():
             section=classSectionRow.section,questionListSize=questionListSize,
             resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
     else:
-        flash('This is not a valid id')
-        return render_template('qrSessionScannerStudent.html',disconn=1)
+        flash('This is not a valid id or there are no question in this test')
+        return redirect('index')
+        #return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
 @app.route('/updateQuestion')
@@ -4525,7 +4766,7 @@ def rename(dataframe):
 def leaderBoard():
     form = LeaderBoardQueryForm()
     qclass_val = request.args.get("class_val")
-    print('class:'+str(qclass_val))
+    #print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
@@ -4540,8 +4781,8 @@ def leaderBoard():
         
 
         leaderBoardData = leaderboardContent(qclass_val)
-        print('Type')
-        print(type(leaderBoardData))
+        #print('Type')
+        #print(type(leaderBoardData))
         column_names = ["a", "b", "c"]
         datafr = pd.DataFrame(columns = column_names)
         if type(leaderBoardData)!=type(datafr):
@@ -4563,9 +4804,9 @@ def leaderBoard():
             
             d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
             df3 = leaderBoard.drop(['studentid'],axis=1)
-            print('DF3:')
-            print(df3)
-            print('print new dataframe')
+            #print('DF3:')
+            #print(df3)
+            #print('print new dataframe')
             
             df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
             df1.rename(columns = {'student_name':'Student'}, inplace = True)
@@ -4573,12 +4814,12 @@ def leaderBoard():
             df1.rename(columns = {'section':'Section'}, inplace = True)
             df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
             df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-            print(df1)
-            print('Excluding columns')
-            print(df2)
-            # rename(df2)
-            print('LeaderBoard Data:')
-            print(leaderBoardData)
+            #print(df1)
+            #print('Excluding columns')
+            #print(df2)
+            ## rename(df2)
+            #print('LeaderBoard Data:')
+            #print(leaderBoardData)
             data = []
             
 
@@ -4589,16 +4830,16 @@ def leaderBoard():
             columnNames = ''
             col = ''
             subColumn = ''
-            print('Size of dataframe:'+str(len(subjHeader)))
+            #print('Size of dataframe:'+str(len(subjHeader)))
             for subhead in subjHeader:
                 subColumn = subhead
-                print('Header with Subject Name')
-                print(subhead)
+                #print('Header with Subject Name')
+                #print(subhead)
             for h in header:
                 columnNames = h
             for headAll in headerAll: 
                 colAll = headAll
-            print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
+            #print(' all header Length:'+str(len(colAll))+'Static length:'+str(len(columnNames))+'sub header length:'+str(len(subColumn)))
             n= int(len(subColumn)/2)
             ndf = df2.drop(['studentid'],axis=1)
             newDF = ndf.iloc[:,0:n]
@@ -4606,10 +4847,10 @@ def leaderBoard():
             
             df5 = pd.concat([newDF, new1DF], axis=1)
             DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
-            print('New DF')
-            print(DFW)
+            #print('New DF')
+            #print(DFW)
             dat = pd.concat([d,DFW], axis=1)
-            print(dat)
+            #print(dat)
             subHeader = ''
             for row in dat.values.tolist():
                 data.append(row)
@@ -4621,12 +4862,12 @@ def leaderBoard():
             for column in subHead:
                 col = column
             subject = MessageDetails.query.with_entities(MessageDetails.msg_id,MessageDetails.description).distinct().filter_by(category='Subject').order_by(MessageDetails.msg_id).all()
-            print(subject)
+            #print(subject)
             subj = []
 
-            for d in data:
-                print('In data Student id')
-                print(data[0])
+            #for d in data:
+            #    print('In data Student id')
+            #    print(data[0])
             
             for sub in subject:
                 li = []
@@ -4634,25 +4875,23 @@ def leaderBoard():
                 for col in subColumn:
                     if i!=len(subColumn)/2:
                         c = col.split('_')
-                        print(c[0])
-                        print(sub.msg_id)
+                        #print(c[0])
+                        #print(sub.msg_id)
                         if(c[0]==str(sub.msg_id)):
-                            print(c[0])
-                            print(sub.msg_id)
-                            
-                            
+                            #print(c[0])
+                            #print(sub.msg_id)                                                        
                             li.append(sub.msg_id)
                             li.append(sub.description)
                             subj.append(li)
                             break
                     i=i+1
                     
-            print('List with Subjects')
-            print(subj)
-            for s in subj:
-                print(s[0])
-                print(s[1])
-            print('Inside subjects')
+            #print('List with Subjects')
+            #print(subj)
+            #for s in subj:
+            #    print(s[0])
+            #    print(s[1])
+            #print('Inside subjects')
             classSecCheckVal=classSecCheck()
             return render_template('leaderBoard.html',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
@@ -4946,7 +5185,15 @@ def filterContentfromTopic():
 
 @app.route('/recentContentDetails',methods=['GET','POST'])
 def recentContentDetails():
+<<<<<<< HEAD
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+=======
+    teacher = ''
+    if current_user.user_type==71 or current_user.user_type==135 :
+        teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    elif current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+>>>>>>> master
     class_value = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
     print(class_value)
@@ -5252,7 +5499,6 @@ def loadQuestion():
 
 # route for fetching next question and updating db for each response from student - tablet assessment process
 @app.route('/loadQuestionStud')
-@login_required
 def loadQuestionStud():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
@@ -5264,7 +5510,10 @@ def loadQuestionStud():
     last_q_id =  request.args.get('last_q_id')    
     print('Before String conversion:'+resp_session_id)
     print('This is the response session id in: ' + str(resp_session_id) )
-    studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:        
+        studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    else:
+        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
@@ -5284,7 +5533,9 @@ def loadQuestionStud():
             ansCheck='Y'
         else:
             ansCheck='N'
+             
         print('Class:'+str(studentRow.class_sec_id))
+
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
             class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
@@ -5317,20 +5568,16 @@ def loadQuestionStud():
         print('Marks Scored Query:'+marksScoredQuery)
         print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(totalMarksVal.total_marks))
-        marksPercentage=0
-        marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        
+        try:
+            marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100
+        except:
+            marksPercentage=0        
+        
         print('Marks Percentage:'+str(marksPercentage))
-        # try:
-        #     print('Inside try')
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     marksPercentage = (marksScoredVal.marks_scored/totalMarksVal.total_marks) *100 
-        #     print('Marks Scored:'+marksScoredVal.marks_scored)
-        #     print('Total Marks:'+totalMarksVal.total_marks)
-        #     print(marksPercentage)
-        # except:
-        #     marksPercentage=0
-
+        if studentRow.points!=None and studentRow.points!="":
+            studentRow.points = int(studentRow.points) + 1
+            db.session.commit()
         return render_template('_feedbackReportIndiv.html',marksPercentage=marksPercentage, marksScoredVal= marksScoredVal,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
     
 
@@ -5683,7 +5930,8 @@ def studentPerformanceGraph():
       
     class_val=request.args.get('class_val')
     section=request.args.get('section')
-    
+    fromPractice = request.args.get('fromPractice')
+    print('##### this is the value of fromPractice: '+ str(fromPractice))
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
@@ -5695,13 +5943,19 @@ def studentPerformanceGraph():
     
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     fromTestPerformance=0
-          
-    studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
-    studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
-    studPerformanceQuery = studPerformanceQuery + "inner join "
-    studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
-    studPerformanceQuery = studPerformanceQuery + "and "
-    studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"
+    
+    if fromPractice=='1':
+        print('######using newer query')
+        studPerformanceQuery = "select test_date as date, CAST(perf_percentage AS INTEGER) as student_score, subject as description"
+        studPerformanceQuery = studPerformanceQuery + " from fn_student_performance_response_capture("+str(student_id)+") "
+    else:
+        print('#######using older query')
+        studPerformanceQuery = "select pd.date, CAST(pd.student_score AS INTEGER) as student_score,md.description "
+        studPerformanceQuery = studPerformanceQuery + "from performance_detail pd "
+        studPerformanceQuery = studPerformanceQuery + "inner join "
+        studPerformanceQuery = studPerformanceQuery + "message_detail md on md.msg_id=pd.subject_id "
+        studPerformanceQuery = studPerformanceQuery + "and "
+        studPerformanceQuery = studPerformanceQuery + "pd.student_id='"+ str(student_id) +"' order by date"            
     
 
     studPerformanceRecords = db.session.execute(text(studPerformanceQuery)).fetchall()
@@ -6301,11 +6555,21 @@ def questionFile():
 def addChapterTopics():
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+        school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
+
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
     query = query + "inner join book_details bd on td.book_id = bd.book_id "
-    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' order by td.chapter_num "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(school_id)+"' order by td.chapter_num "
     chapters = db.session.execute(text(query)).fetchall()
     chaptersArray = []
     i=1
@@ -6321,7 +6585,7 @@ def addChapterTopics():
                 book = "/"+str(book)
                 ch = str(ch)+"/"
             i=i+1
-        chaptersArray.append(str(book)+":"+str(chapter.topic_name)+":"+str(chapter.chapter_name)+":"+str(ch))
+        chaptersArray.append(str(book)+"@"+str(chapter.topic_name)+"@"+str(chapter.chapter_name)+"@"+str(ch))
     
     if chaptersArray:
         return jsonify([chaptersArray])
@@ -6332,9 +6596,22 @@ def addChapterTopics():
 @app.route('/addClass',methods=['GET','POST'])
 def addClass():
     class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),board_id=board_id.board_id,school_id=teacher_id.school_id).all()
+
+    ##########
+    if current_user.is_anonymous:
+        studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+        school_id = studentData.school_id
+    else:
+        if current_user.user_type==71:
+            teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherData.school_id
+        else:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id
+    ##########
+    #teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
+    subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),school_id=school_id).all()
     subjectArray = []
     for subject in subjects:
         subject_name = "select description as subject_name from message_detail where msg_id='"+str(subject.subject_id)+"'"
@@ -7206,7 +7483,7 @@ def teacherAllocation():
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     fetchTeacherNameQuery = "select distinct tp.teacher_name,tp.teacher_id from teacher_profile tp "
-    fetchTeacherNameQuery = fetchTeacherNameQuery + "inner join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
+    fetchTeacherNameQuery = fetchTeacherNameQuery + "left join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
     fetchTeacherNameQuery = fetchTeacherNameQuery + "where tp.school_id='"+str(teacher_id.school_id)+"'"
     print(fetchTeacherNameQuery)
     teacherNames = db.session.execute(text(fetchTeacherNameQuery)).fetchall()

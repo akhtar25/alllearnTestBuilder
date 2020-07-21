@@ -4,50 +4,113 @@
   <div id="mainDiv">
     <h3>Choose the next step</h3>
     <p>You can register a new school, request access for an existing one or look for teaching jobs</p>
-    <div class="col s6 offset-s6" id="accessAndNewSchoolDiv">
+    <div class="" id="accessAndNewSchoolDiv">
       <ul class="collapsible  z-depth-0">
         <li>
+          <div class="collapsible-header yellow lighten-5" title="Write Practice Tests"><i
+              class="material-icons">person_add</i>
+            <p><span style="font-size: 10px;" class="white-text right green badge z-depth-1">New</span><span
+                style="font-size: large;">Write Practice Tests</span><br><br>
+              Free practice tests for all students</p>
+          </div>
+          <div class="collapsible-body yellow lighten-4">
+
+            <form action="{{url_for('practiceTest')}}" method="post">
+              <div class="row ">
+                <!--<div class="col-xs-4">
+                  <span style="font-size: medium;">Are you a student of <strong>allLearn's partner school?</strong></span>
+                  <p>
+                    <label>
+                      <input name="partnerStudent" type="radio" class="practiceInput" value="No"/>
+                      <span style="font-size: medium;">No</span>
+                    </label>
+                    <label>
+                      <input name="partnerStudent" type="radio" class="practiceInput" value="Yes"/>
+                      <span style="font-size: medium;">Yes</span>
+                    </label>
+                  </p>
+                </div>-->
+                <div class="col-xs-3">
+                  <span style="font-size: medium;">Board</span>
+                  <div class="input-field">
+                    <select name="board" class="practiceInput"  id="board">
+                      <option value="" disabled selected>Choose your option</option>                      
+                      {%if boardRows%}
+                      {%for row in boardRows%}                      
+                      <option value="{{row.description}}"  >{{row.description}}</option>
+                      {%endfor%}
+                      {%endif%}                      
+                    </select>
+                  </div>
+                </div>
+                <div class="col-xs-3">
+                  <span style="font-size: medium;">Class</span>
+                  <div class="input-field" style="z-index:100001">
+                    <select name="class_val" id="class_val" class="practiceInput">
+                      <option value="" disabled selected>Choose your option</option>
+                      <!--{%if classRows%}
+                      {%for row in classRows%}                      
+                      <option value="{{row.class_val}}">{{row.class_val}}</option>
+                      {%endfor%}
+                      {%endif%} -->
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <br>
+                  <button class="green right btn " id="practiceStart" type="submit">Get Started</button>
+                </div>
+              </div>             
+            </form>
+            <div id="partnerStudentMSG" style="display: none;"><span class="green-text" style="font-size: medium; ">Please contact your school for login details. <br>You will also have access to practice test page in your account</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="collapsible-header yellow lighten-5" title="Request access to a registered school"><i
+              class="material-icons">person_add</i>
+            <p><span style="font-size: large;">Request access to a school</span><br>
+              For Students, Teachers and Guardians of a registered school</p>
+
+          </div>
+          <div class="collapsible-body yellow lighten-4">
+            <div class="input-field">
+              <input placeholder="School ID" id="reqAccessTeacher" type="text" class="validate">
+              <label for="reqAccessTeacher" style="font-size: large;">Enter School ID</label>
+            </div>
+            <div class="input-field">
+              <input placeholder="Short Introduction" id="reqAccessTeacherMSG" type="text" class="validate">
+              <label for="reqAccessTeacherMSG" style="font-size: large;">Introduce yourself</label>
+              <a class="green btn requestAccessBTNClass left" id="requestAccessTeacherBTNID" name='71'>Request as a
+                Teacher</a>
+              <a class=" btn green requestAccessBTNClass right" id="requestAccessStudentBTNID" name='134'>Request as a
+                Student</a>
+              <a class="btn green requestAccessBTNClass mid" id="requestAccessGuardianBTNID" style="margin-left: 250px;"
+                name='72'>Request as a Guardian</a>
+              <br>
+              <br>              
+            </div>
+          </div>
+        </li>
+        <li>
           <a href="{{url_for('schoolRegistration')}}" title="Post jobs and Track Student Performance">
-            <div class="collapsible-header"><i class="material-icons">school</i>
-              <h4>Register New School </h4><br>
-              <h6> Post jobs and Track Student Performance</h6>
+            <div class="collapsible-header yellow lighten-5"><i class="material-icons">school</i>
+              <p><span style="font-size: large;">Register New School </span><br>
+                Post jobs and Track Student Performance</p>
             </div>
           </a>
         </li>
         <li>
           <a href="{{url_for('openJobs',first_login=1)}}" title="See Volunteer or Long term jobs">
-            <div class="collapsible-header"><i class="material-icons">work</i>
-              <h4>Look for teaching jobs </h4>
-              <h6 class="right"> Volunteer or Long term </h6>
+            <div class="collapsible-header yellow lighten-5"><i class="material-icons">work</i>
+              <p><span style="font-size: large;">Look for teaching jobs </span><br>
+                Volunteer or Long term </span></p>
             </div>
           </a>
-        </li>
-        <li>
-          <div class="collapsible-header" title="Request access to a registered school"><i
-              class="material-icons">person_add</i>
-            <h4>Request access to a school</h4>
-
-          </div>
-          <div class="collapsible-body">
-            <div class="input-field">
-              <input placeholder="School ID" id="reqAccessTeacher" type="text" class="validate">
-              <label for="reqAccessTeacher">Enter School ID</label>
-            </div>
-            <div class="input-field">
-              <input placeholder="Short Introduction" id="reqAccessTeacherMSG" type="text" class="validate">
-              <label for="reqAccessTeacherMSG">Introduce yourself</label>
-              <a class="waves-effect waves-light btn requestAccessBTNClass left" id="requestAccessTeacherBTNID"
-                name='71'>Request as a Teacher</a>
-              <a class="waves-effect waves-light btn requestAccessBTNClass right" id="requestAccessStudentBTNID"
-                name='134'>Request as a Student</a>
-              <a class="waves-effect waves-light btn requestAccessBTNClass mid" id="requestAccessGuardianBTNID" style="margin-left: 250px;"
-                name='72'>Request as a Guardian</a>
-              <br>
-              <br>
-            </div>
-
-
-          </div>
         </li>
         <!--<li>
       <div class="collapsible-header"><i class="material-icons">home</i>Request access as a guardian</div>
@@ -96,10 +159,16 @@
   <div id="invalidSchoolIdDiv" style="display: none">
     <p class="red-text">Invalid school id</p>
   </div>
+  <div id="requestErrorMSG" style="display: none">
+    <p class="red-text">Error: Unable to request access. Please try later.</p>
+  </div>
 </div>
 <script>
   $(document).ready(function () {
     $('.collapsible').collapsible();
+    $('.dropdown-trigger').dropdown();
+    $('select').formSelect();
+    $('#practiceStart').prop('disabled', true);
   });
 
 
@@ -126,9 +195,30 @@
         }
       },
       error: function (xhr) {
-        window.alert("error occurred while requesting access");
+        $('#requestErrorMSG').show();
+        //window.alert("error occurred while requesting access");
       }
     });
+  });
+
+
+  $('.practiceInput').change(function(){
+    //var partnerStudent = $("input[name='partnerStudent']:checked").val();
+    var board =$("#board").val();
+    var class_val = $("#class_val").val();
+    //window.alert(partnerStudent);
+    //window.alert(board);
+    //window.alert(class_val);
+    if (board!=null && class_val!=null){
+      //if (partnerStudent=='Yes'){        
+        //$('#partnerStudentMSG').show();
+     //   $('#practiceStart').prop('disabled', true);
+     // }
+    //  else{
+        //$('#partnerStudentMSG').hide();        
+        $('#practiceStart').prop('disabled', false);
+    //  }      
+    }
   });
 </script>
 {%endblock%}
