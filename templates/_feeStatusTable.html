@@ -13,6 +13,7 @@
       <th class="text-center">Delay Reason</th>
     </tr>
     {% set amount = '' %}
+    {% if feeStatusDataRows %}
     {% for row in feeStatusDataRows %}
     <tr>
       <td class="pt-3-half" contenteditable="false">
@@ -78,6 +79,11 @@
         </td>                     
     </tr>
     {% endfor %}
+    {% else %}
+    <tr>
+        <td><a href="{{url_for('studentRegistration')}}">click to add students</a></td>
+    </tr>
+    {% endif %}
   </table>
 </form>
   <script>
@@ -96,6 +102,7 @@
             $(this).parents("tr").find(".postUpdateCheck").show(); 
             $(this).parents("tr").find(".outstanding_amount").html('0');
             var sID = '#'+studID;
+            $('#saveFeeDataBTN').show();
             $(sID).val(0);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
@@ -108,6 +115,7 @@
             var pending_amount = total_amount - paid_amount;
             $(this).parents("tr").find(".outstanding_amount").html(pending_amount);
             var sID = '#'+studID;
+            $('#saveFeeDataBTN').show();
             $(sID).val(pending_amount);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());

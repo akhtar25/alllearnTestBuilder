@@ -711,18 +711,31 @@ def feeMonthData():
     qyear = request.args.get('year')
     class_val = request.args.get('class_val')
     section = request.args.get('section')
-    
+    print('inside Summary Box route')
+    print(class_val)
+    print(section)
     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+    class_sec_id = ''
+    if class_val!=None:
+        class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
     print(qmonth+ ' '+qyear)
     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #days in month
     daysInMonth = monthrange(int(qyear),int(qmonth))
     daysInMonth = int(daysInMonth[1])
-    feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
-    feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount) as no_of_unpaid_students , "
-    feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount) as no_of_paid_students "
-    feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
+    feeDetail = ''
+    if class_val=='None' or class_val=='':
+        print('if class is None')
+        feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
+        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_unpaid_students , "
+        feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
+        feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
+    else:
+        print('if class is not None')
+        feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
+        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_unpaid_students , "
+        feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
+        feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
     feeDetailRow = db.session.execute(text(feeDetail)).fetchall()
     return render_template('_summaryBox.html',feeDetailRow=feeDetailRow)
 
@@ -744,13 +757,17 @@ def feeStatusDetail():
     feeStatusDataQuery = "select sp.student_id as student_id, sp.profile_picture as profile_picture, sp.full_name as student_name, fd.fee_amount as fee_amount,fd.fee_paid_amount as paid_amount, fd.outstanding_amount as rem_amount, fd.paid_status as paid_status,fd.delay_reason"
     feeStatusDataQuery = feeStatusDataQuery + " from student_profile  sp left join "
     feeStatusDataQuery = feeStatusDataQuery + "fee_detail fd on fd.student_id=sp.student_id "
-    feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
+    feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"' order by paid_status asc"
     feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
     print(str(len(feeStatusDataRows)))
-    total_amount = FeeDetail.query.filter_by(month=qmonth,year=qyear,school_id=teacherDataRow.school_id,class_sec_id=class_sec_id.class_sec_id).first()
+    sections = ClassSection.query.filter_by(school_id=teacherDataRow.school_id,class_val=class_val).all()
     total_amt = ''
-    if total_amount:
-        total_amt = total_amount.fee_amount
+    for sectionClass in sections:
+        class_sec_id = ClassSection.query.filter_by(class_val = class_val,section=sectionClass.section,school_id=teacherDataRow.school_id).first()
+        total_amount = FeeDetail.query.filter_by(school_id=teacherDataRow.school_id,class_sec_id=class_sec_id.class_sec_id).first()
+        if total_amount:
+            total_amt = total_amount.fee_amount
+            break
     print('Total amount')
     print(total_amt)
     return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
@@ -781,6 +798,10 @@ def updateFeeData():
     total_amt = request.args.get('total_amt')
     qclass_val = request.form.get('qclass_val')
     qsection = request.form.get('qsection')
+    print('inside updateFeeData')
+    print(qclass_val)
+    print(qsection)
+    print(teacherDetailRow.school_id)
     class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
     student_id_list = request.form.getlist('student_id')
     paid_amount_list = request.form.getlist('paid_amount')
@@ -4007,6 +4028,64 @@ def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
     return render_template('studentfeedbackreporttemp.html',student_name=student_name)
 
+@app.route('/unpaidStudentsList',methods=["GET","POST"])
+def unpaidStudentsList():
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherData.school_id).first()
+    studentData = "select sp.full_name from student_profile sp where class_sec_id ='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"' and student_id not in (select student_id from fee_detail where paid_status='Y' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"')"
+    studentList = db.session.execute(text(studentData)).fetchall()
+    return render_template('_studentList.html',studentList=studentList)
+
+@app.route('/sendFeeSMS',methods=["GET","POST"])
+def sendFeeSMS():
+    if request.method=="POST":
+        commType = request.form.get('commType')
+        message = request.form.get('message')
+        class_val = request.form.get('qclass_val')
+        section = request.form.get('qsection')
+        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        class_sec = ClassSection.query.filter_by(school_id=teacherData.school_id,class_val=class_val,section=section).first()
+        class_sec_id = class_sec.class_sec_id
+        if class_sec_id !=None and class_sec_id !="":
+            commDataAdd=CommunicationDetail(message = message,status=231 , school_id=teacherData.school_id,             
+            teacher_id=teacherData.teacher_id,last_modified_date =datetime.today())
+            db.session.add(commDataAdd)
+            #db.session.flush()
+            db.session.commit()
+            getStudNumQuery = "select student_id , phone from student_profile sp where class_sec_id ='"+str(class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"' and student_id not in (select student_id from fee_detail where paid_status='Y' and class_sec_id='"+str(class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"')"            
+            studentPhones = db.session.execute(getStudNumQuery).fetchall()
+            phoneList =[]
+            for phoneRow in studentPhones:
+                if phoneRow.phone!=None and phoneRow.phone!='':
+                    phoneList.append(phoneRow.phone)
+            if studentPhones!=None:
+                if commType=='sms':
+                    apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+                    apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+                    apiPath = apiPath + "contacts="+str(phoneList).replace('[','').replace(']','').replace('\'','').replace(' ','')+"&senderid=GLOBAL&"
+                    apiPath = apiPath + "msg="+ quote(message)
+                    print(apiPath)
+                    ##Sending message here
+                    try:
+                        r = requests.post(apiPath)                    
+                        returnData = str(r.text)
+                        print(returnData)
+                        if "SMS-SHOOT-ID" in returnData:
+                            for val in studentPhones:
+                                commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                                db.session.add(commTransAdd)
+                            commDataAdd.status=232
+                            db.session.commit()                                        
+                            return jsonify(['0'])
+                        else:
+                            return jsonify(['1'])                    
+                    except:
+                        return jsonify(['1'])
+                    ##Message sent 
+    return jsonify(['1']) 
 
 @app.route('/sendComm',methods=["GET","POST"])
 def sendComm():

@@ -9,14 +9,18 @@
       <div class="main-sidebar" style="margin-top:15px;">
         <section class="sidebar">
           <ul class="sidebar-menu table-responsive" data-widget="tree">
+            <li class="treeview menu-open" style="padding: 10px;">
+              <i class="glyphicon glyphicon-education"></i>
+              <span style='font-size:15px'><a href="{{url_for('feeManagement')}}" id="all">All</a></span>
+              </a>
+            </li>
             {% for singleClass in distinctClasses %}
             <li class="treeview">
 
               <a href="#">
-                <i class="glyphicon glyphicon-education"></i>
                 <span>Class {{singleClass[0]}}</span>
                 <span class="pull-right-container">
-                  <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                  <span class="label label-primary pull-right" id="classSel">{{singleClass[2]}}</span>
                 </span>
               </a>
               <ul class="treeview-menu">
@@ -40,8 +44,13 @@
       <h3> Fee Management</h3>
       <div class="row"  id="summaryDiv">
           <div class="box-header">
+            {% if qclass_val %}
             <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
               Section: {{qsection}}</span>
+            {% else %}
+            <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: All |
+              Section: All</span>
+            {% endif %}
           </div>
         </div>
       <div class="row">
@@ -75,6 +84,34 @@
       <div class="row">
         <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Configure</a></button>
       </div>
+      <br><a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br>
+      <!-- SMS Modal Structure -->
+      <div class="modal" id="smsModal" style="height: 400px;width: 450px;">
+        <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
+          <h4>Send SMS to students of {{qclass_val}} - {{qsection}}</h4>
+          <form id="sendSMSForm">
+          <div class="input-field ">
+            <textarea id="message" name="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
+          </div>
+          <input type="hidden" id="commType" name="commType" value="sms">
+          <input type="hidden" id="qclass_val" name="qclass_val" value="{{qclass_val}}">
+          <input type="hidden" id="qsection" name="qsection" value="{{qsection}}">
+          <br>
+          <a href="#" id="sendSMSBTN" class="btn green right">Send SMS</a>
+        </form>
+        <div id="sendSuccessMSG" style="display: none;">  
+        <!--<img src="../static/images/tick.gif" style="width: 100px;" class="center">-->
+        <h4 class="green-text">Message sent successfully to all unpaid students</h4>
+        <!--<span id="successSendList"></span>-->
+      </div>
+      <div class="studentist" style="height: 250px;position: relative;overflow-y: auto;">
+
+      </div>
+        <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
+          </div>
+      </div>
+      <!-- End -->
+
       <!-- Modal structure -->
       <div id="modal1" class="modal" style="height:160px;width: 330px;">
         <div class="modal-content" style="height:156px;">
@@ -150,9 +187,13 @@ $(document).ready(function () {
         $('select').formSelect();
     });
 
+
     var selectYear = document.getElementById('addYearSelect')
-    selectYear.onchange = function(){
+    $('.selection').change(function () {
       $('#summaryBoxDiv').html('');
+      $('#saveFeeDataBTN').hide();
+      $('#configure').hide();
+      $('#sms').hide();
       var monthSelectCheck = $('#addMonthSelect').val();
       var yearSelectCheck = $('#addYearSelect').val();
       var class_val = "{{qclass_val}}";
@@ -171,7 +212,7 @@ $(document).ready(function () {
                     
                     $("#summaryBoxDiv").html(response);
                     $('#boxDiv').show();
-                    $('#configure').show();
+                    
                     
                     console.log('Fetched fee data from server')
                 },
@@ -182,6 +223,9 @@ $(document).ready(function () {
             });
 
             // fee Status table
+            if(class_val!='None'){
+              console.log('if class is not none');
+              console.log(class_val);
             $('#feeDiv').hide();
         $('#feeStatusloader').show();
         
@@ -193,7 +237,9 @@ $(document).ready(function () {
                 success: function (response) {
                     
                     $('#feeStatusloader').hide();
-                    $('#saveFeeDataBTN').show();
+                    
+                    $('#sms').show();
+                    $('#configure').show();
                     $("#feeStatusDiv").html(response);
                     $('#feeDiv').show();
                     console.log('Fetched fee data from server')
@@ -212,19 +258,71 @@ $(document).ready(function () {
                     window.alert("error occurred while submitting data");
                 }
             });
-
+            }
             // End
       }else{
         $('#boxDiv').hide();
         $('#feeDiv').hide();
       }
-    };
+    });
 
     $('#Set').click(function(){
       var total_fee = $('#fee').val();
-      alert(total_fee);
       $('.total_amount').html(total_fee);
+      var elem = $('#modal1')
+      var instance = M.Modal.getInstance(elem);                   
+      instance.close();
     });
+
+
+    $('#sendSMSBTN').click(function($e){
+    $('#smsSendErrorMSG').hide();
+    $('#sendSMSBTN').fadeTo("fast", 0.5).removeAttr("href");
+    $('#sendSMSBTN').html('Please wait...');
+  var form = $('#sendSMSForm');     
+    $.ajax({
+            url: "/sendFeeSMS",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {        
+                if (formResponse=='1'){   
+                    $('#smsSendErrorMSG').show();                       
+                //clicks = 0;
+            }
+            else{
+                //$('#sendSuccessMSG').show();  
+              M.toast({html: '<h4>New Message Sent</h4>'});
+                var elem = $('#smsModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+            }
+            $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+            $('#sendSMSBTN').html('Send SMS');
+            },
+            error: function (xhr) {
+              $('#smsSendErrorMSG').show();
+              $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+              $('#sendSMSBTN').html('Send SMS');
+            }
+        }); 
+  });
+
+  $('#sms').click(function(){
+    console.log('inside sms');
+    var class_val = "{{qclass_val}}";
+    var section = "{{qsection}}";
+    $.ajax({
+            url: "/unpaidStudentsList?class_val="+class_val+"&section="+section,
+            type: "POST",
+            data: "",
+            success: function (response) {        
+                $('.studentist').html(response);
+            },
+            error:function(xhr){
+
+            }
+  });
+  });
 
 </script>
 {%endblock%}
