@@ -134,6 +134,7 @@
                 data: form.serialize(),
                 success: function (response2) {
                   $('#saveFeeDataBTN').hide();
+                  $('#saveFeeDataBTN').html('Save Fee Data');
                     if (response2=='0'){
                     M.toast({html: '<h4>Data Uploaded Successfully</h4>'});
                     }
