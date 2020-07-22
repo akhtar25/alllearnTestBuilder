@@ -2229,6 +2229,47 @@ def login():
         #setting global variables
         session['classSecVal'] = classSecCheck()
         session['schoolName'] = schoolNameVal()
+        
+        print('user name')
+        school_id = ''
+        print('user type')
+        session['studentId'] = ''
+        if current_user.user_type==71:
+            school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        elif current_user.user_type==134:
+            school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            session['studentId'] = school_id.student_id
+        else:
+            school_id = User.query.filter_by(id=current_user.id).first()
+        school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+        session['school_logo'] = ''
+        if school_pro:
+            session['school_logo'] = school_pro.school_logo
+            session['schoolPicture'] = school_pro.school_picture
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        print(query)
+        print('Modules')
+        moduleDetRow = db.session.execute(query).fetchall()
+        print('School profile')
+        print(session['schoolPicture'])
+        # det_list = [1,2,3,4,5]
+        session['moduleDet'] = []
+        detList = session['moduleDet']
+        
+        for det in moduleDetRow:
+            eachList = []
+            print(det.module_name)
+            print(det.module_url)
+            eachList.append(det.module_name)
+            eachList.append(det.module_url)
+            eachList.append(det.module_type)
+            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+            detList.append(eachList)
+        session['moduleDet'] = detList
+        for each in session['moduleDet']:
+            print('module_name'+str(each[0]))
+            print('module_url'+str(each[1]))
+            print('module_type'+str(each[2]))
         print(session['schoolName'])
 
         return redirect(next_page)        
