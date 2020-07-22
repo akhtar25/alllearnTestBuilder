@@ -852,13 +852,13 @@ def feeMonthData():
     if class_val=='None' or class_val=='':
         print('if class is None')
         feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
-        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_unpaid_students , "
+        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from student_profile sp inner join fee_detail fd on sp.student_id = fd.student_id where sp.student_id not in (select student_id from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and fd.month='"+str(qmonth)+"' and fd.year='"+str(qyear)+"') as no_of_unpaid_students ,"
         feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
         feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
     else:
         print('if class is not None')
         feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
-        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_unpaid_students , "
+        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from student_profile sp inner join fee_detail fd on sp.student_id = fd.student_id where sp.student_id not in (select student_id from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and fd.month='"+str(qmonth)+"' and fd.year='"+str(qyear)+"' and fd.class_sec_id='"+str(class_sec_id.class_sec_id)+"') as no_of_unpaid_students ,"
         feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
         feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
     feeDetailRow = db.session.execute(text(feeDetail)).fetchall()
@@ -919,6 +919,7 @@ def updateFeeData():
     qmonth = request.form.get('qmonth')
     qyear = request.form.get('qyear')
     total_amt = request.args.get('total_amt')
+    total_amt = total_amt.strip()
     qclass_val = request.form.get('qclass_val')
     qsection = request.form.get('qsection')
     print('inside updateFeeData')
