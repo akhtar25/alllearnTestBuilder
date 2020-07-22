@@ -102,6 +102,7 @@ $(document).ready(function(){
   var select_subject = document.getElementById('selectSubject');
   
   select_class.onchange = function(){
+    count_marks=0;
       $('#subjectLoader').show();
       $('#selectSubject').html('');
     console.log('inside select class function');
@@ -158,6 +159,7 @@ $(document).ready(function(){
 
     var select_chapter = document.getElementById('selectChapters');
   select_subject.onchange = function(){
+    count_marks = 0;
     $("#filebox").html('');
       $('#chapterLoader').show();
       $('#selectChapters').html('');
@@ -250,6 +252,7 @@ $(document).ready(function(){
 }
 
 select_chapter.onchange = function(){
+    count_marks = 0;
     console.log('inside select chapter onchange');
     $("#filebox").html('');
     var subject_id = select_subject.value;
@@ -310,7 +313,9 @@ var topics = '';
 //   });
 
   var select_test = document.getElementById('selectTest');
+  
   select_test.onchange = function(){
+    count_marks = 0;
     // $('.tooltipped').tooltip('close');
     $('#msg').hide();
     $("#filebox").html('');
