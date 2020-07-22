@@ -16,8 +16,8 @@
     {% if feeStatusDataRows %}
     {% for row in feeStatusDataRows %}
     <tr>
-      <td class="pt-3-half" contenteditable="false">
-        {%if row.profile_picture!= None %}
+      <td class="pt-3-half" style="text-align: left;" contenteditable="false">
+        {%if row.profile_picture %}
         <img class="responsive-img circle" src="{{row.profile_picture}}" width="50px">
         {%else%}
         <img class="responsive-img circle" width="50px"
@@ -125,7 +125,7 @@
       $('#saveFeeDataBTN').click(function(){
         console.log('inside saveFeeDataBtn');
         var form = $('#feeForm');
-        $('#saveFeeDataBTN').hide();
+        $('#saveFeeDataBTN').html('please wait...');
         var total_amt = $('.tt_amt').val();
         console.log('Total Amount:'+total_amt);
         $.ajax({
@@ -133,6 +133,7 @@
                 type: "POST",
                 data: form.serialize(),
                 success: function (response2) {
+                  $('#saveFeeDataBTN').hide();
                     if (response2=='0'){
                     M.toast({html: '<h4>Data Uploaded Successfully</h4>'});
                     }

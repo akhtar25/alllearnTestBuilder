@@ -2,15 +2,27 @@
     <tr>
       <th class="text-center">Fee collected</th>
       <th class="text-center">Unpaid fee</th>
-      <th class="text-center">No. of paid students count</th>
-      <th class="text-center">No. of unpaid students count</th>
+      <th class="text-center">Paid students count</th>
+      <th class="text-center">Unpaid students count</th>
     </tr>
     {% for row in feeDetailRow %}
     <tr>
-      <td class="pt-3-half" contenteditable="false">{{row.collected_fee}}</td>
-      <td class="pt-3-half" contenteditable="false">{{row.unpaid_fee}}</td>
-      <td class="pt-3-half" contenteditable="false">{{row.no_of_paid_students}}</td>
-      <td class="pt-3-half" contenteditable="false">{{row.no_of_unpaid_students}}</td>                        
+      <td class="pt-3-half" style="color:forestgreen;font-size: 15px;font-weight: 800;" contenteditable="false">
+        {% if row.collected_fee %}
+        {{row.collected_fee}}
+        {% else %}
+        0
+        {% endif %}
+      </td>
+      <td class="pt-3-half" style="color:red;font-size: 15px;font-weight: 800;" contenteditable="false">
+        {% if row.unpaid_fee %}
+        {{row.unpaid_fee}}
+        {% else %}
+        0
+        {% endif %}
+      </td>
+      <td class="pt-3-half" style="color: forestgreen;font-size: 15px;font-weight: 800;" contenteditable="false">{{row.no_of_paid_students}}</td>
+      <td class="pt-3-half" style="color: red;font-size: 15px;font-weight: 800;" contenteditable="false">{{row.no_of_unpaid_students}}</td>                        
       
     </tr>
     {% endfor %}

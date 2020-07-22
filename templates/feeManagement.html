@@ -66,7 +66,10 @@
             </select>
         </div>
       </div>
-      
+      <div class="row">
+        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
+      </div>
+      <a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br>
 
       <!-- Start Summary Box -->
       <div class="card" id="boxDiv" style="display: none;">
@@ -81,14 +84,14 @@
         <img src="../static/images/smallLoader.gif" style="height: 150px;">
     </div>
       <!-- End Summary Box -->
-      <div class="row">
-        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Configure</a></button>
+      <!-- <div class="row">
+        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
       </div>
-      <br><a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br>
+      <br><a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br> -->
       <!-- SMS Modal Structure -->
       <div class="modal" id="smsModal" style="height: 400px;width: 450px;">
         <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
-          <h4>Send SMS to students of {{qclass_val}} - {{qsection}}</h4>
+          <h4>Send SMS to unpaid students of {{qclass_val}} - {{qsection}}</h4>
           <form id="sendSMSForm">
           <div class="input-field ">
             <textarea id="message" name="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
@@ -107,6 +110,9 @@
       <div class="studentist" style="height: 250px;position: relative;overflow-y: auto;">
 
       </div>
+      <div id="studentListloader" style="display: none;">
+        <img src="../static/images/smallLoader.gif" style="height: 150px;">
+    </div>
         <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
           </div>
       </div>
@@ -130,7 +136,7 @@
 <div class="card" id="feeDiv" style="display: none;">
     <h3 class="card-header text-center font-weight-bold text-uppercase py-4" style="margin-left:410px;">Fee status</h3>
     <div class="card-body">
-      <div id="feeStatusDiv" class="table-editable" style="position: relative;height: 400px;overflow-y: auto;">
+      <div id="feeStatusDiv" class="table-editable" style="position: relative;height: 400px;overflow-y: auto;overflow-x: hidden;">
         <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
             <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
         </a>
@@ -313,12 +319,16 @@ $(document).ready(function () {
     console.log('inside sms');
     var class_val = "{{qclass_val}}";
     var section = "{{qsection}}";
+    $('.studentist').hide();
+    $('#studentListloader').show();
     $.ajax({
             url: "/unpaidStudentsList?class_val="+class_val+"&section="+section,
             type: "POST",
             data: "",
-            success: function (response) {        
-                $('.studentist').html(response);
+            success: function (response) {    
+              $('#studentListloader').hide();    
+              $('.studentist').html(response);
+              $('.studentist').show();
             },
             error:function(xhr){
 
