@@ -65,7 +65,7 @@
                         <input type="checkbox" name="paid_status" checked/>
                         <span></span>
                     </label>
-
+                    <span id="unpaid">unpaid</span>
                     {%endif%}
         </td>
       <td class="pt-3-half" contenteditable="false">
@@ -105,6 +105,7 @@
             $(sID).val(0);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
+            $('#unpaid').hide();
         }
         else{
             console.log('if amount is not equal');
@@ -118,6 +119,7 @@
             $(sID).val(pending_amount);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
+            $('#unpaid').show();
         }
       });
       
