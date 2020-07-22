@@ -892,8 +892,7 @@ def feeStatusDetail():
         if total_amount:
             total_amt = total_amount.fee_amount
             break
-    print('Total amount')
-    print(total_amt)
+    print('Total amount:'+str(total_amt))
     return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
 #New Section added to manage payroll
 @app.route('/payrollMonthData')
@@ -923,9 +922,7 @@ def updateFeeData():
     qclass_val = request.form.get('qclass_val')
     qsection = request.form.get('qsection')
     print('inside updateFeeData')
-    print(qclass_val)
-    print(qsection)
-    print(teacherDetailRow.school_id)
+    print('Total Fee Amount:'+str(total_amt))
     class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
     student_id_list = request.form.getlist('student_id')
     paid_amount_list = request.form.getlist('paid_amount')
@@ -942,6 +939,7 @@ def updateFeeData():
     for i in range(len(count_list)):
         print('inside for loop')
         print(count_list[i])
+        print(student_id_list[count_list[i]])
         if paid_amount_list[count_list[i]]:
             indivFeeRecord = FeeDetail.query.filter_by(student_id=student_id_list[count_list[i]], month=qmonth, year=qyear).first()
             if indivFeeRecord and indivFeeRecord.outstanding_amount!=0:
@@ -957,12 +955,15 @@ def updateFeeData():
                     indivFeeRecord.paid_status = 'N'
             elif indivFeeRecord==None or indivFeeRecord=='':
                 print('Adding new values:'+str(paid_amount_list[count_list[i]]))
-                
+                print('Paid Amount:'+paid_amount_list[count_list[i]])
+                print('Total Amount:'+total_amt)
                 if paid_amount_list[count_list[i]]==total_amt:
+                    print('if paid amount equal to total amount')
                     feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
                     class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
                     ,paid_status='Y',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
                 else:
+                    print('if paid amount is less than total amount')
                     feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
                     class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
                     ,paid_status='N',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
@@ -4170,6 +4171,7 @@ def unpaidStudentsList():
     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherData.school_id).first()
     studentData = "select sp.full_name from student_profile sp where class_sec_id ='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"' and student_id not in (select student_id from fee_detail where paid_status='Y' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"')"
+    print(studentData)
     studentList = db.session.execute(text(studentData)).fetchall()
     return render_template('_studentList.html',studentList=studentList)
 

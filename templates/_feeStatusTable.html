@@ -30,7 +30,6 @@
         </td>
       <td class="total_amount pt-3-half">
           {{total_amt}}
-          
         </td>
         <input type="hidden" value="{{total_amt}}" class="tt_amt">
       <td class="pt-3-half" contenteditable="false">
@@ -126,6 +125,7 @@
       $('#saveFeeDataBTN').click(function(){
         console.log('inside saveFeeDataBtn');
         var form = $('#feeForm');
+        $('#saveFeeDataBTN').hide();
         var total_amt = $('.tt_amt').val();
         console.log('Total Amount:'+total_amt);
         $.ajax({

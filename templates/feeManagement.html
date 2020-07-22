@@ -45,10 +45,10 @@
       <div class="row"  id="summaryDiv">
           <div class="box-header">
             {% if qclass_val %}
-            <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
+            <h3 class="box-title">Class Details</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
               Section: {{qsection}}</span>
             {% else %}
-            <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: All |
+            <h3 class="box-title">Class Details</h3><span style="padding-left: 10px;"> Class: All |
               Section: All</span>
             {% endif %}
           </div>
@@ -140,7 +140,7 @@
     </div>
   </div>
   <br>
-  <a href="#" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a>
+  <a href="javascript:void(0);" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a>
   <br><br>
   <div id="feeStatusloader" style="margin-left:160px;display: none;">
     <img src="../static/images/smallLoader.gif" style="height: 150px;">
@@ -245,12 +245,13 @@ $(document).ready(function () {
                     console.log('Fetched fee data from server')
                     var amt = $('.tt_amt').val();
                     console.log('Total amount:'+amt);
-                    if(amt!=''||amt!=None){
+                    if(amt){
                       console.log(amt);
-                      $('#configure').prop('disabled','true');
+                      console.log('total amount exist');
+                      $('#configure').prop('disabled',true);
                     }else{
-
-                      $('#configure').prop('disabled','false');
+                      console.log('amount is null');
+                      $('#configure').prop('disabled',false);
                     }
                 },
                 error: function (xhr) {
@@ -269,6 +270,7 @@ $(document).ready(function () {
     $('#Set').click(function(){
       var total_fee = $('#fee').val();
       $('.total_amount').html(total_fee);
+      $('#configure').prop('disabled',true);
       var elem = $('#modal1')
       var instance = M.Modal.getInstance(elem);                   
       instance.close();
