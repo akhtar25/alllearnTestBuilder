@@ -7551,7 +7551,7 @@ def allSubjects():
     class_val = request.args.get('class_value') 
     print(class_val)
     print(teacher_id.school_id)
-    subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id).all()
+    subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id,is_archived='N').all()
     subjectList = []
     for subject in subjects:
         subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
