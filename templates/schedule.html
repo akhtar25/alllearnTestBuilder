@@ -8,9 +8,7 @@
         <li class="active" id="create">
           <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">insert_chart</i>Create Schedule</div>
           <div class="collapsible-body">
-            <form action="" method="POST" enctype="multipart/form-data">
               <form id="timeTableForm">
-                  <div class="form-group " style="padding-top:5px;">
                   <div class="row">
                     <section class="plans-container" id="plans">
                       <div style="display: flex;">
@@ -23,18 +21,14 @@
                           </div>
                     <div class="col-sm-6" style="margin-bottom: 20px;">
                       <div style="width:150px;">
-                          {{ form1.class_val.label(class='labelsize') }}
-                          <br>
-                          {% if form1.class_val.errors %}
-                          {{ form1.class_val(class="form-control form-control-lg is-invalid") }}
-                          <div class="invalid-feedback">
-                              {% for error in form1.class_val.errors %}
-                              <span>{{ error }}</span>
-                              {% endfor %}
-                          </div>
-                          {% else %}
-                          {{ form1.class_val(class='form-control',id='classVal') }}
-                          {% endif %}
+                        <div class="input-field col s12">
+                          <select>
+                            <option value="" disabled selected>Select Class</option>
+                            {% for row in available_class %}
+                            <option value="{{row.class_val}}">{{row.class_val}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
                       </div>
                   </div>
                   <div class="subjectDetails" style="width:260px;margin-left: 20px;">
@@ -113,14 +107,13 @@
             </section>
       
             <div class="button active" style="text-align: center;margin-top: 340px;">
-              <button class="btn waves-light green lighten-1 white-text" id="submit" onclick="hide();" value="submit">Submit</button>
+              <button class="btn waves-light green lighten-1 white-text" id="submit" onclick="hide();">Submit</button>
           </div>
           </div> 
                 
                   
               
             </form>
-      </form>
           </div>
         </li>
         <li id="view">
@@ -129,18 +122,12 @@
             <div class="row">
               <div class="col-sm-2">
                 <div style="width:170px;">
-                  {{ form.class_section.label(class='labelsize') }}
-                  <br>
-                  {% if form.class_section.errors %}
-                  {{ form.class_section(class="form-control form-control-lg is-invalid") }}
-                  <div class="invalid-feedback">
-                      {% for error in form.class_section.errors %}
-                      <span>{{ error }}</span>
-                      {% endfor %}
-                  </div>
-                  {% else %}
-                  {{ form.class_section(class='form-control') }}
-                  {% endif %}
+                  <select>
+                    <option value="" disabled selected>Select Class - Section</option>
+                    {% for row in available_class_section %}
+                    <option value="{{row.class_val}}-{{row.section}}">{{row.class_val}}-{{row.section}}</option>
+                    {% endfor %}
+                  </select>
                 </div>
                 <input type='hidden' name='checkIndx' id='checkIndx' />
             </div> 
@@ -310,10 +297,9 @@ function hide(){
   $('#submit').click(function(){
     $('#create').removeClass("active");
     $('#view').addClass("active");
-    $e.preventDefault(); 
     var form = $('#timeTableForm');  
     $.ajax({
-            url: "/schedule",
+            url: "/updateSchedule",
             type: "POST",
             data: form.serialize(),
             success: function (formResponse) { 

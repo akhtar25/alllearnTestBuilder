@@ -7374,113 +7374,113 @@ def cal(num):
     return res 
 
 # Route for Schedule or Time Table
+@app.route('/updateSchedule',methods=['POST','GET'])
+def updateSchedule():
+    slots = request.form.get('slots')
+    class_value = request.form.get('clas')
+    start = request.form.getlist('start')
+    end = request.form.getlist('end')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
+    batches = len(sections)
+    slotTime = []
+    for (s,e) in itertools.zip_longest(start,end):
+        slotTime.append(s+'-'+e)
+    print('inside schedule')
+    nDays = request.form.get('nDays')
+    noTeachers = request.form.get('noTeachers')
+    nameTeacher = request.form.getlist('nameTeacher')
+    nameSubject = request.form.getlist('nameSubject')
+    subject = request.form.getlist('subject')
+    time = request.form.getlist('time')
+    day = request.form.getlist('day')
+        # batches = request.form.get('batches')
+    totalTime = 0
+    for ti in time:
+            # print('Time:'+str(ti))
+        if ti:
+            totalTime = totalTime + int(ti)
+    totalSlots = int(nDays)*int(slots)
+        # print('Total slots:'+str(totalSlots))
+        # print('Total Time:'+str(totalTime))
+    perSlots = []
+    for s in range(int(slots)):
+                
+        perSlots.append(s+1)
+    slotsoutput = cal(perSlots)
+
+        # for slot in range(len(slotsoutput)):
+            # print('slot'+str(slot))
+            # print(slotsoutput[slot])
+    finalSlot = []
+    indexSlot = []
+        # print('outside while loop')
+    p=0
+        # print('length of slots output')
+        # print(len(slotsoutput))
+    while p<len(slotsoutput):
+            # print('inside while loop')
+        r = randint(0,len(slotsoutput)-1)
+        if r not in indexSlot:
+            p=p+1
+            indexSlot.append(r)
+        # print(indexSlot)
+    for index in indexSlot:
+        finalSlot.append(slotsoutput[index])
+        # print(finalSlot)
+        
+
+        # print('slot output print')
+        # print(slotsoutput)
+    t=1
+    z=0
+    class_sec_ids = ClassSection.query.filter_by(class_val = class_value, school_id = teacher.school_id).all() 
+    for class_sec_id in class_sec_ids:
+        updateTable = "update schedule_detail set is_archived = 'Y' where class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacher.school_id)+"'"
+        updateTable = db.session.execute(text(updateTable))
+    for l in subject:
+            # print(l)
+        if(l):
+            z=z+1
+        # print('No of Subjects:'+str(z))
+    if totalSlots>=totalTime:
+
+        for arr1 in finalSlot:
+            if t<=int(batches):    
+                            
+                    
+                for i in range(0,z):
+
+                    for j in range(0,int(time[i])):
+                            
+                        class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
+                            
+                        class_sec_id = db.session.execute(text(class_sec_id)).first()
+                        subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+                        subject_id = db.session.execute(text(subject_id)).first()
+                        teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
+                           
+                        if teacher_id:
+                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id , teacher_id=teacher_id.teacher_id ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+                        else:
+                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+                        db.session.add(insertData)
+            t=t+1
+    db.session.commit()
+    flash('Data is Submitted') 
+    return jsonify(['0'])
+
 @app.route('/schedule',methods=['POST','GET'])
 def schedule():
     # slots = request.form.get('slots')
     # print('inside schedule function')
     # print(slots)
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form = studentDirectoryForm()
-    form1=QuestionBankQueryForm()
-    form1.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()]
-    
-    available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
-    class_list = classChecker(available_class)
-    form.class_section.choices = class_list
-    if request.method == 'POST':
-        slots = request.form.get('slots')
-        class_value = str(form1.class_val.data)
-        start = request.form.getlist('start')
-        end = request.form.getlist('end')
-        sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
-        batches = len(sections)
-        slotTime = []
-        for (s,e) in itertools.zip_longest(start,end):
-            slotTime.append(s+'-'+e)
-        print('inside schedule')
-        nDays = request.form.get('nDays')
-        noTeachers = request.form.get('noTeachers')
-        nameTeacher = request.form.getlist('nameTeacher')
-        nameSubject = request.form.getlist('nameSubject')
-        subject = request.form.getlist('subject')
-        time = request.form.getlist('time')
-        day = request.form.getlist('day')
-        # batches = request.form.get('batches')
-        totalTime = 0
-        for ti in time:
-            # print('Time:'+str(ti))
-            if ti:
-                totalTime = totalTime + int(ti)
-        totalSlots = int(nDays)*int(slots)
-        # print('Total slots:'+str(totalSlots))
-        # print('Total Time:'+str(totalTime))
-        perSlots = []
-        for s in range(int(slots)):
-                
-            perSlots.append(s+1)
-        slotsoutput = cal(perSlots)
-
-        # for slot in range(len(slotsoutput)):
-            # print('slot'+str(slot))
-            # print(slotsoutput[slot])
-        finalSlot = []
-        indexSlot = []
-        # print('outside while loop')
-        p=0
-        # print('length of slots output')
-        # print(len(slotsoutput))
-        while p<len(slotsoutput):
-            # print('inside while loop')
-            r = randint(0,len(slotsoutput)-1)
-            if r not in indexSlot:
-                p=p+1
-                indexSlot.append(r)
-        # print(indexSlot)
-        for index in indexSlot:
-            finalSlot.append(slotsoutput[index])
-        # print(finalSlot)
-        
-
-        # print('slot output print')
-        # print(slotsoutput)
-        t=1
-        z=0
-        class_sec_ids = ClassSection.query.filter_by(class_val = class_value, school_id = teacher.school_id).all() 
-        for class_sec_id in class_sec_ids:
-            updateTable = "update schedule_detail set is_archived = 'Y' where class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacher.school_id)+"'"
-            updateTable = db.session.execute(text(updateTable))
-        for l in subject:
-            # print(l)
-            if(l):
-                z=z+1
-        # print('No of Subjects:'+str(z))
-        if totalSlots>=totalTime:
-
-            for arr1 in finalSlot:
-                if t<=int(batches):    
-                            
-                    
-                    for i in range(0,z):
-
-                        for j in range(0,int(time[i])):
-                            
-                            class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
-                            
-                            class_sec_id = db.session.execute(text(class_sec_id)).first()
-                            subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
-                            subject_id = db.session.execute(text(subject_id)).first()
-                            teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
-                           
-                            if teacher_id:
-                                insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id , teacher_id=teacher_id.teacher_id ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
-                            else:
-                                insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
-                            db.session.add(insertData)
-                t=t+1
-        db.session.commit()
-        flash('Data is Submitted') 
-        return render_template('schedule.html',slotTime=slotTime,slotsoutput=slotsoutput,form=form,form1=form1)
-    return render_template('schedule.html',form=form,form1=form1)
+    available_class = "select distinct class_val from class_section where school_id='"+str(teacher.school_id)+"'"
+    available_class = db.session.execute(text(available_class)).fetchall()
+    available_class_section = "select distinct class_val,section from class_section where school_id='"+str(teacher.school_id)+"'"
+    available_class_section = db.session.execute(text(available_class_section)).fetchall()
+    return render_template('schedule.html',available_class=available_class,available_class_section=available_class_section)
     
 @app.route('/fetchTimeTable',methods=['GET','POST'])
 def fetchTimeTable():
