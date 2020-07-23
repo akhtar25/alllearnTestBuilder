@@ -928,6 +928,15 @@ def updateFeeData():
     student_id_list = request.form.getlist('student_id')
     paid_amount_list = request.form.getlist('paid_amount')
     rem_amount_list = request.form.getlist('rem_amount')
+    # validation when rem_amount is negative
+    for i in range(len(rem_amount_list)-1):
+        print('inside re_amount_list')
+        print(i)
+        print(rem_amount_list[i])
+        if rem_amount_list[i]:
+            if int(rem_amount_list[i])<0:
+                return jsonify(['1'])
+    # End
     delay_reason_list = request.form.getlist('delay_reason')
     count_list = []
     for i in range(len(paid_amount_list)):
