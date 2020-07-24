@@ -7377,17 +7377,19 @@ def cal(num):
 @app.route('/updateSchedule',methods=['POST','GET'])
 def updateSchedule():
     slots = request.form.get('slots')
-    class_value = request.form.get('clas')
-    start = request.form.getlist('start')
-    end = request.form.getlist('end')
+    class_value = request.args.get('class_val')
+    print('No of slots:'+str(slots))
+    print('Class_val:'+str(class_value))
+    # start = request.form.getlist('start')
+    # end = request.form.getlist('end')
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
     batches = len(sections)
     slotTime = []
-    for (s,e) in itertools.zip_longest(start,end):
-        slotTime.append(s+'-'+e)
+    # for (s,e) in itertools.zip_longest(start,end):
+    #     slotTime.append(s+'-'+e)
     print('inside schedule')
-    nDays = request.form.get('nDays')
+    # nDays = request.form.get('nDays')
     noTeachers = request.form.get('noTeachers')
     nameTeacher = request.form.getlist('nameTeacher')
     nameSubject = request.form.getlist('nameSubject')
@@ -7395,6 +7397,8 @@ def updateSchedule():
     time = request.form.getlist('time')
     day = request.form.getlist('day')
         # batches = request.form.get('batches')
+    print('No of Days:'+str(len(day)))
+    nDays = len(day)
     totalTime = 0
     for ti in time:
             # print('Time:'+str(ti))
@@ -7466,21 +7470,30 @@ def updateSchedule():
                             insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
                         db.session.add(insertData)
             t=t+1
+    else:
+        return jsonify(['1'])
     db.session.commit()
-    flash('Data is Submitted') 
+    print('Data is Submitted') 
     return jsonify(['0'])
 
-@app.route('/schedule',methods=['POST','GET'])
+@app.route('/schedule')
 def schedule():
     # slots = request.form.get('slots')
     # print('inside schedule function')
     # print(slots)
+    qclass_val = request.args.get("class_val")
+    qsection = request.args.get("section")
     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    available_class = "select distinct class_val from class_section where school_id='"+str(teacher.school_id)+"'"
-    available_class = db.session.execute(text(available_class)).fetchall()
+    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
     available_class_section = "select distinct class_val,section from class_section where school_id='"+str(teacher.school_id)+"'"
     available_class_section = db.session.execute(text(available_class_section)).fetchall()
-    return render_template('schedule.html',available_class=available_class,available_class_section=available_class_section)
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()  
+    if qclass_val==None and qsection == None:
+        qclass_val = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).first()  
+        qclass_val = qclass_val.class_val
+        qsection = ClassSection.query.filter_by(school_id=teacher.school_id).first()
+        qsection = qsection.section
+    return render_template('schedule.html',classsections=classSections,distinctClasses=distinctClasses,available_class_section=available_class_section,qclass_val=qclass_val,qsection=qsection)
     
 @app.route('/fetchTimeTable',methods=['GET','POST'])
 def fetchTimeTable():
@@ -7541,6 +7554,7 @@ def downloadTimeTable():
             
             for table in timeTableData:
                 writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
+            writer.writerow(["","","","","","",""])
     return jsonify([filepath])
 
 @app.route('/allSubjects',methods=['GET','POST'])

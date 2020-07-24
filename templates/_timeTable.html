@@ -4,12 +4,18 @@
             <th>Subject Name</th>
             <th>Teacher Name</th>
         </tr>
+        {% if fetchTeacher %}
         {% for row in fetchTeacher %}
         <tr style="margin-top:5px;">
             <td>{{row.subject_name}}</td>
             <td>{{row.teacher_name}}</td>
         </tr>
         {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="2" style="text-align: center;">No Teacher Available</td>
+        </tr>
+        {% endif %}
     </table>
 
     <table class="table table-hover table-striped">
@@ -22,6 +28,7 @@
         <th>Friday</th>
         <th>Saturday</th>                        
       </tr>
+      {% if timeTableData %}
       {% for eachRow in timeTableData%}
       <tr style="margin-top:5px;">
         <td>{{eachRow.period_no}}</td>
@@ -33,5 +40,10 @@
         <td>{{eachRow.saturday}}</td>
       </tr>
            {% endfor %}
+           {% else %}
+        <tr>
+          <td colspan="7" style="text-align: center;">No Schedule Available</td>
+        </tr>
+           {% endif %}
     </table>
   </div>
