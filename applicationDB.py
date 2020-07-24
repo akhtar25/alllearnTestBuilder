@@ -252,19 +252,6 @@ class ChapterDetail(db.Model):
     book_name = db.Column(db.String(200), nullable=True)
     last_modified_date=db.Column(db.DateTime, nullable=True)
 
-
-class FeeClassSecDetail(db.Model):
-    __tablename__ = "fee_class_sec_detail"
-    fee_class_sec_id = db.Column(db.Integer, primary_key=True)
-    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
-    class_val = db.Column(db.String(20), nullable=True)
-    section=db.Column(db.String(1), nullable=True)
-    is_current = db.Column(db.String(1), nullable=True)
-    last_modified_date=db.Column(db.DateTime)
-    changed_date = db.Column(db.DateTime, nullable=True)
-    amount = db.Column(db.Integer,nullable=True)
-    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
-
 class StudentClassSecDetail(db.Model):
     __tablename__= "student_class_sec_detail"
     student_class_sec_id = db.Column(db.Integer, primary_key=True)
