@@ -677,16 +677,26 @@ class FeeDetail(db.Model):
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     payment_date = db.Column(db.DateTime,nullable=True)
     due_date = db.Column(db.DateTime,nullable=True)
-    fee_amount = db.Column(db.Integer,nullable=True)
-    fee_paid_amount = db.Column(db.Integer,nullable=True)
+    fee_amount = db.Column(db.Float,nullable=True)
+    fee_paid_amount = db.Column(db.Float,nullable=True)
     month = db.Column(db.Integer, nullable=False)
     year = db.Column(db.Integer, nullable=False)
     paid_status = db.Column(db.String(1),nullable=False)
     delay_reason = db.Column(db.String(100),nullable=True)
-    outstanding_amount = db.Column(db.Integer,nullable=True)
+    outstanding_amount = db.Column(db.Float,nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)    
 
-
+class FeeClassSecDetail(db.Model):
+    _tablename_ = "fee_class_sec_detail"
+    fcs_id = db.Column(db.Integer, primary_key=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
+    section=db.Column(db.String(1), nullable=True)
+    is_current = db.Column(db.String(1), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+    change_date = db.Column(db.DateTime, nullable=True)
+    amount = db.Column(db.Float,nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
 
 class PerformanceDetail(db.Model):
     __tablename__ = "performance_detail"
