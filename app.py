@@ -623,11 +623,11 @@ def schoolRegistration():
         session['userType'] = current_user.user_type
         session['username'] = current_user.username
         
-        print('user name')
-        print(session['username'])
+        #print('user name')
+        #print(session['username'])
         school_id = ''
-        print('user type')
-        print(session['userType'])
+        #print('user type')
+        #print(session['userType'])
         session['studentId'] = ''
         # if session['userType']==71:
         #     school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -643,7 +643,7 @@ def schoolRegistration():
         #     session['schoolPicture'] = school_pro.school_picture
         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         moduleDetRow = db.session.execute(query).fetchall()
-        print('School profile')
+        #print('School profile')
         # print(session['schoolPicture'])
         # det_list = [1,2,3,4,5]
         session['moduleDet'] = []
@@ -1537,8 +1537,8 @@ def index():
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
         # print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
-        print('user type value')
-        print(session['moduleDet'])
+        #print('user type value')
+        #print(session['moduleDet'])
         query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"'"
         moduleDetRow = db.session.execute(query).fetchall()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
@@ -2171,10 +2171,10 @@ def login():
         session['username'] = current_user.username
         
         print('user name')
-        print(session['username'])
+        #print(session['username'])
         school_id = ''
         print('user type')
-        print(session['userType'])
+        #print(session['userType'])
         session['studentId'] = ''
         if session['userType']==71:
             school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -2191,7 +2191,7 @@ def login():
         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         moduleDetRow = db.session.execute(query).fetchall()
         print('School profile')
-        print(session['schoolPicture'])
+        #print(session['schoolPicture'])
         # det_list = [1,2,3,4,5]
         session['moduleDet'] = []
         detList = session['moduleDet']
@@ -2210,7 +2210,7 @@ def login():
             print('module_name'+str(each[0]))
             print('module_url'+str(each[1]))
             print('module_type'+str(each[2]))
-        print(session['schoolName'])
+        #print(session['schoolName'])
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
@@ -5253,10 +5253,10 @@ def feedbackCollection():
                 print('Date:'+str(dateVal))
                 print('Response Session ID:'+str(responseSessionID))
                 print('If Question list size is not zero')
-                print(sessionDetailRowCheck)
+                #print(sessionDetailRowCheck)
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
-                    print(sessionDetailRowCheck)
+                    #print(sessionDetailRowCheck)
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                     class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
                     db.session.add(sessionDetailRowInsert)
@@ -5441,7 +5441,7 @@ def loadQuestionStud():
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
     #print('########### Session details have been fetched')
-    print(sessionDetailRow)
+    #print(sessionDetailRow)
     teacherID = sessionDetailRow.teacher_id
 
     if response_option!='':
