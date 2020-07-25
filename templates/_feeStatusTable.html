@@ -96,6 +96,7 @@
         $('.tt_amt').val(total_amount);
         console.log('inside keyup');
         var studID = $(this).attr('id');
+        $('#saveFeeDataBTN').prop('disabled',false);
         studID = studID.substring(4);
         console.log('Student ID:'+studID);
         if(parseInt(total_amount,10)==parseInt(paid_amount,10)){
@@ -106,7 +107,7 @@
             $(this).parents("tr").find(".outstanding_amount").html('0');
             var sID = '#'+studID;
             var unpaidID = '#'+studID+'unpaid';
-            $('#saveFeeDataBTN').prop('disabled',false);
+            
             $(sID).val(0);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
@@ -121,7 +122,6 @@
             $(this).parents("tr").find(".outstanding_amount").html(pending_amount);
             var sID = '#'+studID;
             var unpaidID = '#'+studID+'unpaid';
-            $('#saveFeeDataBTN').prop('disabled',true);
             $(sID).val(pending_amount);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
@@ -135,6 +135,7 @@
         var form = $('#feeForm');
         $('#errorBox').html('');
         $('#saveFeeDataBTN').html('please wait...');
+        $('#saveFeeDataBTN').prop('disabled',true);
         var total_amt = $('.tt_amt').val();
         console.log('Total Amount:'+total_amt);
         $.ajax({
@@ -142,7 +143,6 @@
                 type: "POST",
                 data: form.serialize(),
                 success: function (response2) {
-                  $('#saveFeeDataBTN').hide();
                   $('#saveFeeDataBTN').html('Save Fee Data');
                     if (response2=='0'){
                     M.toast({html: '<h4>Data Uploaded Successfully</h4>'});
