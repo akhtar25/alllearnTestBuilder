@@ -53,6 +53,11 @@
             {% endif %}
           </div>
         </div>
+        {% if qclass_val %}
+        <div class="row">
+          <button data-target="modal1" style="float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
+        </div>
+        {% endif %}
       <div class="row">
         <h4 class="grey-text" style="margin-left:15px;">Choose Month and Year</h4>
         <div class="input-field col-md-3">
@@ -66,9 +71,7 @@
             </select>
         </div>
       </div>
-      <div class="row">
-        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
-      </div>
+      
       <a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br>
 
       <!-- Start Summary Box -->
@@ -145,8 +148,11 @@
       </div>
     </div>
   </div>
-  <br>
-  <a href="javascript:void(0);" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a>
+  <br> 
+  <!-- <a href="javascript:void(0);" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a> -->
+  {% if qclass_val %}
+  <button class="btn waves-light green lighten-1 white-text" style="display:none;float:right;" id="saveFeeDataBTN">Save Fee Data</button>
+  {% endif %}
   <h4 id="errorBox" style="color:red;"></h4>
   <br><br>
   <div id="feeStatusloader" style="margin-left:160px;display: none;">
@@ -161,6 +167,12 @@
 
 $(document).ready(function(){
     $('.modal').modal();
+    var fee = "{{fee}}";
+    if(fee){
+      $('#configure').prop('disabled',true);
+    }else{
+      $('#configure').prop('disabled',false);
+    }
   });
 
 $(document).ready(function () {
@@ -198,8 +210,7 @@ $(document).ready(function () {
     var selectYear = document.getElementById('addYearSelect')
     $('.selection').change(function () {
       $('#summaryBoxDiv').html('');
-      $('#saveFeeDataBTN').hide();
-      $('#configure').hide();
+
       $('#sms').hide();
       var monthSelectCheck = $('#addMonthSelect').val();
       var yearSelectCheck = $('#addYearSelect').val();
@@ -244,9 +255,9 @@ $(document).ready(function () {
                 success: function (response) {
                     
                     $('#feeStatusloader').hide();
-                    
+                    $('#saveFeeDataBTN').prop('disabled',true);
+                    $('#saveFeeDataBTN').show();
                     $('#sms').show();
-                    $('#configure').show();
                     $("#feeStatusDiv").html(response);
                     $('#feeDiv').show();
                     console.log('Fetched fee data from server')
@@ -255,10 +266,8 @@ $(document).ready(function () {
                     if(amt){
                       console.log(amt);
                       console.log('total amount exist');
-                      $('#configure').prop('disabled',true);
                     }else{
                       console.log('amount is null');
-                      $('#configure').prop('disabled',false);
                     }
                 },
                 error: function (xhr) {
@@ -276,11 +285,27 @@ $(document).ready(function () {
 
     $('#Set').click(function(){
       var total_fee = $('#fee').val();
-      $('.total_amount').html(total_fee);
-      $('#configure').prop('disabled',true);
-      var elem = $('#modal1')
-      var instance = M.Modal.getInstance(elem);                   
-      instance.close();
+      
+      var class_val = "{{qclass_val}}";
+      var section = "{{qsection}}";
+      var data = "";
+        $.ajax({
+                url: "/setFee?class_val="+class_val+"&section="+section+"&total_fee="+total_fee,
+                type: "get",
+                data: data,
+                success: function (response) {
+                  
+                  if(response==0){
+                    var elem = $('#modal1')
+                  var instance = M.Modal.getInstance(elem);                   
+                  instance.close();
+                  $('#configure').prop('disabled',true);
+                  }
+                },
+                error: function(xhr){
+                  window.alert("error occurred while submitting data");
+                }
+        });
     });
 
 

@@ -4,26 +4,24 @@
       <th class="text-center">Unpaid fee</th>
       <th class="text-center">Paid students count</th>
       <th class="text-center">Unpaid students count</th>
-    </tr>
-    {% for row in feeDetailRow %}
+    </tr> 
     <tr>
       <td class="pt-3-half" style="color:forestgreen;font-size: 15px;font-weight: 800;" contenteditable="false">
-        {% if row.collected_fee %}
-        {{row.collected_fee}}
+        {% if paid_fees %}
+        {{paid_fees}}
         {% else %}
         0
         {% endif %}
       </td>
       <td class="pt-3-half" style="color:red;font-size: 15px;font-weight: 800;" contenteditable="false">
-        {% if row.unpaid_fee %}
-        {{row.unpaid_fee}}
+        {% if total_unpaid_fee %}
+        {{total_unpaid_fee}}
         {% else %}
         0
         {% endif %}
       </td>
-      <td class="pt-3-half" style="color: forestgreen;font-size: 15px;font-weight: 800;" contenteditable="false">{{row.no_of_paid_students}}</td>
-      <td class="pt-3-half" style="color: red;font-size: 15px;font-weight: 800;" contenteditable="false">{{row.no_of_unpaid_students}}</td>                        
+      <td class="pt-3-half" style="color: forestgreen;font-size: 15px;font-weight: 800;" contenteditable="false">{{paid_student_count}}</td>
+      <td class="pt-3-half" style="color: red;font-size: 15px;font-weight: 800;" contenteditable="false">{{total_unpaid_students}}</td>                        
       
     </tr>
-    {% endfor %}
   </table>

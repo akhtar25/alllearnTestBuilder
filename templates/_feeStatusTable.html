@@ -4,7 +4,7 @@
     <input type="hidden" value="{{qyear}}" name="qyear">
     <input type="hidden" value="{{class_val}}" name="qclass_val">
     <input type="hidden" value="{{section}}" name="qsection">
-    <tr>
+    <tr> 
       <th class="text-center">Student Name</th>
       <th class="text-center">Fee Amount</th>
       <th class="text-center">Paid Amount</th>
@@ -29,7 +29,9 @@
         <input type="hidden" value="{{row.student_id}}" name="student_id">
         </td>
       <td class="total_amount pt-3-half">
+        {% if total_amt %}
           {{total_amt}}
+        {% endif %}
         </td>
         <input type="hidden" value="{{total_amt}}" class="tt_amt">
       <td class="pt-3-half" contenteditable="false">
@@ -47,6 +49,8 @@
       <td class="outstanding_amount pt-3-half" contenteditable="false">
         {% if row.rem_amount or row.rem_amount==0 %}
             {{row.rem_amount}}
+        {% else %}
+        {{total_amt}}
         {% endif %}
         </td>  
         {% if row.rem_amount %}
@@ -80,7 +84,7 @@
     {% endfor %}
     {% else %}
     <tr>
-        <td><a href="{{url_for('studentRegistration')}}">click to add students</a></td>
+        <td colspan="6"><a href="{{url_for('studentRegistration')}}">Click here to add students</a></td>
     </tr>
     {% endif %}
   </table>
@@ -102,7 +106,7 @@
             $(this).parents("tr").find(".outstanding_amount").html('0');
             var sID = '#'+studID;
             var unpaidID = '#'+studID+'unpaid';
-            $('#saveFeeDataBTN').show();
+            $('#saveFeeDataBTN').prop('disabled',false);
             $(sID).val(0);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());
@@ -117,7 +121,7 @@
             $(this).parents("tr").find(".outstanding_amount").html(pending_amount);
             var sID = '#'+studID;
             var unpaidID = '#'+studID+'unpaid';
-            $('#saveFeeDataBTN').show();
+            $('#saveFeeDataBTN').prop('disabled',true);
             $(sID).val(pending_amount);
             console.log('ID:'+sID);
             console.log('Value:'+$(sID).val());

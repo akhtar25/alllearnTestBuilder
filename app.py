@@ -853,18 +853,62 @@ def feeMonthData():
     feeDetail = ''
     if class_val=='None' or class_val=='':
         print('if class is None')
-        feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
-        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from student_profile sp inner join fee_detail fd on sp.student_id = fd.student_id where sp.student_id not in (select student_id from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and fd.month='"+str(qmonth)+"' and fd.year='"+str(qyear)+"') as no_of_unpaid_students ,"
-        feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
-        feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
+        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_fees = db.session.execute(text(paid_fees)).first()
+        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_student_count = db.session.execute(text(paid_student_count)).first()
+        unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"'"
+        unpaid_students = db.session.execute(text(unpaid_students)).first()
+        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+        total_unpaid_students = 0
+        if unpaid_students and partially_paid_students:
+            total_unpaid_students = int(unpaid_students.no_of_unpaid_students) + int(partially_paid_students.partially_paid_students)
+        class_sec_ids = ClassSection.query.filter_by(school_id=teacherDataRow.school_id).all()
+        total_unpaid_fee = 0
+        for class_sec_id in class_sec_ids:
+            unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+            unpaid_students = db.session.execute(text(unpaid_students)).first()
+            fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+            unpaid_students_fee = 0
+            if unpaid_students and fee_amount:
+                unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+            partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+            partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+            if partially_paid_fee:
+                print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+            if partially_paid_fee.pending_amount:
+                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee + partially_paid_fee.pending_amount
+            else:
+                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee
     else:
         print('if class is not None')
-        feeDetail = "select sum(fee_paid_amount) as collected_fee, sum(outstanding_amount) as unpaid_fee, "
-        feeDetail = feeDetail + "(select count(*) as no_of_unpaid_students from student_profile sp inner join fee_detail fd on sp.student_id = fd.student_id where sp.student_id not in (select student_id from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and fd.month='"+str(qmonth)+"' and fd.year='"+str(qyear)+"' and fd.class_sec_id='"+str(class_sec_id.class_sec_id)+"') as no_of_unpaid_students ,"
-        feeDetail = feeDetail + "(select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"') as no_of_paid_students "
-        feeDetail = feeDetail + "from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' "
-    feeDetailRow = db.session.execute(text(feeDetail)).fetchall()
-    return render_template('_summaryBox.html',feeDetailRow=feeDetailRow)
+        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_fees = db.session.execute(text(paid_fees)).first()
+        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_student_count = db.session.execute(text(paid_student_count)).first()
+        unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+        unpaid_students = db.session.execute(text(unpaid_students)).first()
+        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+        total_unpaid_students = 0
+        if unpaid_students and partially_paid_students:
+            total_unpaid_students = int(unpaid_students.no_of_unpaid_students) + int(partially_paid_students.partially_paid_students)
+        fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+        
+        unpaid_students_fee = 0
+        if unpaid_students and fee_amount:
+            unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+        partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+        total_unpaid_fee = 0
+        if partially_paid_fee:
+            print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+            if partially_paid_fee.pending_amount:
+                total_unpaid_fee = unpaid_students_fee + partially_paid_fee.pending_amount
+            else:
+                total_unpaid_fee = unpaid_students_fee
+    return render_template('_summaryBox.html',paid_fees=paid_fees.collected_fee,paid_student_count=paid_student_count.no_of_paid_students,total_unpaid_students=total_unpaid_students,total_unpaid_fee=total_unpaid_fee)
 
 # New Section added to manage fee status
 @app.route('/feeStatusDetail')
@@ -888,12 +932,9 @@ def feeStatusDetail():
     print(str(len(feeStatusDataRows)))
     sections = ClassSection.query.filter_by(school_id=teacherDataRow.school_id,class_val=class_val).all()
     total_amt = ''
-    for sectionClass in sections:
-        class_sec_id = ClassSection.query.filter_by(class_val = class_val,section=sectionClass.section,school_id=teacherDataRow.school_id).first()
-        total_amount = FeeDetail.query.filter_by(school_id=teacherDataRow.school_id,class_sec_id=class_sec_id.class_sec_id).first()
-        if total_amount:
-            total_amt = total_amount.fee_amount
-            break
+    amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+    if amount:
+        total_amt = amount.amount
     print('Total amount:'+str(total_amt))
     return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
 #New Section added to manage payroll
@@ -2304,6 +2345,21 @@ def success():
         else:
             return render_template('index.html',text='Error: Email already used.')
 
+@app.route('/setFee',methods=['GET','POST'])
+def setFee():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    total_fee = request.args.get('total_fee')
+    classSec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacher_id.school_id).first()
+    class_sec_id = classSec_id.class_sec_id
+    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    for section in sections:
+        insertAmount = FeeClassSecDetail(class_sec_id=section.class_sec_id,class_val=section.class_val,section=section.section,is_current='Y',last_modified_date=datetime.now(),change_date=datetime.now(),amount=total_fee,school_id=teacher_id.school_id)
+        db.session.add(insertAmount)
+    db.session.commit()
+    return jsonify(['0'])
+
 @app.route('/feeManagement')
 @login_required
 def feeManagement():
@@ -2312,7 +2368,13 @@ def feeManagement():
     classSections=ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections)
+    fee = ''
+    amount = FeeClassSecDetail.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacher_id.school_id).first()
+    print(amount)
+    if amount:
+        fee = amount.amount
+        print('amount:'+str(fee))
+    return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections,fee=fee)
 
 
 @app.route('/privacyPolicy')
