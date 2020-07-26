@@ -149,6 +149,13 @@ def note_repr(key):
         'text': notes[key]
     }
 
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
+
 #@register.filter
 #def month_name(month_number):
 #    return calendar.month_name[month_number]
@@ -6482,12 +6489,12 @@ def addChapterTopics():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==71:
+        if current_user.user_type==134:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id            
+        else:
             teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             school_id = teacherData.school_id
-        else:
-            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentData.school_id
 
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
@@ -6525,12 +6532,12 @@ def addClass():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==71:
+        if current_user.user_type==134:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id            
+        else:
             teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             school_id = teacherData.school_id
-        else:
-            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentData.school_id
     ##########
     #teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
@@ -7107,10 +7114,10 @@ def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
     teacherRow = ''
-    if current_user.user_type==71:
-        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if current_user.user_type==134:
+        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()        
     else:
-        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     count = 0
     for section in classSections:
