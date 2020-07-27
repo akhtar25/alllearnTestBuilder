@@ -390,7 +390,8 @@ class ResponseCapture(db.Model):
     is_correct=db.Column(db.String(1), nullable=True)
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
-    marks_scorec = db.Column(db.Integer, nullable=True)
+    #new cols added for online test upgrade    
+    marks_scored = db.Column(db.Integer, nullable=True)
     answer_status = db.Column(db.Integer, nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
