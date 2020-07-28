@@ -886,6 +886,8 @@ class ModuleDetail(db.Model):
     description = db.Column(db.String(300),nullable=True)
     module_type = db.Column(db.String(50),nullable=True)
     module_url = db.Column(db.String(200),nullable=True)
+    title_val = db.Column(db.String(100), nullable=True)
+    meta_val = db.Column(db.String(200), nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
