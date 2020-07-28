@@ -11,11 +11,28 @@
     {% endif %}
     <div id="modal2{{testPaperData.test_id}}" class="modal" style="background-color:white; height: 250px;">
             <form action="/feedbackCollection" method="GET">
-              <div class="modal-content">
+              <div class="modal-content" style="height: 200px;position: relative;overflow-y: auto;">
                 <p> Starting Test</p>
                 <h4>Class: {{testPaperData.class_val}}</h4>
                 <h4>Enter <b>section</b> for which you want to run the test</h4>
                 <input type="text" name='section' placeholder="eg. A">
+                <p>
+                  <label>
+                    <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
+                    <span style="font-size: 18px;">Untimed</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input name="timeOption" class="Toption" value="Timed" type="radio" />
+                    <span style="font-size: 18px;">Timed</span>
+                  </label>
+                </p>
+                <input type="text" name='duration' placeholder="Duration" id="duration" style="display: none;">
+                <h4>Weightage</h4>
+                <input type="text" name="weightage" value="0">
+                <h4>Negative Marking</h4>
+                <input type="text" name="weightage" value="0">
                 <input type="hidden" name='class_val' value="{{testPaperData.class_val}}">
                 <input type="hidden" name='subject_id' value="{{testPaperData.subject_id}}">
                 <input type="hidden" name='test_id' value="{{testPaperData.test_id}}">
@@ -36,6 +53,13 @@
     // $('#testId').val(testID);
     $(document).ready(function () {
     $('.modal').modal();
+  });
+
+  $('.Toption').click(function(){
+    var timeOption = $("input[name='timeOption']:checked").val();
+    if(timeOption=='Timed'){
+      $('#duration').show();
+    }
   });
 </script>
 {% endif %}
