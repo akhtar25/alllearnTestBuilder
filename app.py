@@ -445,10 +445,11 @@ def practiceTest():
     else:
         avg_performance = 0
     
-    
+    meta_val = "Preparing for exams need not be difficult. Take free mock tests anytime you want with allLearn. CBSE | IIT JEE | NEET | Competitive Exams"
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
         studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
-        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered)
+        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered,title='Take unlimited free practice tests anytime',
+        meta_val=meta_val)
 
 
 @app.route('/normal')
