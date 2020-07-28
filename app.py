@@ -5228,6 +5228,8 @@ def feedbackCollection():
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
         qtest_id = request.args.get('test_id')
+        weightage = request.args.get('weightage')
+        NegMarking = request.args.get('negativeMarking')
         print('Test Id:'+str(qtest_id))
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')

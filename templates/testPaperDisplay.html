@@ -28,11 +28,13 @@
                     <span style="font-size: 18px;">Timed</span>
                   </label>
                 </p>
-                <input type="text" name='duration' placeholder="Duration" id="duration" style="display: none;">
+                <div id="durationDiv" style="display: none;">
+                <h4>Duration</h4>
+                <input type="text" name='duration' placeholder="Duration"></div>
                 <h4>Weightage</h4>
                 <input type="text" name="weightage" value="0">
                 <h4>Negative Marking</h4>
-                <input type="text" name="weightage" value="0">
+                <input type="text" name="negativeMarking" value="0">
                 <input type="hidden" name='class_val' value="{{testPaperData.class_val}}">
                 <input type="hidden" name='subject_id' value="{{testPaperData.subject_id}}">
                 <input type="hidden" name='test_id' value="{{testPaperData.test_id}}">
@@ -58,7 +60,9 @@
   $('.Toption').click(function(){
     var timeOption = $("input[name='timeOption']:checked").val();
     if(timeOption=='Timed'){
-      $('#duration').show();
+      $('#durationDiv').show();
+    }else{
+      $('#durationDiv').hide();
     }
   });
 </script>
