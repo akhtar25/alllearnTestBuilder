@@ -2021,6 +2021,7 @@ def archiveLiveClass():
 
 
 @app.route('/liveClass', methods=['GET','POST'])
+@login_required
 def liveClass():    
     form = AddLiveClassForm()
     #allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
