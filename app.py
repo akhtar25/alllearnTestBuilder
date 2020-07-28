@@ -5230,6 +5230,7 @@ def feedbackCollection():
         qtest_id = request.args.get('test_id')
         weightage = request.args.get('weightage')
         NegMarking = request.args.get('negativeMarking')
+        duration = request.args.get('duration')
         print('Test Id:'+str(qtest_id))
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
@@ -5251,11 +5252,14 @@ def feedbackCollection():
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
 
             questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()  
+            qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
+            qWeightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
             print('Inside question id list')
             print(questionIDList)          
             questionListSize = len(questionIDList)
 
             print('Question list size:'+str(questionListSize))
+            total_marks = int(weightage)*questionListSize
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
@@ -5266,9 +5270,14 @@ def feedbackCollection():
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
                     #print(sessionDetailRowCheck)
-                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                    class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
-                    db.session.add(sessionDetailRowInsert)
+                    if weightage:
+                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                        db.session.add(sessionDetailRowInsert)
+                    else:
+                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=qWeightage.suggested_weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                        db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
                     db.session.commit()
 
@@ -5292,7 +5301,7 @@ def feedbackCollection():
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=totalMarks, testType=testType)
+                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, testType=testType)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -5467,10 +5476,10 @@ def loadQuestionStud():
             ansCheck='N'
              
         print('Class:'+str(studentRow.class_sec_id))
-
+        resp_weightage = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
         responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,last_modified_date= date.today())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status='N',last_modified_date= date.today())
         print('Question numbering')
         print(responseStudUpdateQuery)
         db.session.add(responseStudUpdateQuery)
@@ -5487,15 +5496,19 @@ def loadQuestionStud():
         return render_template('_questionStud.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount, last_q_id=question_id)
     else:        
         print('###############q number MORE THAN TOTAL Q COUNT###############')
-        totalMarksQuery = "select sum(suggested_weightage) as total_marks, count(*) as num_of_questions  from question_details where question_id in "
-        totalMarksQuery =  totalMarksQuery +"(select distinct question_id from test_questions t1 inner join session_detail t2 on "
-        totalMarksQuery =  totalMarksQuery +"t1.test_id=t2.test_id and t2.resp_session_id='"+str(resp_session_id)+"') "
+        # totalMarksQuery = "select sum(suggested_weightage) as total_marks, count(*) as num_of_questions  from question_details where question_id in "
+        # totalMarksQuery =  totalMarksQuery +"(select distinct question_id from test_questions t1 inner join session_detail t2 on "
+        # totalMarksQuery =  totalMarksQuery +"t1.test_id=t2.test_id and t2.resp_session_id='"+str(resp_session_id)+"') "
+
+        totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
         print('Total Marks Query:'+totalMarksQuery)
         totalMarksVal = db.session.execute(text(totalMarksQuery)).first()
 
-        marksScoredQuery =  "select sum(suggested_weightage) as marks_scored, count(*) as correct_ans from question_details where question_id "
-        marksScoredQuery=marksScoredQuery+"in (select distinct question_id from response_capture where is_correct='Y' and "
-        marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"')"
+        # marksScoredQuery =  "select sum(suggested_weightage) as marks_scored, count(*) as correct_ans from question_details where question_id "
+        # marksScoredQuery=marksScoredQuery+"in (select distinct question_id from response_capture where is_correct='Y' and "
+        # marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"')"
+
+        marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         print('Marks Scored Query:'+marksScoredQuery)
         print('Marks Scored:'+str(marksScoredVal.marks_scored))

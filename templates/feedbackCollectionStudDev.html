@@ -161,7 +161,7 @@
           questionIDListJS[tempCountVar] + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
           "&subject_id="+ {{subject_id}},
         type: "get",
-        data: '',
+        data: '', 
         success: function (response) {
           $("#questionSection").html(response);
           tempCountVar = tempCountVar + 1;
