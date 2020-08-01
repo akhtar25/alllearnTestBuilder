@@ -51,9 +51,14 @@
   </script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {%if meta_val%}
+  <meta name="description" content="{{meta_val}}">
+  {%else%}
+  <meta name="description" content="allLearn - Free mock tests and school erp platform">
+  {%endif%}
   <link rel="icon" href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" type="image/png" href="#" /> {% if title %}
-  <title>{{ title }}</title>
+  <title>allLearn - {{ title }}</title>
   {% else %}
   <title>allLearn</title>
   {% endif %}
@@ -79,7 +84,7 @@
 </head>
 
 <body>
-  <nav class="white lighten-5 green-text header" role="navigation" style="height: 100px; color: blanchedalmond">
+  <nav class="white lighten-5 green-text header" id="mainNavBar" role="navigation" style="height: 100px;">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
