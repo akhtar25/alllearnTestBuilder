@@ -383,7 +383,7 @@ justify-content: center;" id="containerDiv">
  
  {%if current_user.is_anonymous==False%}
                 $.ajax({
-                    url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}" +
+                    url: "/studentPerformanceGraph?student_id=" + "{{studentProfile.student_id}}" +
                         "&fromPractice=1",
                     type: "get",
                     data: "",
@@ -601,7 +601,9 @@ justify-content: center;" id="containerDiv">
                     success: function (response) {
                         //window.alert(response);
                         if (response == 1) {
+                            
                             $('#errorStartMSG').show();
+                            $('#errorStartMSG').html('No Questions present under the selected topic(s)');
                             $('#startTestBTN').val('Start Test');
                             $('#startTestBTN').prop('disable', false);
                             $('#startTestBTN').html('Start Test');
