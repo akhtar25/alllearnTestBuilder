@@ -354,18 +354,22 @@ def practiceTest():
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
             db.session.commit() 
+        else:
+            studentDataAdd = StudentProfile.query.filter_by(id=current_user.id).first()
+
+        #This section is to update an anonymously taken test with new student id    
         #try:
-        if session.get('anonUser'):
-            splitVals = str(session['anonUser']).split('_')
-            respSessionID = splitVals[1]
-            session['anonUser'] = False
-            print("Resp Session ID of older test: "+str(respSessionID))
-            ###Section to update the test results of anon user with the new student id in resp capture
-            respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
-            respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
-            respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
-            print(str(respUPDQuery))
-            db.session.execute(text(respUPDQuery))
+        #if session.get('anonUser'):
+        #    splitVals = str(session['anonUser']).split('_')
+        #    respSessionID = splitVals[1]
+        #    session['anonUser'] = False
+        #    print("Resp Session ID of older test: "+str(respSessionID))
+        #    ###Section to update the test results of anon user with the new student id in resp capture
+        #    respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+        #    respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
+        #    respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
+        #    print(str(respUPDQuery))
+        #    db.session.execute(text(respUPDQuery))
                 
         #except:
         #    print('error occurred. response cap not updated.')
@@ -388,6 +392,7 @@ def practiceTest():
         leaderboardData = ""
         class_val=""
         questionsAnswered=0
+        print('#####Student data is null')
     else:        
         studentDataQuery = "with temptable as "
         studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
@@ -406,6 +411,7 @@ def practiceTest():
         studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
         studentData = db.session.execute(text(studentDataQuery)).first()
 
+        
         #getting class_val for the student
         classDataQuery = "select *from class_section cs where class_sec_id="+ str(studentProfile.class_sec_id)
         classData = db.session.execute(classDataQuery).first()
@@ -4417,8 +4423,9 @@ def startPracticeTest():
     if current_user.is_anonymous:
         if session.get('anonUser'):
             print('the anon user is true')
-            flash('Please login to start any further tests')
-            return jsonify(['2']) 
+            #this section forces a user to take an unsigned test only once
+            #flash('Please login to start any further tests') 
+            #return jsonify(['2']) 
         else:
             session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
             print("This is the value of anon user: " + session['anonUser'])            
@@ -4427,7 +4434,7 @@ def startPracticeTest():
         session['anonUser']==False
 
     ##Create session
-    if len(questions) >0:
+    if len(questions) >0:        
         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
             class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
         db.session.add(sessionDetailRowInsert)
@@ -6022,7 +6029,8 @@ def studentPerformanceGraph():
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
-    student_id=request.args.get('student_id')        
+    student_id=request.args.get('student_id')      
+    print("Student id is: "+str(student_id))  
     dateVal = request.args.get('date')
     
     if dateVal ==None or dateVal=="":
@@ -6646,7 +6654,7 @@ def addChapterTopics():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==134:
+        if current_user.user_type==134 or current_user.user_type==234:
             studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
             school_id = studentData.school_id            
         else:
@@ -6689,7 +6697,7 @@ def addClass():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==134:
+        if current_user.user_type==134 or current_user.user_type==234:
             studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
             school_id = studentData.school_id            
         else:
