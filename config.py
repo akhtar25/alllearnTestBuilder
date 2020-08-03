@@ -12,6 +12,7 @@ class Config(object):
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT') 
     POSTS_PER_PAGE = 10
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+    GOOGLE_CLIENT_ID = "489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com"
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
     GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration")
@@ -20,6 +21,7 @@ class Config(object):
     #New value for anonymous user id passed as a dev for practice test pages
     ANONYMOUS_USERID = os.environ.get('ANONYMOUS_USERID')
     ANONYMOUS_USERID = 886
+
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
     #IMPACT_HOST = "alllearnimpactstaging.herukoapp.com"
     #IMPACT_HOST = "http://127.0.0.1:8000"
