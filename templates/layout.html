@@ -14,7 +14,7 @@
 </script>
 <meta name="google-signin-scope" content="profile email">
 <meta name="google-signin-client_id" content="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com">
-<script src="https://apis.google.com/js/platform.js" async defer></script>
+
   <script>
     ! function () {
       var analytics = window.analytics = window.analytics || [];
@@ -189,7 +189,7 @@
           <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {%elif user_type_val=='161'%}
         <li>
@@ -222,7 +222,7 @@
         </li>
 
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {% else %}
         <li>
@@ -287,7 +287,7 @@
           <a style="color: green;" href="{{url_for('help')}}">Help</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
         </li>
         {%endif%}
       </ul>
@@ -367,7 +367,7 @@
           </li>-->
           {%endif%}
           <li>
-            <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+            <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
           </li>
           {% endif %}
         </ul>
@@ -497,6 +497,7 @@
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="dropdown2">
+              
              <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
@@ -801,6 +802,12 @@
 <script src="../static/js/autoComplete.js"></script>
 <script src="../static/js/datatables.js"></script>
 <script>
+ 
+  function onLoad(){
+    gapi.load('auth2',function(){
+      gapi.auth2.init();
+    });
+  }
   $(document).ready(function () {
     // $('.sidenav').sidenav();
     //alert('1');
@@ -813,6 +820,16 @@
     //}
 
   });
+
+$('.logoutBTN').click(function(){
+  //window.alert('logout function');
+  //gapi.auth2.init(client_id="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com");
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+});
+
   // $(document).ready(function(){
   //       $("#st").removeClass("sorting_asc");
   //       $('#datatable').dataTable( {
@@ -839,16 +856,6 @@
       closeOnClick: true
     });
   });
-
-  // $('.button-collapse').sideNav({
-  //       menuWidth: 300,
-  //       closeOnClick: true,
-  //       edge: 'right', // <--- CHECK THIS OUT
-  //     }
-  //   );
-
-
-  // Show sideNav
 </script>
-
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 </html>

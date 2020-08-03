@@ -174,10 +174,10 @@ def gTokenSignin():
                 
         #section to create new user
         chkUserData = User.query.filter_by(email=str(idinfo["email"])).first()
-        if chkUserData!=None:
+        if chkUserData==None:
             user = User(username=idinfo["email"], email=idinfo["email"], user_type='140', access_status='144', 
                 first_name = idinfo["given_name"],last_name= idinfo["family_name"], last_modified_date = datetime.today(),
-                user_avatar = idinfo["picture"])
+                user_avatar = idinfo["picture"], login_type=244)
             #user.set_password(form.password.data)
             db.session.add(user)
             db.session.commit()
@@ -200,7 +200,7 @@ def gTokenSignin():
 
         #endof section
 
-        return jsonify(['0'])
+        return '0'
         # // These six fields are included in all Google ID Tokens.
         # "iss": "https://accounts.google.com",
         # "sub": "110169484474386276334",
@@ -221,7 +221,7 @@ def gTokenSignin():
         #}
     except ValueError:
         # Invalid token
-        return jsonify(['1'])
+        return '1'
         
 
 
@@ -2235,21 +2235,36 @@ def user(username):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    print('Inside login')
+    print('Inside login')    
     if current_user.is_authenticated:        
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
             return redirect(url_for('index'))
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        user=User.query.filter_by(email=form.email.data).first()                
+    #new section for google login
+    glogin = request.args.get('glogin')
+    gemail = request.args.get('gemail')
+    ##end of new section
 
-        if user is None or not user.check_password(form.password.data):
-            flash("Invalid email or password")
-            return redirect(url_for('login'))
+    form = LoginForm()
+    if form.validate_on_submit() or glogin=="True":
+        if glogin=="True":
+            print("###glogin val"+ str(glogin))
+            print("###email received from page"+ str(gemail))
+            user=User.query.filter_by(email=gemail).first()   
+            if user is None:
+                flash("Email not registered")
+                return redirect(url_for('login'))
+        else:
+            user=User.query.filter_by(email=form.email.data).first()                
+            if user is None or not user.check_password(form.password.data):        
+                flash("Invalid email or password")
+                return redirect(url_for('login'))
+
+        #logging in the user with flask login
         login_user(user,remember=form.remember_me.data)
+
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')

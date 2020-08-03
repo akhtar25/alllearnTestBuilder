@@ -1,24 +1,30 @@
 {% extends "layout.html" %} {% block content %}
+<style>
+    @media screen and (min-width: 750px) {   
+        #googleSignInDiv{
+            margin-left: 25%;
+        }
+     }
+      @media screen and (max-width: 650px) {
+        #googleSignInDiv{
+            margin-left: 5%;
+        }
+      }
+</style>
+
 <div class="container" style="text-align: center;">
     <div class='row ' style="display: inline-block; ">
 
         <div class='input-field col s12 z-depth-1 hoverable'
             style="text-align: left;border-radius: 25px;border: 2px solid #73AD21;padding: 10px;">
             <h2 style="color:Green">Sign In</h2>
-            <!--
-<div class="btn white  col s4 m4 right ">
-    <a href="#" style="text-transform:none" class="">
-        <div class="left ">
-            <img width="20px" style="border: grey" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
-        </div>
-        Login with Google
-    </a>
-</div>
--->
-            <div id="googleSignInDiv" class="center">
-                <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+            <div id="googleSignInDiv" class="row" >         
+                <div class="g-signin2" data-onsuccess="onSignIn" data-width="250" data-height="40" data-longtitle="true"></div>      
             </div>
-            or
+            <div class="center row">
+                OR
+            </div>
             <form action="" method="post" novalidate>
                 {{ form.hidden_tag() }}
                 <p>
@@ -75,13 +81,19 @@
         //Sending token id to server for verification
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{{url_for("gTokenSignin")}}');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');       
+        //window.alert('about to send token. email='+ profile.getEmail());
+        xhr.send('idtoken=' + id_token);
         xhr.onload = function () {
             console.log('Signed in as: ' + xhr.responseText);
+            var signInResponse = xhr.responseText;
+            //window.alert(xhr.responseText);
+            if (signInResponse=="0")
+            {
+                window.location.href = "/login?glogin=True&gemail="+ profile.getEmail();
+            }
         };
-        window.alert('about to send token');
-        xhr.send('idtoken=' + id_token);
-        window.alert('Token sent to server');
+        //window.alert('Token sent to server');
     }
 </script>
 {% endblock %}
