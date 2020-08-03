@@ -87,6 +87,7 @@ class User(UserMixin, db.Model):
     resume = db.Column(db.String(200),nullable=True)
     willing_to_travel = db.Column(db.Boolean,nullable=True)
     intro_link = db.Column(db.String(200),nullable=True)
+    login_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
     def __repr__(self):

@@ -29,7 +29,7 @@ def send_email(email, name, subjectToSend, messageToSend):
     msg['Subject']=subject
     msg['To']=to_email
     #msg['From']=from_email
-    msg['From']="allLearn"
+    msg['From']="contact@alllearn.in"
 
     Thread(target=send_async_email, args=(msg, from_email, from_password)).start()
 
