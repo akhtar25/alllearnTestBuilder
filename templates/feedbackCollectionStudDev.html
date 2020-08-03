@@ -5,7 +5,9 @@
   <div class="sidebar-mini">
      <aside class="main-sidebar" style="padding:0px;">            
             <section class="sidebar" id="leftPanel" style="display: none;">
+              <div id="timeDiv">
               <h4>Remaining Time:<span id="remTime"></span></h4>
+            </div>
               <!-- panel -->
               <div class="panel panel-body panel-default mb0 mt10" style="border:dotted">
                 <div class="table-responsive">
@@ -286,7 +288,9 @@
           if(num=='q'){
             console.log('inside success of num q ');
             // if(btn=='Start'){
+              if (tempCountVar != (questionListSize-1)) {
           c = (parseInt(c) + 1);
+              }
             // }
           console.log('in success c:'+c);
           }

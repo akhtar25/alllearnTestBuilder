@@ -49,6 +49,7 @@
 // Set the date we're counting down to
     var d = new Date();
     var duration = "{{ duration }}";
+    if(duration>0){
     duration = parseInt(duration);
   var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+duration)+':'+d.getMinutes()+':'+d.getSeconds();
   var d = dat.toString();
@@ -80,6 +81,9 @@ var x = setInterval(function() {
     // document.getElementById("remTime").innerHTML = "EXPIRED";
   }
 }, 1000);
+    }else{
+      $('#timeDiv').hide();
+    }
     {% endif %}
 
     {% if correctOpt %}
