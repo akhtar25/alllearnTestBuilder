@@ -87,6 +87,7 @@ class User(UserMixin, db.Model):
     resume = db.Column(db.String(200),nullable=True)
     willing_to_travel = db.Column(db.Boolean,nullable=True)
     intro_link = db.Column(db.String(200),nullable=True)
+    login_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
     def __repr__(self):
@@ -390,6 +391,9 @@ class ResponseCapture(db.Model):
     is_correct=db.Column(db.String(1), nullable=True)
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
+    #new cols added for online test upgrade    
+    marks_scored = db.Column(db.Integer, nullable=True)
+    answer_status = db.Column(db.Integer, nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class Address(db.Model):
@@ -677,16 +681,26 @@ class FeeDetail(db.Model):
     class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     payment_date = db.Column(db.DateTime,nullable=True)
     due_date = db.Column(db.DateTime,nullable=True)
-    fee_amount = db.Column(db.Integer,nullable=True)
-    fee_paid_amount = db.Column(db.Integer,nullable=True)
+    fee_amount = db.Column(db.Float,nullable=True)
+    fee_paid_amount = db.Column(db.Float,nullable=True)
     month = db.Column(db.Integer, nullable=False)
     year = db.Column(db.Integer, nullable=False)
     paid_status = db.Column(db.String(1),nullable=False)
     delay_reason = db.Column(db.String(100),nullable=True)
-    outstanding_amount = db.Column(db.Integer,nullable=True)
+    outstanding_amount = db.Column(db.Float,nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)    
 
-
+class FeeClassSecDetail(db.Model):
+    _tablename_ = "fee_class_sec_detail"
+    fcs_id = db.Column(db.Integer, primary_key=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
+    class_val = db.Column(db.String(20), nullable=True)
+    section=db.Column(db.String(1), nullable=True)
+    is_current = db.Column(db.String(1), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
+    change_date = db.Column(db.DateTime, nullable=True)
+    amount = db.Column(db.Float,nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
 
 class PerformanceDetail(db.Model):
     __tablename__ = "performance_detail"
@@ -835,6 +849,11 @@ class SessionDetail(db.Model):
     test_id = db.Column(db.ForeignKey('test_details.test_id'),nullable=True) # this will only have a value when test has been configured before taking the feedback
     current_question = db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
+    #new columns added for online test upgrade
+    test_time = db.Column(db.Integer, nullable=True)
+    total_marks = db.Column(db.Integer, nullable=True)
+    correct_marks = db.Column(db.Integer, nullable = True)
+    incorrect_marks = db.Column(db.Integer, nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
 class RespSessionQuestion(db.Model):
@@ -868,6 +887,8 @@ class ModuleDetail(db.Model):
     description = db.Column(db.String(300),nullable=True)
     module_type = db.Column(db.String(50),nullable=True)
     module_url = db.Column(db.String(200),nullable=True)
+    title_val = db.Column(db.String(100), nullable=True)
+    meta_val = db.Column(db.String(200), nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date=db.Column(db.DateTime)
 
@@ -890,16 +911,17 @@ class TagDetail(db.Model):
     archive_status = db.Column(db.String(1),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
-#class ScheduleDetail(db.Model):
-    #__tablename__ = "schedule_detail"
-    #slot_id = db.Column(db.Integer, primary_key=True)
-    #slot_no = db.Column(db.Integer, nullable=True)
-    #school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
-    #class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True) 
-    #days_name= db.Column(db.String(20))
-    #subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-    #teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
-    #last_modified_date=db.Column(db.DateTime)
+class ScheduleDetail(db.Model):
+    __tablename__ = "schedule_detail"
+    slot_id = db.Column(db.Integer, primary_key=True)
+    slot_no = db.Column(db.Integer, nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True) 
+    days_name= db.Column(db.String(20))
+    subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    is_archived = db.Column(db.String(1), nullable=True)
+    last_modified_date=db.Column(db.DateTime)
 
 class TeacherSubjectClass(db.Model):
     __tablename__ = "teacher_subject_class"

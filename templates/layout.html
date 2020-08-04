@@ -3,6 +3,18 @@
 
 <head>
   <script data-ad-client="ca-pub-5168304191768047" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RGRH24ZRK9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RGRH24ZRK9');
+</script>
+<meta name="google-signin-scope" content="profile email">
+<meta name="google-signin-client_id" content="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com">
+
   <script>
     ! function () {
       var analytics = window.analytics = window.analytics || [];
@@ -42,9 +54,14 @@
   </script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {%if meta_val%}
+  <meta name="description" content="{{meta_val}}">
+  {%else%}
+  <meta name="description" content="allLearn - Free mock tests and school erp platform">
+  {%endif%}
   <link rel="icon" href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" type="image/png" href="#" /> {% if title %}
-  <title>{{ title }}</title>
+  <title>allLearn - {{ title }}</title>
   {% else %}
   <title>allLearn</title>
   {% endif %}
@@ -70,7 +87,7 @@
 </head>
 
 <body>
-  <nav class="white lighten-5 green-text header" role="navigation" style="height: 100px; color: blanchedalmond">
+  <nav class="white lighten-5 green-text header" id="mainNavBar" role="navigation" style="height: 100px;">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
@@ -104,19 +121,67 @@
             </li>
             <li>
               <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
-               About Us
+               For Schools/Institutes
               </a>
             </li>
             <li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
-                data-target="solutionDropdown">
-               Our Solutions
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://school.alllearn.in"
+                >
+                School Platform
               </a>
             </li>
             <li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
-                data-target="moreDropDown">
-               More
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://impact.alllearn.in"
+                >
+                Crowdfund Schools
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://alllearn.in/openJobs"
+                >
+                Teaching Jobs
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://alllearn.in/practiceTest"
+                >
+                Test Practice
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/blog"
+                >
+                Blog
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/about-us"
+                >
+                Team
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/contact-us"
+                >
+                Contact Us
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/faq"
+                >
+                FAQs
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/terms-of-use"
+               >
+                Terms of Use
+              </a>
+            </li>
+            <li>
+              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/privacy-policy"
+                >
+                Privacy Policy
               </a>
             </li>
         {% elif disconn == 1 %}
@@ -124,7 +189,7 @@
           <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {%elif user_type_val=='161'%}
         <li>
@@ -157,7 +222,7 @@
         </li>
 
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {% else %}
         <li>
@@ -222,7 +287,7 @@
           <a style="color: green;" href="{{url_for('help')}}">Help</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
         </li>
         {%endif%}
       </ul>
@@ -231,10 +296,10 @@
 
       <ul id="solutionDropdown" class="dropdown-content green-text" style="color: green;">        
         <li style="color: green;">
-          <a style="color: green;" href="{{ url_for('index') }}">School ERP</a>
+          <a style="color: green;" href="{{ url_for('index') }}">School Platform</a>
         </li>
         <li style="color: green;">
-          <a style="color: green;" href="https://impact.alllearn.in">NGO Crowdfunding</a>
+          <a style="color: green;" href="https://impact.alllearn.in">Crowdfund Schools</a>
         </li>
         <li style="color: green;">
           <a style="color: green;" href="{{url_for('openJobs')}}">Teaching Jobs</a>
@@ -302,7 +367,7 @@
           </li>-->
           {%endif%}
           <li>
-            <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+            <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
           </li>
           {% endif %}
         </ul>
@@ -413,13 +478,13 @@
             </li>
             <li>
               <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
-               About Us
+                For Schools/Institutes
               </a>
             </li>
             <li>
               <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
                 data-target="solutionDropdown">
-               Our Solutions
+                Solutions
               </a>
             </li>
             <li>
@@ -432,6 +497,7 @@
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="dropdown2">
+              
              <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
@@ -736,6 +802,12 @@
 <script src="../static/js/autoComplete.js"></script>
 <script src="../static/js/datatables.js"></script>
 <script>
+ 
+  function onLoad(){
+    gapi.load('auth2',function(){
+      gapi.auth2.init();
+    });
+  }
   $(document).ready(function () {
     // $('.sidenav').sidenav();
     //alert('1');
@@ -748,6 +820,16 @@
     //}
 
   });
+
+$('.logoutBTN').click(function(){
+  //window.alert('logout function');
+  //gapi.auth2.init(client_id="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com");
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+});
+
   // $(document).ready(function(){
   //       $("#st").removeClass("sorting_asc");
   //       $('#datatable').dataTable( {
@@ -774,16 +856,6 @@
       closeOnClick: true
     });
   });
-
-  // $('.button-collapse').sideNav({
-  //       menuWidth: 300,
-  //       closeOnClick: true,
-  //       edge: 'right', // <--- CHECK THIS OUT
-  //     }
-  //   );
-
-
-  // Show sideNav
 </script>
-
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 </html>

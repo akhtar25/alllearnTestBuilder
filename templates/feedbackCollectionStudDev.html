@@ -2,10 +2,62 @@
 <div class="container" height=100%>
 
 
-  <div class="skin-blue sidebar-mini">
-    <!--        <aside class="main-sidebar" style="margin-top:15px;">            
-            <section class="sidebar">                     
-              <ul class="sidebar-menu" data-widget="tree">
+  <div class="sidebar-mini">
+     <aside class="main-sidebar" style="padding:0px;">            
+            <section class="sidebar" id="leftPanel" style="display: none;">
+              <div id="timeDiv">
+              <h4>Remaining Time:<span id="remTime"></span></h4>
+            </div>
+              <!-- panel -->
+              <div class="panel panel-body panel-default mb0 mt10" style="border:dotted;padding: 0px;">
+                <div class="table-responsive">
+                  <table class="table table-borderless mb0">
+                    <thead>
+                      <tr>
+                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">10</a></td>
+                        <td>Not Answered</td>
+                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">10</a></td>
+                        <td>Answered</td>
+                      </tr>
+                      <tr>
+                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">10</a></td>
+                        <td>Marked for review</td>
+                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">10</a></td>
+                        <td>Answered and marked for review</td>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+              <!-- End -->
+              <div class="panel panel-default">
+                <div class="panel-body" style="height:300px;overflow-y:scroll;">
+                  <ul class="pagination test-questions">
+
+                    {% for row in questionList %}
+                    <li class="active" data-seq="1">
+
+                      <!-- <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a> -->
+                      
+                      <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+                    </li>
+                    {% endfor %}
+                    <!-- <li class="active" data-seq="1">
+                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">02</a>
+                    </li>
+                    <li class="active" data-seq="1">
+                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">03</a>
+                    </li>
+                    <li class="active" data-seq="1">
+                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">04</a>
+                    </li>
+                    <li class="active" data-seq="1">
+                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">05</a>
+                    </li> -->
+                  </ul>
+                </div>
+              </div>                    
+              <!-- <ul class="sidebar-menu" data-widget="tree">
                   {% for singleClass in distinctClasses %}
                          <li class="treeview">
                            <a href="#">
@@ -24,9 +76,9 @@
                            </ul>                                                      
                          </li>
                          {% endfor %}                
-         <ul>                  
+         <ul>                   -->
         </section>                
-            </aside>        -->
+            </aside>        
     <!--------------------------------------------------------------------------------------------->
     <div class="content-wrapper" style="background-color: white;">
       <section class="content">
@@ -60,10 +112,28 @@
                 </div>
                 <div id="questionButtons">
                   {% if questionList|length > 0 %}
-                  <input type="button" value="Start" class="btn btn-primary pull-right green" id="startAndNextBTN"
-                    style="height: 40px; width: 200px;">
+                  <div class="NewBtn">
+                    <!-- Add more buttons -->
+                    <a id="clear" style="display:none;margin-left:30px;cursor: pointer;float: left;font-size: 18px;margin-top: 8px;">Clear</a>
+                    <!-- <input type="button" value="Clear" class="btn btn-primary left" id="clear"
+                    style="height: 40px; width: 100px;margin-left:15px;margin-left: 30px;display:none;color: black;background-color: white;"> -->
+                    <input type="button" value="Start" class="btn btn-primary pull-right green" id="start" onclick="fetchSubmitQuestion('q','Start');"
+                    style="height: 40px; width: 200px;margin-left: 30px;">
+                    <input type="button" value="Submit and next" class="btn btn-primary left green" id="startAndNextBTN" onclick="fetchSubmitQuestion('q','submitandnext');"
+                    style="height: 40px; width: 200px;margin-left: 30px;display:none;">
+                    <input type="button" value="Mark for review and submit" class="btn btn-primary left" id="save" onclick="fetchSubmitQuestion('q','save');"
+                    style="height: 40px; width: 238px;margin-left:15px;margin-left: 30px;display:none;background-color: #f0ad4e;">
+                    <input type="button" value="Mark for review and next" class="btn btn-primary left" id="next" onclick="fetchSubmitQuestion('q','next');"
+                    style="height: 40px; width: 220px;margin-left:15px;margin-left: 30px;display:none;">
+                  </div>
                   {% endif %}
-                  <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a>
+                  <!-- <input type="button" value="Skip" class="btn btn-primary left" id="skipButton"
+                  style="height: 40px; width: 150px;display:none;margin-top: 20px;color: black;background-color: white;" onclick="fetchSubmitQuestion('q');"> -->
+                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green" id="submit" onclick="fetchSubmitQuestion('q','submit');"
+                  style="height: 40px; width: 200px;display:none;margin-top: 20px;">
+                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green" id="timeout" onclick="fetchSubmitQuestion('q','timeout');"
+                  style="height: 40px; width: 200px;display:none;margin-top: 20px;">
+                  <!-- <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a> -->
 
                   <!--<input type="button" value="Take Response" class="btn green btn-primary" id="startrecordResponsesBTN" style="height: 40px; display: none; ">  -->
                   <!--<input type="button" value="Stop" class="btn red lighten-1" id="stopRecordingBTN"
@@ -122,13 +192,13 @@
     $("#skipButton").hide();
   });
 
-  $("#skipButton").click(function () {
-    document.getElementById("startAndNextBTN").click();
-  });
+  // $("#skipButton").click(function () {
+  //   document.getElementById("startAndNextBTN").click();
+  // });
 
-  $("#skipButton").click(function () {
-    document.getElementById("startAndNextBTN").click();
-  });
+  // $("#skipButton").click(function () {
+  //   document.getElementById("startAndNextBTN").click();
+  // });
 
 
   //$(".ansOption").click(function () {
@@ -137,9 +207,27 @@
 
 
 
-
-  $("#startAndNextBTN").click(function () {
-    $("#startAndNextBTN").attr("disabled", true);
+    var c = 0;
+    var j=0;
+  function fetchSubmitQuestion(num,btn) {
+    
+    $('#leftPanel').show();
+    $('#startAndNextBTN').show();
+    $('#save').show();
+    $('#next').show();
+    $('#clear').show();
+    $('#submit').show();
+    if(btn=='submit'||btn=='timeout'){
+    $('#startAndNextBTN').hide();
+    $('#save').hide();
+    $('#leftPanel').hide();
+    $('#next').hide();
+    $('#clear').hide();
+    $('#submit').hide();
+    }
+    
+    // $("#startAndNextBTN").attr("disabled", true);
+    $('#start').hide();
 
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
 
@@ -148,45 +236,101 @@
     if (radioValue) {
       respOption =radioValue; 
     }
-    if (tempCountVar <= questionListSize) {      
-      var lastQIDVal = $("#lastQIDVal").val(); 
+    if (tempCountVar <= questionListSize) {  
+      var lastQIDVal = ''; 
+      var valueQ = $("#lastQIDVal").val(); 
+      if(valueQ){
+        lastQIDVal = valueQ
+      }
       resp_sessId = "{{resp_session_id}}"; 
       console.log('Resp_session_id:'+resp_sessId);  
       var obj = JSON.parse('{ "resp_sessId":"{{resp_session_id}}"}');  
       //alert("qnum:" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
       //    questionIDListJS[tempCountVar] + "&response_option="+ respOption+ "&resp_session_id="+ {{resp_session_id}}+
       //    "&subject_id="+ {{subject_id}}+"&last_q_id="+lastQIDVal);
+      var qcount = '';
+      console.log('Num:'+num)
+      if(num=='q'){
+        console.log('inside if:'+num);
+        if(btn=='Start'){
+          
+            tempCountVar = parseInt(c);            
+               
+        }else
+        {
+          if(c==j){
+            console.log('if coming from numpad');
+            tempCountVar = (parseInt(c)+1);
+            c = (parseInt(c)+1);
+          }else{
+        tempCountVar = (parseInt(c));
+        console.log('c:'+(parseInt(c)));
+          }
+        }
+        qcount = questionIDListJS[tempCountVar];
+      }else{
+        tempCountVar = num;
+        c = num;
+        j=num;
+        console.log('inside else:'+num);
+        qcount = questionIDListJS[parseInt(num)];
+      }
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
-          questionIDListJS[tempCountVar] + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}},
+        qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
+          "&subject_id="+ {{subject_id}}+"&btn="+btn,
         type: "get",
-        data: '',
+        data: '', 
         success: function (response) {
+          $('#submit').prop('disabled',false);
+        $('#next').prop('disabled',false);
+          if(response!='0'){
           $("#questionSection").html(response);
-          tempCountVar = tempCountVar + 1;
-          if (tempCountVar == questionListSize) {
-            $("#startAndNextBTN").attr('value', 'Submit and Finish');
-            //$("#skipButton").hide();
-            //$("#startAndNextBTN").hide();
-          } 
-          else if(tempCountVar > questionListSize){
-            $("#skipButton").hide();
-            $("#startAndNextBTN").hide();
           }
-          else {
-            $("#startAndNextBTN").attr('value', 'Submit and Next');
-            $("#startAndNextBTN").attr('class', 'btn btn-primary left green');
-            $("#skipButton").show();
-
+          if(num=='q'){
+            console.log('inside success of num q ');
+            // if(btn=='Start'){
+              if (tempCountVar != (questionListSize-1)) {
+          c = (parseInt(c) + 1);
+              }
+            // }
+          console.log('in success c:'+c);
           }
+          console.log('Temp count var:'+tempCountVar);
+          // if (tempCountVar == questionListSize) {
+          //   //$("#skipButton").hide();
+          //   //$("#startAndNextBTN").hide();
+          // } 
+          // else if(tempCountVar > questionListSize){
+          //   $("#skipButton").hide();
+          //   $('#submit').hide();
+          //   $("#startAndNextBTN").hide();
+          //   $('#clear').hide();
+          //   $('#save').hide();
+          //   $('#next').hide();
+          // }
+          // else {
+          //   console.log('inside else ');
+            // $("#startAndNextBTN").attr('value', 'Submit and Next');
+            // $("#startAndNextBTN").attr('class', 'btn btn-primary left green');
+            // $("#skipButton").show();
+            // Additional btn
+            // $('#submit').show();
+            // $('#clear').show();
+            // $('#save').show();
+            // $('#save').attr('disabled',true);
+            // $('#next').show();
+            // $('#next').attr('disabled',true);
+            // End
+          // }
+          // location.reload(true);
         },
         error: function (xhr) {
           window.alert("error occurred while loading question");
         }
       });
     } 
-  });
+  };
   //$('#submitAndFinishBTN').click(function(){
   //  var class_val = $('#class_val_ip').val();
   //  console.log('This is the class_val in js: ' + class_val);
