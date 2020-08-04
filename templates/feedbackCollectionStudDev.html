@@ -282,6 +282,8 @@
         type: "get",
         data: '', 
         success: function (response) {
+          $('#submit').prop('disabled',false);
+        $('#next').prop('disabled',false);
           if(response!='0'){
           $("#questionSection").html(response);
           }

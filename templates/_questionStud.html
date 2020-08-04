@@ -43,6 +43,30 @@
     $("#next").attr("disabled", false);
     $("#submit").attr("disabled", false);
 });
+$('#startAndNextBTN').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#save').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#next').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#submit').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
 
 $('#clear').click(function(){
   $('.ansOption').prop('checked',false);
