@@ -2376,9 +2376,13 @@ def feeManagement():
     fee = ''
     amount = FeeClassSecDetail.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacher_id.school_id).first()
     print(amount)
+    clas=db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).first() 
     if amount:
         fee = amount.amount
         print('amount:'+str(fee))
+    if qclass_val==None or qclass_val=='':
+        qclass_val = clas.class_val
+        qsection = 'A'
     return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections,fee=fee)
 
 
