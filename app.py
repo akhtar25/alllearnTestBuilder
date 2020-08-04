@@ -151,6 +151,13 @@ def note_repr(key):
         'text': notes[key]
     }
 
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
+
 #@register.filter
 #def month_name(month_number):
 #    return calendar.month_name[month_number]
@@ -349,18 +356,22 @@ def practiceTest():
             current_user.school_id=schoolRow.school_id
             current_user.last_modified_date=datetime.today()
             db.session.commit() 
+        else:
+            studentDataAdd = StudentProfile.query.filter_by(id=current_user.id).first()
+
+        #This section is to update an anonymously taken test with new student id    
         #try:
-        if session.get('anonUser'):
-            splitVals = str(session['anonUser']).split('_')
-            respSessionID = splitVals[1]
-            session['anonUser'] = False
-            print("Resp Session ID of older test: "+str(respSessionID))
-            ###Section to update the test results of anon user with the new student id in resp capture
-            respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
-            respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
-            respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
-            print(str(respUPDQuery))
-            db.session.execute(text(respUPDQuery))
+        #if session.get('anonUser'):
+        #    splitVals = str(session['anonUser']).split('_')
+        #    respSessionID = splitVals[1]
+        #    session['anonUser'] = False
+        #    print("Resp Session ID of older test: "+str(respSessionID))
+        #    ###Section to update the test results of anon user with the new student id in resp capture
+        #    respUPDQuery = "Update response_capture set student_id=" + str(studentDataAdd.student_id)
+        #    respUPDQuery = respUPDQuery + " , class_sec_id=" + str(studentDataAdd.class_sec_id) 
+        #    respUPDQuery = respUPDQuery + " where resp_session_id=\'"+ str(respSessionID) + "\'"
+        #    print(str(respUPDQuery))
+        #    db.session.execute(text(respUPDQuery))
                 
         #except:
         #    print('error occurred. response cap not updated.')
@@ -383,6 +394,7 @@ def practiceTest():
         leaderboardData = ""
         class_val=""
         questionsAnswered=0
+        print('#####Student data is null')
     else:        
         studentDataQuery = "with temptable as "
         studentDataQuery = studentDataQuery + " (with total_marks_cte as ( "
@@ -401,6 +413,7 @@ def practiceTest():
         studentDataQuery = studentDataQuery + " select *from temptable inner join temp2 on temptable.student_id =temp2.student_id and temp2.student_id =" + str(studentProfile.student_id)
         studentData = db.session.execute(text(studentDataQuery)).first()
 
+        
         #getting class_val for the student
         classDataQuery = "select *from class_section cs where class_sec_id="+ str(studentProfile.class_sec_id)
         classData = db.session.execute(classDataQuery).first()
@@ -440,10 +453,11 @@ def practiceTest():
     else:
         avg_performance = 0
     
-    
+    meta_val = "Preparing for exams need not be difficult. Take free mock tests anytime you want with allLearn. CBSE | IIT JEE | NEET | Competitive Exams"
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
         studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
-        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered)
+        leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered,title='Take unlimited free practice tests anytime',
+        meta_val=meta_val)
 
 
 @app.route('/normal')
@@ -605,7 +619,51 @@ def schoolRegistration():
         db.session.add(teacher)
         db.session.commit()
         newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()        
+        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first() 
+        session['school_logo'] = newSchool.school_logo 
+        session['schoolPicture'] = newSchool.school_picture   
+        # Session variable code start
+        session['schoolName'] = schoolNameVal()
+        session['userType'] = current_user.user_type
+        session['username'] = current_user.username
+        
+        #print('user name')
+        #print(session['username'])
+        school_id = ''
+        #print('user type')
+        #print(session['userType'])
+        session['studentId'] = ''
+        # if session['userType']==71:
+        #     school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        # elif session['userType']==134:
+        #     school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        #     session['studentId'] = school_id.student_id
+        # else:
+        #     school_id = User.query.filter_by(id=current_user.id).first()
+        # school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+        # session['school_logo'] = ''
+        # if school_pro:
+        #     session['school_logo'] = school_pro.school_logo
+        #     session['schoolPicture'] = school_pro.school_picture
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        moduleDetRow = db.session.execute(query).fetchall()
+        #print('School profile')
+        # print(session['schoolPicture'])
+        # det_list = [1,2,3,4,5]
+        session['moduleDet'] = []
+        detList = session['moduleDet']
+        
+        for det in moduleDetRow:
+            eachList = []
+            print(det.module_name)
+            print(det.module_url)
+            eachList.append(det.module_name)
+            eachList.append(det.module_url)
+            eachList.append(det.module_type)
+            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+            detList.append(eachList)
+        session['moduleDet'] = detList
+        # End code   
         newSchool.school_admin = newTeacherRow.teacher_id
 
         db.session.commit()
@@ -1660,6 +1718,10 @@ def index():
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
         #print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
+        #print('user type value')
+        #print(session['moduleDet'])
+        query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"'"
+        moduleDetRow = db.session.execute(query).fetchall()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
@@ -2132,6 +2194,7 @@ def archiveLiveClass():
 
 
 @app.route('/liveClass', methods=['GET','POST'])
+@login_required
 def liveClass():    
     form = AddLiveClassForm()
     #allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
@@ -2288,8 +2351,10 @@ def login():
         session['schoolName'] = schoolNameVal()
         
         print('user name')
+        #print(session['username'])
         school_id = ''
         print('user type')
+        #print(session['userType'])
         session['studentId'] = ''
         if current_user.user_type==71:
             school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -2308,7 +2373,7 @@ def login():
         print('Modules')
         moduleDetRow = db.session.execute(query).fetchall()
         print('School profile')
-        print(session['schoolPicture'])
+        #print(session['schoolPicture'])
         # det_list = [1,2,3,4,5]
         session['moduleDet'] = []
         detList = session['moduleDet']
@@ -2327,7 +2392,7 @@ def login():
             print('module_name'+str(each[0]))
             print('module_url'+str(each[1]))
             print('module_type'+str(each[2]))
-        print(session['schoolName'])
+        #print(session['schoolName'])
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
@@ -4605,8 +4670,9 @@ def startPracticeTest():
     if current_user.is_anonymous:
         if session.get('anonUser'):
             print('the anon user is true')
-            flash('Please login to start any further tests')
-            return jsonify(['2']) 
+            #this section forces a user to take an unsigned test only once
+            #flash('Please login to start any further tests') 
+            #return jsonify(['2']) 
         else:
             session['anonUser'] = "user_"+ str(responseSessionID) + '_'+str(random.randint(1,100))
             print("This is the value of anon user: " + session['anonUser'])            
@@ -4615,7 +4681,7 @@ def startPracticeTest():
         session['anonUser']==False
 
     ##Create session
-    if len(questions) >0:
+    if len(questions) >0:        
         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
             class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today() )
         db.session.add(sessionDetailRowInsert)
@@ -5452,10 +5518,10 @@ def feedbackCollection():
                 print('Date:'+str(dateVal))
                 print('Response Session ID:'+str(responseSessionID))
                 print('If Question list size is not zero')
-                print(sessionDetailRowCheck)
+                #print(sessionDetailRowCheck)
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
-                    print(sessionDetailRowCheck)
+                    #print(sessionDetailRowCheck)
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                     class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(), last_modified_date = date.today())
                     db.session.add(sessionDetailRowInsert)
@@ -5640,7 +5706,7 @@ def loadQuestionStud():
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
     #print('########### Session details have been fetched')
-    print(sessionDetailRow)
+    #print(sessionDetailRow)
     teacherID = sessionDetailRow.teacher_id
 
     if response_option!='':
@@ -6057,7 +6123,8 @@ def studentPerformanceGraph():
     if section!=None:
         section = section.strip()    
     test_type=request.args.get('test_type')
-    student_id=request.args.get('student_id')        
+    student_id=request.args.get('student_id')      
+    print("Student id is: "+str(student_id))  
     dateVal = request.args.get('date')
     
     if dateVal ==None or dateVal=="":
@@ -6681,12 +6748,12 @@ def addChapterTopics():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==71:
+        if current_user.user_type==134 or current_user.user_type==234:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id            
+        else:
             teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             school_id = teacherData.school_id
-        else:
-            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentData.school_id
 
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
@@ -6724,12 +6791,12 @@ def addClass():
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         school_id = studentData.school_id
     else:
-        if current_user.user_type==71:
+        if current_user.user_type==134 or current_user.user_type==234:
+            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentData.school_id            
+        else:
             teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
             school_id = teacherData.school_id
-        else:
-            studentData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentData.school_id
     ##########
     #teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
@@ -7304,7 +7371,11 @@ def studentHomeWork():
 def HomeWork():
     qclass_val = request.args.get('class_val')
     qsection=request.args.get('section')
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacherRow = ''
+    if current_user.user_type==134:
+        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()        
+    else:
+        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
     count = 0
     for section in classSections:

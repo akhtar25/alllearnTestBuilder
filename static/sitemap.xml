@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://www.alllearn.in/</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2Fdashboard</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/register</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/practiceTest</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/openJobs</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FcontentManager</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FstudentProfile</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FquestionBank</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2Fsyllabus</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FHomeWork</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2Fhelp</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FtestBuilder</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FtestPapers</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FresultUpload</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FclassPerformance</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FjobPosts</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/login?next=%2FpostJob</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/privacyPolicy</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/static/docs/termsAndConditions.pdf</loc>
+  <lastmod>2020-07-25T12:08:20+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.alllearn.in/reset_password_request</loc>
+  <lastmod>2020-07-25T13:47:58+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
+
+</urlset>
