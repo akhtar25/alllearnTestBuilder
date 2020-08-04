@@ -53,6 +53,8 @@ from flask_api import FlaskAPI, status, exceptions
 from calendar import monthrange
 import calendar
 from urllib.parse import quote,urlparse, parse_qs
+from google.oauth2 import id_token
+from google.auth.transport import requests
 #from flask_material import Material
 
 #app=Flask(__name__)
@@ -154,6 +156,74 @@ def note_repr(key):
 @app.route('/sitemap.xml')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
+
+
+
+#Route to verify google sign in token
+@app.route('/gTokenSignin',methods=["GET","POST"])
+def gTokenSignin():
+    try:
+        idtoken = request.form.get('idtoken')
+        # Specify the CLIENT_ID of the app that accesses the backend:
+        idinfo = id_token.verify_oauth2_token(idtoken, requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+        # ID token is valid. Get the user's Google Account ID from the decoded token.
+        userid = idinfo['sub']
+        print('This is the email: ')
+        print(idinfo["email"])
+        print('#############')
+                
+        #section to create new user
+        chkUserData = User.query.filter_by(email=str(idinfo["email"])).first()
+        if chkUserData==None:
+            user = User(username=idinfo["email"], email=idinfo["email"], user_type='140', access_status='144', 
+                first_name = idinfo["given_name"],last_name= idinfo["family_name"], last_modified_date = datetime.today(),
+                user_avatar = idinfo["picture"], login_type=244)
+            #user.set_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
+            checkTeacherProf = TeacherProfile.query.filter_by(email=idinfo["email"]).first()
+            #if a student has already been added during school registration then simply add the new user's id to it's student profile value
+            checkStudentProf = StudentProfile.query.filter_by(email=idinfo["email"]).first()
+    
+            if checkTeacherProf!=None:
+                checkTeacherProf.user_id=user.id
+                db.session.commit()        
+            elif checkStudentProf!=None:
+                checkStudentProf.user_id=user.id
+                db.session.commit()
+            else:
+                pass
+        #end of section
+          
+        #section to create session and auto login
+
+        #endof section
+
+        return '0'
+        # // These six fields are included in all Google ID Tokens.
+        # "iss": "https://accounts.google.com",
+        # "sub": "110169484474386276334",
+        # "azp": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
+        # "aud": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
+        # "iat": "1433978353",
+        # "exp": "1433981953",
+        #
+        # // These seven fields are only included when the user has granted the "profile" and
+        # // "email" OAuth scopes to the application.
+        # "email": "testuser@gmail.com",
+        # "email_verified": "true",
+        # "name" : "Test User",
+        # "picture": "https://lh4.googleusercontent.com/-kYgzyAWpZzJ/ABCDEFGHI/AAAJKLMNOP/tIXL9Ir44LE/s99-c/photo.jpg",
+        # "given_name": "Test",
+        # "family_name": "User",
+        # "locale": "en"
+        #}
+    except ValueError:
+        # Invalid token
+        return '1'
+        
+
 
 
 #@register.filter
@@ -2077,6 +2147,11 @@ def liveClass():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    
+    #new arg added for google login
+    #gSigninData = request.args.get
+
+    #default form submit action
     form = RegistrationForm()
     if form.validate_on_submit():
         print('Validated form submit')
@@ -2160,21 +2235,36 @@ def user(username):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    print('Inside login')
+    print('Inside login')    
     if current_user.is_authenticated:        
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
             return redirect(url_for('index'))
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        user=User.query.filter_by(email=form.email.data).first()                
+    #new section for google login
+    glogin = request.args.get('glogin')
+    gemail = request.args.get('gemail')
+    ##end of new section
 
-        if user is None or not user.check_password(form.password.data):
-            flash("Invalid email or password")
-            return redirect(url_for('login'))
+    form = LoginForm()
+    if form.validate_on_submit() or glogin=="True":
+        if glogin=="True":
+            print("###glogin val"+ str(glogin))
+            print("###email received from page"+ str(gemail))
+            user=User.query.filter_by(email=gemail).first()   
+            if user is None:
+                flash("Email not registered")
+                return redirect(url_for('login'))
+        else:
+            user=User.query.filter_by(email=form.email.data).first()                
+            if user is None or not user.check_password(form.password.data):        
+                flash("Invalid email or password")
+                return redirect(url_for('login'))
+
+        #logging in the user with flask login
         login_user(user,remember=form.remember_me.data)
+
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
