@@ -517,7 +517,7 @@
           </li>
 
           {%else%}
-          {% if session['userType']==71 or session['userType']==135 %}
+          {% if current_user.user_type==71 or current_user.user_type==135 %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>
@@ -529,7 +529,7 @@
               href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
           {% endif %}
-          {% if session['userType']==134 %}
+          {% if current_user.user_type==134 %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('qrSessionScannerStudent')}}">Tests
             </a>
@@ -567,7 +567,7 @@
             <!-- <a href="#!" data-target="slide-out" class="sidenav-trigger show-on-large" style="color: green; font-size:15px;">More -->
             <ul id="slide-out" class="sidenav">
               <li>
-                {% if session['userType']==71 %}
+                {% if current_user.user_type==71 %}
                 <div class="user-view" style="height:180px;">
                   {% else %}
                   <div class="user-view" style="height:170px;">
@@ -593,15 +593,16 @@
               <!-- {% endif %} -->
               <!-- {{ lis.append(row[2]) }} -->
               <li>
-                {% if session['userType']==71 or session['userType']==135 %}
+                {% if current_user.user_type==71 or current_user.user_type==135 %}
                 {% if row[0]=='My Profile' %}
-                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{session["username"]}}'>{{row[0]}}</a>
+                {% set username = current_user.username %}
+                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{username}}'>{{row[0]}}</a>
                 {% else %}
                 <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
                 {% endif %}
                 {% endif %}
 
-                {% if session['userType']==134 %}
+                {% if current_user.user_type==134 %}
                 {% if row[0]=='Student Directory' %}
                 <a style="color: green; font-size:20px;" href='{{row[1]}}?student_id={{session["studentId"]}}'>Student
                   Profile</a>

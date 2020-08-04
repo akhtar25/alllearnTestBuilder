@@ -3,6 +3,8 @@ from send_email import welcome_email, send_password_reset_email, user_access_req
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
 from applicationDB import *
 from qrReader import *
+import csv
+import itertools
 from config import Config
 from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
 from forms import createSubscriptionForm,ClassRegisterForm,postJobForm, AddLiveClassForm
@@ -549,7 +551,7 @@ def account():
 @app.route('/sign-s3')
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    # S3_BUCKET = "alllearndatabucketv2"
+    #S3_BUCKET = "alllearndatabucketv2"
     file_name = request.args.get('file-name')
     print(file_name)    
     file_type = request.args.get('file-type')
@@ -673,23 +675,11 @@ def schoolRegistration():
         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input'] 
-        school_logo=request.files['school_logo']
-        school_logo_name=request.form['file-input-logo'] 
+
         school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data)
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
-        if school_logo_name!='':
-            print('School logo Details')
-            print(school_logo)
-            print(school_logo_name)
-            school = SchoolProfile.query.get(school_id.school_id)
-            school.school_logo = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name
-            client = boto3.client('s3', region_name='ap-south-1')
-            client.upload_fileobj(school_logo , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/school_logo/' + school_logo_name,ExtraArgs={'ACL':'public-read'})
         if school_picture_name!='':
-            print('School picture Details')
-            print(school_picture)
-            print(school_picture_name)
             school = SchoolProfile.query.get(school_id.school_id)
             school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
             client = boto3.client('s3', region_name='ap-south-1')
@@ -969,7 +959,117 @@ def teacherDirectory():
             flash('Successful registration !')            
         return render_template('teacherDirectory.html',form=form, payrollReportData=payrollReportData,allTeachers=allTeachers,user_type_val=str(current_user.user_type))
 
+# New Section added to manage feeDetail
+@app.route('/feeMonthData')
+def feeMonthData():
+    qmonth = request.args.get('month')
+    qyear = request.args.get('year')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    print('inside Summary Box route')
+    print(class_val)
+    print(section)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ''
+    if class_val!=None:
+        class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+    print(qmonth+ ' '+qyear)
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #days in month
+    daysInMonth = monthrange(int(qyear),int(qmonth))
+    daysInMonth = int(daysInMonth[1])
+    feeDetail = ''
+    if class_val=='None' or class_val=='':
+        print('if class is None')
+        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_fees = db.session.execute(text(paid_fees)).first()
+        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_student_count = db.session.execute(text(paid_student_count)).first()
+        classSec_ids = FeeClassSecDetail.query.filter_by(school_id=teacherDataRow.school_id).all()
+        unpaid_students_count = 0
+        for class_sec_id in classSec_ids:
+            unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+            unpaid_students = db.session.execute(text(unpaid_students)).first()
+            unpaid_students_count = unpaid_students_count + unpaid_students.no_of_unpaid_students
+        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+        class_sec_ids = ClassSection.query.filter_by(school_id=teacherDataRow.school_id).all()
+        total_unpaid_students = 0
+        if partially_paid_students:
+            total_unpaid_students = int(unpaid_students_count) + int(partially_paid_students.partially_paid_students)
+        
+        total_unpaid_fee = 0
+        for class_sec_id in class_sec_ids:
+            unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+            unpaid_students = db.session.execute(text(unpaid_students)).first()
+            fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+            unpaid_students_fee = 0
+            if unpaid_students and fee_amount:
+                unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+            partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+            partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+            if partially_paid_fee:
+                print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+            if partially_paid_fee.pending_amount:
+                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee + partially_paid_fee.pending_amount
+            else:
+                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee
+    else:
+        print('if class is not None')
+        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_fees = db.session.execute(text(paid_fees)).first()
+        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        paid_student_count = db.session.execute(text(paid_student_count)).first()
+        unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+        unpaid_students = db.session.execute(text(unpaid_students)).first()
+        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+        total_unpaid_students = 0
+        if unpaid_students and partially_paid_students:
+            total_unpaid_students = int(unpaid_students.no_of_unpaid_students) + int(partially_paid_students.partially_paid_students)
+        fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+        
+        unpaid_students_fee = 0
+        if unpaid_students and fee_amount:
+            unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+        partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+        partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+        total_unpaid_fee = 0
+        if partially_paid_fee:
+            print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+            if partially_paid_fee.pending_amount:
+                total_unpaid_fee = unpaid_students_fee + partially_paid_fee.pending_amount
+            else:
+                total_unpaid_fee = unpaid_students_fee
+    return render_template('_summaryBox.html',paid_fees=paid_fees.collected_fee,paid_student_count=paid_student_count.no_of_paid_students,total_unpaid_students=total_unpaid_students,total_unpaid_fee=total_unpaid_fee)
 
+# New Section added to manage fee status
+@app.route('/feeStatusDetail')
+def feeStatusDetail():
+    qmonth = request.args.get('month')
+    qyear = request.args.get('year')
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+    print(qmonth+ ' '+qyear)
+    #days in month
+    daysInMonth = monthrange(int(qyear),int(qmonth))
+    daysInMonth = int(daysInMonth[1])
+    feeStatusDataQuery = "select sp.student_id as student_id, sp.profile_picture as profile_picture, sp.full_name as student_name, fd.fee_amount as fee_amount,fd.fee_paid_amount as paid_amount, fd.outstanding_amount as rem_amount, fd.paid_status as paid_status,fd.delay_reason"
+    feeStatusDataQuery = feeStatusDataQuery + " from student_profile  sp left join "
+    feeStatusDataQuery = feeStatusDataQuery + "fee_detail fd on fd.student_id=sp.student_id "
+    feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"' order by paid_status asc"
+    feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
+    print(str(len(feeStatusDataRows)))
+    sections = ClassSection.query.filter_by(school_id=teacherDataRow.school_id,class_val=class_val).all()
+    total_amt = ''
+    amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+    if amount:
+        total_amt = amount.amount
+    print('Total amount:'+str(total_amt))
+    return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
 #New Section added to manage payroll
 @app.route('/payrollMonthData')
 def payrollMonthData():
@@ -989,6 +1089,73 @@ def payrollMonthData():
     print(str(len(payrollDataRows)))
     return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
 
+@app.route('/updateFeeData', methods=['GET','POST'])
+def updateFeeData():
+    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    qmonth = request.form.get('qmonth')
+    qyear = request.form.get('qyear')
+    total_amt = request.args.get('total_amt')
+    total_amt = total_amt.strip()
+    qclass_val = request.form.get('qclass_val')
+    qsection = request.form.get('qsection')
+    print('inside updateFeeData')
+    print('Total Fee Amount:'+str(total_amt))
+    class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
+    student_id_list = request.form.getlist('student_id')
+    paid_amount_list = request.form.getlist('paid_amount')
+    rem_amount_list = request.form.getlist('rem_amount')
+    # validation when rem_amount is negative
+    for i in range(len(rem_amount_list)-1):
+        print('inside re_amount_list')
+        print(i)
+        print(rem_amount_list[i])
+        if rem_amount_list[i]:
+            if int(rem_amount_list[i])<0:
+                return jsonify(['1'])
+    # End
+    delay_reason_list = request.form.getlist('delay_reason')
+    count_list = []
+    for i in range(len(paid_amount_list)):
+        if paid_amount_list[i]:
+            print('counter:'+str(i))
+            print('paid amount:'+str(paid_amount_list[i]))
+            count_list.append(i)
+    # print(paid_amount_list)
+    print('count_list length:'+str(len(count_list)))
+    for i in range(len(count_list)):
+        print('inside for loop')
+        print(count_list[i])
+        print(student_id_list[count_list[i]])
+        if paid_amount_list[count_list[i]]:
+            indivFeeRecord = FeeDetail.query.filter_by(student_id=student_id_list[count_list[i]], month=qmonth, year=qyear).first()
+            if indivFeeRecord and indivFeeRecord.outstanding_amount!=0:
+                print('if record already exist:'+str(paid_amount_list[count_list[i]]))
+                indivFeeRecord.fee_amount = total_amt
+                indivFeeRecord.fee_paid_amount = paid_amount_list[count_list[i]]
+                indivFeeRecord.outstanding_amount = rem_amount_list[count_list[i]]
+                indivFeeRecord.delay_reason = delay_reason_list[count_list[i]]
+                print('pending amount:'+str(rem_amount_list[count_list[i]]))
+                if rem_amount_list[count_list[i]]==0 or rem_amount_list[count_list[i]]=='0':
+                    indivFeeRecord.paid_status = 'Y'
+                else:
+                    indivFeeRecord.paid_status = 'N'
+            elif indivFeeRecord==None or indivFeeRecord=='':
+                print('Adding new values:'+str(paid_amount_list[count_list[i]]))
+                print('Paid Amount:'+paid_amount_list[count_list[i]])
+                print('Total Amount:'+total_amt)
+                if float(paid_amount_list[count_list[i]])==float(total_amt):
+                    print('if paid amount equal to total amount')
+                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+                    ,paid_status='Y',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+                else:
+                    print('if paid amount is less than total amount')
+                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+                    ,paid_status='N',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+                db.session.add(feeInsert)
+    db.session.commit()
+    return jsonify(['0'])
 
 @app.route('/updatePayrollData', methods=['GET','POST'])
 def updatePayrollData():
@@ -1478,7 +1645,7 @@ def index():
             generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
-    if user.user_type==139 or user.user_type==136:
+    if user.user_type==135:
         return redirect(url_for('admin'))
     if user.user_type==234:
     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
@@ -1619,7 +1786,7 @@ def index():
         testCount = db.session.execute(testCount).first()
         lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
-        # print(lastWeekTestCount)
+        #print(lastWeekTestCount)
         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
         #print('user type value')
         #print(session['moduleDet'])
@@ -2272,8 +2439,6 @@ def login():
         #setting global variables
         session['classSecVal'] = classSecCheck()
         session['schoolName'] = schoolNameVal()
-        session['userType'] = current_user.user_type
-        session['username'] = current_user.username
         
         print('user name')
         #print(session['username'])
@@ -2281,9 +2446,9 @@ def login():
         print('user type')
         #print(session['userType'])
         session['studentId'] = ''
-        if session['userType']==71:
+        if current_user.user_type==71:
             school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        elif session['userType']==134:
+        elif current_user.user_type==134:
             school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
             session['studentId'] = school_id.student_id
         else:
@@ -2293,7 +2458,9 @@ def login():
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
-        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(session["userType"])+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        print(query)
+        print('Modules')
         moduleDetRow = db.session.execute(query).fetchall()
         print('School profile')
         #print(session['schoolPicture'])
@@ -2338,10 +2505,40 @@ def success():
         else:
             return render_template('index.html',text='Error: Email already used.')
 
+@app.route('/setFee',methods=['GET','POST'])
+def setFee():
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    total_fee = request.args.get('total_fee')
+    classSec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacher_id.school_id).first()
+    class_sec_id = classSec_id.class_sec_id
+    sections = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    for section in sections:
+        insertAmount = FeeClassSecDetail(class_sec_id=section.class_sec_id,class_val=section.class_val,section=section.section,is_current='Y',last_modified_date=datetime.now(),change_date=datetime.now(),amount=total_fee,school_id=teacher_id.school_id)
+        db.session.add(insertAmount)
+    db.session.commit()
+    return jsonify(['0'])
+
 @app.route('/feeManagement')
 @login_required
 def feeManagement():
-    return render_template('feeManagement.html')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).fetchall() 
+    classSections=ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+    qclass_val = request.args.get('class_val')
+    qsection=request.args.get('section')
+    fee = ''
+    amount = FeeClassSecDetail.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacher_id.school_id).first()
+    print(amount)
+    clas=db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher_id.school_id)+" GROUP BY class_val order by s")).first() 
+    if amount:
+        fee = amount.amount
+        print('amount:'+str(fee))
+    if qclass_val==None or qclass_val=='':
+        qclass_val = clas.class_val
+        qsection = 'A'
+    return render_template('feeManagement.html',qclass_val=qclass_val,qsection=qsection,distinctClasses=distinctClasses,classsections=classSections,fee=fee)
 
 
 @app.route('/privacyPolicy')
@@ -2683,7 +2880,7 @@ def addChapter():
     chapterName = request.args.get('chapterName')
     
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     subject_id = MessageDetails.query.filter_by(description=subject).first()
     chapter_num = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName).first()
@@ -2693,17 +2890,16 @@ def addChapter():
         print('inside for')
         print(topic)
         # topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
-        for class_sec_id in class_sec_ids:
-            existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
-            
-            if existInTT:
-                updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic)+"'"
-                print(updateTT)
-                updateTT = db.session.execute(text(updateTT))
-            else:
-                insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(insertTT)
-            db.session.commit()
+        existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
+        
+        if existInTT:
+            updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
+            print(updateTT)
+            updateTT = db.session.execute(text(updateTT))
+        else:
+            insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(insertTT)
+        db.session.commit()
     return ("data updated successfully")
 
 @app.route('/addBook',methods=['GET','POST'])
@@ -2718,14 +2914,8 @@ def addBook():
     print("book id"+str(book_id))
     book = BookDetails.query.filter_by(book_id=book_id).first()
     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
-    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    
     for book_id in bookIds:
-        topic_Ids = Topic.query.filter_by(book_id=book_id.book_id,class_val=class_val,subject_id=subject_id.msg_id).all()
-        for topic_id in topic_Ids:
-            for class_sec_id in class_sec_ids:
-                insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(insertTT)
-            db.session.commit()
         updateBCSB = BoardClassSubjectBooks.query.filter_by(school_id=teacher_id.school_id,class_val=class_val,
         subject_id=subject_id.msg_id,book_id=book_id.book_id).first()
         if updateBCSB:
@@ -3037,7 +3227,7 @@ def addNewChapter():
     chapter_num = chapter_num.strip()
     subject_id = MessageDetails.query.filter_by(description = subject).first()
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_ids = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).all()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     # bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"'"
     # bookId = db.session.execute(text(bookId)).first()
@@ -3069,9 +3259,8 @@ def addNewChapter():
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
         else:
             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id).first()
-        for class_sec_id in class_sec_ids:
-            insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(insertTopicTracker)
+        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(insertTopicTracker)
         db.session.commit()
     return ("Add new Chapter")
 
@@ -3200,7 +3389,7 @@ def syllabusBooks():
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     bookArray=[]
     for val in distinctBooks:
-        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
         print(str(book_id.book_id)+':'+str(val.book_name))
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
@@ -3220,19 +3409,17 @@ def fetchRemBooks():
     distinctBooks = "select distinct book_name from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and "
     distinctBooks = distinctBooks + "book_name not in (select distinct book_name from book_details bd inner join board_class_subject_books bcsb on bd.book_id = bcsb.book_id "
     distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"')"
-    print(distinctBooks)
     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
     distinctBooksInBCSB = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
     distinctBooksInBCSB = distinctBooksInBCSB + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y' order by bd.book_name"
     distinctBooksInBCSB = db.session.execute(text(distinctBooksInBCSB)).fetchall()
-    print(distinctBooksInBCSB)
     bookArray=[]
     for val in distinctBooks:
         print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     for value in distinctBooksInBCSB:
-        book_id = BookDetails.query.filter_by(book_name=value.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
+        book_id = BookDetails.query.filter_by(book_name=value.book_name).first()
         bookArray.append(str(book_id.book_id)+':'+str(value.book_name))
     if bookArray:
         return jsonify([bookArray])
@@ -3366,7 +3553,7 @@ def fetchBooks():
     bookArray=[]
     for val in distinctBooks:
         print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val,subject_id=subject_id.msg_id).first()
+        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
     if bookArray:
         return jsonify([bookArray])
@@ -3867,7 +4054,8 @@ def visitedQuestions():
         print(str(retake)+'Retake')
         topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
         topicFromTracker.is_covered='Y'
-        topicFromTracker.reteach_count=int(topicFromTracker.reteach_count)+1
+        if topicFromTracker.reteach_count:
+            topicFromTracker.reteach_count=topicFromTracker.reteach_count+1
         db.session.commit()
 
     return jsonify(['1'])
@@ -4255,6 +4443,65 @@ def studentfeedbackreporttemp():
     student_name=request.args.get('student_name')
     return render_template('studentfeedbackreporttemp.html',student_name=student_name)
 
+@app.route('/unpaidStudentsList',methods=["GET","POST"])
+def unpaidStudentsList():
+    class_val = request.args.get('class_val')
+    section = request.args.get('section')
+    
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherData.school_id).first()
+    studentData = "select sp.full_name from student_profile sp where class_sec_id ='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"' and student_id not in (select student_id from fee_detail where paid_status='Y' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"')"
+    print(studentData)
+    studentList = db.session.execute(text(studentData)).fetchall()
+    return render_template('_studentList.html',studentList=studentList)
+
+@app.route('/sendFeeSMS',methods=["GET","POST"])
+def sendFeeSMS():
+    if request.method=="POST":
+        commType = request.form.get('commType')
+        message = request.form.get('message')
+        class_val = request.form.get('qclass_val')
+        section = request.form.get('qsection')
+        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        class_sec = ClassSection.query.filter_by(school_id=teacherData.school_id,class_val=class_val,section=section).first()
+        class_sec_id = class_sec.class_sec_id
+        if class_sec_id !=None and class_sec_id !="":
+            commDataAdd=CommunicationDetail(message = message,status=231 , school_id=teacherData.school_id,             
+            teacher_id=teacherData.teacher_id,last_modified_date =datetime.today())
+            db.session.add(commDataAdd)
+            #db.session.flush()
+            db.session.commit()
+            getStudNumQuery = "select student_id , phone from student_profile sp where class_sec_id ='"+str(class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"' and student_id not in (select student_id from fee_detail where paid_status='Y' and class_sec_id='"+str(class_sec_id)+"' and school_id='"+str(teacherData.school_id)+"')"            
+            studentPhones = db.session.execute(getStudNumQuery).fetchall()
+            phoneList =[]
+            for phoneRow in studentPhones:
+                if phoneRow.phone!=None and phoneRow.phone!='':
+                    phoneList.append(phoneRow.phone)
+            if studentPhones!=None:
+                if commType=='sms':
+                    apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+                    apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+                    apiPath = apiPath + "contacts="+str(phoneList).replace('[','').replace(']','').replace('\'','').replace(' ','')+"&senderid=GLOBAL&"
+                    apiPath = apiPath + "msg="+ quote(message)
+                    print(apiPath)
+                    ##Sending message here
+                    try:
+                        r = requests.post(apiPath)                    
+                        returnData = str(r.text)
+                        print(returnData)
+                        if "SMS-SHOOT-ID" in returnData:
+                            for val in studentPhones:
+                                commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                                db.session.add(commTransAdd)
+                            commDataAdd.status=232
+                            db.session.commit()                                        
+                            return jsonify(['0'])
+                        else:
+                            return jsonify(['1'])                    
+                    except:
+                        return jsonify(['1'])
+                    ##Message sent 
+    return jsonify(['1']) 
 
 @app.route('/sendComm',methods=["GET","POST"])
 def sendComm():
@@ -5070,8 +5317,10 @@ def contentManager():
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         else:
             return render_template('contentManager.html',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    
-    return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,studentDetails=studentDetails,available_class=available_class)
+    if user_type_val==134:
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    else:
+        return render_template('contentManager.html',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
@@ -7002,8 +7251,7 @@ def indivStudentProfile():
     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
-    print('Student Id')
-    print(studentProfileQuery)
+    
     #performanceData
     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
@@ -7413,7 +7661,7 @@ def HomeWork():
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection)
+    return render_template('HomeWork.html', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
 
 @app.route('/homeworkReview')
 @login_required
@@ -7620,6 +7868,237 @@ def archiveHomeWork():
 
 # End
 
+# start
+def conversion(num):
+    strings = []
+    for integ in num:
+        strings.append(str(integ))
+    a_string = "".join(strings)
+    an_integer = int(a_string)
+    return(an_integer)
+      
+def convList(left):
+    res = [int(x) for x in str(left)]
+    return res
+def cal(num): 
+    digit = len(num) 
+    print(digit)
+    powTen = pow(10, digit - 1) 
+    res = []
+
+    
+    an_integer = conversion(num)
+    res.append(num)
+    for i in range(digit - 1):
+        firstDigit = an_integer // powTen
+        left = (an_integer * 10 + firstDigit - (firstDigit * powTen * 10))
+        an_integer = left
+        out = convList(an_integer)
+        res.append(out)
+    return res 
+
+# Route for Schedule or Time Table
+@app.route('/updateSchedule',methods=['POST','GET'])
+def updateSchedule():
+    slots = request.form.get('slots')
+    class_value = request.args.get('class_val')
+    print('No of slots:'+str(slots))
+    print('Class_val:'+str(class_value))
+    # start = request.form.getlist('start')
+    # end = request.form.getlist('end')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
+    batches = len(sections)
+    slotTime = []
+    # for (s,e) in itertools.zip_longest(start,end):
+    #     slotTime.append(s+'-'+e)
+    print('inside schedule')
+    # nDays = request.form.get('nDays')
+    noTeachers = request.form.get('noTeachers')
+    nameTeacher = request.form.getlist('nameTeacher')
+    nameSubject = request.form.getlist('nameSubject')
+    subject = request.form.getlist('subject')
+    time = request.form.getlist('time')
+    day = request.form.getlist('day')
+        # batches = request.form.get('batches')
+    print('No of Days:'+str(len(day)))
+    nDays = len(day)
+    totalTime = 0
+    for ti in time:
+            # print('Time:'+str(ti))
+        if ti:
+            totalTime = totalTime + int(ti)
+    totalSlots = int(nDays)*int(slots)
+        # print('Total slots:'+str(totalSlots))
+        # print('Total Time:'+str(totalTime))
+    perSlots = []
+    for s in range(int(slots)):
+                
+        perSlots.append(s+1)
+    slotsoutput = cal(perSlots)
+
+        # for slot in range(len(slotsoutput)):
+            # print('slot'+str(slot))
+            # print(slotsoutput[slot])
+    finalSlot = []
+    indexSlot = []
+        # print('outside while loop')
+    p=0
+        # print('length of slots output')
+        # print(len(slotsoutput))
+    while p<len(slotsoutput):
+            # print('inside while loop')
+        r = randint(0,len(slotsoutput)-1)
+        if r not in indexSlot:
+            p=p+1
+            indexSlot.append(r)
+        # print(indexSlot)
+    for index in indexSlot:
+        finalSlot.append(slotsoutput[index])
+        # print(finalSlot)
+        
+
+        # print('slot output print')
+        # print(slotsoutput)
+    t=1
+    z=0
+    class_sec_ids = ClassSection.query.filter_by(class_val = class_value, school_id = teacher.school_id).all() 
+    for class_sec_id in class_sec_ids:
+        updateTable = "update schedule_detail set is_archived = 'Y' where class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacher.school_id)+"'"
+        updateTable = db.session.execute(text(updateTable))
+    for l in subject:
+            # print(l)
+        if(l):
+            z=z+1
+        # print('No of Subjects:'+str(z))
+    if totalSlots>=totalTime:
+
+        for arr1 in finalSlot:
+            if t<=int(batches):    
+                            
+                    
+                for i in range(0,z):
+
+                    for j in range(0,int(time[i])):
+                            
+                        class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
+                            
+                        class_sec_id = db.session.execute(text(class_sec_id)).first()
+                        subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+                        subject_id = db.session.execute(text(subject_id)).first()
+                        teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
+                           
+                        if teacher_id:
+                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id , teacher_id=teacher_id.teacher_id ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+                        else:
+                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+                        db.session.add(insertData)
+            t=t+1
+    else:
+        return jsonify(['1'])
+    db.session.commit()
+    print('Data is Submitted') 
+    return jsonify(['0'])
+
+@app.route('/schedule')
+def schedule():
+    # slots = request.form.get('slots')
+    # print('inside schedule function')
+    # print(slots)
+    qclass_val = request.args.get("class_val")
+    qsection = request.args.get("section")
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+    available_class_section = "select distinct class_val,section from class_section where school_id='"+str(teacher.school_id)+"'"
+    available_class_section = db.session.execute(text(available_class_section)).fetchall()
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()  
+    if qclass_val==None and qsection == None:
+        qclass_val = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).first()  
+        qclass_val = qclass_val.class_val
+        qsection = ClassSection.query.filter_by(school_id=teacher.school_id).first()
+        qsection = qsection.section
+    return render_template('schedule.html',classsections=classSections,distinctClasses=distinctClasses,available_class_section=available_class_section,qclass_val=qclass_val,qsection=qsection)
+    
+@app.route('/fetchTimeTable',methods=['GET','POST'])
+def fetchTimeTable():
+    class_val = request.args.get('class_value')
+    section = request.args.get('section')
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print(class_val)
+    print(section)
+    print(teacher.school_id)
+    class_section = ClassSection.query.filter_by(class_val=str(class_val),section = section, school_id= teacher.school_id).first()
+
+    query = "select *from fn_time_table("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
+    print(query)
+    timeTableData = db.session.execute(text(query)).fetchall()
+    print(timeTableData)
+    for data in timeTableData:
+        print(data)
+    fetchTeacher = "select *from fn_teacher_allocation("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
+    print(fetchTeacher)
+    fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+    print(fetchTeacher)
+    return render_template('_timeTable.html',timeTableData=timeTableData,fetchTeacher=fetchTeacher)
+
+@app.route('/downloadTimeTable',methods=['GET','POST'])
+def downloadTimeTable():
+    print('inside download time table')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    # fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_section.class_sec_id)+")"
+    # print(fetchTeacher)
+    # fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+    filepath = 'static/images/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
+    with open(filepath, 'w', newline='') as file:
+        
+        print('file')
+        
+        file.write('Introduction \n')
+        writer = csv.writer(file)
+        for class_sec_id in class_sec_ids:
+            fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+            print(fetchTeacher)
+            
+            fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+            writer.writerow(["Subject Name", "Teacher Name"])
+            # writer.writerow(["", "Name", "Contribution"])
+            for teacher in fetchTeacher:
+                print(teacher.subject_name)
+                print(teacher.teacher_name)
+                writer.writerow([teacher.subject_name,teacher.teacher_name])
+                # os.remove(filepath)
+                print('File path')
+                print(filepath)
+            query = "select *from fn_time_table("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+            print(query)
+            timeTableData = db.session.execute(text(query)).fetchall()
+            writer.writerow(["Periods", "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])
+            
+            for table in timeTableData:
+                writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
+            writer.writerow(["","","","","","",""])
+    return jsonify([filepath])
+
+@app.route('/allSubjects',methods=['GET','POST'])
+def allSubjects():
+    print('inside all Subjects')
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+    class_val = request.args.get('class_value') 
+    print(class_val)
+    print(teacher_id.school_id)
+    subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id,is_archived='N').all()
+    subjectList = []
+    for subject in subjects:
+        subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
+        subject_name = db.session.execute(text(subject_name)).first()
+        
+        subjectList.append(str(subject_name.description))
+    return jsonify([subjectList])
+
+#End
 #Start
 
 @app.route('/addTeacherClassSubject',methods=['GET','POST'])

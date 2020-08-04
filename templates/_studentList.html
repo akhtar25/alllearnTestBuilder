@@ -1,0 +1,11 @@
+<table class="table table-bordered table-responsive-md table-striped text-center" style="width: 300px;">
+    <tr>
+      <th class="text-center">Student Name</th>
+    </tr>
+    {% for row in studentList %}
+    <tr>
+      <td class="pt-3-half" contenteditable="false">{{row.full_name}}</td>
+      
+    </tr>
+    {% endfor %}
+  </table>
