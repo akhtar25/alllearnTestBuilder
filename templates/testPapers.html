@@ -53,20 +53,40 @@
               Test</a></td>
               {%endif %}
           <!-- Modal structure-->
-          <div id="modal2{{eachRow.test_id}}" class="modal col-xs-4" style="background-color:white; height: 250px;">
+          <div id="modal2{{eachRow.test_id}}" class="modal" style="background-color:white; height: 420px;overflow-y: auto;position: fixed;">
             <form action="/feedbackCollection" method="GET">
               <div class="modal-content">
                 <p> Starting Test</p>
                 <h4>Class: {{eachRow.class_val}}</h4>
                 <h4>Enter <b>section</b> for which you want to run the test</h4>
                 <input type="text" name='section' placeholder="eg. A">
+                <p>
+                  <label>
+                    <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
+                    <span style="font-size: 18px;">Untimed</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input name="timeOption" class="Toption" value="Timed" type="radio" />
+                    <span style="font-size: 18px;">Timed</span>
+                  </label>
+                </p>
+                <div id="durationDiv" style="display: none;">
+                <h4>Duration</h4>
+                <input type="text" name='duration' value="0"></div>
+                <h4>Weightage</h4>
+                <input type="text" name="weightage" value="10">
+                <h4>Negative Marking</h4>
+                <input type="text" name="negativeMarking" value="0">
                 <input type="hidden" name='class_val' value="{{eachRow.class_val}}">
                 <input type="hidden" name='subject_id' value="{{eachRow.subject_id}}">
                 <input type="hidden" name='test_id' value="{{eachRow.test_id}}">
-              </div>
-              <div class="modal-footer"> 
+                <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>   
+                </div>
+              <!-- <div class="modal-footer"> 
                 <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
-              </div>
+              </div> -->
             </form>
           </div>
         </tr>
@@ -86,6 +106,15 @@
 <script>
   $(document).ready(function () {
     $('.modal').modal();
+  });
+
+  $('.Toption').click(function(){
+    var timeOption = $("input[name='timeOption']:checked").val();
+    if(timeOption=='Timed'){
+      $('#durationDiv').show();
+    }else{
+      $('#durationDiv').hide();
+    }
   });
 
 

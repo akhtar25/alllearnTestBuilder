@@ -34,7 +34,7 @@
                           <td>
                             {% if question.question_type=='MCQ1' %}
                             <ul>
-                              <li>
+                              <li> 
                                 <div><a href="#modal2" name="{{ question.question_id }}"
                                     class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a>
                                 </div>
@@ -60,8 +60,16 @@
 
                           </td>
                           <td> {{ question.question_type }} </td>
-                          <td>{{ question.suggested_weightage }}<input type="hidden"
-                              value="{{ question.suggested_weightage }}" id="{{ question.question_id }}select"></td>
+                          <td>
+                            {% if weightage %}
+                            {{ weightage }}<input type="hidden"
+                              value="{{ weightage }}" id="{{ question.question_id }}select">
+                            {% else %}
+                            {{ question.suggested_weightage }}<input type="hidden"
+                            value="{{ question.suggested_weightage }}" id="{{ question.question_id }}select">
+                            {% endif %}
+                            </td>
+
                         </tr>
 
                         {% endfor %}
