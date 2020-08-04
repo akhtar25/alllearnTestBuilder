@@ -44,6 +44,10 @@
     $("#submit").attr("disabled", false);
 });
 
+$('#clear').click(function(){
+  $('.ansOption').prop('checked',false);
+});
+
   (function () {
     {% if btn=='Start' %}
 // Set the date we're counting down to
