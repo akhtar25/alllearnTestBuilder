@@ -44,10 +44,10 @@
         <li id="view" class="active">
           <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">view_module</i>
             View Schedule
-            <div class="downloadBtn" style="text-align: right;margin-left: 575px;">
+            <!-- <div class="downloadBtn" style="text-align: right;margin-left: 575px;">
               <button class="btn waves-light green lighten-1 white-text" id="download">Download schedule</button>
               <span id="downloadLoader" style="display: none;color:red;" >please wait...</span>
-          </div>
+          </div> -->
           </div>
           <div class="collapsible-body">
             
@@ -79,7 +79,7 @@
                         <div style="width:170px;">
                           <select id="class_val" name="class_val">
                             <option value="" disabled selected>Select Class</option>
-                            {% for row in available_class_section %}
+                            {% for row in distinctClasses %}
                             <option value="{{row.class_val}}">{{row.class_val}}</option>
                             {% endfor %}
                           </select>
@@ -338,7 +338,7 @@ function hide(){
                 M.toast({html: 'Schedule created!'})
               }
               $('#msgforwait').hide();
-              $('#addSchedule').show();
+              $('#addSchedule').hide();
            
             },
             error: function (xhr) {
