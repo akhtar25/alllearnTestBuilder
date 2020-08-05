@@ -3,8 +3,7 @@
 
     <label id="currQuestionLabel" style="width: 100%;">
       {% if totalQCount!=''%}
-      {% set qnum = qnum | int %}
-      {% set qnum = qnum + 1 %}
+      
       Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
     </label>
     {% endif %}
@@ -21,7 +20,11 @@
     <!--<li style="display:flex;"></li>    -->
     <p>
       <label>
+        {% if correctOpt==optionVal.option %}
+        <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}" checked/>
+        {% else %}
         <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}"/>
+        {% endif %}
         <span style="font-size: 15px;">({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
         <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
       </label>
@@ -36,9 +39,88 @@
 <script>
     $(".ansOption").click(function (){
     $("#startAndNextBTN").attr("disabled", false);
+    $("#save").attr("disabled", false);
+    $("#next").attr("disabled", false);
+    $("#submit").attr("disabled", false);
+});
+$('#startAndNextBTN').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#save').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#next').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+$('#submit').click(function(){
+  $('#startAndNextBTN').prop('disabled',true);
+  $('#save').prop('disabled',true);
+  $('#next').prop('disabled',true);
+  $('#submit').prop('disabled',true);
+});
+
+$('#clear').click(function(){
+  $('.ansOption').prop('checked',false);
 });
 
   (function () {
+    {% if btn=='Start' %}
+// Set the date we're counting down to
+    var d = new Date();
+    var duration = "{{ duration }}";
+    if(duration>0){
+    duration = parseInt(duration);
+  var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+duration)+':'+d.getMinutes()+':'+d.getSeconds();
+  var d = dat.toString();
+var countDownDate = new Date(d).getTime();
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  // Get today's date and time
+  var now = new Date().getTime();
+    
+  // Find the distance between now and the count down date
+  var distance = countDownDate - now;
+    
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+  // Output the result in an element with id="demo"
+  document.getElementById("remTime").innerHTML = " "+hours + "h "
+  + minutes + "m " + seconds + "s ";
+    
+  // If the count down is over, write some text 
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("timeout").click();
+    // document.getElementById("remTime").innerHTML = "EXPIRED";
+  }
+}, 1000);
+    }else{
+      $('#timeDiv').hide();
+    }
+    {% endif %}
+
+    {% if correctOpt %}
+    $('#save').attr('disabled',false);
+    $('#startAndNextBTN').attr('disabled',false);
+    {% else %}
+    $('#save').attr('disabled',true);
+    $('#startAndNextBTN').attr('disabled',true);
+    {% endif %}
     var script = document.createElement("script");
     script.type = "text/javascript";
     script.src =
@@ -59,5 +141,30 @@
 
     document.getElementsByTagName("head")[0].appendChild(script);
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+
+
+    // for test module
+    {% for row in answer_list %}
+            console.log('inside for of session variable');
+            {% if row[1]==239 %}
+              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo3.png')");
+              $("#{{row[0]}}").css("border","0px");
+              $('#{{row[0]}}').css("color","white");
+            {% elif row[1]==240 %}
+              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo2.png');");
+              $("#{{row[0]}}").css("border","0px");
+              $('#{{row[0]}}').css("color","white");
+            {% elif row[1]==241 %}
+
+              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo5.png')");
+              $("#{{row[0]}}").css("border","0px");
+              $('#{{row[0]}}').css("color","white");
+              {% elif row[1]==242 %}
+              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo4.png')");
+              $("#{{row[0]}}").css("border","0px");
+              $('#{{row[0]}}').css("color","white");
+            {% endif %}
+          {% endfor %}
   })();
 </script>
