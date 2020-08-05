@@ -5,7 +5,8 @@
     .colorClass {
         background-color: white;        
     }
-    @media screen and (min-width: 750px) {     
+    @media screen and (min-width: 750px) {    
+  
     #mainText{
         font-size: 3vw;
         color: rgb(204, 238, 81);
@@ -67,10 +68,10 @@ justify-content: center;" id="containerDiv">
             <div id="mainDiv">
                 {%if current_user.is_anonymous%}
                 <div class="col-xs-6 row" id="textMain">
-                    <span id="mainText" style="text-shadow: 1px 1px 1px black;" ><b>Preparing for
+                    <h1 id="mainText" style="text-shadow: 1px 1px 1px black;" ><b>Preparing for
                             exams
-                            needn't be tough. </b></span><br><span id="subText"
-                        style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Start a practice test now.</b></span>
+                            needn't be tough. </b></h1><br><h3 id="subText"
+                        style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Start a practice test now.</b></h3>
                 </div>
                 {%else%}
                 <h4 class="">Welcome back {{studentData.full_name}}!</h4>
@@ -97,7 +98,7 @@ justify-content: center;" id="containerDiv">
                                             <option value="7">7</option>
                                             <option value="8">8</option>
                                             <option value="9">9</option>
-                                            <!--<option value="10">10</option>-->
+                                            <option value="10">10</option>
                                             <!--<option value="11">11</option>
                                         <option value="12">12</option>-->
                                         </select>
@@ -382,7 +383,7 @@ justify-content: center;" id="containerDiv">
  
  {%if current_user.is_anonymous==False%}
                 $.ajax({
-                    url: "/studentPerformanceGraph?student_id=" + "{{studentData.student_id}}" +
+                    url: "/studentPerformanceGraph?student_id=" + "{{studentProfile.student_id}}" +
                         "&fromPractice=1",
                     type: "get",
                     data: "",
@@ -600,7 +601,9 @@ justify-content: center;" id="containerDiv">
                     success: function (response) {
                         //window.alert(response);
                         if (response == 1) {
+                            
                             $('#errorStartMSG').show();
+                            $('#errorStartMSG').html('No Questions present under the selected topic(s)');
                             $('#startTestBTN').val('Start Test');
                             $('#startTestBTN').prop('disable', false);
                             $('#startTestBTN').html('Start Test');

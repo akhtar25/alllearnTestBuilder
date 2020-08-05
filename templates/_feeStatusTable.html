@@ -1,0 +1,160 @@
+<form id="feeForm">
+<table class="table table-bordered table-responsive-md table-striped text-center">
+    <input type="hidden" value="{{qmonth}}" name="qmonth">
+    <input type="hidden" value="{{qyear}}" name="qyear">
+    <input type="hidden" value="{{class_val}}" name="qclass_val">
+    <input type="hidden" value="{{section}}" name="qsection">
+    <tr> 
+      <th class="text-center">Student Name</th>
+      <th class="text-center">Fee Amount</th>
+      <th class="text-center">Paid Amount</th>
+      <th class="text-center">Pending Amount</th>
+      <th class="text-center">Paid Status</th>
+      <th class="text-center">Delay Reason</th>
+    </tr>
+    {% set amount = '' %}
+    {% if feeStatusDataRows %}
+    {% for row in feeStatusDataRows %}
+    <tr>
+      <td class="pt-3-half" style="text-align: left;" contenteditable="false">
+        {%if row.profile_picture %}
+        <img class="responsive-img circle" src="{{row.profile_picture}}" width="50px">
+        {%else%}
+        <img class="responsive-img circle" width="50px"
+            src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
+        {%endif%}
+        {% if row.student_name!= None %}
+        <a href="{{ url_for('studentProfile', student_id=row.student_id) }}" target="_blank">{{row.student_name}}</a>
+        {% endif %}
+        <input type="hidden" value="{{row.student_id}}" name="student_id">
+        </td>
+      <td class="total_amount pt-3-half">
+        {% if total_amt %}
+          {{total_amt}}
+        {% endif %}
+        </td>
+        <input type="hidden" value="{{total_amt}}" class="tt_amt">
+      <td class="pt-3-half" contenteditable="false">
+        {% if row.paid_amount %}
+        {% if row.rem_amount==0 %}
+            {{row.paid_amount}}
+            <input type="hidden" class="paid_amount" name="paid_amount">
+        {% else %}
+        <input type="text" class="paid_amount" id="paid{{row.student_id}}" name="paid_amount" value="{{row.paid_amount}}" style="text-align: center;">
+        {% endif %}
+        {% else %}
+        <input type="text" class="paid_amount" id="paid{{row.student_id}}" name="paid_amount" placeholder="fill amount" style="text-align: center;">
+        {% endif %}
+        </td>
+      <td class="outstanding_amount pt-3-half" contenteditable="false">
+        {% if row.rem_amount or row.rem_amount==0 %}
+            {{row.rem_amount}}
+        {% else %}
+        {{total_amt}}
+        {% endif %}
+        </td>  
+        {% if row.rem_amount %}
+        <input type="hidden" class="rem_amount" id="{{row.student_id}}" name="rem_amount" value="{{row.rem_amount}}" style="text-align: center;">
+        {% else %}
+        <input type="hidden" class="rem_amount" id="{{row.student_id}}" name="rem_amount" value="">
+        {% endif %}
+        <td>
+            {%if row.paid_status=='Y'%}
+                    <label>
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+                    {%else%}
+                    <label style="display:none" class="postUpdateCheck" id="{{row.student_id}}">
+                        <input type="checkbox" name="paid_status" checked/>
+                        <span></span>
+                    </label>
+                    <span id="{{row.student_id}}unpaid">unpaid</span>
+                    {%endif%}
+        </td>
+      <td class="pt-3-half" contenteditable="false">
+        {% if row.delay_reason %}
+          {{row.delay_reason}}
+          <input type="hidden" value="{{row.delay_reason}}" class="delay_reason" name="delay_reason">
+        {% else %}
+        <input type="text" class="delay_reason" name="delay_reason" placeholder="fill delay reason" style="text-align: center;">
+        {% endif %}
+        </td>                     
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+        <td colspan="6"><a href="{{url_for('studentRegistration')}}">Click here to add students</a></td>
+    </tr>
+    {% endif %}
+  </table>
+</form>
+  <script>
+      $('.paid_amount').keyup(function(){
+        var total_amount = $(this).parents("tr").find(".total_amount").text();
+        var paid_amount = $(this).val();
+        $('.tt_amt').val(total_amount);
+        console.log('inside keyup');
+        var studID = $(this).attr('id');
+        $('#saveFeeDataBTN').prop('disabled',false);
+        studID = studID.substring(4);
+        console.log('Student ID:'+studID);
+        if(parseInt(total_amount,10)==parseInt(paid_amount,10)){
+            console.log('if amount is equal');
+            console.log('Total amount:'+typeof total_amount);
+            console.log('Paid amount:'+typeof paid_amount);
+            $(this).parents("tr").find(".postUpdateCheck").show(); 
+            $(this).parents("tr").find(".outstanding_amount").html('0');
+            var sID = '#'+studID;
+            var unpaidID = '#'+studID+'unpaid';
+            
+            $(sID).val(0);
+            console.log('ID:'+sID);
+            console.log('Value:'+$(sID).val());
+            $(unpaidID).hide();
+        }
+        else{
+            console.log('if amount is not equal');
+            console.log('Total amount:'+typeof total_amount);
+            console.log('Paid amount:'+typeof paid_amount);
+            $(this).parents("tr").find(".postUpdateCheck").hide();
+            var pending_amount = total_amount - paid_amount;
+            $(this).parents("tr").find(".outstanding_amount").html(pending_amount);
+            var sID = '#'+studID;
+            var unpaidID = '#'+studID+'unpaid';
+            $(sID).val(pending_amount);
+            console.log('ID:'+sID);
+            console.log('Value:'+$(sID).val());
+            $(unpaidID).show();
+        }
+      });
+      
+
+      $('#saveFeeDataBTN').click(function(){
+        console.log('inside saveFeeDataBtn');
+        var form = $('#feeForm');
+        $('#errorBox').html('');
+        $('#saveFeeDataBTN').html('please wait...');
+        $('#saveFeeDataBTN').prop('disabled',true);
+        var total_amt = $('.tt_amt').val();
+        console.log('Total Amount:'+total_amt);
+        $.ajax({
+                url: "/updateFeeData?total_amt="+total_amt,
+                type: "POST",
+                data: form.serialize(),
+                success: function (response2) {
+                  $('#saveFeeDataBTN').html('Save Fee Data');
+                    if (response2=='0'){
+                    M.toast({html: '<h4>Data Uploaded Successfully</h4>'});
+                    }
+                    else{
+                        $('#errorBox').html('*Paid amount should not be greater then Total amount');
+                        $('#saveFeeDataBTN').html('Save Fee Data');
+                    }
+                },
+                error: function (xhr) {                   
+                    window.alert("error occurred while submitting data");
+                }
+            });
+      });
+  </script>
