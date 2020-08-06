@@ -987,7 +987,6 @@ class LiveClass(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     #school_name = db.Column(db.String(100), nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
-    is_private = db.Column(db.String(1),nullable=True)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
 

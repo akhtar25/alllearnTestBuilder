@@ -474,6 +474,9 @@
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('liveClass',user_id = current_user.id)}}">Live Class</a>
           </li>
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',info='layout')}}">Content Manager</a>
+          </li>
           {% endif %}
             {%if current_user.is_anonymous%}
             <li> 
@@ -497,6 +500,10 @@
                 data-target="moreDropDown">
                More
               </a>
+            </li>
+            {% elif user_type!='134' %}
+            <li>
+              <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',data='user')}}">Content Manager</a>
             </li>
             {%endif%}
           <li>

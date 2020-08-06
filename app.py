@@ -2272,18 +2272,29 @@ def liveClass():
     user_id = request.args.get('user_id')
     student = ''
     studentDetails = ''
+    print('inside live class route')
     if user_id:
         student = StudentProfile.query.filter_by(user_id=user_id).first()
-        allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
+        allLiveClassQuery = "(select t1.class_sec_id, t2.class_val, t2.section "
         allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
         allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
         allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
         allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
         allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
         allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(student.school_id) + " and t1.class_sec_id= "+str(student.class_sec_id) 
-        allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"  
+        allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc)"  
+        allLiveClassQuery= allLiveClassQuery + " union "
+        allLiveClassQuery = allLiveClassQuery + "(select t1.class_sec_id, t2.class_val, t2.section "
+        allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
+        allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
+        allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
+        allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
+        allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
+        allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.is_private= 'N' and t1.school_id<> " +str(student.school_id) + " and t1.class_sec_id= "+str(student.class_sec_id) 
+        allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc)"
+        print('Query for live class:'+str(allLiveClassQuery))
         try:
-            allLiveClasses = db.session.execute(allLiveClassQuery).fetchall()
+            allLiveClasses = db.session.execute(text(allLiveClassQuery)).fetchall()
             print('##########Data:'+str(allLiveClasses))
         except:
             allLiveClasses = ""    
@@ -2308,6 +2319,15 @@ def liveClass():
     allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
     allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
     allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(school_id) 
+    allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"
+    allLiveClassQuery= allLiveClassQuery + " union "
+    allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
+    allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
+    allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
+    allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
+    allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
+    allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
+    allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id<> " +str(school_id)+" and is_private='N'" 
     allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"
     
     try:
@@ -5296,17 +5316,19 @@ def classDelivery():
         liveClassData = ''
         if public=='true':
             print('if data is public:'+str(public))
-            liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
-                start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
-                teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
-                is_archived = 'N',is_private='N',last_modified_date = now_local.strftime(format))      
+            # liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+            #     start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+            #     teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+            #     is_archived = 'N',is_private='N',last_modified_date = now_local.strftime(format))  
+            liveClassData = db.session.execute(text("insert into live_class(class_sec_id,subject_id,topic_id,start_time,end_time,status,teacher_id,teacher_name,conf_link,school_id,is_archived,is_private,last_modified_date) values('"+str(qclass_sec_id)+"','"+str(qsubject_id)+"','"+str(qtopic_id)+"','"+str(now_local.strftime(format))+"','"+str(end_local.strftime(format))+"','Active','"+str(teacher.teacher_id)+"','"+str(current_user.first_name)+' '+str(current_user.last_name)+"','"+str(qconf_link)+"','"+str(teacher.school_id)+"','N','N','"+str(now_local.strftime(format))+"')"))
         else:
             print('if data is not public:'+str(public))
-            liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
-                start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
-                teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
-                is_archived = 'N',is_private='Y',last_modified_date = now_local.strftime(format))    
-        db.session.add(liveClassData)
+            # liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+            #     start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+            #     teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+            #     is_archived = 'N',is_private='Y',last_modified_date = now_local.strftime(format))    
+            liveClassData = db.session.execute(text("insert into live_class(class_sec_id,subject_id,topic_id,start_time,end_time,status,teacher_id,teacher_name,conf_link,school_id,is_archived,is_private,last_modified_date) values('"+str(qclass_sec_id)+"','"+str(qsubject_id)+"','"+str(qtopic_id)+"','"+str(now_local.strftime(format))+"','"+str(end_local.strftime(format))+"','Active','"+str(teacher.teacher_id)+"','"+str(current_user.first_name)+' '+str(current_user.last_name)+"','"+str(qconf_link)+"','"+str(teacher.school_id)+"','N','Y','"+str(now_local.strftime(format))+"')"))
+        # db.session.add(liveClassData)
         db.session.commit() 
         return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
     return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
@@ -5393,16 +5415,28 @@ def loadContent():
 
 @app.route('/contentDetails',methods=['GET','POST'])
 def contentDetails():
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    info = request.args.get('info')
+    data = request.args.get('data')
+    teacher = ''
+    print(info)
+    if current_user.user_type==134:
+        print('if user is student')
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    elif current_user.user_type==71:
+        print('if user is teacher')
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        print('for other users')
+        teacher = User.query.filter_by(id=current_user.id).first()
     content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
-    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' "
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.school_id<>'"+str(teacher.school_id)+"' "
     content = content + "union "
     content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
     content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
     content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
-    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='Y' and cd.school_id='"+str(teacher.school_id)+"' and content_id not in (select content_id from content_detail cd where is_private = 'N' and archive_status = 'N') order by content_id desc limit 5"
+    content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and cd.school_id='"+str(teacher.school_id)+"' order by content_id desc limit 5"
     print('query:'+str(content))
     contentDetail = db.session.execute(text(content)).fetchall()
     
@@ -5414,7 +5448,7 @@ def contentDetails():
         for c in contentDetail:
             print("Content List"+str(c.content_name))    
         
-        return render_template('_contentDetails.html',contents=contentDetail)
+        return render_template('_contentDetails.html',contents=contentDetail,info=info,data=data)
 
 @app.route('/filterContentfromTopic',methods=['GET','POST'])
 def filterContentfromTopic():
