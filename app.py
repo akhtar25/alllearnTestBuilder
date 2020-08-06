@@ -524,10 +524,12 @@ def practiceTest():
         avg_performance = 0
     
     meta_val = "Preparing for exams need not be difficult. Take free mock tests anytime you want with allLearn. CBSE | IIT JEE | NEET | Competitive Exams"
+    
+    print('if user is not student')
     return render_template('/practiceTest.html',studentData=studentData, disconn=1,
         studentProfile=studentProfile, avg_performance=avg_performance,testHistory=testHistory,perfRows=perfRows,testCount=testCount,
         leaderboardData=leaderboardData,class_val=class_val,questionsAnswered=questionsAnswered,title='Take unlimited free practice tests anytime',
-        meta_val=meta_val)
+        meta_val=meta_val,user_type=str(current_user.user_type))    
 
 
 @app.route('/normal')
@@ -1645,7 +1647,7 @@ def index():
             generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
             fromSchoolRegistration = True
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
-    if user.user_type==135:
+    if user.user_type==136 or user.user_type==139:
         return redirect(url_for('admin'))
     if user.user_type==234:
     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
@@ -2267,6 +2269,25 @@ def archiveLiveClass():
 @login_required
 def liveClass():    
     form = AddLiveClassForm()
+    user_id = request.args.get('user_id')
+    student = ''
+    studentDetails = ''
+    if user_id:
+        student = StudentProfile.query.filter_by(user_id=user_id).first()
+        allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
+        allLiveClassQuery = allLiveClassQuery + ", t1.subject_id, t3.description as subject, t1.topic_id, t4.topic_name, start_time,end_time, status, teacher_name, "
+        allLiveClassQuery = allLiveClassQuery + " conf_link, t1.school_id "
+        allLiveClassQuery = allLiveClassQuery + " from live_class t1 "
+        allLiveClassQuery = allLiveClassQuery+ " inner join class_section t2 on t1.class_sec_id = t2.class_sec_id "
+        allLiveClassQuery= allLiveClassQuery + " inner join message_detail t3 on t1.subject_id = t3.msg_id "
+        allLiveClassQuery= allLiveClassQuery + " inner join topic_detail t4 on t1.topic_id = t4.topic_id where t1.school_id= " +str(student.school_id) + " and t1.class_sec_id= "+str(student.class_sec_id) 
+        allLiveClassQuery= allLiveClassQuery + " and end_time > now() order by end_time desc"  
+        try:
+            allLiveClasses = db.session.execute(allLiveClassQuery).fetchall()
+            print('##########Data:'+str(allLiveClasses))
+        except:
+            allLiveClasses = ""    
+        return render_template('liveClass.html',allLiveClasses=allLiveClasses,form=form,current_time=datetime.now(),studentDetails=studentDetails)      
     #allLiveClasses = LiveClass.query.filter_by(is_archived='N').order_by(LiveClass.last_modified_date.desc()).all()
     if current_user.user_type==71 or current_user.user_type==135 or current_user.user_type==139:
         teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -5188,6 +5209,7 @@ def leaderBoard():
 @login_required
 def classDelivery():
     form = ContentManager()
+    public = request.args.get('public')
     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
     form.subject_name.choices = ''
@@ -5271,11 +5293,19 @@ def classDelivery():
         end_local = end_time.astimezone(get_localzone())
         print(end_local.strftime(format))
         print('end time')
-        
-        liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
-            start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
-            teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
-            is_archived = 'N',last_modified_date = now_local.strftime(format))        
+        liveClassData = ''
+        if public=='true':
+            print('if data is public:'+str(public))
+            liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+                start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+                teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+                is_archived = 'N',is_private='N',last_modified_date = now_local.strftime(format))      
+        else:
+            print('if data is not public:'+str(public))
+            liveClassData=LiveClass(class_sec_id = qclass_sec_id,subject_id = qsubject_id, topic_id=qtopic_id, 
+                start_time = now_local.strftime(format), end_time = end_local.strftime(format), status = "Active", teacher_id=teacher.teacher_id, 
+                teacher_name = str(current_user.first_name)+' '+str(current_user.last_name), conf_link=str(qconf_link), school_id = teacher.school_id,
+                is_archived = 'N',is_private='Y',last_modified_date = now_local.strftime(format))    
         db.session.add(liveClassData)
         db.session.commit() 
         return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))

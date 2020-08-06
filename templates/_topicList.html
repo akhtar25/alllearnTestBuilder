@@ -63,6 +63,13 @@
     <h4>Start Live Class</h4>
     <h6 id="chosenTopicDetail"></h6>
     <form action="" id="liveClassForm" method="POST">
+      <p style="margin-left: 370px;">
+        <label>
+          <input type="checkbox" id="public" value="Y"  />
+          <span>Public</span>
+        </label>
+      </p>
+      <p>
     <ol>
       <li><h5>Start a live session</h5>
         <a href="https://meet.google.com" target="_blank"><img src="../static/images/meet_img.png" width="150px"></a>
@@ -115,9 +122,11 @@
  }); 
 
  $('#duration').blur(function() {
+  var public = document.querySelector('#public').checked;
+    console.log('public:'+public);
         if($('#conferenceLink').val() != '' && $('#duration').val() != '') {
            $('#saveConfBTN').attr("disabled", false);
-           var url = "/classDelivery?class_sec_id="+class_sec_id+"&subject_id="+subject_id+ "&topic_id="+topic_id+ "&retake=N&duration="+$('#duration').val()+"&conf_link="+$('#conferenceLink').val();
+           var url = "/classDelivery?class_sec_id="+class_sec_id+"&public="+public+"&subject_id="+subject_id+ "&topic_id="+topic_id+ "&retake=N&duration="+$('#duration').val()+"&conf_link="+$('#conferenceLink').val();
           $('#liveClassForm').attr("action", url);
           //  var classParams = $(this).attr("name");
           //   var res = classParams.split("-");
