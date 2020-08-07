@@ -28,13 +28,15 @@
                         <th>Details </th>
                       </tr>                                                                    
                            {% for row in responseResultRow %}   
-                           {% set percentage = (row.points_scored/ row.total_weightage) * 100  %}                                              
                       <tr> 
                         <td>{{row.roll_number}} </td>
                         <td> {{row.full_name}}</td>
-                        <td> {{row.points_scored}}</td>
-                        <td> {{row.total_weightage}}</td>
-                        <td> {{'%0.2f' % percentage|float}}%</td>
+                        <td> 
+                          {% set marks = row.marks_scored - neg_marks %}
+                          {{marks}}
+                        </td>
+                        <td> {{totalPointsLimit}}</td>
+                        <td> {{'%0.2f' % classAverage|float}}%</td>
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}

@@ -309,6 +309,7 @@ class QuestionDetails(db.Model):
     reference_link=db.Column(db.String(120),nullable=True)
     suggested_weightage = db.Column(db.Integer,nullable=True)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
+    is_private = db.Column(db.String(1),nullable=True)
     archive_status = db.Column(db.String(1),nullable=True)
 
 
@@ -986,6 +987,7 @@ class LiveClass(db.Model):
     #phone_number = db.Column(db.String(30), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     #school_name = db.Column(db.String(100), nullable=True)
+    is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 

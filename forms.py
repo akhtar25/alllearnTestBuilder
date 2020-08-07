@@ -247,6 +247,9 @@ class addEventForm(FlaskForm):
     endDate = DateField('End Date', validators=[DataRequired()])
     category = StringField('Category',validators=[DataRequired(),Length(max=100)])
 
+# class ScheduleForm(FlaskForm):
+#     slots =  
+
 class SingleStudentRegistration(FlaskForm):
     roll_number = StringField('Roll Number', validators=[Length(max=100)])
     first_name = StringField('First Name', validators=[Length(max=100)])

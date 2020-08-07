@@ -1,70 +1,366 @@
  {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3> Fee Management</h3>
+    
     <!-- Editable table -->
-<div class="card">
-    <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Unpaid this month</h3>
+
+    <!-- left sidenav Menu for classes -->
+    <div class="hold-transition skin-blue sidebar-mini">
+    <div id="sidebarDiv">
+      <div class="main-sidebar" style="margin-top:15px;">
+        <section class="sidebar">
+          <ul class="sidebar-menu table-responsive" data-widget="tree">
+            <!-- <li class="treeview menu-open" style="padding: 10px;">
+              <i class="glyphicon glyphicon-education"></i>
+              <span style='font-size:15px'><a href="{{url_for('feeManagement')}}" id="all">All</a></span>
+              </a>
+            </li> -->
+            {% for singleClass in distinctClasses %}
+            <li class="treeview">
+
+              <a href="#">
+                <span>Class {{singleClass[0]}}</span>
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right" id="classSel">{{singleClass[2]}}</span>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% for classsection in classsections %}
+                {% if classsection.class_val|string == singleClass[0]|string %}
+                <li><a
+                    href="{{ url_for('feeManagement',class_val=classsection.class_val, section=classsection.section) }}"><i
+                      class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
+        </section>
+        <!-- /.sidebar -->
+      </div>
+    </div>
+    </div>
+    <!-- End -->
+    <div class="content-wrapper" style="background-color: white;">
+      <h3> Fee Management</h3>
+      <div class="row"  id="summaryDiv">
+          <div class="box-header">
+            {% if qclass_val %}
+            <h3 class="box-title">Class Details</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
+              Section: {{qsection}}</span>
+            {% else %}
+            <h3 class="box-title">Class Details</h3><span style="padding-left: 10px;"> Class: All |
+              Section: All</span>
+            {% endif %}
+          </div>
+        </div>
+        {% if qclass_val %}
+        <div class="row">
+          <button data-target="modal1" style="float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
+        </div>
+        {% endif %}
+      <div class="row">
+        <h4 class="grey-text" style="margin-left:15px;">Choose Month and Year</h4>
+        <div class="input-field col-md-3">
+            <select id="addMonthSelect" class="selection">
+                <option value="" disabled selected>Select Month</option>
+            </select>
+        </div>
+        <div class="input-field col-md-3">
+            <select id="addYearSelect" class="selection">
+                <option value="" disabled selected>Select Year</option>
+            </select>
+        </div>
+      </div>
+      
+      <a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br>
+
+      <!-- Start Summary Box -->
+      <div class="card" id="boxDiv" style="display: none;">
+        <h3 class="card-header text-center font-weight-bold text-uppercase py-4" style="margin-left: 400px;">Summary Box</h3>
+        <div class="card-body">
+          <div id="summaryBoxDiv" class="table-editable">
+            
+          </div>
+        </div>
+      </div>
+      <div id="summaryloader" style="margin-left:160px;display: none;">
+        <img src="../static/images/smallLoader.gif" style="height: 150px;">
+    </div>
+      <!-- End Summary Box -->
+      <!-- <div class="row">
+        <button data-target="modal1" style="display: none;float:right;margin-right:15px;" class="btn modal-trigger waves-light green lighten-1 white-text" type="button" id="configure"><a href="javascript:void(0);" style="color: white;">Set Fee</a></button>
+      </div>
+      <br><a href="#smsModal" class="modal-trigger" id="sms" style="float: right;display: none;" >Send Reminder message</a><br> -->
+      <!-- SMS Modal Structure -->
+      <div class="modal" id="smsModal" style="height: 400px;width: 450px;">
+        <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
+          <h4>Send SMS to unpaid students of {{qclass_val}} - {{qsection}}</h4>
+          <form id="sendSMSForm">
+          <div class="input-field ">
+            <textarea id="message" name="message" class="materialize-textarea" data-length="720" placeholder="Enter message" ></textarea>                 
+          </div>
+          <input type="hidden" id="commType" name="commType" value="sms">
+          <input type="hidden" id="qclass_val" name="qclass_val" value="{{qclass_val}}">
+          <input type="hidden" id="qsection" name="qsection" value="{{qsection}}">
+          <br>
+          <a href="#" id="sendSMSBTN" class="btn green right">Send SMS</a>
+        </form>
+        <div id="sendSuccessMSG" style="display: none;">  
+        <!--<img src="../static/images/tick.gif" style="width: 100px;" class="center">-->
+        <h4 class="green-text">Message sent successfully to all unpaid students</h4>
+        <!--<span id="successSendList"></span>-->
+      </div>
+      <div class="studentist" style="height: 250px;position: relative;overflow-y: auto;">
+
+      </div>
+      <div id="studentListloader" style="display: none;">
+        <img src="../static/images/smallLoader.gif" style="height: 150px;">
+    </div>
+        <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
+          </div>
+      </div>
+      <!-- End -->
+
+      <!-- Modal structure -->
+      <div id="modal1" class="modal" style="height:160px;width: 330px;">
+        <div class="modal-content" style="height:156px;">
+          <h4>Set Fee for Class: {{qclass_val}} | Section: {{qsection}}  </h4>
+          
+          <input type="text" id="fee" placeholder="Enter Total Fee" style="width:150px;">
+          <button style="margin-left: 22px;" class="btn waves-light green lighten-1 white-text" type="button" id="Set"><a href="javascript:void(0);" style="color: white;">Set</a></button>
+        </div>
+        <!-- <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+        </div> -->
+      </div>
+      <!-- End -->
+    
+
+<div class="card" id="feeDiv" style="display: none;">
+    <h3 class="card-header text-center font-weight-bold text-uppercase py-4" style="margin-left:410px;">Fee status</h3>
     <div class="card-body">
-      <div id="table" class="table-editable">
+      <div id="feeStatusDiv" class="table-editable" style="position: relative;height: 400px;overflow-y: auto;overflow-x: hidden;">
         <!--<span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success">
             <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
         </a>
     </span>-->
-        <table class="table table-bordered table-responsive-md table-striped text-center">
-          <tr>
-            <th class="text-center">Student Name</th>
-            <th class="text-center">Class</th>
-            <th class="text-center">Section</th>
-            <th class="text-center">Unpaid Months</th>
-            <th class="text-center">Paid</th>
-          </tr>
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Ayushi Rautela</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">1</td>                        
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Aditi Semwal</td>
-            <td class="pt-3-half" contenteditable="false">2</td>
-            <td class="pt-3-half" contenteditable="false">B</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <tr>
-            <td class="pt-3-half" contenteditable="false">Ashish Singh</td>
-            <td class="pt-3-half" contenteditable="false">4</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">2</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-          <!-- This is our clonable table line -->
-          <!--<tr class="hide">-->
-            <tr>
-            <td class="pt-3-half" contenteditable="false">Anchal Jelta</td>
-            <td class="pt-3-half" contenteditable="false">6</td>
-            <td class="pt-3-half" contenteditable="false">A</td>
-            <td class="pt-3-half" contenteditable="false">1</td>
-            <td>
-              <span class="table-remove"><button type="button" class="btn btn-success btn-rounded btn-sm my-0">Paid</button></span>
-            </td>
-          </tr>
-        </table>
+        
       </div>
     </div>
   </div>
-  <div>
-      <h4><a href="#">See complete list</a></h4>
-  </div>
+  <br> 
+  <!-- <a href="javascript:void(0);" id="saveFeeDataBTN" class="btn green right" style="color: white;display: none;">Save Fee Data</a> -->
+  {% if qclass_val %}
+  <button class="btn waves-light green lighten-1 white-text" style="display:none;float:right;" id="saveFeeDataBTN">Save Fee Data</button>
+  {% endif %}
+  <h4 id="errorBox" style="color:red;"></h4>
+  <br><br>
+  <div id="feeStatusloader" style="margin-left:160px;display: none;">
+    <img src="../static/images/smallLoader.gif" style="height: 150px;">
+</div>
   <!-- Editable table -->
 </div>
+</div>
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+<script>
+
+
+$(document).ready(function(){
+    $('.modal').modal();
+    var fee = "{{fee}}";
+    if(fee){
+      $('#configure').prop('disabled',true);
+    }else{
+      $('#configure').prop('disabled',false);
+    }
+  });
+
+$(document).ready(function () {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var qntYears = 4;
+        var selectYear = $("#addYearSelect");
+        var selectMonth = $("#addMonthSelect");
+        var currentYear = new Date().getFullYear();
+
+        for (var y = 0; y < qntYears; y++) {
+            let date = new Date(currentYear);
+            var yearElem = document.createElement("option");
+            yearElem.value = currentYear;
+            yearElem.textContent = currentYear;
+            selectYear.append(yearElem);
+            currentYear--;
+        }
+
+        for (var m = 0; m < 12; m++) {
+            let monthNum = new Date(2018, m).getMonth()
+            let month = monthNames[monthNum];
+            var monthElem = document.createElement("option");
+            monthElem.value = parseInt(monthNum) + 1;
+            monthElem.textContent = month;
+            selectMonth.append(monthElem);
+        }
+
+        $('.tabs').tabs();
+        $('select').formSelect();
+    });
+
+
+    var selectYear = document.getElementById('addYearSelect')
+    $('.selection').change(function () {
+      $('#summaryBoxDiv').html('');
+
+      $('#sms').hide();
+      var monthSelectCheck = $('#addMonthSelect').val();
+      var yearSelectCheck = $('#addYearSelect').val();
+      var class_val = "{{qclass_val}}";
+      var section = "{{qsection}}";
+      if (monthSelectCheck != null && yearSelectCheck != null) {
+        $('#boxDiv').hide();
+        $('#summaryloader').show();
+        
+        var data = "";
+        $.ajax({
+                url: "/feeMonthData?month=" + monthSelectCheck + "&year=" + yearSelectCheck+"&class_val="+class_val+"&section="+section,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    $('#summaryloader').hide();
+                    
+                    $("#summaryBoxDiv").html(response);
+                    $('#boxDiv').show();
+                    
+                    
+                    console.log('Fetched fee data from server')
+                },
+                error: function (xhr) {
+                    $('#summaryloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+
+            // fee Status table
+            if(class_val!='None'){
+              console.log('if class is not none');
+              console.log(class_val);
+            $('#feeDiv').hide();
+        $('#feeStatusloader').show();
+        
+        var data = "";
+        $.ajax({
+                url: "/feeStatusDetail?month=" + monthSelectCheck + "&year=" + yearSelectCheck+"&class_val="+class_val+"&section="+section,
+                type: "get",
+                data: data,
+                success: function (response) {
+                    
+                    $('#feeStatusloader').hide();
+                    $('#saveFeeDataBTN').prop('disabled',true);
+                    $('#saveFeeDataBTN').show();
+                    $('#sms').show();
+                    $("#feeStatusDiv").html(response);
+                    $('#feeDiv').show();
+                    console.log('Fetched fee data from server')
+                    var amt = $('.tt_amt').val();
+                    console.log('Total amount:'+amt);
+                    if(amt){
+                      console.log(amt);
+                      console.log('total amount exist');
+                    }else{
+                      console.log('amount is null');
+                    }
+                },
+                error: function (xhr) {
+                    $('#feeStatusloader').hide();
+                    window.alert("error occurred while submitting data");
+                }
+            });
+            }
+            // End
+      }else{
+        $('#boxDiv').hide();
+        $('#feeDiv').hide();
+      }
+    });
+
+    $('#Set').click(function(){
+      var total_fee = $('#fee').val();
+      
+      var class_val = "{{qclass_val}}";
+      var section = "{{qsection}}";
+      var data = "";
+        $.ajax({
+                url: "/setFee?class_val="+class_val+"&section="+section+"&total_fee="+total_fee,
+                type: "get",
+                data: data,
+                success: function (response) {
+                  
+                  if(response==0){
+                    var elem = $('#modal1')
+                  var instance = M.Modal.getInstance(elem);                   
+                  instance.close();
+                  $('#configure').prop('disabled',true);
+                  }
+                },
+                error: function(xhr){
+                  window.alert("error occurred while submitting data");
+                }
+        });
+    });
+
+
+    $('#sendSMSBTN').click(function($e){
+    $('#smsSendErrorMSG').hide();
+    $('#sendSMSBTN').fadeTo("fast", 0.5).removeAttr("href");
+    $('#sendSMSBTN').html('Please wait...');
+  var form = $('#sendSMSForm');     
+    $.ajax({
+            url: "/sendFeeSMS",
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) {        
+                if (formResponse=='1'){   
+                    $('#smsSendErrorMSG').show();                       
+                //clicks = 0;
+            }
+            else{
+                //$('#sendSuccessMSG').show();  
+              M.toast({html: '<h4>New Message Sent</h4>'});
+                var elem = $('#smsModal')
+                var instance = M.Modal.getInstance(elem);                   
+                instance.close();
+            }
+            $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+            $('#sendSMSBTN').html('Send SMS');
+            },
+            error: function (xhr) {
+              $('#smsSendErrorMSG').show();
+              $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+              $('#sendSMSBTN').html('Send SMS');
+            }
+        }); 
+  });
+
+  $('#sms').click(function(){
+    console.log('inside sms');
+    var class_val = "{{qclass_val}}";
+    var section = "{{qsection}}";
+    $('.studentist').hide();
+    $('#studentListloader').show();
+    $.ajax({
+            url: "/unpaidStudentsList?class_val="+class_val+"&section="+section,
+            type: "POST",
+            data: "",
+            success: function (response) {    
+              $('#studentListloader').hide();    
+              $('.studentist').html(response);
+              $('.studentist').show();
+            },
+            error:function(xhr){
+
+            }
+  });
+  });
+
+</script>
 {%endblock%}

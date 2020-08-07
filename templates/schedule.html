@@ -1,0 +1,359 @@
+{%extends "layout.html"%} {%block content%}
+
+<div class="container">
+  <div class="hold-transition skin-blue sidebar-mini">
+    <div id="sidebarDiv">
+      <div class="main-sidebar" style="margin-top:15px;">
+        <section class="sidebar">
+          <ul class="sidebar-menu table-responsive" data-widget="tree">
+            {% for singleClass in distinctClasses %}
+            <li class="treeview">
+
+              <a href="#">
+                <i class="glyphicon glyphicon-education"></i>
+                <span>Class {{singleClass[0]}}</span>
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% for classsection in classsections %}
+                {% if classsection.class_val|string == singleClass[0]|string %}
+                <li><a
+                    href="{{ url_for('schedule',class_val=classsection.class_val, section=classsection.section) }}"><i
+                      class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
+        </section>
+        <!-- /.sidebar -->
+      </div>
+    </div>
+  </div>
+  <div class="content-wrapper" style="background-color: white;">
+  <div class="row" style="margin-left: 10px;">
+    <div class="box-header">
+      <h3 class="box-title">Schedule for </h3> <span
+          style="font-size: 16px;padding-top: 20px;font-size: 19px;"> class: {{qclass_val}} | section: {{qsection}}<span
+            id="classNo">
+    </div>
+    <h5>
+      <ul class="collapsible">
+        <li id="view" class="active">
+          <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">view_module</i>
+            View Schedule
+            <div class="downloadBtn" style="text-align: right;margin-left: 575px;">
+              <button class="btn waves-light green lighten-1 white-text" id="download">Download schedule</button>
+              <span id="downloadLoader" style="display: none;color:red;" >please wait...</span>
+          </div>
+          </div>
+          <div class="collapsible-body">
+            
+            <div class="row">
+              <div id="timeTableDiv">
+          
+              </div>
+            </div>
+            
+          <a href="" id="downloadUrl" style="display: none;" download>Download</a>
+          <!-- <img src="../tempdocx/smallLoader.gif"> -->
+          </div>
+        </li>
+        <li id="create">
+          <div class="collapsible-header"><i class="large material-icons" style="font-size: 2rem;">insert_chart</i>Create Schedule</div>
+          <div class="collapsible-body">
+              <form id="timeTableForm">
+                  <div class="row">
+                    <section class="plans-container" id="plans">
+                      
+                      <article class="col s12 m12 l8 " style="margin-left: 150px;">
+                        <div class="card  z-depth-4">
+                          <div class="card-image">
+                          </div>
+                    <div class="allData" style="display: flex;">
+                  <div class="subjectDetails" style="width:260px;margin-left: 20px;margin-top: 10px;">
+                    <div class="row">
+                      <div class="col-sm-2">
+                        <div style="width:170px;">
+                          <select id="class_val" name="class_val">
+                            <option value="" disabled selected>Select Class</option>
+                            {% for row in available_class_section %}
+                            <option value="{{row.class_val}}">{{row.class_val}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <input type='hidden' name='checkIndx' id='checkIndx' />
+                    </div> 
+                    
+                    </div>
+                    <div class="subtimeTable" style="height: 250px;position: relative;overflow-y: auto;">
+                    <table id = "subTable" style="display: none;">
+                      <thead>
+                      <tr>
+                        <th><label style="margin-left: 15px;">Subjects</label></th>
+                        <th><label>Periods per week</label></th>
+                      </tr>
+                    </thead>
+                    <tbody id="addSubTime">
+                      
+                    </tbody>
+                    
+                    </table>
+                  
+                    <div id="subjectloader" style="display:none;margin-left:20px;">
+                    <img src="../static/images/loader.gif">
+                  </div>
+                </div>
+                </div>
+                  
+              <!-- </div>
+              </article>
+                  <article class="col s12 m6 l4 ">
+                    <div class="card  z-depth-4">
+                      <div class="card-image">
+                      </div> -->
+                  <div class="dataRight">
+                <div style="margin-left:68px;width:200px;">
+                  <label>No of periods per day:</label>
+                  <input type="number" id="slots" onKeyPress="return false;" name="slots" style="width:50px;"/></br>
+              </div>
+            <div style="width:230px;margin-left: 70px;">
+                <label>Select Days</label>
+            </div>
+                  <div class="noOfDays" style="margin-left:68px;">
+                      
+                      <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Monday" />
+                            <span>Monday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Tuesday" />
+                            <span>Tuesday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Wednesday" />
+                            <span>Wednesday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Thursday" />
+                            <span>Thursday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Friday" />
+                            <span>Friday</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input type="checkbox" class="day" name="day" value="Saturday" />
+                            <span>Saturday</span>
+                          </label>
+                        </p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              </article>
+            </section>
+      
+            <div style="text-align: center;margin-top: 340px;margin-bottom: 15px;">
+              <a class="btn green" id="addSchedule" onclick="hide();">Submit</a>
+              <a class="btn green" id="msgforwait" style="display: none;">please wait...</a>
+          </div>
+          <span id="errorMSGSpan" style="color: red;margin-left: 160px;"></span>
+          </div> 
+                
+                  
+              
+            </form>
+          </div>
+        </li>
+      </ul>
+       
+   
+  </div>
+  
+
+</div>
+</div>
+
+<link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
+
+<script>
+
+$('#download').click(function(){
+  $('#download').hide();
+  $('#downloadLoader').show();
+  $.ajax({
+            url: "/downloadTimeTable",
+            type: "POST",
+            data: "",
+            success: function (response) {
+              $('#download').show();
+              $('#downloadLoader').hide();
+              console.log('inside download success');
+              console.log(response);
+              for(var i=0;i<response.length;i++){
+                console.log(response[i]);
+              $('#downloadUrl').attr("href",response[i]);
+              }
+              $('#downloadUrl')[0].click();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching timetable");
+            }
+        });
+});
+
+
+$(document).ready(function(){
+  console.log('inside ready function');
+  $('#addSchedule').hide();
+});
+$('input.day').on('change', function(evt) {
+  var slot = document.getElementById('slots').value;
+  console.log(slot);
+  console.log($("input[name='day']:checked").length);
+   if( $("input[name='day']:checked").length < slot) {
+      console.log('if check length is less then limit ');
+       
+      $('#addSchedule').hide();
+   }else{
+    console.log('if check length is greater then or equal to limit ');
+    $('#addSchedule').show();
+   }
+});
+
+
+
+  // var class_section = document.getElementById('class_section');
+  $(document).ready(function(){
+    
+    $.ajax({
+            url: "/fetchTimeTable?class_value={{qclass_val}}&section={{qsection}}",
+            type: "get",
+            data: "",
+            success: function (response) {
+              $('#timeTableDiv').html(response);
+              // $('#download').show();
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching timetable");
+            }
+        });
+  });
+
+  $("#slots").blur(function(){
+  var slots = $('#slots').val();
+  var input = '';
+  for(var i=0;i<slots;i++){
+    input = input + '<label>Start:</label><input type="text" name="start" id="start1" style="width:50px;"/><label>End:</label><input type="text" name="end" id="end1" style="width:50px;"/></br>'
+  }
+  $('.Time').html(input);
+});
+
+// $("#slots").attr({
+//    "max" : maxSub,
+//    "min" : 1
+// });
+
+var maxSub = '';
+var class_val = document.getElementById('class_val');
+$('#class_val').change(function(){
+  $('#subTable').hide();
+  $('#subjectloader').show();
+  var class_v = class_val.value;
+    console.log('inside class_val onchange');
+    console.log('class'+class_v);
+    $.ajax({
+            url: "/allSubjects?class_value=" + class_v,
+            type: "get",
+            data: "",
+            success: function (response) {
+
+              subTimeHtml = '';  
+              console.log(response);  
+              responseArr = response.toString().split(',');
+              maxSub = responseArr.length;
+              $("#slots").attr({
+                  "max" : maxSub,
+                  "min" : 1
+              });
+              for(var i=0;i<responseArr.length;i++){
+                
+                console.log(responseArr[i]);
+                subTimeHtml = subTimeHtml+ '<tr><td><label style="margin-left:15px;">'+responseArr[i]+'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" id="subject1" value="'+responseArr[i]+'" name="subject" style="width:50px;" /></td><td><input type="number" onKeyPress="return false;" id="time1" min="1" max="'+maxSub+'" name="time" style="width:50px;"/></td></tr>';
+              }
+              $('#subjectloader').hide();
+              $('#addSubTime').html(subTimeHtml);
+              $('#subTable').show();
+              
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching subjects list");
+            }
+        });
+  });
+
+
+// $(document).ready(function(){
+//     $('select').formSelect();
+//   });
+function hide(){
+  console.log('inside hide');
+  $('#create').removeClass("active");
+    $('#view').addClass("active");
+}
+
+  $('#addSchedule').click(function(){
+    $('#create').removeClass("active");
+    $('#view').addClass("active");
+    var class_val = $('#class_val').val();
+    var form = $('#timeTableForm');
+    $('#addSchedule').hide();
+    $('#msgforwait').show();
+    $('#errorMSGSpan').html('');  
+    $.ajax({
+            url: "/updateSchedule?class_val="+class_val,
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+              $('#create').removeClass("active");
+              $('#view').addClass("active");
+              if(formResponse==1){
+                $('#errorMSGSpan').html('Total slots should be greater then or equal to total time. Please try again.');   
+              }else{
+
+                M.toast({html: 'Schedule created!'})
+              }
+              $('#msgforwait').hide();
+              $('#addSchedule').show();
+           
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating timetable Please try again.');  
+            }
+        });
+  });
+
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
+
+</script>
+
+{% endblock %}

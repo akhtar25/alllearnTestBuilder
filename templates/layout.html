@@ -12,6 +12,9 @@
 
   gtag('config', 'G-RGRH24ZRK9');
 </script>
+<meta name="google-signin-scope" content="profile email">
+<meta name="google-signin-client_id" content="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com">
+
   <script>
     ! function () {
       var analytics = window.analytics = window.analytics || [];
@@ -186,7 +189,7 @@
           <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {%elif user_type_val=='161'%}
         <li>
@@ -219,7 +222,7 @@
         </li>
 
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
         </li>
         {% else %}
         <li>
@@ -284,7 +287,7 @@
           <a style="color: green;" href="{{url_for('help')}}">Help</a>
         </li>
         <li>
-          <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+          <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
         </li>
         {%endif%}
       </ul>
@@ -364,7 +367,7 @@
           </li>-->
           {%endif%}
           <li>
-            <a style="color: green;" href="{{ url_for('logout') }}">Logout</a>
+            <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
           </li>
           {% endif %}
         </ul>
@@ -494,6 +497,7 @@
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="dropdown2">
+              
              <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
@@ -513,7 +517,7 @@
           </li>
 
           {%else%}
-          {% if session['userType']==71 or session['userType']==135 %}
+          {% if current_user.user_type==71 or current_user.user_type==135 %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>
@@ -525,7 +529,7 @@
               href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
           {% endif %}
-          {% if session['userType']==134 %}
+          {% if current_user.user_type==134 %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('qrSessionScannerStudent')}}">Tests
             </a>
@@ -563,7 +567,7 @@
             <!-- <a href="#!" data-target="slide-out" class="sidenav-trigger show-on-large" style="color: green; font-size:15px;">More -->
             <ul id="slide-out" class="sidenav">
               <li>
-                {% if session['userType']==71 %}
+                {% if current_user.user_type==71 %}
                 <div class="user-view" style="height:180px;">
                   {% else %}
                   <div class="user-view" style="height:170px;">
@@ -589,15 +593,16 @@
               <!-- {% endif %} -->
               <!-- {{ lis.append(row[2]) }} -->
               <li>
-                {% if session['userType']==71 or session['userType']==135 %}
+                {% if current_user.user_type==71 or current_user.user_type==135 %}
                 {% if row[0]=='My Profile' %}
-                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{session["username"]}}'>{{row[0]}}</a>
+                {% set username = current_user.username %}
+                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{username}}'>{{row[0]}}</a>
                 {% else %}
                 <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
                 {% endif %}
                 {% endif %}
 
-                {% if session['userType']==134 %}
+                {% if current_user.user_type==134 %}
                 {% if row[0]=='Student Directory' %}
                 <a style="color: green; font-size:20px;" href='{{row[1]}}?student_id={{session["studentId"]}}'>Student
                   Profile</a>
@@ -798,6 +803,12 @@
 <script src="../static/js/autoComplete.js"></script>
 <script src="../static/js/datatables.js"></script>
 <script>
+ 
+  function onLoad(){
+    gapi.load('auth2',function(){
+      gapi.auth2.init();
+    });
+  }
   $(document).ready(function () {
     // $('.sidenav').sidenav();
     //alert('1');
@@ -810,6 +821,16 @@
     //}
 
   });
+
+$('.logoutBTN').click(function(){
+  //window.alert('logout function');
+  //gapi.auth2.init(client_id="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com");
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+});
+
   // $(document).ready(function(){
   //       $("#st").removeClass("sorting_asc");
   //       $('#datatable').dataTable( {
@@ -836,16 +857,6 @@
       closeOnClick: true
     });
   });
-
-  // $('.button-collapse').sideNav({
-  //       menuWidth: 300,
-  //       closeOnClick: true,
-  //       edge: 'right', // <--- CHECK THIS OUT
-  //     }
-  //   );
-
-
-  // Show sideNav
 </script>
-
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 </html>
