@@ -6815,7 +6815,7 @@ def questionBuilder():
                 db.session.add(options)
                 db.session.commit()
                 flash('Success')
-                return render_template('questionBuilder.html',user_type_val=str(current_user.user_type))
+                return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
             else:
                 option_list=request.form.getlist('option_desc')
                 question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=int(request.form['topics']),question_description=request.form['question_desc']).first()
@@ -6843,7 +6843,7 @@ def questionBuilder():
                     db.session.add(options)
                 db.session.commit()
                 flash('Success')
-                return render_template('questionBuilder.html',user_type_val=str(current_user.user_type))
+                return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
         else:
             csv_file=request.files['file-input']
             df1=pd.read_csv(csv_file)
@@ -6887,8 +6887,8 @@ def questionBuilder():
                     db.session.add(question)
             db.session.commit()
             flash('Successfully Uploaded !')
-            return render_template('questionBuilder.html',user_type_val=str(current_user.user_type))
-    return render_template('questionBuilder.html',user_type_val=str(current_user.user_type))
+            return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
+    return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
 
 
 

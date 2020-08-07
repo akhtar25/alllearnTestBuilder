@@ -67,8 +67,14 @@
         </div>
     </form>
         <div class="addQuestionButton">
-            <button style="margin-left: 1000px;"
-                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Question</a></button>
+            <button style="margin-left: 1000px;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
+                class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
+        </div>
+          <!-- Modal Structure -->
+        <div id="modal1" class="modal">
+        <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
+            <div id="quesBuilder"></div>
+        </div>
         </div>
     <div class="row">
         {% if topics %}
@@ -98,6 +104,9 @@
 </div>
 <script type="text/javascript">
 
+$(document).ready(function(){
+    $('.modal').modal();
+  });
 var count_marks = 0;
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
@@ -280,6 +289,22 @@ var count_marks = 0;
     {  count_marks=count_marks-parseInt(weightage)
         $("#marks").text(count_marks);
     }
+}
+
+function createQuestion(){
+    console.log('create Question');
+    $.ajax({
+            url: "/questionBuilder",
+            type: "GET",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                $('#quesBuilder').html(response);
+            },
+            error: function(xhr){
+
+            }
+        });
 }
 
 </script>

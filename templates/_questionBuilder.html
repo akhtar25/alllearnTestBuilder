@@ -1,8 +1,7 @@
-{%extends "layout.html"%} {%block content%}
-<div class="container">
+<!-- <div class="container"> -->
     <h2>Question Builder
 </h2> 
-                <div class="row">
+                <div class="row" id="radBtn">
                         <div class="col-sm-3">
                         <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type1"  value="single"><span style="font-size:13px;">Create Single Question</span></label></p>
                         </div>
@@ -30,7 +29,7 @@
             </form>
             
         
-    </div>
+    <!-- </div> -->
 
 <script>
     var upload_type1=document.getElementById('upload_type1')
@@ -42,6 +41,7 @@
                   url: "/questionUpload",
                   type: "get",
                   success: function(response) {
+                    $('#radBtn').hide();
                     $("#new").show();
                     $("#new").html(response);
                     $("#buttonbox").show();        
@@ -61,6 +61,7 @@
                   url: "/questionFile",
                   type: "get",
                   success: function(response) {
+                    $('#radBtn').hide();
                     $("#new").show(); 
                     $("#new").html(response);        
                     },
@@ -91,4 +92,3 @@
 }​   */ 
 </script>
 
-{%endblock%}

@@ -14,14 +14,14 @@
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_val(class='form-control',id='classValSelected',style='width: 215px;') }}
+                                        {{ form.class_val(class='form-control',id='classValSelected',style='width: 116px;') }}
                                         {% endif %}
                                 </div>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2" style="margin-left: -50px;">
                                 <div style="width:150px;" > 
                                                 {{ form.subject_name.label(class='labelsize') }}
-                                                <div id='loaderSubject'style='display: none; float: right;'>
+                                                <div id='loaderSubject'style='display: none; float: right;margin-right:10px;'>
                                                                 <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                                 </div>
                                         <br>
@@ -40,10 +40,10 @@
                                 </div>
                         </div>
     
-                        <div class="col-sm-2">
+                        <div class="col-sm-2" style="margin-left: 31px;">
                             <div style="width:150px;" > 
                                             {{ form.topics.label(class='labelsize') }}
-                                            <div id='loaderTopic'style='display: none; float: right;'>
+                                            <div id='loaderTopic'style='display: none; float: right;margin-right:-50px;'>
                                                             <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                             </div>
                                     <br>
@@ -55,14 +55,14 @@
                                             {% endfor %}
                                     </div>
                                             {% else %}
-                                            {{ form.topics(class='form-control',id='topicNameSelect',style='width: 140px;') }}
+                                            {{ form.topics(class='form-control',id='topicNameSelect',style='width: 200px;') }}
                                             {% endif %}
     
                                             
                             </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div style="width:150px;">
+                    <div class="col-sm-2" style="margin-left: 91px;">
+                        <div style="width:171px;">
                             {{ form.question_type.label(class='labelsize') }}
                     <br>
                             {% if form.question_type.errors %}
@@ -102,7 +102,6 @@
 
 <div class="row">
     <div class="col-sm-8">
-    <h4>Question</h4> 
     {{ form.question_desc.label(class='labelsize') }}
     <br>
     {% if form.question_desc.errors %}
@@ -163,21 +162,23 @@
     {% else %}
     <input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
     {% endif %}
+
+    <div style="margin-top: 30px; margin-left: 10px;">
+      {% if  flag %} 
+       {% if  questionUpdateUpload.reference_link  %}
+           <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">     
+       {% else %}
+           <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+       {% endif %}  
+      {% else %}
+     <img style="border:1px solid gray; width:200px; height: 200px;display:none;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+     {% endif %} 
+       </div>
     </div>
     <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
     <input type="hidden" id="reference" name="reference" value="">
-    <div style="margin-top: 30px; margin-left: 10px;">
-       {% if  flag %} 
-        {% if  questionUpdateUpload.reference_link  %}
-            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">     
-        {% else %}
-            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
-        {% endif %}  
-       {% else %}
-      <img style="border:1px solid gray; width:200px; height: 200px;display:none;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
-      {% endif %} 
-        </div>
+    
     </div>
     </div>
     <div class="row">
@@ -187,7 +188,7 @@
     <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
        {% else %}
-      <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" id="submit" name="submit" value="submit">Confirm</button>
+      <p><button class="btn waves-light green lighten-1 white-text" style="float: right;margin-top: -50px;" id="submit" name="submit" value="submit">Confirm</button>
       {% endif %}   
     
   </div>
