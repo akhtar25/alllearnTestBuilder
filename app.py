@@ -2317,6 +2317,10 @@ def openLiveClass():
     live_class_id = request.args.get('live_class_id')
     return render_template('openLiveClass.html')
 
+@app.route('/courseDetail')
+def courseDetail():
+    live_class_id = request.args.get('live_class_id')
+    return render_template('courseDetail.html')
 
 ##### end of openClass modules
 

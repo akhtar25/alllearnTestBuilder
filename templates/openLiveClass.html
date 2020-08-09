@@ -1,7 +1,9 @@
 {%extends "layout.html"%} {%block content%}
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
+<!--<script src="../static/js/painterro-1.0.35.min.js"></script>-->
 <!--<script src="../shared-assets/create-demo-room.js"></script>-->
 <style>
+
     button {
         display: block;
     }
@@ -77,6 +79,10 @@
         pointer-events: none;
         opacity: 0.5;
     }
+    #myCanvas {
+	cursor: crosshair;
+   
+}
 </style>
 
 <script>
@@ -210,12 +216,6 @@
             }
         });
     }
-
-
-    $(document).ready(function () {
-        $('#leave-meeting').hide();
-        $('#call-frame-container').hide();
-    });
 </script>
 
 <div class="container">
@@ -232,7 +232,8 @@
                     <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
                         Start Class
                     </button>
-                    <button id="leave-meeting" class="btn red lighten-1 right " onclick="callFrame.leave()">
+                    <button id="whiteboardBTN" class="btn  right">WhiteBoard</button>
+                    <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
                         End Class and Start Quiz
                     </button>
 
@@ -242,6 +243,7 @@
     </div>
     <div class="row hoverable z-depth-1"
         style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+        <div class="section" id="mainDiv">
         <div id="blankClassDiv" class="center">
             <h2 class="grey-text">Please click on Start Class to enter classroom</h2>
 
@@ -251,41 +253,52 @@
         <div id="call-frame-container">
         </div>
     </div>
+        <div class="section">
+            <div id="whiteboardDiv">
+                <h3>
+                    Whiteboard
+                </h3>
+                <canvas id="myCanvas" style="height: 100%;width: 100%;">
+                    Sorry, your browser does not support HTML5 canvas technology.
+                </canvas>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-8">
             <h4>Notes</h4>
             <p>This is the list of items you should ideally read</p>
             <table class=" highlight " style="font-size:16px;border-radius: 10px;max-width: 80%;">
                 <tr>
-                  <!--  <td></td>-->
+                    <!--  <td></td>-->
                     <td><a href="#">Notes on Python flask</a></td>
                 </tr>
-                <tr>             
+                <tr>
                     <td><a href="#">What is the reason for quick build</a></td>
                 </tr>
-                <tr>                    
+                <tr>
                     <td><a href="#">Sample code on python flask</a></td>
                 </tr>
-                <tr>                    
+                <tr>
                     <td><a href="#">Building a business with python</a></td>
                 </tr>
-                <tr>                   
+                <tr>
                     <td><a href="#">Building a business with python</a></td>
                 </tr>
             </table>
             <div class="divider"></div>
-            <h4>Comments  <span class="grey-text">475</span></h4>
+            <h4>Comments <span class="grey-text">475</span></h4>
 
             <div id="commentsDiv">
                 <form id="remarkForm" style="max-width: 600px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
-                    <a href="#" id="remarkPostButton" class="btn green right">Add</a>           
-                </form>          
+                    <a href="#" id="remarkPostButton" class="btn green right">Add</a>
+                </form>
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
                         <tbody>
-                      
+
                             <!--Dummy comment-->
                             <tr>
                                 <td>
@@ -312,7 +325,7 @@
                     </table>
                     <br>
                 </div>
-              
+
             </div>
 
         </div>
@@ -320,14 +333,25 @@
             <img src="../static/images/reviewIMG.PNG" width="120px">
             <br>
             <button class="btn wave green">Donate</button>
-            <a href="#" class="btn cyan"><span style=''>Share course</span> </a> 
+            <a href="#" class="btn cyan"><span>Share course</span> </a>
+            <a href="#" class="right red-text">Report </a>
+            <br><br>
+            <p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
+                creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>
+                <br>
             <h4>Ongoing Classes</h4>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px" style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px" style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px" style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px" style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px" style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px" style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
+            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
+                style="border-radius: 10px;"><br><br>
         </div>
     </div>
     <div class="row">
@@ -340,6 +364,120 @@
 
 
 </div>
+<script>
+    $(document).ready(function () {
+        $('#leave-meeting').hide();
+        $('#call-frame-container').hide();
+        $('#whiteboardDiv').hide();          
+    });
+    //$('#whiteboardBTN').click(function () {
+    //    if ($('#whiteboardDiv').attr('display','none')){
+    //    $('#whiteboardDiv').show();
+    //    $('#call-frame-container').hide();
+    //    //}
+    //    //else{
+//
+    //    //}
+    //});
 
+    $('#whiteboardBTN').click(function () {
+        //if ($('#whiteboardDiv').attr('display','none')){
+          //  window.alert('hello');
+        $('#whiteboardDiv').toggle();
+        $('#mainDiv').toggle();
+        //}
+        //else{
+        //    $('#whiteboardDiv').hide();
+        //    $('#mainDiv').show();
+        //}
+        
+    //$('#canvas').drawr('start');
+    });
+</script>
+<script>
+    window.onload = function() {
+	var myCanvas = document.getElementById("myCanvas");
+	var ctx = myCanvas.getContext("2d");
+    
+    // Fill Window Width and Height
+    myCanvas.width = window.innerWidth;
+	myCanvas.height = window.innerHeight;
+	
+	// Set Background Color
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,myCanvas.width,myCanvas.height);
+	
+    // Mouse Event Handlers
+	if(myCanvas){
+		var isDown = false;
+		var canvasX, canvasY;
+		ctx.lineWidth = 5;
+		
+		$(myCanvas)
+		.mousedown(function(e){
+			isDown = true;
+			ctx.beginPath();
+			canvasX = e.pageX - myCanvas.offsetLeft;
+			canvasY = e.pageY - myCanvas.offsetTop;
+			ctx.moveTo(canvasX, canvasY);
+		})
+		.mousemove(function(e){
+			if(isDown !== false) {
+				canvasX = e.pageX - myCanvas.offsetLeft;
+				canvasY = e.pageY - myCanvas.offsetTop;
+				ctx.lineTo(canvasX, canvasY);
+				ctx.strokeStyle = "#000";
+				ctx.stroke();
+			}
+		})
+		.mouseup(function(e){
+			isDown = false;
+			ctx.closePath();
+		});
+	}
+	
+	// Touch Events Handlers
+	draw = {
+		started: false,
+		start: function(evt) {
 
+			ctx.beginPath();
+			ctx.moveTo(
+				evt.touches[0].pageX,
+				evt.touches[0].pageY
+			);
+
+			this.started = true;
+
+		},
+		move: function(evt) {
+
+			if (this.started) {
+				ctx.lineTo(
+					evt.touches[0].pageX,
+					evt.touches[0].pageY
+				);
+
+				ctx.strokeStyle = "#000";
+				ctx.lineWidth = 1;
+				ctx.stroke();
+			}
+
+		},
+		end: function(evt) {
+			this.started = false;
+		}
+	};
+	
+	// Touch Events
+	myCanvas.addEventListener('touchstart', draw.start, false);
+	myCanvas.addEventListener('touchend', draw.end, false);
+	myCanvas.addEventListener('touchmove', draw.move, false);
+	
+	// Disable Page Move
+	document.body.addEventListener('touchmove',function(evt){
+		evt.preventDefault();
+	},false);
+};
+</script>
 {%endblock%}
