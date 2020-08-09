@@ -2310,6 +2310,20 @@ def liveClass():
 #end of live class section
 
 
+#####New section for open class modules
+
+@app.route('/openLiveClass')
+def openLiveClass():
+    live_class_id = request.args.get('live_class_id')
+    return render_template('openLiveClass.html')
+
+
+##### end of openClass modules
+
+
+
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
