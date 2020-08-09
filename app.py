@@ -2322,6 +2322,11 @@ def courseDetail():
     live_class_id = request.args.get('live_class_id')
     return render_template('courseDetail.html')
 
+
+@app.route('/tutorDashboard')
+def tutorDashboard():
+    return render_template('tutorDashboard.html')
+
 ##### end of openClass modules
 
 
