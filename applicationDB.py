@@ -172,9 +172,10 @@ class ClassSection(db.Model):
 class Attendance(db.Model):
     __tablename__ = "attendance"
     attendance_id=db.Column(db.Integer,primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= False)
-    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)        
-    #class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)        
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)            
+    class_sec_id = db.Column(db.ForeignKey('class_section.class_sec_id'), nullable=True)
     subject_id = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     attendance_date = db.Column(db.DateTime)
     is_present=db.Column(db.String(1), nullable=True)
@@ -309,6 +310,7 @@ class QuestionDetails(db.Model):
     reference_link=db.Column(db.String(120),nullable=True)
     suggested_weightage = db.Column(db.Integer,nullable=True)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
+    is_private = db.Column(db.String(1),nullable=True)
     archive_status = db.Column(db.String(1),nullable=True)
 
 
@@ -986,6 +988,7 @@ class LiveClass(db.Model):
     #phone_number = db.Column(db.String(30), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     #school_name = db.Column(db.String(100), nullable=True)
+    is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
