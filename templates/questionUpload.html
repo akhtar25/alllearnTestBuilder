@@ -2,7 +2,7 @@
       <div class="updateFormDiv">
         <div class="form-group " style="padding-top:5px;">
                 <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2" style="margin-right: 60px;">
                                 <div style="width:250px;">
                                         {{ form.class_val.label(class='labelsize') }}
                                         <br>
@@ -174,12 +174,14 @@
      <img style="border:1px solid gray; width:200px; height: 200px;display:none;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
      {% endif %} 
        </div>
+       <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
+    <input type="hidden" id="reference" name="reference" value="">
     </div>
-    <div class="col-sm-2">
+    <!-- <div class="col-sm-2">
     <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
     <input type="hidden" id="reference" name="reference" value="">
     
-    </div>
+    </div> -->
     </div>
     <div class="row">
       <span id="message" style="color:Red;display: none;float:left;"></span>
@@ -188,7 +190,7 @@
     <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
       <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
        {% else %}
-      <p><button class="btn waves-light green lighten-1 white-text" style="float: right;margin-top: -50px;" id="submit" name="submit" value="submit">Confirm</button>
+      <a href="#" id="submit" class="btn green right">Confirm</a>
       {% endif %}   
     
   </div>
@@ -433,6 +435,8 @@ var loadImageFile = function () {
             questionTypeValue = document.getElementById('questionType').value;
             var weightage = document.getElementById("weightage").value;
             var questionDesc = document.getElementById("questionDesc").value;
+            var ansOption = $('.with-gap').val();
+            console.log('selected option:'+ansOption);
             console.log(classValue);
             if(classValue=='na'){
                 console.log('Inside message');
@@ -474,6 +478,18 @@ var loadImageFile = function () {
   }
             else{
                 $('#message').hide();
+                $.ajax({
+                  url: "/questionFile",
+                  type: "get",
+                  success: function(response) {
+                    $('#radBtn').hide();
+                    $("#new").show(); 
+                    $("#new").html(response);        
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                }); 
             }
             
         });
@@ -805,6 +821,9 @@ if(b!=1){
         {% endif %}
        
     });
+    // $(document).ready(function(){
+    //   $('select').formSelect();
+    // });
     
     </script>
 

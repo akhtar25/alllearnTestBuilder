@@ -6802,6 +6802,10 @@ def studentList(class_val,section):
 def questionBuilder():
     form=QuestionBuilderQueryForm()
     print("Inside Question Builder")
+    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall() 
+    for row in distinctClasses:
+        print('Class val:'+str(row.class_val))
     if request.method=='POST':
         if form.submit.data:
             question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
@@ -6888,7 +6892,7 @@ def questionBuilder():
             db.session.commit()
             flash('Successfully Uploaded !')
             return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
-    return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type))
+    return render_template('_questionBuilder.html',user_type_val=str(current_user.user_type),distinctClasses=distinctClasses)
 
 
 
