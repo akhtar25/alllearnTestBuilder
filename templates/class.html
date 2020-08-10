@@ -63,7 +63,7 @@
                 <h4 class="grey-text">Actions</h4>
                 <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
                 <a  href="#loginChkModal" class="modal-trigger">Check Login Data</a><br>
-                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>                
+                <a href="#attendenceModal"  class="modal-trigger" onclick="fetchAttendence();">Mark Attendance</a>                
               </div>
             </div>
           </div>
@@ -112,6 +112,17 @@
     </div>
   </div>
 </div>
+
+
+  <!-- Modal Structure -->
+  <div id="attendenceModal" class="modal">
+    <div class="modal-content" style="height:100%;overflow-y: auto;">
+      <h4>Attendence</h4>
+      <div id="attendenceList">
+
+      </div>
+    </div>
+  </div>
 
 <div class="modal" id="smsModal" style="height: 400px;width: 450px;">
   <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
@@ -172,6 +183,23 @@ Loading information...
         $('.modal').modal();
         $('input#input_text, textarea#message').characterCounter();
    });
+
+   function fetchAttendence(){
+    $.ajax({
+      url: "/fetchAttendenceList?class_sec_id=" + {{class_sec_id}},
+      type: "POST",
+      data: "",
+      success: function (response) {
+        $("#completeCourseDetailsDiv").html(response);
+        $('#completeCourseDetailsDiv').show();
+        $('#backButton').show();
+        $('#loaderDiv').hide();
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+   }
 
   $('.courseDetailsButton').click(function () {
     $('#loaderDiv').show();

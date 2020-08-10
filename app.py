@@ -7311,6 +7311,11 @@ def indivStudentProfile():
         testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
 
+# @app.route('/fetchAttendenceList',methods=["GET","POST"])
+# def fetchAttendenceList():
+#     class_sec_id = request.args.get('class_sec_id')
+    # fetchData = 
+
 @app.route('/addStudentRemarks',methods = ["GET","POST"])
 def addStudentRemarks():
     remark_desc=request.form.get('remark')
