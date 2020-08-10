@@ -2327,6 +2327,10 @@ def courseDetail():
 def tutorDashboard():
     return render_template('tutorDashboard.html')
 
+
+@app.route('/editCourse')
+def editCourse():
+    return render_template('editCourse.html')
 ##### end of openClass modules
 
 
