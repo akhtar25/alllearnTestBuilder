@@ -53,9 +53,9 @@
               </div>
               <div class="col-xs-3">
                 <h4 class="grey-text">Today's Attendance</h4>
-                {%if summaryData.attendancetoday%}
-                <h3 class="green-text">{{summaryData.attendancetoday}}</h3>
-                {%else%}
+                {%if attendance[0]%}
+                <h3 class="green-text">{{attendance[0]}}</h3>
+                {%else%} 
                 <h3 class="green-text">NA</h3>
                 {%endif%}
               </div>              
@@ -125,6 +125,9 @@
     </div>
       <div id="attendenceList" style="margin-top: 50px;height: 242px;position: relative;overflow-y: auto;">
 
+      </div>
+      <div id="attendanceloader" style="display:none;">
+        <img src="../static/images/smallloader.gif">
       </div>
     </div>
     <div class="modal-footer">
@@ -234,7 +237,8 @@ var today = new Date();
    selectDate.onchange = function(){
      console.log('inside select date:'+selectDate.value);
      console.log(today);
-     
+     $('#attendanceloader').show();
+     $("#attendenceList").hide();
      var date = selectDate.value;
      $.ajax({
       
@@ -243,6 +247,8 @@ var today = new Date();
       data: "",
       success: function (response) {
         $("#attendenceList").html(response);
+        $('#attendanceloader').hide();
+     $("#attendenceList").show();
         if(date.toString()!=today.toString()){
           console.log('if dates are not equal');
         $('#submitAttendence').prop('disabled',true);
@@ -280,7 +286,6 @@ var today = new Date();
     $.each($("input[name='attendence']:checked"), function(){
       attendence.push($(this).val());
     });
-    alert(attendence.length);
     for(a in attendence){
       console.log(a);
     }

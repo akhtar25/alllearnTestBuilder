@@ -4611,8 +4611,10 @@ def classCon():
         #print(summaryQuery)
         summaryData = db.session.execute(text(summaryQuery)).first()
         # End of query section 
-        
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
+        attendance = "select count(*) from attendance where class_sec_id="+str(selectedClassSection.class_sec_id)+" and school_id="+str(teacher.school_id)+" and is_present='Y'"
+        attendance = db.session.execute(text(attendance)).first()
+        print('Attendance:'+str(attendance[0]))
+        return render_template('class.html',attendance=attendance, classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
             qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
             topicRows=topicRows, user_type_val=str(current_user.user_type), loginData=loginData)
     else:
