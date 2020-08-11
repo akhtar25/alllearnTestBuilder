@@ -6918,16 +6918,16 @@ label {
    ========================================================================== */
 /* Style Placeholders */
 ::-webkit-input-placeholder {
-  color: #d1d1d1;
+  color: black;
 }
 ::-moz-placeholder {
-  color: #d1d1d1;
+  color: black;
 }
 :-ms-input-placeholder {
-  color: #d1d1d1;
+  color: #a0ad9e;
 }
 ::placeholder {
-  color: #d1d1d1;
+  color: #a0ad9e;
 }
 
 /* Text inputs */

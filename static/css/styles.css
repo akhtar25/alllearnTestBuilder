@@ -246,3 +246,9 @@ form a{
 
 }
 
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: darkslategrey;
+  }
+  ::-moz-placeholder { /* Firefox 19+ */
+	color: darkslategrey;
+  }

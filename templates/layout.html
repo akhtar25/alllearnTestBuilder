@@ -100,8 +100,8 @@
           <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% endif %}
           {% endif %}
-          {%if current_user.is_anonymous %} {% else %}
-          {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px'>
+          {%if current_user.is_anonymous %} {% else %}          
+          {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px' id="schoolNamDiv">
             {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
       </div>
@@ -631,11 +631,11 @@
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
-          <!--<li>
+          <li>
             <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink' href="javascript: void (0);">
               <i class="material-icons">search</i>
             </a>
-          </li>-->
+          </li>
           {%endif%}
           {% endif %}
         </ul>
@@ -643,9 +643,9 @@
       </div>
 
       <div id="searchDiv">
-        <form method="get" action="{{ url_for('search') }}" id="search-2">
-          <div class="input-field">
-            {{g.search_form.q(size=36, type='search', placeholder='Search Help Articles', style='padding-bottom:0px; font-size:30px;')}}
+        <form method="get" action="{{ url_for('search') }}" id="search-2" style="position: absolute;margin-top: -20px;">
+          <div class="input-field ">
+            {{g.search_form.q(size=36, type='search', placeholder='Search Courses...', style='padding-bottom:0px;margin-top:-5px; font-size:30px;border: 1px solid grey;border-radius:15px')}}
           </div>
         </form>
       </div>
@@ -667,7 +667,23 @@
       {% endfor %}
     </ul>
     {% endif %} {% endwith %}
-    {%block content%} {%endblock%}
+    <!--<div class="container center">
+      <div class="">        
+      <i class="material-icons black-text"
+                    style="font-size: medium;">search</i>
+    <input type="text" name="search"  placeholder="Search.." style=" box-sizing: border-box;
+    border: 2px solid rgb(155, 154, 154);
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;    
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;width: 50%;" ></div></div>-->
+    {%block content%} 
+    
+    
+    
+    {%endblock%}
   </div>
 
   <script src="../static/bower_components/jquery/dist/jquery.min.js"></script>

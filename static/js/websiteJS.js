@@ -5,8 +5,9 @@ $('#hiddenSearch').click(function(){
     $('#q').focus();  
     $('#hiddenSearch').hide();
     $('#nonSearchDiv').hide();
-    $('#logoDiv').show();
-    $('#logo-container').hide();
+    $('#schoolNameDiv').hide();
+    //$('#logoDiv').show();
+    $('#logo-container').show();
 })
 
 $(document).ready(function(){
@@ -23,6 +24,7 @@ $(document).ready(function(){
         $('#hiddenSearch').show();
         $('#nonSearchDiv').show();
         $('#logo-container').show();
+        $('#schoolNameDiv').show();
     });
 
 

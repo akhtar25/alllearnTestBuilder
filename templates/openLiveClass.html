@@ -219,26 +219,25 @@
 </script>
 
 <div class="container">
-
     <div class="row">
+        <div class="col-sm-6">
         <h3>Learning the technologies</h3>
-        <h5>Starting a saas startup in India </h5>
-
+        <a href="#"><h5>Starting a saas startup in India </h5></a>
+        <a href="#"><h5 class="grey-text">Shailesh Vishwakarma</h5></a>
     </div>
-    <div class="row">
-        <div id="page-blocks">
-            <div id="buttons-row">
-                <div class="">
+        <div id="page-blocks" class="col-sm-6 right">
+            
+            <div id="buttons-row">                
                     <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
                         Start Class
-                    </button>
-                    <button id="whiteboardBTN" class="btn  right">WhiteBoard</button>
+                    </button>                    
+                    <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
                     <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
-                        End Class and Start Quiz
+                        End Class
                     </button>
-
-                </div>
+                    <button id="startQuizBTN" class="btn" disabled>End Class and Start Quiz</button>               
             </div>
+            
         </div>
     </div>
     <div class="row hoverable z-depth-1"
