@@ -16,11 +16,11 @@
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_val(class='form-control') }}
+                                        {{ form.class_val(class='form-control',id="classId") }}
                                         {% endif %}
                                 </div>
                         </div>
-                        <div class="col-sm-2" style="margin-left: -120px;">
+                        <div class="col-sm-2">
                                 <div style="width:150px;">
                                                 {{ form.subject_name.label(class='labelsize') }}
                                                 <div id='loader1'style='display: none; float: right;'>
@@ -35,7 +35,7 @@
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.subject_name(class='form-control') }}
+                                                {{ form.subject_name(class='form-control',id="subId") }}
                                                 {% endif %}      
                                 </div>
                         </div>
@@ -79,7 +79,7 @@
                                             
                             </div>
                     </div> -->
-                    <div class="col-sm-4" style="padding-top:22px; padding-left:20px;margin-left: -20px;">
+                    <div class="col-sm-4" style="padding-top:22px; padding-left:80px;">
                       <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" id="UploadBtn" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
                     </div>
                     
@@ -87,7 +87,7 @@
 
                     <span id="message" style="color:Red;display: none;float:left;"></span>
 
-<input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
+<input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="fileInput" name="file-input"><br>
 
 <!-- <div id="topicTable">
     <div id="topicLoader" style="display: none;padding-left: 300px;">
@@ -109,8 +109,8 @@
     <!--</div>
    </div>-->
  <script>
-   var class_select = document.getElementById("class_val");
-    var subject_select = document.getElementById("subject_name");
+   var class_select = document.getElementById("classId");
+    var subject_select = document.getElementById("subId");
     var topic_select = document.getElementById("topics");
     var chapter_num_select = document.getElementById("chapter_num");
     var optionHTMLClass = '';
@@ -118,7 +118,7 @@
     var optionHTMLTopic = '';
     var optionHTMLChapter = '';
     $(document).ready(function(){
-        $('#class_val').val("na");
+        $('#classId').val("na");
         optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
         class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
         optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
@@ -222,11 +222,11 @@
 
 
 
-
+    classValue = document.getElementById('classId').value;
+            subjectValue = document.getElementById('subId').value;
     $(document).ready(function(){
-    $('#file-input').click(function(){
-        classValue = document.getElementById('class_val').value;
-            subjectValue = document.getElementById('subject_name').value;
+    $('#fileInput').click(function(){
+        
             testTypeValue = document.getElementById('topics').value;
             chapterNumValue = document.getElementById('chapter_num').value;
             console.log(classValue);
@@ -270,7 +270,7 @@
     return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
     }*/
     $( document ).ready(function() {
-      $('#file-input').change(function (){
+      $('#fileInput').change(function (){
         //if (!hasExtension('file-input', ['.csv']))
         //{
         //  alert('Invaild file type !');
@@ -312,17 +312,40 @@
      
      table_data += '</table>';
 
-     table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
+     table_data+='<p><button class="btn waves-light green lighten-1 white-text" id="upload" onclick="uploadQuesFile();" name="upload" style="margin-top:15px;">Upload</button></p>'
      $('#question_table').html(table_data);
   }
   rdr.readAsText($("#file-input")[0].files[0]);
 });
 });
 
+function uploadQuesFile(){
+  var file = document.getElementById('fileInput').files;
+  var class_val = document.getElementById('classId').value;
+  var subject_name = document.getElementById('subId').value;
+  $.ajax({
+                  url: "/quesFileUpload?file="+file+"&class_val="+class_val+"&subject_name="+subject_name,
+                  type: "POST",
+                  contentType:"application/json",
+                  data:opt,
+                  success: function(response) {
+                           console.log(response);
+                            if(response=='1'){
+                              M.toast({html:'Question added successfully'});
+                            }
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });
+}
+
   var button_id=0
 /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
+
+
     function uploadFile(file, s3Data, url){
       const xhr = new XMLHttpRequest();
       //alert("the url being posted" + s3Data.url);

@@ -6797,6 +6797,116 @@ def studentList(class_val,section):
     print(str(studentArray))
     return jsonify({'students' : studentArray})
 
+@app.route('/quesFileUpload',methods=['POST','GET'])
+def quesFileUpload():
+    file = request.args.get('file')
+    class_val = request.args.get('class_val')
+    subject_name = request.args.get('subject_name')
+    df1=pd.read_csv(file)
+    for index ,row in df1.iterrows():
+        reference = request.args.get('reference-url'+str(index+1))
+        if row['Question Type']=='MCQ1':
+            print("Inside MCQ")
+            
+            question=QuestionDetails(class_val=str(class_val),subject_id=str(subject_name),question_description=row['Question Description'],
+            topic_id=row['Topic Id'],question_type='MCQ1',reference_link=str(reference),archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+            db.session.add(question)
+            question_id=db.session.query(QuestionDetails).filter_by(class_val=str(class_val),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
+            for i in range(1,5):
+                option_no=str(i)
+                option_name='Option'+option_no
+
+                print(row[option_name])
+                if row['CorrectAnswer']=='Option'+option_no:
+                    correct='Y'
+                    weightage=row['Suggested Weightage']
+                else:
+                    correct='N'
+                    weightage='0'
+                if i==1:
+                    option_val='A'
+                elif i==2:
+                    option_val='B'
+                elif i==3:
+                    option_val='C'
+                else:
+                    option_val='D'
+                print(row[option_name])
+                print(question_id.question_id)
+                print(correct)
+                print(option_val)
+                options=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                print(options)
+                db.session.add(options)
+        else:
+            print("Inside Subjective")
+            question=QuestionDetails(class_val=str(class_val),subject_id=str(subject_name),question_description=row['Question Description'],
+            topic_id=row['Topic Id'],question_type='Subjective',reference_link=str(reference),archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+            db.session.add(question)
+            db.session.commit()
+            flash('Successfully Uploaded !')
+    return jsonify(['1'])
+
+@app.route('/createQuestion',methods=['POST','GET'])
+def createQuestion():
+    weightage = request.args.get('weightage')
+    questionDesc = request.args.get('questionDesc')
+    questionTypeValue = request.args.get('questionTypeValue')
+    topicValue = request.args.get('topicValue')
+    subjectValue = request.args.get('subjectValue')
+    classValue = request.args.get('classValue')
+    reference = request.args.get('reference')
+    correct = request.args.get('correct')
+    options = request.get_json()
+    for op in options:
+        print('Options:'+str(op))
+    print('correct:'+str(correct))
+    print('weightage:'+str(weightage))
+    print('questionDesc:'+str(questionDesc))
+    print('questionTypeValue:'+str(questionTypeValue))
+    print('topicValue:'+str(topicValue))
+    print('subjectValue:'+str(subjectValue))
+    print('classValue:'+str(classValue))
+    print('reference:'+str(reference))
+    question=QuestionDetails(class_val=classValue,subject_id=str(subjectValue),question_description=str(questionDesc),
+        reference_link=str(reference),topic_id=str(topicValue),question_type=str(questionTypeValue),suggested_weightage=str(weightage),archive_status=str('N'))
+    print(question)
+    db.session.add(question)
+    if questionTypeValue=='Subjective':
+        print('question is subjetive')
+        question_id=db.session.query(QuestionDetails).filter_by(class_val=classValue,topic_id=str(topicValue),question_description=str(questionDesc)).first()
+        options=QuestionOptions(question_id=question_id.question_id,weightage=str(weightage))
+        print('Options Desc:'+str(options))
+        db.session.add(options)
+        db.session.commit()
+    else:
+        print('question is MCQ')
+        question_id=db.session.query(QuestionDetails).filter_by(class_val=classValue,topic_id=str(topicValue),question_description=str(questionDesc)).first()
+        i=1
+        answer = ''
+        weigh = ''
+        for op in options:
+            if correct==i:
+                answer='Y'
+                weigh=str(weightage)
+            else:
+                weigh=0
+                answer='N'
+            if i==1:
+                opt='A'
+            elif i==2:
+                opt='B'
+            elif i==3:
+                opt='C'
+            else:
+                opt='D'
+            i=i+1   
+            options=QuestionOptions(option_desc=op,question_id=question.question_id,is_correct=answer,weightage=weigh,option=opt)
+            print("Options in question Builder:"+str(options))
+            db.session.add(options)
+            db.session.commit()
+    return jsonify(['1'])
+
 @app.route('/questionBuilder',methods=['POST','GET'])
 @login_required
 def questionBuilder():

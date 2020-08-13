@@ -66,16 +66,15 @@
             </div>
         </div>
     </form>
-        <div class="addQuestionButton">
+        <!-- <div class="addQuestionButton">
             <button style="margin-left: 1000px;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
                 class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
         </div>
-          <!-- Modal Structure -->
         <div id="modal1" class="modal">
         <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
             <div id="quesBuilder"></div>
         </div>
-        </div>
+        </div> -->
     <div class="row">
         {% if topics %}
         <div class="col-sm-3">
@@ -291,21 +290,21 @@ var count_marks = 0;
     }
 }
 
-function createQuestion(){
-    console.log('create Question');
-    $.ajax({
-            url: "/questionBuilder",
-            type: "GET",
-            contentType: "application/json",
-            data: "",
-            success: function (response) {
-                $('#quesBuilder').html(response);
-            },
-            error: function(xhr){
+// function createQuestion(){
+//     console.log('create Question');
+//     $.ajax({
+//             url: "/questionBuilder",
+//             type: "GET",
+//             contentType: "application/json",
+//             data: "",
+//             success: function (response) {
+//                 $('#quesBuilder').html(response);
+//             },
+//             error: function(xhr){
 
-            }
-        });
-}
+//             }
+//         });
+// }
 
 </script>
 
