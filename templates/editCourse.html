@@ -1,0 +1,465 @@
+{%extends "layout.html"%} {%block content%}
+<style>
+    #myInput {
+
+        background-position: 10px 12px;
+        background-repeat: no-repeat;
+    }
+
+    #myUL li a {
+        border: 1px solid #ddd;
+        margin-top: -1px;
+        /* Prevent double borders */
+        background-color: #f6f6f6;
+        padding: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        color: black;
+        display: block
+    }
+
+    #myUL li a:hover:not(.header) {
+        background-color: #eee;
+    }
+</style>
+<link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            <h2 class="">Add/Edit Course</h2>
+            <!--<p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">
+        </p>-->
+            <h4>Description</h4>
+            <textarea id="w3review" name="w3review" style="height: 6em;"></textarea>
+            <div>
+                <h3 class="">Next Batch</h3>
+                <div class="col-sm-4">
+                    Set Date: <input type="text" class="datepicker">
+                </div>
+                <div class="col-sm-4" >
+                    Start Time: <input type="text" class="timepicker" >
+                </div>
+                <div class="col-sm-4">
+                    End Time: <input type="text" class="timepicker">
+                </div>
+            </div>
+            <div>
+                Days of week<br>
+                <p style="font-family: Arial;">
+                    <label>
+                        <input type="checkbox" />
+                        <span>Mo</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>Tu</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>We</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>Th</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>Fr</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>Sa</span>
+                    </label> &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" />
+                        <span>Su</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                </p>
+                <!--<a class="btn">Mo</a>
+            <a class="btn">Tu</a>
+            <a class="btn">We</a>
+            <a class="btn">Th</a>
+            <a class="btn">Fr</a>
+            <a class="btn">Sa</a>
+            <a class="btn">Su</a>-->
+            </div>
+            <!--<button class="btn green right" style="width: 100%;">Enroll</button>-->
+            <br><br>
+
+            <h3 class="">What to expect</h3>
+            <p>Upload a short 2 min video of what the students should expect
+                <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;">
+                <br>
+                <div class="center">
+                    Sample Video<br>
+                    <video src="../static/images/vid1.m4v" class="" width="50%" controls></video>
+                </div>
+            </p>
+            <br>
+
+            <!--Section to add topics-->
+            <h3 class="">Topics</h3>
+            <div>
+                <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for topics.."
+                    title="Type in a topic" style="width:90%;"><i class="material-icons black-text right"
+                    style="font-size: medium;;">search</i>
+            </div>
+            <div class="" style="overflow-y: auto;height: 150px;">
+                <ul id="myUL">
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic15</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic14</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic10</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic12</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic11</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic11</a></li>
+                    <li><a class="modal-trigger" href="#topicAddModal">Topic12</a></li>
+                </ul>
+            </div>
+            <div id="newTopicBtnDiv" class="right">
+                Can't find topic? <a class="modal-trigger" href="#topicAddModal"><i class="material-icons black-text"
+                        style="font-size: medium;">add_box</i> Add new</a>
+            </div>
+            <h4>Added Topics</h4>
+            <table class="highlight">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <!--<th>Classes</th>-->
+                        <th>Quiz Questions</th>
+                        <th>Expected class date</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody style="font-size:medium">
+                    <tr>
+                        <td><a class="modal-trigger" href="#topicAddModal">Forms of Data</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>22nd Jan 2020</td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="modal-trigger" href="#topicAddModal">Forms of DS</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>27nd Jan 2020</td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="modal-trigger" href="#topicAddModal">Number patterns</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>05 Aug 2020</td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                    <tr class="">
+                        <td><a class="modal-trigger" href="#topicAddModal">Why use Python</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>09 Aug 2020 - <span class="green-text"><b>Ongoing</b></span></td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="modal-trigger" href="#topicAddModal">Numpy</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>04 Sept 2020</td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="modal-trigger" href="#topicAddModal">Uses of Data science</a></td>
+                        <!--<td>2</td>-->
+                        <td>5</td>
+                        <td>09 Sept 2020</td>
+                        <td><a title="Delete Need" name="" href="#"
+                                class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small">delete</i></a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+
+
+            <!--<img src="../static/images/reviewIMG.PNG" width="50%">-->
+
+            <h3 class="">Ideal for</h3>
+            <input class="magicsearch" id="topicSearch" placeholder="Search categories...">
+            <!--
+            <p>Press Enter after each group name<div class="chips"></div>
+            </p>-->
+            <br><br>
+            <h3>Difficulty Level</h3>
+            <p>
+                <div class="input-field">
+                    <select id="class_val">
+                        <option value="Easy" selected>Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                        <!--<option value="11">11</option>
+                    <option value="12">12</option>-->
+                    </select>
+                </div>
+            </p>
+            <a href="#" class="btn green ">Save</a>
+            <a href="#" class="btn green right">Save and Publish Course</a>
+        </div>
+        <div class="col-sm-4">
+
+            <div class=""
+                style="background-color: rgb(248, 248, 231);border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+                <ul style="margin-left: 20px;margin-top:10px;font-size:medium">
+                    <h3>Things to keep in mind</h3>
+                    <li style="list-style-type: initial;">
+                        Keep the content light and interactive
+                    </li>
+                    <li style="list-style-type: initial;">
+                        It's okay if you don't know how or where to start. Let this be a starting point.
+                    </li>
+                    <li style="list-style-type: initial;">Don't try to cover everything in one course. If there's a lot
+                        you want to share, split in multiple courses</li>
+                    <li style="list-style-type: initial;">Do not keep a single class more than 1 hour at a stretch. Even
+                        if you want, keep a 10-20 min break in between</li>
+                    <li style="list-style-type: initial;">Try to site as many examples as possible. This helps the
+                        students connect content with practice.</li>
+                    <li style="list-style-type: initial;">Ensure that you add a couple of questions with each topic.
+                        This helps the students solidify their understanding of what's been taught</li>
+                    <li style="list-style-type: initial;">The 'What to expect' video should be a summary of all that
+                        will be covered during the course.</li>
+                    <li style="list-style-type: initial;">Always be punctual</li>
+                    <br>
+                    <h4>FAQs</h4>
+                    <li style="list-style-type: initial;">
+                        <b>What if my class is not up to the mark?</b>
+                        <br> There are two ways the users can express themselves: Reviews and Donations.<br>
+                        Take their help to gather feedback for improvement. JUST GET STARTED.
+                    </li>
+                    <li style="list-style-type: initial;"><b>I don't know what to teach</b>
+                        <br>All of us have something we can teach to others.<br>
+                        Sometimes your learnings could be just about what not to do.
+                    </li>
+                    <li style="list-style-type: initial;">
+                        <b>What if a topic can't be covered in a single 1 hour class</b><br>
+                        If a topic can't be covered in a single class, split it in multiple classes. eg Data Structures
+                        - part 1 <i>and </i>Data Structures - part 2</li>
+                    <li style="list-style-type: initial;">
+                        <b>How will I receive the donations?</b><br>
+                        We'll be transferring them within 2 days of us receiving the donations to your bank account.
+                    </li>
+                    <li style="list-style-type: initial;">
+                        <b>Can I raise funds for someone else?</b><br>
+                        Definitely, in fact we encourage that. If you're raising funds for someone through your classes,
+                        the money will be transferred directly to their account.
+                        <br>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal section-->
+<div class="modal" id="topicAddModal">
+    <div class="modal-content" style="height: 100%;">
+        <div style="height: 80%;">
+            <h4>Review and Add Topic</h4>
+            <input type="text" value="Topic 1" style="font-size: xx-large;" placeholder="Topic Name">
+            <label for="topicDesc">Description (optional)</label>
+            <input type="text" placeholder="Description" id="topicDesc" style="width: 70%;">
+            <!--<textarea id="topicDesc" style="height: 50px;"></textarea>-->
+            <br>
+            <span style="font-size: large;">Questions</span>
+            <a class="" href="#">Add New Question</a>
+            <div id="questionDiv" style="height: 70%;overflow-y: auto;border-radius: 10px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+                <div>
+                    <table>
+                        <tr>
+                            <td>
+                                <h4>How to create a system of profiles?</h4>
+                                <ul>
+                                    <li>Option 1</li>
+                                    <li>Option 2</li>
+                                    <li>Option 3</li>
+                                    <li>Option 4</li>
+                                </ul>
+                            </td>
+                            <td><a title="Delete Need" name="" href="#"
+                                    class=" btn-floating btn-small orange deleteBTNClass">
+                                    <i class="material-icons small">delete</i></a></td>
+                        <tr>
+                            <td>
+                                <h4>How to create a system of profiles?</h4>
+                                <ul>
+                                    <li>Option 1</li>
+                                    <li>Option 2</li>
+                                    <li>Option 3</li>
+                                    <li>Option 4</li>
+                                </ul>
+                            </td>
+                            <td><a title="Delete Need" name="" href="#"
+                                    class=" btn-floating btn-small orange deleteBTNClass">
+                                    <i class="material-icons small">delete</i></a></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h4>How to create a system of profiles?</h4>
+                                <ul>
+                                    <li>Option 1</li>
+                                    <li>Option 2</li>
+                                    <li>Option 3</li>
+                                    <li>Option 4</li>
+                                </ul>
+                            </td>
+                            <td><a title="Delete Need" name="" href="#"
+                                    class=" btn-floating btn-small orange deleteBTNClass">
+                                    <i class="material-icons small">delete</i></a></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h4>How to create a system of profiles?</h4>
+                                <ul>
+                                    <li>Option 1</li>
+                                    <li>Option 2</li>
+                                    <li>Option 3</li>
+                                    <li>Option 4</li>
+                                </ul>
+                            </td>
+                            <td><a title="Delete Need" name="" href="#"
+                                    class=" btn-floating btn-small orange deleteBTNClass">
+                                    <i class="material-icons small">delete</i></a></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h4>How to create a system of profiles?</h4>
+                                <ul>
+                                    <li>Option 1</li>
+                                    <li>Option 2</li>
+                                    <li>Option 3</li>
+                                    <li>Option 4</li>
+                                </ul>
+                            </td>
+                            <td><a title="Delete Need" name="" href="#"
+                                    class=" btn-floating btn-small orange deleteBTNClass">
+                                    <i class="material-icons small">delete</i></a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <button class="btn green right">Save Topic</button>
+            </div>
+        </div>        
+    </div>
+</div>
+<!--End of modal section-->
+
+
+<script>
+    $(document).ready(function () {
+        $('.parallax').parallax();
+        $('.modal').modal();
+        $('.datepicker').datepicker();
+        $('.timepicker').timepicker();
+        $('.chips').chips();
+        $('select').formSelect();
+        $('#topicSearch').magicsearch({
+            dataSource: [{
+                    id: 1,
+                    firstName: 'Tim',
+                    lastName: 'Cook'
+                },
+                {
+                    id: 2,
+                    firstName: 'Eric',
+                    lastName: 'Baker'
+                },
+                {
+                    id: 3,
+                    firstName: 'Victor',
+                    lastName: 'Brown'
+                },
+                {
+                    id: 4,
+                    firstName: 'Lisa',
+                    lastName: 'White'
+                },
+                {
+                    id: 5,
+                    firstName: 'Oliver',
+                    lastName: 'Bull'
+                },
+                {
+                    id: 6,
+                    firstName: 'Zade',
+                    lastName: 'Stock'
+                },
+                {
+                    id: 7,
+                    firstName: 'David',
+                    lastName: 'Reed'
+                },
+                {
+                    id: 8,
+                    firstName: 'George',
+                    lastName: 'Hand'
+                },
+                {
+                    id: 9,
+                    firstName: 'Tony',
+                    lastName: 'Well'
+                },
+                {
+                    id: 10,
+                    firstName: 'Bruce',
+                    lastName: 'Wayne'
+                }
+            ],
+            fields: ['firstName', 'lastName'],
+            id: 'id',
+            format: '%firstName% · %lastName%',
+            multiple: true,
+            multiField: 'firstName',
+            dropdownMaxItem: 8,
+            multiStyle: {
+                space: 5,
+                width: 150
+            },
+            focusShow: true
+        });
+    });
+</script>
+<script>
+    function myFunction() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{%endblock%}

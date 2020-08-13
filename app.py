@@ -2310,6 +2310,33 @@ def liveClass():
 #end of live class section
 
 
+#####New section for open class modules
+
+@app.route('/openLiveClass')
+def openLiveClass():
+    live_class_id = request.args.get('live_class_id')
+    return render_template('openLiveClass.html')
+
+@app.route('/courseDetail')
+def courseDetail():
+    live_class_id = request.args.get('live_class_id')
+    return render_template('courseDetail.html')
+
+
+@app.route('/tutorDashboard')
+def tutorDashboard():
+    return render_template('tutorDashboard.html')
+
+
+@app.route('/editCourse')
+def editCourse():
+    return render_template('editCourse.html')
+##### end of openClass modules
+
+
+
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
