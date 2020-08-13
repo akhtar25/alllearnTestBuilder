@@ -8053,9 +8053,7 @@ def downloadTimeTable():
     # filepath = 'static/images/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
     file_name = 'Timetable'+str(teacher_id.school_id)+'.csv'
     with open('tempdocx/'+file_name, 'w', newline='') as file:
-        client = boto3.client('s3', region_name='ap-south-1')
-        client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'time_table/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-        os.remove('tempdocx/'+file_name)
+        
     
         
         print('file')
@@ -8083,6 +8081,9 @@ def downloadTimeTable():
             for table in timeTableData:
                 writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
             writer.writerow(["","","","","","",""])
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'time_table/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    os.remove('tempdocx/'+file_name)
     filepath ='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/time_table/'+file_name
     print('filepath:'+str(filepath))
     return jsonify([filepath])
