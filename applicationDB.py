@@ -644,6 +644,12 @@ class TeacherProfile(db.Model):
     #adding as a part of payroll setup
     curr_salary = db.Column(db.Integer, nullable=True)
     #end of payroll related row
+    #section for teaching online classes - room
+    room_id = db.Column(db.String(300), nullable=True)
+    hours_taught_online = db.Column(db.Integer, nullable=True)
+    courses_created = db.Column(db.Integer, nullable=True)
+    students_taught = db.Column(db.Integer, nullable=True)
+    #end of section
     last_modified_date=db.Column(db.DateTime)
     device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
 
@@ -988,27 +994,111 @@ class LiveClass(db.Model):
     #phone_number = db.Column(db.String(30), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     #school_name = db.Column(db.String(100), nullable=True)
+    room_id = db.Column(db.String(300), nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
 
 
-#class ModuleDetail(db.Model):
-#    __tablename__ = "module_mapping"
-#    module_id = db.Column(db.Integer, primary_key=True)
-#    module_name = db.Column(db.String(50), nullable=False)
-#    module_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
-#    module_url = db.Column(db.String(200),nullable=True)
-#    is_archived = db.Column(db.String(1),nullable=False)
-#    last_modified_date = db.Column(db.DateTime, nullable=False)
-#
-#
-#class UserModuleMapping(db.Model):
-#    __tablename__ ="user_module_mapping"
-#    umm_id = db.Column(db.Integer, primary_key=True)
-#    user_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False)
-#    module_id = db.Column(db.ForeignKey('module_detail.module_id'), nullable=True)
-#    module_name = db.Column(db.String(50), nullable=True)
-#    is_archived = db.Column(db.String(1),nullable=False)
-#    last_modified_date = db.Column(db.DateTime, nullable=False)
+class CourseDetail(db.Model):
+    __tablename__ = "course_detail"
+    course_id = db.Column(db.Integer, primary_key=True)
+    course_name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.String(1000), nullable=True)
+    summary_url = db.Column(db.String(400), nullable=True)
+    teacher_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
+    is_private = db.Column(db.String(1),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+
+class CourseTopics(db.Model):
+    __tablename__ = "course_topics"
+    ct_id = db.Column(db.Integer, primary_key=True)    
+    course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)    
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+class TopicNotes(db.Model):
+    __tablename__ = "topic_notes"
+    tn_id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)   
+    course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False) 
+    notes_name = db.Column(db.String(100), nullable=True)
+    notes_url = db.Column(db.String(200), nullable=True)
+    notes_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+class CourseReview(db.Model):
+    __tablename__ = "course_review"
+    cr_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
+    star_rating = db.Column(db.Integer, nullable=True)
+    comment = db.Column(db.String(200),nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+
+class Comments(db.Model):
+    __tablename__ = "comments"
+    comment_id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.String(200),nullable=False)
+    comment_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+class CourseBatch(db.Model):
+    __tablename__ = "course_batch"
+    batch_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
+    batch_start_date = db.Column(db.DateTime, nullable=True)
+    batch_end_date = db.Column(db.DateTime, nullable=True)
+    batch_start_time = db.Column(db.String(16), nullable=True)
+    batch_end_time = db.Column(db.String(16), nullable=True)
+    days_of_week = db.Column(db.String(50), nullable=True)
+    student_limit = db.Column(db.Integer, nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+class CourseEnrollment(db.Model):
+    __tablename__ = "course_enrollment"
+    ce_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
+    batch_id= db.Column(db.ForeignKey('course_batch.batch_id'), nullable=False)
+    student_user_id = db.Column(db.ForeignKey('user.id'),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+
+class PaymentTransaction(db.Model):
+    __tablename__ = "payment_transaction"
+    tran_id = db.Column(db.Integer, primary_key=True)    
+    order_id = db.Column(db.String(20), unique=True)  # 8 digit having -  zeroes+tran_id #this is invoice id
+    amount = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(5), nullable=True,  default ='INR')
+    note = db.Column(db.String(100), nullable=True)
+    payer_user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
+    payer_name = db.Column(db.String(100),nullable=True)
+    payer_phone = db.Column(db.String(12),nullable=True )
+    payer_email = db.Column(db.String(50),nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    trans_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
+    payment_for = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
+    request_sign_hash = db.Column(db.String(200), nullable=True)
+    response_sign_hash = db.Column(db.String(200), nullable=True)
+    response_sign_check = db.Column(db.String(10), nullable=True)  # true  or false
+    tran_status = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=False)  #Initiated #Requested #Received #Success/Failure
+    gateway_ref_id = db.Column(db.String(100), nullable=True)
+    payment_mode = db.Column(db.String(50), nullable=True)
+    tran_msg = db.Column(db.String(50), nullable=True)
+    tran_time = db.Column(db.DateTime, nullable=True)
+    date = db.Column(db.DateTime, nullable=False, default = datetime.now())
+    anonymous_payer = db.Column(db.String(1), nullable=True)
+    anonymous_amount = db.Column(db.String(1), nullable=True)
