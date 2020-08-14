@@ -1008,7 +1008,7 @@ class CourseDetail(db.Model):
     course_name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
     summary_url = db.Column(db.String(400), nullable=True)    
-    teacher_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     ideal_for = db.Column(db.String(100), nullable=True)    
     course_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)   # Draft or Published    
