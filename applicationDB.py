@@ -332,6 +332,7 @@ class TestQuestions(db.Model):
     tq_id = db.Column(db.Integer,primary_key=True)
     test_id = db.Column(db.ForeignKey('test_details.test_id'), nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)    
+    is_archived= db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TestDetails(db.Model):
@@ -1023,6 +1024,7 @@ class CourseTopics(db.Model):
     course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)    
     video_class_url = db.Column(db.String(300),nullable=False)
+    test_id = db.Column(db.ForeignKey('test_details.test_id'), nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
