@@ -2334,6 +2334,7 @@ def editCourse():
 
 @app.route('/saveCourse',methods=['GET','POST'])
 def saveCourse():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     print('inside saveCourse')
     course = request.form.get('course')
     description = request.form.get('description')
@@ -2341,19 +2342,35 @@ def saveCourse():
     startTime = request.form.get('startTime')
     endTime = request.form.get('endTime')
     days = request.form.getlist('Days')
-    school_image = request.form.get('school_image')
+    video_url = request.form.get('videoUrl')
     idealfor = request.form.getlist('idealfor')
     level = request.form.get('level')
+    private = request.form.get('private')
     print('Course name:'+str(course))
     print('description name:'+str(description))
     print('set date:'+str(setDate))
     print('Start time:'+str(startTime))
     print('End Time:'+str(endTime))
+    print('Private:'+str(private))
+    course_status = request.args.get('course_status')
+    print('course status:'+str(course_status))
     for day in days:
         print('Day:'+str(day))
-    print('School Image:'+str(school_image))
+    print('video_url :'+str(video_url))
     print('Ideal for:'+str(idealfor))
     print('level:'+str(level))
+    course_staus_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+    
+    if private:
+        print('if course status is private')
+        courseData = CourseDetail(course_name=course,description=description,summary_url=video_url,teacher_id=teacherData.teacher_id,
+        school_id=teacherData.school_id,course_status=course_staus_id.msg_id,is_private='Y',is_archived='N',last_modified_date=datetime.now())
+    else:
+        print('if course status is public')
+        courseData = CourseDetail(course_name=course,description=description,summary_url=video_url,teacher_id=teacherData.teacher_id,
+        school_id=teacherData.school_id,course_status=course_staus_id.msg_id,is_private='N',is_archived='N',last_modified_date=datetime.now())
+    db.session.add(courseData)
+    db.session.commit()
     return jsonify(['1'])
 
 ##### end of openClass modules

@@ -98,7 +98,8 @@
             <h3 class="">What to expect</h3>
             <p>Upload a short 2 min video of what the students should expect
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
-                <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;">
+                <input type="file" id="video_url" onchange="initUpload();" name="video_url" style="height: 30px; margin-top: 10px;">
+                <input type="hidden" id="videoUrl" name="videoUrl">
                 <br>
                 <div class="center">
                     <span id="video_name">Sample Video</span><br>
@@ -220,10 +221,17 @@
                     </select>
                 </div>
             </p>
+            <p style="margin-top:20px;">
+                <label>
+                  <input type="checkbox" id="private" name="private" value="Y" />
+                  <span>Do you want to make your course private?</span>
+                </label>
+              </p>
             <a href="#" class="btn green" id="save">Save</a>
             <a href="#" class="btn green right">Save and Publish Course</a>
+            
         </form>
-        <span id="msg"></span>
+        <span id="msg" style="margin-top: 20px;color: red;"></span>
         </div>
         <div class="col-sm-4">
 
@@ -382,62 +390,22 @@
         $('.datepicker').datepicker();
         $('.timepicker').timepicker();
         $('.chips').chips();
+        dat = [];
+        for(var i=1;i<3;i++){
+            var a = [];
+            dict = {
+                id:i,
+                firstName:'first'
+            }
+            dat.push(dict);
+        }
         $('select').formSelect();
         $('#topicSearch').magicsearch({
-            dataSource: [{
-                    id: 1,
-                    firstName: 'Tim',
-                    lastName: 'Cook'
-                },
-                {
-                    id: 2,
-                    firstName: 'Eric',
-                    lastName: 'Baker'
-                },
-                {
-                    id: 3,
-                    firstName: 'Victor',
-                    lastName: 'Brown'
-                },
-                {
-                    id: 4,
-                    firstName: 'Lisa',
-                    lastName: 'White'
-                },
-                {
-                    id: 5,
-                    firstName: 'Oliver',
-                    lastName: 'Bull'
-                },
-                {
-                    id: 6,
-                    firstName: 'Zade',
-                    lastName: 'Stock'
-                },
-                {
-                    id: 7,
-                    firstName: 'David',
-                    lastName: 'Reed'
-                },
-                {
-                    id: 8,
-                    firstName: 'George',
-                    lastName: 'Hand'
-                },
-                {
-                    id: 9,
-                    firstName: 'Tony',
-                    lastName: 'Well'
-                },
-                {
-                    id: 10,
-                    firstName: 'Bruce',
-                    lastName: 'Wayne'
-                }
-            ],
-            fields: ['firstName', 'lastName'],
+            
+            dataSource: dat,
+            fields: ['firstName'],
             id: 'id',
-            format: '%firstName% · %lastName%',
+            format: '%firstName%',
             multiple: true,
             multiField: 'firstName',
             dropdownMaxItem: 8,
@@ -471,8 +439,11 @@
         alert('Inside save click function');
         $e.preventDefault();
         var form = $('#courseForm');
+        var data = $('#topicSearch').attr('data-value');
+        console.log('Data:'+data);
+        var course_status = "Draft";
         $.ajax({
-            url:"/saveCourse",
+            url:"/saveCourse?course_status="+course_status,
             type:"POST",
             data: form.serialize(),
             success:function(response){
@@ -485,5 +456,63 @@
             }
         })
     });
+
+    // Upload File Start
+    function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+      }
+      postData.append('file', file);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            console.log(url);
+            document.getElementById('preview').src = url;
+            document.getElementById('videoUrl').value=url;
+          }
+          else{
+            //window.alert("this is where the problem is");
+            $('#errorMSGSpan').html('Could not upload file.');
+            //alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      var type = file.type;
+      var VideoName = file.name;
+      console.log('File Name:'+type);
+      console.log('file type:'+VideoName);
+      $('#video_name').html(VideoName);
+      xhr.open('GET', `/sign-s3?file-name=${VideoName}&file-type=${type}&folder=courseVideo`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            uploadFile(file, response.data, response.url);
+          } 
+          else{
+            $('#errorMSGSpan').html('Could not get signed URL.');           
+          }
+        }
+      };
+      xhr.send();
+    }
+    function initUpload(){
+      const files = document.getElementById('video_url').files;
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      console.log('FileName:'+file);
+      getSignedRequest(file);
+    }
+    // End 
 </script>
 {%endblock%}
