@@ -1006,9 +1006,11 @@ class CourseDetail(db.Model):
     course_id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
-    summary_url = db.Column(db.String(400), nullable=True)
+    summary_url = db.Column(db.String(400), nullable=True)    
     teacher_id = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
+    ideal_for = db.Column(db.String(100), nullable=True)    
+    course_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)   # Draft or Published    
     is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
@@ -1020,6 +1022,7 @@ class CourseTopics(db.Model):
     ct_id = db.Column(db.Integer, primary_key=True)    
     course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)    
+    video_class_url = db.Column(db.String(300),nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
