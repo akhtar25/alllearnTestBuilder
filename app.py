@@ -2312,6 +2312,10 @@ def liveClass():
 
 #####New section for open class modules
 
+@app.route('/courseHome')
+def courseHome():
+    return render_template('courseHome.html')
+
 @app.route('/openLiveClass')
 def openLiveClass():
     live_class_id = request.args.get('live_class_id')
