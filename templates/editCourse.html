@@ -29,55 +29,58 @@
             <h2 class="">Add/Edit Course</h2>
             <!--<p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">
         </p>-->
+        <form id="courseForm">
+            <h4 style="margin-top: 15px;">Course Name</h4>
+            <input type="text" name="course" id="course"/>
             <h4>Description</h4>
-            <textarea id="w3review" name="w3review" style="height: 6em;"></textarea>
+            <textarea id="w3review" name="description" style="height: 6em;"></textarea>
             <div>
                 <h3 class="">Next Batch</h3>
                 <div class="col-sm-4">
-                    Set Date: <input type="text" class="datepicker">
+                    Set Date: <input type="text" name="setDate" class="datepicker">
                 </div>
                 <div class="col-sm-4" >
-                    Start Time: <input type="text" class="timepicker" >
-                </div>
+                    Start Time: <input type="text" name="startTime" class="timepicker" >
+                </div> 
                 <div class="col-sm-4">
-                    End Time: <input type="text" class="timepicker">
+                    End Time: <input type="text" name="endTime" class="timepicker">
                 </div>
             </div>
             <div>
                 Days of week<br>
                 <p style="font-family: Arial;">
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Mo" name="Days" />
                         <span>Mo</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Tu" name="Days" />
                         <span>Tu</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="We" name="Days" />
                         <span>We</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Th" name="Days" />
                         <span>Th</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Fr" name="Days" />
                         <span>Fr</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Sa" name="Days" />
                         <span>Sa</span>
                     </label> &nbsp;&nbsp;&nbsp;&nbsp;
 
                     <label>
-                        <input type="checkbox" />
+                        <input type="checkbox" value="Su" name="Days" />
                         <span>Su</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
                 </p>
@@ -98,8 +101,8 @@
                 <input type="file" id="school_image" name="school_image" style="height: 30px; margin-top: 10px;">
                 <br>
                 <div class="center">
-                    Sample Video<br>
-                    <video src="../static/images/vid1.m4v" class="" width="50%" controls></video>
+                    <span id="video_name">Sample Video</span><br>
+                    <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
                 </div>
             </p>
             <br>
@@ -200,7 +203,7 @@
             <!--<img src="../static/images/reviewIMG.PNG" width="50%">-->
 
             <h3 class="">Ideal for</h3>
-            <input class="magicsearch" id="topicSearch" placeholder="Search categories...">
+            <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
             <!--
             <p>Press Enter after each group name<div class="chips"></div>
             </p>-->
@@ -208,7 +211,7 @@
             <h3>Difficulty Level</h3>
             <p>
                 <div class="input-field">
-                    <select id="class_val">
+                    <select id="class_val" name="level">
                         <option value="Easy" selected>Easy</option>
                         <option value="Medium">Medium</option>
                         <option value="Hard">Hard</option>
@@ -217,8 +220,10 @@
                     </select>
                 </div>
             </p>
-            <a href="#" class="btn green ">Save</a>
+            <a href="#" class="btn green" id="save">Save</a>
             <a href="#" class="btn green right">Save and Publish Course</a>
+        </form>
+        <span id="msg"></span>
         </div>
         <div class="col-sm-4">
 
@@ -461,5 +466,24 @@
             }
         }
     }
+
+    $('#save').click(function($e){
+        alert('Inside save click function');
+        $e.preventDefault();
+        var form = $('#courseForm');
+        $.ajax({
+            url:"/saveCourse",
+            type:"POST",
+            data: form.serialize(),
+            success:function(response){
+                if(response=='1'){
+                    console.log('data added successfully');
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        })
+    });
 </script>
 {%endblock%}

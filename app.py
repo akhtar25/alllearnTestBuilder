@@ -2331,6 +2331,31 @@ def tutorDashboard():
 @app.route('/editCourse')
 def editCourse():
     return render_template('editCourse.html')
+
+@app.route('/saveCourse',methods=['GET','POST'])
+def saveCourse():
+    print('inside saveCourse')
+    course = request.form.get('course')
+    description = request.form.get('description')
+    setDate = request.form.get('setDate')
+    startTime = request.form.get('startTime')
+    endTime = request.form.get('endTime')
+    days = request.form.getlist('Days')
+    school_image = request.form.get('school_image')
+    idealfor = request.form.getlist('idealfor')
+    level = request.form.get('level')
+    print('Course name:'+str(course))
+    print('description name:'+str(description))
+    print('set date:'+str(setDate))
+    print('Start time:'+str(startTime))
+    print('End Time:'+str(endTime))
+    for day in days:
+        print('Day:'+str(day))
+    print('School Image:'+str(school_image))
+    print('Ideal for:'+str(idealfor))
+    print('level:'+str(level))
+    return jsonify(['1'])
+
 ##### end of openClass modules
 
 
@@ -8204,6 +8229,10 @@ def teacherAllocation():
     return render_template('_teacherAllocation.html',teacherNames=teacherNames,class_sec_ids=class_sec_ids)
 
 #End
+
+# Code for course 
+@app.route('/')
+# End
 
 
 @app.route('/subscriptionPlans')
