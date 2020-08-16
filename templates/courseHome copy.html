@@ -101,16 +101,36 @@ justify-content: center;" id="containerDiv">
                         {%endif%}
                         <!-- Start for mobile -->
                         <!-- End for mobile -->
-                        
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <!--The search should show Book-Chapter-Topic-->
                                 <h4 class="grey-text">What do you want to study today</h4>
                                 <!--<div class="chips chips-autocomplete" id="topicSearch" data-hover="true" data-constrainWidth="false" style="width:400px" name="topicSearch"><i
                                         class="material-icons right">search</i></div>-->
-                                <input  placeholder="Search for Classes" id="searchText">                                                           
+                                <!--<input class="magicsearch" id="topicSearch" placeholder="Search">-->
+                                <div id="search-box"></div>
+
+                                
+                                    <div>Other data</div>
+                                <div id="hits"></div>
+                                <div id="pagination"></div>
+
+                                
+<!--<script type="text/html" id="hit-template">
+    <div class="hit">
+      <p class="hit-name">
+     
+      </p>
+    </div>
+  </script>-->
+  
                             </div>
-                        
+                            <!--<div class="col-sm-2">
+                                    <br>
+                                    <button class="btn green hoverable" id="startTestBTN"
+                                        style="width: 150px;">Find Classes</button>                                    
+                                </div>-->
                         </div>
                         <span id="errorStartMSG" class="orange-text" style="display: none;font-size: large;">Error
                             occurred
@@ -126,7 +146,6 @@ justify-content: center;" id="containerDiv">
                             </div>
                         </div>
                     </div>
-                
                 </div>
                 <br><br>
                 <br><br>
@@ -385,16 +404,6 @@ justify-content: center;" id="containerDiv">
         $('.tabs').tabs();
         $('.modal').modal();
         $('select').formSelect();
-    });
-
-    $('#startTestBTN').submit(function(){
-        $('#startTestBTN').click();
-    });
-
-    $('#startTestBTN').click(function(){
-       
-        window.location.href = "/search?staging_COURSE[query]=" +
-        $('#searchText').val();
     });
 </script>
 

@@ -57,20 +57,17 @@ import calendar
 from urllib.parse import quote,urlparse, parse_qs
 from google.oauth2 import id_token
 from google.auth.transport import requests
-#from flask_material import Material
+from algoliasearch.search_client import SearchClient
 
-#app=Flask(__name__)
+
 app=FlaskAPI(__name__)
-#csp = {
-# 'default-src': [
-#        '\'self\'',
-#        '*.*.com'
-#    ]
-#}
+
 talisman = Talisman(app, content_security_policy=None)
-#Material(app)
-#csrf = CSRFProtect()
-#csrf.init_app(app)
+
+
+client = SearchClient.create('RVHAVJXK1B', '58e63c83b4126c21f2e994f1d4e89439')
+index = client.init_index('staging_COURSE')
+
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -388,6 +385,8 @@ def cityList():
 
 def classSecCheck():
     teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
+    print('#######this is current user '+ str(current_user.id))
     if teacherProfile==None:
         return 'N'
     else:
@@ -2311,9 +2310,31 @@ def liveClass():
 
 
 #####New section for open class modules
+@app.route('/updateSearchIndex/<task>')
+def updateSearchIndex(task):
+    queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
+    queryResult = db.session.execute(queryTest).fetchall()
+    queryKeys = db.session.execute(queryTest).keys()
+    items = [dict((queryKeys[i], value) \
+               for i, value in enumerate(row)) for row in queryResult]
+    #print(json.dumps(items))
+    if task == "view":
+        return json.dumps(items, indent=3)
+    elif task=="send":
+        try:
+            index = client.init_index('staging_COURSE')
+            #batch = json.load(open('contacts.json'))            
+            index.set_settings({"customRanking": ["asc(class_val)"]})            	
+            index.set_settings({"searchableAttributes": ["topic_name", "class_val", "chapter_name"]})
+            index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
+            return json.dumps({"The following data was sent to algolia index successfully":items})
+        except:
+            return "Error Sending index data to algolia"
+
+
 
 @app.route('/courseHome')
-def courseHome():
+def courseHome():    
     return render_template('courseHome.html')
 
 @app.route('/openLiveClass')
@@ -2924,7 +2945,7 @@ def addChapter():
         existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
         
         if existInTT:
-            updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id.topic_id)+"'"
+            updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic)+"'"
             print(updateTT)
             updateTT = db.session.execute(text(updateTT))
         else:
@@ -7559,21 +7580,22 @@ def help():
 
 @app.route('/search')
 def search():
-    if not g.search_form.validate():
-        return redirect(url_for('explore'))
-    page = request.args.get('page', 1, type=int)
-    posts, total = Post.search(g.search_form.q.data, page,
-                               app.config['POSTS_PER_PAGE'])
-    next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
-        if total > page * app.config['POSTS_PER_PAGE'] else None
-    prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
-        if page > 1 else None
+    #if not g.search_form.validate():
+    #    return redirect(url_for('explore'))
+    #page = request.args.get('page', 1, type=int)
+    #posts, total = Post.search(g.search_form.q.data, page,
+    #                           app.config['POSTS_PER_PAGE'])
+    #next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
+    #    if total > page * app.config['POSTS_PER_PAGE'] else None
+    #prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
+    #    if page > 1 else None
     return render_template(
         'search.html',
-        title='Search',
-        posts=posts,
-        next_url=next_url,
-        prev_url=prev_url)
+        title='Search'
+        #posts=posts,
+        #next_url=next_url,
+        #prev_url=prev_url
+        )
 
 
 
