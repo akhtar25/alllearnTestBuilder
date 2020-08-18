@@ -421,7 +421,6 @@ function correctOption(correct){
                 quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+question+'</h4><ul style="margin-left:7px;"><li>'+op1+'<span id="'+op1+'"></span></li><li>'+op2+'<span id="'+op2+'"></span></li><li>'+op3+'<span id="'+op3+'"></span></li><li>'+op4+'<span id="'+op4+'"></span></li></ul></td></tr>';
                 var ids = '#'+corrOpt;
                 console.log(ids);
-                
                 $('#questionList').html(quesListDiv);
                 $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
             },
