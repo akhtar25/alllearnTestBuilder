@@ -2330,7 +2330,168 @@ def tutorDashboard():
 
 @app.route('/editCourse')
 def editCourse():
-    return render_template('editCourse.html')
+    course_category = MessageDetails.query.filter_by(category='Course Category').first()
+    desc = course_category.description.split(',')
+    print('Description:'+str(desc))
+    return render_template('editCourse.html',desc=desc)
+
+@app.route('/searchTopic',methods=['GET','POST'])
+def searchTopic():
+    topic = request.args.get('topic')
+    topics = "select topic_id,topic_name from topic_detail td where topic_name like '"+str(topic)+"%' "
+    topics = db.session.execute(text(topics)).fetchall()
+    topicArray = []
+    for top in topics:
+        print('Topic:'+str(top))
+        topicArray.append(str(top.topic_id)+':'+str(top.topic_name))
+    if topicArray:
+        return jsonify([topicArray])
+    else:
+        return ""
+
+# @app.route('/fetchTopics',methods=['GET','POST'])
+# def fetchTopics():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside fetchTopics')
+#     courseId = request.args.get('courseId')
+#     print('courseId:'+str(courseId))
+#     topics = CourseTopics.query.filter_by(course_id=courseId).all()
+#     topicList = []
+#     for topic in topics:
+#         topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
+#         testId = TestDetails.query.filter_by()
+#         quesNo = TestQuestions.query.filter_by()
+
+@app.route('/addCourseTopic',methods=['GET','POST'])
+def addCourseTopic():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside addCourseTopic')
+    topicName = request.args.get('topicName')
+    courseId = request.args.get('courseId')
+    print('Topic name:'+str(topicName))
+    print('courseId:'+str(courseId))
+    quesIds = request.get_json()
+    print(quesIds)
+    # courseId = CourseDetail.query.filter_by(course_name=courseName,teacher_id=teacherData.teacher_id,school_id=teacherData.school_id).first()
+    
+    for quesId in quesIds:
+        print(quesId)
+    topicDet = Topic(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id)
+    db.session.add(topicDet)
+    db.session.commit()
+    topicId = Topic.query.filter_by(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id).first()
+    
+    topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicId.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
+    db.session.add(topicTr)
+    db.session.commit()
+    total_marks = 10*len(quesIds)
+    print('Total marks:'+str(total_marks))
+    testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
+    db.session.add(testDet)
+    db.session.commit()
+    testId = TestDetails.query.filter_by(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id).first()
+    courseTopic = ''
+    if courseId:
+        courseTopic = CourseTopics(course_id=courseId,topic_id=topicId.topic_id,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+    else:
+        courseTopic = CourseTopics(topic_id=topicId.topic_id,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+    db.session.add(courseTopic)
+    db.session.commit()
+    for quesId in quesIds:
+        testQues = TestQuestions(test_id=testId.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(testQues)
+        
+        quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+        quesDet.topic_id=topicId.topic_id
+        db.session.commit()
+    return "1"
+    
+
+@app.route('/addNewQuestion',methods=['GET','POST'])
+def addNewQuestion():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside add question')
+    corr = request.args.get('corr')
+    ques = request.args.get('ques')
+    opt1 = request.args.get('opt1')
+    opt2 = request.args.get('opt2')
+    opt3 = request.args.get('opt3')
+    opt4 = request.args.get('opt4')
+    print('question Desc:'+str(ques))
+    print('option 1:'+str(opt1))
+    print('option 2:'+str(opt2))
+    print('option 3:'+str(opt3))
+    print('option 4:'+str(opt4))
+    print('correct option:'+str(corr))
+    quesCreate = QuestionDetails(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N')
+    db.session.add(quesCreate)
+    db.session.commit()
+    for i in range(4):
+        op = request.args.get('opt'+str(i+1))
+        correctOption = ''
+        if str(corr) == str(i+1):
+            correctOption = 'Y'
+        else:
+            correctOption = 'N'
+        option = ''
+        if i==0:
+            option = 'A'
+        elif i==1:
+            option = 'B'
+        elif i==2:
+            option = 'C'
+        else:
+            option = 'D'
+        ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
+        options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=ques_det.question_id,weightage='10',last_modified_date=datetime.now())
+        db.session.add(options)
+        db.session.commit()
+    return jsonify(ques_det.question_id)
+    
+@app.route('/fetchQuesList',methods=['GET','POST'])
+def fetchQuesList():
+    print('inside fetchQuesList')
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    quesList = request.get_json()
+    indic = request.args.get('indic')
+    print('questionIdList:')
+    print(quesList)
+    for ques in quesList:
+        print('Question_id:')
+        print(ques)
+    if indic=='1':
+        for quesId in quesList:
+            quesDesc = QuestionDetails.query.filter_by(question_id=quesId).first()
+            print(quesDesc.question_description)
+            quesOptions = QuestionOptions.query.filter_by(question_id=quesId).all()
+            op1=''
+            op2=''
+            op3=''
+            op4=''
+            optionList = []
+            quesDetails = []
+            corrOption = ''
+            for options in quesOptions:
+                print('Option Desc:'+str(options.option_desc))
+                optionList.append(options.option_desc)
+                if options.is_correct=='Y':
+                    corrOption = options.option_desc
+            for i in range(len(optionList)):
+                if i==0:
+                    op1=optionList[i]
+                elif i==1:
+                    op2=optionList[i]
+                elif i==2:
+                    op3=optionList[i]
+                elif i==3:
+                    op4=optionList[i]
+        print('Question:'+str(quesDesc.question_description)+'op1:'+str(op1)+'op2:'+str(op2)+'op3:'+str(op3)+'op4:'+str(op4))
+        quesDetails.append(str(quesDesc.question_description)+':'+str(op1)+':'+str(op2)+':'+str(op3)+':'+str(op4)+':'+str(corrOption))
+    return jsonify([quesDetails])
+
 
 @app.route('/saveCourse',methods=['GET','POST'])
 def saveCourse():
@@ -2343,7 +2504,7 @@ def saveCourse():
     endTime = request.form.get('endTime')
     days = request.form.getlist('Days')
     video_url = request.form.get('videoUrl')
-    idealfor = request.form.getlist('idealfor')
+    idealfor = request.args.get('idealfor')
     level = request.form.get('level')
     private = request.form.get('private')
     print('Course name:'+str(course))
@@ -2364,14 +2525,17 @@ def saveCourse():
     if private:
         print('if course status is private')
         courseData = CourseDetail(course_name=course,description=description,summary_url=video_url,teacher_id=teacherData.teacher_id,
-        school_id=teacherData.school_id,course_status=course_staus_id.msg_id,is_private='Y',is_archived='N',last_modified_date=datetime.now())
+        school_id=teacherData.school_id,ideal_for=idealfor,course_status=course_staus_id.msg_id,is_private='Y',is_archived='N',last_modified_date=datetime.now())
     else:
         print('if course status is public')
         courseData = CourseDetail(course_name=course,description=description,summary_url=video_url,teacher_id=teacherData.teacher_id,
-        school_id=teacherData.school_id,course_status=course_staus_id.msg_id,is_private='N',is_archived='N',last_modified_date=datetime.now())
+        school_id=teacherData.school_id,ideal_for=idealfor,course_status=course_staus_id.msg_id,is_private='N',is_archived='N',last_modified_date=datetime.now())
     db.session.add(courseData)
     db.session.commit()
-    return jsonify(['1'])
+    courseId = CourseDetail.query.filter_by(course_name=course,description=description,summary_url=video_url,teacher_id=teacherData.teacher_id,
+        school_id=teacherData.school_id,ideal_for=idealfor,course_status=course_staus_id.msg_id,is_private='N',is_archived='N').first()
+    
+    return jsonify(courseId.course_id)
 
 ##### end of openClass modules
 

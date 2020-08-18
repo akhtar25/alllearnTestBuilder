@@ -32,6 +32,7 @@
         <form id="courseForm">
             <h4 style="margin-top: 15px;">Course Name</h4>
             <input type="text" name="course" id="course"/>
+            <input type="hidden" name="courseId" id="courseId" />
             <h4>Description</h4>
             <textarea id="w3review" name="description" style="height: 6em;"></textarea>
             <div>
@@ -113,17 +114,12 @@
             <div>
                 <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for topics.."
                     title="Type in a topic" style="width:90%;"><i class="material-icons black-text right"
-                    style="font-size: medium;;">search</i>
+                    style="font-size: medium;cursor: pointer;" id="searchIcon">search</i>
             </div>
             <div class="" style="overflow-y: auto;height: 150px;">
                 <ul id="myUL">
                     <li><a class="modal-trigger" href="#topicAddModal">Topic15</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic14</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic10</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic12</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic11</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic11</a></li>
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic12</a></li>
+
                 </ul>
             </div>
             <div id="newTopicBtnDiv" class="right">
@@ -135,7 +131,6 @@
                 <thead>
                     <tr>
                         <th>Topic</th>
-                        <!--<th>Classes</th>-->
                         <th>Quiz Questions</th>
                         <th>Expected class date</th>
                         <th>Delete</th>
@@ -143,8 +138,10 @@
                 </thead>
                 <tbody style="font-size:medium">
                     <tr>
-                        <td><a class="modal-trigger" href="#topicAddModal">Forms of Data</a></td>
-                        <!--<td>2</td>-->
+                        <td><a class="modal-trigger" onclick="editTopic('2891');" href="#topicAddModal">Polynomial</a>
+                            <!-- <input type="hidden" value="2891" id="2891"/> -->
+                        </td>
+                        
                         <td>5</td>
                         <td>22nd Jan 2020</td>
                         <td><a title="Delete Need" name="" href="#"
@@ -279,7 +276,7 @@
                         <b>Can I raise funds for someone else?</b><br>
                         Definitely, in fact we encourage that. If you're raising funds for someone through your classes,
                         the money will be transferred directly to their account.
-                        <br>
+                        <br> 
                     </li>
                 </ul>
             </div>
@@ -290,19 +287,30 @@
 <!--Modal section-->
 <div class="modal" id="topicAddModal">
     <div class="modal-content" style="height: 100%;">
-        <div style="height: 80%;">
-            <h4>Review and Add Topic</h4>
-            <input type="text" value="Topic 1" style="font-size: xx-large;" placeholder="Topic Name">
-            <label for="topicDesc">Description (optional)</label>
-            <input type="text" placeholder="Description" id="topicDesc" style="width: 70%;">
+    <div class="col lg s6" id="unselect">
+            <ul class="tabs">
+                <li class="tab col s3">
+                    <a href="javascript:void(0);" id="topic" class="tabFont">Review and Add Topic</a>
+                </li>
+                <li class="tab col s3">
+                    <a href="javascript:void(0);" id="notes" class="tabFont">Review and Add Notes</a>
+                </li>
+            </ul>
+    </div>
+    <div id="section1" style="margin-top:10px;height: 90%;position: relative;">
+        <div>
+            <!-- <h4>Review and Add Topic</h4> -->
+            <input type="text" value="" style="font-size: xx-large;" id="topicName" placeholder="Topic Name">
+            <!-- <label for="topicDesc">Description (optional)</label> -->
+            <!-- <input type="text" placeholder="Description" id="topicDesc" style="width: 70%;"> -->
             <!--<textarea id="topicDesc" style="height: 50px;"></textarea>-->
             <br>
             <span style="font-size: large;">Questions</span>
-            <a class="" href="#">Add New Question</a>
-            <div id="questionDiv" style="height: 70%;overflow-y: auto;border-radius: 10px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+            <a class="newQuestion" href="#">Add New Question</a>
+            <div id="questionDiv" style="height: 220px;overflow-y: auto;border-radius: 10px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
                 <div>
-                    <table>
-                        <tr>
+                    <table id="quesForm">
+                        <!-- <tr>
                             <td>
                                 <h4>How to create a system of profiles?</h4>
                                 <ul>
@@ -315,75 +323,114 @@
                             <td><a title="Delete Need" name="" href="#"
                                     class=" btn-floating btn-small orange deleteBTNClass">
                                     <i class="material-icons small">delete</i></a></td>
-                        <tr>
-                            <td>
-                                <h4>How to create a system of profiles?</h4>
-                                <ul>
-                                    <li>Option 1</li>
-                                    <li>Option 2</li>
-                                    <li>Option 3</li>
-                                    <li>Option 4</li>
-                                </ul>
-                            </td>
-                            <td><a title="Delete Need" name="" href="#"
-                                    class=" btn-floating btn-small orange deleteBTNClass">
-                                    <i class="material-icons small">delete</i></a></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <h4>How to create a system of profiles?</h4>
-                                <ul>
-                                    <li>Option 1</li>
-                                    <li>Option 2</li>
-                                    <li>Option 3</li>
-                                    <li>Option 4</li>
-                                </ul>
-                            </td>
-                            <td><a title="Delete Need" name="" href="#"
-                                    class=" btn-floating btn-small orange deleteBTNClass">
-                                    <i class="material-icons small">delete</i></a></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <h4>How to create a system of profiles?</h4>
-                                <ul>
-                                    <li>Option 1</li>
-                                    <li>Option 2</li>
-                                    <li>Option 3</li>
-                                    <li>Option 4</li>
-                                </ul>
-                            </td>
-                            <td><a title="Delete Need" name="" href="#"
-                                    class=" btn-floating btn-small orange deleteBTNClass">
-                                    <i class="material-icons small">delete</i></a></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <h4>How to create a system of profiles?</h4>
-                                <ul>
-                                    <li>Option 1</li>
-                                    <li>Option 2</li>
-                                    <li>Option 3</li>
-                                    <li>Option 4</li>
-                                </ul>
-                            </td>
-                            <td><a title="Delete Need" name="" href="#"
-                                    class=" btn-floating btn-small orange deleteBTNClass">
-                                    <i class="material-icons small">delete</i></a></td>
-                        </tr>
+                        </tr> -->
+                    </table>
+                    <table id="questionList">
+
                     </table>
                 </div>
             </div>
             <div>
-                <button class="btn green right">Save Topic</button>
+                <button class="btn green right" id="saveTopic" style="margin-top: 8px;">Save Topic</button>
             </div>
         </div>        
+    </div>
+    <div id="section2">
+        <h3 class="" style="margin-top: 10px;">Upload Notes</h3>
+            <p>
+                <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                <input type="file" id="video_notes_url" onchange="initUpload();" name="video_url" style="height: 30px; margin-top: 10px;">
+                <input type="hidden" id="videoNotesUrl" name="videoNotesUrl">
+        <div class="center">
+            <span id="video_name">Sample Video</span><br>
+            <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
+        </div>
+        </p>
+        <button class="btn green" style="margin-top: 8px;margin-left: 270px;">Save Notes</button>
+    </div>
     </div>
 </div>
 <!--End of modal section-->
 
 
 <script>
+
+    $('.newQuestion').click(function(){
+        $('.newQuestion').hide();
+    });
+
+function correctOption(correct){
+      document.getElementById('correct').value=correct.value; 
+    }
+    var questionDiv = '';
+    $('.newQuestion').click(function(){
+        console.log('add new question');
+        questionDiv = questionDiv + '<tr><td><input type="text" id="questionInput" placeholder="Write Question"><ul><li><label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option1" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad2" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option2" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad3" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option3" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad4" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option4" class="option_class" name="option_desc"></span></label></li></ul></td><td><input type="hidden" id="correct" name="correct" value=""><button class="btn green" style="float:right;" onclick="addQues();">Add Question</button></td></tr>';
+        $('#quesForm').html(questionDiv);
+    });
+    var quesIDList = [];
+    function addQues(){
+        console.log('inside addQues');
+        var corr = $('#correct').val();
+        var ques = $('#questionInput').val();
+        var opt1 = $('#option1').val();
+        var opt2 = $('#option2').val();
+        var opt3 = $('#option3').val();
+        var opt4 = $('#option4').val();
+        $.ajax({
+            url:"/addNewQuestion?ques="+ques+"&opt1="+opt1+"&opt2="+opt2+"&opt3="+opt3+"&opt4="+opt4+"&corr="+corr,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log(response);
+                quesIDList.push(response);
+                var flag = '1';
+                fetchQuestions(quesIDList,flag);
+                console.log('data added successfully');
+                
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit question data');
+            }
+        });
+    }
+    var quesListDiv = '';
+    function fetchQuestions(QuesList,indic){
+        console.log('inside fetchQuestions');
+        console.log(QuesList);
+            var QuesList = JSON.stringify(QuesList);
+            $.ajax({
+            url:"/fetchQuesList?indic="+indic,
+            type:"POST",
+            contentType:"application/json",
+            data: QuesList,
+            success:function(response){
+                $('.with-gap').prop("checked",false);
+                $('#option1').val('');
+                $('#option2').val('');
+                $('#option3').val('');
+                $('#option4').val('');
+                $('#questionInput').val('');
+                var question = response.toString().split(':')[0];
+                var op1 = response.toString().split(':')[1];
+                var op2 = response.toString().split(':')[2];
+                var op3 = response.toString().split(':')[3];
+                var op4 = response.toString().split(':')[4];
+                var corrOpt = response.toString().split(':')[5];
+                console.log(question+' : '+op1+' : '+op2+' : '+op3+' : '+op4+' : '+corrOpt);
+                quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+question+'</h4><ul style="margin-left:7px;"><li>'+op1+'<span id="'+op1+'"></span></li><li>'+op2+'<span id="'+op2+'"></span></li><li>'+op3+'<span id="'+op3+'"></span></li><li>'+op4+'<span id="'+op4+'"></span></li></ul></td></tr>';
+                var ids = '#'+corrOpt;
+                console.log(ids);
+                
+                $('#questionList').html(quesListDiv);
+                $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    }
+
     $(document).ready(function () {
         $('.parallax').parallax();
         $('.modal').modal();
@@ -391,14 +438,16 @@
         $('.timepicker').timepicker();
         $('.chips').chips();
         dat = [];
-        for(var i=1;i<3;i++){
+        k=0;
+        {% for des in desc %}
             var a = [];
             dict = {
-                id:i,
-                firstName:'first'
+                id:'{{des}}',
+                firstName:'{{des}}'
             }
             dat.push(dict);
-        }
+            k=k+1;
+        {% endfor %}
         $('select').formSelect();
         $('#topicSearch').magicsearch({
             
@@ -439,22 +488,23 @@
         alert('Inside save click function');
         $e.preventDefault();
         var form = $('#courseForm');
-        var data = $('#topicSearch').attr('data-value');
-        console.log('Data:'+data);
+        var idealfor = $('#topicSearch').attr('data-id');
+        console.log('Data:'+idealfor);
         var course_status = "Draft";
         $.ajax({
-            url:"/saveCourse?course_status="+course_status,
+            url:"/saveCourse?course_status="+course_status+"&idealfor="+idealfor,
             type:"POST",
             data: form.serialize(),
             success:function(response){
-                if(response=='1'){
+                if(response){
                     console.log('data added successfully');
+                    $('#courseId').val(response);
                 }
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
             }
-        })
+        });
     });
 
     // Upload File Start
@@ -513,6 +563,96 @@
       console.log('FileName:'+file);
       getSignedRequest(file);
     }
-    // End 
+    // End
+
+    $(document).ready(function(){
+        $('.tabs').tabs();
+        $('#section1').show();
+        $('#section2').hide();
+        var courseId = $('#courseId').val();
+        // $.ajax({
+        //     url:"/fetchTopics?courseId="+courseId,
+        //     type:"POST",
+        //     data: form.serialize(),
+        //     success:function(response){
+        //         if(response){
+        //             console.log('data added successfully');
+        //             $('#courseId').val(response);
+        //         }
+        //     },
+        //     error:function(xhr){
+        //         $('#msg').html('Error to submit course data');
+        //     }
+        // });
+
+    });
+    $('#topic').click(function(){
+        $('#section1').show();
+        $('#section2').hide();
+    });
+    $('#notes').click(function(){
+        $('#section2').show();
+        $('#section1').hide();
+    });
+
+    $('#searchIcon').click(function(){
+        var topic = $('#myInput').val();
+        $.ajax({
+            url:"/searchTopic?topic="+topic,
+            type:"POST",
+            data: "",
+            success:function(response){
+                var topicList = '';
+                if(response){
+                    var responseArr = response.toString().split(',');
+                    console.log('if response is not null');
+                    
+                    for(var i=0;i<responseArr.length;i++){
+                        var topic_id = responseArr[i].toString().split(':')[0];
+                        var topic_name = responseArr[i].toString().split(':')[1];
+                        topicList = topicList + '<li><a class="modal-trigger" id="'+topic_id+'" href="#topicAddModal">'+topic_name+'</a></li><input type="hidden" id="'+topic_id+'" value="'+topic_name+'">';
+                    }
+                    $('#myUL').html(topicList);
+                }else{
+                    topicList = 'No Data Available';
+                }
+                $('#myUL').html(topicList);
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    }); 
+
+    $('#saveTopic').click(function(){
+        $('#quesForm').html('');
+        questionDiv = '';
+        $('.newQuestion').show();
+        var topicName = $('#topicName').val();
+        var courseId = $('#courseId').val();
+        console.log('Topic Name:'+topicName);
+        console.log('courseId:'+courseId);
+        console.log('list of question ids');
+        console.log(quesIDList);
+        quesIDList = JSON.stringify(quesIDList);
+        $.ajax({
+            url:"/addCourseTopic?topicName="+topicName+"&courseId="+courseId,
+            type:"POST",
+            contentType:"application/json",
+            data: quesIDList,
+            success:function(response){
+                if(response=='1'){
+                    M.toast({html: 'Topic added successfully'});
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    });
+
+    function editTopic(topic_id){
+
+    }
 </script>
 {%endblock%}
