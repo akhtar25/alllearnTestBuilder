@@ -31,7 +31,7 @@
         </p>-->
         <form id="courseForm">
             <h4 style="margin-top: 15px;">Course Name</h4>
-            <input type="text" name="course" id="course"/>
+            <input type="text" name="course" id="course" onblur="courseAdd();"/>
             <input type="hidden" name="courseId" id="courseId" />
             <h4>Description</h4>
             <textarea id="w3review" name="description" style="height: 6em;"></textarea>
@@ -123,27 +123,26 @@
                 </ul>
             </div>
             <div id="newTopicBtnDiv" class="right">
-                Can't find topic? <a class="modal-trigger" href="#topicAddModal"><i class="material-icons black-text"
+                Can't find topic? <a class="modal-trigger" href="#topicAddModal" id="topicModal"><i class="material-icons black-text"
                         style="font-size: medium;">add_box</i> Add new</a>
             </div>
-            <h4>Added Topics</h4>
+            <span style="display: flex;"><h4>Added Topics</h4><a onclick="topicList();" style="margin-left: 20px;margin-top: 10px;cursor: pointer;"><i class="fa fa-refresh" aria-hidden="true"></i></a></span>
             <table class="highlight">
                 <thead>
                     <tr>
                         <th>Topic</th>
                         <th>Quiz Questions</th>
-                        <th>Expected class date</th>
+                        <!-- <th>Expected class date</th> -->
                         <th>Delete</th>
                     </tr>
                 </thead>
-                <tbody style="font-size:medium">
+                <tbody style="font-size:medium" id="topicListDiv">
                     <tr>
                         <td><a class="modal-trigger" onclick="editTopic('2891');" href="#topicAddModal">Polynomial</a>
-                            <!-- <input type="hidden" value="2891" id="2891"/> -->
                         </td>
                         
                         <td>5</td>
-                        <td>22nd Jan 2020</td>
+                        
                         <td><a title="Delete Need" name="" href="#"
                                 class=" btn-floating btn-small orange deleteBTNClass">
                                 <i class="material-icons small">delete</i></a></td>
@@ -355,6 +354,16 @@
 
 <script>
 
+    $('#topicModal').click(function(){
+        console.log('inside topic modal');
+        quesIDList = [];
+        $('#quesForm').html('');
+        $('#questionList').html('');
+        $('#topicName').val('');
+        questionDiv = '';
+        quesListDiv = '';
+    });
+
     $('.newQuestion').click(function(){
         $('.newQuestion').hide();
     });
@@ -490,14 +499,15 @@ function correctOption(correct){
         var idealfor = $('#topicSearch').attr('data-id');
         console.log('Data:'+idealfor);
         var course_status = "Draft";
+        var course_id = $('#courseId').val();
         $.ajax({
-            url:"/saveCourse?course_status="+course_status+"&idealfor="+idealfor,
+            url:"/saveCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
             type:"POST",
             data: form.serialize(),
             success:function(response){
                 if(response){
                     console.log('data added successfully');
-                    $('#courseId').val(response);
+                    // $('#courseId').val(response);
                 }
             },
             error:function(xhr){
@@ -564,19 +574,54 @@ function correctOption(correct){
     }
     // End
 
+    function topicList(){
+        var courseId = $('#courseId').val();
+        $.ajax({
+            url:"/fetchQues?courseId="+courseId,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                    var responseArr = response.toString().split(',');
+                    var topicList = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var topicName = responseArr[i].toString().split(':')[0];
+                        var quesNo = responseArr[i].toString().split(':')[1];
+                        var topicId = responseArr[i].toString().split(':')[2]; 
+                        console.log('Topic name:'+topicName);
+                        console.log('QuesNo:'+quesNo);
+                        console.log('TopicId:'+topicId);
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small">delete</i></a></td></tr>' + topicList;
+                    }
+                    $('#topicListDiv').html(topicList);
+                    
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    }
+
     $(document).ready(function(){
         $('.tabs').tabs();
         $('#section1').show();
         $('#section2').hide();
-        var courseId = $('#courseId').val();
+        // var courseId = $('#courseId').val();
         // $.ajax({
-        //     url:"/fetchTopics?courseId="+courseId,
+        //     url:"/fetchTopicsQues?courseId="+courseId,
         //     type:"POST",
-        //     data: form.serialize(),
+        //     data: "",
         //     success:function(response){
         //         if(response){
-        //             console.log('data added successfully');
-        //             $('#courseId').val(response);
+        //             var responseArr = response.toString().split(',');
+        //             for(var i=0;i<responseArr.length;i++){
+        //                 var topicName = responseArr[i].toString().split(':')[0];
+        //                 var quesNo = responseArr[i].toString().split(':')[1];
+        //                 console.log('Topic name:'+topicName);
+        //                 console.log('QuesNo:'+quesNo);
+        //             }
+                    
         //         }
         //     },
         //     error:function(xhr){
@@ -651,7 +696,59 @@ function correctOption(correct){
     });
 
     function editTopic(topic_id){
+        $.ajax({
+            url:"/fetchTopicQues?topic_id="+topic_id,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                    var responseArr = response.toString().split(',');
+                    var quesListDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var ques = responseArr[i].toString().split(':')[0];
+                        var topic_name = responseArr[i].toString().split(':')[1];
+                        var opt1 = responseArr[i].toString().split(':')[2];
+                        var opt2 = responseArr[i].toString().split(':')[3];
+                        var opt3 = responseArr[i].toString().split(':')[4];
+                        var opt4 = responseArr[i].toString().split(':')[5];
+                        console.log('Question:'+ques);
+                        console.log('op1:'+opt1);
+                        console.log('op2:'+opt2);
+                        console.log('op3:'+opt3);
+                        console.log('op4:'+opt4);
+                        console.log('topic name:'+topic_name);
+                        $('#topicName').val(topic_name);
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td></tr>';
+                        // var ids = '#'+corrOpt;
+                        // console.log(ids);
+                        
+                        // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
+                    }
+                    $('#questionList').html(quesListDiv);
+                    
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    }
 
+    function courseAdd(){
+        console.log('inside course add');
+        var course = $('#course').val();
+        $.ajax({
+            url:"/courseEntry?course="+course,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log('success:'+response);
+                $('#courseId').val(response);
+            },
+            error:function(xhr){
+
+            }
+        });
     }
 </script>
 {%endblock%}
