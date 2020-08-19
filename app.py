@@ -59,6 +59,8 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from algoliasearch.search_client import SearchClient
 import base64
+import hmac
+import hashlib
 
 app=FlaskAPI(__name__)
 
@@ -2409,19 +2411,19 @@ def paymentForm():
         note = "Enrollment transaction"   
         payer_name = current_user.first_name + ' ' + current_user.last_name
 
-        messageData = MessageDetails.query.filter_by(msg_id=payment_for).first()
+        messageData = "" #MessageDetails.query.filter_by(msg_id=payment_for).first()
 
         #Inserting new order and transaction detail in db
 
         transactionNewInsert = PaymentTransaction(amount=amount,note=note, 
             payer_user_id=current_user.id, payer_name=str(payer_name),payer_phone=current_user.phone, payer_email=current_user.email,
-            school_id=qschool_id, trans_type=25, payment_for= payment_for, tran_status=27, date=datetime.today()) 
+            school_id=qschool_id, trans_type=254, payment_for= 264, tran_status=256, date=datetime.today()) 
         db.session.add(transactionNewInsert)
         db.session.commit()
 
         #Fetching all required details for the form and signature creation
 
-        transactionData = PaymentTransaction.query.filter_by(donor_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+        transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
         orderId= str(transactionData.tran_id).zfill(8)
         currency = transactionData.currency
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
@@ -2475,18 +2477,18 @@ def handlerequest():
     #get secret key from config
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
-    if request.form['checkbox_anonymous_donor']: 
-        anonymous_donor = request.form['checkbox_anonymous_donor']
-    if request.form['checkbox_hide_amount']:
-        hide_amount = request.form['checkbox_hide_amount']
+    #if request.form['checkbox_anonymous_donor']: 
+    #    anonymous_donor = request.form['checkbox_anonymous_donor']
+    #if request.form['checkbox_hide_amount']:
+    #    hide_amount = request.form['checkbox_hide_amount']
     print('print values')
-    print(anonymous_donor)
-    print(hide_amount)
-    transactionData = Transaction.query.filter_by(donor_user_id=current_user.id).order_by(Transaction.date.desc()).first()
+    #print(anonymous_donor)
+    #print(hide_amount)
+    transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
     transactionData.order_id=postData["orderId"]
-    transactionData.anonymous_donor = anonymous_donor
-    transactionData.anonymous_amount = hide_amount
-    transactionData.tran_status = 28 
+    #transactionData.anonymous_donor = anonymous_donor
+    #transactionData.anonymous_amount = hide_amount
+    transactionData.tran_status = 257 
     transactionData.request_sign_hash = signature
     transactionData.amount = postData["orderAmount"]
     db.session.commit()
@@ -2521,7 +2523,7 @@ def paymentResponse():
     # get secret key from your config
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     computedsignature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode('utf-8')   
- 
+    print("####this is the txStatus: "+str(postData["txStatus"]))
     messageData = MessageDetails.query.filter_by(description = postData["txStatus"]).first()
 
     #updating response transaction details into the DB
@@ -2529,7 +2531,7 @@ def paymentResponse():
     currency = transactionData.currency
 
     transactionData.gateway_ref_id = postData["referenceId"]
-    if transactionData.tran_status!=34:
+    if transactionData.tran_status!=263:
         transactionData.tran_status = messageData.msg_id
     transactionData.payment_mode = postData["paymentMode"]
     transactionData.tran_msg = postData["txMsg"]
@@ -2586,7 +2588,7 @@ def notifyUrl():
     transactionData = Transaction.query.filter_by(order_id = postData["orderId"]).first()
     schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
     if transactionData!=None:
-        transactionData.tran_status = 34   
+        transactionData.tran_status = 263
         db.session.commit()        
         #donation_success_email_donor(schoolData.name, transactionData.donor_name,transactionData.donor_email,postData)
     else:
