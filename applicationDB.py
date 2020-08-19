@@ -1088,7 +1088,7 @@ class PaymentTransaction(db.Model):
     __tablename__ = "payment_transaction"
     tran_id = db.Column(db.Integer, primary_key=True)    
     order_id = db.Column(db.String(20), unique=True)  # 8 digit having -  zeroes+tran_id #this is invoice id
-    amount = db.Column(db.Integer, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(5), nullable=True,  default ='INR')
     note = db.Column(db.String(100), nullable=True)
     payer_user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
