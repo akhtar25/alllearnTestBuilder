@@ -58,7 +58,7 @@ from urllib.parse import quote,urlparse, parse_qs
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from algoliasearch.search_client import SearchClient
-
+import base64
 
 app=FlaskAPI(__name__)
 
@@ -2356,6 +2356,275 @@ def tutorDashboard():
 @app.route('/editCourse')
 def editCourse():
     return render_template('editCourse.html')
+
+
+@app.route('/paymentForm')
+def paymentForm():    
+    if current_user.is_authenticated:
+        #if current_user.country==None:
+        #    flash('Please update your profile before donating ')
+        #    return jsonify(['2'])
+        #qschool_id = request.args.get('school_id')
+        #amount =  request.args.get('amount') 
+        qschool_id = 1
+        amount =  "500"
+
+        if amount=='other':
+            amount = 0
+        donation_for = request.args.get('donation_for')
+        if donation_for =='' or donation_for=='undefined':            
+            donation_for=24
+        schoolData = SchoolProfile.query.filter_by(school_id=qschool_id).first() 
+        
+        #New section added to handle different vendors     
+        #if schoolData.curr_sub_charge_type== 41:
+        #    schoolShare = 100-int(schoolData.curr_sub_charge)
+        #    selfShare = schoolData.curr_sub_charge             
+        #else:
+        schoolShare = 100
+        selfShare = 0
+        vendorData = [
+            {
+                "vendorId": 1, #schoolData.curr_vendor_id,
+                "commission": 97 #int(schoolShare)
+            }, 
+            {
+                "vendorId":"SELF",
+                "commission":3 #int(selfShare)
+            }
+        ]
+
+        #vendorData=    [{"vendorId":"VENDOR1","commission":30}, {"vendorId":"VENDOR2","commission":40}]
+
+        
+        vendorData = json.dumps(vendorData, separators=(',', ':'))
+        print(vendorData)
+        vendorDataEncoded = base64.b64encode(vendorData.encode('utf-8')).decode('utf-8')
+        print(vendorDataEncoded)
+        #end of section
+
+        note = "Donation transaction"   
+        donor_name = current_user.first_name + ' ' + current_user.last_name
+
+        messageData = "" #MessageDetail.query.filter_by(msg_id=donation_for).first()
+
+        #Inserting new order and transaction detail in db
+
+        #transactionNewInsert = Transaction(amount=amount,note=note, 
+        #    donor_user_id=current_user.id, donor_name=str(donor_name),donor_phone=current_user.phone, donor_email=current_user.email,
+        #    school_id=qschool_id, trans_type=25, donation_for= donation_for, tran_status=27, date=datetime.today()) 
+        #db.session.add(transactionNewInsert)
+        #db.session.commit()
+
+        #Fetching all required details for the form and signature creation
+
+        transactionData = "" #Transaction.query.filter_by(donor_user_id=current_user.id).order_by(Transaction.date.desc()).first()
+        orderId="" #str(transactionData.tran_id).zfill(8)
+        currency = "" #transactionData.currency
+        appId= "321321" #app.config['ALLLEARN_CASHFREE_APP_ID']
+        returnUrl = url_for('paymentResponse',_external=True)
+        notifyUrl = url_for('notifyUrl',_external=True)
+        return render_template('_paymentForm.html',vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = donor_name)
+    else:
+        flash('Please login to donate')
+        return jsonify(['1'])
+
+
+
+
+@app.route('/request', methods=["POST"])
+def handlerequest():
+    mode = app.config["MODE"] # <-------Change to TEST for test server, PROD for production
+    platformSub = request.args.get('platformSub')
+    if platformSub=="1":
+        postData = {
+            "appId" : request.form['appId'], 
+            "orderId" : request.form['orderId'], 
+            "orderAmount" : request.form['orderAmount'], 
+            "orderCurrency" : request.form['orderCurrency'], 
+            "orderNote" : request.form['orderNote'], 
+            "customerName" : request.form['customerName'], 
+            "customerPhone" : request.form['customerPhone'], 
+            "customerEmail" : request.form['customerEmail'], 
+            "returnUrl" : request.form['returnUrl'], 
+            "notifyUrl" : request.form['notifyUrl'],
+        }
+    else:
+        postData = {
+            "appId" : request.form['appId'], 
+            "orderId" : request.form['orderId'], 
+            "orderAmount" : request.form['orderAmount'], 
+            "orderCurrency" : request.form['orderCurrency'], 
+            "orderNote" : request.form['orderNote'], 
+            "customerName" : request.form['customerName'], 
+            "customerPhone" : request.form['customerPhone'], 
+            "customerEmail" : request.form['customerEmail'], 
+            "returnUrl" : request.form['returnUrl'], 
+            "notifyUrl" : request.form['notifyUrl'],
+            "vendorSplit" : request.form['vendorSplit']
+        }
+    #vendorSplit = request.form['vendorSplit']
+    sortedKeys = sorted(postData)
+    signatureData = ""
+    for key in sortedKeys:
+      signatureData += key+postData[key]
+    message = signatureData.encode('utf-8')
+    #get secret key from config
+    secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
+    signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
+    if request.form['checkbox_anonymous_donor']: 
+        anonymous_donor = request.form['checkbox_anonymous_donor']
+    if request.form['checkbox_hide_amount']:
+        hide_amount = request.form['checkbox_hide_amount']
+    print('print values')
+    print(anonymous_donor)
+    print(hide_amount)
+    transactionData = Transaction.query.filter_by(donor_user_id=current_user.id).order_by(Transaction.date.desc()).first()
+    transactionData.order_id=postData["orderId"]
+    transactionData.anonymous_donor = anonymous_donor
+    transactionData.anonymous_amount = hide_amount
+    transactionData.tran_status = 28 
+    transactionData.request_sign_hash = signature
+    transactionData.amount = postData["orderAmount"]
+    db.session.commit()
+
+    if mode == 'PROD': 
+      url = "https://www.cashfree.com/checkout/post/submit"
+    else: 
+      url = "https://test.cashfree.com/billpay/checkout/post/submit"
+    return render_template('request.html', postData = postData,signature = signature,url = url, platformSub=platformSub)
+
+
+#this is the page after response from payment gateway
+@app.route('/paymentResponse', methods=["POST"])
+def paymentResponse():
+    payment = request.args.get('payment')
+
+    postData = {
+    "orderId" : request.form['orderId'], 
+    "orderAmount" : request.form['orderAmount'], 
+    "referenceId" : request.form['referenceId'], 
+    "txStatus" : request.form['txStatus'], 
+    "paymentMode" : request.form['paymentMode'], 
+    "txMsg" : request.form['txMsg'], 
+    "signature" : request.form['signature'], 
+    "txTime" : request.form['txTime']
+    }
+
+    signatureData = ""
+    signatureData = postData['orderId'] + postData['orderAmount'] + postData['referenceId'] + postData['txStatus'] + postData['paymentMode'] + postData['txMsg'] + postData['txTime']
+
+    message = signatureData.encode('utf-8')
+    # get secret key from your config
+    secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
+    computedsignature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode('utf-8')   
+ 
+    messageData = MessageDetail.query.filter_by(description = postData["txStatus"]).first()
+
+    #updating response transaction details into the DB
+    transactionData = Transaction.query.filter_by(order_id=postData["orderId"]).first()
+    currency = transactionData.currency
+
+    transactionData.gateway_ref_id = postData["referenceId"]
+    if transactionData.tran_status!=34:
+        transactionData.tran_status = messageData.msg_id
+    transactionData.payment_mode = postData["paymentMode"]
+    transactionData.tran_msg = postData["txMsg"]
+    transactionData.tran_time = postData["txTime"]
+    transactionData.response_sign_hash = postData["signature"]
+    if postData["signature"]==computedsignature:
+        transactionData.response_sign_check="Matched"
+    else:
+        transactionData.response_sign_check="Not Matched"
+    schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
+    if payment!='sub':
+        #updating school data
+        if transactionData.tran_status==29 or transactionData.tran_status==34:
+            schoolFundingData = SchoolFundingDetail.query.filter_by(school_id = transactionData.school_id, is_archived='N').first()
+            if schoolFundingData!=None:
+                schoolFundingData.total_funds_raised = int(schoolFundingData.total_funds_raised)  + int(transactionData.amount)
+                if transactionData.donation_for== 18 or transactionData.donation_for==38:                
+                    schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
+                    schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
+                if transactionData.donation_for== 18:
+                    schoolFundingData.total_monthly_sp_raised = int(schoolFundingData.total_monthly_sp_raised) + int(transactionData.amount)
+                if transactionData.donation_for==38:
+                    schoolFundingData.total_yearly_sp_raised = int(schoolFundingData.total_yearly_sp_raised) + int(transactionData.amount)
+                if transactionData.donation_for!=18 and transactionData.donation_for!=38: # Non sponsor types - Basically one time raises
+                    schoolFundingData.total_one_time_raised = int(schoolFundingData.total_one_time_raised) + int(transactionData.amount)
+            #Sending email
+            donation_success_email_donor(schoolData, transactionData,postData)
+            #try:
+            #    donation_success_email_donor(schoolData, transactionData,postData)
+            #except:
+            #    app.logger.info('Error Sending email')
+            #    pass
+                #if transactionData
+    db.session.commit()
+
+    return render_template('paymentResponse.html',transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
+
+
+
+
+@app.route('/notifyUrl',methods=["POST"])
+def notifyUrl():
+    postData = {
+      "orderId" : request.form['orderId'], 
+      "orderAmount" : request.form['orderAmount'], 
+      "referenceId" : request.form['referenceId'], 
+      "txStatus" : request.form['txStatus'], 
+      "paymentMode" : request.form['paymentMode'], 
+      "txMsg" : request.form['txMsg'], 
+      "txTime" : request.form['txTime'], 
+    }
+    
+    transactionData = Transaction.query.filter_by(order_id = postData["orderId"]).first()
+    schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
+    if transactionData!=None:
+        transactionData.tran_status = 34   
+        db.session.commit()        
+        #donation_success_email_donor(schoolData.name, transactionData.donor_name,transactionData.donor_email,postData)
+    else:
+        print('############### no transaction detail found')
+    return str(0)
+
+
+def requestSignGenerator(appId, orderId, orderAmount, orderCurrency, orderNote, customerName, customerPhone,customerEmail, returnUrl, notifyUrl):    
+    postData = {
+      "appId" : appId,
+      "orderId" : orderId,
+      "orderAmount" : orderAmount,
+      "orderCurrency" : orderCurrency,
+      "orderNote" : orderNote,
+      "customerName" : customerName,
+      "customerPhone" : customerPhone,
+      "customerEmail" : customerEmail,
+      "returnUrl" : returnUrl,
+      "notifyUrl" : notifyUrl
+    }
+    sortedKeys = sorted(postData)
+    signatureData = ""
+    for key in sortedKeys:
+      signatureData += key+postData[key]
+
+    message = bytes(signatureData,encoding='utf-8')
+    #get secret key from your config
+    secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY'],encoding='utf-8')
+    signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
+    return signature
+
+
+def verifyResponseSign(receivedResponseSign, postData):
+    signatureData = postData["orderId"] + postData["orderAmount"] + postData["referenceId"] + postData["txStatus"] + postData["paymentMode"] + postData["txMsg"] + postData["txTime"]
+    message = bytes(signatureData).encode('utf-8')
+    #get secret key from your config
+    secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY']).encode('utf-8')
+    signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
+    if signature==receivedResponseSign:
+        return True
+    else:
+        return False
 ##### end of openClass modules
 
 

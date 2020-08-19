@@ -1,0 +1,70 @@
+<div class="content">
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <h3>Confirm Enrollment</h3>
+            <form id="redirectForm" method="post" action="{{url_for('handlerequest')}}">
+                <table>
+                    <tr>
+                        <td>Course Name</td>
+                        <td><h4>How to start a startup</h4></td>                       
+                    </tr>
+                    <tr>
+                        <td>Teacher and School</td>
+                        <td><h4>Chika{{teacher_name}}</h4>{{schoolData.name}}</td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>{{schoolData.address1}}<br>{{schoolData.address2}}{{schoolData.city}},{{schoolData.country}}
+                        </td>
+                    </tr>
+                    <tr>
+                        {%if amount!=0%}
+                        <input type="hidden" name="orderAmount" value="{{amount}}" />
+                        <td>Amount</td>
+                        <td>
+                            <h3 class="green-text">₹{{amount}}</h3>
+                        </td>  
+                        {%endif%}                                              
+                    </tr>
+                    <tr>
+                        <td>Batch details</td>
+                        <td><h4>Starts from 24th Aug</h4>
+                            <h5>12 am to 2pm - Mon,Tue,Wed</h>                          
+                        </td>                      
+                    </tr>
+
+                    <!--Data required by Payment gateway-->
+                    <input type="hidden" name="appId" value="{{appId}}" />
+                    <input type="hidden" name="orderId" value="{{orderId}}" />
+                   
+                    <input type="hidden" name="orderCurrency" value="{{orderCurrency}}" />
+                    <input type="hidden" name="orderNote" value="{{orderNote}}" />
+                    <input type="hidden" name="customerName" value="{{customerName}}" />
+                    <input type="hidden" name="customerEmail" value="{{current_user.email}}" />
+                    <input type="hidden" name="customerPhone" value="{{current_user.phone}}" />
+                    <input type="hidden" name="returnUrl" value="{{returnUrl}}" />
+                    <input type="hidden" name="notifyUrl" value="{{notifyUrl}}" />
+                    <input type="hidden" name="signature" value="{{signature}}" />
+                    <input type="hidden" name="vendorSplit" value="{{vendorDataEncoded}}"/>
+                    <!--End of data for payment gateway-->
+                </table> 
+                <br><br><br><br>
+              <!--<p class="green-text lighten-1">*Currently donations can only be made from Indian accounts</p>-->
+                <p class="orange-text lighten-1">**You'll be redirected to the payment gateway page</p>
+                <button type="submit" class="btn btn-primary btn-block green right" value="Pay">Confirm and Pay</button>
+            </form>
+        </div>
+        <div class="col s6 right">
+           
+        </div>
+    </div>
+</div>
+<!--<script>document.getElementById("redirectForm").submit();</script>-->
+<script>
+if(document.getElementById("donorCheckbox").checked) {
+    document.getElementById('donorInput').disabled = true;
+}
+if(document.getElementById("amountCheckbox").checked) {
+    document.getElementById('amountInput').disabled = true;
+}
+</script>

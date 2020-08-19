@@ -1,0 +1,140 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+    {% if postData.signature==computedsignature %}	
+
+    <div class="row">
+        {%if postData.txStatus=='SUCCESSFUL' or postData.txStatus=='OK'%}
+        <h5 class="green-text">Payment Successful!</h5>
+        {%endif%}
+        {%if payment=='sub'%}
+        <h5>School Registered! </h5>
+            <h6>The review and payment gateway setup will take 48 hours after which you'd be able to raise funds</h6>
+            <h6>Our representative will connect with you to help get you started</h6>
+        {%endif%}
+        <div class=" col s8">
+            <h6>Payment Summary</h6>
+            <table>
+                <tr>
+			        <td>Transaction Status</td>
+			        <td>{{postData.txStatus}}</td>
+                  </tr>
+                  <tr>
+			        <td>Payment Mode </td>
+			        <td>{{postData.paymentMode}}</td>
+			      </tr>
+                <tr>
+                    <td>School Name</td>
+                    <td>{{schoolData.name}}</td>
+                </tr>
+                <tr>
+                    <td>School Address</td>
+                    <td>{{schoolData.address1}}<br>{{schoolData.address2}}{{schoolData.city}},{{schoolData.country}}
+                </tr>
+                <tr>
+                    <td>Phone </td>
+                    <td>{{schoolData.phone}}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{schoolData.email}}</td>
+                </tr>
+                <tr>
+                    <td>Amount</td>
+                    <td>
+                        <h5 class="green-text">{%if currency=='INR'%}₹{%else%}{{currency}}{%endif%}{{postData.orderAmount}}</h5>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Reference ID</td>
+                    <td>{{postData.referenceId}}</td>
+                </tr>
+                <tr>
+			        <td>Message</td>
+			        <td>{{postData.txMsg}}</td>
+			      </tr>                
+                <tr>
+                    <td>Transaction Time</td>
+                    <td>{{postData.txTime}}</td>
+                </tr>
+            </table>
+            <!--
+            <a href="#" class="right"> <u>Download Receipt</u></a>-->
+            <br><br>
+            
+        </div>
+        
+        {%if transactionData.tran_status==29 or transactionData.tran_status==34%}
+        <div class="col s4">
+            {%if transactionData.donation_for==18%}
+            <a href="#" id="allocateBTN" class="btn green">Request Student Allocation</a> 
+            <a href="#modal3" class="btn-floating btn-small green modal-trigger ">
+                <i class="material-icons tiny">info</i></a>
+                {%endif%}
+            <p>A copy of the receipt will be sent to your email</p>
+            <p>If the NGO is 80g certified, a tax exemption certificate will be sent within the next 4 days to your email</p>        
+        </div>
+        {%endif%}
+    </div>
+    <div id="modal3" class="modal" style="background-color:white;">
+        <div class="modal-content" id="">
+            <h5>Request Student Allocation</h5>
+            <!--<h6><b>Request Student Allocation</b></h6>-->
+           <h6>Select this to...</h6>
+           <ul class="collection">
+               <li class="collection-item">Allocate your donation to a specific student in the school</li>
+               <li class="collection-item">Get regular updates on the student's progress in your email</li>
+               <li class="collection-item">See the student's basic and performance details on your profile page</li>
+               <li class="collection-item">Get reminders in your email for monthly donations, (monthly sponsorship)</li>
+               <li class="collection-item">If a student from the select school has already been allocated, the funds will go to the same student unless their yearly costs have been covered</li>
+           </ul>              
+        </div>
+    </div>
+    {%else%}
+    <div class="row">
+        <h5 class="red-text lighten-1">Payment Failed - Sign verification failed</h5>
+        <table>
+            <tr>
+                <td>Reason</td>
+                <td>{{postData.txMsg}}</td>
+            </tr>
+            <tr>
+                <td>Reference Id</td>
+                <td>{{postData.referenceId}}</td>
+            </tr>
+            <tr>
+                <td>Message from Gateway</td>
+                <td>{{postData.txMsg}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><a href="{{url_for('school',schoolId=schoolData.school_id)}}">Go Back and Retry</a></td>
+            </tr>
+        </table>
+    </div>
+    {%endif%}
+</div>
+<script>
+         $(document).ready(function () {
+            $('.modal').modal();
+            $('.collapsible').collapsible();
+        });
+    $('#allocateBTN').click(function () {
+            //var need_id = $(this).attr("name");
+            $.ajax({
+                url: "/requestStudentAllocation?order_id={{postData.orderId}}",
+                type: "get",
+                data: '',
+                success: function (Response) {
+                    if (Response==0){
+                        M.toast({html: 'Student Allocation Requested!'})
+                        $('#allocateBTN').hide();
+                    }
+                    else{
+                        M.toast({html: 'Error Requestion Allocation!'})
+                    }              
+                }
+            })
+        });
+        
+</script>
+{%endblock%}
