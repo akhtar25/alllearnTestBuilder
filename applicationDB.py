@@ -1069,6 +1069,9 @@ class CourseBatch(db.Model):
     batch_end_time = db.Column(db.String(16), nullable=True)
     days_of_week = db.Column(db.String(50), nullable=True)
     student_limit = db.Column(db.Integer, nullable=True)
+    course_batch_fee = db.Column(db.Float, nullable=True)
+    students_enrolled = db.Column(db.Integer, nullable=True)
+    total_fee_received = db.Column(db.Float, nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
@@ -1085,7 +1088,7 @@ class PaymentTransaction(db.Model):
     __tablename__ = "payment_transaction"
     tran_id = db.Column(db.Integer, primary_key=True)    
     order_id = db.Column(db.String(20), unique=True)  # 8 digit having -  zeroes+tran_id #this is invoice id
-    amount = db.Column(db.Integer, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(5), nullable=True,  default ='INR')
     note = db.Column(db.String(100), nullable=True)
     payer_user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
@@ -1094,6 +1097,7 @@ class PaymentTransaction(db.Model):
     payer_email = db.Column(db.String(50),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    batch_id = db.Column(db.ForeignKey('course_batch.batch_id'), nullable=True)
     trans_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
     payment_for = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
     request_sign_hash = db.Column(db.String(200), nullable=True)
