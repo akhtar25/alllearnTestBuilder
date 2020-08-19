@@ -2364,10 +2364,11 @@ def paymentForm():
         #if current_user.country==None:
         #    flash('Please update your profile before donating ')
         #    return jsonify(['2'])
+
         #qschool_id = request.args.get('school_id')
         #amount =  request.args.get('amount') 
-        qschool_id = 1
-        amount =  "500"
+        qschool_id = 1              #hard coded value             
+        amount =  "500"             #hard coded value
 
         if amount=='other':
             amount = 0
@@ -2381,8 +2382,10 @@ def paymentForm():
         #    schoolShare = 100-int(schoolData.curr_sub_charge)
         #    selfShare = schoolData.curr_sub_charge             
         #else:
-        schoolShare = 100
-        selfShare = 0
+
+        #every payment amout is to be split in the ratio 97:3 :: Tutor: allLearn
+        schoolShare = 97
+        selfShare = 3
         vendorData = [
             {
                 "vendorId": 1, #schoolData.curr_vendor_id,
@@ -2403,28 +2406,28 @@ def paymentForm():
         print(vendorDataEncoded)
         #end of section
 
-        note = "Donation transaction"   
-        donor_name = current_user.first_name + ' ' + current_user.last_name
+        note = "Enrollment transaction"   
+        payer_name = current_user.first_name + ' ' + current_user.last_name
 
-        messageData = "" #MessageDetail.query.filter_by(msg_id=donation_for).first()
+        messageData = MessageDetails.query.filter_by(msg_id=payment_for).first()
 
         #Inserting new order and transaction detail in db
 
-        #transactionNewInsert = Transaction(amount=amount,note=note, 
-        #    donor_user_id=current_user.id, donor_name=str(donor_name),donor_phone=current_user.phone, donor_email=current_user.email,
-        #    school_id=qschool_id, trans_type=25, donation_for= donation_for, tran_status=27, date=datetime.today()) 
-        #db.session.add(transactionNewInsert)
-        #db.session.commit()
+        transactionNewInsert = PaymentTransaction(amount=amount,note=note, 
+            payer_user_id=current_user.id, payer_name=str(payer_name),payer_phone=current_user.phone, payer_email=current_user.email,
+            school_id=qschool_id, trans_type=25, payment_for= payment_for, tran_status=27, date=datetime.today()) 
+        db.session.add(transactionNewInsert)
+        db.session.commit()
 
         #Fetching all required details for the form and signature creation
 
-        transactionData = "" #Transaction.query.filter_by(donor_user_id=current_user.id).order_by(Transaction.date.desc()).first()
-        orderId="" #str(transactionData.tran_id).zfill(8)
-        currency = "" #transactionData.currency
-        appId= "321321" #app.config['ALLLEARN_CASHFREE_APP_ID']
+        transactionData = PaymentTransaction.query.filter_by(donor_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+        orderId= str(transactionData.tran_id).zfill(8)
+        currency = transactionData.currency
+        appId= app.config['ALLLEARN_CASHFREE_APP_ID']
         returnUrl = url_for('paymentResponse',_external=True)
         notifyUrl = url_for('notifyUrl',_external=True)
-        return render_template('_paymentForm.html',vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = donor_name)
+        return render_template('_paymentForm.html',vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
         flash('Please login to donate')
         return jsonify(['1'])
@@ -2519,10 +2522,10 @@ def paymentResponse():
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     computedsignature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode('utf-8')   
  
-    messageData = MessageDetail.query.filter_by(description = postData["txStatus"]).first()
+    messageData = MessageDetails.query.filter_by(description = postData["txStatus"]).first()
 
     #updating response transaction details into the DB
-    transactionData = Transaction.query.filter_by(order_id=postData["orderId"]).first()
+    transactionData = PaymentTransaction.query.filter_by(order_id=postData["orderId"]).first()
     currency = transactionData.currency
 
     transactionData.gateway_ref_id = postData["referenceId"]
@@ -2539,21 +2542,22 @@ def paymentResponse():
     schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
     if payment!='sub':
         #updating school data
-        if transactionData.tran_status==29 or transactionData.tran_status==34:
-            schoolFundingData = SchoolFundingDetail.query.filter_by(school_id = transactionData.school_id, is_archived='N').first()
-            if schoolFundingData!=None:
-                schoolFundingData.total_funds_raised = int(schoolFundingData.total_funds_raised)  + int(transactionData.amount)
-                if transactionData.donation_for== 18 or transactionData.donation_for==38:                
-                    schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
-                    schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
-                if transactionData.donation_for== 18:
-                    schoolFundingData.total_monthly_sp_raised = int(schoolFundingData.total_monthly_sp_raised) + int(transactionData.amount)
-                if transactionData.donation_for==38:
-                    schoolFundingData.total_yearly_sp_raised = int(schoolFundingData.total_yearly_sp_raised) + int(transactionData.amount)
-                if transactionData.donation_for!=18 and transactionData.donation_for!=38: # Non sponsor types - Basically one time raises
-                    schoolFundingData.total_one_time_raised = int(schoolFundingData.total_one_time_raised) + int(transactionData.amount)
-            #Sending email
-            donation_success_email_donor(schoolData, transactionData,postData)
+        if transactionData.tran_status==258 or transactionData.tran_status==263:
+            courseBatchData = CourseBatch.query.filter_by(batch_id = transactionData.batch_id, is_archived='N').first()
+            if courseBatchData!=None:
+                courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
+                courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+        ##        if transactionData.donation_for== 18 or transactionData.donation_for==38:                
+        ##            schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
+        ##            schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
+        ##        if transactionData.donation_for== 18:
+        ##            schoolFundingData.total_monthly_sp_raised = int(schoolFundingData.total_monthly_sp_raised) + int(transactionData.amount)
+        ##        if transactionData.donation_for==38:
+        ##            schoolFundingData.total_yearly_sp_raised = int(schoolFundingData.total_yearly_sp_raised) + int(transactionData.amount)
+        ##        if transactionData.donation_for!=18 and transactionData.donation_for!=38: # Non sponsor types - Basically one time raises
+        ##            schoolFundingData.total_one_time_raised = int(schoolFundingData.total_one_time_raised) + int(transactionData.amount)
+        ##    #Sending email
+            #donation_success_email_donor(schoolData, transactionData,postData)
             #try:
             #    donation_success_email_donor(schoolData, transactionData,postData)
             #except:
