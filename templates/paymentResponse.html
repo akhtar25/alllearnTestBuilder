@@ -3,8 +3,8 @@
     {% if postData.signature==computedsignature %}	
 
     <div class="row">
-        {%if postData.txStatus=='SUCCESSFUL' or postData.txStatus=='OK'%}
-        <h5 class="green-text">Payment Successful!</h5>
+        {%if postData.txStatus=='SUCCESSFUL' or postData.txStatus=='SUCCESS' or postData.txStatus=='OK'%}
+        <h3 class="green-text">Payment Successful!</h3>
         {%endif%}
         {%if payment=='sub'%}
         <h5>School Registered! </h5>
@@ -12,7 +12,7 @@
             <h6>Our representative will connect with you to help get you started</h6>
         {%endif%}
         <div class=" col s8">
-            <h6>Payment Summary</h6>
+            <h4>Payment Summary</h4>
             <table>
                 <tr>
 			        <td>Transaction Status</td>
@@ -62,33 +62,9 @@
             <br><br>
             
         </div>
-        
-        {%if transactionData.tran_status==29 or transactionData.tran_status==34%}
-        <div class="col s4">
-            {%if transactionData.donation_for==18%}
-            <a href="#" id="allocateBTN" class="btn green">Request Student Allocation</a> 
-            <a href="#modal3" class="btn-floating btn-small green modal-trigger ">
-                <i class="material-icons tiny">info</i></a>
-                {%endif%}
-            <p>A copy of the receipt will be sent to your email</p>
-            <p>If the NGO is 80g certified, a tax exemption certificate will be sent within the next 4 days to your email</p>        
-        </div>
-        {%endif%}
+                
     </div>
-    <div id="modal3" class="modal" style="background-color:white;">
-        <div class="modal-content" id="">
-            <h5>Request Student Allocation</h5>
-            <!--<h6><b>Request Student Allocation</b></h6>-->
-           <h6>Select this to...</h6>
-           <ul class="collection">
-               <li class="collection-item">Allocate your donation to a specific student in the school</li>
-               <li class="collection-item">Get regular updates on the student's progress in your email</li>
-               <li class="collection-item">See the student's basic and performance details on your profile page</li>
-               <li class="collection-item">Get reminders in your email for monthly donations, (monthly sponsorship)</li>
-               <li class="collection-item">If a student from the select school has already been allocated, the funds will go to the same student unless their yearly costs have been covered</li>
-           </ul>              
-        </div>
-    </div>
+
     {%else%}
     <div class="row">
         <h5 class="red-text lighten-1">Payment Failed - Sign verification failed</h5>
@@ -117,24 +93,7 @@
          $(document).ready(function () {
             $('.modal').modal();
             $('.collapsible').collapsible();
-        });
-    $('#allocateBTN').click(function () {
-            //var need_id = $(this).attr("name");
-            $.ajax({
-                url: "/requestStudentAllocation?order_id={{postData.orderId}}",
-                type: "get",
-                data: '',
-                success: function (Response) {
-                    if (Response==0){
-                        M.toast({html: 'Student Allocation Requested!'})
-                        $('#allocateBTN').hide();
-                    }
-                    else{
-                        M.toast({html: 'Error Requestion Allocation!'})
-                    }              
-                }
-            })
-        });
+        });  
         
 </script>
 {%endblock%}

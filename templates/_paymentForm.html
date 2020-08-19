@@ -3,35 +3,47 @@
         <div class="col s8 offset-s2">
             <h3>Confirm Enrollment</h3>
             <form id="redirectForm" method="post" action="{{url_for('handlerequest')}}">
+                <br><br>
                 <table>
                     <tr>
                         <td>Course Name</td>
                         <td><h4>How to start a startup</h4></td>                       
                     </tr>
-                    <tr>
+                    <!--<tr>
                         <td>Teacher and School</td>
-                        <td><h4>Chika{{teacher_name}}</h4>{{schoolData.name}}</td>
-                    </tr>
+                        <td><h4>Chika{{teacher_name}}</h4></td>
+                    </tr>-->
+                    {%if schoolData.address1%}
                     <tr>
                         <td>Address</td>
-                        <td>{{schoolData.address1}}<br>{{schoolData.address2}}{{schoolData.city}},{{schoolData.country}}
+                        <td>{{schoolData.name}}<br>{{schoolData.address1}}<br>{{schoolData.address2}}{{schoolData.city}},{{schoolData.country}}
                         </td>
+                    </tr>
+                    {%endif%}
+                    <tr>
+                        <td>Batch Duration</td>
+                        <td><h4>{{courseBatchData.batch_start_date.strftime('%d %B %y')}} &nbsp;-&nbsp; {{courseBatchData.batch_end_date.strftime('%d %B %y')}} </h4>                            
+                        </td>                      
+                    </tr>
+                    <tr>
+                        <td>Timings</td>
+                        <td><h4>{{courseBatchData.batch_start_time}} - {{courseBatchData.batch_end_time}}</h4>    
+                        </td>                      
+                    </tr>
+                    <tr>
+                        <td>Days of Week</td>
+                        <td><h4>{{courseBatchData.days_of_week}}</h4></td>
                     </tr>
                     <tr>
                         {%if amount!=0%}
-                        <input type="hidden" name="orderAmount" value="{{amount}}" />
+                        <input type="hidden" name="orderAmount" value="{{courseBatchData.course_batch_fee}}" />
                         <td>Amount</td>
                         <td>
-                            <h3 class="green-text">₹{{amount}}</h3>
+                            <h3 class="green-text">₹{{courseBatchData.course_batch_fee}}</h3>
                         </td>  
                         {%endif%}                                              
                     </tr>
-                    <tr>
-                        <td>Batch details</td>
-                        <td><h4>Starts from 24th Aug</h4>
-                            <h5>12 am to 2pm - Mon,Tue,Wed</h>                          
-                        </td>                      
-                    </tr>
+                  
 
                     <!--Data required by Payment gateway-->
                     <input type="hidden" name="appId" value="{{appId}}" />

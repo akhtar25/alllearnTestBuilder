@@ -243,7 +243,11 @@
                         //$('#demo').load('/url/for/addshare2/' + variable1);
                         window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
                     }
-                }
+                }, 
+                error: function(xhr) {
+                alert("Error occurred. Please try again.");
+                $('#loader').hide();
+                } 
             })
         });
 </script>

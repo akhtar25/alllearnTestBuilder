@@ -2360,6 +2360,11 @@ def editCourse():
     return render_template('editCourse.html')
 
 
+@app.route('/myCourses')
+def myCourses():
+
+    return render_template('myCourses.html')
+
 @app.route('/paymentForm')
 def paymentForm():    
     if current_user.is_authenticated:
@@ -2369,16 +2374,22 @@ def paymentForm():
 
         #qschool_id = request.args.get('school_id')
         #amount =  request.args.get('amount') 
-        qschool_id = 1              #hard coded value             
+        #qbatch_id = request.args.get('batch_id')                
         amount =  "500"             #hard coded value
+        qbatch_id = 1               #hard coded value
 
         if amount=='other':
             amount = 0
-        donation_for = request.args.get('donation_for')
-        if donation_for =='' or donation_for=='undefined':            
-            donation_for=24
-        schoolData = SchoolProfile.query.filter_by(school_id=qschool_id).first() 
+        #donation_for = request.args.get('donation_for')
+        #if donation_for =='' or donation_for=='undefined':            
+        #    donation_for=24
         
+        courseBatchData = CourseBatch.query.filter_by(batch_id = qbatch_id).first()
+        courseDetailData =CourseDetail.query.filter_by(course_id=courseBatchData.course_id).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=courseDetailData.school_id).first() 
+        print("this is the batch id: "+str(courseBatchData.batch_id))
+
+        print("this is the course desc: "+str(courseDetailData.description))
         #New section added to handle different vendors     
         #if schoolData.curr_sub_charge_type== 41:
         #    schoolShare = 100-int(schoolData.curr_sub_charge)
@@ -2415,21 +2426,22 @@ def paymentForm():
 
         #Inserting new order and transaction detail in db
 
-        transactionNewInsert = PaymentTransaction(amount=amount,note=note, 
+        transactionNewInsert = PaymentTransaction(amount=courseBatchData.course_batch_fee,note=note, 
             payer_user_id=current_user.id, payer_name=str(payer_name),payer_phone=current_user.phone, payer_email=current_user.email,
-            school_id=qschool_id, trans_type=254, payment_for= 264, tran_status=256, date=datetime.today()) 
+            school_id=courseDetailData.school_id, teacher_id=courseDetailData.teacher_id,batch_id=qbatch_id, trans_type=254, payment_for= 264, tran_status=256, date=datetime.today()) 
         db.session.add(transactionNewInsert)
         db.session.commit()
 
         #Fetching all required details for the form and signature creation
 
-        transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+        #transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+        transactionData  = transactionNewInsert
         orderId= str(transactionData.tran_id).zfill(8)
         currency = transactionData.currency
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
         returnUrl = url_for('paymentResponse',_external=True)
         notifyUrl = url_for('notifyUrl',_external=True)
-        return render_template('_paymentForm.html',vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
+        return render_template('_paymentForm.html',courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
         flash('Please login to donate')
         return jsonify(['1'])
@@ -2549,6 +2561,9 @@ def paymentResponse():
             if courseBatchData!=None:
                 courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
                 courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+
+                courseEnrommentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
+                    last_modified_date = datetime.today())
         ##        if transactionData.donation_for== 18 or transactionData.donation_for==38:                
         ##            schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
         ##            schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
