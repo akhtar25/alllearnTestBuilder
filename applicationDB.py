@@ -1069,6 +1069,7 @@ class CourseBatch(db.Model):
     batch_end_time = db.Column(db.String(16), nullable=True)
     days_of_week = db.Column(db.String(50), nullable=True)
     student_limit = db.Column(db.Integer, nullable=True)
+    course_batch_fee = db.Column(db.Float, nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
