@@ -1097,6 +1097,7 @@ class PaymentTransaction(db.Model):
     payer_email = db.Column(db.String(50),nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    batch_id = db.Column(db.ForeignKey('course_batch.batch_id'), nullable=True)
     trans_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
     payment_for = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=False) 
     request_sign_hash = db.Column(db.String(200), nullable=True)
