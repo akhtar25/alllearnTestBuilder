@@ -20,7 +20,14 @@ class Config(object):
     IMPACT_HOST = os.environ.get('IMPACT_HOST')
     #New value for anonymous user id passed as a dev for practice test pages
     ANONYMOUS_USERID = os.environ.get('ANONYMOUS_USERID')
+    #ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID') 
+    #ALLLEARN_CASHFREE_SECRET_KEY = os.environ.get('ALLLEARN_CASHFREE_SECRET_KEY') 
     #ANONYMOUS_USERID = 886
+    #MODE = os.environ.get('MODE')
+    MODE = "TEST"
+    #TEST CREDS
+    ALLLEARN_CASHFREE_APP_ID = "132537e6d093183e75027048d35231"
+    ALLLEARN_CASHFREE_SECRET_KEY = "c44dc87ea6b5c2c8b8dd2ac447f37cafea6264df"
 
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
     #IMPACT_HOST = "alllearnimpactstaging.herukoapp.com"

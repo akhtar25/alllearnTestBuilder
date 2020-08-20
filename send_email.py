@@ -33,6 +33,12 @@ def send_email(email, name, subjectToSend, messageToSend):
 
     Thread(target=send_async_email, args=(msg, from_email, from_password)).start()
 
+def send_notification_email(email, name, course):
+    subject = "Class reminder: Your class will start in 1 hour "
+    message = "<p>Hi %s, <br><br> Your live class on %s will start 1 hour </p>." % (name, course)
+    message = message + " <p>Please <a href='https://www.alllearn.in'>Click Here</a> to join your class</p>"        
+    message = message + "<br> <br> Happy Learning! <br><br>Thanks, <br>allLearn "
+    send_email(email, name, subject, message)
 
 def send_password_reset_email(user):
     token = user.get_reset_password_token()
