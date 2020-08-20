@@ -1,6 +1,6 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email
-from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email
+from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 from qrReader import *
 import csv
@@ -2436,7 +2436,8 @@ def paymentForm():
 
         #transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
         transactionData  = transactionNewInsert
-        orderId= str(transactionData.tran_id).zfill(8)
+        orderId= str(transactionData.tran_id).zfill(9)
+        print("#######order id: "+str(orderId))
         currency = transactionData.currency
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
         returnUrl = url_for('paymentResponse',_external=True)
@@ -2646,6 +2647,21 @@ def verifyResponseSign(receivedResponseSign, postData):
         return True
     else:
         return False
+
+
+##Routes to manage class notifications
+@app.route('/classNotification')
+def classNotification():    
+    return render_template('classNotification.html')
+
+@app.route('/sendClassNotification')
+def sendClassNotification():
+    upcomingClassStudentsQuery = "select *from public.user"  ##This query needs to be replaced with a new one
+    upcomngClassStudentsData = db.session.execute(upcomingClassStudentsQuery).fetchall()
+    ##This section to send email notifications
+    for val in upcomngClassStudentsData:
+        send_notification_email(val.email, val.first_name+ str(' ')+val.last_name, 'Course')
+    return jsonify(['0'])
 ##### end of openClass modules
 
 

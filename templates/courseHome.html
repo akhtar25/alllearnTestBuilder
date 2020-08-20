@@ -7,33 +7,25 @@
     .colorClass {
         background-color: white;
     }
-
+    #bgImg {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
     @media screen and (min-width: 750px) {
 
         #mainText {
             font-size: 3vw;
-            color: rgb(204, 238, 81);
+            color: white;
         }
 
         #subText {
             font-size: 2vw;
-            color: whitesmoke;
+            color: green;
         }
     }
 
     @media screen and (max-width: 650px) {
-            {
-            %if current_user.is_anonymous%
-        }
-
-        body {
-            background-color: rgb(68, 68, 67);
-        }
-
-            {
-            %endif%
-        }
-
+        
         #myVideo {
             display: none;
         }
@@ -51,61 +43,52 @@
     }
 </style>
 
-<div style="overflow:hidden;position: absolute;height: 90%;">
-    {%if current_user.is_anonymous%}
-    <video autoplay muted loop id="myVideo" style="width:100%; ">
+<div style="overflow:hidden;position: absolute;height: 90%;">    
+    <!--<video autoplay muted loop id="myVideo" style="width:100%; ">
         <source src="../static/images/vid1.m4v" type="video/mp4">
-    </video>
-    {%endif%}
+    </video>-->
+    <img id="bgImg" src="../static/images/yellowbg.jpg" style="width:100%;">
 </div>
 <div>
-    {%if current_user.is_anonymous%}
+    
     <div class="container" style="  display: flex;
 align-items: center;
 justify-content: center;" id="containerDiv">
-        {%endif%}
+        
         <br>
         <br>
 
         <div id="mainDiv">
-            {%if current_user.is_anonymous%}
+            
             <div class="col-xs-6 row" id="textMain">
-                <h1 id="mainText" style="text-shadow: 1px 1px 1px black;"><b>Learning shouldn't be difficult.</b>
+                <h1 id="mainText" style="text-shadow: 1px 1px 1px black;"><b>Learning should be easy.</b>
                 </h1><br>
-                <h3 id="subText" style="text-shadow: 1px 1px 1px black;" class="white-text"><b>Get started now.</b>
-                </h3>
+                <div class="col-xs-12">
+                <h2 id="subText" style="text-shadow: 1px 1px 1px rgb(177, 174, 174);color: rgb(110, 108, 108);" class="  ">Learn as much or as little as you want from a range of courses - recorded and live!<br></h2>
             </div>
-            {%else%}
-            <h4 class="">Welcome back {{studentData.full_name}}!</h4>
-            {%endif%}
-
+            </div>           
             <div id="practiceTestDiv" class="col-xs-12 row ">
                 <div class="row">
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Class 6</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Class 7</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Class 8</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Class 9</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Class 10</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">IIT JEE</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">NEET</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Entrepreneurs</span>
-                    <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Music</span>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Class 6</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Class 7</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Class 8</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Class 9</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Class 10</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">IIT JEE</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">NEET</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Entrepreneurs</a>
+                    <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable" style="font-size: 14px;">Music</a>
                 </div>
                 <div id="testConfigurationDiv" style="margin-bottom:5% ;">
                     <div class="z-depth-2 hoverable colorClass" id="testBox"
-                        style="border-radius: 25px;border: 2px solid #73AD21;padding: 10px; ">
-                        {%if current_user.is_anonymous==false%}
-                        <div class="row">
-                            <h4 style="padding-left: 10px;">Start a test</h4>
-                        </div>
-                        {%endif%}
+                        style="border-radius: 25px;border: 2px solid grey;padding: 10px; ">
                         <!-- Start for mobile -->
                         <!-- End for mobile -->
                         
                         <div class="row">
                             <div class="col-sm-12">
                                 <!--The search should show Book-Chapter-Topic-->
-                                <h4 class="grey-text">What do you want to study today</h4>
+                                <h4 class="grey-text">What do you want to learn today</h4>
                                 <!--<div class="chips chips-autocomplete" id="topicSearch" data-hover="true" data-constrainWidth="false" style="width:400px" name="topicSearch"><i
                                         class="material-icons right">search</i></div>-->
                                 <input  placeholder="Search for Classes" id="searchText">                                                           
@@ -119,11 +102,13 @@ justify-content: center;" id="containerDiv">
                     </div>
                     <div class="row">
                         <div class="">
+                           
                             <div class="center">
                                 <br>
-                                <button class="btn green hoverable" id="startTestBTN" style="width: 150px;">Find
+                                <button class="btn green hoverable"  id="startTestBTN" style="width: 150px;">Find
                                     Classes</button>
                             </div>
+                       
                         </div>
                     </div>
                 
@@ -387,14 +372,24 @@ justify-content: center;" id="containerDiv">
         $('select').formSelect();
     });
 
-    $('#startTestBTN').submit(function(){
-        $('#startTestBTN').click();
+    $('.searchCategoryClass').click(function(){
+        //window.alert($(this).html());
+        
+        window.location.href = "/search?staging_COURSE[query]=" +
+        $(this).html();
     });
 
+    $('#searchText').keypress(function(event){
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+        $('#startTestBTN').click();
+    }
+});   
+
     $('#startTestBTN').click(function(){
-       
         window.location.href = "/search?staging_COURSE[query]=" +
         $('#searchText').val();
+       
     });
 </script>
 
