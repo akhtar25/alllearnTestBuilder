@@ -99,7 +99,7 @@
             <h3 class="">What to expect</h3>
             <p>Upload a short 2 min video of what the students should expect
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
-                <input type="file" id="video_url" onchange="initUpload();" name="video_url" style="height: 30px; margin-top: 10px;">
+                <input type="file" id="video_url" onchange="initUpload('1');" name="video_url" style="height: 30px; margin-top: 10px;">
                 <input type="hidden" id="videoUrl" name="videoUrl">
                 <br>
                 <div class="center">
@@ -118,12 +118,12 @@
             </div>
             <div class="" style="overflow-y: auto;height: 150px;">
                 <ul id="myUL">
-                    <li><a class="modal-trigger" href="#topicAddModal">Topic15</a></li>
+                    <!-- <li><a class="modal-trigger" href="#topicAddModal">Topic15</a></li> -->
 
                 </ul>
             </div>
             <div id="newTopicBtnDiv" class="right">
-                Can't find topic? <a class="modal-trigger" href="#topicAddModal" id="topicModal"><i class="material-icons black-text"
+                Can't find topic? <a class="modal-trigger" onclick="addNew();" href="#topicAddModal" id="topicModal"><i class="material-icons black-text"
                         style="font-size: medium;">add_box</i> Add new</a>
             </div>
             <span style="display: flex;"><h4>Added Topics</h4><a onclick="topicList();" style="margin-left: 20px;margin-top: 10px;cursor: pointer;"><i class="fa fa-refresh" aria-hidden="true"></i></a></span>
@@ -137,61 +137,7 @@
                     </tr>
                 </thead>
                 <tbody style="font-size:medium" id="topicListDiv">
-                    <tr>
-                        <td><a class="modal-trigger" onclick="editTopic('2891');" href="#topicAddModal">Polynomial</a>
-                        </td>
-                        
-                        <td>5</td>
-                        
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
-                    <tr>
-                        <td><a class="modal-trigger" href="#topicAddModal">Forms of DS</a></td>
-                        <!--<td>2</td>-->
-                        <td>5</td>
-                        <td>27nd Jan 2020</td>
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
-                    <tr>
-                        <td><a class="modal-trigger" href="#topicAddModal">Number patterns</a></td>
-                        <!--<td>2</td>-->
-                        <td>5</td>
-                        <td>05 Aug 2020</td>
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
-                    <tr class="">
-                        <td><a class="modal-trigger" href="#topicAddModal">Why use Python</a></td>
-                        <!--<td>2</td>-->
-                        <td>5</td>
-                        <td>09 Aug 2020 - <span class="green-text"><b>Ongoing</b></span></td>
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
-                    <tr>
-                        <td><a class="modal-trigger" href="#topicAddModal">Numpy</a></td>
-                        <!--<td>2</td>-->
-                        <td>5</td>
-                        <td>04 Sept 2020</td>
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
-                    <tr>
-                        <td><a class="modal-trigger" href="#topicAddModal">Uses of Data science</a></td>
-                        <!--<td>2</td>-->
-                        <td>5</td>
-                        <td>09 Sept 2020</td>
-                        <td><a title="Delete Need" name="" href="#"
-                                class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small">delete</i></a></td>
-                    </tr>
+                    
                 </tbody>
             </table>
             <br>
@@ -224,7 +170,7 @@
                 </label>
               </p>
             <a href="#" class="btn green" id="save">Save</a>
-            <a href="#" class="btn green right">Save and Publish Course</a>
+            <a href="#" class="btn green right" id="saveAndPublish">Save and Publish Course</a>
             
         </form>
         <span id="msg" style="margin-top: 20px;color: red;"></span>
@@ -300,29 +246,18 @@
         <div>
             <!-- <h4>Review and Add Topic</h4> -->
             <input type="text" value="" style="font-size: xx-large;" id="topicName" placeholder="Topic Name">
+            <input type="hidden" value="" id="topicId" />
             <!-- <label for="topicDesc">Description (optional)</label> -->
             <!-- <input type="text" placeholder="Description" id="topicDesc" style="width: 70%;"> -->
             <!--<textarea id="topicDesc" style="height: 50px;"></textarea>-->
             <br>
             <span style="font-size: large;">Questions</span>
             <a class="newQuestion" href="#">Add New Question</a>
+            <a class="forEdit" style="display:none;" href="#">Add New Question</a>
             <div id="questionDiv" style="height: 220px;overflow-y: auto;border-radius: 10px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
                 <div>
                     <table id="quesForm">
-                        <!-- <tr>
-                            <td>
-                                <h4>How to create a system of profiles?</h4>
-                                <ul>
-                                    <li>Option 1</li>
-                                    <li>Option 2</li>
-                                    <li>Option 3</li>
-                                    <li>Option 4</li>
-                                </ul>
-                            </td>
-                            <td><a title="Delete Need" name="" href="#"
-                                    class=" btn-floating btn-small orange deleteBTNClass">
-                                    <i class="material-icons small">delete</i></a></td>
-                        </tr> -->
+                        
                     </table>
                     <table id="questionList">
 
@@ -331,21 +266,25 @@
             </div>
             <div>
                 <button class="btn green right" id="saveTopic" style="margin-top: 8px;">Save Topic</button>
+
+                <button class="btn green right" id="updateTopic" style="margin-top: 8px;display: none;">Confirm</button>
             </div>
         </div>        
     </div>
     <div id="section2">
-        <h3 class="" style="margin-top: 10px;">Upload Notes</h3>
-            <p>
+        <input type="text" value="" style="font-size: xx-large;margin-top: 10px;" id="notesName" placeholder="Notes Name">
+            
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
-                <input type="file" id="video_notes_url" onchange="initUpload();" name="video_url" style="height: 30px; margin-top: 10px;">
-                <input type="hidden" id="videoNotesUrl" name="videoNotesUrl">
-        <div class="center">
-            <span id="video_name">Sample Video</span><br>
-            <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
-        </div>
-        </p>
-        <button class="btn green" style="margin-top: 8px;margin-left: 270px;">Save Notes</button>
+                Notes URL:<input type="text" id="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
+                <br><h4>OR</h4><br>
+                <input type="file" id="video_notes_url" onchange="initUpload('2');" name="video_url" style="height: 30px; margin-top: -10px;">
+                <input type="hidden" id="videoNotesUrl" value="" name="videoNotesUrl">
+        <!-- <div class="center"> -->
+            <!-- <span id="video_name">Sample Video</span><br>
+            <video src="../static/images/vid1.m4v" id="previewNotes" class="" width="50%" controls></video> -->
+        <!-- </div> -->
+        
+        <button class="btn green" id="saveNotes" style="margin-left: 270px;">Save Notes</button>
     </div>
     </div>
 </div>
@@ -353,6 +292,25 @@
 
 
 <script>
+
+    function addNew(){
+        $('#saveTopic').show();
+        $('#updateTopic').hide();
+
+        $('.newQuestion').show();
+        $('.forEdit').hide();
+    }
+
+    function editQues(){
+        $('#saveTopic').hide();
+        $('#updateTopic').show();
+
+        $('.newQuestion').hide();
+        $('.forEdit').show();
+    }
+    $(document).ready(function(){
+        quesIDList = [1];
+    });
 
     $('#topicModal').click(function(){
         console.log('inside topic modal');
@@ -368,6 +326,10 @@
         $('.newQuestion').hide();
     });
 
+    $('.forEdit').click(function(){
+        $('.forEdit').hide();
+    })
+
 function correctOption(correct){
       document.getElementById('correct').value=correct.value; 
     }
@@ -377,6 +339,38 @@ function correctOption(correct){
         questionDiv = questionDiv + '<tr><td><input type="text" id="questionInput" placeholder="Write Question"><ul><li><label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option1" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad2" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option2" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad3" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option3" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad4" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option4" class="option_class" name="option_desc"></span></label></li></ul></td><td><input type="hidden" id="correct" name="correct" value=""><button class="btn green" style="float:right;" onclick="addQues();">Add Question</button></td></tr>';
         $('#quesForm').html(questionDiv);
     });
+    var quesEditDiv = '';
+    $('.forEdit').click(function(){
+        quesEditDiv = quesEditDiv + '<tr><td><input type="text" id="questionInput" placeholder="Write Question"><ul><li><label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 1" id="option1" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad2" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 2" id="option2" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad3" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 3" id="option3" class="option_class" name="option_desc"></span></label></li><li><label><input class="with-gap" id="optionRad4" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="Option 4" id="option4" class="option_class" name="option_desc"></span></label></li></ul></td><td><input type="hidden" id="correct" name="correct" value=""><button class="btn green" style="float:right;" onclick="addEditQues();">Add Question</button></td></tr>';
+        $('#quesForm').html(quesEditDiv);
+    });
+    function addEditQues(){
+        console.log('inside addQues');
+        var corr = $('#correct').val();
+        var ques = $('#questionInput').val();
+        var opt1 = $('#option1').val();
+        var opt2 = $('#option2').val();
+        var opt3 = $('#option3').val();
+        var opt4 = $('#option4').val();
+        $.ajax({
+            url:"/addNewQuestion?ques="+ques+"&opt1="+opt1+"&opt2="+opt2+"&opt3="+opt3+"&opt4="+opt4+"&corr="+corr,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log('QuestionId:'+response);
+                validQues.push(response);
+                var flag = '1';
+                fetchQuestions(validQues,flag);
+                
+                console.log('data added successfully');
+                
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit question data');
+            }
+        });
+    }
+
     var quesIDList = [];
     function addQues(){
         console.log('inside addQues');
@@ -391,10 +385,11 @@ function correctOption(correct){
             type:"POST",
             data: "",
             success:function(response){
-                console.log(response);
+                console.log('QuestionId:'+response);
                 quesIDList.push(response);
                 var flag = '1';
                 fetchQuestions(quesIDList,flag);
+                
                 console.log('data added successfully');
                 
             },
@@ -429,12 +424,36 @@ function correctOption(correct){
                 console.log(question+' : '+op1+' : '+op2+' : '+op3+' : '+op4+' : '+corrOpt);
                 quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+question+'</h4><ul style="margin-left:7px;"><li>'+op1+'<span id="'+op1+'"></span></li><li>'+op2+'<span id="'+op2+'"></span></li><li>'+op3+'<span id="'+op3+'"></span></li><li>'+op4+'<span id="'+op4+'"></span></li></ul></td></tr>';
                 var ids = '#'+corrOpt;
-                console.log(ids);
+                console.log('Id:'+ids);
+                
                 $('#questionList').html(quesListDiv);
                 $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
+            }
+        });
+    }
+
+    function tickCorrect(quesList){
+        console.log('question List:'+quesList);
+        quesList = JSON.stringify(quesList);
+        var topic_id = $('#topicId').val();
+        $.ajax({
+            url:"/fetchTickCorrect?topic_id="+topic_id,
+            type:"POST",
+            contentType:"application/json",
+            data: quesList,
+            success:function(response){
+                var responseArr = response.toString().split(',');
+                for(var i=0;i<responseArr.length;i++){
+                    var ids = '#'+responseArr[i];
+                    console.log('Id:'+ids);
+                    $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
+                }
+            },
+            error:function(xhr){
+
             }
         });
     }
@@ -475,6 +494,7 @@ function correctOption(correct){
     });
 </script>
 <script>
+    var validQues = [];
     function myFunction() {
         var input, filter, ul, li, a, i, txtValue;
         input = document.getElementById("myInput");
@@ -492,8 +512,30 @@ function correctOption(correct){
         }
     }
 
+    $('#saveAndPublish').click(function($e){
+        $e.preventDefault();
+        var form = $('#courseForm');
+        var idealfor = $('#topicSearch').attr('data-id');
+        console.log('Data:'+idealfor);
+        var course_status = "Published";
+        var course_id = $('#courseId').val();
+        $.ajax({
+            url:"/saveAndPublishedCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
+            type:"POST",
+            data: form.serialize(),
+            success:function(response){
+                if(response){
+                    console.log('data added successfully');
+                    M.toast({html: 'Data added and published'});
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    });
+
     $('#save').click(function($e){
-        alert('Inside save click function');
         $e.preventDefault();
         var form = $('#courseForm');
         var idealfor = $('#topicSearch').attr('data-id');
@@ -507,7 +549,7 @@ function correctOption(correct){
             success:function(response){
                 if(response){
                     console.log('data added successfully');
-                    // $('#courseId').val(response);
+                    M.toast({html: 'Data added successfully'});
                 }
             },
             error:function(xhr){
@@ -517,7 +559,8 @@ function correctOption(correct){
     });
 
     // Upload File Start
-    function uploadFile(file, s3Data, url){
+    function uploadFile(file, s3Data, url,videoZone){
+        console.log('inside uploadFile');
       const xhr = new XMLHttpRequest();
       xhr.open('POST', s3Data.url);
       xhr.setRequestHeader('x-amz-acl', 'public-read');
@@ -529,9 +572,17 @@ function correctOption(correct){
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            console.log(url);
+            console.log('videoZone:'+videoZone);
+            if(videoZone=='1'){
+                console.log('if file for courseUrl');
             document.getElementById('preview').src = url;
             document.getElementById('videoUrl').value=url;
+            }else{
+                console.log('if file is for notesUrl');
+                document.getElementById('videoNotesUrl').value = url;
+                // document.getElementById('previewNotes').src = url;
+            }
+            console.log(url);
           }
           else{
             //window.alert("this is where the problem is");
@@ -542,7 +593,7 @@ function correctOption(correct){
       };
       xhr.send(postData);
     }
-    function getSignedRequest(file){
+    function getSignedRequest(file,videoZone){
       const xhr = new XMLHttpRequest();
       var type = file.type;
       var VideoName = file.name;
@@ -554,7 +605,7 @@ function correctOption(correct){
         if(xhr.readyState === 4){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
-            uploadFile(file, response.data, response.url);
+            uploadFile(file, response.data, response.url,videoZone);
           } 
           else{
             $('#errorMSGSpan').html('Could not get signed URL.');           
@@ -563,14 +614,20 @@ function correctOption(correct){
       };
       xhr.send();
     }
-    function initUpload(){
-      const files = document.getElementById('video_url').files;
+    function initUpload(videoZone){
+        console.log(videoZone);
+        var files = '';
+    if(videoZone=='1'){
+       files = document.getElementById('video_url').files;
+    }else{
+         files = document.getElementById('video_notes_url').files;
+    }
       const file = files[0];
       if(!file){
         return alert('No file selected.');
       }
       console.log('FileName:'+file);
-      getSignedRequest(file);
+      getSignedRequest(file,videoZone);
     }
     // End
 
@@ -591,7 +648,7 @@ function correctOption(correct){
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                     }
                     $('#topicListDiv').html(topicList);
                     
@@ -654,7 +711,8 @@ function correctOption(correct){
                     for(var i=0;i<responseArr.length;i++){
                         var topic_id = responseArr[i].toString().split(':')[0];
                         var topic_name = responseArr[i].toString().split(':')[1];
-                        topicList = topicList + '<li><a class="modal-trigger" id="'+topic_id+'" href="#topicAddModal">'+topic_name+'</a></li><input type="hidden" id="'+topic_id+'" value="'+topic_name+'">';
+                        topicList = topicList + '<li><a class="modal-trigger" id="'+topic_id+'" onclick="topicName('+topic_id+');" href="#topicAddModal">'+topic_name+'</a></li><input type="hidden" id="'+topic_id+'" value="'+topic_name+'">';
+                        
                     }
                     $('#myUL').html(topicList);
                 }else{
@@ -668,25 +726,47 @@ function correctOption(correct){
         });
     }); 
 
-    $('#saveTopic').click(function(){
+    function topicName(topic_id){
+
+        $('.newQuestion').show();
+        $('.forEdit').hide();
+        console.log('TopicId:'+topic_id);
+        quesIDList = [];
+        $.ajax({
+            url:"/topicName?topic_id="+topic_id,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log('Topic Name:'+response);
+                $('#topicName').val(response);
+                $('#topicId').val(topic_id);
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    }
+
+    $('#updateTopic').click(function(){
         $('#quesForm').html('');
         questionDiv = '';
-        $('.newQuestion').show();
+        $('.forEdit').show();
         var topicName = $('#topicName').val();
         var courseId = $('#courseId').val();
+        var topicId = $('#topicId').val();
         console.log('Topic Name:'+topicName);
         console.log('courseId:'+courseId);
         console.log('list of question ids');
-        console.log(quesIDList);
-        quesIDList = JSON.stringify(quesIDList);
+        console.log(validQues);
+        validQues = JSON.stringify(validQues);
         $.ajax({
-            url:"/addCourseTopic?topicName="+topicName+"&courseId="+courseId,
+            url:"/updateCourseTopic?topicId="+topicId+"&courseId="+courseId+"&topicName="+topicName,
             type:"POST",
             contentType:"application/json",
-            data: quesIDList,
+            data: validQues,
             success:function(response){
                 if(response=='1'){
-                    M.toast({html: 'Topic added successfully'});
+                    M.toast({html: 'Topic updated successfully'});
                 }
             },
             error:function(xhr){
@@ -695,13 +775,98 @@ function correctOption(correct){
         });
     });
 
+    $('#saveTopic').click(function(){
+        $('#quesForm').html('');
+        questionDiv = '';
+        $('.newQuestion').show();
+        var topicName = $('#topicName').val();
+        var courseId = $('#courseId').val();
+        var topicId = $('#topicId').val();
+        console.log('Topic Name:'+topicName);
+        console.log('courseId:'+courseId);
+        console.log('list of question ids');
+        console.log(quesIDList);
+        quesIDList = JSON.stringify(quesIDList);
+        $.ajax({
+            url:"/addCourseTopic?topicName="+topicName+"&courseId="+courseId+"&topicId="+topicId,
+            type:"POST",
+            contentType:"application/json",
+            data: quesIDList,
+            success:function(response){
+                if(response){
+                    M.toast({html: 'Topic added successfully'});
+                    $('#topicId').val(response);
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    });
+
+    function deleteQues(quesId){
+        console.log('inside deleteQues');
+        for(var i=0;i<validQues.length;i++){
+            if(validQues[i]==quesId){
+                validQues.splice(i,1);
+            }
+        }
+        // if(validQues.length>0){
+            validQues = JSON.stringify(validQues);
+            $.ajax({
+            url:"/fetchRemQues",
+            type:"POST",
+            contentType:"application/json",
+            data: validQues,
+            success:function(response){
+                if(response){
+                    var responseArr = response.toString().split(',');
+                    var quesListDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var ques = responseArr[i].toString().split(':')[0];
+                        var opt1 = responseArr[i].toString().split(':')[1];
+                        var opt2 = responseArr[i].toString().split(':')[2];
+                        var opt3 = responseArr[i].toString().split(':')[3];
+                        var opt4 = responseArr[i].toString().split(':')[4];
+                        var quesId = responseArr[i].toString().split(':')[5];
+                        console.log('Question:'+ques);
+                        console.log('op1:'+opt1);
+                        console.log('op2:'+opt2);
+                        console.log('op3:'+opt3);
+                        console.log('op4:'+opt4);
+                        console.log('qIs:'+quesId);
+                        // validQues.push(quesId);
+                        // $('#topicName').val(topic_name);
+                        
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td><td><a title="Delete Need" name="" onclick="deleteQues('+quesId+')" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small">delete</i></a></td></tr>';
+                        // var ids = '#'+corrOpt;
+                        // console.log(ids);
+                        
+                        // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
+                    }
+                    $('#questionList').html(quesListDiv);
+                    
+                }else{
+                    $('#questionList').html('<tr><td style="padding-top:10px;"><h4>No Questions Available</h4></td></tr>');
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    // }
+    }
+
+    
     function editTopic(topic_id){
+        validQues = [];
         $.ajax({
             url:"/fetchTopicQues?topic_id="+topic_id,
             type:"POST",
             data: "",
             success:function(response){
                 if(response){
+                    console.log('fetch Topic Ques');
                     var responseArr = response.toString().split(',');
                     var quesListDiv = '';
                     for(var i=0;i<responseArr.length;i++){
@@ -711,21 +876,35 @@ function correctOption(correct){
                         var opt2 = responseArr[i].toString().split(':')[3];
                         var opt3 = responseArr[i].toString().split(':')[4];
                         var opt4 = responseArr[i].toString().split(':')[5];
+                        var quesId = responseArr[i].toString().split(':')[6];
+                        var topicId = responseArr[i].toString().split(':')[7];
+                        var NotesName = responseArr[i].toString().split(':')[8];
+                        var NotesUrl = responseArr[i].toString().split(':')[9];
+                        console.log('NotesName:'+NotesName);
+                        console.log('NotesUrl:'+NotesUrl);
                         console.log('Question:'+ques);
                         console.log('op1:'+opt1);
                         console.log('op2:'+opt2);
                         console.log('op3:'+opt3);
                         console.log('op4:'+opt4);
+                        validQues.push(quesId);
                         console.log('topic name:'+topic_name);
+                        console.log('Topic Id:'+topicId);
                         $('#topicName').val(topic_name);
-                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td></tr>';
+                        $('#topicId').val(topicId);
+                        $('#notesName').val(NotesName);
+                        $('#notesURL').val(NotesUrl);
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td><td><a title="Delete Need" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';
                         // var ids = '#'+corrOpt;
                         // console.log(ids);
                         
                         // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
                     }
                     $('#questionList').html(quesListDiv);
+                    tickCorrect(validQues);
                     
+                }else{
+                    $('#questionList').html('<tr><td style="padding-top:10px;"><h4>No Questions Available</h4></td></tr>');
                 }
             },
             error:function(xhr){
@@ -750,5 +929,35 @@ function correctOption(correct){
             }
         });
     }
+
+    $('#saveNotes').click(function(){
+        var notesName = $('#notesName').val();
+        var notesUrl = $('#videoNotesUrl').val();
+        var url = $('#notesURL').val();
+        var topicId  = $('#topicId').val();
+        console.log('Notes Name:'+notesName);
+        var NotesFileUrl = '';
+        if(notesUrl){
+        console.log('Notes Url:'+notesUrl);
+        NotesFileUrl = notesUrl;
+        }else{
+            NotesFileUrl = url;
+        }
+        console.log('final Url:'+NotesFileUrl);
+        $.ajax({
+            url:"/addNotes?topicId="+topicId+"&notesName="+notesName+"&NotesFileUrl="+NotesFileUrl,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log('success:'+response);
+                if(response=="1"){
+                    M.toast({html: 'Notes added successfully'});
+                }
+            },
+            error:function(xhr){
+
+            }
+        });
+    });
 </script>
 {%endblock%}

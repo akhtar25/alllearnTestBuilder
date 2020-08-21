@@ -209,7 +209,7 @@ $('#addHWDataBTN').click(function($e){
                     $("#surveyTable tbody").append( 
                     '<tr>'+  
                       
-                    '<td>'+'<a href="{{url_for('homeworkReview')}}'+'?homework_id='+returnVal[1]+'">'+surveyName+'</a>'+'</td>'+
+                    '<td>'+'<a href="{{url_for('+homeworkReview+')}}'+'?homework_id='+returnVal[1]+'">'+surveyName+'</a>'+'</td>'+
                     '<td>0</td>'+
                     '<td>'+clicks+'</td>'+
                     '<td>Now</td>'+
