@@ -2344,9 +2344,10 @@ def courseHome():
         return redirect(url_for('index'))
     #print(str(current_user.is_anonymous))
     upcomingClassData = ""
-    if current_user.is_anonymous==False:
-        upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
-        upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
+    
+    #if current_user.is_anonymous==False:
+        #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
+        #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
 
     return render_template('courseHome.html',home=1, upcomingClassData=upcomingClassData)
 

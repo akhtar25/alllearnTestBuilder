@@ -1,6 +1,17 @@
 {% extends "layout.html" %} {% block content %}
 <link href="../static/css/jquery.magicsearch.css" rel="stylesheet">
 <style>
+    span.stars, span.stars span {
+    display: block;
+    background: url('http://i.imgur.com/YsyS5y8.png') 0 -16px repeat-x;    
+    width: 80px;
+    height: 16px;
+}
+
+span.stars span {
+    max-width:80px;
+    background-position: 0 0;
+}
     body {
         background-image: linear-gradient(45deg, white, transparent);
     }
@@ -129,27 +140,39 @@ justify-content: center;" id="containerDiv">
     </div>
 </div>
 <div class="container">
-    {%if upcomingClassData!=""%}
     <h3>Upcoming Classes</h3>
+    {%if upcomingClassData!=""%}
+    
     <div class="row">
-
+        {%for row in upcomingClassData%}
         <div class="col-sm-3 ">
             <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
-                    <img class="activator" src="{{upcomingClassData.image_url}}">
+                    <img class="activator" style="border-radius: 25px;"
+                        src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
                 </div>
                 <div class="card-content">
-                    <span class="card-title activator grey-text text-darken-4">Card Title<i
-                            class="material-icons right">more_vert</i></span>
-                    <p><a href="#">This is a link</a></p>
+                    <span class="card-title activator grey-text text-darken-4">
+                        <h4>{{row.course_name}}</h4><i class="material-icons right">more_vert</i>
+                    </span>
+                    <h5 class="grey-text">{{row.course_teacher}}</h5>
+                    <span class="left">{{row.batch_start_time}}</span>
+                    <a href="{{url_for('courseDetail',row.course_id)}}"><span class="right" style="font-size: small;">Go to
+                            Course</span></a>
                 </div>
                 <div class="card-reveal">
-                    <span class="card-title grey-text text-darken-4">Card Title<i
+                    <span class="card-title grey-text text-darken-4">{{row.course_name}}<i
                             class="material-icons right">close</i></span>
-                    <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    <p style="width: 80%;">{{row.star_rating}}<span class="stars">{{row.star_rating}}</span><br>
+                        <h5>Next Batch Starts: 15/04/20</h5>{{row.description}}
+                    </p>
+
+                    <p><a href="{{url_for('courseDetail', row.course_id)}}"><span class="right" style="font-size: small;">Go to
+                                Course</span></a></p>
                 </div>
             </div>
         </div>
+        {%endfor%}
         <div class="col-sm-3 ">
             <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
@@ -188,7 +211,6 @@ justify-content: center;" id="containerDiv">
 {%endif%}
     <div>
         <div class="row">
-
             <h3>Recently Watched</h3>
             <div class="col-sm-3 ">
                 <a href="{{url_for('openLiveClass')}}">
@@ -205,11 +227,6 @@ justify-content: center;" id="containerDiv">
                             <h5 class="grey-text">Shailesh Vishwakarma</h5>
                         </div>
                 </a>
-                <!--<div class="card-reveal">
-                    <span class="card-title grey-text text-darken-4">Card Title<i
-                            class="material-icons right">close</i></span>
-                    <p>Here is some more information about this product that is only revealed once clicked on.</p>
-                </div>-->
             </div>
         </div>
         <div class="col-sm-3 ">
@@ -275,7 +292,7 @@ justify-content: center;" id="containerDiv">
 <div>
     <div class="row">
         <div class="col-sm-3 ">
-            <div class="card small hoverable z-depth-0" style="border-radius: 25px;">
+            <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
                     <img class="activator" style="border-radius: 25px;"
                         src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
@@ -292,7 +309,10 @@ justify-content: center;" id="containerDiv">
                 <div class="card-reveal">
                     <span class="card-title grey-text text-darken-4">Card Title<i
                             class="material-icons right">close</i></span>
-                    <p style="width: 80%;"><img src="../static/images/reviewIMG.PNG" width="50%"><br>
+                    <p style="width: 80%;"> 
+                        <!--Use this star review system throughout the platform-->
+                        <h4 class="">4.5<span class="stars left">4.5</span></h4>
+                        <br>
                         <h5>Next Batch Starts: 15/04/20</h5>Here fffffffffffffffffffffffffffffffffff
                         fffffffffffffffffffffffffffffffffffffffffffis some more information about this product that is
                         only revealed once clicked on.
@@ -365,7 +385,7 @@ justify-content: center;" id="containerDiv">
 <div>
     <div class="row">
         <div class="col-sm-3 ">
-            <div class="card small hoverable z-depth-0" style="border-radius: 25px;">
+            <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
                     <img class="activator" style="border-radius: 25px;"
                         src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
@@ -445,12 +465,6 @@ justify-content: center;" id="containerDiv">
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="right">
-            <a href="#">See More</a>
-        </div>
-    </div>
-</div>
 
 <div class="row">
     <div class="right">
@@ -482,5 +496,11 @@ justify-content: center;" id="containerDiv">
 
     });
 </script>
+<script>
+$.fn.stars = function() {
+    return this.each(function(i,e){$(e).html($('<span/>').width($(e).text()*16));});
+};
 
+$('.stars').stars();
+</script>
 {% endblock %}
