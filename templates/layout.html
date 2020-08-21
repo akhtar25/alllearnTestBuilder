@@ -3,20 +3,26 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.3.1/themes/algolia-min.css" integrity="sha256-HB49n/BZjuqiCtQQf49OdZn63XuKFaxcIHWf0HNKte8=" crossorigin="anonymous">
-  
-  <script data-ad-client="ca-pub-5168304191768047" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RGRH24ZRK9"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.3.1/themes/algolia-min.css"
+    integrity="sha256-HB49n/BZjuqiCtQQf49OdZn63XuKFaxcIHWf0HNKte8=" crossorigin="anonymous">
 
-  gtag('config', 'G-RGRH24ZRK9');
-</script>
-<meta name="google-signin-scope" content="profile email">
-<meta name="google-signin-client_id" content="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com">
+  <script data-ad-client="ca-pub-5168304191768047" async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RGRH24ZRK9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-RGRH24ZRK9');
+  </script>
+  <meta name="google-signin-scope" content="profile email">
+  <meta name="google-signin-client_id"
+    content="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com">
 
   <script>
     ! function () {
@@ -93,7 +99,7 @@
   <nav class="white lighten-5 green-text header" id="mainNavBar" role="navigation" style="height: 100px;">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv">
-        <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
+        <a id="logo-container" href="{{url_for('courseHome')}}" class="brand-logo left grey-text darken-4">
           {%if current_user.is_anonymous %}
           <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% else %}
@@ -103,7 +109,9 @@
           <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% endif %}
           {% endif %}
-          {%if current_user.is_anonymous %} {% else %}          
+          {%if current_user.is_anonymous%}
+          {%elif current_user.user_type==253%}
+          {% else %}
           {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px' id="schoolNamDiv">
             {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
@@ -117,82 +125,74 @@
         <li style="color: green;">
           <a style="color: green;" href="{{ url_for('register') }}">Register</a>
         </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="{{url_for('practiceTest')}}">
-               Home
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
-               For Schools/Institutes
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://school.alllearn.in"
-                >
-                School Platform
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://impact.alllearn.in"
-                >
-                Crowdfund Schools
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://alllearn.in/openJobs"
-                >
-                Teaching Jobs
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://alllearn.in/practiceTest"
-                >
-                Test Practice
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/blog"
-                >
-                Blog
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/about-us"
-                >
-                Team
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/contact-us"
-                >
-                Contact Us
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/faq"
-                >
-                FAQs
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/terms-of-use"
-               >
-                Terms of Use
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://www.all.alllearn.in/privacy-policy"
-                >
-                Privacy Policy
-              </a>
-            </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('practiceTest')}}">
+            Home
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://all.alllearn.in">
+            For Schools/Institutes
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://school.alllearn.in">
+            School Platform
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://impact.alllearn.in">
+            Crowdfund Schools
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://alllearn.in/openJobs">
+            Teaching Jobs
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://alllearn.in/practiceTest">
+            Test Practice
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/blog">
+            Blog
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/about-us">
+            Team
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/contact-us">
+            Contact Us
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="https://www.all.alllearn.in/faq">
+            FAQs
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink'
+            href="https://www.all.alllearn.in/terms-of-use">
+            Terms of Use
+          </a>
+        </li>
+        <li>
+          <a style="color: green; font-size:15px;" class='classSpecLink'
+            href="https://www.all.alllearn.in/privacy-policy">
+            Privacy Policy
+          </a>
+        </li>
         {% elif disconn == 1 %}
         <li>
           <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
         </li>
         <li>
-          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
+          <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
         </li>
         {%elif user_type_val=='161'%}
         <li>
@@ -206,9 +206,6 @@
         </li>
 
         {%elif user_type_val=='134'%}
-        <!--<li>
-                    <a style="color: green;"  href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">My Profile</a>
-                  </li>-->
 
         <li>
           <a style="color: green;" href="{{url_for('qrSessionScannerStudent')}}">Tests</a>
@@ -225,7 +222,7 @@
         </li>
 
         <li>
-          <a style="color: green;" class="logoutBTN"  href="{{url_for('logout')}}">Logout</a>
+          <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
         </li>
         {% else %}
         <li>
@@ -255,9 +252,7 @@
         <li>
           <a style="color: green;" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
         </li>
-        <!--<li>
-                <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
-              </li>-->
+
 
         <li>
           <a style="color: green; font-size: 15px;" class='classSpecLink'
@@ -297,7 +292,7 @@
 
       <!--This is the menu on top-->
 
-      <ul id="solutionDropdown" class="dropdown-content green-text" style="color: green;">        
+      <ul id="solutionDropdown" class="dropdown-content green-text" style="color: green;">
         <li style="color: green;">
           <a style="color: green;" href="{{ url_for('index') }}">School Platform</a>
         </li>
@@ -312,7 +307,7 @@
         </li>
       </ul>
 
-      <ul id="moreDropDown" class="dropdown-content green-text" style="color: green;">        
+      <ul id="moreDropDown" class="dropdown-content green-text" style="color: green;">
         <li style="color: green;">
           <a style="color: green;" href="https://www.all.alllearn.in/blog">Blog</a>
         </li>
@@ -354,20 +349,11 @@
             <a style="color: green;"
               href="{{ url_for('studentProfile', student_id=studentDetails.student_id) }}">Student Profile</a>
           </li>
-          <!-- <li>
-                <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
-              </li>         -->
+
           {%elif user_type_val!='161' and  user_type_val!='234' %}
-          <!--<li>
-            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>-->
-          <!-- <li>
-              <a style="color: green;"  href="{{ url_for('schoolProfile') }}">School Profile</a>
-            </li> -->
+
           {%else%}
-          <!--<li>
-            <a style="color: green;" href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
-          </li>-->
+
           {%endif%}
           <li>
             <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
@@ -425,9 +411,7 @@
         </ul>
 
         <ul id="dropdown5" class="dropdown-content green-text" style="color: green;">
-          <!--          <li>
-            <a style="color: green; font-size: 15px;" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
-          </li>-->
+
           <li>
             <a style="color: green; font-size: 15px;" class='classSpecLink'
               href="{{url_for('leaderBoard')}}">Leaderboard</a>
@@ -447,61 +431,48 @@
           </li>
         </ul>
 
-        <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
+        <ul class=" hide-on-med-and-down green-text" style="padding-top:10px">
+          {%if home!=1%}
+          <li>
+            <div style="width: 150%;border: 1px solid grey;border-radius:30px;margin-left:40%;padding:2px;background-color: whitesmoke;" class="">
+                <input placeholder="Find Classes" class="searchText" style="padding-bottom: -20px;background-position: right; background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;;background-repeat: no-repeat;">
+              <!--<i class="material-icons right">search</i>-->
+            </div>
+          </li>
+          {%endif%}
           {%if user_type_val=='' %}
-          <!-- <li>
-            <a style="color: green; font-size:15px;"  href="{{url_for('qrSessionScannerStudent')}}">Tests
-            </a>                            
+          {% elif current_user.is_anonymous or disconn == 1  %}
+
+          {%if current_user.is_anonymous%}
+          <div class="right">
+          <li>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('courseHome')}}">
+              Home
+            </a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">Homework
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="https://all.alllearn.in">
+              For Schools/Institutes
             </a>
           </li>
-          
-           <li>
-            <a style="color: green;font-size: 15px;"  href="{{url_for('liveClass')}}">Live Class</a>
-          </li>   -->
-          <!--<li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
-              <i class="material-icons right" style="font-size: 40px">account_circle </i>
+          <li>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="solutionDropdown">
+              Solutions
             </a>
-          </li> -->
-          {% elif current_user.is_anonymous or disconn == 1  %}
-          <!-- <li>
-              <a style="color: green; font-size:15px;"  href="{{url_for('openJobs')}}">Jobs</a>
-            </li>  -->
-          <!--<li>
-              <a style="color: green; font-size:15px;"  href="{{url_for('studentHomeWork')}}">HomeWork</a>
-            </li>-->
-            {%if current_user.is_anonymous%}
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="{{url_for('practiceTest')}}">
-               Home
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;"  class='classSpecLink' href="https://all.alllearn.in">
-                For Schools/Institutes
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
-                data-target="solutionDropdown">
-                Solutions
-              </a>
-            </li>
-            <li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
-                data-target="moreDropDown">
-               More
-              </a>
-            </li>
-            {%endif%}
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="moreDropDown">
+              More
+            </a>
+          </li>
+          {%endif%}
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="dropdown2">
-              
-             <i class="material-icons right" style="font-size: 40px">account_circle </i>
+
+              <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
           {% else %}
@@ -546,28 +517,13 @@
             <a style="color: green;font-size: 15px;" href="{{url_for('liveClass')}}">Live Class</a>
           </li>
           {% endif %}
-          <!--<li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown4">Tests</a>
-          </li>
+
           <li>
-            <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown5">Performance</a>
-          </li> -->
-          <!--<li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown6">Hiring</a>
-            </li>-->
-          <!-- <li>
-              <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!" data-target="dropdown2">
-                <i class="material-icons right" style="font-size: 40px">account_circle </i>
-              </a>
-            </li> -->
-          <li>
-            <!-- <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;"> -->
+          
             <span style="font-size: 15px;color: green;">Menu</span>
-            <!-- </a> -->
+    
           </li>
           <li item-width="100px">
-            <!-- <span style="font-size: 15px;color: green;">More</span> -->
-            <!-- <a href="#!" data-target="slide-out" class="sidenav-trigger show-on-large" style="color: green; font-size:15px;">More -->
             <ul id="slide-out" class="sidenav">
               <li>
                 {% if current_user.user_type==71 %}
@@ -635,23 +591,25 @@
             </a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink' href="javascript: void (0);">
+            <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink'
+              href="javascript: void (0);">
               <i class="material-icons">search</i>
             </a>
           </li>
           {%endif%}
           {% endif %}
+        </div>
         </ul>
 
       </div>
-      
-      <div id="searchDiv">
+
+      <!--<div id="searchDiv">
         <form method="get" action="{{ url_for('search') }}" id="search-2" style="position: absolute;margin-top: -20px;">
           <div class="input-field ">
             {{g.search_form.q(size=36, type='search', placeholder='Search Courses...', style='padding-bottom:0px;margin-top:-5px; font-size:30px;border: 1px solid grey;border-radius:15px')}}
           </div>
         </form>
-      </div>
+      </div>-->
     </div>
 
   </nav>
@@ -682,10 +640,10 @@
     background-position: 10px 10px; 
     background-repeat: no-repeat;
     padding: 12px 20px 12px 40px;width: 50%;" ></div></div>-->
-    {%block content%} 
-    
-    
-    
+    {%block content%}
+
+
+
     {%endblock%}
   </div>
 
@@ -814,60 +772,48 @@
     </div>
   </div>
 </footer>
+<script>
+  $('.searchText').keypress(function (event) {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+      window.location.href = "/search?staging_COURSE[query]=" +
+        $('.searchText').val();
+
+    }
+  });
+</script>
 <script src="../static/js/jquery.dataTables.min.js"></script>
-<!-- <script src='https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js'></script> -->
+
 <script src='https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js'></script>
 <script src='https://cdn.datatables.net/buttons/1.3.1/js/buttons.print.min.js'></script>
 <script src='https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js'></script>
 <script src="../static/js/autoComplete.js"></script>
 <script src="../static/js/datatables.js"></script>
 <script>
- 
-  function onLoad(){
-    gapi.load('auth2',function(){
+  function onLoad() {
+    gapi.load('auth2', function () {
       gapi.auth2.init();
     });
   }
   $(document).ready(function () {
-    // $('.sidenav').sidenav();
-    //alert('1');
+
     if ('{{session["classSecVal"]}}' == 'N') {
-      //alert('1');
+
       DisableLinks();
     }
-    //else{
-    //  EnableLinks();
-    //}
 
   });
 
-$('.logoutBTN').click(function(){
-  //window.alert('logout function');
-  //gapi.auth2.init(client_id="489889654406-6gu44r1h5l4ocjqe9hto2pski2m0ulm4.apps.googleusercontent.com");
+  $('.logoutBTN').click(function () {
+
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
       console.log('User signed out.');
     });
-});
+  });
 
-  // $(document).ready(function(){
-  //       $("#st").removeClass("sorting_asc");
-  //       $('#datatable').dataTable( {
-  //         "order": [ 3, 'desc' ]
-  //       } );
 
-  //     });
 
-  //function DisableLinks() {
-  //  //alert('2');
-  //  $('.classSpecLink').attr('href', '#');
-  //  $('.classSpecLink').attr('title', '');
-  //  //$('.classSpecLink').addClass("classSpecLink disabled");
-  //}
-
-  function EnableLinks() {
-    //$('a.' + 'classSpecLink').attr('href','#')
-  }
 
   document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('.sidenav');
@@ -879,7 +825,10 @@ $('.logoutBTN').click(function(){
 </script>
 <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 
-<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.0.0/dist/algoliasearch-lite.umd.js" integrity="sha256-MfeKq2Aw9VAkaE9Caes2NOxQf6vUa8Av0JqcUXUGkd0=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.0.0/dist/instantsearch.production.min.js" integrity="sha256-6S7q0JJs/Kx4kb/fv0oMjS855QTz5Rc2hh9AkIUjUsk=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.0.0/dist/algoliasearch-lite.umd.js"
+  integrity="sha256-MfeKq2Aw9VAkaE9Caes2NOxQf6vUa8Av0JqcUXUGkd0=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.0.0/dist/instantsearch.production.min.js"
+  integrity="sha256-6S7q0JJs/Kx4kb/fv0oMjS855QTz5Rc2hh9AkIUjUsk=" crossorigin="anonymous"></script>
 <script src="../static/js/app.js"></script>
+
 </html>
