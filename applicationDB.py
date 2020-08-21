@@ -1007,6 +1007,7 @@ class CourseDetail(db.Model):
     course_id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
+    image_url = db.Column(db.String(400), nullable=True)    
     summary_url = db.Column(db.String(400), nullable=True)    
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    

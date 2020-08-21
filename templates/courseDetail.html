@@ -171,7 +171,12 @@
             <h4>24th Aug '20 </h4>
             <h5>Timings: 8 am - 10 pm</h5>
             <h5>Total Hours: 22 hrs</h5>
-            <button class="btn green right" style="width: 100%;">Enroll</button>
+            <h5>Live Class Fee: <b>₹2500</b></h5>
+            <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
+            <a class="btn left green enrollBTN modal-trigger" id="schoolNeed.need_type"
+                                        name="schoolNeed.sum_cost" style="width: 100%;" href="#modal2"> Enroll in Course</a><br><br>
+            <button class="btn cyan " style="width: 45%;">Follow</button>
+            <button class="btn  right" style="width: 45%;">Class Recordings</button>
             <br><br>
             
             <h3 class="">What to expect</h3>
@@ -196,12 +201,54 @@
         </div>     
     </div>
 </div>
+<div id="modal2" class="modal" style="background-color:white;">
+    <div id="loader" class="center" style="display: none;height: 100%;">
+        <img src="../static/images/loader.gif">
+    </div>
+    <div class="modal-content" id="donateDivModal" style="display:none;">
+        <p>
+            <div id="donateDiv"></div>
+        </p>
 
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
         $('.parallax').parallax();
         $('.modal').modal();
     });
+
+
+
+    $('.enrollBTN').click(function () {
+            $('#modal2').hide();
+            $('#donateDiv').html('');
+            $('#loader').show();
+            var donation_for = $(this).attr("id");
+            //alert(donation_for);
+            var amount = $(this).attr("name");
+
+            $.ajax({
+                url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
+                    "&donation_for=" + donation_for,
+                type: "get",
+                data: '',
+                success: function (response1) {
+                    if (response1 != '1') {
+                        $('#loader').hide();
+                        $('#donateDiv').html(response1);
+                        $('#donateDivModal').show();
+                    } else {
+                        //$('#demo').load('/url/for/addshare2/' + variable1);
+                        window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
+                    }
+                }, 
+                error: function(xhr) {
+                    $('#donateDiv').html("Error occurred. Please try again.");
+                $('#loader').hide();
+                } 
+            })
+        });
 </script>
 {%endblock%}
