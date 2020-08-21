@@ -400,7 +400,7 @@ def classSecCheck():
         else:
             return 'Y'
 
-@app.route('/',methods=["GET","POST"])
+
 @app.route('/practiceTest',methods=["GET","POST"])
 def practiceTest():    
     if request.method=="POST":
@@ -870,7 +870,7 @@ def promoteStudent():
         return render_template('promoteStudent.html',form=form,studentList=studentList,user_type_val=str(current_user.user_type))
     else:
         return render_template('promoteStudent.html',form=form,studentList=studentList,user_type_val=str(current_user.user_type))
-
+      
 @app.route('/classRegistration', methods=['GET','POST'])
 @login_required
 def classRegistration():
@@ -1651,6 +1651,8 @@ def index():
     if user.user_type==234:
     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
         return redirect(url_for('practiceTest'))
+    if user.user_type==253:
+        return redirect(url_for('courseHome'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
@@ -2334,10 +2336,20 @@ def updateSearchIndex(task):
             return "Error Sending index data to algolia"
 
 
-
+@app.route('/',methods=["GET","POST"])
 @app.route('/courseHome')
 def courseHome():    
-    return render_template('courseHome.html')
+    if ("school.alllearn" in str(request.url)):
+        print('#######this is the request url: '+ str(request.url))
+        return redirect(url_for('index'))
+    #print(str(current_user.is_anonymous))
+    upcomingClassData = ""
+    
+    #if current_user.is_anonymous==False:
+        #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
+        #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
+
+    return render_template('courseHome.html',home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
@@ -8408,22 +8420,7 @@ def help():
 
 @app.route('/search')
 def search():
-    #if not g.search_form.validate():
-    #    return redirect(url_for('explore'))
-    #page = request.args.get('page', 1, type=int)
-    #posts, total = Post.search(g.search_form.q.data, page,
-    #                           app.config['POSTS_PER_PAGE'])
-    #next_url = url_for('search', q=g.search_form.q.data, page=page + 1) \
-    #    if total > page * app.config['POSTS_PER_PAGE'] else None
-    #prev_url = url_for('search', q=g.search_form.q.data, page=page - 1) \
-    #    if page > 1 else None
-    return render_template(
-        'search.html',
-        title='Search'
-        #posts=posts,
-        #next_url=next_url,
-        #prev_url=prev_url
-        )
+    return render_template('search.html',title='Search',home=1)
 
 
 
