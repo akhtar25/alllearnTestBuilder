@@ -1013,6 +1013,7 @@ class CourseDetail(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable= True)    
     ideal_for = db.Column(db.String(100), nullable=True)    
     course_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)   # Draft or Published    
+    difficulty_level = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
