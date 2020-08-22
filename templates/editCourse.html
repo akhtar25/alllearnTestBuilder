@@ -31,11 +31,16 @@
         </p>-->
         <form id="courseForm">
             <h4 style="margin-top: 15px;">Course Name</h4>
-            <input type="text" name="course" id="course" onblur="courseAdd();"/>
-            <input type="hidden" name="courseId" id="courseId" />
+            {% if course_id %}
+            <input type="text" name="course" value="{{courseDet.course_name}}" id="course" onblur="courseAdd();"/>
+            <input type="hidden" value="{{courseDet.course_id}}" name="courseId" id="courseId" />
+            {% else %}
+            <input type="text" name="course" value="" id="course" onblur="courseAdd();"/>
+            <input type="hidden" value="" name="courseId" id="courseId" />
+            {% endif %}
             <h4>Description</h4>
-            <textarea id="w3review" name="description" style="height: 6em;"></textarea>
-            <div>
+            <textarea id="description" value="" name="description" style="height: 6em;"></textarea>
+            <!-- <div>
                 <h3 class="">Next Batch</h3>
                 <div class="col-sm-4">
                     Set Date: <input type="text" name="setDate" class="datepicker">
@@ -85,26 +90,54 @@
                         <span>Su</span>
                     </label>&nbsp;&nbsp;&nbsp;&nbsp;
                 </p>
-                <!--<a class="btn">Mo</a>
-            <a class="btn">Tu</a>
-            <a class="btn">We</a>
-            <a class="btn">Th</a>
-            <a class="btn">Fr</a>
-            <a class="btn">Sa</a>
-            <a class="btn">Su</a>-->
-            </div>
+            </div> -->
             <!--<button class="btn green right" style="width: 100%;">Enroll</button>-->
+            <h3 class="">Upload Course Picture</h3>
+            <p>
+                <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                <input type="file" id="courseImg" onchange="initUpload('3');" name="courseImg" style="height: 30px; margin-top: 10px;">
+                {% if course_id %}
+                <input type="hidden" id="imageUrl" value="{{courseDet.image_url}}" name="imageUrl">
+                {% else %}
+                <input type="hidden" id="imageUrl" value="" name="imageUrl">
+                {% endif %}
+                <br>
+                <div class="center">
+                    <span id="image_name">Sample Image</span><br>
+                    {% if course_id %}
+                    {% if courseDet.image_url %}
+                    <img src="{{courseDet.image_url}}" id="previewImg" class="" width="50%" />
+                    {% else %}
+                    <img src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg" id="previewImg" class="" width="50%" />
+                    {% endif %}
+                    {% else %}
+                    <img src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg" id="previewImg" class="" width="50%" />
+                    {% endif %}
+                </div>
+            </p>
             <br><br>
 
             <h3 class="">What to expect</h3>
             <p>Upload a short 2 min video of what the students should expect
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
                 <input type="file" id="video_url" onchange="initUpload('1');" name="video_url" style="height: 30px; margin-top: 10px;">
-                <input type="hidden" id="videoUrl" name="videoUrl">
+                {% if course_id %}
+                <input type="hidden" id="videoUrl" value="{{courseDet.summary_url}}" name="videoUrl">
+                {% else %}
+                <input type="hidden" id="videoUrl" value="" name="videoUrl">
+                {% endif %}
                 <br>
                 <div class="center">
                     <span id="video_name">Sample Video</span><br>
+                    {% if course_id %}
+                    {% if courseDet.summary_url %}
+                    <video src="{{courseDet.summary_url}}" id="preview" class="" width="50%" controls></video>
+                    {% else %}
                     <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
+                    {% endif %}
+                    {% else %}
+                    <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
+                    {% endif %}
                 </div>
             </p>
             <br>
@@ -132,12 +165,35 @@
                     <tr>
                         <th>Topic</th>
                         <th>Quiz Questions</th>
-                        <!-- <th>Expected class date</th> -->
+                        <th>Class Videos</th>
                         <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody style="font-size:medium" id="topicListDiv">
-                    
+                    {% if course_id %}
+                    {% for topic in topicDet %}
+                    <tr>
+                        <td>
+                            <a class="modal-trigger" onclick="editTopic('{{topic.topic_id}}');editQues();" href="#topicAddModal">
+                                {{topic.topic_name}}
+                            </a>
+                        </td>
+                        <td>
+                            {{topic.no_of_questions}}
+                        </td>
+                        <td>
+                            <a href="#">Upload class videos</a>
+                        </td>
+                        <td>
+                            <a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                                <i class="material-icons small" style="cursor:pointer;">
+                                    delete
+                                </i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
             <br>
@@ -146,7 +202,15 @@
             <!--<img src="../static/images/reviewIMG.PNG" width="50%">-->
 
             <h3 class="">Ideal for</h3>
+            {% if course_id %}
+            {% if idealFor %}
+            <input class="magicsearch" name="idealfor" id="topicSearch" value="{{idealFor}}" placeholder="{{idealFor}}">
+            {% else %}
             <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
+            {% endif %}
+            {% else %}
+            <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
+            {% endif %}
             <!--
             <p>Press Enter after each group name<div class="chips"></div>
             </p>-->
@@ -165,13 +229,24 @@
             </p>
             <p style="margin-top:20px;">
                 <label>
+                    {% if course_id %}
+                        {% if courseDet.is_private=='Y' %}
+                        <input type="checkbox" id="private" name="private" value="Y" checked/>
+                        {% else %}
+                        <input type="checkbox" id="private" name="private" value="Y" />
+                        {% endif %}
+                    {% else %}
                   <input type="checkbox" id="private" name="private" value="Y" />
+                  {% endif %}
                   <span>Do you want to make your course private?</span>
                 </label>
               </p>
+              {% if course_id %}
+              <a href="#" class="btn green left" id="saveAndPublish">Save and Publish Course</a>
+              {% else %}
             <a href="#" class="btn green" id="save">Save</a>
             <a href="#" class="btn green right" id="saveAndPublish">Save and Publish Course</a>
-            
+            {% endif %}
         </form>
         <span id="msg" style="margin-top: 20px;color: red;"></span>
         </div>
@@ -272,10 +347,19 @@
         </div>        
     </div>
     <div id="section2">
+        {% if course_id %}
+        <input type="text" value="{{courseNotes.notes_name}}" style="font-size: xx-large;margin-top: 10px;" id="notesName" placeholder="Notes Name">
+        {% else %}
         <input type="text" value="" style="font-size: xx-large;margin-top: 10px;" id="notesName" placeholder="Notes Name">
+        {% endif %}
             
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
-                Notes URL:<input type="text" id="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
+                Notes URL:
+                {% if course_id %}
+                <input type="text" id="notesURL" value='{{courseNotes.notes_url}}' style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
+                {% else %}
+                <input type="text" id="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
+                {% endif %}
                 <br><h4>OR</h4><br>
                 <input type="file" id="video_notes_url" onchange="initUpload('2');" name="video_url" style="height: 30px; margin-top: -10px;">
                 <input type="hidden" id="videoNotesUrl" value="" name="videoNotesUrl">
@@ -292,6 +376,14 @@
 
 
 <script>
+
+    $(document).ready(function(){
+        {% if course_id %}
+        {% if courseDet.description %}
+            $('#description').val("{{courseDet.description}}");
+        {% endif %}
+        {% endif %}
+    });
 
     function addNew(){
         $('#saveTopic').show();
@@ -577,10 +669,15 @@ function correctOption(correct){
                 console.log('if file for courseUrl');
             document.getElementById('preview').src = url;
             document.getElementById('videoUrl').value=url;
-            }else{
+            }else
+            if(videoZone=='2'){
                 console.log('if file is for notesUrl');
                 document.getElementById('videoNotesUrl').value = url;
                 // document.getElementById('previewNotes').src = url;
+            }else{
+                console.log('if file for imageUrl');
+                document.getElementById('previewImg').src = url;
+                document.getElementById('imageUrl').value=url;
             }
             console.log(url);
           }
@@ -619,8 +716,11 @@ function correctOption(correct){
         var files = '';
     if(videoZone=='1'){
        files = document.getElementById('video_url').files;
-    }else{
+    }else
+    if(videoZone=='2'){
          files = document.getElementById('video_notes_url').files;
+    }else{
+        files = document.getElementById('courseImg').files;
     }
       const file = files[0];
       if(!file){
@@ -648,7 +748,7 @@ function correctOption(correct){
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a href="#">Upload class videos</a></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                     }
                     $('#topicListDiv').html(topicList);
                     
