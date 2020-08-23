@@ -1088,6 +1088,19 @@ class CourseEnrollment(db.Model):
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
+
+class BatchTest(db.Model):
+    __tablename__ = "batch_test"
+    batch_test_id = db.Column(db.Integer, primary_key=True)
+    batch_id = db.Column(db.ForeignKey('course_batch.batch_id'), nullable=False)
+    topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)
+    test_id = db.Column(db.ForeignKey('test_details.test_id'), nullable=True)
+    resp_session_id = db.Column(db.String(50), nullable=False)
+    is_current = db.Column(db.String(1),nullable=False)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False)
+    
+
 class PaymentTransaction(db.Model):
     __tablename__ = "payment_transaction"
     tran_id = db.Column(db.Integer, primary_key=True)    
