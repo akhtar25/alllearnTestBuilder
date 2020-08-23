@@ -2359,36 +2359,102 @@ def openLiveClass():
 @app.route('/courseDetail')
 def courseDetail():
     live_class_id = request.args.get('live_class_id')
-    return render_template('courseDetail.html')
+    course_id = request.args.get('course_id')
+    courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+    teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
+    user = User.query.filter_by(id=teacher.user_id).first()
+    topicDet = "select count(*) as no_of_questions,td.topic_name from course_topics ct "
+    topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+    topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
+    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name "
+    topicDet = db.session.execute(text(topicDet)).fetchall()
+    upcomingDate = "SELECT batch_start_date,batch_start_time,batch_end_time FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
+    upcomingDate = db.session.execute(text(upcomingDate)).first()
+    courseFee = ''
+    if upcomingDate:
+        courseFee = CourseBatch.query.filter_by(course_id=course_id,batch_start_date=upcomingDate.batch_start_date,batch_start_time=upcomingDate.batch_start_time).first()
+    idealFor = courseDet.ideal_for.split(",")
+    print(idealFor)
+    levelId = courseDet.difficulty_level
+    level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
+    rating = CourseReview.query.filter_by(course_id=course_id).first()
+    if rating:
+        print('Star rating:'+str(rating.star_rating))
+    comments = Comments.query.filter_by(is_archived='N').all()
+    otherCourses = "select cd.course_name,cd.course_id,cd.image_url,cr.star_rating from course_detail cd inner join course_review cr on cd.course_id=cr.course_id where cd.course_id <> '"+str(course_id)+"' "
+    otherCourses = db.session.execute(text(otherCourses)).fetchall()
+    return render_template('courseDetail.html',otherCourses=otherCourses,comments=comments,rating=rating,level=level,idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,courseDet=courseDet,user=user)
+
+@app.route('/addReview',methods=['GET','POST'])
+def addReview():
+    course_id = request.args.get('course_id')
+    rating = request.args.get('rating')
+    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N').first()
+    if dataExist:
+        dataExist.star_rating = rating
+        db.session.commit()
+        return jsonify("1")
+    print('Rating:'+str(rating))
+    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment='NA',is_archived='N',last_modified_date=datetime.now())
+    db.session.add(courseRev)
+    db.session.commit()
+    return jsonify("1")
+
+@app.route('/addComment',methods=['GET','POST'])
+def addComment():
+    course_id = request.form.get('courseID')
+    print('courseId:'+str(course_id))
+    remark = request.form.get('remark')
+    courseRev = Comments(comment=remark,is_archived='N',last_modified_date=datetime.now())
+    db.session.add(courseRev)
+    db.session.commit()
+    reviewDet = Comments.query.filter_by(is_archived='N').all()
+    teacher = CourseDetail.query.filter_by(course_id=course_id).first()
+    user_id = TeacherProfile.query.filter_by(teacher_id=teacher.teacher_id).first()
+    user = User.query.filter_by(id=user_id.user_id).first()
+    reviewList = []
+    for review in reviewDet:
+        reviewList.append(str(user.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y')))
+    return jsonify(reviewList)
 
 
-@app.route('/tutorDashboard')
+@app.route('/tutorDashboard',methods=['GET','POST'])
 def tutorDashboard():
-    TeacherId = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    tutor_id = request.args.get('tutor_id')
+    TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
+    user = User.query.filter_by(id=TeacherId.user_id).first()
     # courseDet = CourseDetail.query.filter_by(teacher_id=TeacherId.teacher_id).all()
-    courseDet = "select count(*) as no_of_topic,cd.course_name,cd.description,cd.image_url,cd.course_id from course_topics ct inner join course_detail cd on ct.course_id=cd.course_id where cd.teacher_id='"+str(TeacherId.teacher_id)+"' and cd.is_archived='N' group by course_name,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
+    courseDet = "select count(*) as no_of_topic,cd.course_name,cd.description,cd.image_url,cd.course_id from course_topics ct inner join course_detail cd on ct.course_id=cd.course_id where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
     courseDet = db.session.execute(text(courseDet)).fetchall()
-    return render_template('tutorDashboard.html',courseDet=courseDet,teacher_name = TeacherId.teacher_name,profile_pic = TeacherId.profile_picture,email = TeacherId.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
+    feeType = MessageDetails.query.filter_by(category='Fee Type').all()
+    return render_template('tutorDashboard.html',tutor_id=tutor_id,feeType=feeType,courseDet=courseDet,teacher_name = user.first_name+' '+user.last_name,profile_pic = user.user_avatar,email = user.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
 
 @app.route('/fetchBatch',methods=['GET','POST'])
 def fetchBatch():
+    print('inside fetch Batch')
     courseId = request.args.get('courseId')
-    fetchBatch = CourseBatch.query.filter_by(course_id=courseId).all()
-    return jsonify(fetchBatch)
+    courseName = CourseDetail.query.filter_by(course_id=courseId).first()
+    fetchBatch = "select cb.batch_start_date,cb.batch_end_date,cb.batch_start_time,cb.batch_end_time,cb.days_of_week,cb.student_limit,cb.students_enrolled,cb.course_batch_fee,cb.total_fee_received,cb.fee_type,md.description "
+    fetchBatch = fetchBatch + "from course_batch cb inner join message_detail md on cb.fee_type=md.msg_id where cb.course_id='"+str(courseId)+"' and cb.is_archived='N' "
+    print('Query:'+str(fetchBatch))
+    fetchBatch = db.session.execute(text(fetchBatch)).fetchall()
+    return render_template('_batchDetail.html',fetchBatch=fetchBatch,courseName=courseName)
 
 @app.route('/createBatch',methods=['GET','POST'])
 def createBatch():
     startDate = request.form.get('startDate')
     EndDate = request.form.get('EndDate')
-    startTime = request.form.get('startTime')
-    endTime = request.form.get('endTime')
+    startTime = request.args.get('startTime')
+    endTime = request.args.get('endTime')
     days = request.form.getlist('Days')
     studentLimit = request.form.get('studentLimit')
     batchFee = request.form.get('batchFee')
     enrolledStudents = request.form.get('enrolledStudents')
     feeReceived = request.form.get('feeReceived')
     courseId = request.args.get('courseId')
+    selectType = request.form.get('selectType')
     print('startDate:'+str(startDate))
+    print('selectType:'+str(selectType))
     print('EndDate:'+str(EndDate))
     print('startTime:'+str(startTime))
     print('endTime:'+str(endTime))
@@ -2412,7 +2478,7 @@ def createBatch():
     createBatch = CourseBatch(course_id=courseId,batch_start_date=startDate,
     batch_end_date=EndDate,batch_start_time=startTime,batch_end_time=endTime,
     days_of_week=dayString,student_limit=studentLimit,course_batch_fee=batchFee,
-    students_enrolled=enrolledStudents,total_fee_received=feeReceived,
+    students_enrolled=enrolledStudents,total_fee_received=feeReceived,fee_type=selectType,
     is_archived='N',last_modified_date=datetime.now())
     db.session.add(createBatch)
     db.session.commit()
@@ -2427,15 +2493,16 @@ def editCourse():
     print('course_id:'+str(course_id))
     if course_id:
         courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+        levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
         courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
         topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
         topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
         topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-        topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+        topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
         topicDet = db.session.execute(text(topicDet)).fetchall()
         idealFor = courseDet.ideal_for
         print('Description:'+str(courseDet.description))
-        return render_template('editCourse.html',courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicDet)
+        return render_template('editCourse.html',levelId=levelId,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicDet)
     else:
         return render_template('editCourse.html',desc=desc,course_id=course_id)
 
@@ -2460,15 +2527,17 @@ def fetchQues():
     print('inside fetchQues')
     courseId = request.args.get('courseId')
     print('courseId:'+str(courseId))
-    topics = CourseTopics.query.filter_by(course_id=courseId).all()
+    topics = CourseTopics.query.filter_by(course_id=courseId,is_archived='N').all()
     topicsDet = []
     for topic in topics:
         topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
         quesIds = TestQuestions.query.filter_by(test_id=topic.test_id,is_archived='N').all()
         quesNo = len(quesIds)
         topicsDet.append(str(topicName.topic_name)+':'+str(quesNo)+':'+str(topicName.topic_id))
-    
-    return jsonify(topicsDet)
+    if topicsDet:
+        return jsonify(topicsDet)
+    else:
+        return ""
 
 @app.route('/fetchRemQues',methods=['GET','POST'])
 def fetchRemQues():
@@ -2522,7 +2591,7 @@ def fetchTopicsQues():
     print('inside fetchTopics')
     topic_id = request.args.get('topic_id')
     print('topic_id:'+str(topic_id))
-    topics = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    topics = CourseTopics.query.filter_by(topic_id=topic_id,is_archived='N').first()
     topicName = Topic.query.filter_by(topic_id=topics.topic_id).first()
     quesIds = TestQuestions.query.filter_by(test_id=topics.test_id,is_archived='N').all()
     topicNotes = TopicNotes.query.filter_by(topic_id=topics.topic_id).first()
@@ -2560,6 +2629,17 @@ def fetchTopicsQues():
         return jsonify(quesArray)
     else:
         return ""
+
+@app.route('/deleteTopic',methods=['GET','POST'])
+def deleteTopic():
+    topicId = request.args.get('topicId')
+    print('Topic id:'+str(topicId))
+    courseTopic = CourseTopics.query.filter_by(topic_id=topicId).first()
+    courseTopic.is_archived = 'Y'
+    notes = TopicNotes.query.filter_by(topic_id=topicId).first()
+    notes.is_archived = 'Y'
+    db.session.commit()
+    return jsonify("1")
 
 @app.route('/updateCourseTopic',methods=['GET','POST'])
 def updateCourseTopic():
@@ -2798,7 +2878,6 @@ def saveAndPublishedCourse():
     course = request.form.get('course')
     courseId = request.args.get('course_id')
     description = request.form.get('description')
-    
     imageUrl = request.form.get('imageUrl')
     video_url = request.form.get('videoUrl')
     idealfor = request.args.get('idealfor')
@@ -2815,9 +2894,9 @@ def saveAndPublishedCourse():
     print('video_url :'+str(video_url))
     print('Ideal for:'+str(idealfor))
     print('level:'+str(level))
-    
+    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
     courseDet = CourseDetail.query.filter_by(course_id=courseId,description=description,summary_url=video_url,
-    teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor).first()
+    teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor,difficulty_level=levelId.msg_id).first()
     if courseDet:
         course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
         courseDet.course_status=course_status_id.msg_id
@@ -2837,6 +2916,7 @@ def saveAndPublishedCourse():
             courseDet.is_private='Y'
             courseDet.image_url = imageUrl
             courseDet.is_archived = 'N'
+            courseDet.difficulty_level=levelId.msg_id
         else:
             print('if course status is public')
             courseDet.description=description
@@ -2848,6 +2928,7 @@ def saveAndPublishedCourse():
             courseDet.is_private='N'
             courseDet.image_url = imageUrl
             courseDet.is_archived = 'N'
+            courseDet.difficulty_level=levelId.msg_id
         db.session.commit()
         print('course:'+str(course))
         print('Desc:'+str(description))
@@ -2899,6 +2980,7 @@ def saveCourse():
     # courseBatch = CourseBatch(course_id=courseId,batch_start_date=setDate,batch_start_time=startTime,batch_end_time=endTime,days_of_week=dayString,is_archived='N',last_modified_date=datetime.now())
     # db.session.add(courseBatch)
     # db.session.commit()
+    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
     course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
     courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
     if private:
@@ -2912,6 +2994,7 @@ def saveCourse():
         courseDet.is_private='Y'
         courseDet.image_url = imageUrl
         courseDet.is_archived = 'N'
+        courseDet.difficulty_level=levelId.msg_id
     else:
         print('if course status is public')
         courseDet.description=description
@@ -2923,6 +3006,7 @@ def saveCourse():
         courseDet.is_private='N'
         courseDet.image_url = imageUrl
         courseDet.is_archived = 'N'
+        courseDet.difficulty_level=levelId.msg_id
     db.session.commit()
     print('course:'+str(course))
     print('Desc:'+str(description))

@@ -158,10 +158,11 @@
 </div>
 </div>
 
-<div id="modal2" class="modal">
-    <div class="modal-content">
-      <h3>Batch Details</h3>
-      <!-- <p>Course:<span id="courseName"></span></p> -->
+<div id="modal2" class="modal" style="width:1100px;">
+    <div class="modal-content" style="height: 315px;">
+      <div id="batchTable">
+
+      </div>
 
     </div>
   </div>
@@ -179,13 +180,13 @@
             End Date: <input type="date" name="EndDate" id="EndDate">
         </div>
         <div class="col-sm-3" >
-            Start Time: <input type="time" name="startTime" id="startTime">
+            Start Time: <input type="time" onchange="onStartTimeChange()" name="startTime" id="startTime">
         </div> 
         <div class="col-sm-3">
-            End Time: <input type="time" name="endTime" id="endTime">
+            End Time: <input type="time" onchange="onEndTimeChange()" name="endTime" id="endTime">
         </div>
     </div>
-    <div style="margin-left: 15px;padding-top: 70px;">
+    <div class="col-sm-12" style="">
         Days of week<br>
         <p style="font-family: Arial;margin-top: 10px;">
             <label>
@@ -222,11 +223,23 @@
                 <input type="checkbox" value="Su" name="Days" class="Days" />
                 <span>Su</span>
             </label>&nbsp;&nbsp;&nbsp;&nbsp;
+            <!-- <input type="text" placeholder="Fee Type"/> -->
+            <label>
+                <div style="width: 120px;float: right;margin-top: -50px;">                        
+                    <select id="selectType" name="selectType">
+                      <option value="" disabled selected>Fee Type</option>
+                      {% for fee in feeType %}
+                      <option value="{{fee.msg_id}}">{{fee.description}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+        </label>
         </p>
+        
     </div>
     <div>
         <div class="col-sm-3">
-            Student limit: <input type="number" min="0" value="0" id="studentLimit" name="studentLimit">
+            Student limit: <input type="number" min="0" max="50" value="0" id="studentLimit" name="studentLimit">
         </div>
         <div class="col-sm-3">
             Batch Fee: <input type="number" min="0" value="0" id="batchFee" name="batchFee">
@@ -270,6 +283,7 @@
 <script>
 
     $(document).ready(function () {
+        $('#selectType').formSelect();
         $('.parallax').parallax();
         $('.modal').modal();
         $('.datepicker').datepicker();
@@ -295,7 +309,7 @@
             success:function(response){
                 if(response){
                     console.log('data added successfully');
-
+                    $('#batchTable').html(response);
                     console.log(response);
                 }
             },
@@ -321,8 +335,10 @@
         $e.preventDefault();
         var form = $('#batchForm');
         var courseId = $('#courseId').val();
+        console.log('Start time:'+startTime);
+        console.log('End Time:'+endTime);
         $.ajax({
-            url:"/createBatch?courseId="+courseId,
+            url:"/createBatch?courseId="+courseId+"&startTime="+startTime+"&endTime="+endTime,
             type:"POST",
             data: form.serialize(),
             success:function(response){
@@ -398,5 +414,49 @@
             }
         })
     });
+    var startTimeEle = document.getElementById('startTime');
+    var endTimeEle = document.getElementById('endTime');
+    var startTime = ''
+    var endTime = ''
+    function onEndTimeChange() {
+    var timeSplit = endTimeEle.value.split(':'),
+        hours,
+        minutes,
+        meridian;
+        hours = timeSplit[0];
+        minutes = timeSplit[1];
+    if (hours > 12) {
+        meridian = 'PM';
+        hours -= 12;
+    } else if (hours < 12) {
+        meridian = 'AM';
+    if (hours == 0) {
+        hours = 12;
+    }
+    } else {
+        meridian = 'PM';
+    }
+    endTime = hours + ':' + minutes + ' ' + meridian;
+    }
+    function onStartTimeChange() {
+    var timeSplit = startTimeEle.value.split(':'),
+        hours,
+        minutes,
+        meridian;
+        hours = timeSplit[0];
+        minutes = timeSplit[1];
+    if (hours > 12) {
+        meridian = 'PM';
+        hours -= 12;
+    } else if (hours < 12) {
+        meridian = 'AM';
+    if (hours == 0) {
+        hours = 12;
+    }
+    } else {
+        meridian = 'PM';
+    }
+    startTime = hours + ':' + minutes + ' ' + meridian;
+    }
 </script>
 {% endblock %}

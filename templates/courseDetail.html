@@ -1,18 +1,57 @@
 {%extends "layout.html"%} {%block content%}
+<style>
+    div.stars {
+  width: 270px;
+  display: inline-block;
+}
 
+input.star { display: none; }
+
+label.star {
+  float: right;
+  padding: 10px;
+  font-size: 36px;
+  color: #444;
+  transition: all .2s;
+}
+
+input.star:checked ~ label.star:before {
+  content: '\f005';
+  color: #FD4;
+  transition: all .25s;
+}
+
+input.star-5:checked ~ label.star:before {
+  color: #FE7;
+  text-shadow: 0 0 20px #952;
+}
+
+input.star-1:checked ~ label.star:before { color: #F62; }
+
+label.star:hover { transform: rotate(-15deg) scale(1.3); }
+
+label.star:before {
+  content: '\f006';
+  font-family: FontAwesome;
+}
+</style>
 <div class="parallax-container  grey-text text-lighten-2" style="height: 100%;">
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <h1 style="font-size: 5vw;">Data Sciences: Going from zero to expert</h1>
+        <h1 style="font-size: 5vw;">{{courseDet.course_name}}</h1>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
-            <h3>Shailesh Vishwakarma</h3>
+            <h3>{{user.first_name[0:1]|upper}}{{user.first_name[1:]}} {{user.last_name[0:1]|upper}}{{user.last_name[1:]}}</h3>
+            {% if user.about_me %}
+            <h4 style="max-height: 60%;">{{user.about_me}}</h4>
+            {% else %}
             <h4 style="max-width: 60%;" >Shailesh has more than 8 years of experience with data science.
                 He's completed his degree from ISB and has worked with Dell, Accenture and EnY in the past
                 in various data scientist positions.
             </h4>
-            <p>shailesh@alllearn.in</p>
+            {% endif %}
+            <p>{{user.email}}</p>
         </div>
     </div>
 </div>
@@ -20,18 +59,7 @@
     <div class="row">
         <div class="col-sm-8">
         <h2 class="">Course Description</h2>
-        <p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.
+        <p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">{{courseDet.description}}
         </p>
             <h3 class="">Topics</h3>
             <table class="highlight">
@@ -46,54 +74,16 @@
                 </tr>
                 </thead>
                 <tbody style="font-size:medium">
+                    {% for row in topicDet %}
                     <tr>
-                        <td>Forms of Data</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>22nd Jan 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
+                        <td>{{row.topic_name}}</td>
+                        <td></td>
+                        <td>{{row.no_of_questions}}</td>
+                        <td></td>
+                        <td><a href='#'></a></td>
                         <td><a href='#'>Conduct Class</a></td>
                     </tr>
-                    <tr>
-                        <td>Forms of DS</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>27nd Jan 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Number patterns</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>05 Aug 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr class="">
-                        <td>Why use Python</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>09 Aug 2020 - <span class="green-text"><b>Ongoing</b></span></td>
-                        <td><a class="">Join</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Numpy</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>04 Sept 2020</td>
-                        <td><a href='#'>Enroll</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Uses of Data science</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>09 Sept 2020</td>
-                        <td><a href='#'>Enroll</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
             <h3>Reviews <span class="grey-text">200</span></h3>
@@ -101,13 +91,26 @@
                 <form id="remarkForm" style="max-width: 600px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
+                    <input type="hidden" name="courseID" value="{{courseDet.course_id}}">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
                 </form>
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
-                        <tbody>
-                            <!--Dummy comment-->
+                        <tbody id="commentList">
+                            {% for comment in comments %}
                             <tr>
+                                <td>
+                                    <div class=" green lighten-5"
+                                        style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
+                                        <span class="grey-text">{{user.username}}</span><br>
+                                        <span style="margin-left: 5px;">{{comment.comment}}</span><br>
+                                    </div>
+                                    <span class="right grey-text"> {{comment.last_modified_date.strftime('%d %B %Y')}}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <!--Dummy comment-->
+                            <!-- <tr>
                                 <td>
                                     <div class=" green lighten-5"
                                         style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
@@ -156,7 +159,7 @@
                                     </div>
                                     <span class="right grey-text"> 23rd Jan 2020</span>
                                 </td>
-                            </tr>
+                            </tr> -->
                             <!--End of dummy comment-->
                         </tbody>
                     </table>
@@ -166,12 +169,98 @@
             </div>
         </div>   
         <div class="col-sm-4">
-            <img src="../static/images/reviewIMG.PNG" width="50%">
+            <!-- <img src="../static/images/reviewIMG.PNG" width="50%"> -->
+            <!-- Start Rating -->
+            <div class="stars">
+                <form action="">
+                    
+                    {% if rating %}
+                        {% if rating.star_rating==1 %}
+                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
+                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
+                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
+                        <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
+                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
+                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" checked/>
+                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
+                        {% elif rating.star_rating==2 %}
+                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
+                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
+                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
+                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" checked/>
+                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
+                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
+                        {% elif rating.star_rating==3 %}
+                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
+                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
+                        <input class="star star-3" id="star-3" value="3" type="radio" name="star" checked/>
+                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
+                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
+                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
+                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
+                        {% elif rating.star_rating==4 %}
+                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
+                        <input class="star star-4" id="star-4" value="4" type="radio" name="star" checked/>
+                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
+                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
+                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
+                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
+                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
+                        {% else %}
+                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" checked/>
+                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
+                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
+                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
+                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
+                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
+                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
+                        {% endif %}
+
+                    {% else %}
+                  <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                  <label class="star star-5" for="star-5"></label>
+                  <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                  <label class="star star-4" for="star-4"></label>
+                  <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                  <label class="star star-3" for="star-3"></label>
+                  <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
+                  <label class="star star-2" for="star-2"></label>
+                  <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                  <label class="star star-1" for="star-1"></label>
+                  {% endif %}
+                  {% if rating %}
+                  <h3 style="float: right;margin-top: -8px;"><span id="rate">{{rating.star_rating}}</span>/5</h3>
+                  {% else %}
+                  <h3 style="float: right;margin-top: -8px;"><span id="rate">0</span>/5</h3>
+                  {% endif %}
+                </form>
+              </div>
+            <!-- End Rating -->
             <h3 class="">Next Batch</h3>
-            <h4>24th Aug '20 </h4>
-            <h5>Timings: 8 am - 10 pm</h5>
-            <h5>Total Hours: 22 hrs</h5>
-            <h5>Live Class Fee: <b>₹2500</b></h5>
+            {% if upcomingDate %}
+            <h4>{{upcomingDate.batch_start_date.strftime('%d %B %Y')}} </h4>
+            {% else %}
+            <h4>No Upcoming Test </h4>
+            {% endif %}
+            <h5>Timings: {{upcomingDate.batch_start_time}} - {{upcomingDate.batch_end_time}}</h5>
+            <h5>Total Hours:&nbsp;<span id="timeDiff"></span></h5>
+            <h5>Live Class Fee: <b>₹{{courseFee.course_batch_fee}}</b></h5>
             <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
             <a class="btn left green enrollBTN modal-trigger" id="schoolNeed.need_type"
                                         name="schoolNeed.sum_cost" style="width: 100%;" href="#modal2"> Enroll in Course</a><br><br>
@@ -180,24 +269,44 @@
             <br><br>
             
             <h3 class="">What to expect</h3>
+            {% if courseDet.summary_url %}
+            <video src="{{courseDet.summary_url}}" width="100%" controls></video>
+            {% else %}
             <video src="../static/images/vid1.m4v" width="100%" controls></video>
+            {% endif %}
             <br><br>
             <h3 class="">Ideal for</h3>
-            <p><span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Students</span>
-                <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Entrepreneurs</span>
-                <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Junior Data Scientists</span>
+            <p>
+                {% for ideal in idealFor %}
+                <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">{{ideal}}</span>
+                {% endfor %}
                 </p>
                 <br><br>
             <h3>Difficulty Level</h3>
-            <p>Easy</p>
+            <p>{{level.description}}</p>
             
-            <h3 class="">Shailesh's Other Courses</h3>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
+            <h3 class="">{{user.first_name[0:1]|upper}}{{user.first_name[1:]}}'s Other Courses</h3>
+            <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
+            {% for course in otherCourses %}
+            {% if course.image_url %}
+            <a href="{{url_for('courseDetail',course_id=course.course_id)}}"><li  class="hoverable" style="border-radius: 10px;cursor:pointer;width: 350px;display: flex;margin-top: 15px;">
+                <img src="{{course.image_url}}" width="150px">
+                <h4 style="margin-left: 20px;margin-top: 0px;height: 40px;color: black;">{{course.course_name}}</h4>
+                {% if course.star_rating  %}
+                <h5 style="margin-top: 60px;color: black;">ratings:&nbsp;{{course.star_rating}}/5</h5>
+                {% else %}
+                <h5 style="margin-top: 60px;color: black;">ratings:&nbsp;0/5</h5>
+                {% endif %}
+            </li></a>
+            {% endif %}
+            {% endfor %}
+        </ul>
+            <!-- <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
             <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
             <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
-                style="border-radius: 10px;"><br><br>       
+                style="border-radius: 10px;"><br><br>        -->
         </div>     
     </div>
 </div>
@@ -218,6 +327,8 @@
         $('.parallax').parallax();
         $('.modal').modal();
     });
+
+
 
 
 
@@ -250,5 +361,91 @@
                 } 
             })
         });
+        var st = "{{upcomingDate.batch_start_time}}";
+        var en = "{{upcomingDate.batch_end_time}}";
+        function diff(start, end) {
+            console.log('inside diff function');
+    start = "{{upcomingDate.batch_start_time}}"; //to update time value in each input bar
+    end = "{{upcomingDate.batch_end_time}}"; //to update time value in each input bar
+    console.log('Start Time:'+start);
+    console.log('End Time:'+end);
+    s = start.split(":");
+    e = end.split(":");
+    if(s[0]>e[0]){
+        var z = start;
+        start = end;
+        end = z;
+    }
+    start = start.split(":");
+    end = end.split(":");
+    var startDate = new Date(0, 0, 0, start[0], start[1], 0);
+    var endDate = new Date(0, 0, 0, end[0], end[1], 0);
+    var diff = endDate.getTime() - startDate.getTime();
+    var hours = Math.floor(diff / 1000 / 60 / 60);
+    diff -= hours * 1000 * 60 * 60;
+    var minutes = Math.floor(diff / 1000 / 60);
+
+    return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
+}
+$(document).ready(function(){
+var val = diff(st, en);
+console.log(val);
+if(val!='NaN:NaN'){
+$("#timeDiff").html(val);
+}else{
+    $("#timeDiff").html('');
+}
+console.log('Time Difference:'+diff(st, en));
+});
+
+$('#remarkPostButton').click(function($e){
+    $e.preventDefault();
+    var form = $('#remarkForm');
+    $.ajax({
+            url:"/addComment",
+            type:"POST",
+            data: form.serialize(),
+            success:function(response){
+                if(response){
+                    console.log('data added successfully');
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#remark').val('');
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+});
+
+$("input[type='radio']").click(function(){
+    var radioValue = $("input[name='star']:checked").val();
+    console.log(radioValue);
+    $('#rate').html(radioValue);
+    $('#starRating').val(radioValue);
+    var course_id = "{{courseDet.course_id}}";
+    $.ajax({
+            url:"/addReview?course_id="+course_id+"&rating="+radioValue,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                    console.log('data added successfully');
+                
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+});
 </script>
 {%endblock%}

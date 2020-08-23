@@ -1,0 +1,45 @@
+<h3>{{courseName.course_name}}</h3>
+<div class="box-body table-responsive no-padding" style="height: 245px;">
+
+    <table class="table table-hover table-striped">
+        <thead>
+      <tr>
+        <th>Batch No.</th>
+        <th>Start Date </th>
+        <th> End Date</th>
+        <th>Start Time</th>
+        <th> EndTime</th>
+        <th>Days of week </th>
+        <th>Student limit</th> 
+        <th>Students Enrolled</th>
+        <th>Batch Fee</th>
+        <th>Fee Received</th>
+        <th>Fee Type</th>                        
+      </tr>
+    </thead>
+    <tbody>
+      {% if fetchBatch %}
+      {% for eachRow in fetchBatch%}
+      
+      <tr style="margin-top:5px;">
+        <td>{{loop.index}}</td>
+        <td>{{eachRow.batch_start_date.strftime('%d %B %Y')}}</td>
+        <td>{{eachRow.batch_end_date.strftime('%d %B %Y')}}</td>
+        <td>{{eachRow.batch_start_time}}</td>
+        <td>{{eachRow.batch_end_time}}</td>     
+        <td>{{eachRow.days_of_week}}</td>     
+        <td>{{eachRow.student_limit}}</td>                                       
+        <td>{{eachRow.students_enrolled}}</td>
+        <td>{{eachRow.course_batch_fee}}</td>
+        <td>{{eachRow.total_fee_received}}</td>
+        <td>{{eachRow.description}}</td>
+      </tr>
+           {% endfor %}
+           {% else %}
+        <tr>
+          <td colspan="9" style="text-align: center;">No Batch Available</td>
+        </tr>
+           {% endif %}
+        </tbody>
+    </table>
+  </div>

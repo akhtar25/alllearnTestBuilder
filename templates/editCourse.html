@@ -165,12 +165,13 @@
                     <tr>
                         <th>Topic</th>
                         <th>Quiz Questions</th>
-                        <th>Class Videos</th>
+                        <th>Expected class date</th>
                         <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody style="font-size:medium" id="topicListDiv">
                     {% if course_id %}
+                    {% if topicDet %}
                     {% for topic in topicDet %}
                     <tr>
                         <td>
@@ -182,17 +183,24 @@
                             {{topic.no_of_questions}}
                         </td>
                         <td>
-                            <a href="#">Upload class videos</a>
+                            <a href="#"></a>
                         </td>
                         <td>
                             <a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small" style="cursor:pointer;">
+                                <i class="material-icons small" onclick="deleteTopic('{{topic.topic_id}}');" style="cursor:pointer;">
                                     delete
                                 </i>
                             </a>
                         </td>
                     </tr>
                     {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center;">
+                            No Topic Available
+                        </td>
+                    </tr>
+                    {% endif %}
                     {% endif %}
                 </tbody>
             </table>
@@ -218,7 +226,7 @@
             <h3>Difficulty Level</h3>
             <p>
                 <div class="input-field">
-                    <select id="class_val" name="level">
+                    <select id="level_val" name="level">
                         <option value="Easy" selected>Easy</option>
                         <option value="Medium">Medium</option>
                         <option value="Hard">Hard</option>
@@ -388,6 +396,8 @@
     function addNew(){
         $('#saveTopic').show();
         $('#updateTopic').hide();
+        $('#notesName').val('');
+        $('#notesURL').val('');
 
         $('.newQuestion').show();
         $('.forEdit').hide();
@@ -551,6 +561,7 @@ function correctOption(correct){
     }
 
     $(document).ready(function () {
+        $('#level_val').val('{{levelId.description}}');
         $('.parallax').parallax();
         $('.modal').modal();
         $('.datepicker').datepicker();
@@ -738,9 +749,10 @@ function correctOption(correct){
             type:"POST",
             data: "",
             success:function(response){
+                var topicList = '';
                 if(response){
                     var responseArr = response.toString().split(',');
-                    var topicList = '';
+                    
                     for(var i=0;i<responseArr.length;i++){
                         var topicName = responseArr[i].toString().split(':')[0];
                         var quesNo = responseArr[i].toString().split(':')[1];
@@ -748,10 +760,13 @@ function correctOption(correct){
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a href="#">Upload class videos</a></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                     }
                     $('#topicListDiv').html(topicList);
                     
+                }else{
+                    topicList = '<tr><td colspan="4" style="text-align:center;">No Topic available</td></tr>';
+                    $('#topicListDiv').html(topicList);
                 }
             },
             error:function(xhr){
@@ -1059,5 +1074,24 @@ function correctOption(correct){
             }
         });
     });
+
+    function deleteTopic(topic_id){
+        console.log('TopicID:'+topic_id);
+        $.ajax({
+            url:"/deleteTopic?topicId="+topic_id,
+            type:"POST",
+            data: "",
+            success:function(response){
+                console.log('success:'+response);
+                if(response=="1"){
+                    M.toast({html: 'Topic deleted successfully'});
+                    topicList();
+                }
+            },
+            error:function(xhr){
+
+            }
+        });
+    }
 </script>
 {%endblock%}
