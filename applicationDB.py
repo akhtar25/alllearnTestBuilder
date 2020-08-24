@@ -622,7 +622,8 @@ class SchoolProfile(db.Model):
     location_type = db.Column(db.String(50),nullable=True) # urban  , remote
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
     impact_school_id = db.Column(db.Integer, nullable=True)
-    school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year
+    school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year    
+    curr_vendor_id = db.Column(db.ForeignKey('bank_detail.vendor_id'), nullable=True) #this is to manage vendor ids from bank accounts table
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
@@ -1131,3 +1132,20 @@ class PaymentTransaction(db.Model):
     date = db.Column(db.DateTime, nullable=False, default = datetime.now())
     anonymous_payer = db.Column(db.String(1), nullable=True)
     anonymous_amount = db.Column(db.String(1), nullable=True)
+
+
+class BankDetail(db.Model):
+    __tablename__ = 'bank_detail'
+    bd_id = db.Column(db.Integer, primary_key=True)
+    account_num = db.Column(db.String(30), nullable=True)
+    ifsc =  db.Column(db.String(20), nullable=True)
+    bank_name = db.Column(db.String(100), nullable=True)
+    account_name = db.Column(db.String(200), nullable=True)
+    image_url =  db.Column(db.String(200), nullable=True) # for paytm qr codes
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=False)
+    #paygate_app_id = db.Column(db.String(50), nullable=True)
+    #paygate_secret_key = db.Column(db.String(50), nullable=True)
+    #new vendor details as per cashfree
+    vendor_id = db.Column(db.String(50),unique=True, nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False, default = datetime.now())
