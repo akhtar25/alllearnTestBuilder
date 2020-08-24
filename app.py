@@ -2353,8 +2353,26 @@ def courseHome():
 
 @app.route('/openLiveClass')
 def openLiveClass():
+    print('inside openlive class')
     live_class_id = request.args.get('live_class_id')
-    return render_template('openLiveClass.html')
+    topic_id = request.args.get('topic_id')
+    topicName = Topic.query.filter_by(topic_id=topic_id).first()
+    courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
+    notesList = TopicNotes.query.filter_by(topic_id=topic_id).all()
+    comments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topic_id)+"'"
+    comments = db.session.execute(text(comments)).fetchall()
+    lenComm = 0
+    if comments:
+        lenComm = len(comments)
+    print('comment length:'+str(lenComm))
+    print('courseID:'+str(courseId.course_id))
+    rating = CourseDetail.query.filter_by(course_id=courseId.course_id,is_archived='N').first()
+    if rating:
+        print('Star rating:'+str(rating.average_rating))
+    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(courseId.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
+    listTopics = db.session.execute(text(listTopics)).fetchall()
+    return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicName=topicName.topic_name,tutor_id=courseName.teacher_id,course_id=courseName.course_id,courseName=courseName.course_name,lenComm=lenComm,comments=comments,topic_id=topic_id,notesList=notesList)
 
 @app.route('/courseDetail')
 def courseDetail():
@@ -2389,6 +2407,33 @@ def courseDetail():
     otherCourses = db.session.execute(text(otherCourses)).fetchall()
     return render_template('courseDetail.html',lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,courseDet=courseDet,user=user)
 
+@app.route('/addComments',methods=['GET','POST'])
+def addComments():
+    topicId = request.form.get('topicId')
+    remark = request.form.get('remark')
+    if remark:
+        addComment = Comments(comment=remark,topic_id=topicId,user_id=current_user.id,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(addComment)
+        db.session.commit()
+    fetchComments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topicId)+"'"
+    fetchComments = db.session.execute(text(fetchComments)).fetchall()
+    lenComm = len(fetchComments)
+    print('length:'+str(lenComm))
+    commentList = []
+    for comment in fetchComments:
+        commentList.append(str(comment.username)+":"+str(comment.comment)+":"+str(comment.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+    return jsonify(commentList)
+
+@app.route('/addTopicReview',methods=['GET','POST'])
+def addTopicReview():
+    course_id = request.args.get('course_id')
+    revComment = request.args.get('revComment')
+    print('courseId:'+str(course_id))
+    reviewRate = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    reviewRate.comment = revComment
+    db.session.commit()
+    return jsonify("1")
+
 @app.route('/addReviewComment',methods=['GET','POST'])
 def addReviewComment():
     course_id = request.args.get('course_id')
@@ -2405,6 +2450,41 @@ def addReviewComment():
     for review in fetchReview:
         reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
     return jsonify(reviewList)
+
+@app.route('/addRatingReview',methods=['GET','POST'])
+def addRatingReview():
+    course_id = request.args.get('course_id')
+    rating = request.args.get('rating')
+    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    if dataExist:
+        dataExist.star_rating = rating
+        dataExist.comment = ' '
+        db.session.commit()
+        courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+        aveRat = 0
+        for rate in courseRevDet:
+            aveRat = aveRat + rate.star_rating
+        aveRat = aveRat / len(courseRevDet)
+        print('course_id:'+str(course_id))
+        print('Average rating:'+str(aveRat))
+        courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+        courseData.average_rating = aveRat
+        db.session.commit()
+        return jsonify("1")
+    print('Rating:'+str(rating))
+    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment=' ',is_archived='N',last_modified_date=datetime.now(),user_id=current_user.id)
+    db.session.add(courseRev)
+    db.session.commit()
+    courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+    aveRat = 0
+    for rate in courseRevDet:
+        aveRat = aveRat + rate.star_rating
+    aveRat = aveRat / len(courseRevDet)
+    print('Average rating:'+str(aveRat))
+    courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+    courseData.average_rating = aveRat
+    db.session.commit()
+    return jsonify("1")
 
 @app.route('/addReview',methods=['GET','POST'])
 def addReview():

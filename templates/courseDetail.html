@@ -121,7 +121,7 @@ label.star:before {
                                 <td>
                                     <div class=" green lighten-5"
                                         style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
-                                        <span class="grey-text">{{user.username}}</span><br>
+                                        <span class="grey-text">{{comment.username}}</span><br>
                                         <span style="margin-left: 5px;">{{comment.comment}}</span><br>
                                     </div>
                                     <span class="right grey-text"> {{comment.last_modified_date.strftime('%d %B %Y')}}</span>
@@ -396,16 +396,16 @@ console.log('Time Difference:'+diff(st, en));
 //             success:function(response){
 //                 if(response){
 //                     console.log('data added successfully');
-                    // var responseArr = response.toString().split(",");
-                    // var commentDiv = '';
-                    // for(var i=0;i<responseArr.length;i++){
-                    //     var username = responseArr[i].toString().split(":")[0];
-                    //     var comment = responseArr[i].toString().split(":")[1];
-                    //     var date = responseArr[i].toString().split(":")[2];
-                    //     commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
-                    // }
-                    // $('#commentList').html(commentDiv);
-                    // $('#remark').val('');
+//                     var responseArr = response.toString().split(",");
+//                     var commentDiv = '';
+//                     for(var i=0;i<responseArr.length;i++){
+//                         var username = responseArr[i].toString().split(":")[0];
+//                         var comment = responseArr[i].toString().split(":")[1];
+//                         var date = responseArr[i].toString().split(":")[2];
+//                         commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+//                     }
+//                     $('#commentList').html(commentDiv);
+//                     $('#remark').val('');
 //                 }
 //             },
 //             error:function(xhr){
