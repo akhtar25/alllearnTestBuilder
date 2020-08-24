@@ -2377,46 +2377,83 @@ def courseDetail():
     print(idealFor)
     levelId = courseDet.difficulty_level
     level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
-    rating = CourseReview.query.filter_by(course_id=course_id).first()
+    rating = CourseDetail.query.filter_by(course_id=course_id,is_archived='N').first()
     if rating:
-        print('Star rating:'+str(rating.star_rating))
-    comments = Comments.query.filter_by(is_archived='N').all()
-    otherCourses = "select cd.course_name,cd.course_id,cd.image_url,cr.star_rating from course_detail cd inner join course_review cr on cd.course_id=cr.course_id where cd.course_id <> '"+str(course_id)+"' "
+        print('Star rating:'+str(rating.average_rating))
+    comments = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+ "' and cr.comment <> ' '"
+    print(comments)
+    comments = db.session.execute(text(comments)).fetchall()
+    lenComment = len(comments)
+    print(comments)
+    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' "
     otherCourses = db.session.execute(text(otherCourses)).fetchall()
-    return render_template('courseDetail.html',otherCourses=otherCourses,comments=comments,rating=rating,level=level,idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,courseDet=courseDet,user=user)
+    return render_template('courseDetail.html',lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,courseDet=courseDet,user=user)
+
+@app.route('/addReviewComment',methods=['GET','POST'])
+def addReviewComment():
+    course_id = request.args.get('course_id')
+    revComment = request.args.get('revComment')
+    print('courseId:'+str(course_id))
+    reviewRate = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    reviewRate.comment = revComment
+    db.session.commit()
+    fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+    fetchReview = db.session.execute(text(fetchReview)).fetchall()
+    lenComm = len(fetchReview)
+    print('length:'+str(lenComm))
+    reviewList = []
+    for review in fetchReview:
+        reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+    return jsonify(reviewList)
 
 @app.route('/addReview',methods=['GET','POST'])
 def addReview():
     course_id = request.args.get('course_id')
     rating = request.args.get('rating')
-    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N').first()
+    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
     if dataExist:
         dataExist.star_rating = rating
+        dataExist.comment = ' '
         db.session.commit()
-        return jsonify("1")
+        courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+        aveRat = 0
+        for rate in courseRevDet:
+            aveRat = aveRat + rate.star_rating
+        aveRat = aveRat / len(courseRevDet)
+        print('course_id:'+str(course_id))
+        print('Average rating:'+str(aveRat))
+        courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+        courseData.average_rating = aveRat
+        db.session.commit()
+        fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+        fetchReview = db.session.execute(text(fetchReview)).fetchall()
+        lenComm = len(fetchReview)
+        print('length:'+str(lenComm))
+        reviewList = []
+        for review in fetchReview:
+            reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+        return jsonify(reviewList)
     print('Rating:'+str(rating))
-    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment='NA',is_archived='N',last_modified_date=datetime.now())
+    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment=' ',is_archived='N',last_modified_date=datetime.now(),user_id=current_user.id)
     db.session.add(courseRev)
     db.session.commit()
-    return jsonify("1")
-
-@app.route('/addComment',methods=['GET','POST'])
-def addComment():
-    course_id = request.form.get('courseID')
-    print('courseId:'+str(course_id))
-    remark = request.form.get('remark')
-    courseRev = Comments(comment=remark,is_archived='N',last_modified_date=datetime.now())
-    db.session.add(courseRev)
+    courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+    aveRat = 0
+    for rate in courseRevDet:
+        aveRat = aveRat + rate.star_rating
+    aveRat = aveRat / len(courseRevDet)
+    print('Average rating:'+str(aveRat))
+    courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+    courseData.average_rating = aveRat
     db.session.commit()
-    reviewDet = Comments.query.filter_by(is_archived='N').all()
-    teacher = CourseDetail.query.filter_by(course_id=course_id).first()
-    user_id = TeacherProfile.query.filter_by(teacher_id=teacher.teacher_id).first()
-    user = User.query.filter_by(id=user_id.user_id).first()
+    fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+    fetchReview = db.session.execute(text(fetchReview)).fetchall()
+    lenComm = len(fetchReview)
+    print('length:'+str(lenComm))
     reviewList = []
-    for review in reviewDet:
-        reviewList.append(str(user.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y')))
+    for review in fetchReview:
+        reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
     return jsonify(reviewList)
-
 
 @app.route('/tutorDashboard',methods=['GET','POST'])
 def tutorDashboard():

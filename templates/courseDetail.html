@@ -1,5 +1,19 @@
 {%extends "layout.html"%} {%block content%}
 <style>
+
+    /* CSS for rating */
+    span.stars, span.stars span {
+    display: block;
+    background: url('http://i.imgur.com/YsyS5y8.png') 0 -16px repeat-x;    
+    width: 80px;
+    height: 16px;
+}
+
+span.stars span {
+    max-width:80px;
+    background-position: 0 0;
+}
+    /* End */
     div.stars {
   width: 270px;
   display: inline-block;
@@ -86,18 +100,23 @@ label.star:before {
                     {% endfor %}
                 </tbody>
             </table>
-            <h3>Reviews <span class="grey-text">200</span></h3>
+            {% if comments %}
+            <h3>Reviews <span class="grey-text" id="revLength">{{lenComment}}</span></h3>
+            {% else %}
+            <h3>Reviews <span class="grey-text" id="revLength">0</span></h3>
+            {% endif %}
             <div id="commentsDiv">
-                <form id="remarkForm" style="max-width: 600px;">
+                <!-- <form id="remarkForm" style="max-width: 600px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
                     <input type="hidden" name="courseID" value="{{courseDet.course_id}}">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
-                </form>
+                </form> -->
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
                         <tbody id="commentList">
                             {% for comment in comments %}
+                            {% if comment.comment %}
                             <tr>
                                 <td>
                                     <div class=" green lighten-5"
@@ -108,6 +127,7 @@ label.star:before {
                                     <span class="right grey-text"> {{comment.last_modified_date.strftime('%d %B %Y')}}</span>
                                 </td>
                             </tr>
+                            {% endif %}
                             {% endfor %}
                             <!--Dummy comment-->
                             <!-- <tr>
@@ -171,68 +191,17 @@ label.star:before {
         <div class="col-sm-4">
             <!-- <img src="../static/images/reviewIMG.PNG" width="50%"> -->
             <!-- Start Rating -->
-            <div class="stars">
-                <form action="">
-                    
-                    {% if rating %}
-                        {% if rating.star_rating==1 %}
-                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
-                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
-                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
-                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
-                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
-                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
-                        <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
-                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
-                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" checked/>
-                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
-                        {% elif rating.star_rating==2 %}
-                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
-                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
-                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
-                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
-                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
-                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
-                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" checked/>
-                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
-                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
-                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
-                        {% elif rating.star_rating==3 %}
-                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
-                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
-                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
-                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
-                        <input class="star star-3" id="star-3" value="3" type="radio" name="star" checked/>
-                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
-                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
-                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
-                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
-                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
-                        {% elif rating.star_rating==4 %}
-                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
-                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
-                        <input class="star star-4" id="star-4" value="4" type="radio" name="star" checked/>
-                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
-                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
-                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
-                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
-                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
-                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
-                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
-                        {% else %}
-                        <input class="star star-5" id="star-5" value="5" type="radio" name="star" checked/>
-                        <label class="star star-5" for="star-5" style="font-size: 30px;"></label>
-                        <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
-                        <label class="star star-4" for="star-4" style="font-size: 30px;"></label>
-                        <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
-                        <label class="star star-3" for="star-3" style="font-size: 30px;"></label>
-                        <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
-                        <label class="star star-2" for="star-2" style="font-size: 30px;"></label>
-                        <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
-                        <label class="star star-1" for="star-1" style="font-size: 30px;"></label>
-                        {% endif %}
 
-                    {% else %}
+            <div class="starRatingDiv">
+                {% if rating.average_rating %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}/5</span><span class="stars left">{{rating.average_rating}}</span></h4></a>
+                {% else %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">0/5</span><span class="stars left">0</span></h4></a>
+                {% endif %}
+            </div>
+            
+            <!-- <div class="stars">
+                <form action="">
                   <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
                   <label class="star star-5" for="star-5"></label>
                   <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
@@ -243,14 +212,9 @@ label.star:before {
                   <label class="star star-2" for="star-2"></label>
                   <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
                   <label class="star star-1" for="star-1"></label>
-                  {% endif %}
-                  {% if rating %}
-                  <h3 style="float: right;margin-top: -8px;"><span id="rate">{{rating.star_rating}}</span>/5</h3>
-                  {% else %}
-                  <h3 style="float: right;margin-top: -8px;"><span id="rate">0</span>/5</h3>
-                  {% endif %}
+                  
                 </form>
-              </div>
+              </div> -->
             <!-- End Rating -->
             <h3 class="">Next Batch</h3>
             {% if upcomingDate %}
@@ -292,8 +256,8 @@ label.star:before {
             <a href="{{url_for('courseDetail',course_id=course.course_id)}}"><li  class="hoverable" style="border-radius: 10px;cursor:pointer;width: 350px;display: flex;margin-top: 15px;">
                 <img src="{{course.image_url}}" width="150px">
                 <h4 style="margin-left: 20px;margin-top: 0px;height: 40px;color: black;">{{course.course_name}}</h4>
-                {% if course.star_rating  %}
-                <h5 style="margin-top: 60px;color: black;">ratings:&nbsp;{{course.star_rating}}/5</h5>
+                {% if course.average_rating  %}
+                <h5 style="margin-top: 60px;color: black;">ratings:&nbsp;{{course.average_rating}}/5</h5>
                 {% else %}
                 <h5 style="margin-top: 60px;color: black;">ratings:&nbsp;0/5</h5>
                 {% endif %}
@@ -310,6 +274,34 @@ label.star:before {
         </div>     
     </div>
 </div>
+<div id="commentModal" class="modal" style="height: 260px;">
+    <div class="modal-content" style="height: 205px;">
+        <div class="" style="margin-right: 200px;">
+            <form action="">
+              <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+              <label class="star star-5" for="star-5"></label>
+              <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+              <label class="star star-4" for="star-4"></label>
+              <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+              <label class="star star-3" for="star-3"></label>
+              <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
+              <label class="star star-2" for="star-2"></label>
+              <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+              <label class="star star-1" for="star-1"></label>
+              
+            </form>
+          </div>
+        <div class="reviewCom">
+            <h4 style="width:360px;display: flex;">please leave your review here</h4>
+            <textarea id="reviewComment" style="background-color: lightgoldenrodyellow;"></textarea>
+            <a class="modal-close waves-effect waves-light btn" id="submitReview" style="float: right;" href="#">Submit</a>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
+    </div>
+  </div>
+
 <div id="modal2" class="modal" style="background-color:white;">
     <div id="loader" class="center" style="display: none;height: 100%;">
         <img src="../static/images/loader.gif">
@@ -327,10 +319,6 @@ label.star:before {
         $('.parallax').parallax();
         $('.modal').modal();
     });
-
-
-
-
 
     $('.enrollBTN').click(function () {
             $('#modal2').hide();
@@ -398,33 +386,33 @@ $("#timeDiff").html(val);
 console.log('Time Difference:'+diff(st, en));
 });
 
-$('#remarkPostButton').click(function($e){
-    $e.preventDefault();
-    var form = $('#remarkForm');
-    $.ajax({
-            url:"/addComment",
-            type:"POST",
-            data: form.serialize(),
-            success:function(response){
-                if(response){
-                    console.log('data added successfully');
-                    var responseArr = response.toString().split(",");
-                    var commentDiv = '';
-                    for(var i=0;i<responseArr.length;i++){
-                        var username = responseArr[i].toString().split(":")[0];
-                        var comment = responseArr[i].toString().split(":")[1];
-                        var date = responseArr[i].toString().split(":")[2];
-                        commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
-                    }
-                    $('#commentList').html(commentDiv);
-                    $('#remark').val('');
-                }
-            },
-            error:function(xhr){
-                $('#msg').html('Error to submit course data');
-            }
-        });
-});
+// $('#remarkPostButton').click(function($e){
+//     $e.preventDefault();
+//     var form = $('#remarkForm');
+//     $.ajax({
+//             url:"/addComment",
+//             type:"POST",
+//             data: form.serialize(),
+//             success:function(response){
+//                 if(response){
+//                     console.log('data added successfully');
+                    // var responseArr = response.toString().split(",");
+                    // var commentDiv = '';
+                    // for(var i=0;i<responseArr.length;i++){
+                    //     var username = responseArr[i].toString().split(":")[0];
+                    //     var comment = responseArr[i].toString().split(":")[1];
+                    //     var date = responseArr[i].toString().split(":")[2];
+                    //     commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+                    // }
+                    // $('#commentList').html(commentDiv);
+                    // $('#remark').val('');
+//                 }
+//             },
+//             error:function(xhr){
+//                 $('#msg').html('Error to submit course data');
+//             }
+//         });
+// });
 
 $("input[type='radio']").click(function(){
     var radioValue = $("input[name='star']:checked").val();
@@ -438,8 +426,23 @@ $("input[type='radio']").click(function(){
             data: "",
             success:function(response){
                 if(response){
-                    console.log('data added successfully');
-                
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    console.log('inside success');
+                    for(var i=0;i<responseArr.length;i++){
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        var lenRev = responseArr[i].toString().split(":")[3];
+                        $('#revLength').html(lenRev);
+                        if(comment){
+                        commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+                        }
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#reviewComment').val('');
+                    $('#revLength').html('0');
+                    
                 }
             },
             error:function(xhr){
@@ -447,5 +450,45 @@ $("input[type='radio']").click(function(){
             }
         });
 });
+
+$('#submitReview').click(function(){
+    console.log('inside submitReview');
+    var revComment = $('#reviewComment').val();
+    var course_id = "{{courseDet.course_id}}";
+    $.ajax({
+            url:"/addReviewComment?course_id="+course_id+"&revComment="+revComment,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    console.log('inside success');
+                    for(var i=0;i<responseArr.length;i++){
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        var lenRev = responseArr[i].toString().split(":")[3];
+                        $('#revLength').html(lenRev);
+                        if(comment){
+                        commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+                        }
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#reviewComment').val('');
+                    
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit review data');
+            }
+        });
+});
+
+$.fn.stars = function() {
+    return this.each(function(i,e){$(e).html($('<span/>').width($(e).text()*16));});
+};
+
+$('.stars').stars();
 </script>
 {%endblock%}
