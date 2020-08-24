@@ -1014,6 +1014,7 @@ class CourseDetail(db.Model):
     ideal_for = db.Column(db.String(100), nullable=True)    
     course_status = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)   # Draft or Published    
     difficulty_level = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    average_rating = db.Column(db.Float, nullable=True)
     is_private = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
@@ -1048,6 +1049,7 @@ class CourseReview(db.Model):
     cr_id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
     star_rating = db.Column(db.Integer, nullable=True)
+    user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
     comment = db.Column(db.String(200),nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
@@ -1059,6 +1061,7 @@ class Comments(db.Model):
     comment = db.Column(db.String(200),nullable=False)
     comment_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
+    user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
