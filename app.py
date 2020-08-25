@@ -2348,8 +2348,15 @@ def courseHome():
     #if current_user.is_anonymous==False:
         #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
         #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
-
-    return render_template('courseHome.html',home=1, upcomingClassData=upcomingClassData)
+    enrolledCourses = "select cd.course_name,cd.course_id,tp.teacher_name,(cb.student_limit-cb.students_enrolled ) as seats,cd.image_url,cd.average_rating,cb.batch_start_date ,cd.description from course_detail cd "
+    enrolledCourses = enrolledCourses + "inner join course_batch cb on cd.course_id = cb.course_id "
+    enrolledCourses = enrolledCourses + "inner join teacher_profile tp on cd.teacher_id  = tp.teacher_id where cb.student_limit-cb.students_enrolled>=0 order by seats desc limit 8"
+    enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
+    recentlyAccessed = "select cd.course_name,cd.course_id,tp.teacher_name,(cb.student_limit-cb.students_enrolled ) as seats,cd.image_url,cd.average_rating,cb.batch_start_date ,cd.description from course_detail cd "
+    recentlyAccessed = recentlyAccessed + "inner join course_batch cb on cd.course_id = cb.course_id "
+    recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on cd.teacher_id  = tp.teacher_id where cb.student_limit-cb.students_enrolled>=0 order by cd.last_modified_date desc limit 8"
+    recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
+    return render_template('courseHome.html',recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
