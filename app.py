@@ -2348,8 +2348,14 @@ def courseHome():
     #if current_user.is_anonymous==False:
         #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
         #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
-
-    return render_template('courseHome.html',home=1, upcomingClassData=upcomingClassData)
+    discussedTopics = "select count(*) as total_comment,td.topic_name,td.topic_id,cd.course_name,cd.course_id ,tp.teacher_name from comments c "
+    discussedTopics = discussedTopics + "left join topic_detail td on c.topic_id = td.topic_id "
+    discussedTopics = discussedTopics + "left join course_topics ct on ct.topic_id = c.topic_id "
+    discussedTopics = discussedTopics + "right join course_detail cd on cd.course_id = ct.course_id "
+    discussedTopics = discussedTopics + "left join teacher_profile tp on tp.teacher_id = cd.teacher_id group by td.topic_name,td.topic_id,cd.course_name,cd.course_id, "
+    discussedTopics = discussedTopics + "tp.teacher_name order by total_comment desc limit 8"
+    discussedTopics  = db.session.execute(text(discussedTopics)).fetchall()
+    return render_template('courseHome.html',discussedTopics=discussedTopics,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
@@ -2601,27 +2607,62 @@ def createBatch():
     db.session.commit()
     return jsonify("1")
 
+@app.route('/teacherRegistration')
+def teacherRegistration():
+    print('inside teacher Registration')
+    return render_template('teacherRegistration.html')
+
+@app.route('/teacherRegForm',methods=['GET','POST'])
+def teacherRegForm():
+    bankName =request.form.get('bankName')
+    accountHolderName = request.form.get('accountHoldername')
+    accountNo = request.form.get('accountNumber')
+    IfscCode = request.form.get('ifscCode')
+    schoolName = str(current_user.username)+"_school"
+    board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
+    schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
+    db.session.add(schoolAdd)
+    db.session.commit()
+    schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
+    teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
+    db.session.add(teacherAdd)
+    db.session.commit()
+    teacherEx = TeacherProfile.query.filter_by(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id).first()
+    schoolEx.school_admin = teacherEx.teacher_id
+    db.session.commit()
+    print('Bank Name:'+str(bankName))
+    print('account holder name:'+str(accountHolderName))
+    print('accountNo:'+str(accountNo))
+    print('ifsc Code:'+str(IfscCode))    
+    return jsonify("1")
+
 @app.route('/editCourse')
 def editCourse():
     course_category = MessageDetails.query.filter_by(category='Course Category').first()
     desc = course_category.description.split(',')
     course_id=request.args.get('course_id')
-    print('Description:'+str(desc))
-    print('course_id:'+str(course_id))
-    if course_id:
-        courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
-        levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
-        courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
-        topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
-        topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
-        topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-        topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
-        topicDet = db.session.execute(text(topicDet)).fetchall()
-        idealFor = courseDet.ideal_for
-        print('Description:'+str(courseDet.description))
-        return render_template('editCourse.html',levelId=levelId,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicDet)
+    teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if teacherIdExist:
+        print('Description:'+str(desc))
+        print('course_id:'+str(course_id))
+        if course_id:
+            courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+            levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
+            courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
+            topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
+            topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+            topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
+            topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+            topicDet = db.session.execute(text(topicDet)).fetchall()
+            idealFor = courseDet.ideal_for
+            print('Description:'+str(courseDet.description))
+            return render_template('editCourse.html',levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicDet)
+        else:
+            levelId = ''
+            return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
     else:
-        return render_template('editCourse.html',desc=desc,course_id=course_id)
+        redirect(url_for('teacherRegistration'))
+
 
 @app.route('/searchTopic',methods=['GET','POST'])
 def searchTopic():
