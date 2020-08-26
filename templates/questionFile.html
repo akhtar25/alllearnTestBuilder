@@ -38,47 +38,7 @@
                                                 {{ form.subject_name(class='form-control') }}
                                                 {% endif %}      
                                 </div>
-                        </div>
-                        <!-- <div class="col-sm-3" style="margin-left: -20px;">
-                            <div style="width:150px;">
-                                {{ form.chapter_num.label(class='labelsize') }}
-                                <div id='loader2' style='display: none; float: right;'>
-                                    <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                </div>
-                                <br>
-                                {% if form.chapter_num.errors %}
-                                {{ form.chapter_num(class="form-control form-control-lg is-invalid") }}
-                                <div class="invalid-feedback">
-                                    {% for error in form.chapter_num.errors %}
-                                    <span>{{ error }}</span>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                {{ form.chapter_num(class='form-control') }}
-                                {% endif %}
-                            </div>
-                        </div> -->
-                        <!-- <div class="col-sm-2" style="margin-left: -120px;">
-                            <div style="width:150px;" >
-                                            {{ form.topics.label(class='labelsize') }}
-                                            <div id='loader3'style='display: none; float: right;'>
-                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                            </div>
-                                    <br>
-                                            {% if form.topics.errors %}
-                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedback">
-                                            {% for error in form.topics.errors %}
-                                             <span>{{ error }}</span>
-                                            {% endfor %}
-                                    </div>
-                                            {% else %}
-                                            {{ form.topics(class='form-control') }}
-                                            {% endif %}
-    
-                                            
-                            </div>
-                    </div> -->
+                        </div>              
                     <div class="col-sm-4" style="padding-top:22px; padding-left:20px;margin-left: -20px;">
                       <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" id="UploadBtn" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
                     </div>
@@ -88,7 +48,16 @@
                     <span id="message" style="color:Red;display: none;float:left;"></span>
 
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
-<span style="color:red;">Only 20 questions  can be uploaded at a time.</span>
+<span style="color:maroon;">Only 20 questions  can be uploaded at a time.</span><br>
+<h5>Steps:</h5>
+<ol>
+<li>Select Class</li>
+<li>Select Subject</li>
+<li>Get Topic Id from the pane on right  to use in the input excel sheet</li>
+<li>Download Sample Template</li>
+<li>Enter questions and upload. Note: The Correct Answer column should contain the full answer and not the optino number</li>
+</ol>
+
 <!-- <div id="topicTable">
     <div id="topicLoader" style="display: none;padding-left: 300px;">
         <img src="../static/images/loader.gif"></div>

@@ -431,8 +431,8 @@
           </li>
         </ul>
 
-        <ul class=" hide-on-med-and-down green-text" style="padding-top:10px">
-          {%if home!=1%}
+        <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
+          {%if home!=1 and current_user.user_type==253%}
           <li>
             <div style="width: 150%;border: 1px solid grey;border-radius:30px;margin-left:40%;padding:2px;" class="">
                 <input placeholder="Search" class="searchText" style="padding-bottom: -20px;background-position: right; background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;background-repeat: no-repeat;">
@@ -590,12 +590,12 @@
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
-          <li>
+          <!--<li>
             <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink'
               href="javascript: void (0);">
               <i class="material-icons">search</i>
             </a>
-          </li>
+          </li>-->
           {%endif%}
           {% endif %}
         </div>
