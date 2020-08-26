@@ -7367,7 +7367,7 @@ def questionFile():
     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
     form.subject_name.choices= ''
     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.chapter_num.choices= ''
+    # form.chapter_num.choices= ''
     form.topics.choices= ''
     # [(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
     return render_template('questionFile.html',form=form)
