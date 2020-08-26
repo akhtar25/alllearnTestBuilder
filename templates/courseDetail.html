@@ -138,8 +138,9 @@
                         <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_start_date.strftime('%d %B %y')}}</td>
                         <td>{{batch.days_of_week}}</td>
                         <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
-                        <td>{{batch.course_batch_fee}}</td>                        
-                        <td><a href="#">Enroll</a></td>
+                        <td>₹{{batch.course_batch_fee}}</td>                        
+                        <td><a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
+                            style="width: 100%;" href="#modal2"> Enroll</a></td>                                                     
                     </tr>
                 {%endfor%}
                
@@ -276,18 +277,19 @@
             <h3 class="">Next Batch</h3>
             {% if upcomingDate %}
             <h4>{{upcomingDate.batch_start_date.strftime('%d %B %Y')}} </h4>
-            {% else %}
-            <h4>No Upcoming Test </h4>
-            {% endif %}
             <h5>Timings: {{upcomingDate.batch_start_time}} - {{upcomingDate.batch_end_time}}</h5>
             <h5>Total Hours:&nbsp;<span id="timeDiff"></span></h5>
-            <h5>Live Class Fee: <b>₹{{courseFee.course_batch_fee}}</b></h5>
+            <h5>Live Class Fee: <b>₹{{upcomingDate.course_batch_fee}}</b></h5>
+            <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}" id ="{{upcomingDate.course_batch_fee}}"
+                style="width: 100%;" href="#modal2"> Enroll in Course</a>
+            {% else %}
+            <h4 class="grey-text">No Upcoming Batch </h4>
+            {% endif %}            
             <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
-            <a class="btn left green enrollBTN modal-trigger" id="schoolNeed.need_type" name="schoolNeed.sum_cost"
-                style="width: 100%;" href="#modal2"> Enroll in Course</a><br><br>
-            <button class="btn cyan " style="width: 45%;">Follow</button>
-            <button class="btn  right" style="width: 45%;">Class Recordings</button>
             <br><br>
+            <!--<button class="btn cyan " style="width: 45%;">Follow</button>
+            <button class="btn  right" style="width: 45%;">Class Recordings</button>
+            <br><br>-->
 
             <h3 class="">What to expect</h3>
             {% if courseDet.summary_url %}
@@ -318,10 +320,10 @@
                         <h4 style="margin-left: 20px;height: 40px;color: black;">{{course.course_name}}</h4>
                         {% if course.average_rating  %}
                         <br><br>
-                        <h5 style="color: black;" class="left">&nbsp;<span
+                        <h5 style="color: black;" class="right">&nbsp;<span
                                 class="stars">{{course.average_rating}}</span></h5>
                         {% else %}
-                        <h5 style="color: black;" class="left">&nbsp;No Reviews</h5>
+                        <h5 style="color: black;" class="right">&nbsp;No Reviews</h5>
                         {% endif %}
                     </li>
                 </a>
@@ -383,13 +385,13 @@
         $('#modal2').hide();
         $('#donateDiv').html('');
         $('#loader').show();
-        var donation_for = $(this).attr("id");
+        var amount = $(this).attr("id");
         //alert(donation_for);
-        var amount = $(this).attr("name");
+        var batch_id = $(this).attr("name");
 
         $.ajax({
-            url: "/paymentForm?school_id=schoolData.school_id&amount={{upcomingDate.course_batch_fee}}" +
-                "&donation_for=" + donation_for + "&batch_id={{upcomingDate.batch_id}}",
+            url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
+                "&batch_id=" + batch_id,
             type: "get",
             data: '',
             success: function (response1) {

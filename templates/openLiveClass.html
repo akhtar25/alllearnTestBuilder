@@ -270,28 +270,29 @@ span.stars span {
         <a href="{{url_for('courseDetail',course_id=course_id)}}" target="_blank"><h5>{{courseName}} </h5></a>
         <a href="{{url_for('tutorDashboard',tutor_id=tutor_id)}}" target="_blank"><h5 class="grey-text">Shailesh Vishwakarma</h5></a>
     </div>
-        <div id="page-blocks" class="col-sm-6 right">
-            
-            <div id="buttons-row">                
-                    <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
-                        Start Class
-                    </button>                    
-                    <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
-                    <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
-                        End Class
-                    </button>
-                    <!-- <button id="startQuizBTN" class="btn" disabled>End Class and Start Quiz</button> -->
-                    <button id="startQuizBTN" class="btn" disabled> Start Quiz</button>               
-            </div>
-            
-        </div>
+
     </div>
     <div class="row hoverable z-depth-1"
         style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
         <div class="section" id="mainDiv">
-        <div id="blankClassDiv" class="center">
-            <h2 class="grey-text">Please click on Start Class to enter classroom</h2>
+        
+            <!--<h2 class="grey-text">Please click on Start Class to enter classroom</h2>-->
+            <div id="page-blocks" class="col-sm-6 right">
+            
+                <div id="buttons-row">                
+                        <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
+                            Start Class
+                        </button>                    
+                        <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
+                        <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
+                            End Class
+                        </button>
+                        <!-- <button id="startQuizBTN" class="btn" disabled>End Class and Start Quiz</button> -->
+                        <button id="startQuizBTN" class="btn" disabled> Start Quiz</button>               
+                </div>                
+            </div>
 
+            <div id="blankClassDiv" class="center">
             <img src="../static/images/blkboard.jpg" width="95%">
 
         </div>
@@ -312,7 +313,7 @@ span.stars span {
     <div class="row">
         <div class="col-sm-8">
             <h4>Notes</h4>
-            <p>This is the list of items you should ideally read</p>
+            <!--<p>This is the list of items you should ideally read</p>-->
             <table class=" highlight " style="font-size:16px;border-radius: 10px;max-width: 80%;">
                 {% for notes in notesList %}
                 <tr>
@@ -379,23 +380,29 @@ span.stars span {
         <div class="col-sm-4">
             <div class="starRatingDiv">
                 {% if rating.average_rating %}
-                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}/5</span><span class="stars left">{{rating.average_rating}}</span></h4></a>
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span class="stars left">{{rating.average_rating}}</span></h4></a>
                 {% else %}
-                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">0/5</span><span class="stars left">0</span></h4></a>
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">No Reviews</span><span class="stars left">0</span></h4></a>
                 {% endif %}
             </div>
-            <br>
-            <!-- <button class="btn wave green">Donate</button> -->
             <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share course</span> </a>
+            
+            <!-- <button class="btn wave green">Donate</button> -->
+            
             <!-- <a href="#" class="right red-text">Report </a> -->
             <br><br>
-            <p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
-                creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>
+            <!--<p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
+                creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>-->
                 <br>
             <h4>Other topics</h4>
+            {%if listTopics%}
             {% for topic in listTopics %}
                 <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}" >{{topic.topic_name}}</a>
-            {% endfor %}<br>
+            {% endfor %}
+            {%else%}
+            <h4 class="grey-text">No other topics</h4>
+            {%endif%}
+            <br>
             <!-- <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
             <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"

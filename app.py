@@ -2395,11 +2395,11 @@ def courseDetail():
     topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
     topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name,td.topic_id "
     topicDet = db.session.execute(text(topicDet)).fetchall()
-    upcomingDate = "SELECT batch_start_date,batch_start_time,batch_end_time FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
+    upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
-    courseFee = ''
-    if upcomingDate:
-        courseFee = CourseBatch.query.filter_by(course_id=course_id,batch_start_date=upcomingDate.batch_start_date,batch_start_time=upcomingDate.batch_start_time).first()
+    #courseFee = ''
+    #if upcomingDate:
+    #    courseFee = CourseBatch.query.filter_by(course_id=course_id,batch_start_date=upcomingDate.batch_start_date,batch_start_time=upcomingDate.batch_start_time).first()
     idealFor = courseDet.ideal_for.split(",")
     print(idealFor)
     levelId = courseDet.difficulty_level
@@ -2419,7 +2419,7 @@ def courseDetail():
     courseBatchData = CourseBatch.query.filter_by(is_archived='N',course_id=str(course_id)).all()
     return render_template('courseDetail.html',courseBatchData=courseBatchData,
         lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
-        idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,
+        idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
         courseDet=courseDet,user=user)
 
 @app.route('/addComments',methods=['GET','POST'])
@@ -3218,9 +3218,9 @@ def paymentForm():
 
         #qschool_id = request.args.get('school_id')
         amount =  request.args.get('amount') 
-        #qbatch_id = request.args.get('batch_id')                
+        qbatch_id = request.args.get('batch_id')                
         #amount =              #hard coded value
-        qbatch_id = 1               #hard coded value
+        #qbatch_id = 1               #hard coded value
 
         if amount=='other':
             amount = 0
@@ -3286,7 +3286,7 @@ def paymentForm():
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
         returnUrl = url_for('paymentResponse',_external=True)
         notifyUrl = url_for('notifyUrl',_external=True)
-        return render_template('_paymentForm.html',courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
+        return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
         flash('Please login to donate')
         return jsonify(['1'])
