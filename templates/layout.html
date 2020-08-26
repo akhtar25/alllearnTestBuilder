@@ -435,7 +435,7 @@
         </ul>
 
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
-          {%if home!=1%}
+          {%if home!=1 and current_user.user_type==253%}
           <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
           </li>
@@ -599,12 +599,20 @@
               <i class="material-icons right" style="font-size: 40px">account_circle </i>
             </a>
           </li>
+<<<<<<< HEAD
           <!-- <li>
+=======
+          <!--<li>
+>>>>>>> master
             <a style="color: green; font-size:15px;" id="hiddenSearch" class='classSpecLink'
               href="javascript: void (0);">
               <i class="material-icons">search</i>
             </a>
+<<<<<<< HEAD
           </li> -->
+=======
+          </li>-->
+>>>>>>> master
           {%endif%}
           {% endif %}
         </div>
