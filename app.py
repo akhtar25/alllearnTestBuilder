@@ -61,6 +61,8 @@ from algoliasearch.search_client import SearchClient
 import base64
 import hmac
 import hashlib
+from moviepy.editor import *
+
 
 app=FlaskAPI(__name__)
 
@@ -2388,10 +2390,10 @@ def courseDetail():
     courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
     teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
     user = User.query.filter_by(id=teacher.user_id).first()
-    topicDet = "select count(*) as no_of_questions,td.topic_name from course_topics ct "
+    topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id from course_topics ct "
     topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
     topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name "
+    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name,td.topic_id "
     topicDet = db.session.execute(text(topicDet)).fetchall()
     upcomingDate = "SELECT batch_start_date,batch_start_time,batch_end_time FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
@@ -2412,7 +2414,13 @@ def courseDetail():
     print(comments)
     otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' "
     otherCourses = db.session.execute(text(otherCourses)).fetchall()
-    return render_template('courseDetail.html',lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,courseDet=courseDet,user=user)
+
+    #batch data
+    courseBatchData = CourseBatch.query.filter_by(is_archived='N',course_id=str(course_id)).all()
+    return render_template('courseDetail.html',courseBatchData=courseBatchData,
+        lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
+        idealFor=idealFor,courseFee=courseFee,upcomingDate=upcomingDate,topicDet=topicDet,
+        courseDet=courseDet,user=user)
 
 @app.route('/addComments',methods=['GET','POST'])
 def addComments():
@@ -2663,6 +2671,13 @@ def editCourse():
             return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
     else:
         redirect(url_for('teacherRegistration'))
+
+
+#clip = (VideoFileClip("frozen_trailer.mp4")
+#        .subclip((1,22.65),(1,23.2))
+#        .resize(0.3))
+#clip.write_gif("use_your_head.gif")
+
 
 
 @app.route('/searchTopic',methods=['GET','POST'])
@@ -3202,9 +3217,9 @@ def paymentForm():
         #    return jsonify(['2'])
 
         #qschool_id = request.args.get('school_id')
-        #amount =  request.args.get('amount') 
+        amount =  request.args.get('amount') 
         #qbatch_id = request.args.get('batch_id')                
-        amount =  "500"             #hard coded value
+        #amount =              #hard coded value
         qbatch_id = 1               #hard coded value
 
         if amount=='other':
