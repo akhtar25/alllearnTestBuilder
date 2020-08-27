@@ -1027,7 +1027,7 @@ class CourseTopics(db.Model):
     ct_id = db.Column(db.Integer, primary_key=True)    
     course_id = db.Column(db.ForeignKey('course_detail.course_id'), nullable=False)
     topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=False)    
-    video_class_url = db.Column(db.String(300),nullable=False)
+    video_class_url = db.Column(db.String(300),nullable=True)
     test_id = db.Column(db.ForeignKey('test_details.test_id'), nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
@@ -1080,6 +1080,8 @@ class CourseBatch(db.Model):
     students_enrolled = db.Column(db.Integer, nullable=True)
     total_fee_received = db.Column(db.Float, nullable=True)
     fee_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
+    ongoing_topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
+    is_ongoing = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
 
