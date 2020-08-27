@@ -1080,7 +1080,7 @@ class CourseBatch(db.Model):
     students_enrolled = db.Column(db.Integer, nullable=True)
     total_fee_received = db.Column(db.Float, nullable=True)
     fee_type = db.Column(db.ForeignKey('message_detail.msg_id'), nullable=True)
-    ongoing_topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)
+    ongoing_topic_id = db.Column(db.ForeignKey('topic_detail.topic_id'), nullable=True)    
     is_ongoing = db.Column(db.String(1),nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
