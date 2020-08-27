@@ -143,6 +143,7 @@ justify-content: center;" id="containerDiv">
         </div>
     </div>
 </div>
+<!--
 <div class="container">
     <!-- <h3>Upcoming Classes</h3> -->
     {%if upcomingClassData!=""%}
@@ -290,6 +291,7 @@ justify-content: center;" id="containerDiv">
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
     </div>-->
 
 
@@ -336,14 +338,117 @@ justify-content: center;" id="containerDiv">
                                     style="font-size: small;">Go to
                                     Course</span></a></p>
                     </div>
+=======
+    </div>
+    <div class="row">
+        <div class="right">
+            <a href="#">See More</a>
+        </div>
+    </div>
+
+    <h3>Featured Courses</h3>
+    <div>
+        <div class="row">
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" style="border-radius: 25px;"
+                            src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">
+                            <h4>Course Name</h4><i class="material-icons right">more_vert</i>
+                        </span>
+                        <h5 class="grey-text">Shailesh Vishwakarma</h5>
+                        <span class="left">Seats left: 27</span>
+                        <a href="{{url_for('courseDetail')}}"><span class="right" style="font-size: small;">Go to
+                                Course</span></a>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p style="width: 80%;">
+                            
+                            <h4 class="">4.5<span class="stars left">4.5</span></h4>
+                            <br>
+                            <h5>Next Batch Starts: 15/04/20</h5>Here fffffffffffffffffffffffffffffffffff
+                            fffffffffffffffffffffffffffffffffffffffffffis some more information about this product that
+                            is
+                            only revealed once clicked on.
+                        </p>
+
+                        <p><a href="{{url_for('courseDetail')}}"><span class="right" style="font-size: small;">Go to
+                                    Course</span></a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
+>>>>>>> master
                 </div>
             </div>
             {% endfor %}
         </div>
+<<<<<<< HEAD
+=======
+        <div class="row">
+            <div class="right">
+                <a href="#">See More</a>
+            </div>
+        </div>
+>>>>>>> master
     </div>
     <h3>Recently Acessed Courses</h3>
     <div>
         <div class="row">
+<<<<<<< HEAD
             {% for row in recentlyAccessed %}
             <div class="col-sm-3 ">
                 <div class="card small hoverable" style="border-radius: 25px;">
@@ -382,10 +487,39 @@ justify-content: center;" id="containerDiv">
 
                         <p><a href="{{url_for('courseDetail',course_id=row.course_id)}}"><span class="right"
                                     style="font-size: small;">Go to
+=======
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" style="border-radius: 25px;"
+                            src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">
+                            <h4>Course Name</h4><i class="material-icons right">more_vert</i>
+                        </span>
+                        <h5 class="grey-text">Shailesh Vishwakarma</h5>
+                        <span class="left">Seats left: 27</span>
+                        <a href="{{url_for('courseDetail')}}"><span class="right" style="font-size: small;">Go to
+                                Course</span></a>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p style="width: 80%;"><img src="../static/images/reviewIMG.PNG" width="50%"><br>
+                            <h5>Next Batch Starts: 15/04/20</h5>Here fffffffffffffffffffffffffffffffffff
+                            fffffffffffffffffffffffffffffffffffffffffffis some more information about this product that
+                            is
+                            only revealed once clicked on.
+                        </p>
+
+                        <p><a href="{{url_for('courseDetail')}}"><span class="right" style="font-size: small;">Go to
+>>>>>>> master
                                     Course</span></a></p>
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
             {% endfor %}
             <!-- <div class="col-sm-3 ">
             <div class="card small hoverable" style="border-radius: 25px;">
@@ -401,44 +535,68 @@ justify-content: center;" id="containerDiv">
                     <span class="card-title grey-text text-darken-4">Card Title<i
                             class="material-icons right">close</i></span>
                     <p>Here is some more information about this product that is only revealed once clicked on.</p>
+=======
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
+>>>>>>> master
+                </div>
+            </div>
+            <div class="col-sm-3 ">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card small hoverable" style="border-radius: 25px;">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                        <p><a href="#">This is a link</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">Card Title<i
+                                class="material-icons right">close</i></span>
+                        <p>Here is some more information about this product that is only revealed once clicked on.</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 ">
-            <div class="card small hoverable" style="border-radius: 25px;">
-                <div class="card-image waves-effect waves-block waves-light">
-                    <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
-                </div>
-                <div class="card-content">
-                    <span class="card-title activator grey-text text-darken-4">Card Title<i
-                            class="material-icons right">more_vert</i></span>
-                    <p><a href="#">This is a link</a></p>
-                </div>
-                <div class="card-reveal">
-                    <span class="card-title grey-text text-darken-4">Card Title<i
-                            class="material-icons right">close</i></span>
-                    <p>Here is some more information about this product that is only revealed once clicked on.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="card small hoverable" style="border-radius: 25px;">
-                <div class="card-image waves-effect waves-block waves-light">
-                    <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
-                </div>
-                <div class="card-content">
-                    <span class="card-title activator grey-text text-darken-4">Card Title<i
-                            class="material-icons right">more_vert</i></span>
-                    <p><a href="#">This is a link</a></p>
-                </div>
-                <div class="card-reveal">
-                    <span class="card-title grey-text text-darken-4">Card Title<i
-                            class="material-icons right">close</i></span>
-                    <p>Here is some more information about this product that is only revealed once clicked on.</p>
-                </div>
+
+        <div class="row">
+            <div class="right">
+                <a href="#">See More</a>
             </div>
         </div> -->
         </div>
+<<<<<<< HEAD
 
         <!-- <div class="row">
     <div class="right">
@@ -447,6 +605,11 @@ justify-content: center;" id="containerDiv">
 </div> -->
     </div>
 </div>
+=======
+    </div>
+</div>-->
+
+>>>>>>> master
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
     $(document).ready(function () {
