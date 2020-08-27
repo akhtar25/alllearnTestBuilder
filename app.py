@@ -2365,23 +2365,33 @@ def openLiveClass():
     print('inside openlive class')
     live_class_id = request.args.get('live_class_id')
     topic_id = request.args.get('topic_id')
-    topicName = Topic.query.filter_by(topic_id=topic_id).first()
-    courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
-    courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
+    batch_id = request.args.get('batch_id')
+    #topicName = Topic.query.filter_by(topic_id=topic_id).first()
+    #courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    #courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
+    topicDataQuery = "select td.topic_id,ct.video_class_url, cd.course_id,ct.test_id,cd.course_name, td.topic_name, tp.teacher_id, tp.teacher_name, tp.user_id,tp.room_id "
+    topicDataQuery = topicDataQuery + " from topic_detail td inner join course_topics ct on  "
+    topicDataQuery = topicDataQuery + " ct.topic_id  = td.topic_id inner join course_detail cd on  "
+    topicDataQuery = topicDataQuery + " cd.course_id  = ct.course_id  inner join teacher_profile tp on  "
+    topicDataQuery = topicDataQuery + " tp.teacher_id  = cd.teacher_id where td.topic_id  =" + str(topic_id)
+    topicData = db.session.execute(topicDataQuery).first()
+
     notesList = TopicNotes.query.filter_by(topic_id=topic_id).all()
-    comments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topic_id)+"'"
+    comments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topic_id)+"' and comment<>' ' and comment is not null  "
     comments = db.session.execute(text(comments)).fetchall()
     lenComm = 0
     if comments:
         lenComm = len(comments)
-    print('comment length:'+str(lenComm))
-    print('courseID:'+str(courseId.course_id))
-    rating = CourseDetail.query.filter_by(course_id=courseId.course_id,is_archived='N').first()
-    if rating:
-        print('Star rating:'+str(rating.average_rating))
-    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(courseId.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
+    #print('comment length:'+str(lenComm))
+    #print('courseID:'+str(courseId.course_id))
+    rating = CourseDetail.query.filter_by(course_id=topicData.course_id,is_archived='N').first()
+    #if rating:
+    #    print('Star rating:'+str(rating.average_rating))
+    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(topicData.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
     listTopics = db.session.execute(text(listTopics)).fetchall()
-    return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicName=topicName.topic_name,tutor_id=courseName.teacher_id,course_id=courseName.course_id,courseName=courseName.course_name,lenComm=lenComm,comments=comments,topic_id=topic_id,notesList=notesList)
+    print('$#$$$$$$$$$$$$$'+str(batch_id))
+    return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
+        ,lenComm=lenComm,comments=comments,notesList=notesList,batch_id=batch_id)
 
 @app.route('/courseDetail')
 def courseDetail():
@@ -5900,7 +5910,7 @@ def startPracticeTest():
     print('class_val:'+str(class_val))
     #subject_id
     #board_id = request.args.get('board_id')
-    #topicList = request.form.getlist('topicList')adsfsdfasdf
+    #topicList = request.for.getlist('topicList')adsfsdfasdf
 
     if current_user.is_anonymous:
         print('for anonymous user')
@@ -5949,19 +5959,12 @@ def startPracticeTest():
     print('Data feed to test questions complete')
     ##Create response session ID
     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-    #if current_user.is_anonymous:
+
     responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(classSecData.class_sec_id).strip()
-    #else:
-    #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+
     print('resp session id:'+str(responseSessionID))
     print('Response ID generated')
-    #print("This is the value of anon user before setup: " + session['anonUser'])
-    #if session['anonUser']:
-    #    print('###########session is true')
-    #    print(session['anonUser'])
-    #else:
-    #    print('###########session is false')
-    #    print(session['anonUser'])
+
     if current_user.is_anonymous:
         if session.get('anonUser'):
             print('the anon user is true')
@@ -6775,8 +6778,8 @@ def contentManagerDetails():
 def feedbackCollection():    
     if request.method=='GET':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+        #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
+        #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
@@ -6788,25 +6791,36 @@ def feedbackCollection():
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
         qsubject_id = request.args.get('subject_id')
+        batch_test =  request.args.get('batch_test')
         print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
             qsection = str(qsection).upper()
             currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
-            #queryCurrClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),section=qsection)
-            #print("Here's the query: "+str(queryCurrClassSecRow))
-            if currClassSecRow is None:
+
+            if currClassSecRow is None and batch_test!="1":
                 flash('Class and section value not valid')
                 return redirect(url_for('testPapers'))
+            elif batch_test=="1" and  currClassSecRow is None:
+                class_sec_id = 1
+                qsubject_id=54
+            else:
+                class_sec_id = currClassSecRow.class_sec_id
+                #qsubject_id
+                #pass
             #building response session ID
-            print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-
+            #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
+                        
+            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
+            
 
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()  
-            qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
-            qWeightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+    
+            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()              
+            if weightage==None or weightage=="":
+                qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
+                weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+
             print('Inside question id list')
             print(questionIDList)          
             questionListSize = len(questionIDList)
@@ -6816,23 +6830,23 @@ def feedbackCollection():
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-                print('Date:'+str(dateVal))
-                print('Response Session ID:'+str(responseSessionID))
-                print('If Question list size is not zero')
+                #print('Date:'+str(dateVal))
+                print('##########Response Session ID:'+str(responseSessionID))
+                #print('If Question list size is not zero')
                 #print(sessionDetailRowCheck)
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
-                    #print(sessionDetailRowCheck)
-                    if weightage:
-                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
-                        db.session.add(sessionDetailRowInsert)
-                    else:
-                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=qWeightage.suggested_weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
-                        db.session.add(sessionDetailRowInsert)
+                    #print(sessionDetailRowCheck)                    
+                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                    db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
-                    db.session.commit()
+
+                if batch_test=="1":
+                    batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
+                        resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
+                    db.session.add(batchTestInsert)
+                db.session.commit()
 
             questionList = []
             for questValue in questionIDList:
@@ -6854,7 +6868,10 @@ def feedbackCollection():
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, testType=testType)
+                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
+                    class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
+                    subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
+                    batch_test=batch_test,testType=testType)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)

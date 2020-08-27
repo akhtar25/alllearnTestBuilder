@@ -710,7 +710,7 @@
           </li>
         </ul>
       </div>
-      {%if (disconn != 1) and (current_user.username) and user_type_val!='161' and user_type_val!='134' %}
+      {%if (disconn != 1) and (current_user.username) and current_user.user_type!='161' and current_user.user_type!=134 and current_user.user_type!=253 %}
       <div class="col l2 s12">
         <ul>
           <li>
@@ -747,9 +747,7 @@
       <div class="col l2 s12">
         <ul>
 
-          <!--<li>
-                  <a class="white-text" class='classSpecLink' href="{{url_for('testPerformance')}}">Performance Report</a>
-                </li>-->
+      
           <li>
             <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
           </li>

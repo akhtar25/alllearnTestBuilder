@@ -1103,7 +1103,6 @@ class BatchTest(db.Model):
     is_current = db.Column(db.String(1),nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
-    
 
 class PaymentTransaction(db.Model):
     __tablename__ = "payment_transaction"
