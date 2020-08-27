@@ -53,7 +53,9 @@
             </div>
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
+            {% if user.id==current_user.id %}
             <a href="{{url_for('editCourse')}}" id="addSurveyBTN" class="btn green right">Create New Course</a>
+            {% endif %}
             <br>
         </div>
         <div id="buttonbox" style="display:none;">
@@ -100,19 +102,28 @@
                 <div class="card small hoverable" style="border-radius: 25px;width:260px;height: 312px;margin-top: 0px;">
                     <div class="card-image waves-effect waves-block waves-light">
                         {% if course.image_url %}
-                        <img class="activator" src="{{course.image_url}}">
+                        <img class="activator" height="145" style="border-radius: 25px;" src="{{course.image_url}}">
                         {% else %}
-                        <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                        <img class="activator" height="145" style="border-radius: 25px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
                         {% endif %}
                     </div>
                     <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('editCourse')}}"><h3 style="margin:0px;margin-top: -20px;">{{course.course_name}}</h3><i
-                                class="material-icons right">more_vert</i></span>
-                        <h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4>
-                        <h5><a class="modal-trigger" id="" onclick="clearForm();" href="#modal1">Schedule New Batch</a></h5>
+                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('editCourse')}}"><h3 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h3></span>
+                        <div style="display: flex;"><h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4><h5 style="margin-left: 90px;color: black;">
+                            {% if user.id==current_user.id %}
+                            {{course.desc}}
+                            {% endif %}
+                        </h5></div>
+                        <h5>
+                            {% if user.id==current_user.id %}
+                            <a class="modal-trigger" id="" onclick="clearForm();" href="#modal1">Schedule New Batch</a>
+                            {% endif %}
+                        </h5>
                         <input type="hidden" id="courseId" value="{{course.course_id}}">
                         <h5><a class="modal-trigger" id="" onclick="fetchBatches('{{course.course_name}}','{{course.course_id}}');" href="#modal2" href="#">View Existing Batches</a></h5>
+                        {% if user.id==current_user.id %}
                         <h5><a href="{{url_for('editCourse',course_id=course.course_id)}}">Edit Course</a></h5>
+                        {% endif %}
                     </div>
                     <!-- <div class="card-reveal">
                         <span class="card-title grey-text text-darken-4">{{course.course_name}}<i
@@ -169,7 +180,7 @@
 
 <div id="modal1" class="modal" style="height: 350px;">
     <div class="modal-content">
-      <h3>Create Batch Schedule</h3>
+      <h3>Schedule New Batch</h3>
       <form id="batchForm">
       <div>
         
@@ -238,21 +249,22 @@
         
     </div>
     <div>
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="margin-left: 160px;">
             Student limit: <input type="number" min="0" max="50" value="0" id="studentLimit" name="studentLimit">
         </div>
         <div class="col-sm-3">
             Batch Fee: <input type="number" min="0" value="0" id="batchFee" name="batchFee">
         </div>
-        <div class="col-sm-3" >
+        <div class="col-sm-3"  style="display:none;">
             Enrolled Students: <input type="number" min="0" value="0" id="enrolledStudents" name="enrolledStudents">
         </div> 
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="display:none;">
             Fee Received: <input type="number" min="0" value="0" id="feeReceived" name="feeReceived">
         </div>
     </div>
     <a href="#" style="margin-left: 250px;margin-top: 15px;" id="createBatch" class="btn green">Create Batch</a>
     </form>
+    <span style="color:red;" id="batchMsg"></span>
     </div>
     
   </div>
@@ -289,6 +301,17 @@
         $('.datepicker').datepicker();
         $('.timepicker').timepicker();
     });
+
+    var type = document.getElementById('selectType')
+    type.onchange = function(){
+        if(type.value=='266' || type.value=='268'){
+            $('#batchFee').prop('disabled',true);
+            $('#feeReceived').prop('disabled',true);
+        }else{
+            $('#batchFee').prop('disabled',false);
+            $('#feeReceived').prop('disabled',false);
+        }
+    }
 
     var clicks = 0;
     $('#addQuestionBTN').click(function () {
@@ -333,6 +356,7 @@
 
     $('#createBatch').click(function($e){
         $e.preventDefault();
+        $('#batchMsg').html('');
         var form = $('#batchForm');
         var courseId = $('#courseId').val();
         console.log('Start time:'+startTime);
@@ -342,9 +366,12 @@
             type:"POST",
             data: form.serialize(),
             success:function(response){
-                if(response){
+                if(response=='1'){
                     console.log('data added successfully');
                     M.toast({html: 'Batch created successfully'});
+                }
+                else{
+                    $('#batchMsg').html('Please fill all fields to schedule batch');
                 }
             },
             error:function(xhr){

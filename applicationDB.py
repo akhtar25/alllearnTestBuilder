@@ -182,7 +182,7 @@ class Attendance(db.Model):
     last_modified_date=db.Column(db.DateTime)    
 
 
-class Topic(db.Model):
+class Topic(db.Model): 
     __tablename__ = "topic_detail"
     #content_id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, primary_key=True)

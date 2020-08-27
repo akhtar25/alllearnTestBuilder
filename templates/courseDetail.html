@@ -60,11 +60,11 @@
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <h1 style="font-size: 5vw;">{{courseDet.course_name}}</h1>
+        <h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
-            <h3>{{user.first_name[0:1]|upper}}{{user.first_name[1:]}}
-                {{user.last_name[0:1]|upper}}{{user.last_name[1:]}}</h3>
+            <a href="{{url_for('tutorDashboard',tutor_id=teacher)}}"><h3 style="color: white;">{{user.first_name[0:1]|upper}}{{user.first_name[1:]}}
+                {{user.last_name[0:1]|upper}}{{user.last_name[1:]}}</h3></a>
             {% if user.about_me %}
             <h4 style="max-height: 60%;">{{user.about_me}}</h4>
             {% else %}
@@ -126,8 +126,13 @@
                         <th>Dates</th>
                         <th>Days of week</th>
                         <th>Enrollments</th>
-                        <th>Fee</th>                        
+                        <th>Fee</th>    
+                        {% if current_user.user_type==234 or current_user.user_type==134 %}                  
                         <th>Enroll</th>
+                        {% endif %}
+                        {% if current_user.user_type==71 %}
+                        <th>Conduct Class</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -135,12 +140,29 @@
                 {%for batch in courseBatchData%}
                     <tr>
                         <td>{{batch.batch_id}}</td>
-                        <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_start_date.strftime('%d %B %y')}}</td>
+                        <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_end_date.strftime('%d %B %y')}}</td>
                         <td>{{batch.days_of_week}}</td>
                         <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
-                        <td>₹{{batch.course_batch_fee}}</td>                        
-                        <td><a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
-                            style="width: 100%;" href="#modal2"> Enroll</a></td>                                                     
+                        <td>₹{{batch.course_batch_fee}}</td>                       
+                        
+                            {% if current_user.user_type==234 or current_user.user_type==134 %}
+                            <td>
+                            {% if batch.student_user_id==current_user.id %}
+                            Enrolled
+                            {% else %}
+                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
+                            style="width: 100%;" href="#modal2"> Enroll</a>
+                            {% endif %}
+                            </td>
+                            {% endif %}    
+                        
+                            {% if current_user.user_type==71 %}
+                            <td>
+                            <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
+                            style="width: 100%;" href="#modal5"> Conduct Class</a>
+                            </td> 
+                            {% endif %}
+                                                                  
                     </tr>
                 {%endfor%}
                
@@ -246,10 +268,15 @@
 
             <div class="starRatingDiv">
                 {% if rating.average_rating %}
+                {% if checkEnrollment %}
                 <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
                     <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
                             class="stars left">{{rating.average_rating}}</span></h4>
                 </a>
+                {% else %}
+                <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
+                    class="stars left">{{rating.average_rating}}</span></h4>
+                {% endif %}
                 {% else %}
                 <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
                     <h4 class=""><span style="margin-left:10px;color:black;">No reviews</span><span class="stars left">0</span>
@@ -280,8 +307,14 @@
             <h5>Timings: {{upcomingDate.batch_start_time}} - {{upcomingDate.batch_end_time}}</h5>
             <h5>Total Hours:&nbsp;<span id="timeDiff"></span></h5>
             <h5>Live Class Fee: <b>₹{{upcomingDate.course_batch_fee}}</b></h5>
+            {% if current_user.user_type==234 %}
+            {% if checkEnrollment %}
+              <h5>Enrolled</h5>
+            {% else %}
             <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}" id ="{{upcomingDate.course_batch_fee}}"
                 style="width: 100%;" href="#modal2"> Enroll in Course</a>
+            {% endif %}
+            {% endif %}
             {% else %}
             <h4 class="grey-text">No Upcoming Batch </h4>
             {% endif %}            
@@ -315,15 +348,15 @@
                 {% if course.image_url %}
                 <a href="{{url_for('courseDetail',course_id=course.course_id)}}">
                     <li class="hoverable"
-                        style="border-radius: 10px;cursor:pointer;width: 350px;display: flex;margin-top: 15px;">
+                        style="border-radius: 10px;cursor:pointer;width: 340px;display: flex;margin-top: 15px;">
                         <img src="{{course.image_url}}" width="30%">
-                        <h4 style="margin-left: 20px;height: 40px;color: black;">{{course.course_name}}</h4>
+                        <h4 style="margin-left: 20px;height: 40px;color: black;width:140px;">{{course.course_name}}</h4>
                         {% if course.average_rating  %}
                         <br><br>
-                        <h5 style="color: black;" class="right">&nbsp;<span
+                        <h5 style="color: black;margin-top: 35px;" class="right">&nbsp;<span
                                 class="stars">{{course.average_rating}}</span></h5>
                         {% else %}
-                        <h5 style="color: black;" class="right">&nbsp;No Reviews</h5>
+                        <h5 style="color: black;margin-top: 35px;" class="right">&nbsp;No Reviews</h5>
                         {% endif %}
                     </li>
                 </a>
@@ -363,6 +396,21 @@
     </div>
 </div>
 
+<div id="modal5" class="modal" style="background-color:white;width: 400px;height: 290px;">
+    <div id="topicLoader" class="center" style="display: none;height: 100%;">
+        <img src="../static/images/loader.gif">
+    </div>
+    <div class="modal-content" id="topicListModal" style="display:none;height: 290px;">
+        <p>
+                <h3>Topics for Batch <span id="batId"></span></h3>
+                <ul id="topicListDiv" style="margin-top: 20px;">
+
+                </ul>
+        </p>
+
+    </div>
+</div>
+
 <div id="modal2" class="modal" style="background-color:white;">
     <div id="loader" class="center" style="display: none;height: 100%;">
         <img src="../static/images/loader.gif">
@@ -379,6 +427,39 @@
     $(document).ready(function () {
         $('.parallax').parallax();
         $('.modal').modal();
+    });
+
+    $('.topicListBTN').click(function(){
+        $('#modal5').hide();
+        $('#topicListDiv').html('');
+        $('#topicLoader').show();
+        var batch_id = $(this).attr("name");
+        $.ajax({
+            url: "/batchTopicList?&batch_id=" + batch_id,
+            type: "POST",
+            data: '',
+            success: function (response1) {
+                if (response1 ) {
+                    var responseArr = response1.toString().split(',');
+                    var topicListDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var topicName = responseArr[i].toString().split(':')[0];
+                        var topicId = responseArr[i].toString().split(':')[1];
+                        console.log('Topic Id:'+topicId);
+                        console.log('batch Id:'+batch_id);
+                        $('#batId').html(batch_id);
+                        topicListDiv = topicListDiv + '<li><a href="{{url_for("openLiveClass",topic_id='+topicId+')}}" ><span>'+(i+1)+'</span><span style="margin-left:20px;">'+topicName+'</span></a></li>';
+                    }
+                    $('#topicLoader').hide();
+                    $('#topicListDiv').html(topicListDiv);
+                    $('#topicListModal').show();
+                } 
+            },
+            error: function (xhr) {
+                $('#topicListDiv').html("Error occurred. Please try again.");
+                $('#topicLoader').hide();
+            }
+        });
     });
 
     $('.enrollBTN').click(function () {
@@ -408,7 +489,7 @@
                 $('#donateDiv').html("Error occurred. Please try again.");
                 $('#loader').hide();
             }
-        })
+        });
     });
     var st = "{{upcomingDate.batch_start_time}}";
     var en = "{{upcomingDate.batch_end_time}}";

@@ -184,10 +184,10 @@
                             {{topic.no_of_questions}}
                         </td>
                         <td>
-                            <a href="#">Add Notes</a>
+                            <a class="modal-trigger" onclick="topicId('{{topic.topic_id}}');" href="#topicNotesModal">Add Notes</a>
                         </td>
                                                 <td>
-                            <a href="#">Add Class Recording</a>
+                            <a class="modal-trigger" onclick="topicRecordingId('{{topic.topic_id}}');" href="#recordClassModal">Add Class Recording</a>
                         </td>
                         <td>
                             <a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass">
@@ -216,9 +216,11 @@
             <h3 class="">Ideal for</h3>
             {% if course_id %}
             {% if idealFor %}
-            <input class="magicsearch" name="idealfor" id="topicSearch" value="{{idealFor}}" placeholder="{{idealFor}}">
+            <!-- <input class="magicsearch" name="idealfor" id="topicSearch" value="{{idealFor}}" placeholder="{{idealFor}}"> -->
+            <input type="text" name="idealfor" value="{{idealFor}}" disabled/>
             {% else %}
             <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
+            <input type="text" name="idealfor" value="" disabled/>
             {% endif %}
             {% else %}
             <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
@@ -319,7 +321,7 @@
 <!--Modal section-->
 <div class="modal" id="topicAddModal">
     <div class="modal-content" style="height: 100%;">
-    <div class="col lg s6" id="unselect">
+    <!-- <div class="col lg s6" id="unselect">
             <ul class="tabs">
                 <li class="tab col s3">
                     <a href="javascript:void(0);" id="topic" class="tabFont">Review and Add Topic</a>
@@ -328,7 +330,7 @@
                     <a href="javascript:void(0);" id="notes" class="tabFont">Review and Add Notes</a>
                 </li>
             </ul>
-    </div>
+    </div> -->
     <div id="section1" style="margin-top:10px;height: 90%;position: relative;">
         <div>
             <!-- <h4>Review and Add Topic</h4> -->
@@ -358,36 +360,134 @@
             </div>
         </div>        
     </div>
-    <div id="section2">
-        {% if course_id %}
-        <input type="text" value="{{courseNotes.notes_name}}" style="font-size: xx-large;margin-top: 10px;" id="notesName" placeholder="Notes Name">
-        {% else %}
-        <input type="text" value="" style="font-size: xx-large;margin-top: 10px;" id="notesName" placeholder="Notes Name">
-        {% endif %}
+    </div>
+</div>
+
+<div class="modal" id="recordClassModal" style="width: 450px;height: 230px;">
+    <div class="modal-content" style="max-height: 400px;position: relative;overflow-y: auto;">
+        <h3>Class Recording</h3>
+        <form id="recordClassForm">
             
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
-                Notes URL:
-                {% if course_id %}
-                <input type="text" id="notesURL" value='{{courseNotes.notes_url}}' style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
-                {% else %}
-                <input type="text" id="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
-                {% endif %}
+                Class Recording URL:
+                <input type="text" id="recordingURL" name="recordingURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
                 <br><h4>OR</h4><br>
-                <input type="file" id="video_notes_url" onchange="initUpload('2');" name="video_url" style="height: 30px; margin-top: -10px;">
-                <input type="hidden" id="videoNotesUrl" value="" name="videoNotesUrl">
-        <!-- <div class="center"> -->
-            <!-- <span id="video_name">Sample Video</span><br>
-            <video src="../static/images/vid1.m4v" id="previewNotes" class="" width="50%" controls></video> -->
-        <!-- </div> -->
-        
-        <button class="btn green" id="saveNotes" style="margin-left: 270px;">Save Notes</button>
+                <input type="file" id="video_record_url" onchange="initUpload('10');" name="videoRecordUrl" style="height: 30px; margin-top: -10px;">
+                <input type="hidden" id="videoRecordUrl" value="" name="videoRecordUrl">
+                <!-- <ol><div id="topicNotDiv" style="max-width: 80%;"></div></ol>
+                <a href="#" id="addNotesBTN">
+                    <i class="material-icons" class="green center">add_circle</i> 
+                    <span style="font-size: large;">Add More</span></a> -->
+        <button class="btn green" id="videoRecord" style="margin-left: 270px;">upload Record</button>
+    </form>
     </div>
+</div>
+
+
+
+<div class="modal" id="topicNotesModal" style="width: 450px;">
+    <div class="modal-content" style="height: 400px;position: relative;overflow-y: auto;">
+        <form id="topicNotesForm">
+        <input type="text" value="" style="font-size: 20px;margin-top: 10px;" id="notesName" name="notesName" placeholder="Notes Name">
+            
+                <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                <!-- Notes URL:
+                <input type="text" id="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
+                <br><h4>OR</h4><br>
+                <input type="file" id="video_notes_url" onchange="initUpload('2');" name="video_url" style="height: 30px; margin-top: -10px;"> -->
+                <!-- <input type="hidden" id="videoNotesUrl" value="" name="videoNotesUrl"> -->
+                <ol><div id="topicNotDiv" style="max-width: 80%;"></div></ol>
+                <a href="#" id="addNotesBTN">
+                    <i class="material-icons" class="green center">add_circle</i> 
+                    <span style="font-size: large;">Add More</span></a>
+        <button class="btn green" id="saveNotes" style="margin-left: 270px;">upload Notes</button>
+    </form>
     </div>
 </div>
 <!--End of modal section-->
 
 
 <script>
+    function fetch(topId){
+        console.log('inside fetch'+topId);
+        $.ajax({
+            url: "/fetchNotes?topic_id="+topId,
+            type: "POST",
+            data: "",
+            success: function (formResponse) { 
+             if(formResponse){
+                var responseArr = formResponse.toString().split(',');
+                var notesDiv = '';
+                for(var i=0;i<responseArr;i++){
+                    var notes_name = responseArr[i].toString().split(':')[0];
+                    var notes_url = responseArr[i].toString().splt(':')[1];
+                    $('#notesName').val(notes_name);
+                    
+                    notesDiv = notesDiv + 'Notes URL:<input type="text" id="notesURL" value="'+notes_url+'" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"><br><h4>OR</h4><br><input type="file" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px; margin-top: -10px;">';
+                }
+                $('#topicNotDiv').html(notesDiv);
+             }
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+            }
+        }); 
+    }
+
+    var topId = '';
+    function topicId(topic_id){
+        topId = topic_id;
+        fetch(topId);
+        return 0;
+    }
+    function topicRecordingId(topic_id){
+        topId = topic_id;
+        return 0;
+    }
+
+$('#videoRecord').click(function($e){
+    $e.preventDefault();
+    var form = $('#recordClassForm'); 
+    console.log('topic_id:'+topId);  
+    $.ajax({
+            url: "/addRecording?topic_id="+topId,
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+             if(formResponse){
+                M.toast({html: 'Record added successfully'});
+             }
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+            }
+        }); 
+});
+
+$('#saveNotes').click(function($e){
+    $e.preventDefault(); 
+    var form = $('#topicNotesForm'); 
+    console.log('topic_id:'+topId);  
+    $.ajax({
+            url: "/addNotes?topic_id="+topId,
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+             if(formResponse){
+                M.toast({html: 'Notes added successfully'});
+             }
+            },
+            error: function (xhr) {
+              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+            }
+        });       
+});
+
+var clicks = 0;
+    $('#addNotesBTN').click(function () {
+        clicks=clicks+1;        
+        $('#topicNotDiv').append('<li>Notes URL:<input type="text" id="notesURL" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"><br><h4>OR</h4><br><input type="file" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px; margin-top: -10px;"><input type="hidden" id="videoNotesUrl" class="videoNotesUrl" value="" name="videoNotesUrl"></li>');
+        });
 
     $(document).ready(function(){
         {% if course_id %}
@@ -687,9 +787,13 @@ function correctOption(correct){
             }else
             if(videoZone=='2'){
                 console.log('if file is for notesUrl');
-                document.getElementById('videoNotesUrl').value = url;
+                $('.videoNotesUrl').val(url);
                 // document.getElementById('previewNotes').src = url;
-            }else{
+            }
+            if(videoZone=='10'){
+                $('#videoRecordUrl').val(url);
+            }
+            else{
                 console.log('if file for imageUrl');
                 document.getElementById('previewImg').src = url;
                 document.getElementById('imageUrl').value=url;
@@ -727,6 +831,7 @@ function correctOption(correct){
       xhr.send();
     }
     function initUpload(videoZone){
+        console.log('inside initUpload');
         console.log(videoZone);
         var files = '';
     if(videoZone=='1'){
@@ -734,7 +839,11 @@ function correctOption(correct){
     }else
     if(videoZone=='2'){
          files = document.getElementById('video_notes_url').files;
-    }else{
+    }
+    if(videoZone=='10'){
+        files = document.getElementById('video_record_url').files;
+    }
+    else{
         files = document.getElementById('courseImg').files;
     }
       const file = files[0];
@@ -764,12 +873,12 @@ function correctOption(correct){
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                     }
                     $('#topicListDiv').html(topicList);
                     
                 }else{
-                    topicList = '<tr><td colspan="4" style="text-align:center;">No Topic available</td></tr>';
+                    topicList = '<tr><td colspan="5" style="text-align:center;">No Topic available</td></tr>';
                     $('#topicListDiv').html(topicList);
                 }
             },
@@ -817,8 +926,10 @@ function correctOption(correct){
 
     $('#searchIcon').click(function(){
         var topic = $('#myInput').val();
+        var courseId = "{{course_id}}";
+        console.log(courseId);
         $.ajax({
-            url:"/searchTopic?topic="+topic,
+            url:"/searchTopic?topic="+topic+"&courseId="+courseId,
             type:"POST",
             data: "",
             success:function(response){
@@ -1049,7 +1160,7 @@ function correctOption(correct){
         });
     }
 
-    $('#saveNotes').click(function(){
+    $('#sa').click(function(){
         var notesName = $('#notesName').val();
         var notesUrl = $('#videoNotesUrl').val();
         var url = $('#notesURL').val();

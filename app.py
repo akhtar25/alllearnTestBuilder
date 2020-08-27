@@ -2350,15 +2350,31 @@ def courseHome():
     #if current_user.is_anonymous==False:
         #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
         #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
-    enrolledCourses = "select cd.course_name,cd.course_id,tp.teacher_name,(cb.student_limit-cb.students_enrolled ) as seats,cd.image_url,cd.average_rating,cb.batch_start_date ,cd.description from course_detail cd "
+    enrolledCourses = "select cd.course_name,cd.course_id,tp.teacher_id,tp.teacher_name,(cb.student_limit-cb.students_enrolled ) as seats,cd.image_url,cd.average_rating,cb.batch_start_date ,cd.description from course_detail cd "
     enrolledCourses = enrolledCourses + "inner join course_batch cb on cd.course_id = cb.course_id "
     enrolledCourses = enrolledCourses + "inner join teacher_profile tp on cd.teacher_id  = tp.teacher_id where cb.student_limit-cb.students_enrolled>=0 order by seats desc limit 8"
     enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
     recentlyAccessed = "select cd.course_name,cd.course_id,tp.teacher_name,(cb.student_limit-cb.students_enrolled ) as seats,cd.image_url,cd.average_rating,cb.batch_start_date ,cd.description from course_detail cd "
-    recentlyAccessed = recentlyAccessed + "inner join course_batch cb on cd.course_id = cb.course_id "
+    recentlyAccessed = recentlyAccessed + "left join course_batch cb on cd.course_id = cb.course_id "
     recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on cd.teacher_id  = tp.teacher_id where cb.student_limit-cb.students_enrolled>=0 order by cd.last_modified_date desc limit 8"
     recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
-    return render_template('courseHome.html',recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
+
+    for rate in enrolledCourses:
+        print('Rating:'+str(rate.average_rating))
+        if rate.average_rating:
+            print('rate:'+str(rate.average_rating))
+
+    idealFor = CourseDetail.query.distinct(CourseDetail.ideal_for).all()
+    idealList = []
+    for ideal in idealFor:
+        print('ideal for:'+str(ideal.ideal_for))
+        if ideal.ideal_for:
+            data = ideal.ideal_for.split(',')
+            for d in data:
+                if d not in idealList:
+                    idealList.append(d)
+    print('List:'+str(idealList))
+    return render_template('courseHome.html',idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
@@ -2397,11 +2413,15 @@ def courseDetail():
     topicDet = db.session.execute(text(topicDet)).fetchall()
     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
+    checkEnrollment = ''
+    if upcomingDate:
+        checkEnrollment = CourseEnrollment.query.filter_by(batch_id=upcomingDate.batch_id,student_user_id=current_user.id).first()
     #courseFee = ''
     #if upcomingDate:
     #    courseFee = CourseBatch.query.filter_by(course_id=course_id,batch_start_date=upcomingDate.batch_start_date,batch_start_time=upcomingDate.batch_start_time).first()
     idealFor = courseDet.ideal_for.split(",")
     print(idealFor)
+    
     levelId = courseDet.difficulty_level
     level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
     rating = CourseDetail.query.filter_by(course_id=course_id,is_archived='N').first()
@@ -2412,15 +2432,19 @@ def courseDetail():
     comments = db.session.execute(text(comments)).fetchall()
     lenComment = len(comments)
     print(comments)
-    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' "
+    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' "
     otherCourses = db.session.execute(text(otherCourses)).fetchall()
 
     #batch data
-    courseBatchData = CourseBatch.query.filter_by(is_archived='N',course_id=str(course_id)).all()
+    courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
+    courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
+    courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.batch_end_date > NOW() "
+    print('Query:'+str(courseBatchData))
+    courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
     return render_template('courseDetail.html',courseBatchData=courseBatchData,
         lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
         idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
-        courseDet=courseDet,user=user)
+        courseDet=courseDet,user=user,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher.teacher_id)
 
 @app.route('/addComments',methods=['GET','POST'])
 def addComments():
@@ -2550,16 +2574,30 @@ def addReview():
         reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
     return jsonify(reviewList)
 
+@app.route('/batchTopicList',methods=['GET','POST'])
+def batchTopicList():
+    batch_id = request.args.get('batch_id')
+    courseId = CourseBatch.query.filter_by(batch_id=batch_id).first()
+    topicIds = CourseTopics.query.filter_by(course_id=courseId.course_id).all()
+    topics = []
+    for topicId in topicIds:
+        topicName = Topic.query.filter_by(topic_id=topicId.topic_id).first()
+        topics.append(str(topicName.topic_name)+':'+str(topicName.topic_id))
+    if topics:
+        return jsonify(topics)
+    else:
+        return ""
+
 @app.route('/tutorDashboard',methods=['GET','POST'])
 def tutorDashboard():
     tutor_id = request.args.get('tutor_id')
     TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
     user = User.query.filter_by(id=TeacherId.user_id).first()
     # courseDet = CourseDetail.query.filter_by(teacher_id=TeacherId.teacher_id).all()
-    courseDet = "select count(*) as no_of_topic,cd.course_name,cd.description,cd.image_url,cd.course_id from course_topics ct inner join course_detail cd on ct.course_id=cd.course_id where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
+    courseDet = "select count(*) as no_of_topic,cd.course_name,md.description as desc,cd.description,cd.image_url,cd.course_id from course_detail cd inner join course_topics ct on ct.course_id=cd.course_id inner join message_detail md on md.msg_id = cd.course_status where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,md.description,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
     courseDet = db.session.execute(text(courseDet)).fetchall()
     feeType = MessageDetails.query.filter_by(category='Fee Type').all()
-    return render_template('tutorDashboard.html',tutor_id=tutor_id,feeType=feeType,courseDet=courseDet,teacher_name = user.first_name+' '+user.last_name,profile_pic = user.user_avatar,email = user.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
+    return render_template('tutorDashboard.html',user=user,tutor_id=tutor_id,feeType=feeType,courseDet=courseDet,teacher_name = user.first_name+' '+user.last_name,profile_pic = user.user_avatar,email = user.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
 
 @app.route('/fetchBatch',methods=['GET','POST'])
 def fetchBatch():
@@ -2607,14 +2645,17 @@ def createBatch():
             dayString = dayString + dayS + ','
         i=i+1
     print('StringDays:'+str(dayString))
-    createBatch = CourseBatch(course_id=courseId,batch_start_date=startDate,
-    batch_end_date=EndDate,batch_start_time=startTime,batch_end_time=endTime,
-    days_of_week=dayString,student_limit=studentLimit,course_batch_fee=batchFee,
-    students_enrolled=enrolledStudents,total_fee_received=feeReceived,fee_type=selectType,
-    is_archived='N',last_modified_date=datetime.now())
-    db.session.add(createBatch)
-    db.session.commit()
-    return jsonify("1")
+    if startDate and EndDate and startTime and endTime and days and studentLimit and enrolledStudents and selectType:
+        createBatch = CourseBatch(course_id=courseId,batch_start_date=startDate,
+        batch_end_date=EndDate,batch_start_time=startTime,batch_end_time=endTime,
+        days_of_week=dayString,student_limit=studentLimit,course_batch_fee=0,
+        students_enrolled=enrolledStudents,total_fee_received=0,fee_type=selectType,
+        is_archived='N',last_modified_date=datetime.now())
+        db.session.add(createBatch)
+        db.session.commit()
+        return jsonify("1")
+    else:
+        return ""
 
 @app.route('/teacherRegistration')
 def teacherRegistration():
@@ -2662,6 +2703,7 @@ def editCourse():
             topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
             topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
             topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+            print(topicDet)
             topicDet = db.session.execute(text(topicDet)).fetchall()
             idealFor = courseDet.ideal_for
             print('Description:'+str(courseDet.description))
@@ -2683,6 +2725,8 @@ def editCourse():
 @app.route('/searchTopic',methods=['GET','POST'])
 def searchTopic():
     topic = request.args.get('topic')
+    courseId = request.args.get('courseId')
+
     topics = "select topic_id,topic_name from topic_detail td where topic_name like '"+str(topic)+"%' "
     topics = db.session.execute(text(topics)).fetchall()
     topicArray = []
@@ -2712,6 +2756,15 @@ def fetchQues():
         return jsonify(topicsDet)
     else:
         return ""
+
+@app.route('/fetchNotes',methods=['GET','POST'])
+def fetchNotes():
+    topic_id = request.args.get('topic_id')
+    notes = TopicNotes.query.filter_by(topic_id=topic_id).all()
+    notesData = []
+    for note in notes:
+         notesData.append(str(note.notes_name)+':'+str(note.notes_url))
+    return jsonify(notesData)
 
 @app.route('/fetchRemQues',methods=['GET','POST'])
 def fetchRemQues():
@@ -2864,10 +2917,10 @@ def addCourseTopic():
         testId = db.session.execute(text(testId)).first()
         courseTopic = ''
         if courseId:
-            courseTopic = CourseTopics(course_id=courseId,topic_id=topicId,test_id=testId.test_id,video_class_url='videoUrl',is_archived='N',last_modified_date=datetime.now())
+            courseTopic = CourseTopics(course_id=courseId,topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
             db.session.add(courseTopic)
         else:
-            courseTopic = CourseTopics(topic_id=topicId,test_id=testId.test_id,video_class_url='videoUrl',is_archived='N',last_modified_date=datetime.now())
+            courseTopic = CourseTopics(topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
             db.session.add(courseTopic)
         db.session.commit()
         for quesId in quesIds:
@@ -2937,29 +2990,70 @@ def fetchTickCorrect():
         correctOpt.append(corr.option_desc)
     return jsonify(correctOpt)
 
+@app.route('/addRecording',methods=['GET','POST'])
+def addRecording():
+    topic_id = request.args.get('topic_id')
+    videoRec = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    recordingURL = request.form.get('recordingURL')
+    print('recording Url:'+str(recordingURL))
+    videoRecordUrl = request.form.get('videoRecordUrl')
+    print('video recording url:'+str(videoRecordUrl))
+    if recordingURL:
+        videoRec.video_class_url = recordingURL
+    else:
+        videoRec.video_class_url = videoRecordUrl
+    db.session.commit()
+    return jsonify("1")
 
 @app.route('/addNotes',methods=['GET','POST'])
 def addNotes():
-    topicId = request.args.get('topicId')
-    notesName = request.args.get('notesName')
-    NotesFileUrl = request.args.get('NotesFileUrl')
-    notesExist = TopicNotes.query.filter_by(topic_id=topicId).first()
-    if notesExist:
-        notesExist.notes_name = notesName
-        notesExist.notes_url = NotesFileUrl
-        db.session.commit()
-    else:
-        courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-        
-        if NotesFileUrl !='':               
-            notes_url ,NotesFileUrl = get_yt_video_id(NotesFileUrl)
-            if notes_url!=96:
-                notes_url= checkContentType(NotesFileUrl)                
+    topicId = request.args.get('topic_id')
+    notesName = request.form.get('notesName')
+    notesURL = request.form.getlist('notesURL')
+    videoNotesUrl = request.form.getlist('videoNotesUrl')
+    print('topicId:'+str(topicId))
+    print('Notes name:'+str(notesName))
+    for note in notesURL:
+        if note:
+            print('Note Url:'+str(note))
+            notesExist = TopicNotes.query.filter_by(topic_id=topicId).first()
+            if notesExist:
+                notesExist.notes_name = notesName
+                notesExist.notes_url = note
+                db.session.commit()
             else:
-                notes_url=226
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=NotesFileUrl,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addNotes)
-            db.session.commit()
+                courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+        
+                if note !='':               
+                    notes_url ,note = get_yt_video_id(note)
+                if notes_url!=96:
+                    notes_url= checkContentType(note)                
+                else:
+                    notes_url=226
+                addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=note,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+                db.session.add(addNotes)
+                db.session.commit()
+    for notes in videoNotesUrl:
+        if notes:
+            print('Notes Url:'+str(notes))
+            notesExist = TopicNotes.query.filter_by(topic_id=topicId).first()
+            if notesExist:
+                notesExist.notes_name = notesName
+                notesExist.notes_url = notes
+                db.session.commit()
+            else:
+                courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+        
+                if notes !='':               
+                    notes_url ,notes = get_yt_video_id(notes)
+                if notes_url!=96:
+                    notes_url= checkContentType(notes)                
+                else:
+                    notes_url=226
+                addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=notes,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+                db.session.add(addNotes)
+                db.session.commit()
+    #         db.session.commit()
     return jsonify("1")
 
 @app.route('/addNewQuestion',methods=['GET','POST'])
@@ -3624,8 +3718,9 @@ def login():
             user=User.query.filter_by(email=gemail).first()   
             if user is None:
                 flash("Email not registered")
+                print('Email not registered')
                 return redirect(url_for('login'))
-        else:
+        else: 
             user=User.query.filter_by(email=form.email.data).first()                
             if user is None or not user.check_password(form.password.data):        
                 flash("Invalid email or password")
