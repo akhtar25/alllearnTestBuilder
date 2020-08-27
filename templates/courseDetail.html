@@ -87,7 +87,7 @@
             </div>
             <div class="divider"></div>
             <h3 class="">Topics</h3>
-            <div style="height: 200px; overflow-y: auto;">
+            <div style="max-height: 600px; overflow-y: auto;">
                 {%if topicDet%}
                 <table class="highlight">
                     <thead>
@@ -101,7 +101,7 @@
                         {% for row in topicDet %}                       
                         <tr>                        
                             <td> 
-                                <a href="{{url_for('openLiveClass', topic_id=row.topic_id)}}">
+                                <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
                                     <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
                                 </a>
                             </td>
@@ -521,8 +521,9 @@
         console.log('inside submitReview');
         var revComment = $('#reviewComment').val();
         var course_id = "{{courseDet.course_id}}";
+        var starRating = $("input[name='star']:checked").val();
         $.ajax({
-            url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment,
+            url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment + '&starRating='+ starRating,
             type: "POST",
             data: "",
             success: function (response) {

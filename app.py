@@ -178,12 +178,13 @@ def gTokenSignin():
         #section to create new user
         chkUserData = User.query.filter_by(email=str(idinfo["email"])).first()
         if chkUserData==None:
-            user = User(username=idinfo["email"], email=idinfo["email"], user_type='140', access_status='144', 
+            user = User(username=idinfo["email"], email=idinfo["email"], user_type='253', access_status='145', 
                 first_name = idinfo["given_name"],last_name= idinfo["family_name"], last_modified_date = datetime.today(),
-                user_avatar = idinfo["picture"], login_type=244)
+                user_avatar = idinfo["picture"],school_id=1, login_type=244)
             #user.set_password(form.password.data)
             db.session.add(user)
             db.session.commit()
+            #flash('Congratulations! You\'re now a registered user!')
             #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
             checkTeacherProf = TeacherProfile.query.filter_by(email=idinfo["email"]).first()
             #if a student has already been added during school registration then simply add the new user's id to it's student profile value
@@ -389,8 +390,8 @@ def cityList():
 
 def classSecCheck():
     teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
-    print('#######this is current user '+ str(current_user.id))
+    #print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
+    #print('#######this is current user '+ str(current_user.id))
     if teacherProfile==None:
         return 'N'
     else:
@@ -2363,9 +2364,10 @@ def courseHome():
 @app.route('/openLiveClass')
 def openLiveClass():
     print('inside openlive class')
-    live_class_id = request.args.get('live_class_id')
+    #live_class_id = request.args.get('live_class_id')
     topic_id = request.args.get('topic_id')
     batch_id = request.args.get('batch_id')
+    course_id = request.args.get('course_id')
     #topicName = Topic.query.filter_by(topic_id=topic_id).first()
     #courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
     #courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
@@ -2374,7 +2376,14 @@ def openLiveClass():
     topicDataQuery = topicDataQuery + " ct.topic_id  = td.topic_id inner join course_detail cd on  "
     topicDataQuery = topicDataQuery + " cd.course_id  = ct.course_id  inner join teacher_profile tp on  "
     topicDataQuery = topicDataQuery + " tp.teacher_id  = cd.teacher_id where td.topic_id  =" + str(topic_id)
+    topicDataQuery = topicDataQuery + " and cd.course_id=" + str(course_id)
     topicData = db.session.execute(topicDataQuery).first()
+
+    if topicData== None:
+        flash('No relevant course and topic found!')
+        return redirect(url_for('courseDetail',course_id=course_id))
+    
+    #batchTestData = BatchTest.query.filter_by(batch_id=batch_id, is_archived='N', is_curren)
 
     notesList = TopicNotes.query.filter_by(topic_id=topic_id).all()
     comments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topic_id)+"' and comment<>' ' and comment is not null  "
@@ -2389,9 +2398,30 @@ def openLiveClass():
     #    print('Star rating:'+str(rating.average_rating))
     listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(topicData.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
     listTopics = db.session.execute(text(listTopics)).fetchall()
+
+    #updating table to say ongoing class
+    enrolled=''
+    if batch_id!="" and batch_id!=None:
+        courseBatchData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N').first()
+        courseBatchData.is_ongoing = 'Y'
+        courseBatchData.ongoing_topic_id = topicData.topic_id
+        courseBatchData.last_modified_date = datetime.today()
+        db.session.commit()        
+    else:
+        #checking if a student is seeing the page and then seeing the batch id they're allocated to
+        if current_user.is_anonymous==False:
+            courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=topicData.course_id, student_user_id=current_user.id).first()        
+            if courseEnrollmentData!=None and courseEnrollmentData!="":
+                enrolled='Y'
+                batch_id=courseEnrollmentData.batch_id
+        else:
+            enrolled='N'
+            batch_id=""
+
+
     print('$#$$$$$$$$$$$$$'+str(batch_id))
     return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
-        ,lenComm=lenComm,comments=comments,notesList=notesList,batch_id=batch_id)
+        ,lenComm=lenComm,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
 
 @app.route('/courseDetail')
 def courseDetail():
@@ -2400,10 +2430,10 @@ def courseDetail():
     courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
     teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
     user = User.query.filter_by(id=teacher.user_id).first()
-    topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id from course_topics ct "
+    topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id,ct.course_id from course_topics ct "
     topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
     topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name,td.topic_id "
+    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' group by td.topic_name,td.topic_id,ct.course_id "
     topicDet = db.session.execute(text(topicDet)).fetchall()
     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
@@ -2427,10 +2457,27 @@ def courseDetail():
 
     #batch data
     courseBatchData = CourseBatch.query.filter_by(is_archived='N',course_id=str(course_id)).all()
+
+    #check enrollment
+    
     return render_template('courseDetail.html',courseBatchData=courseBatchData,
         lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
         idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
         courseDet=courseDet,user=user)
+
+
+@app.route('/studTakeQuizBTN', methods=['GET','POST'])
+def studTakeQuizBTN():
+    #course_id={{topicData.course_id}}&batch_id={{batch_id}}&topic_id={{topicData.topic_id}}",
+    course_id = request.args.get('course_id')
+    batch_id = request.args.get('batch_id')
+    topic_id = request.args.get('topic_id')
+    batchTestData = BatchTest.query.filter_by(batch_id=batch_id, topic_id=topic_id).first()
+    if batchTestData:
+        return jsonify([batchTestData])
+    else:
+        return jsonify(['1'])
+
 
 @app.route('/addComments',methods=['GET','POST'])
 def addComments():
@@ -2463,9 +2510,16 @@ def addTopicReview():
 def addReviewComment():
     course_id = request.args.get('course_id')
     revComment = request.args.get('revComment')
+    starRating = request.args.get('starRating')
+    
     print('courseId:'+str(course_id))
-    reviewRate = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
-    reviewRate.comment = revComment
+    reviewRate = CourseReview.query.filter_by(course_id=str(course_id),is_archived='N',user_id=current_user.id).first()
+    if reviewRate==None or revComment=="":
+        reviewDataAdd = CourseReview(course_id=str(course_id), star_rating = starRating, comment = str(revComment),
+            is_archived = 'N', last_modified_date=datetime.today(), user_id=current_user.id)
+        db.session.add(reviewDataAdd )
+    else:
+        reviewRate.comment = revComment
     db.session.commit()
     fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
     fetchReview = db.session.execute(text(fetchReview)).fetchall()
@@ -3344,13 +3398,9 @@ def handlerequest():
     #get secret key from config
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
-    #if request.form['checkbox_anonymous_donor']: 
-    #    anonymous_donor = request.form['checkbox_anonymous_donor']
-    #if request.form['checkbox_hide_amount']:
-    #    hide_amount = request.form['checkbox_hide_amount']
-    print('print values')
-    #print(anonymous_donor)
-    #print(hide_amount)
+    
+    
+    
     transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
     transactionData.order_id=postData["orderId"]
     #transactionData.anonymous_donor = anonymous_donor
@@ -3358,6 +3408,11 @@ def handlerequest():
     transactionData.tran_status = 257 
     transactionData.request_sign_hash = signature
     transactionData.amount = postData["orderAmount"]
+
+    #updating user phone number
+    if current_user.phone==None or current_user.phone=="":
+        userDataUpdate = User.query.filter_by(id=current_user.id).first()
+        userDataUpdate.phone = request.form['customerPhone']
     db.session.commit()
 
     if mode == 'PROD': 
@@ -3417,28 +3472,16 @@ def paymentResponse():
                 courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
                 courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
 
-                courseEnrommentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
-                    last_modified_date = datetime.today())
-        ##        if transactionData.donation_for== 18 or transactionData.donation_for==38:                
-        ##            schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
-        ##            schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for== 18:
-        ##            schoolFundingData.total_monthly_sp_raised = int(schoolFundingData.total_monthly_sp_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for==38:
-        ##            schoolFundingData.total_yearly_sp_raised = int(schoolFundingData.total_yearly_sp_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for!=18 and transactionData.donation_for!=38: # Non sponsor types - Basically one time raises
-        ##            schoolFundingData.total_one_time_raised = int(schoolFundingData.total_one_time_raised) + int(transactionData.amount)
-        ##    #Sending email
-            #donation_success_email_donor(schoolData, transactionData,postData)
-            #try:
-            #    donation_success_email_donor(schoolData, transactionData,postData)
-            #except:
-            #    app.logger.info('Error Sending email')
-            #    pass
-                #if transactionData
+                courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
+                    last_modified_date = datetime.today())   
+                db.session.add(courseEnrollmentData)
+                courseDataQuery = "select course_id, course_name, tp.teacher_id, teacher_name from course_detail cd"
+                courseDataQuery = courseDataQuery + " inner join teacher_profile tp on tp.teacher_id=cd.teacher_id"
+                courseDataQuery = courseDataQuery + " and course_id="+ str(courseBatchData.course_id) 
+                courseData = db.session.execute(courseDataQuery).first()
     db.session.commit()
 
-    return render_template('paymentResponse.html',transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
+    return render_template('paymentResponse.html',courseData=courseData, courseBatchData=courseBatchData,transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
 
 
 
@@ -3535,8 +3578,9 @@ def register():
     if form.validate_on_submit():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
-        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data,
-            first_name = form.first_name.data,last_name= form.last_name.data)
+        #By default we're setting the user as course taker
+        user = User(username=form.email.data, email=form.email.data, user_type='253', access_status='145', phone=form.phone.data,
+            first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -3658,14 +3702,20 @@ def login():
         print('user type')
         #print(session['userType'])
         session['studentId'] = ''
-        if current_user.user_type==71:
-            school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        if current_user.user_type==253:
+            school_id=1
+        elif current_user.user_type==71:
+            teacherProfileData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherProfileData.school_id
         elif current_user.user_type==134:
-            school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentProfileData.school_id
             session['studentId'] = school_id.student_id
         else:
-            school_id = User.query.filter_by(id=current_user.id).first()
-        school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+            userData = User.query.filter_by(id=current_user.id).first()
+            school_id = userData.school_id
+
+        school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
         session['school_logo'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
