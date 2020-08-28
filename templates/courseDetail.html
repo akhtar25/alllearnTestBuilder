@@ -447,7 +447,7 @@
                         console.log('batch Id:'+batch_id);
                         $('#batId').html(batch_id);
                         var courseID = "{{course_id}}";
-                        topicListDiv = topicListDiv + '<li><a href="{{url_for("openLiveClass",topic_id=topicId,course_id=courseID,batch_id=batch_id)}}"><span>'+(i+1)+'</span><span style="margin-left:20px;">'+topicName+'</span></a></li>';
+                        topicListDiv = topicListDiv + '<li><a href="{{url_for('openLiveClass')}}'+'?topic_id='+topicId+'&batch_id='+batch_id+'&course_id='+courseID+'"><span>'+(i+1)+'</span><span style="margin-left:20px;">'+topicName+'</span></a></li>';
                     }
                     $('#topicLoader').hide();
                     $('#topicListDiv').html(topicListDiv);
