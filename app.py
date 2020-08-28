@@ -61,7 +61,7 @@ from algoliasearch.search_client import SearchClient
 import base64
 import hmac
 import hashlib
-from moviepy.editor import *
+# from moviepy.editor import *
 
 
 app=FlaskAPI(__name__)
