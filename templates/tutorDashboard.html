@@ -71,30 +71,6 @@
         <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
     </ul>
     <br>
-
-    <!--<div id="surveyRowsDiv">
-        <table class="highlight" id="surveyTable">
-            <thead>              
-                <th>Survey</th>
-                <th>Student Responses</th>
-                <th>Question Count</th>
-                <th>Created On</th>
-                <th>Delete</th>
-            </thead>
-            <tbody>
-                {%for surveyRow in surveyDetailRow%}
-                <tr id="{{surveyRow.survey_id}}">         
-                    <td>{{surveyRow.survey_name}}</td>
-                    <td>{{surveyRow.student_responses}}</td>
-                    <td>{{surveyRow.question_count}}</td>
-                    <td>{{surveyRow.last_modified_date.strftime('%d %B %Y')}}</td>
-                    <td><a title="Delete Need" name="{{surveyRow.survey_id}}" href="#" class=" btn-floating btn-small orange deleteBTNClass">
-                        <i class="material-icons small">delete</i></a>
-                </tr>
-                {%endfor%}
-            </tbody>
-        </table>-->
-
         <div class="row" style="display: flex;overflow-x: auto;position: relative;max-height: 330px;overflow-y: hidden;">
             {% for course in courseDet %}
             <div class="col-sm-3 ">

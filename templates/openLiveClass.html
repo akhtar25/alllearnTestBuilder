@@ -136,7 +136,7 @@ span.stars span {
     }
     async function createRoom() {
         room = {
-            url: 'https://alllearn.daily.co/3JxJF9RMfaH5xPIEAI0W'
+            url: '{{topicData.room_id}}'
         }
         ownerLink = room.url;
     }
@@ -264,34 +264,76 @@ span.stars span {
 </script>
 
 <div class="container">
+    <div>
+    <h3>{{topicData.topic_name}}</h3>
+    <h4><a href="{{url_for('courseDetail',course_id=topicData.course_id)}}" target="_blank">{{topicData.course_name}}</a> </h4>
+    <h5 class="grey-text"><a href="{{url_for('tutorDashboard',tutor_id=topicData.teacher_id)}}" target="_blank">{{topicData.teacher_name}}</a></h5>
+</div>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="" href="#liveClassDiv">Live Class</a></li>
+
+        <li class="tab col s3"><a class="active" href="#recordedClassDiv">Recorded Class</a></li>
+    </ul>
+
+    <div id="liveClassDiv">
     <div class="row">
         <div class="col-sm-6">
-        <h3>{{topicName}}</h3>
-        <a href="{{url_for('courseDetail',course_id=course_id)}}" target="_blank"><h5>{{courseName}} </h5></a>
-        <a href="{{url_for('tutorDashboard',tutor_id=tutor_id)}}" target="_blank"><h5 class="grey-text">Shailesh Vishwakarma</h5></a>
+        <div id="page-blocks" class="col-sm-6 right">
+            {%if current_user.id==topicData.user_id%}
+            {%if batch_id!="" and batch_id!=none  %}
+            <div id="buttons-row">                
+                    <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
+                        Start Class
+                    </button>                    
+                    <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
+                    <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
+                        End Class
+                    </button>                    
+                    <!--<button id="startQuizBTN" class="btn"> Start Quiz</button>               -->
+                    <form action="/feedbackCollection" method="GET">      
+                        <input type="hidden" name='section' value="A">          
+                        <input type="hidden" name="timeOption" value="Untimed"/>
+                        <input type="hidden" name='duration' value="0">
+                        <input type="hidden" name="weightage" value="10">    
+                        <input type="hidden" name="negativeMarking" value="0">
+                        <input type="hidden" name='class_val' value="1">
+                        <input type="hidden" name='batch_test' value="1">
+                        <input type="hidden" name='subject_id' value="54">
+                        <input type="hidden" name='test_id' value="{{topicData.test_id}}">
+                        <input type="hidden" name="batch_id" value="{{batch_id}}">
+                        <input type="hidden" name="topic_id" value="{{topicData.topic_id}}">                        
+                        <button class='btn green' type='submit' class='startTestButtonClass'>Start Test</button>      
+                      </form>
+            </div>  
+            {%else%}        
+            <div class="row">
+            <p class="left"><i class="material-icons">info_outline</i>To Start Live Class/Tests please click on conduct class button on Course Detail page.</p>
+        </div>      
+            {%endif%}
+            {%else%}
+            
+            <div id="buttons-row">                
+                {%if enrolled=='Y'%}
+                <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
+                    Join Live Class
+                </button>                                    
+                <button id="leave-meeting" class="btn red lighten-1" onclick="callFrame.leave()">
+                    Leave Class
+                </button>                    
+                <button id="studTakeQuizBTN" class="btn">Take Topic Test</button>               
+                {%else%}
+                <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4>
+                {%endif%}
+        </div>     
+        
+            {%endif%}
+        </div>
     </div>
 
     </div>
     <div class="row hoverable z-depth-1"
         style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
-        <div class="section" id="mainDiv">
-        
-            <!--<h2 class="grey-text">Please click on Start Class to enter classroom</h2>-->
-            <div id="page-blocks" class="col-sm-6 right">
-            
-                <div id="buttons-row">                
-                        <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
-                            Start Class
-                        </button>                    
-                        <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
-                        <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
-                            End Class
-                        </button>
-                        <!-- <button id="startQuizBTN" class="btn" disabled>End Class and Start Quiz</button> -->
-                        <button id="startQuizBTN" class="btn" disabled> Start Quiz</button>               
-                </div>                
-            </div>
-
+        <div class="section" id="mainDiv">    
             <div id="blankClassDiv" class="center">
             <img src="../static/images/blkboard.jpg" width="95%">
 
@@ -305,11 +347,29 @@ span.stars span {
                     Whiteboard
                 </h3>
                 <canvas id="myCanvas" style="height: 100%;width: 100%;">
-                    Sorry, your browser does not support HTML5 canvas technology.
+                    Sorry, your browser does not support HTML5.
                 </canvas>
             </div>
         </div>
     </div>
+</div>
+<div id="recordedClassDiv">
+    <div class="row">
+        <br>
+    </div>
+    <div class="row hoverable z-depth-1"
+    style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+    <div id="blankClassDiv" class="center">
+        {%if topicData.video_class_url%}
+        <video src="{{topicData.video_class_url}}" width="80%" controls></video>
+        {%else%}
+        <h3 class="grey-text">No class recording present</h3>
+        <img src="../static/images/blkboard.jpg" width="95%">
+        {%endif%}
+        
+    </div>
+    </div>
+</div>
     <div class="row">
         <div class="col-sm-8">
             <h4>Notes</h4>
@@ -338,16 +398,19 @@ span.stars span {
                     <td><a href="#">Building a business with python</a></td>
                 </tr> -->
             </table>
+            <br><br>
             <div class="divider"></div>
-            <h4>Comments <span class="grey-text" id="commLen">{{lenComm}}</span></h4>
+            <h4>Comments on Topic <span class="grey-text" id="commLen">{{lenComm}}</span></h4>
 
             <div id="commentsDiv">
-                <form id="remarkForm" style="max-width: 600px;">
+                {%if current_user.is_anonymous==False%}
+                <form id="remarkForm" style="max-width: 800px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
-                    <input type="hidden" name="topicId" value="{{topic_id}}">
+                    <input type="hidden" name="topicId" value="{{topicData.topic_id}}">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
                 </form>
+                {%endif%}
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
                         <tbody id="commentList">
@@ -437,7 +500,9 @@ span.stars span {
           </div>
 
         <div id="commentModal" class="modal" style="height: 260px;">
+
             <div class="modal-content" style="height: 205px;">
+                {%if enrolled=='Y'%}
                 <div class="" style="margin-right: 200px;">
                     <form action="">
                       <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
@@ -454,15 +519,21 @@ span.stars span {
                     </form>
                   </div>
                 <div class="reviewCom">
-                    <h4 style="width:360px;display: flex;">please leave your review here</h4>
+                    <h4 style="width:360px;display: flex;">Course Review comment</h4>
                     <textarea id="reviewComment" style="background-color: lightgoldenrodyellow;"></textarea>
                     <a class="modal-close waves-effect waves-light btn" id="submitReview" style="float: right;" href="#">Submit</a>
                 </div>
+                {%else%}
+                <h4>Please enroll to review course </h4>
+                {%endif%}
+
             </div>
             <div class="modal-footer">
               <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
             </div>
           </div>
+
+
     </div>
     <div class="row">
 
@@ -474,7 +545,31 @@ span.stars span {
 
 
 </div>
+
 <script>
+
+$('#studTakeQuizBTN').click(function(){
+    $.ajax({
+            url:"/studTakeQuiz?course_id={{topicData.course_id}}&batch_id={{batch_id}}&topic_id={{topicData.topic_id}}",
+            type:"GET",
+            data: "",
+            success:function(response){
+                if(response=="1"){
+                    window.alert('Error starting quiz. Please try again.');
+                    
+                }
+                else{
+                    window.alert(response);
+                    window.location.href = "/feedbackCollectionStudDev?resp_session_id=" +
+                                response;
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error starting quiz. Please try again.');
+            }
+        });
+});
+
 
 $('#remarkPostButton').click(function($e){
     $e.preventDefault();
@@ -512,32 +607,16 @@ $('#remarkPostButton').click(function($e){
 });
 
     $(document).ready(function () {
-        // $('#leave-meeting').hide();
         $('#call-frame-container').hide();
-        $('#whiteboardDiv').hide();          
+        $('#whiteboardDiv').hide();  
+        buttonDisable('leave-meeting');
+        $('.tabs').tabs();                
     });
-    //$('#whiteboardBTN').click(function () {
-    //    if ($('#whiteboardDiv').attr('display','none')){
-    //    $('#whiteboardDiv').show();
-    //    $('#call-frame-container').hide();
-    //    //}
-    //    //else{
-//
-    //    //}
-    //});
-
     $('#whiteboardBTN').click(function () {
-        //if ($('#whiteboardDiv').attr('display','none')){
-          //  window.alert('hello');
+
         $('#whiteboardDiv').toggle();
         $('#mainDiv').toggle();
-        //}
-        //else{
-        //    $('#whiteboardDiv').hide();
-        //    $('#mainDiv').show();
-        //}
-        
-    //$('#canvas').drawr('start');
+
     });
 </script>
 <script>

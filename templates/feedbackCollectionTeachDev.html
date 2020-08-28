@@ -7,8 +7,12 @@
           <div class="col-xs-7">
             <div class="box" id="feedbackQuestionDiv">
               <div class="box-header">
-                <h3 class="box-title">{{testType}}</h3><span style="padding-left: 10px;"> Class: {{ class_val }} |
-                  Section: {{ section }} | Subject: {{subjectName}} | Total Marks: {{totalMarks}}</span>
+                <h3 class="box-title">{{testType}}</h3>
+                
+                <span style="padding-left: 10px;"> 
+                  {%if batch_test!="1"%}
+                  Class: {{ class_val }} |
+                  Section: {{ section }} | Subject: {{subjectName}} |{%endif%} Total Marks: {{totalMarks}}</span>                  
               </div>
               <span id="questionList" style="display: none;">{{ questionList }}</span>
               <input id="currrent_question_id" style="display: none;">
@@ -99,7 +103,8 @@
                   </div>
           </div>
           {% if questionListSize > 0 %} 
-          <div class="col-xs-3" style="margin-top:20px;">            
+          <div class="col-xs-3" style="margin-top:20px;">   
+            {%if batch_test!="1"%}
             <div id="answerCounter" >
               <h4>To write this test</h4>
               <ol>
@@ -110,12 +115,22 @@
                   </p>
                 </li>
               </ol><br>
-
               <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
               <div class="divider"></div>                            
             </div>
             <div>
             </div>
+            {%else%}
+            <div class=""
+                style="background-color: rgb(248, 248, 231);border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+                <ul style="margin-left: 20px;margin-top:10px;font-size:medium">
+                  <li style="list-style-type: initial;">You may ask the students to start test by clicking on the <span class="blue-text">Take Quiz</span> button on their screens now.</li>
+            <!--Test ID: <span style="font-size: 14px;">{{resp_session_id}}</span>-->
+            <br>
+            <li style="list-style-type: initial;">Click on 'See Test Report' button to check test progress and summary.</li>
+            </ul>
+            </div>
+            {%endif%}
           </div>
 {%endif%}
 

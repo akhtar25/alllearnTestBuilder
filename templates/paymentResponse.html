@@ -4,16 +4,19 @@
 
     <div class="row">
         {%if postData.txStatus=='SUCCESSFUL' or postData.txStatus=='SUCCESS' or postData.txStatus=='OK'%}
-        <h3 class="green-text">Payment Successful!</h3>
+        <h3 class="green-text">Enrollment Successful!</h3>   
+        <h4><a href="{{url_for('courseDetail', course_id=courseBatchData.course_id)}}">Go to Course Page</a></h4>     
         {%endif%}
         {%if payment=='sub'%}
         <h5>School Registered! </h5>
             <h6>The review and payment gateway setup will take 48 hours after which you'd be able to raise funds</h6>
             <h6>Our representative will connect with you to help get you started</h6>
         {%endif%}
-        <div class=" col s8">
+        <div class=" col s8" >
+            <div id="paymentPrintBlock">
+            <img src="../static/images/alllearnGreenLogo.PNG" width="150px" style="display:none" id="logoImg">
             <h4>Payment Summary</h4>
-            <table>
+            <table style="font-size: medium;">
                 <tr>
 			        <td>Transaction Status</td>
 			        <td>{{postData.txStatus}}</td>
@@ -23,20 +26,22 @@
 			        <td>{{postData.paymentMode}}</td>
 			      </tr>
                 <tr>
-                    <td>School Name</td>
-                    <td>{{schoolData.name}}</td>
+                    <td>Course Teacher</td>
+                    <td>{{courseData.teacher_name}}</td>
                 </tr>
                 <tr>
-                    <td>School Address</td>
-                    <td>{{schoolData.address1}}<br>{{schoolData.address2}}{{schoolData.city}},{{schoolData.country}}
+                    <td>Course Name</td>
+                    <td>{{courseData.course_name}}</td>
                 </tr>
                 <tr>
-                    <td>Phone </td>
-                    <td>{{schoolData.phone}}</td>
+                    <td>Batch </td>
+                    <td>{{courseBatchData.batch_id}}</td>
                 </tr>
                 <tr>
-                    <td>Email</td>
-                    <td>{{schoolData.email}}</td>
+                    <td>Batch Schedule</td>
+                    <td>{{courseBatchData.batch_start_date.strftime('%d %B %Y')}} - {{courseBatchData.batch_start_date.strftime('%d %B %Y')}}<br>
+                        {{courseBatchData.batch_start_time}} - {{courseBatchData.batch_end_time}}<br>
+                        {{courseBatchData.days_of_week}}</td>
                 </tr>
                 <tr>
                     <td>Amount</td>
@@ -57,12 +62,13 @@
                     <td>{{postData.txTime}}</td>
                 </tr>
             </table>
-            <!--
-            <a href="#" class="right"> <u>Download Receipt</u></a>-->
-            <br><br>
             
+        
+            <br><br>
         </div>
-                
+        <button class="green btn" id="printBTN">Print</button> 
+        </div>
+        
     </div>
 
     {%else%}
@@ -94,6 +100,15 @@
             $('.modal').modal();
             $('.collapsible').collapsible();
         });  
-        
+    
+$('#printBTN').click(function(){
+    $('#logoImg').show();
+    w=window.open();
+    w.document.write($('#paymentPrintBlock').html());
+    w.print();
+    w.close();
+    $('#logoImg').hide();
+});
+    
 </script>
 {%endblock%}
