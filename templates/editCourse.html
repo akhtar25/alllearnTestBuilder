@@ -190,7 +190,7 @@
                             <a class="modal-trigger" onclick="topicRecordingId('{{topic.topic_id}}');" href="#recordClassModal">Add Class Recording</a>
                         </td>
                         <td>
-                            <a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass">
+                            <a title="Delete Need" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
                                 <i class="material-icons small" onclick="deleteTopic('{{topic.topic_id}}');" style="cursor:pointer;">
                                     delete
                                 </i>
@@ -255,12 +255,10 @@
                   <span>Do you want to make your course private?</span>
                 </label>
               </p>
-              {% if course_id %}
-              <a href="#" class="btn green left" id="saveAndPublish">Save and Publish Course</a>
-              {% else %}
+              
             <a href="#" class="btn green" id="save">Save</a>
             <a href="#" class="btn green right" id="saveAndPublish">Save and Publish Course</a>
-            {% endif %}
+ 
         </form>
         <span id="msg" style="margin-top: 20px;color: red;"></span>
         </div>
@@ -401,6 +399,7 @@
                     <i class="material-icons" class="green center">add_circle</i> 
                     <span style="font-size: large;">Add More</span></a>
         <button class="btn green" id="saveNotes" style="margin-left: 270px;">upload Notes</button>
+        <button class="btn green" id="updateNotes" style="margin-left: 270px;display: none;">update Notes</button>
     </form>
     </div>
 </div>
@@ -408,7 +407,26 @@
 
 
 <script>
+
+    function fetchRecording(topId){
+        console.log('inside fetch Recording');
+        var courseId = "{{course_id}}";
+        $.ajax({
+            url: "/fetchRecording?topic_id="+topId+"&courseId="+courseId,
+            type: "POST",
+            data: "",
+            success: function (formResponse) { 
+                console.log(formResponse);
+                $('#recordingURL').val(formResponse);
+            },
+            error:function(xhr){
+                $('#msg').html('Error in fetching Recording. Please try again.'); 
+            }
+        });
+    }
+
     function fetch(topId){
+        $('#topicNotDiv').html('');
         console.log('inside fetch'+topId);
         $.ajax({
             url: "/fetchNotes?topic_id="+topId,
@@ -418,18 +436,27 @@
              if(formResponse){
                 var responseArr = formResponse.toString().split(',');
                 var notesDiv = '';
-                for(var i=0;i<responseArr;i++){
-                    var notes_name = responseArr[i].toString().split(':')[0];
-                    var notes_url = responseArr[i].toString().splt(':')[1];
+                for(var i=0;i<responseArr.length;i++){
+                    var notes_name = responseArr[i].toString().split('!')[0];
+                    var notes_url = responseArr[i].toString().split('!')[1];
+                    console.log('Notes name:'+notes_name);
+                    console.log('Notes url:'+notes_url);
                     $('#notesName').val(notes_name);
                     
-                    notesDiv = notesDiv + 'Notes URL:<input type="text" id="notesURL" value="'+notes_url+'" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"><br><h4>OR</h4><br><input type="file" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px; margin-top: -10px;">';
+                    notesDiv = notesDiv + 'Notes URL:<input type="text" id="notesURL" name="notesURL" value="'+notes_url+'" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"><br><h4>OR</h4><br><input type="file" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px; margin-top: -10px;">';
                 }
+                if(notes_name&&notes_url){
                 $('#topicNotDiv').html(notesDiv);
+                $('#saveNotes').hide();
+                $('#updateNotes').show();
+                }else{
+                    $('#saveNotes').show();
+                $('#updateNotes').hide();
+                }
              }
             },
             error: function (xhr) {
-              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+              $('#msg').html('Error in creating homework. Please try again.');  
             }
         }); 
     }
@@ -442,20 +469,41 @@
     }
     function topicRecordingId(topic_id){
         topId = topic_id;
+        fetchRecording(topId);
         return 0;
     }
 
 $('#videoRecord').click(function($e){
     $e.preventDefault();
     var form = $('#recordClassForm'); 
-    console.log('topic_id:'+topId);  
+    console.log('topic_id:'+topId); 
+    var course_id = "{{course_id}}"; 
     $.ajax({
-            url: "/addRecording?topic_id="+topId,
+            url: "/addRecording?topic_id="+topId+"&course_id="+course_id,
             type: "POST",
             data: form.serialize(),
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Record added successfully'});
+             }
+            },
+            error: function (xhr) {
+              $('#msg').html('Error in creating homework. Please try again.');  
+            }
+        }); 
+});
+
+$('#updateNotes').click(function($e){
+    $e.preventDefault();
+    var form = $('#topicNotesForm'); 
+    console.log('topic_id:'+topId);
+    $.ajax({
+            url: "/updateNotes?topic_id="+topId,
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+             if(formResponse){
+                M.toast({html: 'Notes updated successfully'});
              }
             },
             error: function (xhr) {
@@ -653,7 +701,9 @@ function correctOption(correct){
             success:function(response){
                 var responseArr = response.toString().split(',');
                 for(var i=0;i<responseArr.length;i++){
-                    var ids = '#'+responseArr[i];
+                    var option = responseArr[i].toString().split(':')[0];
+                    var qId = responseArr[i].toString().split(':')[1];
+                    var ids = '#'+option+qId;
                     console.log('Id:'+ids);
                     $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
                 }
@@ -726,6 +776,28 @@ function correctOption(correct){
         console.log('Data:'+idealfor);
         var course_status = "Published";
         var course_id = $('#courseId').val();
+
+        var Cname = $('#course').val();
+        var desc = $('#description').val();
+        var imgUrl = $('#imageUrl').val();
+        var vUrl = $('#videoUrl').val();
+        var tSear = $('#topicSearch').val();
+        var level = $('#level_val').val();
+        if(Cname==''){
+            $('#msg').html('please enter course name');
+        }else
+        if(desc==''){
+            $('#msg').html('please enter course description');
+        }else
+        if(imgUrl==''){
+            $('#msg').html('please select Image');
+        }else
+        if(vUrl==''){
+            $('#msg').html('please select video');
+        }else
+        if(level==''){
+            $('#msg').html('please select course difficulty level');
+        }else{
         $.ajax({
             url:"/saveAndPublishedCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
             type:"POST",
@@ -740,6 +812,7 @@ function correctOption(correct){
                 $('#msg').html('Error to submit course data');
             }
         });
+        }
     });
 
     $('#save').click(function($e){
@@ -749,6 +822,29 @@ function correctOption(correct){
         console.log('Data:'+idealfor);
         var course_status = "Draft";
         var course_id = $('#courseId').val();
+
+        var Cname = $('#course').val();
+        var desc = $('#description').val();
+        var imgUrl = $('#imageUrl').val();
+        var vUrl = $('#videoUrl').val();
+        var tSear = $('#topicSearch').val();
+        var level = $('#level_val').val();
+        if(Cname==''){
+            $('#msg').html('please enter course name');
+        }else
+        if(desc==''){
+            $('#msg').html('please enter course description');
+        }else
+        if(imgUrl==''){
+            $('#msg').html('please select Image');
+        }else
+        if(vUrl==''){
+            $('#msg').html('please select video');
+        }else
+        if(level==''){
+            $('#msg').html('please select course difficulty level');
+        }else{
+
         $.ajax({
             url:"/saveCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
             type:"POST",
@@ -763,6 +859,7 @@ function correctOption(correct){
                 $('#msg').html('Error to submit course data');
             }
         });
+        }
     });
 
     // Upload File Start
@@ -856,6 +953,7 @@ function correctOption(correct){
     // End
 
     function topicList(){
+        $('#topicListDiv').html('');
         var courseId = $('#courseId').val();
         $.ajax({
             url:"/fetchQues?courseId="+courseId,
@@ -873,7 +971,7 @@ function correctOption(correct){
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                     }
                     $('#topicListDiv').html(topicList);
                     
@@ -941,7 +1039,8 @@ function correctOption(correct){
                     for(var i=0;i<responseArr.length;i++){
                         var topic_id = responseArr[i].toString().split(':')[0];
                         var topic_name = responseArr[i].toString().split(':')[1];
-                        topicList = topicList + '<li><a class="modal-trigger" id="'+topic_id+'" onclick="topicName('+topic_id+');" href="#topicAddModal">'+topic_name+'</a></li><input type="hidden" id="'+topic_id+'" value="'+topic_name+'">';
+                        var course_id = responseArr[i].toString().split(':')[2];
+                        topicList = topicList + '<li><a class="modal-trigger" id="'+topic_id+'" onclick="editTopic('+topic_id+');courseID('+course_id+');topicName('+topic_id+');" href="#topicAddModal">'+topic_name+'</a></li><input type="hidden" id="'+topic_id+'" value="'+topic_name+'">';
                         
                     }
                     $('#myUL').html(topicList);
@@ -955,6 +1054,11 @@ function correctOption(correct){
             }
         });
     }); 
+    var courId = '';
+    function courseID(cId){
+        console.log('selected course ID:'+cId);
+        courId = cId;
+    }
 
     function topicName(topic_id){
 
@@ -980,6 +1084,7 @@ function correctOption(correct){
     $('#updateTopic').click(function(){
         $('#quesForm').html('');
         questionDiv = '';
+        
         $('.forEdit').show();
         var topicName = $('#topicName').val();
         var courseId = $('#courseId').val();
@@ -990,7 +1095,7 @@ function correctOption(correct){
         console.log(validQues);
         validQues = JSON.stringify(validQues);
         $.ajax({
-            url:"/updateCourseTopic?topicId="+topicId+"&courseId="+courseId+"&topicName="+topicName,
+            url:"/updateCourseTopic?topicId="+topicId+"&courseId="+courseId+"&topicName="+topicName+"&courId="+courId,
             type:"POST",
             contentType:"application/json",
             data: validQues,
@@ -1018,7 +1123,7 @@ function correctOption(correct){
         console.log(quesIDList);
         quesIDList = JSON.stringify(quesIDList);
         $.ajax({
-            url:"/addCourseTopic?topicName="+topicName+"&courseId="+courseId+"&topicId="+topicId,
+            url:"/addCourseTopic?topicName="+topicName+"&courseId="+courseId+"&topicId="+topicId+"&courId="+courId,
             type:"POST",
             contentType:"application/json",
             data: quesIDList,
@@ -1090,8 +1195,9 @@ function correctOption(correct){
     
     function editTopic(topic_id){
         validQues = [];
+        var courseId = "{{course_id}}";
         $.ajax({
-            url:"/fetchTopicQues?topic_id="+topic_id,
+            url:"/fetchTopicQues?topic_id="+topic_id+"&courseId="+courseId,
             type:"POST",
             data: "",
             success:function(response){
@@ -1108,10 +1214,7 @@ function correctOption(correct){
                         var opt4 = responseArr[i].toString().split(':')[5];
                         var quesId = responseArr[i].toString().split(':')[6];
                         var topicId = responseArr[i].toString().split(':')[7];
-                        var NotesName = responseArr[i].toString().split(':')[8];
-                        var NotesUrl = responseArr[i].toString().split(':')[9];
-                        console.log('NotesName:'+NotesName);
-                        console.log('NotesUrl:'+NotesUrl);
+                        
                         console.log('Question:'+ques);
                         console.log('op1:'+opt1);
                         console.log('op2:'+opt2);
@@ -1122,9 +1225,7 @@ function correctOption(correct){
                         console.log('Topic Id:'+topicId);
                         $('#topicName').val(topic_name);
                         $('#topicId').val(topicId);
-                        $('#notesName').val(NotesName);
-                        $('#notesURL').val(NotesUrl);
-                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td><td><a title="Delete Need" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+quesId+'"></span></li><li>'+opt2+'<span id="'+opt2+quesId+'"></span></li><li>'+opt3+'<span id="'+opt3+quesId+'"></span></li><li>'+opt4+'<span id="'+opt4+quesId+'"></span></li></ul></td><td><a title="Delete Need" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';
                         // var ids = '#'+corrOpt;
                         // console.log(ids);
                         
@@ -1192,8 +1293,9 @@ function correctOption(correct){
 
     function deleteTopic(topic_id){
         console.log('TopicID:'+topic_id);
+        var course_id = "{{course_id}}";
         $.ajax({
-            url:"/deleteTopic?topicId="+topic_id,
+            url:"/deleteTopic?topicId="+topic_id+"&course_id="+course_id,
             type:"POST",
             data: "",
             success:function(response){

@@ -127,11 +127,11 @@
                         <th>Days of week</th>
                         <th>Enrollments</th>
                         <th>Fee</th>    
-                        {% if current_user.user_type==234 or current_user.user_type==134 %}                  
-                        <th>Enroll</th>
-                        {% endif %}
+                        
                         {% if current_user.user_type==71 %}
                         <th>Conduct Class</th>
+                        {% else %}
+                        <th>Enroll</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -144,9 +144,15 @@
                         <td>{{batch.days_of_week}}</td>
                         <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
                         <td>₹{{batch.course_batch_fee}}</td>                       
+                           
                         
-                            {% if current_user.user_type==234 or current_user.user_type==134 %}
+                            {% if current_user.user_type==71 %}
                             <td>
+                            <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
+                            style="width: 100%;" href="#modal5"> Conduct Class</a>
+                            </td> 
+                            {% else %}
+                                 <td>
                             {% if batch.student_user_id==current_user.id %}
                             Enrolled
                             {% else %}
@@ -154,15 +160,7 @@
                             style="width: 100%;" href="#modal2"> Enroll</a>
                             {% endif %}
                             </td>
-                            {% endif %}    
-                        
-                            {% if current_user.user_type==71 %}
-                            <td>
-                            <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
-                            style="width: 100%;" href="#modal5"> Conduct Class</a>
-                            </td> 
-                            {% endif %}
-                                                                  
+                            {% endif %}                                 
                     </tr>
                 {%endfor%}
                
