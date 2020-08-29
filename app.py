@@ -387,8 +387,8 @@ def cityList():
 
 def classSecCheck():
     teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
-    print('#######this is current user '+ str(current_user.id))
+    #print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
+    #print('#######this is current user '+ str(current_user.id))
     if teacherProfile==None:
         return 'N'
     else:
