@@ -444,10 +444,11 @@
             </div>
           </li>
           
-          {%endif%}
+          {%elif current_user.user_type==253%}
           <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
           </li>
+          {% endif %}
           {%if user_type_val=='' %}
           {% elif current_user.is_anonymous or disconn == 1  %}
 
