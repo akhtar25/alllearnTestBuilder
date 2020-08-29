@@ -1,0 +1,148 @@
+
+  <div id="testDiv" class="col-md-12">    
+    <div class="box-body table-responsive no-padding">      
+      <table class="table table-hover">
+        <tr>
+          <th>Class</th>
+          <th>Test Type</th>
+          <th>Subject</th>
+          <th>Total Marks</th>
+          <th>Creation Date</th>
+          <th>Chapters and Topics</th>
+          <th>Download Paper</th>
+          <th>Conduct Test</th>
+        </tr>
+        {%if testPaperData | length !=0%}
+        {% for eachRow in testPaperData%}
+        <tr style="margin-top:5px;">
+          <td><img height="50px"
+              src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/classNumberImages/class{{eachRow.class_val}}.png">
+          </td>
+          <td>{{eachRow.test_type}}</td>
+          {%for subRow in subjectNames%}
+          {% if eachRow.subject_id== subRow.msg_id %}
+          <td>{{subRow.description}}</td>
+          {%endif%}
+          {%endfor%}
+          <td>{{eachRow.total_marks}}</td>
+          <td>{{eachRow.date_of_creation.strftime('%d-%B-%Y')}}</td>
+          <td><a href="#chapterModal" name='{{eachRow.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a></td>
+
+          <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
+          <div id="chapterModal" class="modal" style="background-color:white;">
+            <div id="questionloader1" style="display: none;">
+              <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="content" style="display:none;">
+              <p>
+                <div id="chapterListDiv"></div>
+              </p>
+            </div>
+          </div>
+          <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
+          {% if eachRow.test_type =='Class Feedback' %}
+          <td><a href="#conductTestModal" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
+              Test</a></td>
+              {%endif %}          
+        </tr>
+        {% endfor %}
+
+        {%else%}
+        <td>
+          <h3 class="grey-text">No test papers created yet</h3>
+          <br>
+          <h5>You can create test papers using <a href="{{url_for('testBuilder')}}">Test Builder</a></h5>
+        </td>
+        {%endif%}
+      </table>
+    </div>
+  </div>
+
+
+<!-- Modal structure-->
+<div id="conductTestModal" class="modal" style="background-color:white; height: 420px;overflow-y: auto;position: fixed;">
+  <form action="/feedbackCollection" method="GET">
+    <div class="modal-content">
+      <p> Starting Test</p>
+      <h4 id="class_name"></h4>
+      <h4>Enter <b>section</b> for which you want to run the test</h4>
+      <input type="text" name='section' placeholder="eg. A">
+      <p>
+        <label>
+          <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
+          <span style="font-size: 18px;">Untimed</span>
+        </label>
+      </p>
+      <p>
+        <label>
+          <input name="timeOption" class="Toption" value="Timed" type="radio" />
+          <span style="font-size: 18px;">Timed</span>
+        </label>
+      </p>
+      <div id="durationDiv" style="display: none;">
+      <h4>Duration</h4>
+      <input type="text" name='duration' value="0"></div>
+      <h4>Weightage</h4>
+      <input type="text" name="weightage" value="10">
+      <h4>Negative Marking</h4>
+      <input type="text" name="negativeMarking" value="0">
+      <input type="hidden" id='modal_class_val'  name='class_val'    value="">
+      <input type="hidden" id='modal_subject_id' name='subject_id'   value="">
+      <input type="hidden" id='modal_test_id'    name='test_id'      value="">
+      <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>   
+      </div>
+  </form>
+</div>
+
+
+
+  <script>
+    $(document).ready(function () {
+    $('.modal').modal();
+    });
+
+
+    $('.conductTestBTN').click(function(){
+      var selection = $(this).attr('name');
+      var selectionSplit = selection.split("@");
+      $('#modal_test_id').val(selectionSplit[0]);
+      $('#modal_class_val').val(selectionSplit[1]);      
+      $('#modal_subject_id').val(selectionSplit[2]);
+      $('#class_name').html("Class: "+$('#modal_class_val').val());
+      //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
+
+    });
+
+    $('.Toption').click(function(){
+    var timeOption = $("input[name='timeOption']:checked").val();
+    if(timeOption=='Timed'){
+      $('#durationDiv').show();
+    }else{
+      $('#durationDiv').hide();
+    }
+  });
+
+  
+
+  $('.chapterClass').click(function(){
+    $('#questionloader1').show();
+    //$('#modal2').hide();
+    //$('#content').hide();
+    $('#chapterListDiv').html('');
+    var test_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/getChapterDetails?test_id="+test_id,
+            type: "get",
+            data: data,
+            success: function(response){
+                $('#questionloader1').hide();
+                $('#modal2').show();
+                $('#content').show();
+                $('#chapterListDiv').html(response);
+            }
+        })
+      });
+
+  </script>

@@ -53,9 +53,9 @@
               </div>
               <div class="col-xs-3">
                 <h4 class="grey-text">Today's Attendance</h4>
-                {%if summaryData.attendancetoday%}
-                <h3 class="green-text">{{summaryData.attendancetoday}}</h3>
-                {%else%}
+                {%if attendance[0]%}
+                <h3 class="green-text">{{attendance[0]}}</h3>
+                {%else%} 
                 <h3 class="green-text">NA</h3>
                 {%endif%}
               </div>              
@@ -63,7 +63,7 @@
                 <h4 class="grey-text">Actions</h4>
                 <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
                 <a  href="#loginChkModal" class="modal-trigger">Check Login Data</a><br>
-                <a  class="grey-text" title="Not yet enabled">Mark Attendance</a>                
+                <a href="#attendenceModal"  class="modal-trigger" onclick="fetchAttendence();">Mark Attendance</a>                
               </div>
             </div>
           </div>
@@ -112,6 +112,29 @@
     </div>
   </div>
 </div>
+
+
+  <!-- Modal Structure -->
+  <div id="attendenceModal" class="modal" style="width: 450px;">
+    <div class="modal-content" style="height:368px;">
+      <h4>Attendence</h4>
+      <div class="header" style="display: flex;">
+        <input type="date" style="width:140px;" id="date">
+      <a style="float: right;margin-left: 170px;width:190px;cursor: pointer;" id="download" onclick="downloadReport();">Download Report</a>
+      <a href="" id="downloadUrl" style="display: none;" download>Download</a>
+    </div>
+      <div id="attendenceList" style="margin-top: 50px;height: 242px;position: relative;overflow-y: auto;">
+
+      </div>
+      <div id="attendanceloader" style="display:none;">
+        <img src="../static/images/smallloader.gif">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn pull-right green lighten-1"
+      id="submitAttendence" style="margin-right: 175px;" value="Submit">Submit</button>    
+    </div>
+  </div>
 
 <div class="modal" id="smsModal" style="height: 400px;width: 450px;">
   <div class="modal-content" id="" style="height:100%;overflow-y: auto;">
@@ -168,10 +191,123 @@ Loading information...
 
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 <script>
+
+var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+                dd='0'+dd
+        } 
+        if(mm<10){
+                mm='0'+mm
+        } 
+
+        
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById("date").setAttribute("max", today);
+        document.getElementById("date").setAttribute("value", today);
+
+     
+
    $(document).ready(function () {   
         $('.modal').modal();
         $('input#input_text, textarea#message').characterCounter();
    });
+
+   function downloadReport(){
+    $.ajax({
+      
+      url: "/attendanceReport?class_sec_id=" + {{class_sec_id}},
+      type: "POST",
+      data: "",
+      success: function (response) {
+        // alert(response);
+        $('#downloadUrl').attr("href",response);
+        $('#downloadUrl')[0].click();
+        // $('#submitAttendence').prop('disabled',true);
+      },
+      error: function (xhr) {
+        alert("error occurred while loading data");
+      }
+    });
+   }
+
+   var selectDate = document.getElementById('date');
+   selectDate.onchange = function(){
+     console.log('inside select date:'+selectDate.value);
+     console.log(today);
+     $('#attendanceloader').show();
+     $("#attendenceList").hide();
+     var date = selectDate.value;
+     $.ajax({
+      
+      url: "/fetchAttendenceList?class_sec_id=" + {{class_sec_id}}+"&date="+date,
+      type: "POST",
+      data: "",
+      success: function (response) {
+        $("#attendenceList").html(response);
+        $('#attendanceloader').hide();
+     $("#attendenceList").show();
+        if(date.toString()!=today.toString()){
+          console.log('if dates are not equal');
+        $('#submitAttendence').prop('disabled',true);
+        }else{
+          $('#submitAttendence').prop('disabled',false);
+        }
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+  }
+   
+
+   function fetchAttendence(){
+     var date = '';
+    $.ajax({
+      
+      url: "/fetchAttendenceList?class_sec_id=" + {{class_sec_id}}+"&date="+date,
+      type: "POST",
+      data: "",
+      success: function (response) {
+        $("#attendenceList").html(response);
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+   }
+
+   $('#submitAttendence').click(function(){
+    var attendence = [];
+
+    $('#submitAttendence').html('please wait...');
+    $.each($("input[name='attendence']:checked"), function(){
+      attendence.push($(this).val());
+    });
+    for(a in attendence){
+      console.log(a);
+    }
+    attendence = JSON.stringify(attendence);
+    $.ajax({
+      
+      url: "/addAttendence?class_sec_id=" + {{class_sec_id}},
+      type: "POST",
+      contentType: "application/json",
+      data: attendence,
+      success: function (response) {
+        if(response='1'){
+          $('#submitAttendence').html('Submit');
+          M.toast({html: 'Attendance successfully updated'});
+        }
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+   });
+
 
   $('.courseDetailsButton').click(function () {
     $('#loaderDiv').show();

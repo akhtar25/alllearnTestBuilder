@@ -6,15 +6,32 @@
     body{
       background-color: whitesmoke;
     }
+    @media screen and (min-width: 750px) {
+    .ais-Hits-item{
+      width:25%
+    }
+    #searchDiv{
+      width:50%;
+      margin-left:25%;
+    }
+    }
+    @media screen and (max-width: 650px) {
+      .ais-Hits-item{
+      width:100%      
+    }
+    #searchDiv{
+      width:100%
+    }   
+    }
     </style>
 <div class="container ">
     <h2>Search Results</h2>
-    <div style="width: 70%;border-radius: 10px;border: 1px solid grey;" id="searchDiv" class=" center row z-depth-1 ">
-  
-    <div id="search-box"  class="center  col-sm-11" style="background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;;background-repeat: no-repeat;background-position: right;"></div>         
+    <div style="border-radius: 10px;border: 1px solid grey;" id="searchDiv" class=" center row z-depth-1 ">  
+    <div id="search-box"  class="center" style="background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;;background-repeat: no-repeat;background-position: right;"></div>         
  
 </div>
-<div id="hits" class=""></div>        
+
+<div id="hits" class=""></div>
 <div style="font-size: xx-large;">             
 <div id="pagination" ></div></div>
 </div>

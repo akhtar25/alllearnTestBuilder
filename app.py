@@ -70,7 +70,7 @@ talisman = Talisman(app, content_security_policy=None)
 
 
 client = SearchClient.create('RVHAVJXK1B', '58e63c83b4126c21f2e994f1d4e89439')
-index = client.init_index('staging_COURSE')
+index = client.init_index('prd_course')
 
 app.config.from_object(Config)
 db.init_app(app)
@@ -2318,10 +2318,23 @@ def liveClass():
 
 #####New section for open class modules
 @app.route('/updateSearchIndex/<task>')
+@login_required
 def updateSearchIndex(task):
-    queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
-    queryResult = db.session.execute(queryTest).fetchall()
-    queryKeys = db.session.execute(queryTest).keys()
+    #queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
+    indexQuery = "select cd.course_id as \"objectID\", cd.course_id, cd.course_name, cd.description,average_rating , cd.image_url, "
+    indexQuery = indexQuery + " tp.teacher_name,ideal_for, string_agg(topic_name::text, ', ') as topics, text(cd.last_modified_date) as last_modified_date"
+    indexQuery = indexQuery + " from course_detail cd "
+    indexQuery = indexQuery + " inner join course_topics ct"
+    indexQuery = indexQuery + " on ct.course_id =cd.course_id "
+    indexQuery = indexQuery + " inner join topic_detail td"
+    indexQuery = indexQuery + " on td.topic_id =ct.topic_id "
+    indexQuery = indexQuery + " inner join teacher_profile tp "
+    indexQuery = indexQuery + " on tp.teacher_id =cd.teacher_id "
+    indexQuery = indexQuery + " group by "
+    indexQuery = indexQuery + " cd.course_id, cd.course_name, cd.description , cd.image_url, tp.teacher_name "
+    indexQuery = indexQuery + " having course_status=251"
+    queryResult = db.session.execute(indexQuery).fetchall()
+    queryKeys = db.session.execute(indexQuery).keys()
     items = [dict((queryKeys[i], value) \
                for i, value in enumerate(row)) for row in queryResult]
     #print(json.dumps(items))
@@ -2329,14 +2342,28 @@ def updateSearchIndex(task):
         return json.dumps(items, indent=3)
     elif task=="send":
         try:
-            index = client.init_index('staging_COURSE')
+            #index = client.init_index('staging_COURSE')
+            index = client.init_index('prd_course')
             #batch = json.load(open('contacts.json'))            
-            index.set_settings({"customRanking": ["asc(class_val)"]})            	
-            index.set_settings({"searchableAttributes": ["topic_name", "class_val", "chapter_name"]})
+            index.set_settings({"customRanking": ["desc(last_modified_date)"]})            	
+            index.set_settings({"searchableAttributes": ["topic_name", "course_name", "teacher_name"]})
             index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
             return json.dumps({"The following data was sent to algolia index successfully":items})
         except:
             return "Error Sending index data to algolia"
+    elif task=="deleteAll":
+        filter_val = request.args.get('filter_val')
+        
+        #index = client.init_index('staging_COURSE')
+        index = client.init_index('prd_course')         
+        index.delete_by({'filters': 'board_id:1001'})
+        #batch = json.load(open('contacts.json'))            
+        #index.set_settings({"customRanking": ["asc(last_modified_date)"]})            	
+        #index.set_settings({"searchableAttributes": ["topic_name", "course_name", "teacher_name"]})
+        #index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
+        return json.dumps({"All indexes have been deleted from algolia under: ": filter_val})
+        #except:
+        #    return "Error Sending index data to algolia"
 
 
 @app.route('/',methods=["GET","POST"])
@@ -5752,11 +5779,21 @@ def testBuilderFileUpload():
 @app.route('/testPapers')
 @login_required
 def testPapers():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
-    subjectNames=MessageDetails.query.filter_by(category='Subject')
+    return render_template('testPapers.html')
 
-    return render_template('testPapers.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+@app.route('/testPaperTable')
+def testPaperTable():
+    paper_count = request.args.get('paper_count')
+    if paper_count=="all":
+        paper_count=500
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
+    testPaperQuery = "select *from test_details where school_id="+ str(teacher_id.school_id)
+    testPaperQuery = testPaperQuery  +" order by date_of_creation desc fetch first "+str(paper_count)+" rows only"
+    testPaperData = db.session.execute(testPaperQuery).fetchall()
+    subjectNames=MessageDetails.query.filter_by(category='Subject')
+    return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+
 
 @app.route('/getChapterDetails')
 def getChapterDetails():
@@ -6027,8 +6064,10 @@ def classCon():
         #print(summaryQuery)
         summaryData = db.session.execute(text(summaryQuery)).first()
         # End of query section 
-        
-        return render_template('class.html', classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
+        attendance = "select count(*) from attendance where class_sec_id="+str(selectedClassSection.class_sec_id)+" and school_id="+str(teacher.school_id)+" and is_present='Y'"
+        attendance = db.session.execute(text(attendance)).first()
+        print('Attendance:'+str(attendance[0]))
+        return render_template('class.html',attendance=attendance, classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
             qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
             topicRows=topicRows, user_type_val=str(current_user.user_type), loginData=loginData)
     else:
@@ -8735,6 +8774,109 @@ def indivStudentProfile():
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
+
+@app.route('/attendanceReport',methods=["GET","POST"])
+def attendanceReport():
+    class_sec_id = request.args.get('class_sec_id')
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    attendanceData = "select full_name, is_present from attendance a inner join student_profile sp on a.class_sec_id = sp.class_sec_id where "
+    attendanceData = attendanceData + "sp.school_id = '"+str(teacherDataRow.school_id)+"' and sp.class_sec_id = '"+str(class_sec_id)+"'"
+    attendanceData = db.session.execute(text(attendanceData)).fetchall()
+    file_name='Attendance'+str(class_sec_id)+str(teacherDataRow.school_id)+'.csv'
+    file_name = file_name.replace(" ", "")
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
+    # document.save('tempdocx/'+file_name)
+    with open('tempdocx/'+file_name, 'w', newline='') as file:
+    #uploading to s3 bucket
+        
+        # with open(filePath, 'w', newline='') as file:
+            
+        print('file')
+            
+        file.write('Introduction \n')
+        writer = csv.writer(file)
+        writer.writerow(["Student Name ", "Present"])
+        for data in attendanceData:
+            writer.writerow([data.full_name,data.is_present])
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'attendance_report/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+        #deleting file from temporary location after upload to s3
+    os.remove('tempdocx/'+file_name)
+    filePath = 'https://'+str(os.environ.get('S3_BUCKET_NAME'))+'.s3.ap-south-1.amazonaws.com/attendance_report/'+str(file_name)
+    print(filePath)
+    return jsonify([filePath])
+
+
+@app.route('/addAttendence',methods=["GET","POST"])
+def addAttendence():
+    class_sec_id = request.args.get('class_sec_id')
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    students = StudentProfile.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).all()
+    print('class_Sec_id:'+str(class_sec_id))
+    print('school_id'+str(teacherDataRow.school_id))
+    student_ids = request.get_json()
+    print(students)
+    print(student_ids)
+    data = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).first()
+    if data:
+        for student_id in students:
+            sel = 0
+            
+            for selected in student_ids:
+                if str(student_id.student_id) == str(selected):
+                    print('if student id is selected:'+str(student_id.student_id))
+                    sel =1
+                    break
+            if sel==1:
+                print('set Y for selected ')
+                update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
+                update.is_present = 'Y'
+            else:
+                update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
+                update.is_present = 'N'
+            db.session.commit()    
+    else:
+        for student_id in students:
+            sel = 0
+            
+            for selected in student_ids:
+                if str(student_id.student_id) == str(selected):
+                    print('if student id is selected:'+str(student_id.student_id))
+                    sel =1
+                    break
+            if sel==1:
+                print('set Y for selected ')
+                addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
+                is_present='Y',class_sec_id=class_sec_id,student_id=student_id.student_id)
+            else:
+                addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
+                is_present='N',class_sec_id=class_sec_id,student_id=student_id.student_id)
+            db.session.add(addData)
+            db.session.commit()
+    return jsonify(['1'])
+
+
+@app.route('/fetchAttendenceList',methods=["GET","POST"])
+def fetchAttendenceList():
+    class_sec_id = request.args.get('class_sec_id')
+    date = request.args.get('date')
+    print('Date:'+str(date))
+    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    if date:
+        fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
+        fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
+        fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' and date(attendance_date)='"+str(date)+"' order by full_name "
+    else:
+        fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
+        fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
+        fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' order by full_name "
+    print('Query:'+str(fetchData))
+    studAttendeceList = db.session.execute(fetchData).fetchall()
+    print('class_sec_id:'+str(class_sec_id))
+    for row in studAttendeceList:
+        print('Fetch Data:'+str(row.is_present))
+    return render_template('_attendanceTable.html',studAttendeceList=studAttendeceList)
 
 @app.route('/addStudentRemarks',methods = ["GET","POST"])
 def addStudentRemarks():
