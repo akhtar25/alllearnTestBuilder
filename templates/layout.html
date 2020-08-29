@@ -437,14 +437,15 @@
         <ul class="right hide-on-med-and-down green-text" style="padding-top:10px">
           {%if home!=1 and current_user.user_type==253%}
           
-          <li style="margin-right: 400px;">
-            <div style="width: 150%;border: 1px solid grey;border-radius:30px;margin-left:40%;padding:2px;" class="">
+          <li style="margin-right: 400px;margin-bottom: 33px;
+          margin-top: -8px;">
+            <div style="width: 200%;border: 1px solid grey;border-radius:30px;margin-left:40%;padding:2px;margin-bottom: 16px;background-color: whitesmoke;" class="">
                 <input placeholder="Search" class="searchText" style="padding-bottom: -20px;background-position: right; background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;background-repeat: no-repeat;">
               <!--<i class="material-icons right">search</i>-->
             </div>
           </li>
-          
-          {%elif current_user.user_type==253%}
+          {% endif %}
+          {%if current_user.user_type==253%}
           <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
           </li>

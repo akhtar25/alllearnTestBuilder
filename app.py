@@ -2534,7 +2534,7 @@ def courseDetail():
     return render_template('courseDetail.html',courseBatchData=courseBatchData,
         lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
         idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
-        courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher.teacher_id)
+        courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher)
 
 
 @app.route('/studTakeQuizBTN', methods=['GET','POST'])

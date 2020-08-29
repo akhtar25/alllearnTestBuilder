@@ -60,7 +60,7 @@
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 40%;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
+        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
             <a href="{{url_for('tutorDashboard',tutor_id=teacher)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
@@ -126,8 +126,8 @@
                         <th>Enrollments</th>
                         <th>Fee</th>    
                         {% if current_user.is_anonymous==False %}
-                        {% if current_user.user_id==teacher.user_id %}
-                        <th>Conduct Class</th>
+                        {% if current_user.id==teacherUser.id %}
+                        <th>Conduct Class{{teacherUser.id}}||{{current_user.id}}</th>
                         {% else %}
                         <th>Enroll</th>
                         {% endif %}
