@@ -32,38 +32,6 @@
     count_change();
   });
 
-  $('.Toption').click(function(){
-    var timeOption = $("input[name='timeOption']:checked").val();
-    if(timeOption=='Timed'){
-      $('#durationDiv').show();
-    }else{
-      $('#durationDiv').hide();
-    }
-  });
-
-
-  $('.chapterClass').click(function(){
-    $('#questionloader1').show();
-    //$('#modal2').hide();
-    //$('#content').hide();
-    $('#chapterListDiv').html('');
-    var test_id = $(this).attr('name');
-    console.log('Inside questionData');
-    var data="";
-        $.ajax({
-            url: "/getChapterDetails?test_id="+test_id,
-            type: "get",
-            data: data,
-            success: function(response){
-                $('#questionloader1').hide();
-                $('#modal2').show();
-                $('#content').show();
-                $('#chapterListDiv').html(response);
-            }
-        })
-      });
-
-
       $('#paper_count').change(function () {
                        count_change();
         });
