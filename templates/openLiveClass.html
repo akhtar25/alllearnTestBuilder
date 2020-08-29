@@ -322,7 +322,7 @@ span.stars span {
                 </button>                    
                 <button id="studTakeQuizBTN" class="btn">Take Topic Test</button>               
                 {%else%}
-                <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4>
+                <!-- <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4> -->
                 {%endif%}
         </div>     
         
@@ -335,6 +335,7 @@ span.stars span {
         style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
         <div class="section" id="mainDiv">    
             <div id="blankClassDiv" class="center">
+                <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4>
             <img src="../static/images/blkboard.jpg" width="95%">
 
         </div>
@@ -373,6 +374,7 @@ span.stars span {
     <div class="row">
         <div class="col-sm-8">
             <h4>Notes</h4>
+            {%if enrolled=='Y'%}
             <!--<p>This is the list of items you should ideally read</p>-->
             <table class=" highlight " style="font-size:16px;border-radius: 10px;max-width: 80%;">
                 {% for notes in notesList %}
@@ -398,6 +400,9 @@ span.stars span {
                     <td><a href="#">Building a business with python</a></td>
                 </tr> -->
             </table>
+            {% else %}
+            <h4 class="grey-text">Enroll to view notes</h4>
+            {% endif %}
             <br><br>
             <div class="divider"></div>
             <h4>Comments on Topic <span class="grey-text" id="commLen">{{lenComm}}</span></h4>
@@ -460,7 +465,17 @@ span.stars span {
             <h4>Other topics</h4>
             {%if listTopics%}
             {% for topic in listTopics %}
-                <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}" >{{topic.topic_name}}</a>
+            <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}">
+                <li class="hoverable" 
+                    style="border-radius: 10px;cursor:pointer;width: 340px;display: flex;margin-top: 15px;">
+                    <img src="../static/images/playButton.jpg" width="20%">
+                    <h4 style="margin-left: 20px;height: 40px;color: black;width:140px;font-size:20px;">{{topic.topic_name}}</h4>
+                    
+                </li>
+            </a>
+
+
+                <!-- <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}" >{{topic.topic_name}}</a><br> -->
             {% endfor %}
             {%else%}
             <h4 class="grey-text">No other topics</h4>
@@ -525,6 +540,7 @@ span.stars span {
                 </div>
                 {%else%}
                 <h4>Please enroll to review course </h4>
+                
                 {%endif%}
 
             </div>

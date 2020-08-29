@@ -2439,10 +2439,10 @@ def openLiveClass():
             enrolled='N'
             batch_id=""
 
-
+    pageTitle = str(topicData.topic_name)+' '+str(topicData.course_name)
     print('$#$$$$$$$$$$$$$'+str(batch_id))
     return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
-        ,lenComm=lenComm,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
+        ,lenComm=lenComm,title=pageTitle,meta_val=pageTitle,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
 
 @app.route('/courseDetail')
 def courseDetail():
@@ -2450,9 +2450,9 @@ def courseDetail():
     course_id = request.args.get('course_id')
     courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
     teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
-    user = User.query.filter_by(id=teacher.user_id).first()
-    if current_user.id==user.id:
-        print('I m Teacher')
+    teacherUser = User.query.filter_by(id=teacher.user_id).first()
+    # if current_user.id==user.id:
+    #     print('I m Teacher')
     topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id,ct.course_id from course_topics ct "
     topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
     topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
@@ -2503,10 +2503,11 @@ def courseDetail():
 #     #check enrollment
     
 # >>>>>>> CourseModule
+    pageTitle = courseDet.course_name
     return render_template('courseDetail.html',courseBatchData=courseBatchData,
         lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
         idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
-        courseDet=courseDet,user=user,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher.teacher_id)
+        courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher.teacher_id)
 
 
 @app.route('/studTakeQuizBTN', methods=['GET','POST'])
@@ -3129,7 +3130,7 @@ def addRecording():
 @app.route('/updateNotes',methods=['GET','POST'])
 def updateNotes():
     topicId = request.args.get('topic_id')
-    notesName = request.form.get('notesName')
+    notesName = request.form.getlist('notesName')
     notesURL = request.form.getlist('notesURL')
     videoNotesUrl = request.form.getlist('videoNotesUrl')
     print('topicId:'+str(topicId))
@@ -3137,78 +3138,45 @@ def updateNotes():
     existNotes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' "
     existNotes = db.session.execute(text(existNotes))
     print('Length of notes url array:'+str(notesURL))
-    for note in notesURL:
-        if note:
-            print('Note Url:'+str(note))
-            
+    for i in range(len(notesName)):
+        print('NotesName:'+str(notesName[i]))
+        print('notesUrl:'+str(notesURL[i]))
+        print('videoNotesUrl:'+str(videoNotesUrl[i]))
+        if notesURL[i]:
             courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-        
-            if note !='':               
-                notes_url ,note = get_yt_video_id(note)
-            if notes_url!=96:
-                notes_url= checkContentType(note)                
-            else:
-                notes_url=226
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=note,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
             db.session.add(addNotes)
             db.session.commit()
-    for notes in videoNotesUrl:
-        if notes:
-            print('Notes Url:'+str(notes))
-            
+        else:
             courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-        
-            if notes !='':               
-                notes_url ,notes = get_yt_video_id(notes)
-            if notes_url!=96:
-                notes_url= checkContentType(notes)                
-            else:
-                notes_url=226
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=notes,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
             db.session.add(addNotes)
             db.session.commit()
-    #         db.session.commit()
     return jsonify("1")
 
 @app.route('/addNotes',methods=['GET','POST'])
 def addNotes():
     topicId = request.args.get('topic_id')
-    notesName = request.form.get('notesName')
+    notesName = request.form.getlist('notesName')
     notesURL = request.form.getlist('notesURL')
     videoNotesUrl = request.form.getlist('videoNotesUrl')
     print('topicId:'+str(topicId))
     print('Notes name:'+str(notesName))
-    for note in notesURL:
-        if note:
-            print('Note Url:'+str(note))
-            
+    for i in range(len(notesName)):
+        print('NotesName:'+str(notesName[i]))
+        print('notesUrl:'+str(notesURL[i]))
+        print('videoNotesUrl:'+str(videoNotesUrl[i]))
+        if notesURL[i]:
             courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-        
-            if note !='':               
-                notes_url ,note = get_yt_video_id(note)
-            if notes_url!=96:
-                notes_url= checkContentType(note)                
-            else:
-                notes_url=226
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=note,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
             db.session.add(addNotes)
             db.session.commit()
-    for notes in videoNotesUrl:
-        if notes:
-            print('Notes Url:'+str(notes))
-            
+        else:
             courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-        
-            if notes !='':               
-                notes_url ,notes = get_yt_video_id(notes)
-            if notes_url!=96:
-                notes_url= checkContentType(notes)                
-            else:
-                notes_url=226
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName,notes_url=notes,notes_type=int(notes_url),is_archived='N',last_modified_date=datetime.now())
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
             db.session.add(addNotes)
             db.session.commit()
-    #         db.session.commit()
+
     return jsonify("1")
 
 @app.route('/addNewQuestion',methods=['GET','POST'])

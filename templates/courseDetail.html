@@ -60,20 +60,18 @@
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1>
+        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 40%;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
-            <a href="{{url_for('tutorDashboard',tutor_id=teacher)}}"><h3 style="color: white;">{{user.first_name[0:1]|upper}}{{user.first_name[1:]}}
-                {{user.last_name[0:1]|upper}}{{user.last_name[1:]}}</h3></a>
-            {% if user.about_me %}
-            <h4 style="max-height: 60%;">{{user.about_me}}</h4>
+            <a href="{{url_for('tutorDashboard',tutor_id=teacher)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
+                {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3></a>
+            {% if teacherUser.about_me %}
+            <h4 style="max-height: 60%;">{{teacherUser.about_me}}</h4>
             {% else %}
-            <h4 style="max-width: 60%;">Shailesh has more than 8 years of experience with data science.
-                He's completed his degree from ISB and has worked with Dell, Accenture and EnY in the past
-                in various data scientist positions.
+            <h4 style="max-width: 60%;">
             </h4>
             {% endif %}
-            <p>{{user.email}}</p>
+            <p>{{teacherUser.email}}</p>
         </div>
     </div>
 </div>
@@ -127,9 +125,12 @@
                         <th>Days of week</th>
                         <th>Enrollments</th>
                         <th>Fee</th>    
-                        
-                        {% if current_user.user_id==user.id %}
+                        {% if current_user.is_anonymous==False %}
+                        {% if current_user.user_id==teacher.user_id %}
                         <th>Conduct Class</th>
+                        {% else %}
+                        <th>Enroll</th>
+                        {% endif %}
                         {% else %}
                         <th>Enroll</th>
                         {% endif %}
@@ -145,8 +146,8 @@
                         <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
                         <td>₹{{batch.course_batch_fee}}</td>                       
                            
-                        
-                            {% if current_user.id!=user.id %}
+                            {% if current_user.is_anonymous==False %}
+                            {% if current_user.id==teacher.user_id %}
                             <td>
                             <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
                             style="width: 100%;" href="#modal5"> Conduct Class</a>
@@ -160,7 +161,13 @@
                             style="width: 100%;" href="#modal2"> Enroll</a>
                             {% endif %}
                             </td>
-                            {% endif %}                                 
+                            {% endif %} 
+                            {% else %}
+                            <td>
+                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
+                            style="width: 100%;" href="#modal2"> Enroll</a>
+                            </td>
+                            {% endif %}                               
                     </tr>
                 {%endfor%}
                
@@ -311,11 +318,13 @@
             {% else %}
             <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}" id ="{{upcomingDate.course_batch_fee}}"
                 style="width: 100%;" href="#modal2"> Enroll in Course</a>
+                
             {% endif %}
             {% endif %}
             {% else %}
             <h4 class="grey-text">No Upcoming Batch </h4>
-            {% endif %}            
+            {% endif %}        
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share course</span> </a>    
             <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
             <br><br>
             <!--<button class="btn cyan " style="width: 45%;">Follow</button>
@@ -340,7 +349,7 @@
             <h3>Difficulty Level</h3>
             <p>{{level.description}}</p>
 
-            <h3 class="">{{user.first_name[0:1]|upper}}{{user.first_name[1:]}}'s Other Courses</h3>
+            <h3 class="">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}'s Other Courses</h3>
             <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
                 {% for course in otherCourses %}
                 {% if course.image_url %}
@@ -365,6 +374,27 @@
         </div>
     </div>
 </div>
+
+<div id="modal4" class="modal" style="width: 350px;height: 198px;">
+    <div class="modal-content" style="height: 140px;text-align: center;">
+      <h4>Share</h4>
+      <div class="row">
+        <h5 class='grey-text'>Share Page</h5>
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="margin-left: 100px;">
+            <a class="a2a_button_facebook modal-close"></a>
+            <a class="a2a_button_whatsapp modal-close"></a>
+            <a class="a2a_button_sms modal-close"></a>
+            <a class="a2a_button_google_gmail modal-close"></a>
+        </div>
+        <script async src="https://static.addtoany.com/menu/page.js"></script>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+  </div>
+
+
 <div id="commentModal" class="modal" style="height: 260px;">
     <div class="modal-content" style="height: 205px;">
         <div class="" style="margin-right: 200px;">
@@ -388,6 +418,7 @@
             <a class="modal-close waves-effect waves-light btn" id="submitReview" style="float: right;"
                 href="#">Submit</a>
         </div>
+        <span id="revMess"></span>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
@@ -602,6 +633,11 @@
         var revComment = $('#reviewComment').val();
         var course_id = "{{courseDet.course_id}}";
         var starRating = $("input[name='star']:checked").val();
+        var rev = $('#reviewComment').val();
+        $('#revMess').html('');
+        if(rev==''){
+            $('#revMess').html('please enter review first');
+        }else{
         $.ajax({
             url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment + '&starRating='+ starRating,
             type: "POST",
@@ -634,6 +670,7 @@
                 $('#msg').html('Error to submit review data');
             }
         });
+        }
     });
 
     $.fn.stars = function () {

@@ -443,10 +443,11 @@
               <!--<i class="material-icons right">search</i>-->
             </div>
           </li>
+          
+          {%endif%}
           <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
           </li>
-          {%endif%}
           {%if user_type_val=='' %}
           {% elif current_user.is_anonymous or disconn == 1  %}
 
@@ -839,6 +840,6 @@
   integrity="sha256-MfeKq2Aw9VAkaE9Caes2NOxQf6vUa8Av0JqcUXUGkd0=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.0.0/dist/instantsearch.production.min.js"
   integrity="sha256-6S7q0JJs/Kx4kb/fv0oMjS855QTz5Rc2hh9AkIUjUsk=" crossorigin="anonymous"></script>
-<script src="../static/js/app.js"></script>
+
 
 </html>

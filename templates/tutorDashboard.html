@@ -74,17 +74,17 @@
         <div class="row" style="display: flex;overflow-x: auto;position: relative;max-height: 330px;overflow-y: hidden;">
             {% for course in courseDet %}
             <div class="col-sm-3 ">
-                <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;">
+                
                 <div class="card small hoverable" style="border-radius: 25px;width:260px;height: 312px;margin-top: 0px;">
                     <div class="card-image waves-effect waves-block waves-light">
                         {% if course.image_url %}
-                        <img class="activator" height="145" style="border-radius: 25px;" src="{{course.image_url}}">
+                        <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;" src="{{course.image_url}}"></a>
                         {% else %}
-                        <img class="activator" height="145" style="border-radius: 25px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                        <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg"></a>
                         {% endif %}
                     </div>
                     <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('editCourse')}}"><h3 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h3></span>
+                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><h3 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h3></a></span>
                         <div style="display: flex;"><h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4><h5 style="margin-left: 90px;color: black;">
                             {% if user.id==current_user.id %}
                             {{course.desc}}
@@ -96,9 +96,9 @@
                             {% endif %}
                         </h5>
                         <input type="hidden" id="courseId" value="{{course.course_id}}">
-                        {% if user.id==current_user.id %}
-                        <h5><a class="modal-trigger" id="" onclick="fetchBatches('{{course.course_name}}','{{course.course_id}}');" href="#modal2" href="#">View Existing Batches</a></h5>
                         
+                        <h5><a class="modal-trigger" id="" onclick="fetchBatches('{{course.course_name}}','{{course.course_id}}');" href="#modal2" href="#">View Existing Batches</a></h5>
+                        {% if user.id==current_user.id %}
                         <h5><a href="{{url_for('editCourse',course_id=course.course_id)}}">Edit Course</a></h5>
                         {% endif %}
                     </div>
@@ -108,7 +108,7 @@
                         <p>{{course.description}}</p>
                     </div> -->
                 </div>
-            </a>
+            <!-- </a> -->
             </div>
             {% endfor %}
         </div>
