@@ -4706,11 +4706,21 @@ def testBuilderFileUpload():
 @app.route('/testPapers')
 @login_required
 def testPapers():
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
-    subjectNames=MessageDetails.query.filter_by(category='Subject')
+    return render_template('testPapers.html')
 
-    return render_template('testPapers.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+@app.route('/testPaperTable')
+def testPaperTable():
+    paper_count = request.args.get('paper_count')
+    if paper_count=="all":
+        paper_count=500
+    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
+    testPaperQuery = "select *from test_details where school_id="+ str(teacher_id.school_id)
+    testPaperQuery = testPaperQuery  +" order by date_of_creation desc fetch first "+str(paper_count)+" rows only"
+    testPaperData = db.session.execute(testPaperQuery).fetchall()
+    subjectNames=MessageDetails.query.filter_by(category='Subject')
+    return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+
 
 @app.route('/getChapterDetails')
 def getChapterDetails():
