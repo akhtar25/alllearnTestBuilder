@@ -68,7 +68,7 @@ talisman = Talisman(app, content_security_policy=None)
 
 
 client = SearchClient.create('RVHAVJXK1B', '58e63c83b4126c21f2e994f1d4e89439')
-index = client.init_index('staging_COURSE')
+index = client.init_index('prd_course')
 
 app.config.from_object(Config)
 db.init_app(app)
@@ -2315,10 +2315,23 @@ def liveClass():
 
 #####New section for open class modules
 @app.route('/updateSearchIndex/<task>')
+@login_required
 def updateSearchIndex(task):
-    queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
-    queryResult = db.session.execute(queryTest).fetchall()
-    queryKeys = db.session.execute(queryTest).keys()
+    #queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
+    indexQuery = "select cd.course_id as \"objectID\", cd.course_id, cd.course_name, cd.description,average_rating , cd.image_url, "
+    indexQuery = indexQuery + " tp.teacher_name,ideal_for, string_agg(topic_name::text, ', ') as topics, text(cd.last_modified_date) as last_modified_date"
+    indexQuery = indexQuery + " from course_detail cd "
+    indexQuery = indexQuery + " inner join course_topics ct"
+    indexQuery = indexQuery + " on ct.course_id =cd.course_id "
+    indexQuery = indexQuery + " inner join topic_detail td"
+    indexQuery = indexQuery + " on td.topic_id =ct.topic_id "
+    indexQuery = indexQuery + " inner join teacher_profile tp "
+    indexQuery = indexQuery + " on tp.teacher_id =cd.teacher_id "
+    indexQuery = indexQuery + " group by "
+    indexQuery = indexQuery + " cd.course_id, cd.course_name, cd.description , cd.image_url, tp.teacher_name "
+    indexQuery = indexQuery + " having course_status=251"
+    queryResult = db.session.execute(indexQuery).fetchall()
+    queryKeys = db.session.execute(indexQuery).keys()
     items = [dict((queryKeys[i], value) \
                for i, value in enumerate(row)) for row in queryResult]
     #print(json.dumps(items))
@@ -2326,14 +2339,28 @@ def updateSearchIndex(task):
         return json.dumps(items, indent=3)
     elif task=="send":
         try:
-            index = client.init_index('staging_COURSE')
+            #index = client.init_index('staging_COURSE')
+            index = client.init_index('prd_course')
             #batch = json.load(open('contacts.json'))            
-            index.set_settings({"customRanking": ["asc(class_val)"]})            	
-            index.set_settings({"searchableAttributes": ["topic_name", "class_val", "chapter_name"]})
+            index.set_settings({"customRanking": ["desc(last_modified_date)"]})            	
+            index.set_settings({"searchableAttributes": ["topic_name", "course_name", "teacher_name"]})
             index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
             return json.dumps({"The following data was sent to algolia index successfully":items})
         except:
             return "Error Sending index data to algolia"
+    elif task=="deleteAll":
+        filter_val = request.args.get('filter_val')
+        
+        #index = client.init_index('staging_COURSE')
+        index = client.init_index('prd_course')         
+        index.delete_by({'filters': 'board_id:1001'})
+        #batch = json.load(open('contacts.json'))            
+        #index.set_settings({"customRanking": ["asc(last_modified_date)"]})            	
+        #index.set_settings({"searchableAttributes": ["topic_name", "course_name", "teacher_name"]})
+        #index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
+        return json.dumps({"All indexes have been deleted from algolia under: ": filter_val})
+        #except:
+        #    return "Error Sending index data to algolia"
 
 
 @app.route('/',methods=["GET","POST"])

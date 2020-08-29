@@ -492,14 +492,14 @@ justify-content: center;" id="containerDiv">
     $('.searchCategoryClass').click(function () {
         //window.alert($(this).html());
 
-        window.location.href = "/search?staging_COURSE[query]=" +
+        window.location.href = "/search?prd_course[query]=" +
             $(this).html();
     });
 
 
 
     $('#startTestBTN').click(function () {
-        window.location.href = "/search?staging_COURSE[query]=" +
+        window.location.href = "/search?prd_course[query]=" +
             $('.searchText').val();
 
     });

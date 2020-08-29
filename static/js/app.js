@@ -5,7 +5,7 @@ const searchClient = algoliasearch(
   );
   
   const search = instantsearch({
-    indexName: 'staging_COURSE',
+    indexName: 'prd_course',
     searchClient,
     routing: true,
     insightsClient: window.aa,
@@ -52,42 +52,43 @@ instantsearch.widgets.pagination({
   search.addWidgets([
     instantsearch.widgets.hits({
       container: '#hits',
-      sortBy: ['topic_name:asc'],
+      sortBy: ['course_name:asc'],
       templates: {
         item(item) {
-          return `
+          return `               
+            <div class="hit-data card small hoverable section" style="border-radius: 25px;">
+                <div class="card-image waves-effect waves-block waves-light">
+                    <img class="activator" style="border-radius: 25px;"
+                        src="${item.image_url}">
+                </div>
+                <div class="card-content">
+                    <span class="card-title activator grey-text text-darken-4">
+                        <h4>${item.course_name}</h4><i class="material-icons right">more_vert</i>
+                    </span>
+                    <h5 class="grey-text">${item.teacher_name}</h5>                   
+                    <a href="/courseDetail?courseID=${item.course_id}"><span class="right" style="font-size: small;">Go
+                            to
+                            Course</span></a>
+                </div>
+                <div class="card-reveal">
+                    <span class="card-title grey-text text-darken-4"><h4>${item.course_name}</h4><i
+                            class="material-icons right">close</i></span>
+                    <p style="width: 80%;font-size:16px">${item.average_rating}<span class="stars">${item.average_rating}</span><br>
+                    ${item.description}
+                    </p>
 
-            <a href="/courseDetail?courseID=${item.topic_id}"><div class="card small hoverable  z-depth-0" style="border-radius: 25px;">
-            <div class="card-image waves-effect waves-block waves-light">
-                <img class="activator" style="border-radius: 5px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
-            </div>
-            <div class="card-content">
-                <span class="card-title activator grey-text text-darken-4"><h4>${item.topic_name}</h4></span>
-                <h5>Course Name</h5>
-                <h5 class="grey-text">Shailesh Vishwakarma</h5>                         
-            </div></a>
-
-            <button class="right btn" style="background-color: transparent; ${
-              instantsearch.insights('clickedObjectIDsAfterSearch', {
-                eventName: 'Add to favorite',
-                objectIDs: [item.objectID]
-              })
-            }>
-            <i
-            class="material-icons right green-text" style="font-size:medium">favorite_border</i>
-            </button>         
+                    <p><a href="/courseDetail?courseID=${item.course_id}"><span class="right"
+                                style="font-size: small;">Go to
+                                Course</span></a></p>
+                </div>
+            </div>        
           `;
-
-
         },
         empty(results) {
             return `<h3 class='grey-text'>No results for <q>${results.query}</q></h3>`;
           }
-      }
-  
+      }  
     })
   ]);
-  
-  
   search.start();
   
