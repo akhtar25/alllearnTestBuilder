@@ -2521,7 +2521,11 @@ def courseDetail():
 # <<<<<<< HEAD
     courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
     courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
-    courseBatchData = courseBatchData + " and cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' and ce.student_user_id="+str(current_user.id)+" and cb.batch_end_date > NOW() order by cb.batch_start_date desc"
+    courseBatchData = courseBatchData + " and cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' "    
+    courseBatchData = courseBatchData + " and cb.batch_end_date > NOW() "
+    if current_user.is_anonymous==False:
+        courseBatchData = courseBatchData + " and ce.student_user_id="+str(current_user.id) 
+    courseBatchData = courseBatchData + " order by cb.batch_start_date desc"
     print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
 # =======
