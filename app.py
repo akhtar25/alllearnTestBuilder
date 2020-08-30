@@ -2496,7 +2496,7 @@ def courseDetail():
     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
     checkEnrollment = ''
-    if upcomingDate:
+    if upcomingDate and current_user.is_authenticated :
         checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
     if checkEnrollment:
         print('if student is enrolled')
