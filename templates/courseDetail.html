@@ -60,9 +60,17 @@
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
+        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1>
+            {% if current_user.id==teacherUser.id %}
+            <a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a>
+            {%endif%}
+        </span>
         <div class="row">
-            <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
+            {%if teacherUser.user_avatar!=None%}
+            <img src="../static/images/defaultAvatar.png" class="circle" width="100px">
+            {%else%}
+            <img src="{{teacherUser.user_avatar}}" class="circle" width="100px">
+            {%endif%}
             <a href="{{url_for('tutorDashboard',tutor_id=teacher.teacher_id)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
                 {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3></a>
             {% if teacherUser.about_me %}
@@ -144,8 +152,11 @@
                         <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_end_date.strftime('%d %B %y')}}</td>
                         <td>{{batch.days_of_week}}</td>
                         <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
-                        <td>₹{{batch.course_batch_fee}}</td>                       
-                           
+                        {%if batch.course_batch_fee!=0.0%}
+                        <td>₹{{batch.course_batch_fee}}</td>
+                        {%else%}
+                        <td class="green-text">Free</td>
+                        {%endif%}
                             {% if current_user.is_anonymous==False %}
                             {% if current_user.id==teacher.user_id %}
                             <td>
@@ -493,13 +504,16 @@
     });
 
     $('.enrollBTN').click(function () {
-        $('#modal2').hide();
-        $('#donateDiv').html('');
-        $('#loader').show();
+      
         var amount = $(this).attr("id");
         //alert(donation_for);
         var batch_id = $(this).attr("name");
-
+        if (amount>0){
+            $('#modal2').hide();
+        $('#donateDiv').html('');
+        $('#loader').show();
+            //window.alert("Greater");
+        
         $.ajax({
             url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
                 "&batch_id=" + batch_id,
@@ -520,6 +534,38 @@
                 $('#loader').hide();
             }
         });
+    }
+        else{
+            //window.alert("Smaller or equal");
+            $('#donateDiv').html('');
+
+            $.ajax({
+            url: "/freeEnrollment?batch_id=" + batch_id,
+            type: "get",
+            data: '',
+            success: function (response1) {
+                if (response1 != '1') {
+                    $('#loader').hide();
+                    $('#donateDiv').html("<h4 class='green-text'>Enrollment Successful!");
+                    $('#donateDivModal').show();
+                    $(this).val("Enrolled");
+                } else {
+                    //$('#demo').load('/url/for/addshare2/' + variable1);
+                    window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
+                }
+            },
+            error: function (xhr) {
+                $('#donateDiv').html("Error occurred. Please try again.");
+                $('#loader').hide();
+            }
+        });
+
+
+
+
+
+
+        }
     });
     var st = "{{upcomingDate.batch_start_time}}";
     var en = "{{upcomingDate.batch_end_time}}";
