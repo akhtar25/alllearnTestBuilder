@@ -3697,13 +3697,14 @@ def paymentForm():
 def freeEnrollment():
     if current_user.is_authenticated:
         batch_id = request.args.get('batch_id')
-        #courseBatchData = CourseBatch.query.filter_by(batch_id =batch_id , is_archived='N').first()
-        #courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
-        #courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, 
-        #    batch_id = batch_id, student_user_id=current_user.id, is_archived='N', 
-        #    last_modified_date = datetime.today())   
-        #db.session.add(courseEnrollmentData)
-        #db.session.commit()
+        courseBatchData = CourseBatch.query.filter_by(batch_id =batch_id , is_archived='N').first()
+        courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+        courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, 
+            batch_id = batch_id, student_user_id=current_user.id, is_archived='N', 
+            last_modified_date = datetime.today())   
+        db.session.add(courseEnrollmentData)
+        db.session.commit()
+        flash('Course Enrolled')
         return jsonify(['0'])
     else:
         flash('Please login to enroll')

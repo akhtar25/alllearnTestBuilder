@@ -545,19 +545,19 @@
             data: '',
             success: function (response1) {
                 if (response1 != '1') {
-                    $('#loader').hide();
-                    window.alert('ye kahan aa gaye hun');
+                    $('#loader').hide();                    
                     $(this).text("Enrolled");
                     //$(this).html("html");
                     //$(this).val("Enrolled");
                     //$(this).val("Enrolled");
-                    $('#donateDiv').html("<h4 class='green-text'>Enrollment Successful!");
+                    //$('#donateDiv').html("<h4 class='green-text'>Enrollment Successful!");
+                        window.location.replace("/login");
                     $('#donateDivModal').show();
                     
                     //$(this).text("Enrolled");
                 } else {
                     //$('#demo').load('/url/for/addshare2/' + variable1);
-                    window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
+                    window.location.replace("/login");
                 }
             },
             error: function (xhr) {
