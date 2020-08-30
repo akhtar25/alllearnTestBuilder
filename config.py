@@ -29,6 +29,8 @@ class Config(object):
     ALLLEARN_CASHFREE_APP_ID = "132537e6d093183e75027048d35231"
     ALLLEARN_CASHFREE_SECRET_KEY = "c44dc87ea6b5c2c8b8dd2ac447f37cafea6264df"
 
+    CASHFREE_API_TEST = "https://ces-gamma.cashfree.com"
+    CASHFREE_API_PROD = "https://ces-api.cashfree.com"
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
     #IMPACT_HOST = "alllearnimpactstaging.herukoapp.com"
     #IMPACT_HOST = "http://127.0.0.1:8000"
