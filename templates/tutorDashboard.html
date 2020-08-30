@@ -83,8 +83,8 @@
                         <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg"></a>
                         {% endif %}
                     </div>
-                    <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><h3 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h3></a></span>
+                    <div class="card-content" style="position: relative;overflow-y: hidden;max-height: 155px;">
+                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><h4 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h4></a></span>
                         <div style="display: flex;"><h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4><h5 style="margin-left: 90px;color: black;">
                             {% if user.id==current_user.id %}
                             {{course.desc}}

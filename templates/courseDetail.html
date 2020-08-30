@@ -63,7 +63,7 @@
         <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
-            <a href="{{url_for('tutorDashboard',tutor_id=teacher)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
+            <a href="{{url_for('tutorDashboard',tutor_id=teacher.teacher_id)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
                 {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3></a>
             {% if teacherUser.about_me %}
             <h4 style="max-height: 60%;">{{teacherUser.about_me}}</h4>
@@ -127,7 +127,7 @@
                         <th>Fee</th>    
                         {% if current_user.is_anonymous==False %}
                         {% if current_user.id==teacherUser.id %}
-                        <th>Conduct Class{{teacherUser.id}}||{{current_user.id}}</th>
+                        <th>Conduct Class</th>
                         {% else %}
                         <th>Enroll</th>
                         {% endif %}
@@ -431,7 +431,7 @@
     </div>
     <div class="modal-content" id="topicListModal" style="display:none;height: 290px;">
         <p>
-                <h3>Topics for Batch <span id="batId"></span></h3>
+                <h3>Choose Topic</h3>
                 <ul id="topicListDiv" style="margin-top: 20px;">
 
                 </ul>

@@ -99,7 +99,12 @@
             <h3 class="">Upload Course Picture</h3>
             <p>
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                <div style="display: flex;">
                 <input type="file" id="courseImg" onchange="initUpload('3');" name="courseImg" style="height: 30px; margin-top: 10px;">
+                <div id="courseImgLoader" style="display: none;margin-top: 10px;margin-left: -60px;">
+                    <img src="../static/images/loader.gif" style="width: 24%;margin-left: -90px;">
+                </div>
+                </div>
                 {% if course_id %}
                 <input type="hidden" id="imageUrl" value="{{courseDet.image_url}}" name="imageUrl">
                 {% else %}
@@ -124,7 +129,12 @@
             <h3 class="">What to expect</h3>
             <p>Upload a short 2 min video of what the students should expect
                 <!--<video src="../static/images/vid1.m4v" width="100%" controls></video>-->
+                
                 <input type="file" id="video_url" onchange="initUpload('1');" name="video_url" style="height: 30px; margin-top: 10px;">
+                <!-- <div id="videoLoader" style="display: none;margin-top: 10px;margin-left: -60px;">
+                    <img src="../static/images/videoLoader.gif" style="width: 40%;margin-left: -90px;">
+                </div> -->
+                
                 {% if course_id %}
                 <input type="hidden" id="videoUrl" value="{{courseDet.summary_url}}" name="videoUrl">
                 {% else %}
@@ -142,6 +152,9 @@
                     {% else %}
                     <video src="../static/images/vid1.m4v" id="preview" class="" width="50%" controls></video>
                     {% endif %}
+                    <div id="videoLoader" style="display: none;">
+                        <img src="../static/images/videoLoader.gif" style="width: 60%;">
+                    </div>
                 </div>
             </p>
             <br>
@@ -180,22 +193,22 @@
                     {% for topic in topicDet %}
                     <tr>
                         <td>
-                            <a class="modal-trigger" onclick="editTopic('{{topic.topic_id}}');editQues();" href="#topicAddModal">
-                                {{topic.topic_name}}
+                            <a class="modal-trigger" onclick="editTopic('{{topic[2]}}');editQues();" href="#topicAddModal">
+                                {{topic[0]}}
                             </a>
                         </td>
                         <td>
-                            {{topic.no_of_questions}}
+                            {{topic[1]}}
                         </td>
                         <td>
-                            <a class="modal-trigger" onclick="topicId('{{topic.topic_id}}');" href="#topicNotesModal">Add Notes</a>
+                            <a class="modal-trigger" onclick="topicId('{{topic[2]}}');" href="#topicNotesModal"><span id="notesUploaded">Add Notes</span></a>
                         </td>
                                                 <td>
-                            <a class="modal-trigger" onclick="topicRecordingId('{{topic.topic_id}}');" href="#recordClassModal">Add Class Recording</a>
+                            <a class="modal-trigger" onclick="topicRecordingId('{{topic[2]}}');" href="#recordClassModal"><span id="recUploaded{{topic[2]}}">Add Class Recording</span></a>
                         </td>
                         <td>
                             <a title="Delete Need" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
-                                <i class="material-icons small" onclick="deleteTopic('{{topic.topic_id}}');" style="cursor:pointer;">
+                                <i class="material-icons small" onclick="deleteTopic('{{topic[2]}}');" style="cursor:pointer;">
                                     delete
                                 </i>
                             </a>
@@ -374,7 +387,12 @@
                 Class Recording URL:
                 <input type="text" id="recordingURL" name="recordingURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
                 <br><h4>OR</h4><br>
+                <div style="display: flex;">
                 <input type="file" id="video_record_url" onchange="initUpload('10');" name="videoRecordUrl" style="height: 30px; margin-top: -10px;">
+                <div id="classRecLoader" style="display: none;margin-top: -10px;">
+                    <img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;">
+                </div>
+                </div>
                 <input type="hidden" id="videoRecordUrl" value="" name="videoRecordUrl">
                 <!-- <ol><div id="topicNotDiv" style="max-width: 80%;"></div></ol>
                 <a href="#" id="addNotesBTN">
@@ -428,8 +446,10 @@
     $('#topicName').blur(function(){
         if($('#topicName').val()!=''){
         $('#saveTopic').prop('disabled',false);
+        $('.newQuestion').show();
         }else{
             $('#saveTopic').prop('disabled',true);
+            $('.newQuestion').hide();
         }
     });
 
@@ -487,7 +507,7 @@
     function fetch(topId){
         // $('#addNotesBTN').hide();
         $('#topicNotDiv').html('');
-        $('#botBox').hide();
+        // $('#botBox').hide();
         console.log('inside fetch'+topId);
         $.ajax({
             url: "/fetchNotes?topic_id="+topId,
@@ -509,8 +529,8 @@
                 // if(notes_name&&notes_url){
                     // console.log(notesDiv);
                     clicks =i+1;
-                $('#topicNotDiv').html(notesDiv);
-                $('#saveNotes').hide();
+                // $('#topicNotDiv').html(notesDiv);
+                // $('#saveNotes').hide();
                 $('#updateNotes').hide();
                 for(var i=0;i<responseArr.length;i++){
                     if($('#notesName'+i.toString()).val()==''){
@@ -565,6 +585,7 @@ $('#videoRecord').click(function($e){
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Record added successfully'});
+                $('#recUploaded'+topId.toString()).html('Class Recording Uploaded')
              }
             },
             error: function (xhr) {
@@ -830,9 +851,12 @@ function correctOption(correct){
             data: "",
             success:function(response){
                 console.log('QuestionId:'+response);
+                var leng = quesIDList.length;
                 quesIDList.push(response);
                 var flag = '1';
+                if(leng<quesIDList.length){
                 fetchQuestions(quesIDList,flag);
+                }
                 
                 console.log('data added successfully');
                 
@@ -845,6 +869,7 @@ function correctOption(correct){
     }
     var quesListDiv = '';
     function fetchQuestions(QuesList,indic){
+        $('#quesForm').html('');
         console.log('inside fetchQuestions');
         console.log(QuesList);
             var QuesList = JSON.stringify(QuesList);
@@ -1070,6 +1095,8 @@ function correctOption(correct){
             console.log('videoZone:'+videoZone);
             if(videoZone=='1'){
                 console.log('if file for courseUrl');
+                $('#videoLoader').hide();
+                $('#preview').show();
             document.getElementById('preview').src = url;
             document.getElementById('videoUrl').value=url;
             }else
@@ -1078,12 +1105,14 @@ function correctOption(correct){
                 $('.videoNotesUrl').val(url);
                 $('#fileLoader').hide();
                 // document.getElementById('previewNotes').src = url;
-            }
+            }else
             if(videoZone=='10'){
+                $('#classRecLoader').hide();
                 $('#videoRecordUrl').val(url);
             }
             else{
                 console.log('if file for imageUrl');
+                $('#courseImgLoader').hide();
                 document.getElementById('previewImg').src = url;
                 document.getElementById('imageUrl').value=url;
             }
@@ -1124,6 +1153,8 @@ function correctOption(correct){
         console.log(videoZone);
         var files = '';
     if(videoZone=='1'){
+        $('#videoLoader').show();
+        $('#preview').hide();
        files = document.getElementById('video_url').files;
     }else
     if(videoZone=='2'){
@@ -1131,12 +1162,14 @@ function correctOption(correct){
         console.log('video zone is 2');
          files = document.getElementById('video_notes_url').files;
          console.log('fileName:'+files);
-         console.log(files[0].filename);
+        //  console.log(files[0].filename);
     }else
     if(videoZone=='10'){
+        $('#classRecLoader').show();
         files = document.getElementById('video_record_url').files;
     }
     else{
+        $('#courseImgLoader').show();
         files = document.getElementById('courseImg').files;
     }
       const file = files[0];
@@ -1288,7 +1321,7 @@ function correctOption(correct){
         console.log('Topic Name:'+topicName);
         console.log('courseId:'+courseId);
         console.log('list of question ids');
-        console.log(validQues);
+        console.log(validQues.length);
         validQues = JSON.stringify(validQues);
         $.ajax({
             url:"/updateCourseTopic?topicId="+topicId+"&courseId="+courseId+"&topicName="+topicName+"&courId="+courId,
@@ -1298,6 +1331,10 @@ function correctOption(correct){
             success:function(response){
                 if(response=='1'){
                     M.toast({html: 'Topic updated successfully'});
+                    topicList();
+                    var elem = $('#topicAddModal')
+                    var instance = M.Modal.getInstance(elem);                   
+                    instance.close(); 
                 }
             },
             error:function(xhr){
@@ -1327,6 +1364,10 @@ function correctOption(correct){
                 if(response){
                     M.toast({html: 'Topic added successfully'});
                     $('#topicId').val(response);
+                    topicList();
+                    var elem = $('#topicAddModal')
+                    var instance = M.Modal.getInstance(elem);                   
+                    instance.close(); 
                 }
             },
             error:function(xhr){
@@ -1401,6 +1442,8 @@ function correctOption(correct){
                     console.log('fetch Topic Ques');
                     var responseArr = response.toString().split(',');
                     var quesListDiv = '';
+                    TopicName = '';
+                    TopicId = '';
                     for(var i=0;i<responseArr.length;i++){
                         var ques = responseArr[i].toString().split(':')[0];
                         var topic_name = responseArr[i].toString().split(':')[1];
@@ -1410,13 +1453,16 @@ function correctOption(correct){
                         var opt4 = responseArr[i].toString().split(':')[5];
                         var quesId = responseArr[i].toString().split(':')[6];
                         var topicId = responseArr[i].toString().split(':')[7];
-                        
+                        TopicName = topic_name;
+                        TopicId = topicId;
                         console.log('Question:'+ques);
                         console.log('op1:'+opt1);
                         console.log('op2:'+opt2);
                         console.log('op3:'+opt3);
                         console.log('op4:'+opt4);
+                        if(quesId!=''){
                         validQues.push(quesId);
+                        }
                         console.log('topic name:'+topic_name);
                         console.log('Topic Id:'+topicId);
                         $('#topicName').val(topic_name);
@@ -1427,10 +1473,18 @@ function correctOption(correct){
                         
                         // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
                     }
+                    if(ques==''){
+                        $('#questionList').html('<tr><td style="padding-top:10px;"><h4>No Questions Available</h4></td></tr>');
+                    }else{
                     $('#questionList').html(quesListDiv);
+                    }
+                    if(quesId!=''){
                     tickCorrect(validQues);
+                    }
                     
                 }else{
+                    // $('#topicName').val(TopicName);
+                    // $('#topicId').val(TopicId);
                     $('#questionList').html('<tr><td style="padding-top:10px;"><h4>No Questions Available</h4></td></tr>');
                 }
             },
@@ -1513,7 +1567,7 @@ function correctOption(correct){
         $('#notesName').val('');
         $('#notesURL').val('');
 
-        $('.newQuestion').show();
+        $('.newQuestion').hide();
         $('.forEdit').hide();
     }
 </script>

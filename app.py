@@ -2491,7 +2491,7 @@ def courseDetail():
     upcomingDate = db.session.execute(text(upcomingDate)).first()
     checkEnrollment = ''
     if upcomingDate:
-        checkEnrollment = CourseEnrollment.query.filter_by(batch_id=upcomingDate.batch_id,student_user_id=current_user.id).first()
+        checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
     if checkEnrollment:
         print('if student is enrolled')
         print(checkEnrollment)
@@ -2521,7 +2521,7 @@ def courseDetail():
 # <<<<<<< HEAD
     courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
     courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
-    courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.batch_end_date > NOW() "
+    courseBatchData = courseBatchData + " and cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' and ce.student_user_id="+str(current_user.id)+" and cb.batch_end_date > NOW() order by cb.batch_start_date desc"
     print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
 # =======
@@ -2689,7 +2689,7 @@ def addReview():
 def batchTopicList():
     batch_id = request.args.get('batch_id')
     courseId = CourseBatch.query.filter_by(batch_id=batch_id).first()
-    topicIds = CourseTopics.query.filter_by(course_id=courseId.course_id).all()
+    topicIds = CourseTopics.query.filter_by(course_id=courseId.course_id,is_archived='N').all()
     topics = []
     for topicId in topicIds:
         topicName = Topic.query.filter_by(topic_id=topicId.topic_id).first()
@@ -2702,11 +2702,23 @@ def batchTopicList():
 @app.route('/tutorDashboard',methods=['GET','POST'])
 def tutorDashboard():
     tutor_id = request.args.get('tutor_id')
-    TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
+    user_id = request.args.get('user_id')
+    if user_id:
+        TeacherId = TeacherProfile.query.filter_by(user_id=user_id).first()
+        
+    else:
+        TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
+    
+    if TeacherId==None:
+        return redirect(url_for('courseHome'))
+    else:
+        tutor_id=TeacherId.teacher_id
     user = User.query.filter_by(id=TeacherId.user_id).first()
     # courseDet = CourseDetail.query.filter_by(teacher_id=TeacherId.teacher_id).all()
-    courseDet = "select count(*) as no_of_topic,cd.course_name,md.description as desc,cd.description,cd.image_url,cd.course_id from course_detail cd inner join course_topics ct on ct.course_id=cd.course_id inner join message_detail md on md.msg_id = cd.course_status where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,md.description,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
+    courseDet = "select count(*) as no_of_topic,cd.course_name,md.description as desc,cd.description,cd.image_url,cd.course_id from course_detail cd left join course_topics ct on ct.course_id=cd.course_id inner join message_detail md on md.msg_id = cd.course_status where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,md.description,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
+    
     courseDet = db.session.execute(text(courseDet)).fetchall()
+    print(courseDet)
     feeType = MessageDetails.query.filter_by(category='Fee Type').all()
     return render_template('tutorDashboard.html',user=user,tutor_id=tutor_id,feeType=feeType,courseDet=courseDet,teacher_name = user.first_name+' '+user.last_name,profile_pic = user.user_avatar,email = user.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
 
@@ -2795,35 +2807,56 @@ def teacherRegForm():
     print('account holder name:'+str(accountHolderName))
     print('accountNo:'+str(accountNo))
     print('ifsc Code:'+str(IfscCode))    
-    return jsonify("1")
+    return jsonify("0")
 
 @app.route('/editCourse')
 def editCourse():
+    print('inside editCourse')
     course_category = MessageDetails.query.filter_by(category='Course Category').first()
     desc = course_category.description.split(',')
     course_id=request.args.get('course_id')
     teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    if teacherIdExist:
+    print('userID:'+str(current_user.id))
+    print('Teacher:'+str(teacherIdExist))
+    if teacherIdExist==None:
+        return redirect(url_for('teacherRegistration'))
+    else:
         print('Description:'+str(desc))
         print('course_id:'+str(course_id))
         if course_id:
             courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
             levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
             courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
-            topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
-            topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
-            topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-            topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
-            print(topicDet)
-            topicDet = db.session.execute(text(topicDet)).fetchall()
+            # topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
+            # topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+            # topicDet = topicDet + "left join test_questions tq on ct.test_id = tq.test_id "
+            # topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+            
+            topicL = []
+            topicsID = CourseTopics.query.filter_by(course_id=course_id,is_archived='N').all()
+            for topicId in topicsID:
+                topicList = []
+                topic_name = Topic.query.filter_by(topic_id=topicId.topic_id).first()
+                quesNo = TestQuestions.query.filter_by(test_id=topicId.test_id,is_archived='N').all()
+                questionNo = len(quesNo)
+                topicList.append(topic_name.topic_name)
+                topicList.append(questionNo)
+                topicList.append(topicId.topic_id)
+                print(topicList)
+                topicL.append(topicList)
+            print(topicL)
+            for topic in topicL:
+                print(topic[0])
+                print(topic[1])
+                print(topic[2])
+            # topicDet = db.session.execute(text(topicDet)).fetchall()
             idealFor = courseDet.ideal_for
             print('Description:'+str(courseDet.description))
-            return render_template('editCourse.html',levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicDet)
+            return render_template('editCourse.html',levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
         else:
             levelId = ''
             return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
-    else:
-        redirect(url_for('teacherRegistration'))
+    
 
 
 #clip = (VideoFileClip("frozen_trailer.mp4")
@@ -2946,11 +2979,14 @@ def fetchTopicsQues():
     print('topic_id:'+str(topic_id))
     topics = CourseTopics.query.filter_by(topic_id=topic_id,is_archived='N').first()
     topicName = Topic.query.filter_by(topic_id=topics.topic_id).first()
+    print('Topic name:'+str(topicName.topic_name))
     quesIds = TestQuestions.query.filter_by(test_id=topics.test_id,is_archived='N').all()
     # topicNotes = TopicNotes.query.filter_by(topic_id=topics.topic_id).first()
     # NotesName = topicNotes.notes_name
     # NotesUrl = topicNotes.notes_url
     quesArray = []
+    if len(quesIds)==0:
+        quesArray.append(str('')+':'+str(topicName.topic_name)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
     for qId in quesIds:
         quesObj = {}    
         quesName = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
@@ -3013,15 +3049,39 @@ def updateCourseTopic():
     topicDet.topic_name = topicName
     db.session.commit()
     testId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId).first()
-    totalQId = TestQuestions.query.filter_by(test_id=testId.test_id).all()
-    print('Total Question Ids:'+str(totalQId))
+    # totalQId = TestQuestions.query.filter_by(test_id=testId.test_id).all()
+    deleteAll = "update test_questions set is_archived='Y' where test_id='"+str(testId.test_id)+"' "
+    deleteAll = db.session.execute(text(deleteAll))
+    # print('Total Question Ids:'+str(totalQId))
     print('Total not deleted Ques Ids:'+str(quesIds))
-    for qId in totalQId:
-        if str(qId.question_id) not in quesIds:
-            print('QuesIds not present in total Questions')
-            updateQues = TestQuestions.query.filter_by(question_id=qId.question_id,test_id=testId.test_id).first()
-            updateQues.is_archived = 'Y'
-        db.session.commit()
+    print(quesIds)
+    print('Length of Ques Ids:'+str(len(quesIds)))
+    total_marks = 10*int(len(quesIds))
+    print('Total marks:'+str(total_marks))
+    testDet = TestDetails.query.filter_by(test_id=testId.test_id).first()
+    # db.session.add(testDet)
+    testDet.total_marks = total_marks
+    db.session.commit()
+        # testId = "select max(test_id) as test_id from test_details"
+        # testId = db.session.execute(text(testId)).first()
+    # courseTopic = ''
+    # if courseId:
+    #     courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+    #     db.session.add(courseTopic)
+    # else:
+    #     courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+    #     db.session.add(courseTopic)
+    # db.session.commit()
+    if len(quesIds)!=0:
+        for quesId in quesIds:
+            print('QuesID:'+str(quesId))
+            if quesId!='[' or quesId!=']':
+                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(testQues)
+                db.session.commit()
+            # quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+            # quesDet.topic_id=topicDet.topic_id
+            
     
     return jsonify("1")
 
@@ -3042,7 +3102,7 @@ def addCourseTopic():
     
     
 
-    if topicId:
+    if courId:
         quesIds = request.get_json()
         total_marks = 10*len(quesIds)
         print('Total marks:'+str(total_marks))
@@ -3087,15 +3147,15 @@ def addCourseTopic():
         print(quesIds)
         # courseId = CourseDetail.query.filter_by(course_name=courseName,teacher_id=teacherData.teacher_id,school_id=teacherData.school_id).first()
         
-        for quesId in quesIds:
-            print(quesId)
+        # for quesId in quesIds:
+        #     print(quesId)
         topicDet = Topic(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id)
         db.session.add(topicDet)
         db.session.commit()
-        topicId = "select max(topic_id) as topic_id from topic_detail"
-        topicId = db.session.execute(text(topicId)).first()
+        # topicId = "select max(topic_id) as topic_id from topic_detail"
+        # topicId = db.session.execute(text(topicId)).first()
         
-        topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicId.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
+        topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicDet.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
         db.session.add(topicTr)
         db.session.commit()
         total_marks = 10*len(quesIds)
@@ -3103,24 +3163,25 @@ def addCourseTopic():
         testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
         db.session.add(testDet)
         db.session.commit()
-        testId = "select max(test_id) as test_id from test_details"
-        testId = db.session.execute(text(testId)).first()
+        # testId = "select max(test_id) as test_id from test_details"
+        # testId = db.session.execute(text(testId)).first()
         courseTopic = ''
         if courseId:
-            courseTopic = CourseTopics(course_id=courseId,topic_id=topicId.topic_id,test_id=testId.test_id,video_class_url='videoUrl',is_archived='N',last_modified_date=datetime.now())
+            courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
             db.session.add(courseTopic)
         else:
-            courseTopic = CourseTopics(topic_id=topicId.topic_id,test_id=testId.test_id,video_class_url='videoUrl',is_archived='N',last_modified_date=datetime.now())
+            courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
             db.session.add(courseTopic)
         db.session.commit()
-        for quesId in quesIds:
-            testQues = TestQuestions(test_id=testId.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(testQues)
-            
-            quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
-            quesDet.topic_id=topicId.topic_id
-            db.session.commit()
-        return jsonify(topicId.topic_id)
+        if quesIds:
+            for quesId in quesIds:
+                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(testQues)
+                
+                quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+                quesDet.topic_id=topicDet.topic_id
+                db.session.commit()
+        return jsonify(topicDet.topic_id)
     
 @app.route('/fetchTickCorrect',methods=['GET','POST'])
 def fetchTickCorrect():
@@ -3242,11 +3303,11 @@ def addNewQuestion():
             option = 'C'
         else:
             option = 'D'
-        ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
-        options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=ques_det.question_id,weightage='10',last_modified_date=datetime.now())
+        # ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
+        options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=quesCreate.question_id,weightage='10',last_modified_date=datetime.now())
         db.session.add(options)
         db.session.commit()
-    return jsonify(ques_det.question_id)
+    return jsonify(quesCreate.question_id)
     
 @app.route('/fetchQuesList',methods=['GET','POST'])
 def fetchQuesList():

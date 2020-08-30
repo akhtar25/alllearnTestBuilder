@@ -33,8 +33,9 @@
             type:"POST",
             data: form.serialize(),
             success:function(response){
-                if(response){
+                if(response==0){
                     console.log('data added successfully');
+                    window.location.replace("url_for('editCourse')");
                     M.toast({html: 'Teacher Registered Successfully'});
                 }
             },
