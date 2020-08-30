@@ -1,0 +1,50 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+    <div class="row">
+        <h2 class="">Teacher Registration</h2>
+        <form id="teacherRegForm">
+            <div class="col-sm-12">
+                <h3>Bank Details</h3>
+                <div style="display: flex;">
+                    <h4 style="width:210px;">Bank Name</h4>
+                    <input type="text" value="" style="width: 500px;" name="bankName"/>
+                    <h4 style="width:210px;margin-left: 50px;">Account Holdername</h4>
+                    <input type="text" value="" style="width: 500px;" name="accountHoldername"/>
+                </div>
+                <div style="display: flex;">
+                    <h4 style="width:210px;">Account Number</h4>
+                    <input type="number" min="0" value="" style="width: 500px;" name="accountNumber"/>
+                    <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
+                    <input type="text" value="" style="width: 500px;" name="ifscCode"/>
+            </div>
+            <a href="#" class="btn green right" style="margin-top: 20px;" id="submit">Submit</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $('#submit').click(function($e){
+        console.log('inside submit btn function');
+        $e.preventDefault();
+        var form = $('#teacherRegForm');
+        $.ajax({
+            url:"/teacherRegForm",
+            type:"POST",
+            data: form.serialize(),
+            success:function(response){
+                if(response==0){
+                    console.log('data added successfully');
+                    window.location.replace("url_for('editCourse')");
+                    M.toast({html: 'Teacher Registered Successfully'});
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit form data');
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

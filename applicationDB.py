@@ -182,7 +182,7 @@ class Attendance(db.Model):
     last_modified_date=db.Column(db.DateTime)    
 
 
-class Topic(db.Model):
+class Topic(db.Model): 
     __tablename__ = "topic_detail"
     #content_id = db.Column(db.Integer, primary_key=True)
     topic_id = db.Column(db.Integer, primary_key=True)
@@ -1003,7 +1003,7 @@ class LiveClass(db.Model):
 
 
 
-class CourseDetail(db.Model):
+class CourseDetail(db.Model): 
     __tablename__ = "course_detail"
     course_id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(200), nullable=False)
@@ -1105,7 +1105,6 @@ class BatchTest(db.Model):
     is_current = db.Column(db.String(1),nullable=False)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False)
-    
 
 class PaymentTransaction(db.Model):
     __tablename__ = "payment_transaction"

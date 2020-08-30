@@ -3,6 +3,51 @@
 <!--<script src="../static/js/painterro-1.0.35.min.js"></script>-->
 <!--<script src="../shared-assets/create-demo-room.js"></script>-->
 <style>
+   div.stars {
+  width: 270px;
+  display: inline-block;
+}
+
+input.star { display: none; }
+
+label.star {
+  float: right;
+  padding: 10px;
+  font-size: 36px;
+  color: #444;
+  transition: all .2s;
+}
+
+input.star:checked ~ label.star:before {
+  content: '\f005';
+  color: #FD4;
+  transition: all .25s;
+}
+
+input.star-5:checked ~ label.star:before {
+  color: #FE7;
+  text-shadow: 0 0 20px #952;
+}
+
+input.star-1:checked ~ label.star:before { color: #F62; }
+
+label.star:hover { transform: rotate(-15deg) scale(1.3); }
+
+label.star:before {
+  content: '\f006';
+  font-family: FontAwesome;
+}
+span.stars, span.stars span {
+    display: block;
+    background: url('http://i.imgur.com/YsyS5y8.png') 0 -16px repeat-x;    
+    width: 80px;
+    height: 16px;
+}
+
+span.stars span {
+    max-width:80px;
+    background-position: 0 0;
+}
 
     button {
         display: block;
@@ -91,7 +136,7 @@
     }
     async function createRoom() {
         room = {
-            url: 'https://alllearn.daily.co/3JxJF9RMfaH5xPIEAI0W'
+            url: '{{topicData.room_id}}'
         }
         ownerLink = room.url;
     }
@@ -219,14 +264,23 @@
 </script>
 
 <div class="container">
+    <div>
+    <h3>{{topicData.topic_name}}</h3>
+    <h4><a href="{{url_for('courseDetail',course_id=topicData.course_id)}}" target="_blank">{{topicData.course_name}}</a> </h4>
+    <h5 class="grey-text"><a href="{{url_for('tutorDashboard',tutor_id=topicData.teacher_id)}}" target="_blank">{{topicData.teacher_name}}</a></h5>
+</div>
+    <ul class="tabs">
+        <li class="tab col s3"><a class="" href="#liveClassDiv">Live Class</a></li>
+
+        <li class="tab col s3"><a class="active" href="#recordedClassDiv">Recorded Class</a></li>
+    </ul>
+
+    <div id="liveClassDiv">
     <div class="row">
         <div class="col-sm-6">
-        <h3>Learning the technologies</h3>
-        <a href="#"><h5>Starting a saas startup in India </h5></a>
-        <a href="#"><h5 class="grey-text">Shailesh Vishwakarma</h5></a>
-    </div>
         <div id="page-blocks" class="col-sm-6 right">
-            
+            {%if current_user.id==topicData.user_id%}
+            {%if batch_id!="" and batch_id!=none  %}
             <div id="buttons-row">                
                     <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
                         Start Class
@@ -234,18 +288,54 @@
                     <button id="whiteboardBTN" class="btn black-text white" style="border: 2px solid rgb(226, 223, 223);">WhiteBoard</button>
                     <button id="leave-meeting" class="btn red lighten-1  " onclick="callFrame.leave()">
                         End Class
-                    </button>
-                    <button id="startQuizBTN" class="btn" disabled>End Class and Start Quiz</button>               
-            </div>
+                    </button>                    
+                    <!--<button id="startQuizBTN" class="btn"> Start Quiz</button>               -->
+                    <form action="/feedbackCollection" method="GET">      
+                        <input type="hidden" name='section' value="A">          
+                        <input type="hidden" name="timeOption" value="Untimed"/>
+                        <input type="hidden" name='duration' value="0">
+                        <input type="hidden" name="weightage" value="10">    
+                        <input type="hidden" name="negativeMarking" value="0">
+                        <input type="hidden" name='class_val' value="1">
+                        <input type="hidden" name='batch_test' value="1">
+                        <input type="hidden" name='subject_id' value="54">
+                        <input type="hidden" name='test_id' value="{{topicData.test_id}}">
+                        <input type="hidden" name="batch_id" value="{{batch_id}}">
+                        <input type="hidden" name="topic_id" value="{{topicData.topic_id}}">                        
+                        <button class='btn green' type='submit' class='startTestButtonClass'>Start Test</button>      
+                      </form>
+            </div>  
+            {%else%}        
+            <div class="row">
+            <p class="left"><i class="material-icons">info_outline</i>To Start Live Class/Tests please click on conduct class button on Course Detail page.</p>
+        </div>      
+            {%endif%}
+            {%else%}
             
+            <div id="buttons-row">                
+                {%if enrolled=='Y'%}
+                <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
+                    Join Live Class
+                </button>                                    
+                <button id="leave-meeting" class="btn red lighten-1" onclick="callFrame.leave()">
+                    Leave Class
+                </button>                    
+                <button id="studTakeQuizBTN" class="btn">Take Topic Test</button>               
+                {%else%}
+                <!-- <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4> -->
+                {%endif%}
+        </div>     
+        
+            {%endif%}
         </div>
+    </div>
+
     </div>
     <div class="row hoverable z-depth-1"
         style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
-        <div class="section" id="mainDiv">
-        <div id="blankClassDiv" class="center">
-            <h2 class="grey-text">Please click on Start Class to enter classroom</h2>
-
+        <div class="section" id="mainDiv">    
+            <div id="blankClassDiv" class="center">
+                <h4 class="grey-text">Please <a href="{{url_for('courseDetail',course_id=topicData.course_id)}}">Enroll in Course</a> to join live class and write test </h4>
             <img src="../static/images/blkboard.jpg" width="95%">
 
         </div>
@@ -258,19 +348,44 @@
                     Whiteboard
                 </h3>
                 <canvas id="myCanvas" style="height: 100%;width: 100%;">
-                    Sorry, your browser does not support HTML5 canvas technology.
+                    Sorry, your browser does not support HTML5.
                 </canvas>
             </div>
         </div>
     </div>
+</div>
+<div id="recordedClassDiv">
+    <div class="row">
+        <br>
+    </div>
+    <div class="row hoverable z-depth-1"
+    style="border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+    <div id="blankClassDiv" class="center">
+        {%if topicData.video_class_url%}
+        <video src="{{topicData.video_class_url}}" width="80%" controls></video>
+        {%else%}
+        <h3 class="grey-text">No class recording present</h3>
+        <img src="../static/images/blkboard.jpg" width="95%">
+        {%endif%}
+        
+    </div>
+    </div>
+</div>
     <div class="row">
         <div class="col-sm-8">
             <h4>Notes</h4>
-            <p>This is the list of items you should ideally read</p>
+            {%if enrolled=='Y'%}
+            <!--<p>This is the list of items you should ideally read</p>-->
             <table class=" highlight " style="font-size:16px;border-radius: 10px;max-width: 80%;">
+                {% for notes in notesList %}
                 <tr>
                     <!--  <td></td>-->
-                    <td><a href="#">Notes on Python flask</a></td>
+                    <td><a href="{{notes.notes_url}}" target="_blank">{{notes.notes_name}}</a></td>
+                </tr>
+                {% endfor %}
+                <!-- <tr> -->
+                    <!--  <td></td>-->
+                    <!-- <td><a href="#">Notes on Python flask</a></td>
                 </tr>
                 <tr>
                     <td><a href="#">What is the reason for quick build</a></td>
@@ -283,42 +398,44 @@
                 </tr>
                 <tr>
                     <td><a href="#">Building a business with python</a></td>
-                </tr>
+                </tr> -->
             </table>
+            {% else %}
+            <h4 class="grey-text">Enroll to view notes</h4>
+            {% endif %}
+            <br><br>
             <div class="divider"></div>
-            <h4>Comments <span class="grey-text">475</span></h4>
+            <h4>Comments on Topic <span class="grey-text" id="commLen">{{lenComm}}</span></h4>
 
             <div id="commentsDiv">
-                <form id="remarkForm" style="max-width: 600px;">
+                {%if current_user.is_anonymous==False%}
+                <form id="remarkForm" style="max-width: 800px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
+                    <input type="hidden" name="topicId" value="{{topicData.topic_id}}">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
                 </form>
+                {%endif%}
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
-                        <tbody>
+                        <tbody id="commentList">
 
                             <!--Dummy comment-->
+                            {% for comment in comments %}
+                            {% if comment.comment %}
                             <tr>
                                 <td>
                                     <div class=" green lighten-5"
                                         style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
-                                        <span class="grey-text">Tomato master</span><br>
-                                        <span style="margin-left: 5px;">This is the best course ever!!!</span><br>
+                                        <span class="grey-text">{{comment.username}}</span><br>
+                                        <span style="margin-left: 5px;">{{comment.comment}}</span><br>
                                     </div>
-                                    <span class="right grey-text"> 23rd Jan 2020</span>
+                                    <span class="right grey-text"> {{comment.last_modified_date.strftime('%d %B %Y')}}</span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class=" green lighten-5"
-                                        style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
-                                        <span class="grey-text">Tomato slave</span><br>
-                                        <span style="margin-left: 5px;">Definitely!</span><br>
-                                    </div>
-                                    <span class="right grey-text"> 23rd Jan 2020</span>
-                                </td>
-                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                            
                             <!--End of dummy comment-->
                         </tbody>
                     </table>
@@ -329,17 +446,42 @@
 
         </div>
         <div class="col-sm-4">
-            <img src="../static/images/reviewIMG.PNG" width="120px">
-            <br>
-            <button class="btn wave green">Donate</button>
-            <a href="#" class="btn cyan"><span>Share course</span> </a>
-            <a href="#" class="right red-text">Report </a>
+            <div class="starRatingDiv">
+                {% if rating.average_rating %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span class="stars left">{{rating.average_rating}}</span></h4></a>
+                {% else %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal" ><h4 class=""><span style="margin-left:10px;color:black;">No Reviews</span><span class="stars left">0</span></h4></a>
+                {% endif %}
+            </div>
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share course</span> </a>
+            
+            <!-- <button class="btn wave green">Donate</button> -->
+            
+            <!-- <a href="#" class="right red-text">Report </a> -->
             <br><br>
-            <p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
-                creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>
+            <!--<p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
+                creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>-->
                 <br>
-            <h4>Ongoing Classes</h4>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
+            <h4>Other topics</h4>
+            {%if listTopics%}
+            {% for topic in listTopics %}
+            <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}">
+                <li class="hoverable" 
+                    style="border-radius: 10px;cursor:pointer;width: 340px;display: flex;margin-top: 15px;">
+                    <img src="../static/images/playButton.jpg" width="20%">
+                    <h4 style="margin-left: 20px;height: 40px;color: black;width:140px;font-size:20px;">{{topic.topic_name}}</h4>
+                    
+                </li>
+            </a>
+
+
+                <!-- <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}" >{{topic.topic_name}}</a><br> -->
+            {% endfor %}
+            {%else%}
+            <h4 class="grey-text">No other topics</h4>
+            {%endif%}
+            <br>
+            <!-- <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
             <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
@@ -350,8 +492,64 @@
             <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
             <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
-                style="border-radius: 10px;"><br><br>
+                style="border-radius: 10px;"><br><br> -->
         </div>
+
+        <div id="modal4" class="modal" style="width: 350px;height: 198px;">
+            <div class="modal-content" style="height: 140px;text-align: center;">
+              <h4>Share</h4>
+              <div class="row">
+                <h5 class='grey-text'>Share Page</h5>
+                <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="margin-left: 100px;">
+                    <a class="a2a_button_facebook modal-close"></a>
+                    <a class="a2a_button_whatsapp modal-close"></a>
+                    <a class="a2a_button_sms modal-close"></a>
+                    <a class="a2a_button_google_gmail modal-close"></a>
+                </div>
+                <script async src="https://static.addtoany.com/menu/page.js"></script>
+            </div>
+            </div>
+            <div class="modal-footer">
+              <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+            </div>
+          </div>
+
+        <div id="commentModal" class="modal" style="height: 260px;">
+
+            <div class="modal-content" style="height: 205px;">
+                {%if enrolled=='Y'%}
+                <div class="" style="margin-right: 200px;">
+                    <form action="">
+                      <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                      <label class="star star-5" for="star-5"></label>
+                      <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                      <label class="star star-4" for="star-4"></label>
+                      <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                      <label class="star star-3" for="star-3"></label>
+                      <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
+                      <label class="star star-2" for="star-2"></label>
+                      <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                      <label class="star star-1" for="star-1"></label>
+                      
+                    </form>
+                  </div>
+                <div class="reviewCom">
+                    <h4 style="width:360px;display: flex;">Course Review comment</h4>
+                    <textarea id="reviewComment" style="background-color: lightgoldenrodyellow;"></textarea>
+                    <a class="modal-close waves-effect waves-light btn" id="submitReview" style="float: right;" href="#">Submit</a>
+                </div>
+                {%else%}
+                <h4>Please enroll to review course </h4>
+                
+                {%endif%}
+
+            </div>
+            <div class="modal-footer">
+              <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
+            </div>
+          </div>
+
+
     </div>
     <div class="row">
 
@@ -363,34 +561,78 @@
 
 
 </div>
-<script>
-    $(document).ready(function () {
-        $('#leave-meeting').hide();
-        $('#call-frame-container').hide();
-        $('#whiteboardDiv').hide();          
-    });
-    //$('#whiteboardBTN').click(function () {
-    //    if ($('#whiteboardDiv').attr('display','none')){
-    //    $('#whiteboardDiv').show();
-    //    $('#call-frame-container').hide();
-    //    //}
-    //    //else{
-//
-    //    //}
-    //});
 
+<script>
+
+$('#studTakeQuizBTN').click(function(){
+    $.ajax({
+            url:"/studTakeQuiz?course_id={{topicData.course_id}}&batch_id={{batch_id}}&topic_id={{topicData.topic_id}}",
+            type:"GET",
+            data: "",
+            success:function(response){
+                if(response=="1"){
+                    window.alert('Error starting quiz. Please try again.');
+                    
+                }
+                else{
+                    window.alert(response);
+                    window.location.href = "/feedbackCollectionStudDev?resp_session_id=" +
+                                response;
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error starting quiz. Please try again.');
+            }
+        });
+});
+
+
+$('#remarkPostButton').click(function($e){
+    $e.preventDefault();
+    var form = $('#remarkForm');
+    var topic_id = "{{topic_id}}";
+    console.log('Topic ID:'+topic_id);
+    $.ajax({
+            url:"/addComments",
+            type:"POST",
+            data: form.serialize(),
+            success:function(response){
+                if(response){
+                    console.log('data added successfully');
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        var Lencomment = responseArr[i].toString().split(":")[3];
+                        $('#commLen').html(Lencomment);
+                        commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#remark').val('');
+                }else{
+                    $('#commentList').html('No comments available');
+                    $('#commLen').html('0');
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+});
+
+    $(document).ready(function () {
+        $('#call-frame-container').hide();
+        $('#whiteboardDiv').hide();  
+        buttonDisable('leave-meeting');
+        $('.tabs').tabs();                
+    });
     $('#whiteboardBTN').click(function () {
-        //if ($('#whiteboardDiv').attr('display','none')){
-          //  window.alert('hello');
+
         $('#whiteboardDiv').toggle();
         $('#mainDiv').toggle();
-        //}
-        //else{
-        //    $('#whiteboardDiv').hide();
-        //    $('#mainDiv').show();
-        //}
-        
-    //$('#canvas').drawr('start');
+
     });
 </script>
 <script>
@@ -478,5 +720,55 @@
 		evt.preventDefault();
 	},false);
 };
+
+$('#submitReview').click(function(){
+    console.log('inside submitReview');
+    var revComment = $('#reviewComment').val();
+    var course_id = "{{course_id}}";
+    $.ajax({
+            url:"/addTopicReview?course_id="+course_id+"&revComment="+revComment,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                    console.log('review added');
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit review data');
+            }
+        });
+});
+
+$(document).ready(function(){
+    $('.modal').modal();
+});
+
+$("input[type='radio']").click(function(){
+    var radioValue = $("input[name='star']:checked").val();
+    console.log(radioValue);
+    $('#rate').html(radioValue);
+    $('#starRating').val(radioValue);
+    var course_id = "{{course_id}}";
+    $.ajax({
+            url:"/addRatingReview?course_id="+course_id+"&rating="+radioValue,
+            type:"POST",
+            data: "",
+            success:function(response){
+                if(response){
+                   console.log('add rating successfully'); 
+                }
+            },
+            error:function(xhr){
+                $('#msg').html('Error to submit course data');
+            }
+        });
+});
+
+$.fn.stars = function() {
+    return this.each(function(i,e){$(e).html($('<span/>').width($(e).text()*16));});
+};
+
+$('.stars').stars();
 </script>
 {%endblock%}

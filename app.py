@@ -61,6 +61,8 @@ from algoliasearch.search_client import SearchClient
 import base64
 import hmac
 import hashlib
+# from moviepy.editor import *
+
 
 app=FlaskAPI(__name__)
 
@@ -176,12 +178,13 @@ def gTokenSignin():
         #section to create new user
         chkUserData = User.query.filter_by(email=str(idinfo["email"])).first()
         if chkUserData==None:
-            user = User(username=idinfo["email"], email=idinfo["email"], user_type='140', access_status='144', 
+            user = User(username=idinfo["email"], email=idinfo["email"], user_type='253', access_status='145', 
                 first_name = idinfo["given_name"],last_name= idinfo["family_name"], last_modified_date = datetime.today(),
-                user_avatar = idinfo["picture"], login_type=244)
+                user_avatar = idinfo["picture"],school_id=1, login_type=244)
             #user.set_password(form.password.data)
             db.session.add(user)
             db.session.commit()
+            #flash('Congratulations! You\'re now a registered user!')
             #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
             checkTeacherProf = TeacherProfile.query.filter_by(email=idinfo["email"]).first()
             #if a student has already been added during school registration then simply add the new user's id to it's student profile value
@@ -2375,28 +2378,1135 @@ def courseHome():
     #if current_user.is_anonymous==False:
         #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
         #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
+    enrolledCourses = "select ce.COURSE_ID, MAX(ce.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,tp.teacher_id from course_enrollment ce "
+    enrolledCourses = enrolledCourses + "inner join course_detail cd on cd.course_id =ce.course_id "
+    enrolledCourses = enrolledCourses + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
+    enrolledCourses = enrolledCourses + "group by ce.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name, tp.teacher_id "
+    enrolledCourses = enrolledCourses + "having cd.course_status =251 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
+    enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
+    recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name from course_detail cd "
+    recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
+    recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =251 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
+    recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
 
-    return render_template('courseHome.html',home=1, upcomingClassData=upcomingClassData)
+    for rate in enrolledCourses:
+        print('Rating:'+str(rate.average_rating))
+        if rate.average_rating:
+            print('rate:'+str(rate.average_rating))
+
+    idealFor = CourseDetail.query.distinct(CourseDetail.ideal_for).all()
+    idealList = []
+    for ideal in idealFor:
+        print('ideal for:'+str(ideal.ideal_for))
+        if ideal.ideal_for:
+            data = ideal.ideal_for.split(',')
+            for d in data:
+                if d not in idealList:
+                    idealList.append(d)
+    print('List:'+str(idealList))
+    return render_template('courseHome.html',idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
-    live_class_id = request.args.get('live_class_id')
-    return render_template('openLiveClass.html')
+    print('inside openlive class')
+    #live_class_id = request.args.get('live_class_id')
+    topic_id = request.args.get('topic_id')
+    batch_id = request.args.get('batch_id')
+    course_id = request.args.get('course_id')
+    print('topicID:'+str(topic_id))
+    print('batch_id'+str(batch_id))
+    print('course_id:'+str(course_id))
+    #topicName = Topic.query.filter_by(topic_id=topic_id).first()
+    #courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    #courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
+    topicDataQuery = "select td.topic_id,ct.video_class_url, cd.course_id,ct.test_id,cd.course_name, td.topic_name, tp.teacher_id, tp.teacher_name, tp.user_id,tp.room_id "
+    topicDataQuery = topicDataQuery + " from topic_detail td inner join course_topics ct on  "
+    topicDataQuery = topicDataQuery + " ct.topic_id  = td.topic_id inner join course_detail cd on  "
+    topicDataQuery = topicDataQuery + " cd.course_id  = ct.course_id  inner join teacher_profile tp on  "
+    topicDataQuery = topicDataQuery + " tp.teacher_id  = cd.teacher_id where td.topic_id  =" + str(topic_id)
+    topicDataQuery = topicDataQuery + " and cd.course_id=" + str(course_id)
+    topicData = db.session.execute(topicDataQuery).first()
+
+    if topicData== None:
+        flash('No relevant course and topic found!')
+        return redirect(url_for('courseDetail',course_id=course_id))
+    
+    #batchTestData = BatchTest.query.filter_by(batch_id=batch_id, is_archived='N', is_curren)
+
+    notesList = TopicNotes.query.filter_by(topic_id=topic_id).all()
+    comments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topic_id)+"' and comment<>' ' and comment is not null  "
+    comments = db.session.execute(text(comments)).fetchall()
+    lenComm = 0
+    if comments:
+        lenComm = len(comments)
+    #print('comment length:'+str(lenComm))
+    #print('courseID:'+str(courseId.course_id))
+    rating = CourseDetail.query.filter_by(course_id=topicData.course_id,is_archived='N').first()
+    #if rating:
+    #    print('Star rating:'+str(rating.average_rating))
+    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(topicData.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
+    listTopics = db.session.execute(text(listTopics)).fetchall()
+
+    #updating table to say ongoing class
+    enrolled=''
+    if batch_id!="" and batch_id!=None:
+        courseBatchData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N').first()
+        courseBatchData.is_ongoing = 'Y'
+        courseBatchData.ongoing_topic_id = topicData.topic_id
+        courseBatchData.last_modified_date = datetime.today()
+        db.session.commit()        
+    else:
+        #checking if a student is seeing the page and then seeing the batch id they're allocated to
+        if current_user.is_anonymous==False:
+            courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=topicData.course_id, student_user_id=current_user.id).first()        
+            if courseEnrollmentData!=None and courseEnrollmentData!="":
+                enrolled='Y'
+                batch_id=courseEnrollmentData.batch_id
+        else:
+            enrolled='N'
+            batch_id=""
+
+    pageTitle = str(topicData.topic_name)+' '+str(topicData.course_name)
+    print('$#$$$$$$$$$$$$$'+str(batch_id))
+    return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
+        ,lenComm=lenComm,title=pageTitle,meta_val=pageTitle,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
 
 @app.route('/courseDetail')
 def courseDetail():
     live_class_id = request.args.get('live_class_id')
-    return render_template('courseDetail.html')
+    course_id = request.args.get('course_id')
+    courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+    teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
+    teacherUser = User.query.filter_by(id=teacher.user_id).first()
+    # if current_user.id==user.id:
+    #     print('I m Teacher')
+    topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id,ct.course_id from course_topics ct "
+    topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+    topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
+
+    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+    print(topicDet)
+    topicDet = db.session.execute(text(topicDet)).fetchall()
+    upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
+    upcomingDate = db.session.execute(text(upcomingDate)).first()
+    checkEnrollment = ''
+    if upcomingDate:
+        checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
+    if checkEnrollment:
+        print('if student is enrolled')
+        print(checkEnrollment)
+    else:
+        print('if student is not enrolled')
+        print(checkEnrollment)
+    #courseFee = ''
+    #if upcomingDate:
+    #    courseFee = CourseBatch.query.filter_by(course_id=course_id,batch_start_date=upcomingDate.batch_start_date,batch_start_time=upcomingDate.batch_start_time).first()
+    idealFor = courseDet.ideal_for.split(",")
+    print(idealFor)
+    
+    levelId = courseDet.difficulty_level
+    level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
+    rating = CourseDetail.query.filter_by(course_id=course_id,is_archived='N').first()
+    if rating:
+        print('Star rating:'+str(rating.average_rating))
+    comments = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+ "' and cr.comment <> ' '"
+    print(comments)
+    comments = db.session.execute(text(comments)).fetchall()
+    lenComment = len(comments)
+    print(comments)
+    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' "
+    otherCourses = db.session.execute(text(otherCourses)).fetchall()
+
+    #batch data
+# <<<<<<< HEAD
+    courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
+    courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
+    courseBatchData = courseBatchData + " and cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' and ce.student_user_id="+str(current_user.id)+" and cb.batch_end_date > NOW() order by cb.batch_start_date desc"
+    print('Query:'+str(courseBatchData))
+    courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
+# =======
+#     courseBatchData = CourseBatch.query.filter_by(is_archived='N',course_id=str(course_id)).all()
+
+#     #check enrollment
+    
+# >>>>>>> CourseModule
+    pageTitle = courseDet.course_name
+    return render_template('courseDetail.html',courseBatchData=courseBatchData,
+        lenComment=lenComment,comments=comments,otherCourses=otherCourses,rating=rating,level=level,
+        idealFor=idealFor,upcomingDate=upcomingDate,topicDet=topicDet,
+        courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher)
 
 
-@app.route('/tutorDashboard')
+@app.route('/studTakeQuizBTN', methods=['GET','POST'])
+def studTakeQuizBTN():
+    #course_id={{topicData.course_id}}&batch_id={{batch_id}}&topic_id={{topicData.topic_id}}",
+    course_id = request.args.get('course_id')
+    batch_id = request.args.get('batch_id')
+    topic_id = request.args.get('topic_id')
+    batchTestData = BatchTest.query.filter_by(batch_id=batch_id, topic_id=topic_id).first()
+    if batchTestData:
+        return jsonify([batchTestData])
+    else:
+        return jsonify(['1'])
+
+
+@app.route('/addComments',methods=['GET','POST'])
+def addComments():
+    topicId = request.form.get('topicId')
+    remark = request.form.get('remark')
+    if remark:
+        addComment = Comments(comment=remark,topic_id=topicId,user_id=current_user.id,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(addComment)
+        db.session.commit()
+    fetchComments = "select u.username,c.comment,c.last_modified_date from comments c inner join public.user u on u.id=c.user_id where c.topic_id = '"+str(topicId)+"'"
+    fetchComments = db.session.execute(text(fetchComments)).fetchall()
+    lenComm = len(fetchComments)
+    print('length:'+str(lenComm))
+    commentList = []
+    for comment in fetchComments:
+        commentList.append(str(comment.username)+":"+str(comment.comment)+":"+str(comment.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+    return jsonify(commentList)
+
+@app.route('/addTopicReview',methods=['GET','POST'])
+def addTopicReview():
+    course_id = request.args.get('course_id')
+    revComment = request.args.get('revComment')
+    print('courseId:'+str(course_id))
+    reviewRate = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    reviewRate.comment = revComment
+    db.session.commit()
+    return jsonify("1")
+
+@app.route('/addReviewComment',methods=['GET','POST'])
+def addReviewComment():
+    course_id = request.args.get('course_id')
+    revComment = request.args.get('revComment')
+    starRating = request.args.get('starRating')
+    
+    print('courseId:'+str(course_id))
+    reviewRate = CourseReview.query.filter_by(course_id=str(course_id),is_archived='N',user_id=current_user.id).first()
+    if reviewRate==None or revComment=="":
+        reviewDataAdd = CourseReview(course_id=str(course_id), star_rating = starRating, comment = str(revComment),
+            is_archived = 'N', last_modified_date=datetime.today(), user_id=current_user.id)
+        db.session.add(reviewDataAdd )
+    else:
+        reviewRate.comment = revComment
+    db.session.commit()
+    fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+    fetchReview = db.session.execute(text(fetchReview)).fetchall()
+    lenComm = len(fetchReview)
+    print('length:'+str(lenComm))
+    reviewList = []
+    for review in fetchReview:
+        reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+    return jsonify(reviewList)
+
+@app.route('/addRatingReview',methods=['GET','POST'])
+def addRatingReview():
+    course_id = request.args.get('course_id')
+    rating = request.args.get('rating')
+    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    if dataExist:
+        dataExist.star_rating = rating
+        dataExist.comment = ' '
+        db.session.commit()
+        courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+        aveRat = 0
+        for rate in courseRevDet:
+            aveRat = aveRat + rate.star_rating
+        aveRat = aveRat / len(courseRevDet)
+        print('course_id:'+str(course_id))
+        print('Average rating:'+str(aveRat))
+        courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+        courseData.average_rating = aveRat
+        db.session.commit()
+        return jsonify("1")
+    print('Rating:'+str(rating))
+    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment=' ',is_archived='N',last_modified_date=datetime.now(),user_id=current_user.id)
+    db.session.add(courseRev)
+    db.session.commit()
+    courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+    aveRat = 0
+    for rate in courseRevDet:
+        aveRat = aveRat + rate.star_rating
+    aveRat = aveRat / len(courseRevDet)
+    print('Average rating:'+str(aveRat))
+    courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+    courseData.average_rating = aveRat
+    db.session.commit()
+    return jsonify("1")
+
+@app.route('/addReview',methods=['GET','POST'])
+def addReview():
+    course_id = request.args.get('course_id')
+    rating = request.args.get('rating')
+    dataExist = CourseReview.query.filter_by(course_id=course_id,is_archived='N',user_id=current_user.id).first()
+    if dataExist:
+        dataExist.star_rating = rating
+        dataExist.comment = ' '
+        db.session.commit()
+        courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+        aveRat = 0
+        for rate in courseRevDet:
+            aveRat = aveRat + rate.star_rating
+        aveRat = aveRat / len(courseRevDet)
+        print('course_id:'+str(course_id))
+        print('Average rating:'+str(aveRat))
+        courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+        courseData.average_rating = aveRat
+        db.session.commit()
+        fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+        fetchReview = db.session.execute(text(fetchReview)).fetchall()
+        lenComm = len(fetchReview)
+        print('length:'+str(lenComm))
+        reviewList = []
+        for review in fetchReview:
+            reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+        return jsonify(reviewList)
+    print('Rating:'+str(rating))
+    courseRev = CourseReview(course_id=course_id,star_rating=rating,comment=' ',is_archived='N',last_modified_date=datetime.now(),user_id=current_user.id)
+    db.session.add(courseRev)
+    db.session.commit()
+    courseRevDet = CourseReview.query.filter_by(course_id=course_id,is_archived='N').all()
+    aveRat = 0
+    for rate in courseRevDet:
+        aveRat = aveRat + rate.star_rating
+    aveRat = aveRat / len(courseRevDet)
+    print('Average rating:'+str(aveRat))
+    courseData = CourseDetail.query.filter_by(course_id=course_id).first()
+    courseData.average_rating = aveRat
+    db.session.commit()
+    fetchReview = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+"' and cr.comment <> ' '"
+    fetchReview = db.session.execute(text(fetchReview)).fetchall()
+    lenComm = len(fetchReview)
+    print('length:'+str(lenComm))
+    reviewList = []
+    for review in fetchReview:
+        reviewList.append(str(review.username)+":"+str(review.comment)+":"+str(review.last_modified_date.strftime('%d %B %Y'))+":"+str(lenComm))
+    return jsonify(reviewList)
+
+@app.route('/batchTopicList',methods=['GET','POST'])
+def batchTopicList():
+    batch_id = request.args.get('batch_id')
+    courseId = CourseBatch.query.filter_by(batch_id=batch_id).first()
+    topicIds = CourseTopics.query.filter_by(course_id=courseId.course_id,is_archived='N').all()
+    topics = []
+    for topicId in topicIds:
+        topicName = Topic.query.filter_by(topic_id=topicId.topic_id).first()
+        topics.append(str(topicName.topic_name)+':'+str(topicName.topic_id))
+    if topics:
+        return jsonify(topics)
+    else:
+        return ""
+
+@app.route('/tutorDashboard',methods=['GET','POST'])
 def tutorDashboard():
-    return render_template('tutorDashboard.html')
+    tutor_id = request.args.get('tutor_id')
+    user_id = request.args.get('user_id')
+    if user_id:
+        TeacherId = TeacherProfile.query.filter_by(user_id=user_id).first()
+        
+    else:
+        TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
+    
+    if TeacherId==None:
+        return redirect(url_for('courseHome'))
+    else:
+        tutor_id=TeacherId.teacher_id
+    user = User.query.filter_by(id=TeacherId.user_id).first()
+    # courseDet = CourseDetail.query.filter_by(teacher_id=TeacherId.teacher_id).all()
+    courseDet = "select count(*) as no_of_topic,cd.course_name,md.description as desc,cd.description,cd.image_url,cd.course_id from course_detail cd left join course_topics ct on ct.course_id=cd.course_id inner join message_detail md on md.msg_id = cd.course_status where cd.teacher_id='"+str(tutor_id)+"' and cd.is_archived='N' group by course_name,md.description,cd.description,cd.image_url,cd.course_id order by cd.course_id desc"
+    
+    courseDet = db.session.execute(text(courseDet)).fetchall()
+    print(courseDet)
+    feeType = MessageDetails.query.filter_by(category='Fee Type').all()
+    return render_template('tutorDashboard.html',user=user,tutor_id=tutor_id,feeType=feeType,courseDet=courseDet,teacher_name = user.first_name+' '+user.last_name,profile_pic = user.user_avatar,email = user.email,students_taught=TeacherId.students_taught,courses_created=TeacherId.courses_created)
 
+@app.route('/fetchBatch',methods=['GET','POST'])
+def fetchBatch():
+    print('inside fetch Batch')
+    courseId = request.args.get('courseId')
+    courseName = CourseDetail.query.filter_by(course_id=courseId).first()
+    fetchBatch = "select cb.batch_start_date,cb.batch_end_date,cb.batch_start_time,cb.batch_end_time,cb.days_of_week,cb.student_limit,cb.students_enrolled,cb.course_batch_fee,cb.total_fee_received,cb.fee_type,md.description "
+    fetchBatch = fetchBatch + "from course_batch cb inner join message_detail md on cb.fee_type=md.msg_id where cb.course_id='"+str(courseId)+"' and cb.is_archived='N' "
+    print('Query:'+str(fetchBatch))
+    fetchBatch = db.session.execute(text(fetchBatch)).fetchall()
+    return render_template('_batchDetail.html',fetchBatch=fetchBatch,courseName=courseName)
+
+@app.route('/createBatch',methods=['GET','POST'])
+def createBatch():
+    startDate = request.form.get('startDate')
+    EndDate = request.form.get('EndDate')
+    startTime = request.args.get('startTime')
+    endTime = request.args.get('endTime')
+    days = request.form.getlist('Days')
+    studentLimit = request.form.get('studentLimit')
+    batchFee = request.form.get('batchFee')
+    enrolledStudents = request.form.get('enrolledStudents')
+    feeReceived = request.form.get('feeReceived')
+    courseId = request.args.get('courseId')
+    selectType = request.form.get('selectType')
+    print('startDate:'+str(startDate))
+    print('selectType:'+str(selectType))
+    print('EndDate:'+str(EndDate))
+    print('startTime:'+str(startTime))
+    print('endTime:'+str(endTime))
+    print('days:'+str(days))
+    print('studentLimit:'+str(studentLimit))
+    print('batchFee:'+str(batchFee))
+    print('enrolledStudents:'+str(enrolledStudents))
+    print('feeReceived:'+str(feeReceived))
+    print('courseId:'+str(courseId))
+    dayString = ''
+    i=1
+    for day in days:
+        print('Day:'+str(day))
+        dayS =  str(day)
+        if i==len(days):
+            dayString = dayString + dayS
+        else:
+            dayString = dayString + dayS + ','
+        i=i+1
+    print('StringDays:'+str(dayString))
+    if startDate and EndDate and startTime and endTime and days and studentLimit and enrolledStudents and selectType:
+        createBatch = CourseBatch(course_id=courseId,batch_start_date=startDate,
+        batch_end_date=EndDate,batch_start_time=startTime,batch_end_time=endTime,
+        days_of_week=dayString,student_limit=studentLimit,course_batch_fee=0,
+        students_enrolled=enrolledStudents,total_fee_received=0,fee_type=selectType,
+        is_archived='N',last_modified_date=datetime.now())
+        db.session.add(createBatch)
+        db.session.commit()
+        return jsonify("1")
+    else:
+        return ""
+
+@app.route('/teacherRegistration')
+def teacherRegistration():
+    print('inside teacher Registration')
+    return render_template('teacherRegistration.html')
+
+@app.route('/teacherRegForm',methods=['GET','POST'])
+def teacherRegForm():
+    bankName =request.form.get('bankName')
+    accountHolderName = request.form.get('accountHoldername')
+    accountNo = request.form.get('accountNumber')
+    IfscCode = request.form.get('ifscCode')
+    schoolName = str(current_user.username)+"_school"
+    board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
+    schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
+    db.session.add(schoolAdd)
+    db.session.commit()
+    schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
+    teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
+    db.session.add(teacherAdd)
+    db.session.commit()
+    teacherEx = TeacherProfile.query.filter_by(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id).first()
+    schoolEx.school_admin = teacherEx.teacher_id
+    db.session.commit()
+    print('Bank Name:'+str(bankName))
+    print('account holder name:'+str(accountHolderName))
+    print('accountNo:'+str(accountNo))
+    print('ifsc Code:'+str(IfscCode))    
+    return jsonify("0")
 
 @app.route('/editCourse')
 def editCourse():
-    return render_template('editCourse.html')
+    print('inside editCourse')
+    course_category = MessageDetails.query.filter_by(category='Course Category').first()
+    desc = course_category.description.split(',')
+    course_id=request.args.get('course_id')
+    teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('userID:'+str(current_user.id))
+    print('Teacher:'+str(teacherIdExist))
+    if teacherIdExist==None:
+        return redirect(url_for('teacherRegistration'))
+    else:
+        print('Description:'+str(desc))
+        print('course_id:'+str(course_id))
+        if course_id:
+            courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+            levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
+            courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
+            # topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
+            # topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+            # topicDet = topicDet + "left join test_questions tq on ct.test_id = tq.test_id "
+            # topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+            
+            topicL = []
+            topicsID = CourseTopics.query.filter_by(course_id=course_id,is_archived='N').all()
+            for topicId in topicsID:
+                topicList = []
+                topic_name = Topic.query.filter_by(topic_id=topicId.topic_id).first()
+                quesNo = TestQuestions.query.filter_by(test_id=topicId.test_id,is_archived='N').all()
+                questionNo = len(quesNo)
+                topicList.append(topic_name.topic_name)
+                topicList.append(questionNo)
+                topicList.append(topicId.topic_id)
+                print(topicList)
+                topicL.append(topicList)
+            print(topicL)
+            for topic in topicL:
+                print(topic[0])
+                print(topic[1])
+                print(topic[2])
+            # topicDet = db.session.execute(text(topicDet)).fetchall()
+            idealFor = courseDet.ideal_for
+            print('Description:'+str(courseDet.description))
+            return render_template('editCourse.html',levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
+        else:
+            levelId = ''
+            return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
+    
+
+
+#clip = (VideoFileClip("frozen_trailer.mp4")
+#        .subclip((1,22.65),(1,23.2))
+#        .resize(0.3))
+#clip.write_gif("use_your_head.gif")
+
+
+
+@app.route('/searchTopic',methods=['GET','POST'])
+def searchTopic():
+    topic = request.args.get('topic')
+    courseId = request.args.get('courseId')
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    coursesId = CourseDetail.query.filter_by(teacher_id=teacher_id.teacher_id).all()
+    topicArray = []
+    for course_id in coursesId:
+        if str(course_id.course_id)!=str(courseId):
+            TopicIds = "select td.topic_id,td.topic_name from topic_detail td inner join course_topics ct on td.topic_id = ct.topic_id where td.topic_name like '"+str(topic)+"%'  and ct.course_id ='"+str(course_id.course_id)+"' and ct.is_archived='N'"
+            TopicIds = db.session.execute(text(TopicIds)).fetchall()
+            for top in TopicIds:
+                print('Topic:'+str(top))
+                topicArray.append(str(top.topic_id)+':'+str(top.topic_name)+':'+str(course_id.course_id))
+    if topicArray:
+        return jsonify([topicArray])
+    else:
+        return ""
+
+@app.route('/fetchQues',methods=['GET','POST'])
+def fetchQues():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside fetchQues')
+    courseId = request.args.get('courseId')
+    print('courseId:'+str(courseId))
+    topics = CourseTopics.query.filter_by(course_id=courseId,is_archived='N').all()
+    topicsDet = []
+    for topic in topics:
+        topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
+        quesIds = TestQuestions.query.filter_by(test_id=topic.test_id,is_archived='N').all()
+        quesNo = len(quesIds)
+        topicsDet.append(str(topicName.topic_name)+':'+str(quesNo)+':'+str(topicName.topic_id))
+    if topicsDet:
+        return jsonify(topicsDet)
+    else:
+        return ""
+
+@app.route('/fetchRecording',methods=['GET','POST'])
+def fetchRecording():
+    print('inside fetchRecording')
+    topic_id = request.args.get('topic_id')
+    courseId = request.args.get('courseId')
+    record = CourseTopics.query.filter_by(course_id=courseId,topic_id=topic_id).first()
+    return jsonify(record.video_class_url)
+
+
+@app.route('/fetchNotes',methods=['GET','POST'])
+def fetchNotes():
+    print('inside fetchNotes')
+    topic_id = request.args.get('topic_id')
+    notes = TopicNotes.query.filter_by(topic_id=topic_id,is_archived='N').all()
+    notesData = []
+    for note in notes:
+         notesData.append(str(note.notes_name)+'!'+str(note.notes_url))
+    print(notesData)
+    return jsonify(notesData)
+
+@app.route('/fetchRemQues',methods=['GET','POST'])
+def fetchRemQues():
+    quesIdList = request.get_json()
+    quesArray = []
+    for qId in quesIdList:
+        print('Question Id:'+str(qId))
+        quesObj = {}    
+        quesName = QuestionDetails.query.filter_by(question_id=qId).first()
+        quesObj['quesName'] = quesName.question_description
+        print('Ques:'+str(quesName.question_description))
+        quesOptions = QuestionOptions.query.filter_by(question_id=qId).all()
+        i=0
+        opt1=''
+        opt2=''
+        opt3=''
+        opt4=''
+        for option in quesOptions:
+            if i==0:
+                opt1 = option.option_desc
+            elif i==1:
+                opt2 = option.option_desc
+            elif i==2:
+                opt3 = option.option_desc
+            else:
+                opt4 = option.option_desc
+            i=i+1
+            print('quesOptions:'+str(option.option_desc))
+        quesArray.append(str(quesName.question_description)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId))
+    print('quesArray:')
+    print(quesArray)
+    if quesArray:
+        return jsonify(quesArray)
+    else:
+        return ""
+
+@app.route('/topicName',methods=['GET','POST'])
+def topicName():
+    print('inside topicName')
+    topicId = request.args.get('topic_id')
+    topicName = Topic.query.filter_by(topic_id=topicId).first()
+    topic_name = topicName.topic_name
+    print('topic name:'+topic_name)
+
+    return jsonify(topic_name)
+
+@app.route('/fetchTopicQues',methods=['GET','POST'])
+def fetchTopicsQues():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside fetchTopics')
+    topic_id = request.args.get('topic_id')
+    courseId = request.args.get('courseId')
+    print('topic_id:'+str(topic_id))
+    topics = CourseTopics.query.filter_by(topic_id=topic_id,is_archived='N').first()
+    topicName = Topic.query.filter_by(topic_id=topics.topic_id).first()
+    print('Topic name:'+str(topicName.topic_name))
+    quesIds = TestQuestions.query.filter_by(test_id=topics.test_id,is_archived='N').all()
+    # topicNotes = TopicNotes.query.filter_by(topic_id=topics.topic_id).first()
+    # NotesName = topicNotes.notes_name
+    # NotesUrl = topicNotes.notes_url
+    quesArray = []
+    if len(quesIds)==0:
+        quesArray.append(str('')+':'+str(topicName.topic_name)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
+    for qId in quesIds:
+        quesObj = {}    
+        quesName = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+        quesObj['quesName'] = quesName.question_description
+        quesObj['topic_name'] = topicName.topic_name
+        print('Ques:'+str(quesName.question_description))
+        print('topicName:'+str(topicName.topic_name))
+        quesOptions = QuestionOptions.query.filter_by(question_id=qId.question_id).all()
+        i=0
+        opt1=''
+        opt2=''
+        opt3=''
+        opt4=''
+        for option in quesOptions:
+            if i==0:
+                opt1 = option.option_desc
+            elif i==1:
+                opt2 = option.option_desc
+            elif i==2:
+                opt3 = option.option_desc
+            else:
+                opt4 = option.option_desc
+            i=i+1
+            print('quesOptions:'+str(option.option_desc))
+        quesArray.append(str(quesName.question_description)+':'+str(topicName.topic_name)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId.question_id)+':'+str(topicName.topic_id))
+    print('quesArray:')
+    print(quesArray)
+    if quesArray:
+        return jsonify(quesArray)
+    else:
+        return ""
+
+@app.route('/deleteTopic',methods=['GET','POST'])
+def deleteTopic():
+    print('inside deleteTopic')
+    topicId = request.args.get('topicId')
+    print('Topic id:'+str(topicId))
+    course_id = request.args.get('course_id')
+    courseTopic = CourseTopics.query.filter_by(topic_id=topicId,course_id=course_id,is_archived='N').first()
+    courseTopic.is_archived = 'Y'
+    db.session.commit()
+    notes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' and is_archived='N'"
+    notes = db.session.execute(text(notes))
+    db.session.commit()
+    return jsonify("1")
+
+@app.route('/updateCourseTopic',methods=['GET','POST'])
+def updateCourseTopic():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside updateCourseTopic')
+    topicId = request.args.get('topicId')
+    courseId = request.args.get('courseId')
+    topicName = request.args.get('topicName')
+    print('Topic Id:'+str(topicId))
+    print('courseId:'+str(courseId))
+    quesIds = request.get_json()
+    print(quesIds)
+    topicDet = Topic.query.filter_by(topic_id=topicId).first()
+    topicDet.topic_name = topicName
+    db.session.commit()
+    testId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId).first()
+    # totalQId = TestQuestions.query.filter_by(test_id=testId.test_id).all()
+    deleteAll = "update test_questions set is_archived='Y' where test_id='"+str(testId.test_id)+"' "
+    deleteAll = db.session.execute(text(deleteAll))
+    # print('Total Question Ids:'+str(totalQId))
+    print('Total not deleted Ques Ids:'+str(quesIds))
+    print(quesIds)
+    print('Length of Ques Ids:'+str(len(quesIds)))
+    total_marks = 10*int(len(quesIds))
+    print('Total marks:'+str(total_marks))
+    testDet = TestDetails.query.filter_by(test_id=testId.test_id).first()
+    # db.session.add(testDet)
+    testDet.total_marks = total_marks
+    db.session.commit()
+        # testId = "select max(test_id) as test_id from test_details"
+        # testId = db.session.execute(text(testId)).first()
+    # courseTopic = ''
+    # if courseId:
+    #     courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+    #     db.session.add(courseTopic)
+    # else:
+    #     courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+    #     db.session.add(courseTopic)
+    # db.session.commit()
+    if len(quesIds)!=0:
+        for quesId in quesIds:
+            print('QuesID:'+str(quesId))
+            if quesId!='[' or quesId!=']':
+                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(testQues)
+                db.session.commit()
+            # quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+            # quesDet.topic_id=topicDet.topic_id
+            
+    
+    return jsonify("1")
+
+
+
+@app.route('/addCourseTopic',methods=['GET','POST'])
+def addCourseTopic():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside addCourseTopic')
+    topicName = request.args.get('topicName')
+    courseId = request.args.get('courseId')
+    topicId = request.args.get('topicId')
+    courId = request.args.get('courId')
+    print('My course ID:'+str(courseId))
+    print('selected topic id:'+str(topicId))
+    print('courseId of selected topic:'+str(courId))
+    
+    
+
+    if courId:
+        quesIds = request.get_json()
+        total_marks = 10*len(quesIds)
+        print('Total marks:'+str(total_marks))
+        testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
+        db.session.add(testDet)
+        db.session.commit()
+        testId = "select max(test_id) as test_id from test_details"
+        testId = db.session.execute(text(testId)).first()
+
+        if courId:
+            myTestId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId,is_archived='N').first()
+            testID = CourseTopics.query.filter_by(course_id=courId,topic_id=topicId).first()
+            questionIds = TestQuestions.query.filter_by(test_id=testID.test_id).all()
+            print(questionIds)
+            for q in questionIds:
+                print('Question ID:'+str(q.question_id))
+                print('test id in which question stored:'+str(testId.test_id))
+                Questions = TestQuestions(test_id=testId.test_id,question_id=q.question_id,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(Questions)
+                db.session.commit()
+        courseTopic = ''
+        if courseId:
+            courseTopic = CourseTopics(course_id=courseId,topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(courseTopic)
+        else:
+            courseTopic = CourseTopics(topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(courseTopic)
+        db.session.commit()
+        for quesId in quesIds:
+            print('QuesID:'+str(quesId))
+            testQues = TestQuestions(test_id=testId.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(testQues)
+        
+            quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+            quesDet.topic_id=topicId
+            db.session.commit()
+        return jsonify(topicId)
+    else:
+        print('Topic name:'+str(topicName))
+        print('courseId:'+str(courseId))
+        quesIds = request.get_json()
+        print(quesIds)
+        # courseId = CourseDetail.query.filter_by(course_name=courseName,teacher_id=teacherData.teacher_id,school_id=teacherData.school_id).first()
+        
+        # for quesId in quesIds:
+        #     print(quesId)
+        topicDet = Topic(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id)
+        db.session.add(topicDet)
+        db.session.commit()
+        # topicId = "select max(topic_id) as topic_id from topic_detail"
+        # topicId = db.session.execute(text(topicId)).first()
+        
+        topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicDet.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(topicTr)
+        db.session.commit()
+        total_marks = 10*len(quesIds)
+        print('Total marks:'+str(total_marks))
+        testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
+        db.session.add(testDet)
+        db.session.commit()
+        # testId = "select max(test_id) as test_id from test_details"
+        # testId = db.session.execute(text(testId)).first()
+        courseTopic = ''
+        if courseId:
+            courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(courseTopic)
+        else:
+            courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(courseTopic)
+        db.session.commit()
+        if quesIds:
+            for quesId in quesIds:
+                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(testQues)
+                
+                quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+                quesDet.topic_id=topicDet.topic_id
+                db.session.commit()
+        return jsonify(topicDet.topic_id)
+    
+@app.route('/fetchTickCorrect',methods=['GET','POST'])
+def fetchTickCorrect():
+    print('inside fetchTickCorrect')
+    correctOpt = []
+    topic_id = request.args.get('topic_id')
+    print('TopicId:'+str(topic_id))
+    # quesIdsList = TestQuestions.query.filter_by(topic_id=topic_id).all()
+    quesList  = request.get_json()
+    print('Question List:')
+    print(quesList)
+    for quesId in quesList:
+        print('Question Id:'+str(quesId))
+        corr = QuestionOptions.query.filter_by(question_id=quesId,is_correct='Y').first()
+        correctOpt.append(str(corr.option_desc)+':'+str(quesId))
+    return jsonify(correctOpt)
+
+@app.route('/addRecording',methods=['GET','POST'])
+def addRecording():
+    topic_id = request.args.get('topic_id')
+    course_id = request.args.get('course_id')
+    videoRec = CourseTopics.query.filter_by(topic_id=topic_id,course_id=course_id).first()
+    recordingURL = request.form.get('recordingURL')
+    print('recording Url:'+str(recordingURL))
+    videoRecordUrl = request.form.get('videoRecordUrl')
+    print('video recording url:'+str(videoRecordUrl))
+    if recordingURL:
+        videoRec.video_class_url = recordingURL
+    else:
+        videoRec.video_class_url = videoRecordUrl
+    db.session.commit()
+    return jsonify("1")
+
+@app.route('/updateNotes',methods=['GET','POST'])
+def updateNotes():
+    topicId = request.args.get('topic_id')
+    notesName = request.form.getlist('notesName')
+    notesURL = request.form.getlist('notesURL')
+    videoNotesUrl = request.form.getlist('videoNotesUrl')
+    print('topicId:'+str(topicId))
+    print('Notes name:'+str(notesName))  
+    existNotes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' "
+    existNotes = db.session.execute(text(existNotes))
+    print('Length of notes url array:'+str(notesURL))
+    for i in range(len(notesName)):
+        print('NotesName:'+str(notesName[i]))
+        print('notesUrl:'+str(notesURL[i]))
+        print('videoNotesUrl:'+str(videoNotesUrl[i]))
+        if notesURL[i]:
+            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(addNotes)
+            db.session.commit()
+        else:
+            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(addNotes)
+            db.session.commit()
+    return jsonify("1")
+
+@app.route('/addNotes',methods=['GET','POST'])
+def addNotes():
+    topicId = request.args.get('topic_id')
+    notesName = request.form.getlist('notesName')
+    notesURL = request.form.getlist('notesURL')
+    videoNotesUrl = request.form.getlist('videoNotesUrl')
+    print('topicId:'+str(topicId))
+    print('Notes name:'+str(notesName))
+    for i in range(len(notesName)):
+        print('NotesName:'+str(notesName[i]))
+        print('notesUrl:'+str(notesURL[i]))
+        print('videoNotesUrl:'+str(videoNotesUrl[i]))
+        if notesURL[i]:
+            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(addNotes)
+            db.session.commit()
+        else:
+            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+            db.session.add(addNotes)
+            db.session.commit()
+
+    return jsonify("1")
+
+@app.route('/addNewQuestion',methods=['GET','POST'])
+def addNewQuestion():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+    print('inside add question')
+    corr = request.args.get('corr')
+    ques = request.args.get('ques')
+    opt1 = request.args.get('opt1')
+    opt2 = request.args.get('opt2')
+    opt3 = request.args.get('opt3')
+    opt4 = request.args.get('opt4')
+    print('question Desc:'+str(ques))
+    print('option 1:'+str(opt1))
+    print('option 2:'+str(opt2))
+    print('option 3:'+str(opt3))
+    print('option 4:'+str(opt4))
+    print('correct option:'+str(corr))
+    quesCreate = QuestionDetails(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N')
+    db.session.add(quesCreate)
+    db.session.commit()
+    for i in range(4):
+        op = request.args.get('opt'+str(i+1))
+        correctOption = ''
+        if str(corr) == str(i+1):
+            correctOption = 'Y'
+        else:
+            correctOption = 'N'
+        option = ''
+        if i==0:
+            option = 'A'
+        elif i==1:
+            option = 'B'
+        elif i==2:
+            option = 'C'
+        else:
+            option = 'D'
+        # ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
+        options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=quesCreate.question_id,weightage='10',last_modified_date=datetime.now())
+        db.session.add(options)
+        db.session.commit()
+    return jsonify(quesCreate.question_id)
+    
+@app.route('/fetchQuesList',methods=['GET','POST'])
+def fetchQuesList():
+    print('inside fetchQuesList')
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    quesList = request.get_json()
+    indic = request.args.get('indic')
+    print('questionIdList:')
+    print(quesList)
+    for ques in quesList:
+        print('Question_id:')
+        print(ques)
+    if indic=='1':
+        for quesId in quesList:
+            quesDesc = QuestionDetails.query.filter_by(question_id=quesId).first()
+            print(quesDesc.question_description)
+            quesOptions = QuestionOptions.query.filter_by(question_id=quesId).all()
+            op1=''
+            op2=''
+            op3=''
+            op4=''
+            optionList = []
+            quesDetails = []
+            corrOption = ''
+            for options in quesOptions:
+                print('Option Desc:'+str(options.option_desc))
+                optionList.append(options.option_desc)
+                if options.is_correct=='Y':
+                    corrOption = options.option_desc
+            for i in range(len(optionList)):
+                if i==0:
+                    op1=optionList[i]
+                elif i==1:
+                    op2=optionList[i]
+                elif i==2:
+                    op3=optionList[i]
+                elif i==3:
+                    op4=optionList[i]
+        print('Question:'+str(quesDesc.question_description)+'op1:'+str(op1)+'op2:'+str(op2)+'op3:'+str(op3)+'op4:'+str(op4))
+        quesDetails.append(str(quesDesc.question_description)+':'+str(op1)+':'+str(op2)+':'+str(op3)+':'+str(op4)+':'+str(corrOption))
+    return jsonify([quesDetails])
+
+@app.route('/saveAndPublishedCourse',methods=['GET','POST'])
+def saveAndPublishedCourse():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('inside saveCourse')
+    course = request.form.get('course')
+    courseId = request.args.get('course_id')
+    description = request.form.get('description')
+    imageUrl = request.form.get('imageUrl')
+    video_url = request.form.get('videoUrl')
+    idealfor = request.args.get('idealfor')
+    level = request.form.get('level')
+    private = request.form.get('private')
+    print('Course name:'+str(course))
+    print('courseId:'+str(courseId))
+    print('description name:'+str(description))
+    print('Image Url:'+str(imageUrl))
+    print('Private:'+str(private))
+    course_status = request.args.get('course_status')
+    print('course status:'+str(course_status))
+    
+    print('video_url :'+str(video_url))
+    print('Ideal for:'+str(idealfor))
+    print('level:'+str(level))
+    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
+    courseDet = CourseDetail.query.filter_by(course_id=courseId,description=description,summary_url=video_url,
+    teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor,difficulty_level=levelId.msg_id).first()
+    if courseDet:
+        course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+        courseDet.course_status=course_status_id.msg_id
+        db.session.commit()
+        return jsonify("1")
+    else:
+        course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+        courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
+        if private:
+            print('if course status is private')
+            courseDet.description=description
+            courseDet.summary_url=video_url
+            courseDet.teacher_id=teacherData.teacher_id
+            courseDet.school_id=teacherData.school_id
+            courseDet.ideal_for=idealfor
+            courseDet.course_status=course_status_id.msg_id
+            courseDet.is_private='Y'
+            courseDet.image_url = imageUrl
+            courseDet.is_archived = 'N'
+            courseDet.difficulty_level=levelId.msg_id
+        else:
+            print('if course status is public')
+            courseDet.description=description
+            courseDet.summary_url=video_url
+            courseDet.teacher_id=teacherData.teacher_id
+            courseDet.school_id=teacherData.school_id
+            courseDet.ideal_for=idealfor
+            courseDet.course_status=course_status_id.msg_id
+            courseDet.is_private='N'
+            courseDet.image_url = imageUrl
+            courseDet.is_archived = 'N'
+            courseDet.difficulty_level=levelId.msg_id
+        db.session.commit()
+        print('course:'+str(course))
+        print('Desc:'+str(description))
+        print('url:'+str(video_url))
+        print('teacher_id:'+str(teacherData.teacher_id))
+        print('school_id:'+str(teacherData.school_id))
+        print('idealfor:'+str(idealfor))
+        print('course_status:'+str(course_status_id.msg_id))    
+        return jsonify("1")
+
+
+
+@app.route('/saveCourse',methods=['GET','POST'])
+def saveCourse():
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('inside saveCourse')
+    course = request.form.get('course')
+    courseId = request.args.get('course_id')
+    description = request.form.get('description')
+    # setDate = request.form.get('setDate')
+    # startTime = request.form.get('startTime')
+    # endTime = request.form.get('endTime')
+    # days = request.form.getlist('Days')
+    imageUrl = request.args.get('imageUrl')
+    video_url = request.form.get('videoUrl')
+    idealfor = request.args.get('idealfor')
+    level = request.form.get('level')
+    private = request.form.get('private')
+    print('Course name:'+str(course))
+    print('courseId:'+str(courseId))
+    print('description name:'+str(description))
+    print('Private:'+str(private))
+    course_status = request.args.get('course_status')
+    print('course status:'+str(course_status))
+    # dayString = ''
+    # i=1
+    # for day in days:
+    #     print('Day:'+str(day))
+    #     dayS =  str(day)
+    #     if i==len(days):
+    #         dayString = dayString + dayS
+    #     else:
+    #         dayString = dayString + dayS + ','
+    #     i=i+1
+    # print('StringDays:'+str(dayString))
+    print('video_url :'+str(video_url))
+    print('Ideal for:'+str(idealfor))
+    print('level:'+str(level))
+    # courseBatch = CourseBatch(course_id=courseId,batch_start_date=setDate,batch_start_time=startTime,batch_end_time=endTime,days_of_week=dayString,is_archived='N',last_modified_date=datetime.now())
+    # db.session.add(courseBatch)
+    # db.session.commit()
+    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
+    course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+    courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
+    if private:
+        print('if course status is private')
+        courseDet.description=description
+        courseDet.summary_url=video_url
+        courseDet.teacher_id=teacherData.teacher_id
+        courseDet.school_id=teacherData.school_id
+        courseDet.ideal_for=idealfor
+        courseDet.course_status=course_status_id.msg_id
+        courseDet.is_private='Y'
+        courseDet.image_url = imageUrl
+        courseDet.is_archived = 'N'
+        courseDet.difficulty_level=levelId.msg_id
+    else:
+        print('if course status is public')
+        courseDet.description=description
+        courseDet.summary_url=video_url
+        courseDet.teacher_id=teacherData.teacher_id
+        courseDet.school_id=teacherData.school_id
+        courseDet.ideal_for=idealfor
+        courseDet.course_status=course_status_id.msg_id
+        courseDet.is_private='N'
+        courseDet.image_url = imageUrl
+        courseDet.is_archived = 'N'
+        courseDet.difficulty_level=levelId.msg_id
+    db.session.commit()
+    print('course:'+str(course))
+    print('Desc:'+str(description))
+    print('url:'+str(video_url))
+    print('teacher_id:'+str(teacherData.teacher_id))
+    print('school_id:'+str(teacherData.school_id))
+    print('idealfor:'+str(idealfor))
+    print('course_status:'+str(course_status_id.msg_id))    
+    return jsonify("1")
+
+@app.route('/courseEntry',methods=['GET','POST'])
+def courseEntry():
+    course = request.args.get('course')
+    courseDet = CourseDetail(course_name=course,is_archived='Y',last_modified_date=datetime.now())
+    db.session.add(courseDet)
+    db.session.commit()
+    courseId = "select max(course_id) as course_id from course_detail"
+    courseId = db.session.execute(text(courseId)).first()
+    return jsonify(courseId.course_id)
+
+    # return render_template('editCourse.html')
 
 
 @app.route('/myCourses')
@@ -2412,10 +3522,10 @@ def paymentForm():
         #    return jsonify(['2'])
 
         #qschool_id = request.args.get('school_id')
-        #amount =  request.args.get('amount') 
-        #qbatch_id = request.args.get('batch_id')                
-        amount =  "500"             #hard coded value
-        qbatch_id = 1               #hard coded value
+        amount =  request.args.get('amount') 
+        qbatch_id = request.args.get('batch_id')                
+        #amount =              #hard coded value
+        #qbatch_id = 1               #hard coded value
 
         if amount=='other':
             amount = 0
@@ -2481,7 +3591,7 @@ def paymentForm():
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
         returnUrl = url_for('paymentResponse',_external=True)
         notifyUrl = url_for('notifyUrl',_external=True)
-        return render_template('_paymentForm.html',courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
+        return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
         flash('Please login to donate')
         return jsonify(['1'])
@@ -2529,13 +3639,9 @@ def handlerequest():
     #get secret key from config
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
-    #if request.form['checkbox_anonymous_donor']: 
-    #    anonymous_donor = request.form['checkbox_anonymous_donor']
-    #if request.form['checkbox_hide_amount']:
-    #    hide_amount = request.form['checkbox_hide_amount']
-    print('print values')
-    #print(anonymous_donor)
-    #print(hide_amount)
+    
+    
+    
     transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
     transactionData.order_id=postData["orderId"]
     #transactionData.anonymous_donor = anonymous_donor
@@ -2543,6 +3649,11 @@ def handlerequest():
     transactionData.tran_status = 257 
     transactionData.request_sign_hash = signature
     transactionData.amount = postData["orderAmount"]
+
+    #updating user phone number
+    if current_user.phone==None or current_user.phone=="":
+        userDataUpdate = User.query.filter_by(id=current_user.id).first()
+        userDataUpdate.phone = request.form['customerPhone']
     db.session.commit()
 
     if mode == 'PROD': 
@@ -2602,28 +3713,16 @@ def paymentResponse():
                 courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
                 courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
 
-                courseEnrommentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
-                    last_modified_date = datetime.today())
-        ##        if transactionData.donation_for== 18 or transactionData.donation_for==38:                
-        ##            schoolFundingData.students_sponsored_count = int(schoolFundingData.students_sponsored_count) +  1                
-        ##            schoolFundingData.sponsorships_raised = int(schoolFundingData.sponsorships_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for== 18:
-        ##            schoolFundingData.total_monthly_sp_raised = int(schoolFundingData.total_monthly_sp_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for==38:
-        ##            schoolFundingData.total_yearly_sp_raised = int(schoolFundingData.total_yearly_sp_raised) + int(transactionData.amount)
-        ##        if transactionData.donation_for!=18 and transactionData.donation_for!=38: # Non sponsor types - Basically one time raises
-        ##            schoolFundingData.total_one_time_raised = int(schoolFundingData.total_one_time_raised) + int(transactionData.amount)
-        ##    #Sending email
-            #donation_success_email_donor(schoolData, transactionData,postData)
-            #try:
-            #    donation_success_email_donor(schoolData, transactionData,postData)
-            #except:
-            #    app.logger.info('Error Sending email')
-            #    pass
-                #if transactionData
+                courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
+                    last_modified_date = datetime.today())   
+                db.session.add(courseEnrollmentData)
+                courseDataQuery = "select course_id, course_name, tp.teacher_id, teacher_name from course_detail cd"
+                courseDataQuery = courseDataQuery + " inner join teacher_profile tp on tp.teacher_id=cd.teacher_id"
+                courseDataQuery = courseDataQuery + " and course_id="+ str(courseBatchData.course_id) 
+                courseData = db.session.execute(courseDataQuery).first()
     db.session.commit()
 
-    return render_template('paymentResponse.html',transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
+    return render_template('paymentResponse.html',courseData=courseData, courseBatchData=courseBatchData,transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
 
 
 
@@ -2720,8 +3819,9 @@ def register():
     if form.validate_on_submit():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
-        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='144', phone=form.phone.data,
-            first_name = form.first_name.data,last_name= form.last_name.data)
+        #By default we're setting the user as course taker
+        user = User(username=form.email.data, email=form.email.data, user_type='253', access_status='145', phone=form.phone.data,
+            first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -2819,8 +3919,9 @@ def login():
             user=User.query.filter_by(email=gemail).first()   
             if user is None:
                 flash("Email not registered")
+                print('Email not registered')
                 return redirect(url_for('login'))
-        else:
+        else: 
             user=User.query.filter_by(email=form.email.data).first()                
             if user is None or not user.check_password(form.password.data):        
                 flash("Invalid email or password")
@@ -2843,14 +3944,20 @@ def login():
         print('user type')
         #print(session['userType'])
         session['studentId'] = ''
-        if current_user.user_type==71:
-            school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        if current_user.user_type==253:
+            school_id=1
+        elif current_user.user_type==71:
+            teacherProfileData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = teacherProfileData.school_id
         elif current_user.user_type==134:
-            school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            school_id = studentProfileData.school_id
             session['studentId'] = school_id.student_id
         else:
-            school_id = User.query.filter_by(id=current_user.id).first()
-        school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+            userData = User.query.filter_by(id=current_user.id).first()
+            school_id = userData.school_id
+
+        school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
         session['school_logo'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
@@ -5107,7 +6214,7 @@ def startPracticeTest():
     print('class_val:'+str(class_val))
     #subject_id
     #board_id = request.args.get('board_id')
-    #topicList = request.form.getlist('topicList')adsfsdfasdf
+    #topicList = request.for.getlist('topicList')adsfsdfasdf
 
     if current_user.is_anonymous:
         print('for anonymous user')
@@ -5156,19 +6263,12 @@ def startPracticeTest():
     print('Data feed to test questions complete')
     ##Create response session ID
     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-    #if current_user.is_anonymous:
+
     responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(classSecData.class_sec_id).strip()
-    #else:
-    #    responseSessionID = str(subject_id).strip()+ str(dateVal).strip() + str(studentData.class_sec_id).strip()
+
     print('resp session id:'+str(responseSessionID))
     print('Response ID generated')
-    #print("This is the value of anon user before setup: " + session['anonUser'])
-    #if session['anonUser']:
-    #    print('###########session is true')
-    #    print(session['anonUser'])
-    #else:
-    #    print('###########session is false')
-    #    print(session['anonUser'])
+
     if current_user.is_anonymous:
         if session.get('anonUser'):
             print('the anon user is true')
@@ -5982,8 +7082,8 @@ def contentManagerDetails():
 def feedbackCollection():    
     if request.method=='GET':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+        #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
+        #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
@@ -5995,25 +7095,36 @@ def feedbackCollection():
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
         qsubject_id = request.args.get('subject_id')
+        batch_test =  request.args.get('batch_test')
         print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
             qsection = str(qsection).upper()
             currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
-            #queryCurrClassSecRow=ClassSection.query.filter_by(school_id=teacher.school_id,class_val=str(qclass_val).strip(),section=qsection)
-            #print("Here's the query: "+str(queryCurrClassSecRow))
-            if currClassSecRow is None:
+
+            if currClassSecRow is None and batch_test!="1":
                 flash('Class and section value not valid')
                 return redirect(url_for('testPapers'))
+            elif batch_test=="1" and  currClassSecRow is None:
+                class_sec_id = 1
+                qsubject_id=54
+            else:
+                class_sec_id = currClassSecRow.class_sec_id
+                #qsubject_id
+                #pass
             #building response session ID
-            print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-
+            #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
+                        
+            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
+            
 
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()  
-            qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
-            qWeightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+    
+            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()              
+            if weightage==None or weightage=="":
+                qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
+                weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+
             print('Inside question id list')
             print(questionIDList)          
             questionListSize = len(questionIDList)
@@ -6023,23 +7134,23 @@ def feedbackCollection():
             #creating a record in the session detail table  
             if questionListSize !=0:
                 sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-                print('Date:'+str(dateVal))
-                print('Response Session ID:'+str(responseSessionID))
-                print('If Question list size is not zero')
+                #print('Date:'+str(dateVal))
+                print('##########Response Session ID:'+str(responseSessionID))
+                #print('If Question list size is not zero')
                 #print(sessionDetailRowCheck)
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
-                    #print(sessionDetailRowCheck)
-                    if weightage:
-                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
-                        db.session.add(sessionDetailRowInsert)
-                    else:
-                        sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=currClassSecRow.class_sec_id, test_id=str(qtest_id).strip(),correct_marks=qWeightage.suggested_weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
-                        db.session.add(sessionDetailRowInsert)
+                    #print(sessionDetailRowCheck)                    
+                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                    db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
-                    db.session.commit()
+
+                if batch_test=="1":
+                    batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
+                        resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
+                    db.session.add(batchTestInsert)
+                db.session.commit()
 
             questionList = []
             for questValue in questionIDList:
@@ -6061,7 +7172,10 @@ def feedbackCollection():
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, testType=testType)
+                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
+                    class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
+                    subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
+                    batch_test=batch_test,testType=testType)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -8677,6 +9791,10 @@ def teacherAllocation():
     return render_template('_teacherAllocation.html',teacherNames=teacherNames,class_sec_ids=class_sec_ids)
 
 #End
+
+# Code for course 
+@app.route('/')
+# End
 
 
 @app.route('/subscriptionPlans')

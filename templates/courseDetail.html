@@ -1,113 +1,215 @@
 {%extends "layout.html"%} {%block content%}
+<style>
+    /* CSS for rating */
+    span.stars,
+    span.stars span {
+        display: block;
+        background: url('http://i.imgur.com/YsyS5y8.png') 0 -16px repeat-x;
+        width: 80px;
+        height: 16px;
+    }
 
+    span.stars span {
+        max-width: 80px;
+        background-position: 0 0;
+    }
+
+    /* End */
+    div.stars {
+        width: 270px;
+        display: inline-block;
+    }
+
+    input.star {
+        display: none;
+    }
+
+    label.star {
+        float: right;
+        padding: 10px;
+        font-size: 36px;
+        color: #444;
+        transition: all .2s;
+    }
+
+    input.star:checked~label.star:before {
+        content: '\f005';
+        color: #FD4;
+        transition: all .25s;
+    }
+
+    input.star-5:checked~label.star:before {
+        color: #FE7;
+        text-shadow: 0 0 20px #952;
+    }
+
+    input.star-1:checked~label.star:before {
+        color: #F62;
+    }
+
+    label.star:hover {
+        transform: rotate(-15deg) scale(1.3);
+    }
+
+    label.star:before {
+        content: '\f006';
+        font-family: FontAwesome;
+    }
+</style>
 <div class="parallax-container  grey-text text-lighten-2" style="height: 100%;">
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <h1 style="font-size: 5vw;">Data Sciences: Going from zero to expert</h1>
+        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1><a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a></span>
         <div class="row">
             <img src="../static/images/shaileshProfile.jpg" class="circle" width="100px">
-            <h3>Shailesh Vishwakarma</h3>
-            <h4 style="max-width: 60%;" >Shailesh has more than 8 years of experience with data science.
-                He's completed his degree from ISB and has worked with Dell, Accenture and EnY in the past
-                in various data scientist positions.
+            <a href="{{url_for('tutorDashboard',tutor_id=teacher.teacher_id)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
+                {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3></a>
+            {% if teacherUser.about_me %}
+            <h4 style="max-height: 60%;">{{teacherUser.about_me}}</h4>
+            {% else %}
+            <h4 style="max-width: 60%;">
             </h4>
-            <p>shailesh@alllearn.in</p>
+            {% endif %}
+            <p>{{teacherUser.email}}</p>
         </div>
     </div>
 </div>
 <div class="container">
     <div class="row">
         <div class="col-sm-8">
-        <h2 class="">Course Description</h2>
-        <p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.Parallax is an effect where the background content or image in this
-            case, is moved at a different speed than the foreground content while scrolling.
-        </p>
+            <h2 class="">Course Description</h2>
+            <div style="max-height: 400px;overflow-y: auto;">
+                <p class="grey-text text-darken-3 lighten-3" style="font-size: 16px;">{{courseDet.description}}
+                </p>
+            </div>
+            <div class="divider"></div>
             <h3 class="">Topics</h3>
+            <div style="max-height: 600px; overflow-y: auto;">
+                {%if topicDet%}
+                <table class="highlight">
+                    <thead>
+                        <tr>
+                            <th>Topic</th>
+                            <th>Quiz Questions</th>
+                            <!--<th title="Only for tutors">Conduct Class*</th>-->
+                        </tr>
+                    </thead>
+                    <tbody style="font-size:medium">
+                        {% for row in topicDet %}                       
+                        <tr>                        
+                            <td> 
+                                <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
+                                    <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
+                                </a>
+                            </td>
+                            <td>{{row.no_of_questions}}</td>                        
+                            <!--<td><a href='#'>Conduct Class</a></td>-->
+                        </tr>                    
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {%else%}
+                <h3 class="grey-text">No topics added in this course</h3>
+                {%endif%}
+            </div>
+            <div class="divider"></div>
+            <h3>Active Batches</h3>
+            <div style="height: 200px; overflow-y: auto;">
+                {%if courseBatchData%}
             <table class="highlight">
                 <thead>
                     <tr>
-                    <th>Topic</th>
-                    <th>Classes</th>
-                    <th>Quiz Questions</th>
-                    <th>Expected class date</th>
-                    <th>Enroll</th>
-                    <th title="Only for tutors">Conduct Class*</th>
-                </tr>
+                        <th>Batch ID</th>
+                        <th>Dates</th>
+                        <th>Days of week</th>
+                        <th>Enrollments</th>
+                        <th>Fee</th>    
+                        {% if current_user.is_anonymous==False %}
+                        {% if current_user.id==teacherUser.id %}
+                        <th>Conduct Class</th>
+                        {% else %}
+                        <th>Enroll</th>
+                        {% endif %}
+                        {% else %}
+                        <th>Enroll</th>
+                        {% endif %}
+                    </tr>
                 </thead>
-                <tbody style="font-size:medium">
+                <tbody>
+               
+                {%for batch in courseBatchData%}
                     <tr>
-                        <td>Forms of Data</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>22nd Jan 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
+                        <td>{{batch.batch_id}}</td>
+                        <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_end_date.strftime('%d %B %y')}}</td>
+                        <td>{{batch.days_of_week}}</td>
+                        <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
+                        <td>₹{{batch.course_batch_fee}}</td>                       
+                           
+                            {% if current_user.is_anonymous==False %}
+                            {% if current_user.id==teacher.user_id %}
+                            <td>
+                            <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
+                            style="width: 100%;" href="#modal5"> Conduct Class</a>
+                            </td> 
+                            {% else %}
+                                 <td>
+                            {% if batch.student_user_id==current_user.id %}
+                            Enrolled
+                            {% else %}
+                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
+                            style="width: 100%;" href="#modal2"> Enroll</a>
+                            {% endif %}
+                            </td>
+                            {% endif %} 
+                            {% else %}
+                            <td>
+                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
+                            style="width: 100%;" href="#modal2"> Enroll</a>
+                            </td>
+                            {% endif %}                               
                     </tr>
-                    <tr>
-                        <td>Forms of DS</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>27nd Jan 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Number patterns</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>05 Aug 2020</td>
-                        <td><a href='#'>Watch Recording</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr class="">
-                        <td>Why use Python</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>09 Aug 2020 - <span class="green-text"><b>Ongoing</b></span></td>
-                        <td><a class="">Join</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Numpy</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>04 Sept 2020</td>
-                        <td><a href='#'>Enroll</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                    <tr>
-                        <td>Uses of Data science</td>
-                        <td>2</td>
-                        <td>5</td>
-                        <td>09 Sept 2020</td>
-                        <td><a href='#'>Enroll</a></td>
-                        <td><a href='#'>Conduct Class</a></td>
-                    </tr>
-                </tbody>
+                {%endfor%}
+               
+            </tbody>
             </table>
-            <h3>Reviews <span class="grey-text">200</span></h3>
+            {%else%}
+            <h3 class="grey-text">No batches created yet</h3>
+            {%endif%}
+        </div>
+            <div class="divider"></div>
+            {% if comments %}
+            <h3>Reviews <span class="grey-text" id="revLength">{{lenComment}}</span></h3>
+            {% else %}
+            <h3>Reviews <br><span class="grey-text" id="revLength">No Reviews</span></h3>
+            {% endif %}
             <div id="commentsDiv">
-                <form id="remarkForm" style="max-width: 600px;">
+                <!-- <form id="remarkForm" style="max-width: 600px;">
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
+                    <input type="hidden" name="courseID" value="{{courseDet.course_id}}">
                     <a href="#" id="remarkPostButton" class="btn green right">Add</a>
-                </form>
-                <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
+                </form> -->
+                <div id="insideCommentDiv" style="max-height: 600px;width:500px;overflow-y: auto;">
                     <table id="commentTable">
-                        <tbody>
-                            <!--Dummy comment-->
+                        <tbody id="commentList">
+                            {% for comment in comments %}
+                            {% if comment.comment %}
                             <tr>
+                                <td>
+                                    <div class=" green lighten-5"
+                                        style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
+                                        <span class="grey-text">{{comment.username}}</span><br>
+                                        <span style="margin-left: 5px;">{{comment.comment}}</span><br>
+                                    </div>
+                                    <span class="right grey-text">
+                                        {{comment.last_modified_date.strftime('%d %B %Y')}}</span>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                            <!--Dummy comment-->
+                            <!-- <tr>
                                 <td>
                                     <div class=" green lighten-5"
                                         style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">
@@ -156,7 +258,7 @@
                                     </div>
                                     <span class="right grey-text"> 23rd Jan 2020</span>
                                 </td>
-                            </tr>
+                            </tr> -->
                             <!--End of dummy comment-->
                         </tbody>
                     </table>
@@ -164,43 +266,180 @@
                 </div>
 
             </div>
-        </div>   
+        </div>
         <div class="col-sm-4">
-            <img src="../static/images/reviewIMG.PNG" width="50%">
+            <!-- <img src="../static/images/reviewIMG.PNG" width="50%"> -->
+            <!-- Start Rating -->
+
+            <div class="starRatingDiv">
+                {% if rating.average_rating %}
+                {% if checkEnrollment %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
+                    <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
+                            class="stars left">{{rating.average_rating}}</span></h4>
+                </a>
+                {% else %}
+                <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
+                    class="stars left">{{rating.average_rating}}</span></h4>
+                {% endif %}
+                {% else %}
+                <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
+                    <h4 class=""><span style="margin-left:10px;color:black;">No reviews</span><span class="stars left">0</span>
+                    </h4>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- <div class="stars">
+                <form action="">
+                  <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                  <label class="star star-5" for="star-5"></label>
+                  <input class="star star-4" id="star-4" value="4" type="radio" name="star"/>
+                  <label class="star star-4" for="star-4"></label>
+                  <input class="star star-3" id="star-3" value="3" type="radio" name="star"/>
+                  <label class="star star-3" for="star-3"></label>
+                  <input class="star star-2" id="star-2" value="2" type="radio" name="star"/>
+                  <label class="star star-2" for="star-2"></label>
+                  <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                  <label class="star star-1" for="star-1"></label>
+                  
+                </form>
+              </div> -->
+            <!-- End Rating -->
             <h3 class="">Next Batch</h3>
-            <h4>24th Aug '20 </h4>
-            <h5>Timings: 8 am - 10 pm</h5>
-            <h5>Total Hours: 22 hrs</h5>
-            <h5>Live Class Fee: <b>₹2500</b></h5>
+            {% if upcomingDate %}
+            <h4>{{upcomingDate.batch_start_date.strftime('%d %B %Y')}} </h4>
+            <h5>Timings: {{upcomingDate.batch_start_time}} - {{upcomingDate.batch_end_time}}</h5>
+            <h5>Total Hours:&nbsp;<span id="timeDiff"></span></h5>
+            <h5>Live Class Fee: <b>₹{{upcomingDate.course_batch_fee}}</b></h5>
+            {% if current_user.user_type==234 %}
+            {% if checkEnrollment %}
+              <h5>Enrolled</h5>
+            {% else %}
+            <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}" id ="{{upcomingDate.course_batch_fee}}"
+                style="width: 100%;" href="#modal2"> Enroll in Course</a>
+                
+            {% endif %}
+            {% endif %}
+            {% else %}
+            <h4 class="grey-text">No Upcoming Batch </h4>
+            {% endif %}        
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share course</span> </a>    
             <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
-            <a class="btn left green enrollBTN modal-trigger" id="schoolNeed.need_type"
-                                        name="schoolNeed.sum_cost" style="width: 100%;" href="#modal2"> Enroll in Course</a><br><br>
-            <button class="btn cyan " style="width: 45%;">Follow</button>
-            <button class="btn  right" style="width: 45%;">Class Recordings</button>
             <br><br>
-            
+            <!--<button class="btn cyan " style="width: 45%;">Follow</button>
+            <button class="btn  right" style="width: 45%;">Class Recordings</button>
+            <br><br>-->
+
             <h3 class="">What to expect</h3>
+            {% if courseDet.summary_url %}
+            <video src="{{courseDet.summary_url}}" width="100%" controls></video>
+            {% else %}
             <video src="../static/images/vid1.m4v" width="100%" controls></video>
+            {% endif %}
             <br><br>
             <h3 class="">Ideal for</h3>
-            <p><span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Students</span>
-                <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Entrepreneurs</span>
-                <span class="badge cyan white-text z-depth-1 hoverable" style="font-size:14px;">Junior Data Scientists</span>
-                </p>
-                <br><br>
+            <p>
+                {% for ideal in idealFor %}
+                <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable"
+                    style="font-size: 14px;">{{ideal}}</a>
+                {% endfor %}
+            </p>
+            <br><br>
             <h3>Difficulty Level</h3>
-            <p>Easy</p>
-            
-            <h3 class="">Shailesh's Other Courses</h3>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
-                style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse2.PNG" width="350px"
-                style="border-radius: 10px;"><br><br>
-            <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
-                style="border-radius: 10px;"><br><br>       
-        </div>     
+            <p>{{level.description}}</p>
+
+            <h3 class="">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}'s Other Courses</h3>
+            <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
+                {% for course in otherCourses %}
+                {% if course.image_url %}
+                <a href="{{url_for('courseDetail',course_id=course.course_id)}}">
+                    <li class="hoverable"
+                        style="border-radius: 10px;cursor:pointer;width: 340px;display: flex;margin-top: 15px;">
+                        <img src="{{course.image_url}}" width="30%">
+                        <h4 style="margin-left: 20px;height: 40px;color: black;width:140px;">{{course.course_name}}</h4>
+                        {% if course.average_rating  %}
+                        <br><br>
+                        <h5 style="color: black;margin-top: 35px;" class="right">&nbsp;<span
+                                class="stars">{{course.average_rating}}</span></h5>
+                        {% else %}
+                        <h5 style="color: black;margin-top: 35px;" class="right">&nbsp;No Reviews</h5>
+                        {% endif %}
+                    </li>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </ul>
+
+        </div>
     </div>
 </div>
+
+<div id="modal4" class="modal" style="width: 350px;height: 198px;">
+    <div class="modal-content" style="height: 140px;text-align: center;">
+      <h4>Share</h4>
+      <div class="row">
+        <h5 class='grey-text'>Share Page</h5>
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="margin-left: 100px;">
+            <a class="a2a_button_facebook modal-close"></a>
+            <a class="a2a_button_whatsapp modal-close"></a>
+            <a class="a2a_button_sms modal-close"></a>
+            <a class="a2a_button_google_gmail modal-close"></a>
+        </div>
+        <script async src="https://static.addtoany.com/menu/page.js"></script>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+  </div>
+
+
+<div id="commentModal" class="modal" style="height: 260px;">
+    <div class="modal-content" style="height: 205px;">
+        <div class="" style="margin-right: 200px;">
+            <form action="">
+                <input class="star star-5" id="star-5" value="5" type="radio" name="star" />
+                <label class="star star-5" for="star-5"></label>
+                <input class="star star-4" id="star-4" value="4" type="radio" name="star" />
+                <label class="star star-4" for="star-4"></label>
+                <input class="star star-3" id="star-3" value="3" type="radio" name="star" />
+                <label class="star star-3" for="star-3"></label>
+                <input class="star star-2" id="star-2" value="2" type="radio" name="star" />
+                <label class="star star-2" for="star-2"></label>
+                <input class="star star-1" id="star-1" value="1" type="radio" name="star" />
+                <label class="star star-1" for="star-1"></label>
+
+            </form>
+        </div>
+        <div class="reviewCom">
+            <h4 style="width:360px;display: flex;">Review Comment</h4>
+            <textarea id="reviewComment" style="background-color: lightgoldenrodyellow;"></textarea>
+            <a class="modal-close waves-effect waves-light btn" id="submitReview" style="float: right;"
+                href="#">Submit</a>
+        </div>
+        <span id="revMess"></span>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">close</a>
+    </div>
+</div>
+
+<div id="modal5" class="modal" style="background-color:white;width: 400px;height: 290px;">
+    <div id="topicLoader" class="center" style="display: none;height: 100%;">
+        <img src="../static/images/loader.gif">
+    </div>
+    <div class="modal-content" id="topicListModal" style="display:none;height: 290px;">
+        <p>
+                <h3>Choose Topic</h3>
+                <ul id="topicListDiv" style="margin-top: 20px;">
+
+                </ul>
+        </p>
+
+    </div>
+</div>
+
 <div id="modal2" class="modal" style="background-color:white;">
     <div id="loader" class="center" style="display: none;height: 100%;">
         <img src="../static/images/loader.gif">
@@ -219,36 +458,232 @@
         $('.modal').modal();
     });
 
-
+    $('.topicListBTN').click(function(){
+        $('#modal5').hide();
+        $('#topicListDiv').html('');
+        $('#topicLoader').show();
+        var batch_id = $(this).attr("name");
+        $.ajax({
+            url: "/batchTopicList?&batch_id=" + batch_id,
+            type: "POST",
+            data: '',
+            success: function (response1) {
+                if (response1 ) {
+                    var responseArr = response1.toString().split(',');
+                    var topicListDiv = '';
+                    for(var i=0;i<responseArr.length;i++){
+                        var topicName = responseArr[i].toString().split(':')[0];
+                        var topicId = responseArr[i].toString().split(':')[1];
+                        console.log('Topic Id:'+topicId);
+                        console.log('batch Id:'+batch_id);
+                        $('#batId').html(batch_id);
+                        var courseID = "{{course_id}}";
+                        topicListDiv = topicListDiv + '<li><a href="{{url_for('openLiveClass')}}'+'?topic_id='+topicId+'&batch_id='+batch_id+'&course_id='+courseID+'"><span>'+(i+1)+'</span><span style="margin-left:20px;">'+topicName+'</span></a></li>';
+                    }
+                    $('#topicLoader').hide();
+                    $('#topicListDiv').html(topicListDiv);
+                    $('#topicListModal').show();
+                } 
+            },
+            error: function (xhr) {
+                $('#topicListDiv').html("Error occurred. Please try again.");
+                $('#topicLoader').hide();
+            }
+        });
+    });
 
     $('.enrollBTN').click(function () {
-            $('#modal2').hide();
-            $('#donateDiv').html('');
-            $('#loader').show();
-            var donation_for = $(this).attr("id");
-            //alert(donation_for);
-            var amount = $(this).attr("name");
+        $('#modal2').hide();
+        $('#donateDiv').html('');
+        $('#loader').show();
+        var amount = $(this).attr("id");
+        //alert(donation_for);
+        var batch_id = $(this).attr("name");
 
-            $.ajax({
-                url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
-                    "&donation_for=" + donation_for,
-                type: "get",
-                data: '',
-                success: function (response1) {
-                    if (response1 != '1') {
-                        $('#loader').hide();
-                        $('#donateDiv').html(response1);
-                        $('#donateDivModal').show();
-                    } else {
-                        //$('#demo').load('/url/for/addshare2/' + variable1);
-                        window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
-                    }
-                }, 
-                error: function(xhr) {
-                    $('#donateDiv').html("Error occurred. Please try again.");
+        $.ajax({
+            url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
+                "&batch_id=" + batch_id,
+            type: "get",
+            data: '',
+            success: function (response1) {
+                if (response1 != '1') {
+                    $('#loader').hide();
+                    $('#donateDiv').html(response1);
+                    $('#donateDivModal').show();
+                } else {
+                    //$('#demo').load('/url/for/addshare2/' + variable1);
+                    window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
+                }
+            },
+            error: function (xhr) {
+                $('#donateDiv').html("Error occurred. Please try again.");
                 $('#loader').hide();
-                } 
-            })
+            }
         });
+    });
+    var st = "{{upcomingDate.batch_start_time}}";
+    var en = "{{upcomingDate.batch_end_time}}";
+
+    function diff(start, end) {
+        console.log('inside diff function');
+        start = "{{upcomingDate.batch_start_time}}"; //to update time value in each input bar
+        end = "{{upcomingDate.batch_end_time}}"; //to update time value in each input bar
+        console.log('Start Time:' + start);
+        console.log('End Time:' + end);
+        s = start.split(":");
+        e = end.split(":");
+        if (s[0] > e[0]) {
+            var z = start;
+            start = end;
+            end = z;
+        }
+        start = start.split(":");
+        end = end.split(":");
+        var startDate = new Date(0, 0, 0, start[0], start[1], 0);
+        var endDate = new Date(0, 0, 0, end[0], end[1], 0);
+        var diff = endDate.getTime() - startDate.getTime();
+        var hours = Math.floor(diff / 1000 / 60 / 60);
+        diff -= hours * 1000 * 60 * 60;
+        var minutes = Math.floor(diff / 1000 / 60);
+
+        return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
+    }
+    $(document).ready(function () {
+        var val = diff(st, en);
+        console.log(val);
+        if (val != 'NaN:NaN') {
+            $("#timeDiff").html(val);
+        } else {
+            $("#timeDiff").html('');
+        }
+        console.log('Time Difference:' + diff(st, en));
+    });
+
+    // $('#remarkPostButton').click(function($e){
+    //     $e.preventDefault();
+    //     var form = $('#remarkForm');
+    //     $.ajax({
+    //             url:"/addComment",
+    //             type:"POST",
+    //             data: form.serialize(),
+    //             success:function(response){
+    //                 if(response){
+    //                     console.log('data added successfully');
+    //                     var responseArr = response.toString().split(",");
+    //                     var commentDiv = '';
+    //                     for(var i=0;i<responseArr.length;i++){
+    //                         var username = responseArr[i].toString().split(":")[0];
+    //                         var comment = responseArr[i].toString().split(":")[1];
+    //                         var date = responseArr[i].toString().split(":")[2];
+    //                         commentDiv = '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">'+username+'</span><br><span style="margin-left: 5px;">'+comment+'</span><br></div><span class="right grey-text"> '+date+'</span></td></tr>' + commentDiv;
+    //                     }
+    //                     $('#commentList').html(commentDiv);
+    //                     $('#remark').val('');
+    //                 }
+    //             },
+    //             error:function(xhr){
+    //                 $('#msg').html('Error to submit course data');
+    //             }
+    //         });
+    // });
+
+    $("input[type='radio']").click(function () {
+        var radioValue = $("input[name='star']:checked").val();
+        console.log(radioValue);
+        $('#rate').html(radioValue);
+        $('#starRating').val(radioValue);
+        var course_id = "{{courseDet.course_id}}";
+        $.ajax({
+            url: "/addReview?course_id=" + course_id + "&rating=" + radioValue,
+            type: "POST",
+            data: "",
+            success: function (response) {
+                if (response) {
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    console.log('inside success');
+                    for (var i = 0; i < responseArr.length; i++) {
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        var lenRev = responseArr[i].toString().split(":")[3];
+                        $('#revLength').html(lenRev);
+                        if (comment) {
+                            commentDiv =
+                                '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">' +
+                                username + '</span><br><span style="margin-left: 5px;">' + comment +
+                                '</span><br></div><span class="right grey-text"> ' + date +
+                                '</span></td></tr>' + commentDiv;
+                        }
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#reviewComment').val('');
+                    $('#revLength').html('0');
+
+                }
+            },
+            error: function (xhr) {
+                $('#msg').html('Error to submit course data');
+            }
+        });
+    });
+
+    $('#submitReview').click(function () {
+        console.log('inside submitReview');
+        var revComment = $('#reviewComment').val();
+        var course_id = "{{courseDet.course_id}}";
+        var starRating = $("input[name='star']:checked").val();
+        var rev = $('#reviewComment').val();
+        $('#revMess').html('');
+        if(rev==''){
+            $('#revMess').html('please enter review first');
+        }else{
+        $.ajax({
+            url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment + '&starRating='+ starRating,
+            type: "POST",
+            data: "",
+            success: function (response) {
+                if (response) {
+                    var responseArr = response.toString().split(",");
+                    var commentDiv = '';
+                    console.log('inside success');
+                    for (var i = 0; i < responseArr.length; i++) {
+                        var username = responseArr[i].toString().split(":")[0];
+                        var comment = responseArr[i].toString().split(":")[1];
+                        var date = responseArr[i].toString().split(":")[2];
+                        var lenRev = responseArr[i].toString().split(":")[3];
+                        $('#revLength').html(lenRev);
+                        if (comment) {
+                            commentDiv =
+                                '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">' +
+                                username + '</span><br><span style="margin-left: 5px;">' + comment +
+                                '</span><br></div><span class="right grey-text"> ' + date +
+                                '</span></td></tr>' + commentDiv;
+                        }
+                    }
+                    $('#commentList').html(commentDiv);
+                    $('#reviewComment').val('');
+
+                }
+            },
+            error: function (xhr) {
+                $('#msg').html('Error to submit review data');
+            }
+        });
+        }
+    });
+
+    $.fn.stars = function () {
+        return this.each(function (i, e) {
+            $(e).html($('<span/>').width($(e).text() * 16));
+        });
+    };
+
+    $('.stars').stars();
+
+    $('.searchCategoryClass').click(function () {
+        window.location.href = "/search?staging_COURSE[query]=" +
+            $(this).html();
+    });
 </script>
 {%endblock%}

@@ -7,7 +7,7 @@
                 <table>
                     <tr>
                         <td>Course Name</td>
-                        <td><h4>How to start a startup</h4></td>                       
+                        <td><h4>{{courseDetailData.course_name}}</h4></td>                       
                     </tr>
                     <!--<tr>
                         <td>Teacher and School</td>
@@ -43,7 +43,14 @@
                         </td>  
                         {%endif%}                                              
                     </tr>
-                  
+                  {%if current_user.phone=="" or current_user.phone==None %}
+                  <td>Please enter phone number</td>
+                  <td>
+                    <input type="text" name="customerPhone" />
+                </td>  
+                    {%else%}
+                    <input type="hidden" name="customerPhone" value="{{current_user.phone}}" />
+                    {%endif%}
 
                     <!--Data required by Payment gateway-->
                     <input type="hidden" name="appId" value="{{appId}}" />
@@ -53,7 +60,7 @@
                     <input type="hidden" name="orderNote" value="{{orderNote}}" />
                     <input type="hidden" name="customerName" value="{{customerName}}" />
                     <input type="hidden" name="customerEmail" value="{{current_user.email}}" />
-                    <input type="hidden" name="customerPhone" value="{{current_user.phone}}" />
+                    
                     <input type="hidden" name="returnUrl" value="{{returnUrl}}" />
                     <input type="hidden" name="notifyUrl" value="{{notifyUrl}}" />
                     <input type="hidden" name="signature" value="{{signature}}" />
