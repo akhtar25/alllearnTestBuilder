@@ -259,9 +259,12 @@ justify-content: center;" id="containerDiv">
     </div>-->
 
 
-    <h3>Recently Enrolled Courses</h3>
+    
     <div>
+        {%if enrolledCourses%}
+        <h3>Recently Enrolled Courses</h3>
         <div class="row">
+
             {% for row in enrolledCourses %}
             <div class="col-sm-3 ">
                 <div class="card small hoverable" style="border-radius: 25px;">
@@ -358,14 +361,17 @@ justify-content: center;" id="containerDiv">
             </div>
         </div> -->
         </div>
+        {%endif%}
         <!-- <div class="row">
         <div class="right">
             <a href="#">See More</a>
         </div>
     </div> -->
     </div>
-    <h3>Recently Added Courses</h3>
+    
     <div>
+        {%if recentlyAccessed%}
+        <h3>Recently Added Courses</h3>
         <div class="row">
             {% for row in recentlyAccessed %}
             <div class="col-sm-3 ">
@@ -468,7 +474,7 @@ justify-content: center;" id="containerDiv">
             </div>
         </div> -->
         </div>
-
+        {%endif%}
         <!-- <div class="row">
     <div class="right">
         <a href="#">See More</a>
