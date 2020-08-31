@@ -4069,8 +4069,8 @@ def login():
             school_id = teacherProfileData.school_id
         elif current_user.user_type==134:
             studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentProfileData.school_id
-            session['studentId'] = school_id.student_id
+            school_id = studentProfileData.school_id            
+            session['studentId'] = studentProfileData.student_id
         else:
             userData = User.query.filter_by(id=current_user.id).first()
             school_id = userData.school_id
