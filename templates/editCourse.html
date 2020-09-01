@@ -528,7 +528,7 @@
                 }
                 // if(notes_name&&notes_url){
                     // console.log(notesDiv);
-                    clicks =i+1;
+                    // clicks =i+1;
                 // $('#topicNotDiv').html(notesDiv);
                 // $('#saveNotes').hide();
                 $('#updateNotes').hide();
@@ -650,7 +650,8 @@ $('#saveNote').click(function($e){
 
         var clicks = 1;
         $('#addNotesBTN').click(function () {
-        clicks=clicks+1;        
+        clicks=clicks+1; 
+        console.log('Clicks:'+clicks);       
         $('#topicNotDiv').append('<input type="text" value="" id="notesName'+clicks+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%" class="selType" onchange="fileType(this.value,'+clicks+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url" class="notes'+clicks+'" style="display: none;margin-top: 16px;">Notes URL:<input type="text" id="notesURL'+clicks+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+clicks+'" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+clicks+'" value="" name="videoNotesUrl"> ');
         $('select').formSelect();
         });
@@ -717,6 +718,7 @@ $('#saveNote').click(function($e){
 
 
     $(document).ready(function(){
+        console.log('Clicks:'+clicks); 
         {% if course_id %}
         {% if courseDet.description %}
             $('#description').val("{{courseDet.description}}");
