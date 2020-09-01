@@ -507,7 +507,7 @@
     function fetch(topId){
         // $('#addNotesBTN').hide();
         $('#topicNotDiv').html('');
-        // $('#botBox').hide();
+        $('#botBox').hide();
         console.log('inside fetch'+topId);
         $.ajax({
             url: "/fetchNotes?topic_id="+topId,
@@ -528,24 +528,26 @@
                 }
                 // if(notes_name&&notes_url){
                     // console.log(notesDiv);
-                    clicks =i+1;
-                // $('#topicNotDiv').html(notesDiv);
+                    // clicks =i+1;
+                $('#topicNotDiv').html(notesDiv);
                 // $('#saveNotes').hide();
                 $('#updateNotes').hide();
-                for(var i=0;i<responseArr.length;i++){
-                    if($('#notesName'+i.toString()).val()==''){
-                        $('#notesName'+i.toString()).hide();
-                        console.log($('#notesName'+i.toString()).val());
-                    }
-                    if($('#notesURL'+i.toString()).val()==''){
-                        console.log('#url'+i.toString());
-                        $('#notesURL'+i.toString()).hide();
-                    }
-                }
+                // for(var i=0;i<responseArr.length;i++){
+                //     if($('#notesName'+i.toString()).val()==''){
+                //         $('#notesName'+i.toString()).hide();
+                //         console.log($('#notesName'+i.toString()).val());
+                //     }
+                //     if($('#notesURL'+i.toString()).val()==''){
+                //         console.log('#url'+i.toString());
+                //         $('#notesURL'+i.toString()).hide();
+                //     }
+                // }
                 // }else{
                 //     $('#saveNotes').show();
                 // $('#updateNotes').hide();
                 // }
+             }else{
+                $('#botBox').show();
              }
             },
             error: function (xhr) {
@@ -658,10 +660,6 @@ $('#saveNote').click(function($e){
         $('#saveNotes').click(function($e){
             $e.preventDefault();
             console.log('inside save notes');
-            click=0;
-            if(clicks>1){
-            var click = clicks-1;
-            }
             console.log('value of no of block:'+clicks);
             for(var i=1;i<=clicks;i++){
                 var noteName = '#notesName'+i;

@@ -2922,7 +2922,10 @@ def fetchNotes():
     for note in notes:
          notesData.append(str(note.notes_name)+'!'+str(note.notes_url))
     print(notesData)
-    return jsonify(notesData)
+    if notesData:
+        return jsonify(notesData)
+    else:
+        return ""
 
 @app.route('/fetchRemQues',methods=['GET','POST'])
 def fetchRemQues():
@@ -4526,7 +4529,8 @@ def checkForChapter():
     print(book.book_name)
     for book_id in bookIds:
         print(str(class_val)+' '+str(subject_id.msg_id)+' '+str(chapterNum)+' '+str(book_id.book_id))
-        topic1 = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum,book_id=book_id.book_id).first()
+        topic1 = "select chapter_name,topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+str(class_val)+"' and td.subject_id='"+str(subject_id.msg_id)+"' and td.book_id='"+str(book_id.book_id)+"' and tt.is_archived='N' and td.chapter_num='"+str(chapterNum)+"' "
+        topic1 = db.session.execute(text(topic1)).first()
         topic2 = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName,book_id=book_id.book_id).first()
         print('inside for')
         print(book_id.book_id)
