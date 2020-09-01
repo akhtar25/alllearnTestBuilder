@@ -66,7 +66,7 @@ instantsearch.widgets.pagination({
                         <h4>${item.course_name}</h4><i class="material-icons right">more_vert</i>
                     </span>
                     <h5 class="grey-text">${item.teacher_name}</h5>                   
-                    <a href="/courseDetail?courseID=${item.course_id}"><span class="right" style="font-size: small;">Go
+                    <a href="/courseDetail?course_id=${item.course_id}"><span class="right" style="font-size: small;">Go
                             to
                             Course</span></a>
                 </div>
@@ -77,7 +77,7 @@ instantsearch.widgets.pagination({
                     ${item.description}
                     </p>
 
-                    <p><a href="/courseDetail?courseID=${item.course_id}"><span class="right"
+                    <p><a href="/courseDetail?course_id=${item.course_id}"><span class="right"
                                 style="font-size: small;">Go to
                                 Course</span></a></p>
                 </div>

@@ -1,50 +1,218 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
     <div class="row">
-        <h2 class="">Teacher Registration</h2>
-        <form id="teacherRegForm">
-            <div class="col-sm-12">
-                <h3>Bank Details</h3>
-                <div style="display: flex;">
-                    <h4 style="width:210px;">Bank Name</h4>
-                    <input type="text" value="" style="width: 500px;" name="bankName"/>
-                    <h4 style="width:210px;margin-left: 50px;">Account Holdername</h4>
-                    <input type="text" value="" style="width: 500px;" name="accountHoldername"/>
-                </div>
-                <div style="display: flex;">
-                    <h4 style="width:210px;">Account Number</h4>
-                    <input type="number" min="0" value="" style="width: 500px;" name="accountNumber"/>
-                    <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
-                    <input type="text" value="" style="width: 500px;" name="ifscCode"/>
+        <h3 class="">Let's setup your tutor account!</h3>
+
+        <div class="col-sm-8">
+            <form id="teacherRegForm">
+                <ul>
+                    <div id="bankDiv">
+                        <div id="aboutDiv">
+                           
+                            <li>
+                                <h3 class="grey-text">About</h3>
+                            </li>
+                            <h4 style="">Profile Picture</h4>
+                            <img src="../static/images/defaultAvatar.png" class="circle" width="75px" id="previewImg">
+                            <input type="hidden" id="imageUrl" value="" name="imageUrl">
+                            <br>                            
+                            <input type="file" id="teacherImg" onchange="initUpload('3');" name="teacherImg"
+                                style="height: 30px; margin-top: 10px;">
+                                <div id="teacherImgLoader" style="display: none;" class="left">
+                                    <img src="../static/images/loader.gif" style="width: 50px;">
+                                </div>
+                                <br>
+                            <h4 style="">A little bit about yourself</h4>
+                            <textarea name="about_me" style="height:100px;" class="validationClass"></textarea>
+                        </div>
+                        <br>
+                        <div class="divider"></div>
+                        <li>
+                            <h3 class="grey-text">Bank Details</h3>
+                        </li>
+                        <h4 class="grey-text">This is where the student's fees will be deposited</h4>
+                        <div style="display: flex;">
+                            <h4 style="width:210px;">Bank Name</h4>
+                            <input type="text" value="" style="width: 500px;" name="bankName" id="bankName" class="validationClass"/>
+                            <h4 style="width:210px;margin-left: 50px;">Account Holdername</h4>
+                            <input type="text" value="" style="width: 500px;" name="accountHoldername" id="accountHoldername" class="validationClass"/>
+                        </div>
+                        <div style="display: flex;">
+                            <h4 style="width:210px;">Account Number</h4>
+                            <input type="number" min="0" value="" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
+                            <input type="text" value="" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
+                        </div>
+                    </div>
+                    <a href="#" class="btn green right" style="margin-top: 20px;" id="submit">Submit</a>
+                    <br>
+                    <span class="orange-text" id="errorMSGSpan"></span>
+                </ul>
+            </form>
+        </div>
+
+        <div class="col-sm-4">
+
+            <div class=""
+                style="background-color: rgb(248, 248, 231);border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+                <ul style="margin-left: 20px;margin-top:10px;font-size:medium">
+                    <h3>Important points</h3>
+                    <li style="list-style-type: initial;">
+                        The tutor account setup will take 24 hours after we've received your information.<br>
+                        You'll only be able to add course after the account setup is complete
+                    </li>
+                    <li style="list-style-type: initial;">
+                        You'll receive an email as soon as your tutor account setup is complete. 
+                    </li>
+                    <li style="list-style-type: initial;">
+                        At the moment, only <b>Indian account</b> holders can add paid courses, but we're working rapidly to ensure people from outside India can get onboard as well. 
+                        <br>Tentative date: 15 December 2020 
+                    </li>
+                </ul>
             </div>
-            <a href="#" class="btn green right" style="margin-top: 20px;" id="submit">Submit</a>
-            </div>
-        </form>
+        </div>
+
+
     </div>
 </div>
 
 <script>
-    $('#submit').click(function($e){
+    $('#submit').click(function ($e) {
         console.log('inside submit btn function');
         $e.preventDefault();
         var form = $('#teacherRegForm');
+        //window.alert($('#bankName').val());
+        if($('#bankName').val()!="" && $('#accountHoldername').val()  && $('#accountNumber').val()!="" && $('#ifscCode').val()!="")
+        {
         $.ajax({
-            url:"/teacherRegForm",
-            type:"POST",
+            url: "/teacherRegForm",
+            type: "POST",
             data: form.serialize(),
-            success:function(response){
-                if(response==0){
+            success: function (response) {
+                if (response == 0) {
                     console.log('data added successfully');
-                    window.location.replace("url_for('editCourse')");
-                    M.toast({html: 'Teacher Registered Successfully'});
+                    window.location.replace("{{url_for('editCourse')}}");
+                    M.toast({
+                        html: '<h4>Teacher Registered Successfully</h4>'
+                    });
                 }
             },
-            error:function(xhr){
+            error: function (xhr) {
                 $('#msg').html('Error to submit form data');
             }
         });
-
+    }
+    else{
+        $('#errorMSGSpan').html('Please fill all the bank details.');
+    }
     });
+
+
+
+ // Upload File Start
+ function uploadFile(file, s3Data, url,fileType){
+        console.log('inside uploadFile');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+      }
+      postData.append('file', file);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            //console.log('fileType:'+fileType);
+            if(fileType=='1'){
+                console.log('if file for courseUrl');
+                $('#videoLoader').hide();
+                $('#preview').show();
+            document.getElementById('preview').src = url;
+            document.getElementById('videoUrl').value=url;
+            }else
+            if(fileType=='2'){
+                console.log('if file is for notesUrl');
+                $('.videoNotesUrl').val(url);
+                $('#fileLoader').hide();
+                // document.getElementById('previewNotes').src = url;
+            }else
+            if(fileType=='10'){
+                $('#classRecLoader').hide();
+                $('#videoRecordUrl').val(url);
+            }
+            else{
+                console.log('if file for imageUrl');
+                $('#teacherImgLoader').hide();
+                document.getElementById('previewImg').src = url;
+                document.getElementById('imageUrl').value=url;
+            }
+            console.log(url);
+          }
+          else{
+            //window.alert("this is where the problem is");
+            $('#errorMSGSpan').html('Could not upload file. Please try later.');
+             $('#teacherImgLoader').hide();
+            //alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    function getSignedRequest(file,fileType){
+      const xhr = new XMLHttpRequest();
+      var type = file.type;
+      var VideoName = file.name;
+      console.log('File Name:'+type);
+      console.log('file type:'+VideoName);
+      //$('#video_name').html(VideoName);
+      xhr.open('GET', `/sign-s3?file-name=${VideoName}&file-type=${type}&folder=teacherImage`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            uploadFile(file, response.data, response.url,fileType);
+          } 
+          else{
+            $('#teacherImgLoader').hide();
+            $('#errorMSGSpan').html('Error In upload. Could not get signed URL. Please try later.');     
+
+          }
+        }
+      };
+      xhr.send();
+    }
+    function initUpload(fileType){
+        console.log('inside initUpload');
+        console.log(fileType);
+        var files = '';
+    if(fileType=='1'){
+        $('#videoLoader').show();
+        $('#preview').hide();
+       files = document.getElementById('video_url').files;
+    }else
+    if(fileType=='2'){
+        $('#fileLoader').show();
+        console.log('video zone is 2');
+         files = document.getElementById('video_notes_url').files;
+         console.log('fileName:'+files);
+        //  console.log(files[0].filename);
+    }else
+    if(fileType=='10'){
+        $('#classRecLoader').show();
+        files = document.getElementById('video_record_url').files;
+    }
+    else{
+        $('#teacherImgLoader').show();
+        files = document.getElementById('teacherImg').files;
+    }
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      console.log('FileName:'+file);
+      getSignedRequest(file,fileType);
+    }
 </script>
 
 {% endblock %}

@@ -48,7 +48,7 @@ import hashlib
 from random import randint
 import string
 import random
-import requests
+import requests as rq
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
@@ -2319,7 +2319,7 @@ def liveClass():
 #####New section for open class modules
 @app.route('/updateSearchIndex/<task>')
 @login_required
-def updateSearchIndex(task):
+def updateSearchIndex(task, fromPage="default"):
     #queryTest = "select *from topic_detail where topic_name is not null fetch first 100 rows only"
     indexQuery = "select cd.course_id as \"objectID\", cd.course_id, cd.course_name, cd.description,average_rating , cd.image_url, "
     indexQuery = indexQuery + " tp.teacher_name,ideal_for, string_agg(topic_name::text, ', ') as topics, text(cd.last_modified_date) as last_modified_date"
@@ -2340,7 +2340,7 @@ def updateSearchIndex(task):
     #print(json.dumps(items))
     if task == "view":
         return json.dumps(items, indent=3)
-    elif task=="send":
+    elif task=="send":        
         try:
             #index = client.init_index('staging_COURSE')
             index = client.init_index('prd_course')
@@ -2348,9 +2348,15 @@ def updateSearchIndex(task):
             index.set_settings({"customRanking": ["desc(last_modified_date)"]})            	
             index.set_settings({"searchableAttributes": ["topic_name", "course_name", "teacher_name"]})
             index.save_objects(items, {'autoGenerateObjectIDIfNotExist': True})
-            return json.dumps({"The following data was sent to algolia index successfully":items})
+            if fromPage=="default":
+                return json.dumps({"The following data was sent to algolia index successfully":items})
+            else:
+                print("############# Course Indexed")
+                return True
         except:
+            print('########## Throwing exception')
             return "Error Sending index data to algolia"
+
     elif task=="deleteAll":
         filter_val = request.args.get('filter_val')
         
@@ -2480,17 +2486,17 @@ def courseDetail():
     teacherUser = User.query.filter_by(id=teacher.user_id).first()
     # if current_user.id==user.id:
     #     print('I m Teacher')
-    topicDet = "select count(*) as no_of_questions,td.topic_name, td.topic_id,ct.course_id from course_topics ct "
-    topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
-    topicDet = topicDet + "inner join test_questions tq on ct.test_id = tq.test_id "
-
-    topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+    topicDet = "select case when count(tq.question_id) >0 then count(tq.question_id )"
+    topicDet = topicDet + " else 0 end as no_of_questions , topic_name, ct.topic_id, course_id from course_topics ct "
+    topicDet = topicDet + " inner join topic_detail td on td.topic_id =ct.topic_id and ct.course_id =" + str(course_id)
+    topicDet = topicDet + " left join test_questions tq on tq.test_id =ct.test_id "    
+    topicDet = topicDet + " where ct.is_archived ='N' group by  topic_name, ct.topic_id, course_id"
     print(topicDet)
     topicDet = db.session.execute(text(topicDet)).fetchall()
     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
     upcomingDate = db.session.execute(text(upcomingDate)).first()
     checkEnrollment = ''
-    if upcomingDate:
+    if upcomingDate and current_user.is_authenticated :
         checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
     if checkEnrollment:
         print('if student is enrolled')
@@ -2521,7 +2527,12 @@ def courseDetail():
 # <<<<<<< HEAD
     courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
     courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
-    courseBatchData = courseBatchData + " and cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' and ce.student_user_id="+str(current_user.id)+" and cb.batch_end_date > NOW() order by cb.batch_start_date desc"
+    courseBatchData = courseBatchData + " and cb.course_id=ce.course_id "
+    if current_user.is_anonymous==False:
+        courseBatchData = courseBatchData + " and ce.student_user_id="+str(current_user.id) 
+    courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' "    
+    courseBatchData = courseBatchData + " and cb.batch_end_date > NOW() "
+    courseBatchData = courseBatchData + " order by cb.batch_start_date desc"
     print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
 # =======
@@ -2791,23 +2802,108 @@ def teacherRegForm():
     accountHolderName = request.form.get('accountHoldername')
     accountNo = request.form.get('accountNumber')
     IfscCode = request.form.get('ifscCode')
+    user_avatar = request.form.get('imageUrl')
+    about_me = request.form.get('about_me')
     schoolName = str(current_user.username)+"_school"
+    current_user.about_me = about_me
+    if user_avatar!=None:
+        current_user.user_avatar = user_avatar
     board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
-    schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
-    db.session.add(schoolAdd)
-    db.session.commit()
-    schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
-    teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
-    db.session.add(teacherAdd)
-    db.session.commit()
-    teacherEx = TeacherProfile.query.filter_by(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id).first()
-    schoolEx.school_admin = teacherEx.teacher_id
-    db.session.commit()
-    print('Bank Name:'+str(bankName))
-    print('account holder name:'+str(accountHolderName))
-    print('accountNo:'+str(accountNo))
-    print('ifsc Code:'+str(IfscCode))    
+    checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    if checkTeacher==None:
+        ## Adding new school record
+        schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
+        db.session.add(schoolAdd)
+        db.session.commit()
+        schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
+        ##Adding new teacher record
+        teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
+        db.session.add(teacherAdd)
+        db.session.commit()
+        #Updating school admin with the new teacher ID
+        #teacherEx = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        schoolEx.school_admin = checkTeacher.teacher_id
+        db.session.commit()
+
+        #Send sms to tech team to follow up
+        message = "New tutor has been registered in the database. Please setup contact them on email: "+ current_user.email 
+        message = message + " and phone: " + current_user.phone + " for review and pg setup"
+        phoneList = "9008500227,9910368828"        
+        #calling SMS function        
+        smsResponse = sendSMS(message, phoneList)
+        print("This is the sms send response: " + smsResponse)
+
+        ##Section to add vendor with payment gateway
+
+        ## Section to create a roomid  for the teacher
+    print("####This is the current room id: " + str(checkTeacher.room_id))
+    if checkTeacher.room_id==None:            
+        roomResponse = roomCreation()
+        roomResponseJson = roomResponse.json()
+        print("New room ID created: " +str(roomResponseJson["url"]))
+        checkTeacher.room_id = str(roomResponseJson["url"])
+        db.session.commit()
     return jsonify("0")
+
+
+
+##Helper function
+def roomCreation():
+    dailycourl = "https://api.daily.co/v1/rooms"
+    payload = {"properties": {
+            "max_participants": 50,
+            "enable_screenshare": True,
+            "enable_chat": True,
+            "start_video_off": True,
+            "start_audio_off": True,
+            "owner_only_broadcast": True,
+            "eject_at_room_exp": True,
+            "eject_after_elapsed": 4
+        }}
+    headers = {
+        "content-type": "application/json",
+        "authorization": "Bearer 157accd1531abddc376517325567f744168d28be21a18cc1bec3e356695259b4"
+    }
+    response = rq.request("POST", dailycourl, json=payload, headers=headers)
+    #print("##########Room Creation response: "+response.text)
+    return response
+
+##Helper function
+def sendSMS(message, phoneList):
+    apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+    apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+    apiPath = apiPath + "contacts="+str(phoneList) +"&senderid=GLOBAL&"
+    apiPath = apiPath + "msg="+ quote(message)
+    print(apiPath)
+    ##Sending message here
+    try:
+        r = requests.post(apiPath)                    
+        returnData = str(r.text)
+        print(returnData)
+        
+        if "SMS-SHOOT-ID" in returnData:
+            return "SMS sent successfully"
+        else:
+            return "Error sending sms"
+        #    for val in studentPhones:
+        #        commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+        #        db.session.add(commTransAdd)
+        #    commDataAdd.status=232
+        #    db.session.commit()                                        
+        #    return jsonify(['0'])
+        #else:
+        #    return jsonify(['1'])                    
+    except:
+        return "Exception in sending sms"
+
+#def vendorAddition():
+
+    #Request {"vendorId" : "VEN343", "name" : "343 Industries", "phone" : 9900034300, "email" : "three43@gmail.com", "commission" : 34.3, "bankAccount" : 30004343400003, "accountHolder" : "TFT", "ifsc" : "HDFC0000343", "address1" : "Diamond District", "address2" : "Indranagar", "city" : "Bengaluru", "state" : "Karnataka", "panNo" : "AAAPL1234C", "aadharNo" : "499118665246", "gstin" : "22AAAAA0000A1Z5", "pincode" : 560071}
+    #Response {"status":"SUCCESS", "subCode":"200", "message":"Vendor added successfully"}
+
+
+
 
 @app.route('/editCourse')
 def editCourse():
@@ -3356,7 +3452,7 @@ def fetchQuesList():
 @app.route('/saveAndPublishedCourse',methods=['GET','POST'])
 def saveAndPublishedCourse():
     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('inside saveCourse')
+    #print('inside saveCourse')
     course = request.form.get('course')
     courseId = request.args.get('course_id')
     description = request.form.get('description')
@@ -3365,17 +3461,18 @@ def saveAndPublishedCourse():
     idealfor = request.args.get('idealfor')
     level = request.form.get('level')
     private = request.form.get('private')
-    print('Course name:'+str(course))
-    print('courseId:'+str(courseId))
-    print('description name:'+str(description))
-    print('Image Url:'+str(imageUrl))
-    print('Private:'+str(private))
+    #print('Course name:'+str(course))
+    #print('courseId:'+str(courseId))
+    #print('description name:'+str(description))
+    #print('Image Url:'+str(imageUrl))
+    #print('Private:'+str(private))
     course_status = request.args.get('course_status')
-    print('course status:'+str(course_status))
-    
-    print('video_url :'+str(video_url))
-    print('Ideal for:'+str(idealfor))
-    print('level:'+str(level))
+    #print('course status:'+str(course_status))
+    #
+    #print('video_url :'+str(video_url))
+    #print('Ideal for:'+str(idealfor))
+    #print('level:'+str(level))
+    updateIndex=False
     levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
     courseDet = CourseDetail.query.filter_by(course_id=courseId,description=description,summary_url=video_url,
     teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor,difficulty_level=levelId.msg_id).first()
@@ -3383,7 +3480,12 @@ def saveAndPublishedCourse():
         course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
         courseDet.course_status=course_status_id.msg_id
         db.session.commit()
-        return jsonify("1")
+        print('returning from first')
+        updateIndex = updateSearchIndex("send","saveCourse")
+        if updateIndex==True:
+            return jsonify("1")
+        else:
+            return jsonify("2")
     else:
         course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
         courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
@@ -3412,14 +3514,11 @@ def saveAndPublishedCourse():
             courseDet.is_archived = 'N'
             courseDet.difficulty_level=levelId.msg_id
         db.session.commit()
-        print('course:'+str(course))
-        print('Desc:'+str(description))
-        print('url:'+str(video_url))
-        print('teacher_id:'+str(teacherData.teacher_id))
-        print('school_id:'+str(teacherData.school_id))
-        print('idealfor:'+str(idealfor))
-        print('course_status:'+str(course_status_id.msg_id))    
-        return jsonify("1")
+        updateIndex = updateSearchIndex("send","saveCourse")
+        if updateIndex==True:
+            return jsonify("1")
+        else:
+            return jsonify("2")
 
 
 
@@ -3562,9 +3661,7 @@ def paymentForm():
             }
         ]
 
-        #vendorData=    [{"vendorId":"VENDOR1","commission":30}, {"vendorId":"VENDOR2","commission":40}]
-
-        
+        #vendorData=    [{"vendorId":"VENDOR1","commission":30}, {"vendorId":"VENDOR2","commission":40}]        
         vendorData = json.dumps(vendorData, separators=(',', ':'))
         print(vendorData)
         vendorDataEncoded = base64.b64encode(vendorData.encode('utf-8')).decode('utf-8')
@@ -3596,10 +3693,25 @@ def paymentForm():
         notifyUrl = url_for('notifyUrl',_external=True)
         return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
-        flash('Please login to donate')
+        flash('Please login to enroll')
         return jsonify(['1'])
 
-
+@app.route('/freeEnrollment')
+def freeEnrollment():
+    if current_user.is_authenticated:
+        batch_id = request.args.get('batch_id')
+        courseBatchData = CourseBatch.query.filter_by(batch_id =batch_id , is_archived='N').first()
+        courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+        courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, 
+            batch_id = batch_id, student_user_id=current_user.id, is_archived='N', 
+            last_modified_date = datetime.today())   
+        db.session.add(courseEnrollmentData)
+        db.session.commit()
+        flash('Course Enrolled')
+        return jsonify(['0'])
+    else:
+        flash('Please login to enroll')
+        return jsonify(['1'])
 
 
 @app.route('/request', methods=["POST"])
@@ -3642,9 +3754,7 @@ def handlerequest():
     #get secret key from config
     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
     signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
-    
-    
-    
+            
     transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
     transactionData.order_id=postData["orderId"]
     #transactionData.anonymous_donor = anonymous_donor
@@ -3695,7 +3805,7 @@ def paymentResponse():
     #updating response transaction details into the DB
     transactionData = PaymentTransaction.query.filter_by(order_id=postData["orderId"]).first()
     currency = transactionData.currency
-
+ 
     transactionData.gateway_ref_id = postData["referenceId"]
     if transactionData.tran_status!=263:
         transactionData.tran_status = messageData.msg_id
@@ -3925,13 +4035,21 @@ def login():
                 print('Email not registered')
                 return redirect(url_for('login'))
         else: 
-            user=User.query.filter_by(email=form.email.data).first()                
-            if user is None or not user.check_password(form.password.data):        
+            user=User.query.filter_by(email=form.email.data).first()   
+            try:             
+                if user is None or not user.check_password(form.password.data):        
+                    flash("Invalid email or password")
+                    return redirect(url_for('login'))
+            except:
                 flash("Invalid email or password")
                 return redirect(url_for('login'))
 
         #logging in the user with flask login
-        login_user(user,remember=form.remember_me.data)
+        try:
+            login_user(user,remember=form.remember_me.data)
+        except:
+            flash("Invalid email or password")
+            return redirect(url_for('login'))
 
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
@@ -3954,8 +4072,8 @@ def login():
             school_id = teacherProfileData.school_id
         elif current_user.user_type==134:
             studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentProfileData.school_id
-            session['studentId'] = school_id.student_id
+            school_id = studentProfileData.school_id            
+            session['studentId'] = studentProfileData.student_id
         else:
             userData = User.query.filter_by(id=current_user.id).first()
             school_id = userData.school_id

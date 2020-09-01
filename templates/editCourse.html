@@ -1007,10 +1007,12 @@ function correctOption(correct){
         }else
         if(imgUrl==''){
             $('#msg').html('please select Image');
-        }else
+        }
+        else
         if(vUrl==''){
             $('#msg').html('please select video');
-        }else
+        }
+        else
         if(level==''){
             $('#msg').html('please select course difficulty level');
         }else{
@@ -1019,10 +1021,19 @@ function correctOption(correct){
             type:"POST",
             data: form.serialize(),
             success:function(response){
-                if(response){
-                    console.log('data added successfully');
-                    M.toast({html: 'Data added and published'});
+                if(response=="1"){
+                    console.log('Data added successfully and indexed');
+                    M.toast({html: 'Course Added and Published'});
+                    window.location.replace("{{url_for('courseDetail')}}"+ "?course_id="+ course_id);
                 }
+                else if(response=="2"){
+                    console.log('Data added successfully but index pending');
+                    M.toast({html: 'Course Published'});
+                }
+                else{
+                    console.log('Error Saving Course Details');
+                }
+                
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');

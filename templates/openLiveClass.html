@@ -413,7 +413,7 @@ span.stars span {
                     <label for="remark">Add Comment</label>
                     <input type="text" id="remark" name="remark">
                     <input type="hidden" name="topicId" value="{{topicData.topic_id}}">
-                    <a href="#" id="remarkPostButton" class="btn green right">Add</a>
+                    <button  id="remarkPostButton" class="btn green right">Add</button>
                 </form>
                 {%endif%}
                 <div id="insideCommentDiv" style="max-height: 350px;width:500px;overflow-y: auto;">
@@ -770,5 +770,6 @@ $.fn.stars = function() {
 };
 
 $('.stars').stars();
+
 </script>
 {%endblock%}
