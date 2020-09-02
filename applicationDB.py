@@ -651,6 +651,7 @@ class TeacherProfile(db.Model):
     hours_taught_online = db.Column(db.Integer, nullable=True)
     courses_created = db.Column(db.Integer, nullable=True)
     students_taught = db.Column(db.Integer, nullable=True)
+    review_status = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #end of section
     last_modified_date=db.Column(db.DateTime)
     device_preference = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
