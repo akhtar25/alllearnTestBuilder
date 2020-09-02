@@ -2388,11 +2388,11 @@ def courseHome():
     enrolledCourses = enrolledCourses + "inner join course_detail cd on cd.course_id =ce.course_id "
     enrolledCourses = enrolledCourses + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
     enrolledCourses = enrolledCourses + "group by ce.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name, tp.teacher_id "
-    enrolledCourses = enrolledCourses + "having cd.course_status =251 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
+    enrolledCourses = enrolledCourses + "having cd.course_status =276 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
     enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
     recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name from course_detail cd "
     recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
-    recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =251 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
+    recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =276 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
     recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
 
     for rate in enrolledCourses:
@@ -2800,7 +2800,10 @@ def teacherRegistration():
         print('School name:'+str(school.school_name))
     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
     reviewStatus = db.session.execute(text(reviewStatus)).first()
-    return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status)
+    if reviewStatus:
+        return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status)
+    else:
+        return render_template('teacherRegistration.html',School=School)
 
 @app.route('/teacherRegForm',methods=['GET','POST'])
 def teacherRegForm():
@@ -2838,7 +2841,7 @@ def teacherRegForm():
         checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         schoolEx.school_admin = checkTeacher.teacher_id
         db.session.commit()
-        reviewId = MessageDetails.query.filter_by(description='Inreview',category='review_status').first()
+        reviewId = MessageDetails.query.filter_by(description='Inreview',category='Review Status').first()
         reviewInsert = "update teacher_profile set review_status='"+str(reviewId.msg_id)+"' where user_id='"+str(current_user.id)+"' "
         #Send sms to tech team to follow up
         reviewInsert = db.session.execute(text(reviewInsert))
@@ -2921,7 +2924,15 @@ def sendSMS(message, phoneList):
     #Response {"status":"SUCCESS", "subCode":"200", "message":"Vendor added successfully"}
 
 
-
+@app.route('/addCourse')
+def addCourse():
+    course_id = request.args.get('course_id')
+    if course_id=='':
+        courId = CourseDetail(course_name='Untitled Course',course_status=275,is_archived='N',last_modified_date=datetime.now())
+        db.session.add(courId)
+        db.session.commit()
+        course_id = courId.course_id
+    return redirect(url_for('editCourse',course_id=course_id))
 
 @app.route('/editCourse')
 def editCourse():
@@ -2934,10 +2945,11 @@ def editCourse():
     print('Teacher:'+str(teacherIdExist))
     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"'"
     reviewStatus = db.session.execute(text(reviewStatus)).first()
-    print('REview status:'+str(reviewStatus.review_status))
-    if reviewStatus.review_status==273:
-        print('review status Inreview')
-        return redirect(url_for('teacherRegistration'))
+    if reviewStatus:
+        print('REview status:'+str(reviewStatus.review_status))
+        if reviewStatus.review_status==273:
+            print('review status Inreview')
+            return redirect(url_for('teacherRegistration'))
     if teacherIdExist==None:
         return redirect(url_for('teacherRegistration'))
     else:
@@ -2981,18 +2993,17 @@ def editCourse():
                 print(topic[1])
                 print(topic[2])
             # topicDet = db.session.execute(text(topicDet)).fetchall()
-            idealFor = courseDet.ideal_for
+            idealFor = ''
+            if courseDet:
+                idealFor = courseDet.ideal_for
+            levelId = ''
+            if levelId:
+                levelId = levelId.description
             print('Description:'+str(courseDet.description))
             status = 1
-            return render_template('editCourse.html',status=status,levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
+            return render_template('editCourse.html',status=status,levelId=levelId,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
         else:
             levelId = ''
-            print('course_id:'+str(course_id))
-            if course_id=='':
-                courId = CourseDetail(course_name='Untitled Course',course_status=250,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(courId)
-                db.session.commit()
-                course_id = courId.course_id
             return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
     
 

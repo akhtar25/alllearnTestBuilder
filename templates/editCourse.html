@@ -36,8 +36,13 @@
         <form id="courseForm">
             <h4 style="margin-top: 15px;">Course Name</h4>
             {% if status %}
+            {% if courseDet.course_name =='Untitled Course' %}
+            <input type="text" name="course" value="" id="course" onblur="courseAdd();"/>
+            <input type="hidden" value="" name="courseId" id="courseId" />
+            {% else %}
             <input type="text" name="course" value="{{courseDet.course_name}}" id="course" onblur="courseAdd();"/>
             <input type="hidden" value="{{courseDet.course_id}}" name="courseId" id="courseId" />
+            {% endif %}
             {% else %}
             <input type="text" name="course" value="" id="course" onblur="courseAdd();"/>
             <input type="hidden" value="" name="courseId" id="courseId" />
@@ -823,7 +828,7 @@ function correctOption(correct){
     }
     var quesListDiv = '';
     function fetchQuestions(QuesList,indic){
-        $('#quesForm').html('');
+        // $('#quesForm').html('');
         console.log('inside fetchQuestions');
         console.log(QuesList);
             var QuesList = JSON.stringify(QuesList);
@@ -851,7 +856,7 @@ function correctOption(correct){
                 console.log('Id:'+ids);
                 
                 $('#questionList').html(quesListDiv);
-                $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
+                // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
