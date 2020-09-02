@@ -581,7 +581,8 @@ $('#videoRecord').click(function($e){
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Record added successfully'});
-                $('#recUploaded'+topId.toString()).html('Class Recording Uploaded')
+                // $('#recUploaded'+topId.toString()).html('Class Recording Uploaded');
+                topicList();
              }
             },
             error: function (xhr) {
@@ -603,6 +604,7 @@ $('#updateNotes').click(function($e){
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Notes updated successfully'});
+                topicList();
              }else{
                 $('#notesMsg').html('please fill all fields');
              }
@@ -654,6 +656,7 @@ $('#updateNotes').click(function($e){
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Notes added successfully'});
+                topicList();
              }else{
                 $('#notesMsg').html('please fill all fields');
              }
