@@ -35,7 +35,7 @@
         </p>-->
         <form id="courseForm">
             <h4 style="margin-top: 15px;">Course Name</h4>
-            {% if course_id %}
+            {% if status %}
             <input type="text" name="course" value="{{courseDet.course_name}}" id="course" onblur="courseAdd();"/>
             <input type="hidden" value="{{courseDet.course_id}}" name="courseId" id="courseId" />
             {% else %}
@@ -105,7 +105,7 @@
                     <img src="../static/images/loader.gif" style="width: 24%;margin-left: -90px;">
                 </div>
                 </div>
-                {% if course_id %}
+                {% if status %}
                 <input type="hidden" id="imageUrl" value="{{courseDet.image_url}}" name="imageUrl">
                 {% else %}
                 <input type="hidden" id="imageUrl" value="" name="imageUrl">
@@ -113,7 +113,7 @@
                 <br>
                 <div class="center">
                     <span id="image_name">Sample Image</span><br>
-                    {% if course_id %}
+                    {% if status %}
                     {% if courseDet.image_url %}
                     <img src="{{courseDet.image_url}}" id="previewImg" class="" width="50%" />
                     {% else %}
@@ -135,7 +135,7 @@
                     <img src="../static/images/videoLoader.gif" style="width: 40%;margin-left: -90px;">
                 </div> -->
                 
-                {% if course_id %}
+                {% if status %}
                 <input type="hidden" id="videoUrl" value="{{courseDet.summary_url}}" name="videoUrl">
                 {% else %}
                 <input type="hidden" id="videoUrl" value="" name="videoUrl">
@@ -143,7 +143,7 @@
                 <br>
                 <div class="center">
                     <span id="video_name">Sample Video</span><br>
-                    {% if course_id %}
+                    {% if status %}
                     {% if courseDet.summary_url %}
                     <video src="{{courseDet.summary_url}}" id="preview" class="" width="50%" controls></video>
                     {% else %}
@@ -188,7 +188,7 @@
                     </tr>
                 </thead>
                 <tbody style="font-size:medium" id="topicListDiv">
-                    {% if course_id %}
+                    {% if status %}
                     {% if topicDet %}
                     {% for topic in topicDet %}
                     <tr>
@@ -239,7 +239,7 @@
             <!--<img src="../static/images/reviewIMG.PNG" width="50%">-->
 
             <h3 class="">Ideal for</h3>
-            {% if course_id %}
+            {% if status %}
             {% if idealFor %}
             <!-- <input class="magicsearch" name="idealfor" id="topicSearch" value="{{idealFor}}" placeholder="{{idealFor}}"> -->
             <input type="text" name="idealfor" value="{{idealFor}}" disabled/>
@@ -268,7 +268,7 @@
             </p>
             <p style="margin-top:20px;">
                 <label>
-                    {% if course_id %}
+                    {% if status %}
                         {% if courseDet.is_private=='Y' %}
                         <input type="checkbox" id="private" name="private" value="Y" checked/>
                         {% else %}
@@ -671,7 +671,7 @@ $('#updateNotes').click(function($e){
 
     $(document).ready(function(){
         console.log('Clicks:'+clicks); 
-        {% if course_id %}
+        {% if status %}
         {% if courseDet.description %}
             $('#description').val("{{courseDet.description}}");
         {% endif %}

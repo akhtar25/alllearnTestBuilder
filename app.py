@@ -2794,7 +2794,13 @@ def createBatch():
 @app.route('/teacherRegistration')
 def teacherRegistration():
     print('inside teacher Registration')
-    return render_template('teacherRegistration.html')
+    School = "select *from school_profile sp where school_name not like '%_school'"
+    School = db.session.execute(text(School)).fetchall()
+    for school in School:
+        print('School name:'+str(school.school_name))
+    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
+    reviewStatus = db.session.execute(text(reviewStatus)).first()
+    return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status)
 
 @app.route('/teacherRegForm',methods=['GET','POST'])
 def teacherRegForm():
@@ -2802,21 +2808,28 @@ def teacherRegForm():
     accountHolderName = request.form.get('accountHoldername')
     accountNo = request.form.get('accountNumber')
     IfscCode = request.form.get('ifscCode')
+    selectSchool = request.form.get('selectSchool')
     user_avatar = request.form.get('imageUrl')
     about_me = request.form.get('about_me')
     schoolName = str(current_user.username)+"_school"
     current_user.about_me = about_me
+    print('School Id:'+str(selectSchool))
+    if selectSchool:
+        schoolEx = SchoolProfile.query.filter_by(school_id=selectSchool).first()
     if user_avatar!=None:
         current_user.user_avatar = user_avatar
     board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
     checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     if checkTeacher==None:
         ## Adding new school record
-        schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
-        db.session.add(schoolAdd)
-        db.session.commit()
-        schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
+        if selectSchool==None:
+            print('if school id is none')
+            schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
+            db.session.add(schoolAdd)
+            db.session.commit()
+            schoolEx = SchoolProfile.query.filter_by(school_name=schoolName,board_id=board.msg_id).first()
         ##Adding new teacher record
+        print(schoolEx.school_id)
         teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
         db.session.add(teacherAdd)
         db.session.commit()
@@ -2825,8 +2838,10 @@ def teacherRegForm():
         checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         schoolEx.school_admin = checkTeacher.teacher_id
         db.session.commit()
-
+        reviewId = MessageDetails.query.filter_by(description='Inreview',category='review_status').first()
+        reviewInsert = "update teacher_profile set review_status='"+str(reviewId.msg_id)+"' where user_id='"+str(current_user.id)+"' "
         #Send sms to tech team to follow up
+        reviewInsert = db.session.execute(text(reviewInsert))
         message = "New tutor has been registered in the database. Please setup contact them on email: "+ current_user.email 
         message = message + " and phone: " + current_user.phone + " for review and pg setup"
         phoneList = "9008500227,9910368828"        
@@ -2844,7 +2859,10 @@ def teacherRegForm():
         print("New room ID created: " +str(roomResponseJson["url"]))
         checkTeacher.room_id = str(roomResponseJson["url"])
         db.session.commit()
-    return jsonify("0")
+    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+" '"
+    reviewStatus = db.session.execute(text(reviewStatus)).first()
+    print('Review status:'+str(reviewStatus.review_status))
+    return jsonify(reviewStatus.review_status)
 
 
 
@@ -2914,6 +2932,12 @@ def editCourse():
     teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     print('userID:'+str(current_user.id))
     print('Teacher:'+str(teacherIdExist))
+    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"'"
+    reviewStatus = db.session.execute(text(reviewStatus)).first()
+    print('REview status:'+str(reviewStatus.review_status))
+    if reviewStatus.review_status==273:
+        print('review status Inreview')
+        return redirect(url_for('teacherRegistration'))
     if teacherIdExist==None:
         return redirect(url_for('teacherRegistration'))
     else:
@@ -2959,9 +2983,16 @@ def editCourse():
             # topicDet = db.session.execute(text(topicDet)).fetchall()
             idealFor = courseDet.ideal_for
             print('Description:'+str(courseDet.description))
-            return render_template('editCourse.html',levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
+            status = 1
+            return render_template('editCourse.html',status=status,levelId=levelId.description,courseNotes=courseNotes,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
         else:
             levelId = ''
+            print('course_id:'+str(course_id))
+            if course_id=='':
+                courId = CourseDetail(course_name='Untitled Course',course_status=250,is_archived='N',last_modified_date=datetime.now())
+                db.session.add(courId)
+                db.session.commit()
+                course_id = courId.course_id
             return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
     
 
@@ -3655,12 +3686,14 @@ def saveCourse():
 @app.route('/courseEntry',methods=['GET','POST'])
 def courseEntry():
     course = request.args.get('course')
-    courseDet = CourseDetail(course_name=course,is_archived='Y',last_modified_date=datetime.now())
-    db.session.add(courseDet)
+    course_id = "select max(course_id) as course_id from course_detail "
+    course_id = db.session.execute(text(course_id)).first()
+    courseDet = CourseDetail.query.filter_by(course_id=course_id.course_id).first()
+    courseDet.course_name = course
     db.session.commit()
-    courseId = "select max(course_id) as course_id from course_detail"
-    courseId = db.session.execute(text(courseId)).first()
-    return jsonify(courseId.course_id)
+    # courseId = "select max(course_id) as course_id from course_detail"
+    # courseId = db.session.execute(text(courseId)).first()
+    return jsonify(courseDet.course_id)
 
     # return render_template('editCourse.html')
 
