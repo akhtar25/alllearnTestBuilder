@@ -1,10 +1,26 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <div class="row">
+    <div class="row" id="teachRegPage">
         <h3 class="">Let's setup your tutor account!</h3>
 
         <div class="col-sm-8">
             <form id="teacherRegForm">
+                <h4><p>
+                    <label>
+                        <input type="checkbox" value="Y" id="schoolPart"/>
+                      <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
+                      
+                    </label>
+                  </p></h4>
+                  <div style="display: none;" id="chooseSchool">
+                  <div class="input-field col s8">
+                    <select name="selectSchool">
+                      <option value="" disabled selected>Choose Your School</option>
+                      {% for row in School %}
+                      <option value="{{row.school_id}}">{{row.school_name}}</option>
+                      {% endfor %}
+                    </select>
+                  </div><br><br></div>
                 <ul>
                     <div id="bankDiv">
                         <div id="aboutDiv">
@@ -74,9 +90,43 @@
 
 
     </div>
+    <div id="reviewPage" style="display: none;"><br><br><br><br><br>
+        <h3>Your account is currently in review</h3>
+        <h4>You'll hear from us within the next 24 hours</h4>
+        <p>
+            In case you have any queries or concerns, kindly email us on
+            <b>contact@alllearn.in</b>
+            and we'll get back asap
+        </p>
+        <br><br><br><br><br><br><br><br><br><br><br><br>
+        <span style="font-size: xx-small;">
+            In the meantime
+            <a target="_blank" href="https://js13kgames.com/games/offline-paradise/index.html">here's something </a>
+            to help with the waiting
+        </span>
+    </div>
 </div>
 
 <script>
+
+    $(document).ready(function(){
+        var schoolAvail = $('#schoolPart').val();
+        console.log('inside school PArt:'+schoolAvail);
+        $('input[type="checkbox"]').click(function(){
+            if($(this).prop("checked") == true){
+                $('#chooseSchool').show();
+            }
+            else if($(this).prop("checked") == false){
+                $('#chooseSchool').hide();
+            }
+        });
+        console.log('Review Status:{{reviewStatus}}');
+        {% if reviewStatus==273 %}
+        $('#teachRegPage').hide();
+        $('#reviewPage').show();
+        {% endif %}
+    });
+
     $('#submit').click(function ($e) {
         console.log('inside submit btn function');
         $e.preventDefault();
@@ -89,12 +139,17 @@
             type: "POST",
             data: form.serialize(),
             success: function (response) {
-                if (response == 0) {
-                    console.log('data added successfully');
+                console.log(response);
+                if (response) {
+                    console.log('data added successfully'+response);
+                    if(response==274){
                     window.location.replace("{{url_for('editCourse')}}");
+                    }
                     M.toast({
                         html: '<h4>Teacher Registered Successfully</h4>'
                     });
+                    $('#teachRegPage').hide();
+                    $('#reviewPage').show();
                 }
             },
             error: function (xhr) {
@@ -213,6 +268,10 @@
       console.log('FileName:'+file);
       getSignedRequest(file,fileType);
     }
+
+    $(document).ready(function(){
+        $('select').formSelect();
+    });
 </script>
 
 {% endblock %}
