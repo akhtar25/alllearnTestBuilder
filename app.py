@@ -2938,6 +2938,17 @@ def editCourse():
                 topicList.append(topic_name.topic_name)
                 topicList.append(questionNo)
                 topicList.append(topicId.topic_id)
+                notes = TopicNotes.query.filter_by(topic_id=topicId.topic_id,is_archived='N').first()
+                recording = "select *from course_topics where course_id='"+str(course_id)+"' and topic_id='"+str(topicId.topic_id)+"' and video_class_url<>''"
+                recording = db.session.execute(text(recording)).first()
+                checkNotes = ''
+                checkRec = ''
+                if notes:
+                    checkNotes = notes.notes_name
+                if recording:
+                    checkRec = recording.video_class_url
+                topicList.append(checkNotes)
+                topicList.append(checkRec)
                 print(topicList)
                 topicL.append(topicList)
             print(topicL)
@@ -2994,7 +3005,16 @@ def fetchQues():
         topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
         quesIds = TestQuestions.query.filter_by(test_id=topic.test_id,is_archived='N').all()
         quesNo = len(quesIds)
-        topicsDet.append(str(topicName.topic_name)+':'+str(quesNo)+':'+str(topicName.topic_id))
+        notes = TopicNotes.query.filter_by(topic_id=topic.topic_id,is_archived='N').first()
+        checkNotes = ''
+        checkRec = ''
+        if notes:
+            checkNotes = notes.notes_name
+        recording = "select *from course_topics where course_id='"+str(courseId)+"' and topic_id='"+str(topic.topic_id)+"' and video_class_url<>''"
+        recording = db.session.execute(text(recording)).first()
+        if recording:
+            checkRec = recording.video_class_url
+        topicsDet.append(str(topicName.topic_name)+':'+str(quesNo)+':'+str(topicName.topic_id)+':'+str(checkNotes)+':'+str(checkRec))
     if topicsDet:
         return jsonify(topicsDet)
     else:
@@ -3321,24 +3341,41 @@ def updateNotes():
     notesURL = request.form.getlist('notesURL')
     videoNotesUrl = request.form.getlist('videoNotesUrl')
     print('topicId:'+str(topicId))
-    print('Notes name:'+str(notesName))  
+    # print('Notes name:'+str(notesName))  
     existNotes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' "
     existNotes = db.session.execute(text(existNotes))
-    print('Length of notes url array:'+str(notesURL))
+    print('Length of notes url array:'+str(len(notesURL)))
     for i in range(len(notesName)):
+        print('inside for loop:'+str(i))
         print('NotesName:'+str(notesName[i]))
         print('notesUrl:'+str(notesURL[i]))
         print('videoNotesUrl:'+str(videoNotesUrl[i]))
-        if notesURL[i]:
-            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addNotes)
-            db.session.commit()
-        else:
-            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addNotes)
-            db.session.commit()
+        print('index:'+str(i))
+        if i!=0:
+            if notesURL[i]:
+                print('url not null')
+                if notesName[i]:
+                    print('notes name not null')
+                    if notesURL[i]:
+                        courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+                        addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+                        db.session.add(addNotes)
+                        db.session.commit()
+                    else:
+                        return ""
+                else:
+                    return ""
+            else:
+                if notesName[i]: 
+                    if videoNotesUrl[i]:
+                        courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+                        addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+                        db.session.add(addNotes)
+                        db.session.commit()
+                    else:
+                        return ""
+                else:
+                    return ""
     return jsonify("1")
 
 @app.route('/addNotes',methods=['GET','POST'])
@@ -3350,20 +3387,37 @@ def addNotes():
     print('topicId:'+str(topicId))
     print('Notes name:'+str(notesName))
     for i in range(len(notesName)):
+        print('inside for loop:'+str(i))
         print('NotesName:'+str(notesName[i]))
         print('notesUrl:'+str(notesURL[i]))
         print('videoNotesUrl:'+str(videoNotesUrl[i]))
+        print('index:'+str(i))
         if notesURL[i]:
-            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addNotes)
-            db.session.commit()
+            print('url not null')
+            if notesName[i]:
+                print('notes name not null')
+                if notesURL[i]:
+                    courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+                    addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+                    db.session.add(addNotes)
+                    db.session.commit()
+                else:
+                    return ""
+            else:
+                return ""
         else:
-            courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-            addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addNotes)
-            db.session.commit()
-
+            if notesName[i]: 
+                if videoNotesUrl[i]:
+                    print('inside when notes name and file uploaded')
+                    courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+                    addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+                    db.session.add(addNotes)
+                    db.session.commit()
+                else:
+                    return ""
+            # return ""
+            else:
+                return ""
     return jsonify("1")
 
 @app.route('/addNewQuestion',methods=['GET','POST'])

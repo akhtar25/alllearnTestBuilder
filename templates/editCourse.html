@@ -201,10 +201,18 @@
                             {{topic[1]}}
                         </td>
                         <td>
+                            {% if topic[3] %}
+                            <a class="modal-trigger" onclick="topicId('{{topic[2]}}');" href="#topicNotesModal"><span id="notesUploaded">Notes Added</span></a>
+                            {% else %}
                             <a class="modal-trigger" onclick="topicId('{{topic[2]}}');" href="#topicNotesModal"><span id="notesUploaded">Add Notes</span></a>
+                            {% endif %}
                         </td>
-                                                <td>
+                        <td>
+                            {% if topic[4] %}
+                            <a class="modal-trigger" onclick="topicRecordingId('{{topic[2]}}');" href="#recordClassModal"><span id="recUploaded{{topic[2]}}">Class Recording Added</span></a>
+                            {% else %}
                             <a class="modal-trigger" onclick="topicRecordingId('{{topic[2]}}');" href="#recordClassModal"><span id="recUploaded{{topic[2]}}">Add Class Recording</span></a>
+                            {% endif %}
                         </td>
                         <td>
                             <a title="Delete Need" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
@@ -421,8 +429,8 @@
                 <input type="text" id="notesURL1" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf">
                 </div>
                 <div style="display: flex;margin-top: 16px;">
-                <input type="file" id="video_notes_url" class="fnotes0" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> 
-                <div id="fileLoader" style="display: none;">
+                <input type="file" id="video_notes_url1" class="fnotes0" onchange="initUpload(2,1);" name="video_url" style="height: 30px;display: none;"> 
+                <div id="fileLoader1" style="display: none;">
                     <img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;">
                 </div>
                 </div>
@@ -522,32 +530,17 @@
                     var notes_url = responseArr[i].toString().split('!')[1];
                     console.log('Notes name:'+notes_name);
                     console.log('Notes url:'+notes_url);
-                    // $('#notesName').val(notes_name);
                     
                     notesDiv = notesDiv + '<input type="text" value="'+notes_name+'" id="notesName'+i+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%;display:none;" class="selType" onchange="fileType(this.value,'+i+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url'+i+'" class="notes'+i+'" style="margin-top: 16px;"><span id='+i+'>Notes URL:<span><input type="text" value="'+notes_url+'" id="notesURL'+i+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+i+'" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+i+'" value="" name="videoNotesUrl">';
                 }
-                // if(notes_name&&notes_url){
-                    // console.log(notesDiv);
-                    // clicks =i+1;
                 $('#topicNotDiv').html(notesDiv);
-                // $('#saveNotes').hide();
-                $('#updateNotes').hide();
-                // for(var i=0;i<responseArr.length;i++){
-                //     if($('#notesName'+i.toString()).val()==''){
-                //         $('#notesName'+i.toString()).hide();
-                //         console.log($('#notesName'+i.toString()).val());
-                //     }
-                //     if($('#notesURL'+i.toString()).val()==''){
-                //         console.log('#url'+i.toString());
-                //         $('#notesURL'+i.toString()).hide();
-                //     }
-                // }
-                // }else{
-                //     $('#saveNotes').show();
-                // $('#updateNotes').hide();
-                // }
+                $('#saveNotes').hide();
+                $('#updateNotes').show();
+                
              }else{
                 $('#botBox').show();
+                $('#saveNotes').show();
+                $('#updateNotes').hide();
              }
             },
             error: function (xhr) {
@@ -558,6 +551,7 @@
 
     var topId = '';
     function topicId(topic_id){
+        $('#notesMsg').html('');
         topId = topic_id;
         fetch(topId);
         return 0;
@@ -599,7 +593,7 @@ $('#videoRecord').click(function($e){
 
 $('#updateNotes').click(function($e){
     $e.preventDefault();
-    
+    $('#notesMsg').html('');
     var form = $('#topicNotesForm'); 
     console.log('topic_id:'+topId);
     $.ajax({
@@ -609,6 +603,8 @@ $('#updateNotes').click(function($e){
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Notes updated successfully'});
+             }else{
+                $('#notesMsg').html('please fill all fields');
              }
             },
             error: function (xhr) {
@@ -617,100 +613,55 @@ $('#updateNotes').click(function($e){
         }); 
 });
 
-$('#saveNote').click(function($e){
-    // var notesName = $('#notesName').val();
-    // var notesUrl = $('#notesURL').val();
-    // var videoNotesUrl = $('#videoNotesUrl').val();
-    // console.log('notesName:'+notesName);
-    // console.log('notesUrl:'+notesUrl);
-    // console.log('videoNotesUrl:'+videoNotesUrl);
-    // $e.preventDefault();
-    // if(notesName==''){
-    //     $('#notesMsg').html('please enter notes name');
-    // }else
-    // if(notesUrl==''&&videoNotesUrl==''){
-    //     $('#notesMsg').html('please enter notesUrl or upload file');
-    // }else{
-    $e.preventDefault(); 
-    var form = $('#topicNotesForm'); 
-    console.log('topic_id:'+topId);  
-    $.ajax({
-            url: "/addNotes?topic_id="+topId,
-            type: "POST",
-            data: form.serialize(),
-            success: function (formResponse) { 
-             if(formResponse){
-                M.toast({html: 'Notes added successfully'});
-             }
-            },
-            error: function (xhr) {
-              $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
-            }
-        });   
-    // }    
-});
+// $('#saveNote').click(function($e){
+//     $e.preventDefault(); 
+//     var form = $('#topicNotesForm'); 
+//     console.log('topic_id:'+topId);  
+//     $.ajax({
+//             url: "/addNotes?topic_id="+topId,
+//             type: "POST",
+//             data: form.serialize(),
+//             success: function (formResponse) { 
+//              if(formResponse){
+//                 M.toast({html: 'Notes added successfully'});
+//              }
+//             },
+//             error: function (xhr) {
+//               $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
+//             }
+//         });   
+//     }    
+// });
 
         var clicks = 1;
         $('#addNotesBTN').click(function () {
         clicks=clicks+1; 
         console.log('Clicks:'+clicks);       
-        $('#topicNotDiv').append('<input type="text" value="" id="notesName'+clicks+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%" class="selType" onchange="fileType(this.value,'+clicks+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url" class="notes'+clicks+'" style="display: none;margin-top: 16px;">Notes URL:<input type="text" id="notesURL'+clicks+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+clicks+'" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+clicks+'" value="" name="videoNotesUrl"> ');
+        $('#topicNotDiv').append('<input type="text" value="" id="notesName'+clicks+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%" class="selType" onchange="fileType(this.value,'+clicks+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url" class="notes'+clicks+'" style="display: none;margin-top: 16px;">Notes URL:<input type="text" id="notesURL'+clicks+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+clicks+'" id="video_notes_url'+clicks+'" onchange="initUpload(2,'+clicks+');" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader'+clicks+'" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+clicks+'" value="" name="videoNotesUrl"> ');
         $('select').formSelect();
         });
 
         $('#saveNotes').click(function($e){
             $e.preventDefault();
+            $('#notesMsg').html('');
             console.log('inside save notes');
-            console.log('value of no of block:'+clicks);
-            for(var i=1;i<=clicks;i++){
-                var noteName = '#notesName'+i;
-                // console.log('notesName id:'+noteName);
-                noteName = $(noteName).val();
-                var url = '#notesURL'+i;
-                // console.log('url:'+url);
-                url = $(url).val();
-                var file = '#videoNotesUrl'+i;
-                // console.log('file:'+file);
-                file = $(file).val();
-                // console.log('Notesname:'+noteName);
-                // console.log('url:'+url);
-                // console.log('file:'+file);
-                console.log('Notes Name:'+noteName);
-                console.log('#notesName'+i);
-                if(noteName==''||noteName==undefined){
-                    console.log(i+'Note name value is null');
-                    $('#notesMsg').html('please fill notes name for '+i+' notes');
-                    break;
-                }else
-                if((url==''||url==undefined)&&(file==''||file==undefined)){
-                    console.log('upload value in notes '+i);
-                    $('#notesMsg').html('please upload notes for '+i+' notes');
-                    break;
-                }else{
-                    console.log('all values are fill');
-                    // $e.preventDefault(); 
-            if(i==clicks){
-                console.log('value of i:'+i);
-                console.log('value of clicks:'+clicks);
-                    var form = $('#topicNotesForm'); 
-                    console.log('topic_id:'+topId);  
-                    $.ajax({
+            console.log('topic_id:'+topId);  
+            var form = $('#topicNotesForm'); 
+            $.ajax({
             url: "/addNotes?topic_id="+topId,
             type: "POST",
             data: form.serialize(),
             success: function (formResponse) { 
              if(formResponse){
                 M.toast({html: 'Notes added successfully'});
+             }else{
+                $('#notesMsg').html('please fill all fields');
              }
             },
             error: function (xhr) {
               $('#errorMSGSpan').html('Error in creating homework. Please try again.');  
             }
         }); 
-                }
-                    
-                }
-            }
         });
 
 
@@ -1090,7 +1041,7 @@ function correctOption(correct){
     });
 
     // Upload File Start
-    function uploadFile(file, s3Data, url,videoZone){
+    function uploadFile(file, s3Data, url,videoZone,ids){
         console.log('inside uploadFile');
       const xhr = new XMLHttpRequest();
       xhr.open('POST', s3Data.url);
@@ -1113,8 +1064,8 @@ function correctOption(correct){
             }else
             if(videoZone=='2'){
                 console.log('if file is for notesUrl');
-                $('.videoNotesUrl').val(url);
-                $('#fileLoader').hide();
+                $('#videoNotesUrl'+ids.toString()).val(url);
+                $('#fileLoader'+ids.toString()).hide();
                 // document.getElementById('previewNotes').src = url;
             }else
             if(videoZone=='10'){
@@ -1138,7 +1089,7 @@ function correctOption(correct){
       };
       xhr.send(postData);
     }
-    function getSignedRequest(file,videoZone){
+    function getSignedRequest(file,videoZone,ids){
       const xhr = new XMLHttpRequest();
       var type = file.type;
       var VideoName = file.name;
@@ -1150,7 +1101,7 @@ function correctOption(correct){
         if(xhr.readyState === 4){
           if(xhr.status === 200){
             const response = JSON.parse(xhr.responseText);
-            uploadFile(file, response.data, response.url,videoZone);
+            uploadFile(file, response.data, response.url,videoZone,ids);
           } 
           else{
             $('#errorMSGSpan').html('Could not get signed URL.');           
@@ -1159,7 +1110,7 @@ function correctOption(correct){
       };
       xhr.send();
     }
-    function initUpload(videoZone){
+    function initUpload(videoZone,ids){
         console.log('inside initUpload');
         console.log(videoZone);
         var files = '';
@@ -1169,9 +1120,11 @@ function correctOption(correct){
        files = document.getElementById('video_url').files;
     }else
     if(videoZone=='2'){
-        $('#fileLoader').show();
+        $('#fileLoader'+ids.toString()).show();
         console.log('video zone is 2');
-         files = document.getElementById('video_notes_url').files;
+        videoIds = 'video_notes_url'+ids.toString();
+        console.log(videoIds);
+         files = document.getElementById(videoIds).files;
          console.log('fileName:'+files);
         //  console.log(files[0].filename);
     }else
@@ -1188,7 +1141,7 @@ function correctOption(correct){
         return alert('No file selected.');
       }
       console.log('FileName:'+file);
-      getSignedRequest(file,videoZone);
+      getSignedRequest(file,videoZone,ids);
     }
     // End
 
@@ -1208,10 +1161,25 @@ function correctOption(correct){
                         var topicName = responseArr[i].toString().split(':')[0];
                         var quesNo = responseArr[i].toString().split(':')[1];
                         var topicId = responseArr[i].toString().split(':')[2]; 
+                        var notes = responseArr[i].toString().split(':')[3]; 
+                        var recording = responseArr[i].toString().split(':')[4]; 
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        if(notes || recording){
+                            if(notes&&recording){
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                            }else
+                            if(notes){
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                            }
+                            else{
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                            }
+
+                        }else{
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        }
                     }
                     $('#topicListDiv').html(topicList);
                     
