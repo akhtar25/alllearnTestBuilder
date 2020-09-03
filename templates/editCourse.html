@@ -38,14 +38,14 @@
             {% if status %}
             {% if courseDet.course_name =='Untitled Course' %}
             <input type="text" name="course" value="" id="course" onblur="courseAdd();"/>
-            <input type="hidden" value="" name="courseId" id="courseId" />
+            <input type="hidden" value="{{course_id}}" name="courseId" id="courseId" />
             {% else %}
             <input type="text" name="course" value="{{courseDet.course_name}}" id="course" onblur="courseAdd();"/>
             <input type="hidden" value="{{courseDet.course_id}}" name="courseId" id="courseId" />
             {% endif %}
             {% else %}
             <input type="text" name="course" value="" id="course" onblur="courseAdd();"/>
-            <input type="hidden" value="" name="courseId" id="courseId" />
+            <input type="hidden" value="{{course_id}}" name="courseId" id="courseId" />
             {% endif %}
             <h4>Description</h4>
             <textarea id="description" value="" name="description" style="height: 6em;"></textarea>
@@ -111,7 +111,11 @@
                 </div>
                 </div>
                 {% if status %}
+                {% if courseDet %}
                 <input type="hidden" id="imageUrl" value="{{courseDet.image_url}}" name="imageUrl">
+                {% else %}
+                <input type="hidden" id="imageUrl" value="" name="imageUrl">
+                {% endif %}
                 {% else %}
                 <input type="hidden" id="imageUrl" value="" name="imageUrl">
                 {% endif %}
@@ -119,7 +123,7 @@
                 <div class="center">
                     <span id="image_name">Sample Image</span><br>
                     {% if status %}
-                    {% if courseDet.image_url %}
+                    {% if courseDet.image_url!=None or courseDet.image_url!='' %}
                     <img src="{{courseDet.image_url}}" id="previewImg" class="" width="50%" />
                     {% else %}
                     <img src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg" id="previewImg" class="" width="50%" />
@@ -1032,24 +1036,6 @@ function correctOption(correct){
         var imgUrl = $('#imageUrl').val();
         var vUrl = $('#videoUrl').val();
         var level = $('#level_val').val();
-        if(Cname==''){
-            $('#msg').html('please enter course name');
-        }else
-        if(desc==''){
-            $('#msg').html('please enter course description');
-        }else
-        if(imgUrl==''||imgUrl=='None'){
-            $('#msg').html('please select Image');
-        }else
-        if(vUrl==''||vUrl=='None'){
-            $('#msg').html('please select video');
-        }else
-        if(idealfor==''){
-            $('#msg').html('please select course categories');
-        }else
-        if(level==''){
-            $('#msg').html('please select course difficulty level');
-        }else{
             var ideal = ''
             if(idealfor!=undefined){
                 ideal = idealfor
@@ -1073,7 +1059,6 @@ function correctOption(correct){
                 $('#msg').html('Error to submit course data');
             }
         });
-        }
     });
 
     // Upload File Start
