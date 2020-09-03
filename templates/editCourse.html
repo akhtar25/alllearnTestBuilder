@@ -250,7 +250,7 @@
             <input type="text" name="idealfor" value="{{idealFor}}" disabled/>
             {% else %}
             <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
-            <input type="text" name="idealfor" value="" disabled/>
+            <!-- <input type="text" name="idealfor" value="" disabled/> -->
             {% endif %}
             {% else %}
             <input class="magicsearch" name="idealfor" id="topicSearch" placeholder="Search categories...">
@@ -286,8 +286,8 @@
                 </label>
               </p>
               
-            <a href="#" class="btn green" id="save">Save</a>
-            <a href="#" class="btn green right" id="saveAndPublish">Save and Publish Course</a>
+            <button class="btn waves-light green lighten-1 white-text" id="save">Save</button>
+            <button class="btn waves-light green lighten-1 white-text right" id="saveAndPublish">Save and Publish Course</button>
  
         </form>
         <span id="msg" style="margin-top: 20px;color: red;"></span>
@@ -456,7 +456,9 @@
 
 <script>
 
+
     $('#topicName').blur(function(){
+        
         if($('#topicName').val()!=''){
         $('#saveTopic').prop('disabled',false);
         $('.newQuestion').show();
@@ -680,6 +682,7 @@ $('#updateNotes').click(function($e){
         {% if courseDet.description %}
             $('#description').val("{{courseDet.description}}");
         {% endif %}
+        
         {% endif %}
     });
 
@@ -890,7 +893,9 @@ function correctOption(correct){
     }
 
     $(document).ready(function () {
+        {% if levelId %}
         $('#level_val').val('{{levelId}}');
+        {% endif %}
         $('.parallax').parallax();
         $('.modal').modal();
         $('.datepicker').datepicker();
@@ -956,7 +961,6 @@ function correctOption(correct){
         var desc = $('#description').val();
         var imgUrl = $('#imageUrl').val();
         var vUrl = $('#videoUrl').val();
-        var tSear = $('#topicSearch').val();
         var level = $('#level_val').val();
         if(Cname==''){
             $('#msg').html('please enter course name');
@@ -972,11 +976,23 @@ function correctOption(correct){
             $('#msg').html('please select video');
         }
         else
+        if(idealfor==''){
+            $('#msg').html('please select course categories');
+        }else
         if(level==''){
             $('#msg').html('please select course difficulty level');
-        }else{
+        }
+        else{
+            $('#msg').html('');
+            $('#saveAndPublish').prop('disabled',true);
+            $('#save').prop('disabled',false);
+            var ideal = ''
+            if(idealfor!=undefined){
+                ideal = idealfor
+            }
+        $('#saveAndPublish').html('please wait...');
         $.ajax({
-            url:"/saveAndPublishedCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
+            url:"/saveAndPublishedCourse?course_status="+course_status+"&idealfor="+ideal+"&course_id="+course_id,
             type:"POST",
             data: form.serialize(),
             success:function(response){
@@ -984,10 +1000,12 @@ function correctOption(correct){
                     console.log('Data added successfully and indexed');
                     M.toast({html: 'Course Added and Published'});
                     window.location.replace("{{url_for('courseDetail')}}"+ "?course_id="+ course_id);
+                    $('#saveAndPublish').html('Save and Publish Course');
                 }
                 else if(response=="2"){
                     console.log('Data added successfully but index pending');
                     M.toast({html: 'Course Published'});
+                    $('#saveAndPublish').html('Save and Publish Course');
                 }
                 else{
                     console.log('Error Saving Course Details');
@@ -1008,12 +1026,11 @@ function correctOption(correct){
         console.log('Data:'+idealfor);
         var course_status = "Draft";
         var course_id = $('#courseId').val();
-
+        
         var Cname = $('#course').val();
         var desc = $('#description').val();
         var imgUrl = $('#imageUrl').val();
         var vUrl = $('#videoUrl').val();
-        var tSear = $('#topicSearch').val();
         var level = $('#level_val').val();
         if(Cname==''){
             $('#msg').html('please enter course name');
@@ -1021,24 +1038,35 @@ function correctOption(correct){
         if(desc==''){
             $('#msg').html('please enter course description');
         }else
-        if(imgUrl==''){
+        if(imgUrl==''||imgUrl=='None'){
             $('#msg').html('please select Image');
         }else
-        if(vUrl==''){
+        if(vUrl==''||vUrl=='None'){
             $('#msg').html('please select video');
+        }else
+        if(idealfor==''){
+            $('#msg').html('please select course categories');
         }else
         if(level==''){
             $('#msg').html('please select course difficulty level');
         }else{
-
+            var ideal = ''
+            if(idealfor!=undefined){
+                ideal = idealfor
+            }
+            $('#msg').html('');
+            $('#save').prop('disabled',true);
+            $('#saveAndPublish').prop('disabled',false);
+        $('#save').html('please wait...');
         $.ajax({
-            url:"/saveCourse?course_status="+course_status+"&idealfor="+idealfor+"&course_id="+course_id,
+            url:"/saveCourse?course_status="+course_status+"&idealfor="+ideal+"&course_id="+course_id,
             type:"POST",
             data: form.serialize(),
             success:function(response){
                 if(response){
                     console.log('data added successfully');
                     M.toast({html: 'Data added successfully'});
+                    $('#save').html('save');
                 }
             },
             error:function(xhr){

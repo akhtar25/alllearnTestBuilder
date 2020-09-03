@@ -2390,7 +2390,7 @@ def courseHome():
     enrolledCourses = enrolledCourses + "group by ce.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name, tp.teacher_id "
     enrolledCourses = enrolledCourses + "having cd.course_status =276 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
     enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
-    recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name from course_detail cd "
+    recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,cd.teacher_id from course_detail cd "
     recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
     recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =276 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
     recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
@@ -3566,7 +3566,7 @@ def saveAndPublishedCourse():
     #print('course status:'+str(course_status))
     #
     #print('video_url :'+str(video_url))
-    #print('Ideal for:'+str(idealfor))
+    print('Ideal for:'+str(idealfor))
     #print('level:'+str(level))
     updateIndex=False
     levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
@@ -3591,7 +3591,8 @@ def saveAndPublishedCourse():
             courseDet.summary_url=video_url
             courseDet.teacher_id=teacherData.teacher_id
             courseDet.school_id=teacherData.school_id
-            courseDet.ideal_for=idealfor
+            if idealfor!='undefined' or idealfor!='':
+                courseDet.ideal_for=idealfor
             courseDet.course_status=course_status_id.msg_id
             courseDet.is_private='Y'
             courseDet.image_url = imageUrl
@@ -3603,7 +3604,8 @@ def saveAndPublishedCourse():
             courseDet.summary_url=video_url
             courseDet.teacher_id=teacherData.teacher_id
             courseDet.school_id=teacherData.school_id
-            courseDet.ideal_for=idealfor
+            if idealfor!='undefined' or idealfor!='':
+                courseDet.ideal_for=idealfor
             courseDet.course_status=course_status_id.msg_id
             courseDet.is_private='N'
             courseDet.image_url = imageUrl
@@ -3629,7 +3631,7 @@ def saveCourse():
     # startTime = request.form.get('startTime')
     # endTime = request.form.get('endTime')
     # days = request.form.getlist('Days')
-    imageUrl = request.args.get('imageUrl')
+    imageUrl = request.form.get('imageUrl')
     video_url = request.form.get('videoUrl')
     idealfor = request.args.get('idealfor')
     level = request.form.get('level')
@@ -3638,6 +3640,7 @@ def saveCourse():
     print('courseId:'+str(courseId))
     print('description name:'+str(description))
     print('Private:'+str(private))
+    print('course Image:'+str(imageUrl))
     course_status = request.args.get('course_status')
     print('course status:'+str(course_status))
     # dayString = ''
@@ -3666,7 +3669,8 @@ def saveCourse():
         courseDet.summary_url=video_url
         courseDet.teacher_id=teacherData.teacher_id
         courseDet.school_id=teacherData.school_id
-        courseDet.ideal_for=idealfor
+        if idealfor:
+            courseDet.ideal_for=idealfor
         courseDet.course_status=course_status_id.msg_id
         courseDet.is_private='Y'
         courseDet.image_url = imageUrl
@@ -3678,7 +3682,8 @@ def saveCourse():
         courseDet.summary_url=video_url
         courseDet.teacher_id=teacherData.teacher_id
         courseDet.school_id=teacherData.school_id
-        courseDet.ideal_for=idealfor
+        if idealfor:
+            courseDet.ideal_for=idealfor
         courseDet.course_status=course_status_id.msg_id
         courseDet.is_private='N'
         courseDet.image_url = imageUrl

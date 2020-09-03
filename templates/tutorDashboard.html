@@ -54,7 +54,7 @@
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
             {% if user.id==current_user.id %}
-            <a href="{{url_for('editCourse')}}" id="addSurveyBTN" class="btn green right">Create New Course</a>
+            <a href="{{url_for('addCourse',course_id='')}}" id="addSurveyBTN" class="btn green right">Create New Course</a>
             {% endif %}
             <br>
         </div>
@@ -239,7 +239,7 @@
             Fee Received: <input type="number" min="0" value="0" id="feeReceived" name="feeReceived">
         </div>
     </div>
-    <a href="#" style="margin-left: 250px;margin-top: 15px;" id="createBatch" class="btn green">Create Batch</a>
+    <button style="margin-left: 250px;margin-top: 15px;" id="createBatch" class="btn waves-light green lighten-1 white-text">Create Batch</button>
     </form>
     <span style="color:red;" id="batchMsg"></span>
     </div>
@@ -284,6 +284,7 @@
         if(type.value=='266' || type.value=='268'){
             $('#batchFee').prop('disabled',true);
             $('#feeReceived').prop('disabled',true);
+            $('#batchFee').val(0);
         }else{
             $('#batchFee').prop('disabled',false);
             $('#feeReceived').prop('disabled',false);
@@ -346,6 +347,9 @@
                 if(response=='1'){
                     console.log('data added successfully');
                     M.toast({html: 'Batch created successfully'});
+                    var elem = $('#modal1');
+                    var instance = M.Modal.getInstance(elem);                   
+                    instance.close(); 
                 }
                 else{
                     $('#batchMsg').html('Please fill all fields to schedule batch');
