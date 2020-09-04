@@ -2422,6 +2422,8 @@ def openLiveClass():
     print('topicID:'+str(topic_id))
     print('batch_id'+str(batch_id))
     print('course_id:'+str(course_id))
+
+    videoExist = CourseTopics.query.filter_by(course_id=course_id,topic_id=topic_id).first()
     #topicName = Topic.query.filter_by(topic_id=topic_id).first()
     #courseId = CourseTopics.query.filter_by(topic_id=topic_id).first()
     #courseName = CourseDetail.query.filter_by(course_id=courseId.course_id).first()
@@ -2475,7 +2477,7 @@ def openLiveClass():
     pageTitle = str(topicData.topic_name)+' '+str(topicData.course_name)
     print('$#$$$$$$$$$$$$$'+str(batch_id))
     return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
-        ,lenComm=lenComm,title=pageTitle,meta_val=pageTitle,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
+        ,lenComm=lenComm,title=pageTitle,meta_val=pageTitle,classVideo=videoExist.video_class_url,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
 
 @app.route('/courseDetail')
 def courseDetail():
@@ -2487,10 +2489,10 @@ def courseDetail():
     # if current_user.id==user.id:
     #     print('I m Teacher')
     topicDet = "select case when count(tq.question_id) >0 then count(tq.question_id )"
-    topicDet = topicDet + " else 0 end as no_of_questions , topic_name, ct.topic_id, course_id from course_topics ct "
+    topicDet = topicDet + " else 0 end as no_of_questions , topic_name,ct.video_class_url, ct.topic_id, course_id from course_topics ct "
     topicDet = topicDet + " inner join topic_detail td on td.topic_id =ct.topic_id and ct.course_id =" + str(course_id)
     topicDet = topicDet + " left join test_questions tq on tq.test_id =ct.test_id "    
-    topicDet = topicDet + " where ct.is_archived ='N' group by  topic_name, ct.topic_id, course_id"
+    topicDet = topicDet + " where ct.is_archived ='N' group by  topic_name, ct.topic_id, course_id,ct.video_class_url"
     print(topicDet)
     topicDet = db.session.execute(text(topicDet)).fetchall()
     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
@@ -2520,7 +2522,7 @@ def courseDetail():
     comments = db.session.execute(text(comments)).fetchall()
     lenComment = len(comments)
     print(comments)
-    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' "
+    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' and cd.course_status =276"
     otherCourses = db.session.execute(text(otherCourses)).fetchall()
 
     #batch data
@@ -3368,6 +3370,8 @@ def addRecording():
     recordingURL = request.form.get('recordingURL')
     print('recording Url:'+str(recordingURL))
     videoRecordUrl = request.form.get('videoRecordUrl')
+    print('video url:'+str(videoRecordUrl))
+    
     print('video recording url:'+str(videoRecordUrl))
     if recordingURL:
         videoRec.video_class_url = recordingURL
@@ -3631,7 +3635,10 @@ def saveCourse():
     # startTime = request.form.get('startTime')
     # endTime = request.form.get('endTime')
     # days = request.form.getlist('Days')
-    imageUrl = request.form.get('imageUrl')
+    imageUrl = ''
+    imgUrl= request.form.get('imageUrl')
+    if imgUrl!=None:
+        imageUrl = imgUrl
     video_url = request.form.get('videoUrl')
     idealfor = request.args.get('idealfor')
     level = request.form.get('level')
@@ -3643,23 +3650,10 @@ def saveCourse():
     print('course Image:'+str(imageUrl))
     course_status = request.args.get('course_status')
     print('course status:'+str(course_status))
-    # dayString = ''
-    # i=1
-    # for day in days:
-    #     print('Day:'+str(day))
-    #     dayS =  str(day)
-    #     if i==len(days):
-    #         dayString = dayString + dayS
-    #     else:
-    #         dayString = dayString + dayS + ','
-    #     i=i+1
-    # print('StringDays:'+str(dayString))
+   
     print('video_url :'+str(video_url))
     print('Ideal for:'+str(idealfor))
     print('level:'+str(level))
-    # courseBatch = CourseBatch(course_id=courseId,batch_start_date=setDate,batch_start_time=startTime,batch_end_time=endTime,days_of_week=dayString,is_archived='N',last_modified_date=datetime.now())
-    # db.session.add(courseBatch)
-    # db.session.commit()
     levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
     course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
     courseDet = CourseDetail.query.filter_by(course_id=courseId).first()

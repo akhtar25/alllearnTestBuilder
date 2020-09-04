@@ -99,6 +99,7 @@
                     <thead>
                         <tr>
                             <th>Topic</th>
+                            <th>Recorded Class</th>
                             <th>Quiz Questions</th>
                             <!--<th title="Only for tutors">Conduct Class*</th>-->
                         </tr>
@@ -110,6 +111,13 @@
                                 <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
                                     <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
                                 </a>
+                            </td>
+                            <td>
+                                {% if row.video_class_url %}
+                                <i class="fa fa-check" aria-hidden="true" style="font-size: 25px;margin-left: 35px;color: green;" ></i>
+                                {% else %}
+                                <i class="fa fa-times" aria-hidden="true" style="font-size: 25px;margin-left: 35px;color: red;"></i>
+                                {% endif %}
                             </td>
                             <td>{{row.no_of_questions}}</td>                        
                             <!--<td><a href='#'>Conduct Class</a></td>-->
