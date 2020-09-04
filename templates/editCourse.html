@@ -123,7 +123,7 @@
                 <div class="center">
                     <span id="image_name">Sample Image</span><br>
                     {% if status %}
-                    {% if courseDet.image_url!=None or courseDet.image_url!='' %}
+                    {% if courseDet.image_url!=None %}
                     <img src="{{courseDet.image_url}}" id="previewImg" class="" width="50%" />
                     {% else %}
                     <img src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg" id="previewImg" class="" width="50%" />
@@ -1098,6 +1098,7 @@ function correctOption(correct){
                 $('#courseImgLoader').hide();
                 document.getElementById('previewImg').src = url;
                 document.getElementById('imageUrl').value=url;
+                
             }
             console.log(url);
           }
