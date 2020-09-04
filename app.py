@@ -3595,7 +3595,7 @@ def saveAndPublishedCourse():
             courseDet.summary_url=video_url
             courseDet.teacher_id=teacherData.teacher_id
             courseDet.school_id=teacherData.school_id
-            if idealfor!='undefined' or idealfor!='':
+            if idealfor:
                 courseDet.ideal_for=idealfor
             courseDet.course_status=course_status_id.msg_id
             courseDet.is_private='Y'
@@ -3608,7 +3608,7 @@ def saveAndPublishedCourse():
             courseDet.summary_url=video_url
             courseDet.teacher_id=teacherData.teacher_id
             courseDet.school_id=teacherData.school_id
-            if idealfor!='undefined' or idealfor!='':
+            if idealfor:
                 courseDet.ideal_for=idealfor
             courseDet.course_status=course_status_id.msg_id
             courseDet.is_private='N'
