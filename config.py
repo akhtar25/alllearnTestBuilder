@@ -21,7 +21,7 @@ class Config(object):
     #New value for anonymous user id passed as a dev for practice test pages
     ANONYMOUS_USERID = os.environ.get('ANONYMOUS_USERID')
     #ANONYMOUS_USERID = 886
-    #MODE = os.environ.get('MODE')
+    MODE = os.environ.get('MODE')
     #MODE = "TEST"
     
     #TEST CREDS
