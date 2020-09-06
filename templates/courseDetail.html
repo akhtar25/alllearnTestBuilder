@@ -92,110 +92,22 @@
                 </p>
             </div>
             <div class="divider"></div>
-            <h3 class="">Topics</h3>
-            <div style="max-height: 600px; overflow-y: auto;">
-                {%if topicDet%}
-                <table class="highlight">
-                    <thead>
-                        <tr>
-                            <th>Topic</th>
-                            <th>Recorded Class</th>
-                            <th>Quiz Questions</th>
-                            <!--<th title="Only for tutors">Conduct Class*</th>-->
-                        </tr>
-                    </thead>
-                    <tbody style="font-size:medium">
-                        {% for row in topicDet %}                       
-                        <tr>                        
-                            <td> 
-                                <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
-                                    <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
-                                </a>
-                            </td>
-                            <td>
-                                {% if row.video_class_url %}
-                                <i class="fa fa-check" aria-hidden="true" style="font-size: 25px;margin-left: 35px;color: green;" ></i>
-                                {% else %}
-                                <i class="fa fa-times" aria-hidden="true" style="font-size: 25px;margin-left: 35px;color: red;"></i>
-                                {% endif %}
-                            </td>
-                            <td>{{row.no_of_questions}}</td>                        
-                            <!--<td><a href='#'>Conduct Class</a></td>-->
-                        </tr>                    
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {%else%}
-                <h3 class="grey-text">No topics added in this course</h3>
-                {%endif%}
+
+            <div id="courseTopicDetail">
+                <!--Course topic detail data is added in this section-->
+                <div id="courseTopicLoader" class="center" style="display: none;width: 50px;">
+                    <img src="../static/images/smallLoader.gif">
+                </div>
             </div>
+            
             <div class="divider"></div>
-            <h3>Active Batches</h3>
-            <div style="height: 200px; overflow-y: auto;">
-                {%if courseBatchData%}
-            <table class="highlight">
-                <thead>
-                    <tr>
-                        <th>Batch ID</th>
-                        <th>Dates</th>
-                        <th>Days of week</th>
-                        <th>Enrollments</th>
-                        <th>Fee</th>    
-                        {% if current_user.is_anonymous==False %}
-                        {% if current_user.id==teacherUser.id %}
-                        <th>Conduct Class</th>
-                        {% else %}
-                        <th>Enroll</th>
-                        {% endif %}
-                        {% else %}
-                        <th>Enroll</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-               
-                {%for batch in courseBatchData%}
-                    <tr>
-                        <td>{{batch.batch_id}}</td>
-                        <td>{{batch.batch_start_date.strftime('%d %B %y')}} - {{batch.batch_end_date.strftime('%d %B %y')}}</td>
-                        <td>{{batch.days_of_week}}</td>
-                        <td>{{batch.students_enrolled}}/ {{batch.student_limit}}</td>
-                        {%if batch.course_batch_fee!=0.0%}
-                        <td>₹{{batch.course_batch_fee}}</td>
-                        {%else%}
-                        <td class="green-text">Free</td>
-                        {%endif%}
-                            {% if current_user.is_anonymous==False %}
-                            {% if current_user.id==teacher.user_id %}
-                            <td>
-                            <a class="topicListBTN modal-trigger" name="{{batch.batch_id}}"
-                            style="width: 100%;" href="#modal5"> Conduct Class</a>
-                            </td> 
-                            {% else %}
-                                 <td>
-                            {% if batch.student_user_id==current_user.id %}
-                            Enrolled
-                            {% else %}
-                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
-                            style="width: 100%;" href="#modal2"> Enroll</a>
-                            {% endif %}
-                            </td>
-                            {% endif %} 
-                            {% else %}
-                            <td>
-                            <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}" id ="{{batch.course_batch_fee}}"
-                            style="width: 100%;" href="#modal2"> Enroll</a>
-                            </td>
-                            {% endif %}                               
-                    </tr>
-                {%endfor%}
-               
-            </tbody>
-            </table>
-            {%else%}
-            <h3 class="grey-text">No batches created yet</h3>
-            {%endif%}
-        </div>
+            <div id="courseBatchDetail">
+                <!--This contains the course batch detail subtemplate-->
+                <div id="courseBatchLoader" class="center" style="display: none;width: 50px;">
+                    <img src="../static/images/smallLoader.gif">
+                </div>
+            </div>
+            
             <div class="divider"></div>
             {% if comments %}
             <h3>Reviews <span class="grey-text" id="revLength">{{lenComment}}</span></h3>
@@ -291,15 +203,15 @@
             <!-- Start Rating -->
 
             <div class="starRatingDiv">
-                {% if rating.average_rating %}
+                {% if courseDet.average_rating %}
                 {% if checkEnrollment %}
                 <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
-                    <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
-                            class="stars left">{{rating.average_rating}}</span></h4>
+                    <h4 class=""><span style="margin-left:10px;color:black;">{{courseDet.average_rating}}</span><span
+                            class="stars left">{{courseDet.average_rating}}</span></h4>
                 </a>
                 {% else %}
-                <h4 class=""><span style="margin-left:10px;color:black;">{{rating.average_rating}}</span><span
-                    class="stars left">{{rating.average_rating}}</span></h4>
+                <h4 class=""><span style="margin-left:10px;color:black;">{{courseDet.average_rating}}</span><span
+                    class="stars left">{{courseDet.average_rating}}</span></h4>
                 {% endif %}
                 {% else %}
                 <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
@@ -475,112 +387,62 @@
     $(document).ready(function () {
         $('.parallax').parallax();
         $('.modal').modal();
+        var val = diff(st, en);
+        console.log(val);
+        if (val != 'NaN:NaN') {
+            $("#timeDiff").html(val);
+        } else {
+            $("#timeDiff").html('');
+        }
+        console.log('Time Difference:' + diff(st, en));
+        
+        //LOAD COURSE DETAIL
+        loadCourseTopicDetail();
+        loadCourseBatchDetail();
+
     });
 
-    $('.topicListBTN').click(function(){
-        $('#modal5').hide();
-        $('#topicListDiv').html('');
-        $('#topicLoader').show();
-        var batch_id = $(this).attr("name");
+    function loadCourseTopicDetail(){
+        $('#courseTopicLoader').show();
         $.ajax({
-            url: "/batchTopicList?&batch_id=" + batch_id,
-            type: "POST",
+            url: "/courseTopicDetail?&course_id=" + "{{course_id}}",
+            type: "GET",
             data: '',
-            success: function (response1) {
-                if (response1 ) {
-                    var responseArr = response1.toString().split(',');
-                    var topicListDiv = '';
-                    for(var i=0;i<responseArr.length;i++){
-                        var topicName = responseArr[i].toString().split(':')[0];
-                        var topicId = responseArr[i].toString().split(':')[1];
-                        console.log('Topic Id:'+topicId);
-                        console.log('batch Id:'+batch_id);
-                        $('#batId').html(batch_id);
-                        var courseID = "{{course_id}}";
-                        topicListDiv = topicListDiv + '<li><a href="{{url_for('openLiveClass')}}'+'?topic_id='+topicId+'&batch_id='+batch_id+'&course_id='+courseID+'"><span>'+(i+1)+'</span><span style="margin-left:20px;">'+topicName+'</span></a></li>';
-                    }
-                    $('#topicLoader').hide();
-                    $('#topicListDiv').html(topicListDiv);
-                    $('#topicListModal').show();
+            success: function (topicResponse) {
+                if (topicResponse) {        
+                    $('#courseTopicDetail').html(topicResponse);           
                 } 
             },
             error: function (xhr) {
-                $('#topicListDiv').html("Error occurred. Please try again.");
-                $('#topicLoader').hide();
-            }
-        });
-    });
-
-    $('.enrollBTN').click(function () {
-      
-        var amount = $(this).attr("id");
-        //alert(donation_for);
-        var batch_id = $(this).attr("name");
-        if (amount>0){
-            $('#modal2').hide();
-        $('#donateDiv').html('');
-        $('#loader').show();
-            //window.alert("Greater");
-        
-        $.ajax({
-            url: "/paymentForm?school_id=schoolData.school_id&amount=" + amount +
-                "&batch_id=" + batch_id,
-            type: "get",
-            data: '',
-            success: function (response1) {
-                if (response1 != '1') {
-                    $('#loader').hide();
-                    $('#donateDiv').html(response1);
-                    $('#donateDivModal').show();
-                } else {
-                    //$('#demo').load('/url/for/addshare2/' + variable1);
-                    window.location.replace("/login?next=%2Fschool/" + "schoolData.school_id");
-                }
-            },
-            error: function (xhr) {
-                $('#donateDiv').html("Error occurred. Please try again.");
-                $('#loader').hide();
+                $('#courseTopicDetail').html("Error occurred. Please try again.");
+                $('#courseTopicLoader').hide();
             }
         });
     }
-        else{
-            //window.alert("Smaller or equal");
-            $('#donateDiv').html('');
 
-            $.ajax({
-            url: "/freeEnrollment?batch_id=" + batch_id,
-            type: "get",
+    function loadCourseBatchDetail(){
+        $('#courseBatchLoader').show();
+        $.ajax({
+            url: "/courseBatchDetail?&course_id=" + "{{course_id}}&teacher_user_id="+ "{{teacherUser.id}}",
+            type: "GET",
             data: '',
-            success: function (response1) {
-                if (response1 != '1') {
-                    $('#loader').hide();                    
-                    $(this).text("Enrolled");
-                    //$(this).html("html");
-                    //$(this).val("Enrolled");
-                    //$(this).val("Enrolled");
-                    //$('#donateDiv').html("<h4 class='green-text'>Enrollment Successful!");
-                        window.location.replace("/login");
-                    $('#donateDivModal').show();
-                    
-                    //$(this).text("Enrolled");
-                } else {
-                    //$('#demo').load('/url/for/addshare2/' + variable1);
-                    window.location.replace("/login");
-                }
+            success: function (topicResponse) {
+                if (topicResponse) {        
+                    $('#courseBatchDetail').html(topicResponse);           
+                } 
             },
             error: function (xhr) {
-                $('#donateDiv').html("Error occurred. Please try again.");
-                $('#loader').hide();
+                $('#courseBatchDetail').html("Error occurred. Please try again.");
+                $('#courseBatchLoader').hide();
             }
         });
+    }
 
 
 
+   
 
-
-
-        }
-    });
+  
     var st = "{{upcomingDate.batch_start_time}}";
     var en = "{{upcomingDate.batch_end_time}}";
 
@@ -608,16 +470,7 @@
 
         return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
     }
-    $(document).ready(function () {
-        var val = diff(st, en);
-        console.log(val);
-        if (val != 'NaN:NaN') {
-            $("#timeDiff").html(val);
-        } else {
-            $("#timeDiff").html('');
-        }
-        console.log('Time Difference:' + diff(st, en));
-    });
+
 
     // $('#remarkPostButton').click(function($e){
     //     $e.preventDefault();

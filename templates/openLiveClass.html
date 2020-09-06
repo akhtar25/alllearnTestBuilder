@@ -266,7 +266,7 @@ span.stars span {
 <div class="container">
     <div>
     <h3>{{topicData.topic_name}}</h3>
-    <h4><a href="{{url_for('courseDetail',course_id=topicData.course_id)}}" target="_blank">{{topicData.course_name}}</a> </h4>
+    <h4><a href="{{url_for('courseDetail',course_id=topicData.course_id)}}" target="">{{topicData.course_name}}</a> </h4>
     <h5 class="grey-text"><a href="{{url_for('tutorDashboard',tutor_id=topicData.teacher_id)}}" target="_blank">{{topicData.teacher_name}}</a></h5>
 </div>
     <ul class="tabs">
@@ -319,7 +319,7 @@ span.stars span {
             {%else%}
             
             <div id="buttons-row">                
-                {%if enrolled=='Y'%}
+                {%if enrolled=='Y' and ongoing=='Y'%}
                 <button id="join-meeting" class="btn cyan" onclick='joinBTNClick();'>
                     Join Live Class
                 </button>                                    
@@ -577,8 +577,8 @@ $('#studTakeQuizBTN').click(function(){
             data: "",
             success:function(response){
                 if(response=="1"){
-                    window.alert('Error starting quiz. Please try again.');
-                    
+                    window.alert(response);
+                    $('#msg').html('No ongoing tests found.');                    
                 }
                 else{
                     window.alert(response);
@@ -587,6 +587,7 @@ $('#studTakeQuizBTN').click(function(){
                 }
             },
             error:function(xhr){
+                window.alert(response);
                 $('#msg').html('Error starting quiz. Please try again.');
             }
         });
