@@ -1,0 +1,38 @@
+       <h3 class="">Topics</h3>
+       <div style="max-height: 600px; overflow-y: auto;">
+           {%if topicDet%}
+           <table class="highlight">
+               <thead>
+                   <tr>
+                       <th>Topic</th>
+                       <th>Recorded Class</th>
+                       <th>Quiz Questions</th>
+                   </tr>
+               </thead>
+               <tbody style="font-size:medium">
+                   {% for row in topicDet %}
+                   <tr>
+                       <td>
+                           <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
+                               <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
+                           </a>
+                       </td>
+                       <td>
+                           {% if row.video_class_url %}
+                           <i class="fa fa-check" aria-hidden="true"
+                               style="font-size: 25px;margin-left: 35px;color: green;"></i>
+                           {% else %}
+                           <!--<i class="fa fa-times" aria-hidden="true"
+                               style="font-size: 25px;margin-left: 35px;color: red;"></i>-->
+                               -
+                           {% endif %}
+                       </td>
+                       <td>{{row.no_of_questions}}</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+           {%else%}
+           <h3 class="grey-text">No topics added in this course</h3>
+           {%endif%}
+       </div>

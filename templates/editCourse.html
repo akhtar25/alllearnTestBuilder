@@ -200,7 +200,7 @@
                     {% if status %}
                     {% if topicDet %}
                     {% for topic in topicDet %}
-                    <tr>
+                    <tr id="{{topic[2]}}">
                         <td>
                             <a class="modal-trigger" onclick="editTopic('{{topic[2]}}');editQues();" href="#topicAddModal">
                                 {{topic[0]}}
@@ -224,7 +224,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a title="Delete Need" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
+                            <a title="Delete Topic" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
                                 <i class="material-icons small" onclick="deleteTopic('{{topic[2]}}');" style="cursor:pointer;">
                                     delete
                                 </i>
@@ -290,8 +290,8 @@
                 </label>
               </p>
               
-            <button class="btn waves-light green lighten-1 white-text" id="save">Save</button>
-            <button class="btn waves-light green lighten-1 white-text right" id="saveAndPublish">Save and Publish Course</button>
+            <button class="btn waves-light cyan white-text" id="save">Save as Draft</button>
+            <button class="btn waves-light green white-text right" id="saveAndPublish">Save and Publish Course</button>
  
         </form>
         <span id="msg" style="margin-top: 20px;color: red;"></span>
@@ -1051,7 +1051,7 @@ function correctOption(correct){
             success:function(response){
                 if(response){
                     console.log('data added successfully');
-                    M.toast({html: 'Data added successfully'});
+                    M.toast({html: '<h4>Data added successfully</h4>'});
                     $('#save').html('save');
                 }
             },
@@ -1190,17 +1190,17 @@ function correctOption(correct){
                         console.log('TopicId:'+topicId);
                         if(notes || recording){
                             if(notes&&recording){
-                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Topic" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                             }else
                             if(notes){
-                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Notes Added</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Topic" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                             }
                             else{
-                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                                topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Class Recording Added</a></td><td><a title="Delete Topic" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                             }
 
                         }else{
-                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Need" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
+                        topicList = '<tr><td><a class="modal-trigger" onclick="editTopic('+topicId+');editQues();" href="#topicAddModal">'+topicName+'</a></td><td>'+quesNo+'</td><td><a class="modal-trigger" onclick="topicId('+topicId+');" href="#topicNotesModal">Add Notes</a></td><td><a class="modal-trigger" onclick="topicRecordingId('+topicId+');" href="#recordClassModal">Add Class Recording</a></td><td><a title="Delete Topic" name="" href="javascript:void(0);" onclick="deleteTopic('+topicId+');" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer;">delete</i></a></td></tr>' + topicList;
                         }
                     }
                     $('#topicListDiv').html(topicList);
@@ -1331,7 +1331,7 @@ function correctOption(correct){
             data: validQues,
             success:function(response){
                 if(response=='1'){
-                    M.toast({html: 'Topic updated successfully'});
+                    M.toast({html: '<h4>Topic updated successfully</h4>'});
                     topicList();
                     var elem = $('#topicAddModal')
                     var instance = M.Modal.getInstance(elem);                   
@@ -1345,6 +1345,8 @@ function correctOption(correct){
     });
 
     $('#saveTopic').click(function(){
+        $('#saveTopic').prop('disabled','true');
+        $('#saveTopic').html('Adding Topic');
         $('#quesForm').html('');
         questionDiv = '';
         $('.newQuestion').show();
@@ -1363,16 +1365,18 @@ function correctOption(correct){
             data: quesIDList,
             success:function(response){
                 if(response){
-                    M.toast({html: 'Topic added successfully'});
+                    M.toast({html: '<h4>Topic added successfully</h4>'});
                     $('#topicId').val(response);
                     topicList();
                     var elem = $('#topicAddModal')
                     var instance = M.Modal.getInstance(elem);                   
                     instance.close(); 
+                    $('#saveTopic').prop('disabled','false');
                 }
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
+                $('#saveTopic').prop('disabled','false');
             }
         });
     });
@@ -1411,7 +1415,7 @@ function correctOption(correct){
                         // validQues.push(quesId);
                         // $('#topicName').val(topic_name);
                         
-                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td><td><a title="Delete Need" name="" onclick="deleteQues('+quesId+')" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small">delete</i></a></td></tr>';
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+'"></span></li><li>'+opt2+'<span id="'+opt2+'"></span></li><li>'+opt3+'<span id="'+opt3+'"></span></li><li>'+opt4+'<span id="'+opt4+'"></span></li></ul></td><td><a title="Delete Topic" name="" onclick="deleteQues('+quesId+')" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small">delete</i></a></td></tr>';
                         // var ids = '#'+corrOpt;
                         // console.log(ids);
                         
@@ -1468,7 +1472,7 @@ function correctOption(correct){
                         console.log('Topic Id:'+topicId);
                         $('#topicName').val(topic_name);
                         $('#topicId').val(topicId);
-                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+quesId+'"></span></li><li>'+opt2+'<span id="'+opt2+quesId+'"></span></li><li>'+opt3+'<span id="'+opt3+quesId+'"></span></li><li>'+opt4+'<span id="'+opt4+quesId+'"></span></li></ul></td><td><a title="Delete Need" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';
+                        quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+quesId+'"></span></li><li>'+opt2+'<span id="'+opt2+quesId+'"></span></li><li>'+opt3+'<span id="'+opt3+quesId+'"></span></li><li>'+opt4+'<span id="'+opt4+quesId+'"></span></li></ul></td><td><a title="Delete Topic" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';
                         // var ids = '#'+corrOpt;
                         // console.log(ids);
                         
@@ -1545,19 +1549,23 @@ function correctOption(correct){
     function deleteTopic(topic_id){
         console.log('TopicID:'+topic_id);
         var course_id = "{{course_id}}";
+;
         $.ajax({
             url:"/deleteTopic?topicId="+topic_id+"&course_id="+course_id,
             type:"POST",
             data: "",
             success:function(response){
                 console.log('success:'+response);
-                if(response=="1"){
-                    M.toast({html: 'Topic deleted successfully'});
+                if(response=="1"){                    
+                    M.toast({html: '<h4>Topic deleted successfully</h4>'});
+                    var topicWithHash = '#'+topic_id;
+                    $(topicWithHash).remove();
                     topicList();
                 }
             },
             error:function(xhr){
-
+                $('#errorMSGSpan').html('Error in deleting topic. Please try again.');  
+                topicList();
             }
         });
     }

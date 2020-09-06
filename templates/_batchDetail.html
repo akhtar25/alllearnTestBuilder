@@ -30,7 +30,11 @@
         <td>{{eachRow.days_of_week}}</td>     
         <td>{{eachRow.student_limit}}</td>                                       
         <td>{{eachRow.students_enrolled}}</td>
-        <td>{{eachRow.course_batch_fee}}</td>
+        {%if eachRow.course_batch_fee==0.0 %}
+        <td class="green-text">Free</td>
+        {%else%}
+        <td>₹{{eachRow.course_batch_fee}}</td>
+        {%endif%}
         <td>{{eachRow.total_fee_received}}</td>
         <td>{{eachRow.description}}</td>
       </tr>

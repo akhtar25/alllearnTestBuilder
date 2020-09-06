@@ -299,6 +299,7 @@
     });
 
     function fetchBatches(course_name,courseId){
+        $('#batchTable').html('Loading...');
         console.log('inside fetchBatches');
         console.log(course_name);
         $('#courseName').html(course_name);
@@ -333,6 +334,8 @@
     }
 
     $('#createBatch').click(function($e){
+        $('#createBatch').prop('disabled','true');
+        $('#createBatch').html('Creating Batch...');
         $e.preventDefault();
         $('#batchMsg').html('');
         var form = $('#batchForm');
@@ -346,7 +349,7 @@
             success:function(response){
                 if(response=='1'){
                     console.log('data added successfully');
-                    M.toast({html: 'Batch created successfully'});
+                    M.toast({html: '<h4>Batch created successfully</h4>'});
                     var elem = $('#modal1');
                     var instance = M.Modal.getInstance(elem);                   
                     instance.close(); 
@@ -354,9 +357,13 @@
                 else{
                     $('#batchMsg').html('Please fill all fields to schedule batch');
                 }
+                $('#createBatch').prop('disabled','false');
+                $('#createBatch').html('Create Batch');
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
+                $('#createBatch').prop('disabled','false');
+                $('#createBatch').html('Create Batch');
             }
         });
     });
