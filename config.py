@@ -22,7 +22,7 @@ class Config(object):
     ANONYMOUS_USERID = os.environ.get('ANONYMOUS_USERID')
     #ANONYMOUS_USERID = 886
     #MODE = os.environ.get('MODE')
-    MODE = "TEST"
+    #MODE = "TEST"
     
     #TEST CREDS
     ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID')
