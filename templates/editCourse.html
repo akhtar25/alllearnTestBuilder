@@ -785,6 +785,8 @@ function correctOption(correct){
 
     var quesIDList = [];
     function addQues(){
+        $(this).prop('disabled',true);
+        $(this).html('Adding Question');
         console.log('inside addQues');
         var corr = $('#correct').val();
         var ques = $('#questionInput').val();
@@ -825,10 +827,14 @@ function correctOption(correct){
                 }
                 
                 console.log('data added successfully');
+                $(this).prop('disabled',false);
+                $(this).html('Add Question');
                 
             },
             error:function(xhr){
-                $('#msg').html('Error to submit question data');
+                $('#msg').html('Error in adding question');
+                $(this).prop('disabled',false);
+                $(this).html('Add Question');
             }
         });
         }
@@ -866,7 +872,7 @@ function correctOption(correct){
                 // $(ids).html('<i class="fa fa-check" style="color:green;font-size:15px;margin-left:10px;" aria-hidden="true"></i>');
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in fetching questions');
             }
         });
     }
@@ -1002,13 +1008,13 @@ function correctOption(correct){
             success:function(response){
                 if(response=="1"){
                     console.log('Data added successfully and indexed');
-                    M.toast({html: 'Course Added and Published'});
+                    M.toast({html: '<h4>Course Added and Published</h4>'});
                     window.location.replace("{{url_for('courseDetail')}}"+ "?course_id="+ course_id);
                     $('#saveAndPublish').html('Save and Publish Course');
                 }
                 else if(response=="2"){
                     console.log('Data added successfully but index pending');
-                    M.toast({html: 'Course Published'});
+                    M.toast({html: '<h4>Course Published</h4>'});
                     $('#saveAndPublish').html('Save and Publish Course');
                 }
                 else{
@@ -1017,7 +1023,7 @@ function correctOption(correct){
                 
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in saving course. Please try again.');
             }
         });
         }
@@ -1056,7 +1062,7 @@ function correctOption(correct){
                 }
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in saving course.');
             }
         });
     });
@@ -1211,7 +1217,7 @@ function correctOption(correct){
                 }
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in fetching questions');
             }
         });
     }
@@ -1280,7 +1286,7 @@ function correctOption(correct){
                 $('#myUL').html(topicList);
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in searching topics');
             }
         });
     }); 
@@ -1306,7 +1312,7 @@ function correctOption(correct){
                 $('#topicId').val(topic_id);
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in adding topic name');
             }
         });
     }
@@ -1339,7 +1345,7 @@ function correctOption(correct){
                 }
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in updating topic');
             }
         });
     });
@@ -1375,7 +1381,7 @@ function correctOption(correct){
                 }
             },
             error:function(xhr){
-                $('#msg').html('Error to submit course data');
+                $('#msg').html('Error in saving course');
                 $('#saveTopic').prop('disabled','false');
             }
         });
