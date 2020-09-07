@@ -2757,6 +2757,8 @@ def createBatch():
     days = request.form.getlist('Days')
     studentLimit = request.form.get('studentLimit')
     batchFee = request.form.get('batchFee')
+    if batchFee==None:
+        batchFee=0
     enrolledStudents = request.form.get('enrolledStudents')
     feeReceived = request.form.get('feeReceived')
     courseId = request.args.get('courseId')
