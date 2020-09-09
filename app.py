@@ -1,3 +1,4 @@
+from __future__ import print_function
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
@@ -62,7 +63,13 @@ import base64
 import hmac
 import hashlib
 # from moviepy.editor import *
-
+# Libraries for google calendar
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+# End
 
 app=FlaskAPI(__name__)
 
@@ -2748,6 +2755,41 @@ def fetchBatch():
     fetchBatch = db.session.execute(text(fetchBatch)).fetchall()
     return render_template('_batchDetail.html',fetchBatch=fetchBatch,courseName=courseName)
 
+def create_event(service,startDate,endTime,endDate,days,summary,desc,location):
+    print('Last Date:')
+    print(endDate)
+    print(days)
+    event = {
+        'summary': summary,
+        'location': location,
+        'description': desc,
+        'start': {
+            'dateTime': startDate,
+            'timeZone': 'Asia/Kolkata',
+        },
+        'end': {
+            'dateTime': endTime,
+            'timeZone': 'Asia/Kolkata',
+        },
+        'recurrence': [
+            'RRULE:FREQ=MONTHLY;BYDAY='+str(days)+';UNTIL='+str(endDate)+';',
+        ],
+#   'attendees': [
+#     {'email': 'lpage@example.com'},
+#     {'email': 'sbrin@example.com'},
+#   ],
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+                {'method': 'email', 'minutes': 24 * 60},
+                {'method': 'popup', 'minutes': 10},
+            ],
+        },
+    }
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print(event)
+    return 0
+
 @app.route('/createBatch',methods=['GET','POST'])
 def createBatch():
     startDate = request.form.get('startDate')
@@ -2761,6 +2803,10 @@ def createBatch():
     feeReceived = request.form.get('feeReceived')
     courseId = request.args.get('courseId')
     selectType = request.form.get('selectType')
+    googleCalendar = request.form.get('googleCalendar')
+    coName = request.form.get('coName')
+    print('course Name:'+str(coName))
+    print('googleCalendar:'+str(googleCalendar))
     print('startDate:'+str(startDate))
     print('selectType:'+str(selectType))
     print('EndDate:'+str(EndDate))
@@ -2772,6 +2818,22 @@ def createBatch():
     print('enrolledStudents:'+str(enrolledStudents))
     print('feeReceived:'+str(feeReceived))
     print('courseId:'+str(courseId))
+    sTime = request.args.get('sTime')
+    eTime = request.args.get('eTime')
+    enDate = EndDate.split('-')
+    print('after split')
+    print(enDate)
+    endDate = ''.join(enDate)
+    print('after join')
+    endDate = endDate+'T000000Z'
+    print(endDate)
+    print('Time after format change')
+    print(sTime)
+    print(eTime)
+    print(str(startDate)+'T'+str(sTime))
+    sDate = str(startDate)+'T'+str(sTime)
+    endTime = str(startDate)+'T'+str(eTime)
+    endDate = str(EndDate)+'T'+str(eTime)
     dayString = ''
     i=1
     for day in days:
@@ -2783,7 +2845,41 @@ def createBatch():
             dayString = dayString + dayS + ','
         i=i+1
     print('StringDays:'+str(dayString))
-    if startDate and EndDate and startTime and endTime and days and studentLimit and enrolledStudents and selectType:
+    
+    # Code for google calendar
+
+    if googleCalendar:
+        
+        SCOPES = ['https://www.googleapis.com/auth/calendar']
+        creds = None
+        pickleFileName = 'static/googleCalendarFiles/'+str(current_user.email)+'_token.pickle'
+        if os.path.exists(pickleFileName):
+            with open(pickleFileName, 'rb') as token:
+                creds = pickle.load(token)
+                
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'static/googleCalendarFiles/credentials.json', SCOPES)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open(pickleFileName,'wb') as token:
+                pickle.dump(creds, token)
+
+        service = build('calendar', 'v3', credentials=creds)
+
+        # Call the Calendar API
+        # now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        print('Getting the upcoming 10 events')
+        
+        create_event(service,sDate,endTime,endDate,dayString,coName,coName,'')
+    
+    if startDate and EndDate and startTime and endTime and days and studentLimit and int(enrolledStudents)>=0 and selectType:
+        if batchFee==None:
+            batchFee = 0.0
         createBatch = CourseBatch(course_id=courseId,batch_start_date=startDate,
         batch_end_date=EndDate,batch_start_time=startTime,batch_end_time=endTime,
         days_of_week=dayString,student_limit=studentLimit,course_batch_fee=float(batchFee),

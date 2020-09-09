@@ -92,7 +92,7 @@
                         </h5></div>
                         <h5>
                             {% if user.id==current_user.id %}
-                            <a class="modal-trigger" id="" onclick="clearForm();" href="#modal1">Schedule New Batch</a>
+                            <a class="modal-trigger" id="" onclick="clearForm('{{course.course_name}}');" href="#modal1">Schedule New Batch</a>
                             {% endif %}
                         </h5>
                         <input type="hidden" id="courseId" value="{{course.course_id}}">
@@ -131,7 +131,7 @@
                     Classes: 20
                 </p>                
             </div>
-            <div>
+            <div>   
                 <h4>{{course.course_name}}</h4>
                 <p>Topics: {{course.no_of_topic}}<br>
                     Classes: 20
@@ -168,10 +168,10 @@
             End Date: <input type="date" name="EndDate" id="EndDate">
         </div>
         <div class="col-sm-3" >
-            Start Time: <input type="time" onchange="onStartTimeChange()" name="startTime" id="startTime">
+            Start Time: <input type="time" value="16:32:55" onchange="onStartTimeChange()" name="startTime" id="startTime">
         </div> 
         <div class="col-sm-3">
-            End Time: <input type="time" onchange="onEndTimeChange()" name="endTime" id="endTime">
+            End Time: <input type="time" value="16:32:55" onchange="onEndTimeChange()" name="endTime" id="endTime">
         </div>
     </div>
     <div class="col-sm-12" style="">
@@ -239,6 +239,14 @@
             Fee Received: <input type="number" min="0" value="0" id="feeReceived" name="feeReceived">
         </div>
     </div>
+    <p>
+        <label>
+          <input type="checkbox" id="googleCalendar" name="googleCalendar" value="Y"/>
+          <span>Add to google calendar</span>
+        </label>
+      </p>
+      <p>
+        <input type="hidden" id="coNam" name="coName">
     <button style="margin-left: 250px;margin-top: 15px;" id="createBatch" class="btn waves-light green lighten-1 white-text">Create Batch</button>
     </form>
     <span style="color:red;" id="batchMsg"></span>
@@ -284,7 +292,7 @@
         if(type.value=='266' || type.value=='268'){
             $('#batchFee').prop('disabled',true);
             $('#feeReceived').prop('disabled',true);
-            $('#batchFee').val(0);
+            $('#batchFee').val(0.0);
         }else{
             $('#batchFee').prop('disabled',false);
             $('#feeReceived').prop('disabled',false);
@@ -321,7 +329,9 @@
         });
     }
 
-    function clearForm(){
+    function clearForm(courseName){
+        $('#coNam').val(courseName);
+        $('#googleCalendar').prop('checked',false);
         $('#startDate').val('');
         $('#EndDate').val('');
         $('#startTime').val('');
@@ -342,23 +352,27 @@
         var courseId = $('#courseId').val();
         console.log('Start time:'+startTime);
         console.log('End Time:'+endTime);
+        sTime = formateTime(startTime);
+        eTime = formateTime(endTime);
         $.ajax({
-            url:"/createBatch?courseId="+courseId+"&startTime="+startTime+"&endTime="+endTime,
+            url:"/createBatch?courseId="+courseId+"&startTime="+startTime+"&endTime="+endTime+"&sTime="+sTime+"&eTime="+eTime,
             type:"POST",
             data: form.serialize(),
             success:function(response){
                 if(response=='1'){
                     console.log('data added successfully');
                     M.toast({html: '<h4>Batch created successfully</h4>'});
+                    $('#createBatch').prop('disabled','false');
+                    $('#createBatch').html('Create Batch');
                     var elem = $('#modal1');
                     var instance = M.Modal.getInstance(elem);                   
                     instance.close(); 
+
                 }
                 else{
                     $('#batchMsg').html('Please fill all fields to schedule batch');
                 }
-                $('#createBatch').prop('disabled','false');
-                $('#createBatch').html('Create Batch');
+
             },
             error:function(xhr){
                 $('#msg').html('Error to submit course data');
@@ -370,65 +384,65 @@
 
 
 
-    $('#addSurveyDataBTN').click(function ($e) {
-        $e.preventDefault();
-        var form = $('#addSurveyForm');
-        var surveyName = $('#surveyName').val();
-        $.ajax({
-            url: "/addNewSurvey",
-            type: "POST",
-            data: form.serialize(),
-            success: function (formResponse) {
-                if (formResponse == '0') {
-                    $('#questionDiv').html('');
-                    $("#surveyTable tbody").append(
-                        '<tr>' +
-                        '<td>' + surveyName + '</td>' +
-                        '<td>0</td>' +
-                        '<td>' + clicks + '</td>' +
-                        '<td>Now</td>' +
-                        '<td>-</td>' +
-                        '</tr>'
-                    );
-                    $('#remark').val('');
-                    M.toast({
-                        html: '<h4>New Survey Created</h4>'
-                    });
-                    var elem = $('#createModal')
-                    var instance = M.Modal.getInstance(elem);
-                    instance.close();
-                    clicks = 0;
-                } else {
-                    window.alert("Error");
-                }
-            },
-            error: function (xhr) {
-                window.alert("Error while creating survey");
-            }
-        });
-    });
+    // $('#addSurveyDataBTN').click(function ($e) {
+    //     $e.preventDefault();
+    //     var form = $('#addSurveyForm');
+    //     var surveyName = $('#surveyName').val();
+    //     $.ajax({
+    //         url: "/addNewSurvey",
+    //         type: "POST",
+    //         data: form.serialize(),
+    //         success: function (formResponse) {
+    //             if (formResponse == '0') {
+    //                 $('#questionDiv').html('');
+    //                 $("#surveyTable tbody").append(
+    //                     '<tr>' +
+    //                     '<td>' + surveyName + '</td>' +
+    //                     '<td>0</td>' +
+    //                     '<td>' + clicks + '</td>' +
+    //                     '<td>Now</td>' +
+    //                     '<td>-</td>' +
+    //                     '</tr>'
+    //                 );
+    //                 $('#remark').val('');
+    //                 M.toast({
+    //                     html: '<h4>New Survey Created</h4>'
+    //                 });
+    //                 var elem = $('#createModal')
+    //                 var instance = M.Modal.getInstance(elem);
+    //                 instance.close();
+    //                 clicks = 0;
+    //             } else {
+    //                 window.alert("Error");
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             window.alert("Error while creating survey");
+    //         }
+    //     });
+    // });
 
-    $('.deleteBTNClass').click(function () {
-        var survey_id = $(this).attr("name");
-        $.ajax({
-            url: "/archiveSurvey?survey_id=" + survey_id,
-            type: "get",
-            data: '',
-            success: function (archiveResponse) {
-                if (archiveResponse == '0') {
-                    var surveyWithHash = '#' + survey_id;
-                    $(surveyWithHash).remove();
-                    M.toast({
-                        html: '<h4>Survey deleted!</h4>'
-                    })
-                } else {
-                    M.toast({
-                        html: '<h4>Error deleting survey!</h4>'
-                    })
-                }
-            }
-        })
-    });
+    // $('.deleteBTNClass').click(function () {
+    //     var survey_id = $(this).attr("name");
+    //     $.ajax({
+    //         url: "/archiveSurvey?survey_id=" + survey_id,
+    //         type: "get",
+    //         data: '',
+    //         success: function (archiveResponse) {
+    //             if (archiveResponse == '0') {
+    //                 var surveyWithHash = '#' + survey_id;
+    //                 $(surveyWithHash).remove();
+    //                 M.toast({
+    //                     html: '<h4>Survey deleted!</h4>'
+    //                 })
+    //             } else {
+    //                 M.toast({
+    //                     html: '<h4>Error deleting survey!</h4>'
+    //                 })
+    //             }
+    //         }
+    //     })
+    // });
     var startTimeEle = document.getElementById('startTime');
     var endTimeEle = document.getElementById('endTime');
     var startTime = ''
@@ -472,6 +486,22 @@
         meridian = 'PM';
     }
     startTime = hours + ':' + minutes + ' ' + meridian;
+    }
+
+    function formateTime(time){
+        // var time = $("#starttime").val();
+        var hours = Number(time.match(/^(\d+)/)[1]);
+        var minutes = Number(time.match(/:(\d+)/)[1]);
+        var AMPM = time.match(/\s(.*)$/)[1];
+        if(AMPM == "PM" && hours<12) hours = hours+12;
+        if(AMPM == "AM" && hours==12) hours = hours-12;
+        var sHours = hours.toString();
+        var sMinutes = minutes.toString();
+        if(hours<10) sHours = "0" + sHours;
+        if(minutes<10) sMinutes = "0" + sMinutes;
+        // alert(sHours + ":" + sMinutes);
+        finalTime = sHours+":"+sMinutes+":00"
+        return finalTime
     }
 </script>
 {% endblock %}
