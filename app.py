@@ -2757,8 +2757,10 @@ def fetchBatch():
 
 def create_event(service,startDate,endTime,endDate,days,summary,desc,location):
     print('Last Date:')
+    print(startDate)
+    print(endTime)
     print(endDate)
-    print(days)
+    # print(days)
     event = {
         'summary': summary,
         'location': location,
@@ -2834,8 +2836,8 @@ def createBatch():
     print(eTime)
     print(str(startDate)+'T'+str(sTime))
     sDate = str(startDate)+'T'+str(sTime)
-    endTime = str(startDate)+'T'+str(eTime)
-    endDate = str(EndDate)+'T'+str(eTime)
+    enTime = str(startDate)+'T'+str(eTime)
+    # endDate = str(EndDate)+'T'+str(eTime)
     dayString = ''
     i=1
     for day in days:
@@ -2854,11 +2856,18 @@ def createBatch():
         
         SCOPES = ['https://www.googleapis.com/auth/calendar']
         creds = None
+        file_name = str(current_user.email)+'_token.pickle'
         pickleFileName = 'static/googleCalendarFiles/'+str(current_user.email)+'_token.pickle'
+        # dire = 'googleCalendarFiles/'+str(current_user.email)+'_token.pickle'
         if os.path.exists(pickleFileName):
             with open(pickleFileName, 'rb') as token:
+                print('read pickle file')
                 creds = pickle.load(token)
-                
+                client = boto3.client('s3', region_name='ap-south-1')
+                client.upload_file(pickleFileName , os.environ.get('S3_BUCKET_NAME'), 'creds/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+                print('before remove pickle file')
+                os.remove(pickleFileName)         
+                print('after remove pickle file')
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
@@ -2876,8 +2885,8 @@ def createBatch():
         # Call the Calendar API
         # now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
         print('Getting the upcoming 10 events')
-        
-        create_event(service,sDate,endTime,endDate,dayString,coName,coName,'')
+        print(endDate)
+        create_event(service,sDate,enTime,endDate,dayString,coName,coName,'')
     
     if startDate and EndDate and startTime and endTime and days and studentLimit and int(enrolledStudents)>=0 and selectType:
         if batchFee==None:
