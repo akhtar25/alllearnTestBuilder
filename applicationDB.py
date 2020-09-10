@@ -387,6 +387,7 @@ class ResponseCapture(db.Model):
     school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
     class_sec_id=db.Column(db.ForeignKey('class_section.class_sec_id'),nullable=True)
     student_id=db.Column(db.ForeignKey('student_profile.student_id'),nullable=True)
+    student_user_id = db.Column(db.ForeignKey('user.id'), nullable=True)
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
