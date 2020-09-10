@@ -7576,6 +7576,7 @@ def loadQuestionStud():
     subject_id =  request.args.get('subject_id')
     last_q_id =  request.args.get('last_q_id')
     print('This is the response session id in: ' + str(resp_session_id) )
+    studentRow = ''
     if current_user.is_anonymous:        
         studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
@@ -7603,7 +7604,10 @@ def loadQuestionStud():
         incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(resp_session_id)+"' and (answer_status=239 or answer_status=241)"
         print(' Query for incorrect question:'+str(incorrect_ques))
         incorrect_ques = db.session.execute(text(incorrect_ques)).first()
-        marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
+        if studentRow:
+            marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
+        else:
+            marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
         print('Query for scored marks:'+str(marksScoredQuery))
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         print('Marks Scored Query:'+marksScoredQuery)
@@ -7639,9 +7643,14 @@ def loadQuestionStud():
 
     # End
     if btn=='next':
-        responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-            question_id= last_q_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+        if studentRow:
+            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                question_id= last_q_id, teacher_id= teacherID,
+                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+        else:
+            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_user_id=current_user.id,
+                question_id= last_q_id, teacher_id= teacherID,
+                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
         
         print(responseStudUpdateQuery)
         db.session.add(responseStudUpdateQuery)
@@ -7673,7 +7682,7 @@ def loadQuestionStud():
         else:
             ansCheck='N'
              
-        print('Class:'+str(studentRow.class_sec_id))
+        # print('Class:'+str(studentRow.class_sec_id))
         resp_weightage = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
         if checkResponse:
             if checkResponse.response_option==None or checkResponse.response_option:
@@ -7684,9 +7693,14 @@ def loadQuestionStud():
             print('data already exist')
         else:
             print('new data insert in response capture')
-            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-            question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
+            if studentRow:
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
+            else:
+                responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
+                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8002,6 +8016,10 @@ def studentFeedbackReport():
     student_id = request.args.get('student_id')  
     student_name = request.args.get('student_name') 
     student_id=student_id.strip()
+    if student_id==None:
+        student_id = current_user.id
+    if student_name==None:
+        student_name = str(current_user.first_name)+' '+str(current_user.last_name)
     resp_session_id = request.args.get('resp_session_id')
     #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
     responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
