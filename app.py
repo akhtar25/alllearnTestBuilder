@@ -2452,7 +2452,7 @@ def openLiveClass():
     rating = CourseDetail.query.filter_by(course_id=topicData.course_id,is_archived='N').first()
     #if rating:
     #    print('Star rating:'+str(rating.average_rating))
-    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(topicData.course_id)+"' and ct.topic_id <> '"+str(topic_id)+"' "
+    listTopics = "select td.topic_name,td.topic_id from topic_detail td inner join course_topics ct on td.topic_id=ct.topic_id where ct.course_id='"+str(topicData.course_id)+"' and ct.is_archived='N' and ct.topic_id <> '"+str(topic_id)+"' "
     listTopics = db.session.execute(text(listTopics)).fetchall()
 
     #updating table to say ongoing class

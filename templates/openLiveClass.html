@@ -468,7 +468,8 @@ span.stars span {
             <!--<p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
                 creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>-->
                 <br>
-            <h4>Other topics</h4>
+            <h4>Other topics</h4> 
+            <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
             {%if listTopics%}
             {% for topic in listTopics %}
             <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}">
@@ -486,6 +487,7 @@ span.stars span {
             {%else%}
             <h4 class="grey-text">No other topics</h4>
             {%endif%}
+            </ul>
             <br>
             <!-- <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
