@@ -6545,7 +6545,7 @@ def feedbackCollectionStudDev():
             db.session.commit()    
         classSectionRow = ClassSection.query.filter_by(class_sec_id=sessionDetailRow.class_sec_id).first()        
         testDetailRow = TestDetails.query.filter_by(test_id = sessionDetailRow.test_id).first()
-        testQuestions = TestQuestions.query.filter_by(test_id=sessionDetailRow.test_id).all()
+        testQuestions = TestQuestions.query.filter_by(test_id=sessionDetailRow.test_id,is_archived='N').all()
 
         if testQuestions!=None:
             questionListSize = len(testQuestions)
@@ -7365,9 +7365,9 @@ def feedbackCollection():
 
             responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
     
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id).all()              
+            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
             if weightage==None or weightage=="":
-                qId = TestQuestions.query.filter_by(test_id=qtest_id).first()
+                qId = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').first()
                 weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
 
             print('Inside question id list')
@@ -7589,9 +7589,12 @@ def loadQuestionStud():
     teacherID = sessionDetailRow.teacher_id
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
-        totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
+        if studentRow:
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
+        else:
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"'"
         print('Total Marks Query:'+totalMarksQuery)
-        totalQ = "select count(*) as num_of_questions from test_questions where test_id='"+str(sessionDetailRow.test_id)+"'"
+        totalQ = "select count(*) as num_of_questions from test_questions where test_id='"+str(sessionDetailRow.test_id)+"' and is_archived='N'"
         print('Query:'+str(totalQ))
         totalQ = db.session.execute(text(totalQ)).first()
         
@@ -7636,21 +7639,27 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
-        if studentRow.points!=None and studentRow.points!="":
-            studentRow.points = int(studentRow.points) + 1
-            db.session.commit()
-        return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
+        if studentRow:
+            if studentRow.points!=None and studentRow.points!="":
+                studentRow.points = int(studentRow.points) + 1
+                db.session.commit()
+            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
+        else:
+            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=current_user.id, student_name= str(current_user.first_name)+' '+str(current_user.last_name), resp_session_id = resp_session_id )
 
     # End
+    print(studentRow)
     if btn=='next':
-        if studentRow:
+        if studentRow!=None:
+            print('inside if studentRow exist')
             responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                 question_id= last_q_id, teacher_id= teacherID,
                 class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
         else:
-            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_user_id=current_user.id,
+            print('if student Row not exist')
+            responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                 question_id= last_q_id, teacher_id= teacherID,
-                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+                 resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
         
         print(responseStudUpdateQuery)
         db.session.add(responseStudUpdateQuery)
@@ -7700,7 +7709,7 @@ def loadQuestionStud():
             else:
                 responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                 question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
+                 resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -7730,6 +7739,8 @@ def loadQuestionStud():
     # question = ''
     # questionOp = ''
     if int(qnum)<= int(totalQCount):
+        print('Question id')
+        print(question_id)
         print('###############q number LESS THAN TOTAL Q COUNT###############')
         question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
         questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
