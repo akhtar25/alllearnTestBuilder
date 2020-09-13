@@ -3,6 +3,8 @@
 <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
 <div class="container">   
 <div style="width:60%">
+    <h5>{{schoolData.school_name}}</h5>
+    <h6>Download Student TC</h6>
 <table>
     <tr>
         <td>Enter Student ID</td>
@@ -24,6 +26,8 @@
         window.location.replace("{{url_for('studTC')}}");
     });
     $('#submitBTN').click(function () {
+        $('#submitBTN').prop('disabled',true);
+        $('#submitBTN').html('Fetching TC');
         $('#spanMSG').hide();
         $('#downloadBTN').hide();
         //$('#modal2').hide();
@@ -39,9 +43,13 @@
                 if (response == 'NA') {
                     $('#spanMSG').html('No TC found for student id');
                     $('#spanMSG').show();
+                    $('#submitBTN').prop('disabled',false);
+                    $('#submitBTN').html('Submit');
                 } else {
                   $('#downloadBTN').attr('href',response);
                   $('#downloadBTN').show();
+                  $('#submitBTN').prop('disabled',false);
+                    $('#submitBTN').html('Submit');
                 }
             }
         })
