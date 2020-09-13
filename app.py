@@ -10084,8 +10084,15 @@ def archiveTCClass():
 
 @app.route('/accessStudTC')
 def accessStudTC():
+    school_id = request.args.get('school_id')
+    if school_id!=None and school_id!="":
+        schoolData = SchoolProfile.query.filter_by(school_id=str(school_id)).first()
+        if schoolData!=None:
+            return render_template('accessStudTC.html',schoolData=schoolData)
+        else:
+            return jsonify(['Invalid School Data'])
     #if ("alllearn" in str(request.url)) or  ("localhost" in str(request.url)) ("tc" in str(request.url)) or ("wix" in str(request.url)) :        
-    return render_template('accessStudTC.html')
+    
     #else:
     #    return jsonify(['Invalid Call'])
 
