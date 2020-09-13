@@ -1152,3 +1152,15 @@ class BankDetail(db.Model):
     vendor_id = db.Column(db.String(50),unique=True, nullable=True)
     is_archived = db.Column(db.String(1),nullable=False)
     last_modified_date = db.Column(db.DateTime, nullable=False, default = datetime.now())
+
+
+class TransferCerts(db.Model):
+    __tablename__='transfer_certs'
+    tc_id =  db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.ForeignKey('student_profile.student_id'), nullable=True)
+    school_adm_number=db.Column(db.String(120),nullable=True)
+    teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
+    school_id = db.Column(db.ForeignKey('school_profile.school_id'), nullable=True)
+    tc_url = db.Column(db.String(200),nullable=True)
+    is_archived = db.Column(db.String(1),nullable=False)
+    last_modified_date = db.Column(db.DateTime, nullable=False, default = datetime.now())
