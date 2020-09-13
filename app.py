@@ -10084,10 +10084,10 @@ def archiveTCClass():
 
 @app.route('/accessStudTC')
 def accessStudTC():
-    if ("alllearn" in str(request.url)) or  ("localhost" in str(request.url)):        
-        return render_template('accessStudTC.html')
-    else:
-        return jsonify(['Invalid Call'])
+    #if ("alllearn" in str(request.url)) or  ("localhost" in str(request.url)) ("tc" in str(request.url)) or ("wix" in str(request.url)) :        
+    return render_template('accessStudTC.html')
+    #else:
+    #    return jsonify(['Invalid Call'])
 
 @app.route('/fetchStudTC')
 def fetchStudTC():
