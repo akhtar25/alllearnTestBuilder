@@ -10039,16 +10039,17 @@ def teacherAllocation():
 
 #End
 
-# Code for course 
-@app.route('/')
-# End
-
-
 @app.route('/subscriptionPlans')
 def subscriptionPlans():
     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
     return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
+
+@app.route('/studTC')
+def studTC():
+    
+    return render_template('studTC.html')
+
 
 def format_currency(value):
     return "₹{:,.2f}".format(value)
