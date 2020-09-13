@@ -1,0 +1,71 @@
+<script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+<link href="../static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+<link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+<div class="container">   
+<div style="width:60%">
+    <h5>{{schoolData.school_name}}</h5>
+    <h6>Download Student TC</h6>
+<table>
+    <tr>
+        <td>Enter Student ID</td>
+        <td><input type="text" id="student_id" name="student_id"></td>
+    </tr>
+    <tr>
+        <td>Enter Student Admission Number</td>
+        <td><input type="text" id="school_adm_number" name="school_adm_number"></td>
+    </tr>
+</table>
+<button class="green btn right" id="submitBTN">Submit</button>
+<a  id="downloadBTN" href="#" style="display: none;">Download TC</a> 
+<span class="orange-text" id="spanMSG" style="display:none;"></span>
+</div>
+</div>    
+
+<script>
+    $('#refreshBTNID').click(function () {
+        window.location.replace("{{url_for('studTC')}}");
+    });
+    $('#submitBTN').click(function () {
+        $('#submitBTN').prop('disabled',true);
+        $('#submitBTN').html('Fetching TC');
+        $('#spanMSG').hide();
+        $('#downloadBTN').hide();
+        //$('#modal2').hide();
+        //$('#donateDiv').html('');
+        //$('#loader').show();
+        var student_id = $('#student_id').val();
+        var school_adm_number = $('#school_adm_number').val();
+        $.ajax({            
+            url: "/fetchStudTC?student_id=" + student_id + "&school_adm_number="+ school_adm_number,
+            type: "get",
+            data: '',
+            success: function (response) {
+                if (response == 'NA') {
+                    $('#spanMSG').html('No TC found for student id');
+                    $('#spanMSG').show();
+                    $('#submitBTN').prop('disabled',false);
+                    $('#submitBTN').html('Submit');
+                } else {
+                  $('#downloadBTN').attr('href',response);
+                  $('#downloadBTN').show();
+                  $('#submitBTN').prop('disabled',false);
+                    $('#submitBTN').html('Submit');
+                }
+            }
+        })
+    });
+
+    $(document).ready(function () {
+        $('select').formSelect();
+        $('.modal').modal();
+        $('.datepicker').datepicker();
+        $('.timepicker').timepicker();
+    });
+
+</script>
+<script src="../static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../static/bower_components/jquery-ui/jquery-ui.min.js"></script>
+<script src="../static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../static/js/materialize.min.js"></script>
+<script src="../static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+1`<script src="../static/js/websiteJS.js"></script>
