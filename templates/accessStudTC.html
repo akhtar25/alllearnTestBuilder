@@ -1,0 +1,56 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">   
+<div style="width:60%">
+<table>
+    <tr>
+        <td>Enter Student ID</td>
+        <td><input type="text" id="student_id" name="student_id"></td>
+    </tr>
+    <tr>
+        <td>Enter Student Admission Number</td>
+        <td><input type="text" id="school_adm_number" name="school_adm_number"></td>
+    </tr>
+</table>
+<button class="green btn right" id="submitBTN">Submit</button>
+<a  id="downloadBTN" href="#" style="display: none;">Download TC</a> 
+<span class="orange-text" id="spanMSG" style="display:none;"></span>
+</div>
+</div>    
+
+<script>
+    $('#refreshBTNID').click(function () {
+        window.location.replace("{{url_for('studTC')}}");
+    });
+    $('#submitBTN').click(function () {
+        $('#spanMSG').hide();
+        $('#downloadBTN').hide();
+        //$('#modal2').hide();
+        //$('#donateDiv').html('');
+        //$('#loader').show();
+        var student_id = $('#student_id').val();
+        var school_adm_number = $('#school_adm_number').val();
+        $.ajax({            
+            url: "/fetchStudTC?student_id=" + student_id + "&school_adm_number="+ school_adm_number,
+            type: "get",
+            data: '',
+            success: function (response) {
+                if (response == 'NA') {
+                    $('#spanMSG').html('No TC found for student id');
+                    $('#spanMSG').show();
+                } else {
+                  $('#downloadBTN').attr('href',response);
+                  $('#downloadBTN').show();
+                }
+            }
+        })
+    });
+
+    $(document).ready(function () {
+        $('select').formSelect();
+        $('.modal').modal();
+        $('.datepicker').datepicker();
+        $('.timepicker').timepicker();
+    });
+
+</script>
+{% endblock %}

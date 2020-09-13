@@ -1,159 +1,35 @@
 {% extends "layout.html" %} {% block content %}
-<div class="container">
-   
-    <!--<div class="right">
-        <a href="#modal1" class="modal-trigger green btn">Add Class</a>
-    </div>-->
-
-    <!--<div id="modal1" class="modal" style="background-color:white;height: 400px;">
-        <div class="modal-content" id="">
-            <form action="" method="POST" enctype="multipart/form-data">
-                <div class="row">
-                    <div class="col s4">
-                        {{ form.class_val.label(class='labelsize') }}
-                        <br>
-                        {% if form.class_val.errors %}
-                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.class_val.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.class_val(class='form-control') }}
-                        {% endif %}
-                    </div>
-            
-                    <div class="col s4">
-                        {{ form.subject.label(class='labelsize') }}
-                        <br>
-                        {% if form.subject.errors %}
-                        {{ form.subject(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.subject.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.subject(class='form-control') }}
-                        {% endif %}
-                    </div>
-              
-                    <div class="col s4">
-                        {{ form.book_chapter.label(class='labelsize') }}
-                        <br>
-                        {% if form.book_chapter.errors %}
-                        {{ form.book_chapter(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.book_chapter.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.book_chapter(class='form-control') }}
-                        {% endif %}
-                    </div>
-                
-                    <div class="col s4">
-                        {{ form.start_time.label(class='labelsize') }}
-                        <br>
-                        {% if form.start_time.errors %}
-                        {{ form.start_time(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.start_time.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.start_time(class='form-control timepicker') }}
-                        {% endif %}
-                    </div>
-            
-                    <div class="col s4">
-                        {{ form.end_time.label(class='labelsize') }}
-                        <br>
-                        {% if form.end_time.errors %}
-                        {{ form.end_time(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.end_time.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.end_time(class='form-control timepicker') }}
-                        {% endif %}
-                    </div>
-            
-                    <div class="col s4">
-                        {{ form.conference_link.label(class='labelsize') }}
-                        <br>
-                        {% if form.conference_link.errors %}
-                        {{ form.conference_link(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.conference_link.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.conference_link(class='form-control') }}
-                        {% endif %}
-                    </div>
-            
-                    <div class="col s4">
-                        {{ form.phone_number.label(class='labelsize') }}
-                        <br>
-                        {% if form.phone_number.errors %}
-                        {{ form.phone_number(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.phone_number.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.phone_number(class='form-control') }}
-                        {% endif %}
-                    </div>
-                    <div class="row">
-                        <button type="submit" class="right btn green">Submit</button>
-                    </div>
-            </form>
-        </div>
-    </div>-->
-
-    <div class="divider"></div>
+<div class="container">   
+<div >
+    <a href="#uploadTCModal" class="green btn modal-trigger right">Upload TC</a>
+</div>
+    
     <div id="classSectionDiv">
         <table class="highlight ">
-            <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small green"><i
+            <a id="refreshBTNID" href="#" title="Refresh List" class="btn-floating btn-small cyan"><i
                     class="material-icons small">refresh</i></a>
-            <thead>
+            <thead>                                
+                <th>Student ID</th>
+                <th>ADM Number</th>
+                <th>Student Name</th>
                 <th>Class</th>
-                <th>Subject</th>
-                <th>Chapter and Topic</th>
-                <th>Teacher</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Status</th>
-                <th>Join</th>
-                <!--<th>Delete</th>-->
+                <th>Download TC</th>
+                <th>Delete</th>
             </thead>
             <tbody>
-                {%if allLiveClasses!=None%}
-                {%for liveClass in allLiveClasses %}                
-                <tr style="line-height: 24px;" id="{{liveClass.live_class_id}}">
-                    <td>{{liveClass.class_val}} - {{liveClass.section}}</td>
-                    <td>{{liveClass.subject}}</td>
-                    <td>{{liveClass.topic_name}}</td>
-                    <td>{{liveClass.teacher_name}}</td>
-                    <td>{{liveClass.start_time.strftime('%d %B %y - %I:%M:%S')}}</td>
-                    <td>{{liveClass.end_time.strftime('%d %B %y - %I:%M:%S')}}</td>
-                    <td>{{liveClass.status}}</td>
-                    <td><a href="{{liveClass.conf_link}}" target="_blank">Join</a></td>
-                    {%if current_user.is_authenticated %}
-                    <!--and current_user.school_id== liveClass.school_id-->
-                    <!--<td><a title="Delete Class" name="{{liveClass.live_class_id}}" href="#"
+                {%if tcData!=None%}
+                {%for row in tcData %}                
+                <tr style="line-height: 24px;" id="{{row.tc_id}}">
+                    <td>{{row.student_id}}</td>
+                    <td>{{row.school_adm_number}}</td>
+                    <td>{{row.first_name}} {{row.last_name}}</td>
+                    <td>{{row.class_val}} - {{row.section}}</td>
+                    <td><a href="{{row.tc_url}}">Download TC</a></td>                                                     
+                    {%if current_user.is_authenticated %}                    
+                    <td><a title="Delete Class" name="{{row.tc_id}}" href="#"
                         class=" btn-floating btn-small orange deleteBTNClass">
                         <i class="material-icons small">delete</i></a>
-                </td>-->
+                </td>
                     {%endif%}
                 </tr>
                 {%endfor%}
@@ -162,26 +38,68 @@
         </table>
     </div>
 </div>
+
+
+<div class="modal" id='uploadTCModal' style="max-height: 40%;width: 40%;overflow-y: auto;">
+    <div class="modal-content" style="height: 100%;">
+        <div>
+        <h4>Upload TC </h4>
+        <span id="errorMSGSpan" class="orange-text" name="errorMSGSpan"></span>
+        <form action="{{ url_for('studTC') }}" method="POST" enctype="multipart/form-data">
+            <table>
+                <tr>
+                    <td>Student ID</td>
+                    <td><input type="text" title="Student ID" id="student_id" name="student_id"></td>                    
+                </tr>
+                <tr>
+                    <td>Student Name</td>
+                    <td><input type='text' title="Student Name" id="student_name" name="student_name"></td>
+                </tr>
+                <tr>
+                    <td>Student Admn Number</td>
+                    <td><input type="text" title="Student Admission Number" id='school_adm_number' name='school_adm_number'></td>
+                </tr>
+                <tr>
+                    <td>Upload TC</td>
+                    <td>
+                        <img src="../static/images/defaultAvatar.png" class="" style="display: none;" width="75px" id="previewImg">
+                        <input type="hidden" id="pdfURL" value="" name="pdfURL">
+                        <br>                            
+                        <input type="file" id="tcPDF" onchange="initUpload('3');" name="tcPDF"
+                            style="height: 30px; margin-top: 10px;">
+                            <div id="tcPDFLoader" style="display: none;" class="left">
+                                <img src="../static/images/loader.gif" style="width: 50px;">
+                            </div>
+                            <br>
+                    </td>
+                </tr>                
+            </table> 
+            <button class="btn green right">Upload TC</button>                       
+        </form>
+    </div>
+    </div>
+</div>
+
 <script>
     $('#refreshBTNID').click(function () {
-        window.location.replace("{{url_for('liveClass')}}");
+        window.location.replace("{{url_for('studTC')}}");
     });
     $('.deleteBTNClass').click(function () {
         //$('#modal2').hide();
         //$('#donateDiv').html('');
         //$('#loader').show();
-        var live_class_id = $(this).attr("name");
+        var tc_id = $(this).attr("name");
         $.ajax({
             
-            url: "/archiveLiveClass?live_class_id=" + live_class_id,
+            url: "/archiveTCClass?tc_id=" + tc_id,
             type: "get",
             data: '',
             success: function (archiveResponse) {
                 if (archiveResponse == 0) {
-                    var idWithHash = '#' + live_class_id;
+                    var idWithHash = '#' + tc_id;
                     $(idWithHash).remove();
                     M.toast({
-                        html: 'Class deleted!'
+                        html: 'TC deleted!'
                     })
                 } else {
                     M.toast({
@@ -198,6 +116,99 @@
         $('.datepicker').datepicker();
         $('.timepicker').timepicker();
     });
+
+
+
+
+ // Start of upload file
+ function uploadFile(file, s3Data, url,fileType){
+        console.log('inside uploadFile');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+      }
+      postData.append('file', file);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            //console.log('fileType:'+fileType);
+            if(fileType=='1'){
+                console.log('if file for courseUrl');
+                $('#videoLoader').hide();
+                $('#preview').show();
+            document.getElementById('preview').src = url;
+            document.getElementById('videoUrl').value=url;
+            }else
+            if(fileType=='2'){
+                console.log('if file is for notesUrl');
+                $('.videoNotesUrl').val(url);
+                $('#fileLoader').hide();
+                // document.getElementById('previewNotes').src = url;
+            }else
+            if(fileType=='10'){
+                $('#classRecLoader').hide();
+                $('#videoRecordUrl').val(url);
+            }
+            else{
+                console.log('if file for pdfURL');
+                $('#tcPDFLoader').hide();
+                document.getElementById('previewImg').src = url;
+                document.getElementById('pdfURL').value=url;
+            }
+            console.log(url);
+          }
+          else{
+            //window.alert("this is where the problem is");
+            $('#errorMSGSpan').html('Could not upload file. Please try later.');
+             $('#tcPDFLoader').hide();
+            //alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    function getSignedRequest(file,fileType){
+      const xhr = new XMLHttpRequest();
+      var type = file.type;
+      var VideoName = file.name;
+      console.log('File Name:'+type);
+      console.log('file type:'+VideoName);
+      //$('#video_name').html(VideoName);
+      xhr.open('GET', `/sign-s3?file-name=${VideoName}&file-type=${type}&folder=tcPDF`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            uploadFile(file, response.data, response.url,fileType);
+          } 
+          else{
+            $('#tcPDFLoader').hide();
+            $('#errorMSGSpan').html('Error In upload. Could not get signed URL. Please try later.');     
+
+          }
+        }
+      };
+      xhr.send();
+    }
+    function initUpload(fileType){
+        console.log('inside initUpload');
+        console.log(fileType);
+        var files = '';
+    
+        $('#tcPDFLoader').show();
+        files = document.getElementById('tcPDF').files;
+    
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      console.log('FileName:'+file);
+      getSignedRequest(file,fileType);
+    }
+// End of upload file
 </script>
 
 {% endblock %}
