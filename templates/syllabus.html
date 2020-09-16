@@ -2431,9 +2431,10 @@ $(document).ready(function(){
                     var class_val = responseArr[i].toString().split(':')[0];
                     var sections = responseArr[i].toString().split(':')[1];
                      sections = sections.replace(/;/g,",");
+                     cl = class_val.replace("/","-");
                     console.log('sections:'+sections);
                     classHTMLRecords = classHTMLRecords +
-                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+class_val+'specific" onClick="loadSubjects(\'' +
+                        '<a href="javascript:void(0);"><li class="collection-item classVal" id="'+cl+'specific" onClick="loadSubjects(\'' +
                         class_val + '\')" name=' +
                         selectedBoardID + ' id=' + class_val + ' >' + class_val + ' - '+ sections +
                         '</li></a>';
@@ -2551,7 +2552,7 @@ $(document).ready(function(){
     var classforSubject = '';
     function loadSubjects(selectedClassVal) {
         $("#msg").html('');
-        console.log('selected class value:'+selectedClassVal);
+        // console.log('selected class value:'+selectedClassVal);
         $('#divSubject').hide();
         $('#searchId').hide();
         $('#subjectloader').show();
@@ -2573,19 +2574,18 @@ $(document).ready(function(){
         classforSubject = selectedClassVal;
         {% for class in classValuesGeneral %}
             var desc = "{{class.class_val}}";
-            console.log(desc);
+            desc = desc.replace("/","-");
             var clasId = '#'+desc.toString()+"specific";
             $(clasId).css('background-color','');
             $(clasId).css('color','');
-            console.log('inside for'+clasId);
         {% endfor %}
-        
-        var classId = '#'+selectedClassVal.toString()+"specific";
-        console.log('outside for:'+selectedClassVal);
+        cl = selectedClassVal.replace("/","-");
+        var classId = '#'+cl.toString()+"specific";
+        // console.log('outside for:'+cl);
         console.log(classId);
         $(classId).css('background-color','lightseagreen');
         $(classId).css('color','white');
-        console.log('inside loadSubjects'+selectedClassVal);
+        // console.log('inside loadSubjects'+selectedClassVal);
         $.ajax({
             url: "/syllabusSubjects?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal,
             type: "get",
@@ -2594,18 +2594,18 @@ $(document).ready(function(){
                 
                 //alert(responseArr.length);
                 var subjectHTMLRecords = "";
-                console.log('inside load Subjects');
-                console.log(response);
+                // console.log('inside load Subjects');
+                // console.log(response);
                 if(response){
                 responseArr = response.toString().split(',');
                 for (var i = 0; i < responseArr.length; i++) {
                     var subjectID = responseArr[i].toString().split(':')[0];
                     var subjectName = responseArr[i].toString().split(':')[1];
                     console.log('inside for loop');
-                    console.log(subjectID);
-                    console.log(subjectName);
+                    // console.log(subjectID);
+                    // console.log(subjectName);
                     subject_name = subjectName.replace(/ /g,"_");
-                    console.log('New name:'+subject_name);
+                    // console.log('New name:'+subject_name);
                     var parameters = "\"" + subject_name + "\""+ "," + subjectID + ','+"\"" + selectedClassVal + "\""+
                         ',' + selectedBoardID;
                     subjectHTMLRecords = subjectHTMLRecords +
