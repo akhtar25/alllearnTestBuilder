@@ -5774,13 +5774,16 @@ def questionBank():
     form.chapter_num.choices= ''
     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
     if request.method=='POST':
-        topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
+        topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(form.class_val.data)+"' and td.subject_id = '"+str(form.subject_name.data)+"' and td.chapter_num='"+str(form.chapter_num.data)+"' and tt.is_archived = 'N'"
+        topic_list = db.session.execute(text(topic_list)).fetchall()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
         session['class_val']=form.class_val.data
         session['sub_name']=subject.description
         session['test_type_val']=form.test_type.data
-        session['chapter_num']=form.chapter_num.data    
-        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+        session['chapter_num']=form.chapter_num.data  
+        print('Class value:'+str(form.class_val.data))
+        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
+        print('Class value:'+str(form.class_val.data))
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         return render_template('questionBank.html',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
     return render_template('questionBank.html',form=form,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
@@ -8574,6 +8577,7 @@ def questionBuilder():
     print("Inside Question Builder")
     if request.method=='POST':
         if form.submit.data:
+            print('Question Image:'+str(request.form['reference']))
             question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=request.form['question_desc'],
             reference_link=request.form['reference'],topic_id=int(request.form['topics']),question_type=form.question_type.data,suggested_weightage=int(request.form['weightage']),archive_status=str('N'))
             print(question)
@@ -8622,6 +8626,7 @@ def questionBuilder():
                 if index<20:
                     if row['Question Type']=='MCQ1':
                         print("Inside MCQ")
+                        print('Image Url:'+str(request.form['reference-url'+str(index+1)]))
                         question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
                         topic_id=row['Topic Id'],question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
                         db.session.add(question)
@@ -8649,9 +8654,10 @@ def questionBuilder():
                             print(question_id.question_id)
                             print(correct)
                             print(option_val)
-                            options=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                            options=QuestionOptions(option_desc=row[option_name],question_id=question.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
                             print(options)
                             db.session.add(options)
+                            db.session.commit()
                     else:
                         print("Inside Subjective")
                         question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
@@ -8792,10 +8798,14 @@ def addChapterTopics():
     query = "select distinct bd.book_name ,topic_name, chapter_name, td.topic_id, td.chapter_num from topic_tracker tt "
     query = query + "inner join topic_detail td on td.topic_id = tt.topic_id "
     query = query + "inner join book_details bd on td.book_id = bd.book_id "
-    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(school_id)+"' order by td.chapter_num "
+    query = query + "where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(school_id)+"' and tt.is_archived='N' order by td.chapter_num "
+    print('Query:'+str(query))
     chapters = db.session.execute(text(query)).fetchall()
     chaptersArray = []
     i=1
+    book = ''
+    ch = ''
+    print(chapters)
     for chapter in chapters:
         if len(chapters)>1:
             book = chapter.book_name
@@ -8808,6 +8818,9 @@ def addChapterTopics():
                 book = "/"+str(book)
                 ch = str(ch)+"/"
             i=i+1
+        else:
+            book = chapter.book_name
+            ch = chapter.topic_id
         chaptersArray.append(str(book)+"@"+str(chapter.topic_name)+"@"+str(chapter.chapter_name)+"@"+str(ch))
     
     if chaptersArray:
@@ -8896,8 +8909,9 @@ def subject_list(class_val):
             teacher_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        cl = class_val.replace("-","/")
         board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(class_val),board_id=board_id).all()
+        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(cl),board_id=board_id).all()
         subject_name_list=[]
 
         for id in subject_id:
@@ -8921,8 +8935,9 @@ def subject_list(class_val):
 # topic list generation dynamically
 @app.route('/questionBuilder/<class_val>/<subject_id>')
 def topic_list(class_val,subject_id):
-    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).all()
-
+    cl = class_val.replace("-","/")
+    topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(cl)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
+    topic_list = db.session.execute(text(topic_list))
     topicArray=[]
 
     for topic in topic_list:
@@ -8938,7 +8953,8 @@ def questionTopicPicker():
     print('Inside topic picker')
     class_val = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
-    topic_list=Topic.query.filter_by(class_val=class_val,subject_id=subject_id).order_by(Topic.chapter_num).all()
+    topic_list="select td.topic_id,td.chapter_num,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
+    topic_list = db.session.execute(text(topic_list)).fetchall()
     for topic in topic_list:
         print(topic.topic_id)
         print(topic.topic_name)
@@ -8956,7 +8972,8 @@ def questionTopicPicker():
 
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):
-    chapter_num = "select distinct chapter_num,chapter_name from topic_detail where class_val='"+class_val+"' and subject_id='"+subject_id+"' order by chapter_num"
+    cl = class_val.replace('-','/')
+    chapter_num = "select chapter_num,chapter_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+cl+"' and td.subject_id='"+subject_id+"' and tt.is_archived='N' order by td.chapter_num"
     print(chapter_num)
     print('Inside chapterPicker')
     

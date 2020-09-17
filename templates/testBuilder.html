@@ -184,6 +184,7 @@ $(document).ready(function(){
       contentType:"/application/json",
       data:"",
       success: function(response){
+          console.log(response);
         if(response){
         responseArr = response.toString().split('/,/');
         var optionHTML = '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
@@ -336,6 +337,7 @@ var topics = '';
     var class_val = select_class.value;
     var test_type = select_test.value;
     topics = $('#selectChapters').val();
+    alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,

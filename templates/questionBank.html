@@ -121,7 +121,8 @@ var count_marks = 0;
          
          $("#loader").show();
          console.log('Inside class value Onchange')
-         fetch('/questionBuilder/' + class_val).then(function(response) {
+         var cl = class_val.replace('/','-');
+         fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
                      var optionHTML = '';
@@ -142,7 +143,8 @@ var count_marks = 0;
         subject_id = subject_select.value;
         console.log('Inside subject_select on change')
         $("#loader1").show();
-        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+        var cl = class_val.replace('/','-');
+        fetch('/questionChapterpicker/' + cl + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
                 $("#loader1").hide();
                 var optionHTML = '';
