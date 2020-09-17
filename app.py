@@ -2469,10 +2469,13 @@ def openLiveClass():
         if current_user.is_anonymous==False:
             courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=topicData.course_id, student_user_id=current_user.id).first()        
             if courseEnrollmentData!=None and courseEnrollmentData!="":
+                print('enrolled')
                 enrolled='Y'
                 batch_id=courseEnrollmentData.batch_id
+                print('Batch ID:'+str(batch_id))
                 courseBatchStudData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N',is_ongoing='Y').first()
                 if courseBatchStudData!=None and courseBatchStudData!="":
+                    print('ongoing class')
                     ongoing='Y'
         else:
             enrolled='N'
