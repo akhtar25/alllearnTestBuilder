@@ -6044,7 +6044,8 @@ def testBuilderFileUpload():
                     option.option+". "+option.option_desc)     
     #document.add_page_break()
     #naming file here
-    file_name=str(teacher_id.school_id)+str(class_val)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+    cl = class_val.replace("/","-")
+    file_name=str(teacher_id.school_id)+str(cl)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
     file_name = file_name.replace(" ", "")
     if not os.path.exists('tempdocx'):
         os.mkdir('tempdocx')
@@ -8623,46 +8624,49 @@ def questionBuilder():
             df1=pd.read_csv(csv_file)
             for index ,row in df1.iterrows():
                 print('index:'+str(index))
-                if index<20:
-                    if row['Question Type']=='MCQ1':
-                        print("Inside MCQ")
-                        print('Image Url:'+str(request.form['reference-url'+str(index+1)]))
-                        question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-                        topic_id=row['Topic Id'],question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
-                        db.session.add(question)
-                        question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
-                        for i in range(1,5):
-                            option_no=str(i)
-                            option_name='Option'+option_no
+                print('Ques Desc:'+str(row['Question Description']))
+                if str(row['Question Description'])!="nan" or str(row['Question Description'])!='nan':
+                    print('Ques Desc'+str(row['Question Description']))
+                    if index<20:
+                        if row['Question Type']=='MCQ1':
+                            print("Inside MCQ")
+                            print('Image Url:'+str(request.form['reference-url'+str(index+1)]))
+                            question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                            topic_id=row['Topic Id'],question_type='MCQ1',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                            db.session.add(question)
+                            question_id=db.session.query(QuestionDetails).filter_by(class_val=str(request.form['class_val']),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
+                            for i in range(1,5):
+                                option_no=str(i)
+                                option_name='Option'+option_no
 
-                            print(row[option_name])
-                            if row['CorrectAnswer']==row['Option'+option_no]:
-                                correct='Y'
-                                weightage=row['Suggested Weightage']
-                            else:
-                                correct='N'
-                                weightage='0'
-                            if i==1:
-                                    option_val='A'
-                            elif i==2:
-                                    option_val='B'
-                            elif i==3:
-                                    option_val='C'
-                            else:
-                                option_val='D'
-                            print(row[option_name])
-                            print(question_id.question_id)
-                            print(correct)
-                            print(option_val)
-                            options=QuestionOptions(option_desc=row[option_name],question_id=question.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
-                            print(options)
-                            db.session.add(options)
-                            db.session.commit()
-                    else:
-                        print("Inside Subjective")
-                        question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
-                        topic_id=row['Topic Id'],question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
-                        db.session.add(question)
+                                print(row[option_name])
+                                if row['CorrectAnswer']==row['Option'+option_no]:
+                                    correct='Y'
+                                    weightage=row['Suggested Weightage']
+                                else:
+                                    correct='N'
+                                    weightage='0'
+                                if i==1:
+                                        option_val='A'
+                                elif i==2:
+                                        option_val='B'
+                                elif i==3:
+                                        option_val='C'
+                                else:
+                                    option_val='D'
+                                print(row[option_name])
+                                print(question_id.question_id)
+                                print(correct)
+                                print(option_val)
+                                options=QuestionOptions(option_desc=row[option_name],question_id=question.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
+                                print(options)
+                                db.session.add(options)
+                                db.session.commit()
+                        else:
+                            print("Inside Subjective")
+                            question=QuestionDetails(class_val=str(request.form['class_val']),subject_id=int(request.form['subject_name']),question_description=row['Question Description'],
+                            topic_id=row['Topic Id'],question_type='Subjective',reference_link=request.form['reference-url'+str(index+1)],archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
+                            db.session.add(question)
             db.session.commit()
             flash('Successfully Uploaded !')
             return render_template('questionBuilder.html',user_type_val=str(current_user.user_type))
