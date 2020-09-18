@@ -2536,6 +2536,12 @@ def courseTopicDetail():
     topicDet = db.session.execute(text(topicDet)).fetchall()
     return render_template('_courseTopicDetail.html', topicDet=topicDet,course_id=course_id)
 
+@app.route('/fetchClassVideo',methods=['GET','POST'])
+def fetchClassVideo():
+    topic_id = request.args.get('topic_id')
+    class_video = CourseTopics.query.filter_by(topic_id=topic_id).first()
+    return jsonify(class_video.video_class_url)
+
 @app.route('/courseBatchDetail')
 def courseBatchDetail():
     course_id = request.args.get('course_id')
@@ -7613,7 +7619,7 @@ def loadQuestionStud():
         if studentRow:
             marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
         else:
-            marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
+            marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
         print('Query for scored marks:'+str(marksScoredQuery))
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         print('Marks Scored Query:'+marksScoredQuery)
@@ -8035,15 +8041,30 @@ def studentFeedbackReport():
     if student_name==None:
         student_name = str(current_user.first_name)+' '+str(current_user.last_name)
     resp_session_id = request.args.get('resp_session_id')
-    #responseCaptureRow = ResponseCapture.query.filter_by(student_id = student_id, resp_session_id = resp_session_id).all()    
-    responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
-    responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
-    responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
-    responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
-    responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
-    responseCaptureQuery = responseCaptureQuery +"left join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
-    responseCaptureQuery = responseCaptureQuery +"inner join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
-    responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
+    studentRow = ''
+    if current_user.is_anonymous:        
+        studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    else:
+        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()   
+    responseCaptureQuery = ''
+    if studentRow:
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
+        responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
+        responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
+        responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
+        responseCaptureQuery = responseCaptureQuery +"left join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
+        responseCaptureQuery = responseCaptureQuery +"inner join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+        responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
+    else:
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
+        responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
+        responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
+        responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
+        responseCaptureQuery = responseCaptureQuery +"left join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
+        responseCaptureQuery = responseCaptureQuery +"inner join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+        responseCaptureQuery = responseCaptureQuery +"where student_user_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
     print('Response Capture Query:'+str(responseCaptureQuery))
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
