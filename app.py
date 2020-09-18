@@ -2458,7 +2458,6 @@ def openLiveClass():
     #updating table to say ongoing class
     enrolled=''
     ongoing='N'
-<<<<<<< HEAD
     if current_user.is_anonymous==False:
         courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,batch_id=batch_id, student_user_id=current_user.id).first()        
         if courseEnrollmentData!=None and courseEnrollmentData!="":
@@ -2472,27 +2471,6 @@ def openLiveClass():
             courseBatchData.ongoing_topic_id = topicData.topic_id
             courseBatchData.last_modified_date = datetime.today()
             db.session.commit()        
-=======
-    if batch_id!="" and batch_id!=None:
-        courseBatchData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N').first()
-        courseBatchData.is_ongoing = 'Y'
-        courseBatchData.ongoing_topic_id = topicData.topic_id
-        courseBatchData.last_modified_date = datetime.today()
-        db.session.commit()        
-    else:
-        #checking if a student is seeing the page and then seeing the batch id they're allocated to
-        if current_user.is_anonymous==False:
-            courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=topicData.course_id, student_user_id=current_user.id).first()        
-            if courseEnrollmentData!=None and courseEnrollmentData!="":
-                print('enrolled')
-                enrolled='Y'
-                batch_id=courseEnrollmentData.batch_id
-                print('Batch ID:'+str(batch_id))
-                courseBatchStudData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N',is_ongoing='Y').first()
-                if courseBatchStudData!=None and courseBatchStudData!="":
-                    print('ongoing class')
-                    ongoing='Y'
->>>>>>> AT-485
         else:
         #checking if a student is seeing the page and then seeing the batch id they're allocated to
         
