@@ -2458,25 +2458,28 @@ def openLiveClass():
     #updating table to say ongoing class
     enrolled=''
     ongoing='N'
-    if batch_id!="" and batch_id!=None:
-        courseBatchData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N').first()
-        courseBatchData.is_ongoing = 'Y'
-        courseBatchData.ongoing_topic_id = topicData.topic_id
-        courseBatchData.last_modified_date = datetime.today()
-        db.session.commit()        
-    else:
-        #checking if a student is seeing the page and then seeing the batch id they're allocated to
-        if current_user.is_anonymous==False:
-            courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=topicData.course_id, student_user_id=current_user.id).first()        
-            if courseEnrollmentData!=None and courseEnrollmentData!="":
-                enrolled='Y'
-                batch_id=courseEnrollmentData.batch_id
-                courseBatchStudData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N',is_ongoing='Y').first()
-                if courseBatchStudData!=None and courseBatchStudData!="":
-                    ongoing='Y'
+    if current_user.is_anonymous==False:
+        courseEnrollmentData = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,batch_id=batch_id, student_user_id=current_user.id).first()        
+        if courseEnrollmentData!=None and courseEnrollmentData!="":
+            print('Enrolled')
+            enrolled='Y'
+        print(enrolled)
+        if enrolled=='' or enrolled==None:
+            print('enrolled N')
+            courseBatchData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N').first()
+            courseBatchData.is_ongoing = 'Y'
+            courseBatchData.ongoing_topic_id = topicData.topic_id
+            courseBatchData.last_modified_date = datetime.today()
+            db.session.commit()        
         else:
-            enrolled='N'
-            batch_id=""
+        #checking if a student is seeing the page and then seeing the batch id they're allocated to
+        
+            print('enrolled value:'+str(enrolled))
+            batch_id=courseEnrollmentData.batch_id
+            courseBatchStudData = CourseBatch.query.filter_by(batch_id = batch_id,is_archived='N',is_ongoing='Y').first()
+            if courseBatchStudData!=None and courseBatchStudData!="":
+                print('ongoing class')
+                ongoing='Y'
 
     pageTitle = str(topicData.topic_name)+' '+str(topicData.course_name)
     print('$#$$$$$$$$$$$$$'+str(batch_id))
@@ -2539,7 +2542,7 @@ def courseBatchDetail():
     teacher_user_id = request.args.get('teacher_user_id')
     #teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
     teacherUser = User.query.filter_by(id=teacher_user_id).first()
-    courseBatchData = " select cb.batch_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , "
+    courseBatchData = " select cb.batch_id,cb.course_id ,cb.batch_end_date ,cb.batch_start_date ,cb.days_of_week ,cb.student_limit, cb.students_enrolled , cb.is_ongoing, cb.ongoing_topic_id,"
     courseBatchData = courseBatchData + " cb.course_batch_fee,ce.student_user_id from course_batch cb left join course_enrollment ce on ce.batch_id = cb.batch_id "
     courseBatchData = courseBatchData + " and cb.course_id=ce.course_id "
     if current_user.is_anonymous==False:
@@ -2547,7 +2550,7 @@ def courseBatchDetail():
     courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' "    
     courseBatchData = courseBatchData + " and cb.batch_end_date > NOW() "
     courseBatchData = courseBatchData + " order by cb.batch_start_date desc"
-    #print('Query:'+str(courseBatchData))
+    print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
     return render_template('_courseBatchDetail.html', courseBatchData=courseBatchData,teacherUser=teacherUser
         ,course_id=course_id)

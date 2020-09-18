@@ -44,10 +44,17 @@
                            <td>
                                {% if batch.student_user_id==current_user.id %}
                                Enrolled
+                               {% if batch.is_ongoing=='Y' %}
+                                (ongoing) <a href="{{url_for('openLiveClass',batch_id=batch.batch_id,topic_id=batch.ongoing_topic_id,course_id=batch.course_id)}}">Join</a>
+                               {% endif %}
                                {% else %}
                                <a class="enrollBTN modal-trigger" name="{{batch.batch_id}}"
                                    id="{{batch.course_batch_fee}}" style="width: 100%;" href="#modal2"> Enroll</a>
+                                   {% if batch.is_ongoing=='Y' %}
+                                (ongoing) 
                                {% endif %}
+                               {% endif %}
+                               
                            </td>
                            {% endif %}
                            {% else %}
