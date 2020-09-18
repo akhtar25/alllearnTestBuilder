@@ -292,8 +292,9 @@ var loadImageFile = function () {
     var desc = '{{ questionUpdateUpload.subject_id }}';
     var subject_id = '{{ questionUpdateUpload.subject_id }}';
     var topicName = '{{ questionUpdateUpload.topic_id }}';
+    var cl = classVal.replace("/","-");
     $('.questionUpdateButton').click(function(){
-      fetch('/questionBuilder/' + classVal).then(function(response) {
+      fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      var optionHTML = '';
                      for (var subject of data.subjects) {
@@ -303,8 +304,8 @@ var loadImageFile = function () {
              })
              
          });
-      
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+         var cl = classVal.replace("/","-");
+         fetch('/questionBuilder/' + cl + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      var optionHTML = '';
                     console.log('')
@@ -325,7 +326,8 @@ var loadImageFile = function () {
          class_val = class_select_update.value;
          $("#loaderSubject").show();
          console.log('Inside class value Onchange')
-         fetch('/questionBuilder/' + class_val).then(function(response) {
+         var cl = classVal.replace("/","-");
+         fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderSubject").hide();    
                      var optionHTML = '';
@@ -362,7 +364,8 @@ var loadImageFile = function () {
          }else{
           subId=subject_id;
          }
-         fetch('/questionBuilder/' + class_val + '/'+ subId).then(function(response) {
+         var cl = classVal.replace("/","-");
+         fetch('/questionBuilder/' + cl + '/'+ subId).then(function(response) {
               response.json().then(function(data) {
                       $("#loaderTopic").hide();    
                       var optionHTML = '';
@@ -386,7 +389,8 @@ var loadImageFile = function () {
          subject_id = subject_select_update.value;
          $("#loaderTopic").show();
          console.log('Inside subject value Onchange')
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+         var cl = classVal.replace("/","-");
+         fetch('/questionBuilder/' + cl + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderTopic").hide();    
                      var optionHTML = '';
@@ -483,7 +487,8 @@ var loadImageFile = function () {
         class_val = class_select.value;
         $("#loaderSubject").show();
         console.log('Inside class value Onchange')
-        fetch('/questionBuilder/' + class_val).then(function(response) {
+        cl = class_val.replace("/","-");
+        fetch('/questionBuilder/' + cl).then(function(response) {
             response.json().then(function(data) {
                     $("#loaderSubject").hide();    
                     var optionHTML = '';
@@ -512,7 +517,8 @@ var loadImageFile = function () {
          subject_id = subject_select.value;
          $("#loaderTopic").show();
          console.log('Inside subject value Onchange')
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+         var cl = class_val.replace("/","-");
+         fetch('/questionBuilder/' + cl + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderTopic").hide();    
                      var optionHTML = '';
@@ -537,7 +543,8 @@ if(b!=1){
          subject_id = subject_select.value;
          $("#loaderTopic").show();
          console.log('Inside subject value Onchange')
-         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
+         var cl = class_val.replace("/","-");
+         fetch('/questionBuilder/' + cl + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderTopic").hide();    
                      var optionHTML = '';
@@ -656,7 +663,8 @@ if(b!=1){
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
             
-            document.getElementById('preview').src = url;
+            // document.getElementById('preview').src = url;
+            alert('Url for reference:'+url);
             document.getElementById('reference').value = url;
           }
           else{
@@ -676,7 +684,7 @@ if(b!=1){
       const xhr = new XMLHttpRequest();
       var type = 'image/jpeg';
       console.log('File Name:'+file.name+'File type:'+file.type)
-      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=question_references/images`);
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=question_references/images`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
