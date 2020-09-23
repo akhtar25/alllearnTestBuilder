@@ -10083,15 +10083,28 @@ def studTC():
         school_id = teacherData.school_id
         tc_url =  request.form.get('pdfURL')
         #student_id = request.form.get('student_id')
-        chkStudentData = StudentProfile.query.filter_by(student_id=student_id).first()
-        if chkStudentData!=None:
-            transferDataAdd = TransferCerts(student_id=student_id, school_adm_number=school_adm_number, teacher_id=teacher_id
-                ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
-            db.session.add(transferDataAdd)
-            db.session.commit()
-            flash('TC Uploaded Successfully!')
+        if school_adm_number:
+            chkStudentData = StudentProfile.query.filter_by(school_adm_number=school_adm_number,school_id=school_id).first()
+            if chkStudentData!=None:
+                transferDataAdd = TransferCerts(student_id=chkStudentData.student_id, school_adm_number=school_adm_number, teacher_id=teacher_id
+                    ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
+                db.session.add(transferDataAdd)
+                db.session.commit()
+                flash('TC Uploaded Successfully!')
+            else:
+                flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
+        elif student_id:
+            chkStudentData = StudentProfile.query.filter_by(student_id=student_id,school_id=school_id).first()
+            if chkStudentData!=None:
+                transferDataAdd = TransferCerts(student_id=student_id, school_adm_number=chkStudentData.school_adm_number, teacher_id=teacher_id
+                    ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
+                db.session.add(transferDataAdd)
+                db.session.commit()
+                flash('TC Uploaded Successfully!')
+            else:
+                flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
         else:
-            flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
+            flash(Markup('<span class="red-text"> Please Enter Student Id or School Admission Number. Please try again.</span>'))
     return render_template('studTC.html',tcData=tcData)
 
 @app.route('/archiveTCClass',methods=["GET","POST"])
@@ -10119,9 +10132,12 @@ def accessStudTC():
 
 @app.route('/fetchStudTC')
 def fetchStudTC():
-    student_id = request.args.get('student_id')
+    # student_id = request.args.get('student_id')
+    school = current_user.school_id
+    print('School id:'+str(school))
     school_adm_number = request.args.get('school_adm_number')
-    tcData = TransferCerts.query.filter_by(student_id=student_id,is_archived='N'  ).first()    
+    student = StudentProfile.query.filter_by(school_adm_number = school_adm_number,school_id=school).first()
+    tcData = TransferCerts.query.filter_by(student_id=student.student_id,is_archived='N'  ).first()    
     if tcData!=None:
         if tcData.tc_url!=None and tcData.tc_url!="":
             return jsonify([tcData.tc_url])
