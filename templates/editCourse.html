@@ -539,10 +539,12 @@
                 for(var i=0;i<responseArr.length;i++){
                     var notes_name = responseArr[i].toString().split('!')[0];
                     var notes_url = responseArr[i].toString().split('!')[1];
+                    var notes_id = responseArr[i].toString().split('!')[2];
+                    notes_name = notes_name.replace("/",",");
                     console.log('Notes name:'+notes_name);
                     console.log('Notes url:'+notes_url);
-                    
-                    notesDiv = notesDiv + '<input type="text" value="'+notes_name+'" id="notesName'+i+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%;display:none;" class="selType" onchange="fileType(this.value,'+i+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url'+i+'" class="notes'+i+'" style="margin-top: 16px;"><span id='+i+'>Notes URL:<span><input type="text" value="'+notes_url+'" id="notesURL'+i+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+i+'" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+i+'" value="" name="videoNotesUrl">';
+                    console.log('Notes id'+notes_id);
+                    notesDiv = notesDiv + '<input type="text" value="'+notes_name+'" id="notesName'+i+'" style="font-size: 20px;margin-top: 10px;" name="notesName" placeholder="Notes Name"><select style="width:50%;display:none;" class="selType" onchange="fileType(this.value,'+i+')"><option value="">choose file type</option><option value="1">place url</option><option value="2">upload file</option></select><div id="url'+i+'" class="notes'+i+'" style="margin-top: 16px;"><span id='+i+'>Notes URL:<span><input type="text" value="'+notes_url+'" id="notesURL'+i+'" name="notesURL" style="width:200px;margin-left: 10px;" placeholder="eg. Youtube video or pdf"></div><a title="Delete Topic Notes" style="float: right;" onclick="deleteNotes('+notes_id+');" name="" href="#" class=" btn-floating btn-small orange"><i class="material-icons small" style="cursor:pointer">delete</i></a><div style="display: flex;margin-top: 16px;"><input type="file" class="fnotes'+i+'" id="video_notes_url" onchange="initUpload(2);" name="video_url" style="height: 30px;display: none;"> <div id="fileLoader" style="display: none;"><img src="../static/images/loader.gif" style="width: 16%;margin-left: -90px;"></div></div><input type="hidden" id="videoNotesUrl'+i+'" value="" name="videoNotesUrl">';
                 }
                 $('#topicNotDiv').html(notesDiv);
                 $('#saveNotes').hide();
@@ -558,6 +560,22 @@
               $('#msg').html('Error in creating homework. Please try again.');  
             }
         }); 
+    }
+
+    function deleteNotes(notes_id){
+        $.ajax({
+            url:"/deleteNotes?notes_id="+notes_id,
+            type:"POST",
+            data:"",
+            success:function(response){
+                if(response){
+                    topicId(response);
+                }
+            },
+            error:function(xhr){
+                alert('error in deleting notes');
+            }
+        });
     }
 
     var topId = '';
@@ -1190,7 +1208,8 @@ function correctOption(correct){
                         var quesNo = responseArr[i].toString().split(':')[1];
                         var topicId = responseArr[i].toString().split(':')[2]; 
                         var notes = responseArr[i].toString().split(':')[3]; 
-                        var recording = responseArr[i].toString().split(':')[4]; 
+                        var recording = responseArr[i].toString().split(':')[4];
+                        topicName = topicName.replace("/",",");
                         console.log('Topic name:'+topicName);
                         console.log('QuesNo:'+quesNo);
                         console.log('TopicId:'+topicId);
@@ -1476,6 +1495,7 @@ function correctOption(correct){
                         }
                         console.log('topic name:'+topic_name);
                         console.log('Topic Id:'+topicId);
+                        topic_name = topic_name.replace("/",",");
                         $('#topicName').val(topic_name);
                         $('#topicId').val(topicId);
                         quesListDiv = quesListDiv + '<tr><td style="padding-top:10px;"><h4 style="margin-left:5px;">'+ques+'</h4><ul style="margin-left:7px;"><li>'+opt1+'<span id="'+opt1+quesId+'"></span></li><li>'+opt2+'<span id="'+opt2+quesId+'"></span></li><li>'+opt3+'<span id="'+opt3+quesId+'"></span></li><li>'+opt4+'<span id="'+opt4+quesId+'"></span></li></ul></td><td><a title="Delete Topic" onclick="deleteQues('+quesId+');" name="" href="#" class=" btn-floating btn-small orange deleteBTNClass"><i class="material-icons small" style="cursor:pointer">delete</i></a></td></tr>';

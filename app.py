@@ -3075,7 +3075,8 @@ def fetchQues():
         recording = db.session.execute(text(recording)).first()
         if recording:
             checkRec = recording.video_class_url
-        topicsDet.append(str(topicName.topic_name)+':'+str(quesNo)+':'+str(topicName.topic_id)+':'+str(checkNotes)+':'+str(checkRec))
+        topic = topicName.topic_name.replace(",","/")
+        topicsDet.append(str(topic)+':'+str(quesNo)+':'+str(topicName.topic_id)+':'+str(checkNotes)+':'+str(checkRec))
     if topicsDet:
         return jsonify(topicsDet)
     else:
@@ -3089,6 +3090,14 @@ def fetchRecording():
     record = CourseTopics.query.filter_by(course_id=courseId,topic_id=topic_id).first()
     return jsonify(record.video_class_url)
 
+@app.route('/deleteNotes',methods=['GET','POST'])
+def deleteNotes():
+    notes_id = request.args.get('notes_id')
+    notes = TopicNotes.query.filter_by(tn_id=notes_id).first()
+    notes.is_archived = 'Y'
+    db.session.commit()
+    return jsonify(notes.topic_id)
+
 
 @app.route('/fetchNotes',methods=['GET','POST'])
 def fetchNotes():
@@ -3097,7 +3106,8 @@ def fetchNotes():
     notes = TopicNotes.query.filter_by(topic_id=topic_id,is_archived='N').all()
     notesData = []
     for note in notes:
-         notesData.append(str(note.notes_name)+'!'+str(note.notes_url))
+        NewNotes = note.notes_name.replace(",","/")
+        notesData.append(str(NewNotes)+'!'+str(note.notes_url)+'!'+str(note.tn_id))
     print(notesData)
     if notesData:
         return jsonify(notesData)
@@ -3165,8 +3175,10 @@ def fetchTopicsQues():
     # NotesName = topicNotes.notes_name
     # NotesUrl = topicNotes.notes_url
     quesArray = []
+    NewTopicName = ''
     if len(quesIds)==0:
-        quesArray.append(str('')+':'+str(topicName.topic_name)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
+        NewTopicName = topicName.topic_name.replace(",","/")
+        quesArray.append(str('')+':'+str(NewTopicName)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
     for qId in quesIds:
         quesObj = {}    
         quesName = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
@@ -3191,7 +3203,8 @@ def fetchTopicsQues():
                 opt4 = option.option_desc
             i=i+1
             print('quesOptions:'+str(option.option_desc))
-        quesArray.append(str(quesName.question_description)+':'+str(topicName.topic_name)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId.question_id)+':'+str(topicName.topic_id))
+        NewTopicName = topicName.topic_name.replace(",","/")
+        quesArray.append(str(quesName.question_description)+':'+str(NewTopicName)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId.question_id)+':'+str(topicName.topic_id))
     print('quesArray:')
     print(quesArray)
     if quesArray:
