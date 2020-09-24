@@ -102,8 +102,8 @@
          
         class_val = class_select.value;
         $("#loader1").show();
-        
-        fetch('/questionBuilder/' + class_val).then(function(response) {
+        var cl = class_val.replace("/","-");
+        fetch('/questionBuilder/' + cl).then(function(response) {
             response.json().then(function(data) {
                     $("#loader1").hide();    
                     var optionHTML = '';
@@ -132,7 +132,8 @@
         subject_id = subject_select.value;
         console.log('Inside subject_select on change')
         $("#loader2").show();
-        fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+        var cl = class_val.replace("/","-");
+        fetch('/questionChapterpicker/' + cl + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
                 $("#loader2").hide();
                 var optionHTML = '';
@@ -308,10 +309,13 @@
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            alert('Uploaded')
+            // alert('Uploaded')
             reference_name='reference-url'+button_id
             document.getElementById(reference_name).value = url;
-            alert( document.getElementById(reference_name).value)
+            // alert( document.getElementById(reference_name).value)
+            
+            $('#upload').html("Upload");
+            $('#upload').prop("disabled",false);
           }
           else{
             window.alert("this is where the problem is");
@@ -353,8 +357,10 @@
        start upload procedure by asking for a signed request from the app.
     */
     function initUpload(element){
+      $('#upload').prop("disabled",true);
+      $('#upload').html("uploading please wait...");
       button_id=element.id
-      alert(button_id)
+      // alert(button_id)
       const files = document.getElementById(button_id).files;
       const file = files[0];
       if(!file){

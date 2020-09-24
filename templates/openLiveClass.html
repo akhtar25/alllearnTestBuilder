@@ -1,11 +1,17 @@
 {%extends "layout.html"%} {%block content%}
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
-<!--<script src="../static/js/painterro-1.0.35.min.js"></script>-->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/spainter@1.0.0/index.js"></script> -->
+<script src="../static/js/painterro-1.0.35.min.js"></script>
 <!--<script src="../shared-assets/create-demo-room.js"></script>-->
 <style>
    div.stars {
   width: 270px;
   display: inline-block;
+}
+
+#whiteboardBox-bar{
+    margin-left:-14px;
 }
 
 input.star { display: none; }
@@ -49,9 +55,9 @@ span.stars span {
     background-position: 0 0;
 }
 
-    button {
+    /* button {
         display: block;
-    }
+    } */
 
     #page-blocks {
         height: 100%;
@@ -264,6 +270,7 @@ span.stars span {
 </script>
 
 <div class="container">
+    <!-- <script src="../static/js/painterro-1.0.35.min.js"></script> -->
     <div>
     <h3>{{topicData.topic_name}}</h3>
     <h4><a href="{{url_for('courseDetail',course_id=topicData.course_id)}}" target="">{{topicData.course_name}}</a> </h4>
@@ -348,15 +355,23 @@ span.stars span {
         <div id="call-frame-container">
         </div>
     </div>
-        <div class="section">
-            <div id="whiteboardDiv">
+    <div class="section" >
+        <section class="col-xs-12">
+            <div id="whiteboardDiv" >         
                 <h3>
-                    Whiteboard
+                  Whiteboard
                 </h3>
-                <canvas id="myCanvas" style="height: 100%;width: 100%;">
-                    Sorry, your browser does not support HTML5.
-                </canvas>
+               
+              <div id="whiteboardBox" style="width: 300px; height: 400px;">
+                <script>
+                  Painterro({
+                    id: 'whiteboardBox',
+                    activeColor: '#00ff00',
+                  }).show();
+                </script>
+              </div>
             </div>
+        </section>
         </div>
     </div>
 </div>
@@ -468,7 +483,8 @@ span.stars span {
             <!--<p class="grey-text">While all the classes on this platform are free to ensure that everyone has access to knowledge, 
                 creating a course can be a painstalking task and as a way to appreciate the hard work done in the course you liked, do donate to the teacher.</p>-->
                 <br>
-            <h4>Other topics</h4>
+            <h4>Other topics</h4> 
+            <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
             {%if listTopics%}
             {% for topic in listTopics %}
             <a href="{{url_for('openLiveClass',topic_id=topic.topic_id)}}">
@@ -486,6 +502,7 @@ span.stars span {
             {%else%}
             <h4 class="grey-text">No other topics</h4>
             {%endif%}
+            </ul>
             <br>
             <!-- <img class="hoverable" src="../static/images/otherCourse1.PNG" width="350px"
                 style="border-radius: 10px;"><br><br>
@@ -641,6 +658,7 @@ $('#remarkPostButton').click(function($e){
         $('#mainDiv').toggle();
 
     });
+    
 </script>
 <script>
     window.onload = function() {

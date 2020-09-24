@@ -1,9 +1,8 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
   <script src="../static/js/painterro-1.0.35.min.js"></script>
-  <div class="skin-blue sidebar-mini">
+  <!-- <div class="skin-blue sidebar-mini">
     <aside class="main-sidebar" style="margin-top:15px;">
-      <!-- sidebar: style can be found in sidebar.less -->      
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
           {% for singleClass in distinctClasses %}
@@ -28,13 +27,12 @@
           {% endfor %}
           <ul>
       </section>
-      <!-- /.sidebar -->
     </aside>
-  </div>
+  </div> -->
   <!--------------------------------------------------------------------------------------------->
-  <div class="content-wrapper" style="background-color: white;">
+  <div class="content" style="background-color: white;">
     <div class="row" style="margin-top: 15px;">
-      <div>
+      <div> 
         <ul class="tabs">
           <li class="tab col s3"><a href="#" id="whiteboardTab">Whiteboard</a></li>
           <li class="tab col s3"><a href="#" id="bookTab">Book</a></li>
@@ -49,7 +47,7 @@
             Whiteboard
           </h3>
          
-        <div id="whiteboardBox" style="width: 300; height: 800px;">
+        <div id="whiteboardBox" style="width: 300px; height: 800px;">
           <script>
             Painterro({
               id: 'whiteboardBox',
