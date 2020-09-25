@@ -2804,10 +2804,14 @@ def teacherRegistration():
     School = db.session.execute(text(School)).fetchall()
     #for school in School:
     #    print('School name:'+str(school.school_name))
+    school_id = SchoolProfile.query.filter_by(school_id=current_user.school_id).first() 
     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
     reviewStatus = db.session.execute(text(reviewStatus)).first()
+    vendorId = str(current_user.id)+str('_school_')+str(school_id.school_id)+str('_1')
+    bankDetail = BankDetail.query.filter_by(vendor_id=vendorId).first()
+    print(bankDetail)
     if reviewStatus:
-        return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status)
+        return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail)
     else:
         return render_template('teacherRegistration.html',School=School)
 

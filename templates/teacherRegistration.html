@@ -49,15 +49,30 @@
                         <h4 class="grey-text">This is where the student's fees will be deposited</h4>
                         <div style="display: flex;">
                             <h4 style="width:210px;">Bank Name</h4>
+                            {% if bankDetail %}
+                            <input type="text" value="{{bankDetail.bank_name}}" style="width: 500px;" name="bankName" id="bankName" class="validationClass"/>
+                            {% else %}
                             <input type="text" value="" style="width: 500px;" name="bankName" id="bankName" class="validationClass"/>
+                            {% endif %}
                             <h4 style="width:210px;margin-left: 50px;">Account Holdername</h4>
+                            {% if bankDetail %}
+                            <input type="text" value="{{bankDetail.account_name}}" style="width: 500px;" name="accountHoldername" id="accountHoldername" class="validationClass"/>
+                            {% else %}
                             <input type="text" value="" style="width: 500px;" name="accountHoldername" id="accountHoldername" class="validationClass"/>
+                            {% endif %}
                         </div>
                         <div style="display: flex;">
+                            {% if bankDetail %}
+                            <h4 style="width:210px;">Account Number</h4>
+                            <input type="number" min="0" value="{{bankDetail.account_num}}" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
+                            <input type="text" value="{{bankDetail.ifsc}}" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
+                            {% else %}
                             <h4 style="width:210px;">Account Number</h4>
                             <input type="number" min="0" value="" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
                             <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
                             <input type="text" value="" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
+                            {% endif %}
                         </div>
                     </div>
                     <a href="#" class="btn green right" style="margin-top: 20px;" id="submit">Submit</a>
