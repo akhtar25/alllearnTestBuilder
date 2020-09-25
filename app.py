@@ -2802,19 +2802,32 @@ def teacherRegistration():
     print('inside teacher Registration')
     School = "select *from school_profile sp where school_name not like '%_school'"
     School = db.session.execute(text(School)).fetchall()
-    #for school in School:
-    #    print('School name:'+str(school.school_name))
-    school_id = SchoolProfile.query.filter_by(school_id=current_user.school_id).first() 
     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
     reviewStatus = db.session.execute(text(reviewStatus)).first()
-    vendorId = str(current_user.id)+str('_school_')+str(school_id.school_id)+str('_1')
-    bankDetail = BankDetail.query.filter_by(vendor_id=vendorId).first()
-    print(bankDetail)
+    teacher_id = request.args.get('teacher_id')
+    print(teacher_id)
+    if teacher_id:
+        teacher = TeacherProfile.query.filter_by(teacher_id = teacher_id).first()
+        #for school in School:
+        #    print('School name:'+str(school.school_name))
+        teacherDetail = User.query.filter_by(id = teacher.user_id).first()
+        school_id = SchoolProfile.query.filter_by(school_id=current_user.school_id).first() 
+        email = str(current_user.email).lower().replace(' ','_')
+        vendorId = str(email)+str('_school_')+str(teacher.school_id)+str('_1')
+        print(vendorId)
+        bankDetail = BankDetail.query.filter_by(vendor_id=vendorId).first()
+        print('details')
+        print(bankDetail)
+        print(teacherDetail.about_me)
+        if reviewStatus:
+            return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail,teacherDetail=teacherDetail)
+        else:
+            return render_template('teacherRegistration.html',School=School,bankDetail=bankDetail,teacherDetail=teacherDetail)
+    
     if reviewStatus:
-        return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail)
+        return render_template('teacherRegistration.html',School=School,reviewStatus=reviewStatus.review_status)
     else:
         return render_template('teacherRegistration.html',School=School)
-
 @app.route('/teacherRegForm',methods=['GET','POST'])
 def teacherRegForm():
     bankName =request.form.get('bankName')
@@ -2832,10 +2845,14 @@ def teacherRegForm():
         schoolEx = SchoolProfile.query.filter_by(school_id=selectSchool).first()
     if user_avatar!=None:
         current_user.user_avatar = user_avatar
+    if about_me!=None:
+        current_user.about_me = about_me
     board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
     checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    print('Teacher:'+str(checkTeacher))
     if checkTeacher==None:
         ## Adding new school record
+        print('if teacher is none')
         if selectSchool==None:
             print('if school id is none')
             schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
@@ -2868,6 +2885,12 @@ def teacherRegForm():
         print("This is the sms send response: " + smsResponse)
 
         ##Section to bank details
+        print('Bank Details')
+        print(accountNo)
+        print(IfscCode)
+        print(bankName)
+        print(accountHolderName)
+        print(vendorId)
         bankDetailAdd = BankDetail(account_num = accountNo, ifsc=IfscCode, bank_name=bankName, account_name=accountHolderName, 
             school_id=schoolAdd.school_id, vendor_id=vendorId,
             is_archived='N')

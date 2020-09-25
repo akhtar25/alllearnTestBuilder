@@ -7,9 +7,13 @@
             <form id="teacherRegForm">
                 <h4><p>
                     <label>
+                        {% if teacherDetail %}
+                        <input type="checkbox" value="Y" id="schoolPart" checked/>
+                        <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
+                        {% else %}
                         <input type="checkbox" value="Y" id="schoolPart"/>
                       <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
-                      
+                      {% endif %}
                     </label>
                   </p></h4>
                   <div style="display: none;" id="chooseSchool">
@@ -17,19 +21,29 @@
                     <select name="selectSchool">
                       <option value="" disabled selected>Choose Your School</option>
                       {% for row in School %}
+                      {% if teacherDetail %}
+                      {% if teacherDetail.school_id==row.school_id %}
+                      <option value="{{row.school_id}}" selected>{{row.school_name}}</option>
+                      {% endif %}
+                      {% else %}
                       <option value="{{row.school_id}}">{{row.school_name}}</option>
+                      {% endif %}
                       {% endfor %}
                     </select>
                   </div><br><br></div>
                 <ul>
                     <div id="bankDiv">
-                        <div id="aboutDiv">
+                        <div id="aboutDiv"> 
                            
                             <li>
                                 <h3 class="grey-text">About</h3>
                             </li>
                             <h4 style="">Profile Picture</h4>
+                            {% if teacherDetail %}
+                            <img src="{{teacherDetail.user_avatar}}" class="circle" width="75px" id="previewImg">
+                            {% else %}
                             <img src="../static/images/defaultAvatar.png" class="circle" width="75px" id="previewImg">
+                            {% endif %}
                             <input type="hidden" id="imageUrl" value="" name="imageUrl">
                             <br>                            
                             <input type="file" id="teacherImg" onchange="initUpload('3');" name="teacherImg"
@@ -39,7 +53,7 @@
                                 </div>
                                 <br>
                             <h4 style="">A little bit about yourself</h4>
-                            <textarea name="about_me" style="height:100px;" class="validationClass"></textarea>
+                            <textarea name="about_me" id="about_me" style="height:100px;" class="validationClass"></textarea>
                         </div>
                         <br>
                         <div class="divider"></div>
@@ -125,6 +139,8 @@
 <script>
 
     $(document).ready(function(){
+        console.log("{{teacherDetail.about_me}}");
+        $('#about_me').val("{{teacherDetail.about_me}}");
         var schoolAvail = $('#schoolPart').val();
         console.log('inside school PArt:'+schoolAvail);
         $('input[type="checkbox"]').click(function(){
