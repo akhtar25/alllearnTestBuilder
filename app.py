@@ -7092,20 +7092,20 @@ def loadContent():
     print(public)
     if public=='true':
         if reference!='':
-            contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+            contentData = ContentDetail(content_name=str(contentName),class_val=str(class_val),subject_id=int(selected_subject),
             topic_id=int(selected_topic),is_private='N',content_type=contentTypeId,school_id=teacher_id.school_id,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
         else:
-            contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+            contentData = ContentDetail(content_name=str(contentName),class_val=str(class_val),subject_id=int(selected_subject),
             topic_id=int(selected_topic),is_private='N',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
     else:
         if reference!='':
-            contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+            contentData = ContentDetail(content_name=str(contentName),class_val=str(class_val),subject_id=int(selected_subject),
             topic_id=int(selected_topic),is_private='Y',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=reference,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
         else:
-            contentData = ContentDetail(content_name=str(contentName),class_val=int(class_val),subject_id=int(selected_subject),
+            contentData = ContentDetail(content_name=str(contentName),class_val=str(class_val),subject_id=int(selected_subject),
             topic_id=int(selected_topic),is_private='Y',school_id=teacher_id.school_id,content_type=contentTypeId,reference_link=contentUrl,archive_status='N',last_modified_date=d4,uploaded_by=teacher_id.teacher_id)
             db.session.add(contentData)
     db.session.commit()
