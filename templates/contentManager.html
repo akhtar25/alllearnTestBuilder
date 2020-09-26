@@ -68,7 +68,7 @@
                       </div>
                       <div class="row" id="classDetailsDiv">
                             <div class="col-sm-3">
-                                <div style="width:100px;margin-left:30px;">
+                                <div style="margin-left:30px;">
                                     {{ formContent.class_val.label(class='labelsize') }}
                                     <br>
                                     {% if formContent.class_val.errors %}
@@ -565,6 +565,7 @@ selected_class.onchange = function()  {
          console.log('Topic:'+selected_topic.value);
          $("#loaderSubject").show();
          console.log('Inside class value Onchange')
+         class_val = class_val.replace("/","-")
          fetch('/questionBuilder/' + class_val).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderSubject").hide();    
@@ -583,6 +584,7 @@ selected_class.onchange = function()  {
         subject_id = selected_subject.value;
         console.log('Inside subject_select on change')
         $("#loaderChapter").show();
+        class_val = class_val.replace("/","-");
         fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
                 $("#loaderChapter").hide();
@@ -601,6 +603,7 @@ selected_class.onchange = function()  {
         subject_id = selected_subject.value;
         console.log('Inside topic_select on change')
         $("#loaderTopic").show();
+        class_val = class_val.replace("/","-")
         fetch('/questionBuilder/' + class_val + '/'+ subject_id).then(function(response) {
             response.json().then(function(data){
               console.log('Data:'+data)
