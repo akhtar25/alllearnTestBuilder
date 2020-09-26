@@ -5,15 +5,38 @@
 
         <div class="col-sm-8">
             <form id="teacherRegForm">
-                <h4><p>
+                <h4>
+                    {% if teacherDetail %}
+                    <p>
+                        <label>
+                            <input type="checkbox" value="Y" id="schoolPart" checked/>
+                          <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
+                          
+                        </label>
+                      </p></h4>
+                      <div style="" id="chooseSchool">
+                        {% for row in NewSchool %}
+                        {% if teacherDetail.school_id==row.school_id %}
+                            <input type="text" value="{{row.school_name}}" disabled/>
+                            <input type="hidden" name="NewSchool" value="{{row.school_id}}"/>
+                        {% endif %}
+                        {% endfor %}
+                      <div class="input-field col s8">
+                        <select name="selectSchool">
+                          <option value="" selected disabled >Choose Your School</option>
+                          {% for row in School %}
+                          
+                          <option value="{{row.school_id}}" >{{row.school_name}}</option>  
+                          
+                          {% endfor %}
+                        </select>
+                      </div><br><br></div>
+                    {% else %}
+                    <p>
                     <label>
-                        {% if teacherDetail %}
-                        <input type="checkbox" value="Y" id="schoolPart" checked/>
-                        <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
-                        {% else %}
                         <input type="checkbox" value="Y" id="schoolPart"/>
                       <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
-                      {% endif %}
+                      
                     </label>
                   </p></h4>
                   <div style="display: none;" id="chooseSchool">
@@ -21,19 +44,14 @@
                     <select name="selectSchool">
                       <option value="" disabled selected>Choose Your School</option>
                       {% for row in School %}
-                      {% if teacherDetail %}
-                      {% if teacherDetail.school_id==row.school_id %}
-                      <option value="{{row.school_id}}" selected>{{row.school_name}}</option>
-                      {% endif %}
-                      {% else %}
                       <option value="{{row.school_id}}">{{row.school_name}}</option>
-                      {% endif %}
                       {% endfor %}
                     </select>
                   </div><br><br></div>
+                  {% endif %}
                 <ul>
                     <div id="bankDiv">
-                        <div id="aboutDiv"> 
+                        <div id="aboutDiv">
                            
                             <li>
                                 <h3 class="grey-text">About</h3>
@@ -44,7 +62,11 @@
                             {% else %}
                             <img src="../static/images/defaultAvatar.png" class="circle" width="75px" id="previewImg">
                             {% endif %}
+                            {% if teacherDetail %}
+                            <input type="hidden" id="imageUrl" value="{{teacherDetail.user_avatar}}" name="imageUrl">
+                            {% else %}
                             <input type="hidden" id="imageUrl" value="" name="imageUrl">
+                            {% endif %}
                             <br>                            
                             <input type="file" id="teacherImg" onchange="initUpload('3');" name="teacherImg"
                                 style="height: 30px; margin-top: 10px;">
@@ -53,7 +75,7 @@
                                 </div>
                                 <br>
                             <h4 style="">A little bit about yourself</h4>
-                            <textarea name="about_me" id="about_me" style="height:100px;" class="validationClass"></textarea>
+                            <textarea name="about_me" id="newValue" style="height:100px;" class="validationClass"></textarea>
                         </div>
                         <br>
                         <div class="divider"></div>
@@ -76,25 +98,32 @@
                             {% endif %}
                         </div>
                         <div style="display: flex;">
-                            {% if bankDetail %}
                             <h4 style="width:210px;">Account Number</h4>
+                            {% if bankDetail %}
                             <input type="number" min="0" value="{{bankDetail.account_num}}" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            {% else %}
+                            <input type="number" min="0" value="" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            {% endif %}
                             <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
+                            {% if bankDetail %}
                             <input type="text" value="{{bankDetail.ifsc}}" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
                             {% else %}
-                            <h4 style="width:210px;">Account Number</h4>
-                            <input type="number" min="0" value="" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
-                            <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
                             <input type="text" value="" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
                             {% endif %}
                         </div>
                     </div>
-                    <a href="#" class="btn green right" style="margin-top: 20px;" id="submit">Submit</a>
+                    <button class="btn waves-light green white-text right" style="margin-top: 20px;" id="submit">Submit</button>
                     <br>
                     <span class="orange-text" id="errorMSGSpan"></span>
                 </ul>
             </form>
         </div>
+        {% if teacherDetail.about_me %}
+        <script>
+           var textValue = document.getElementById("newValue");
+            textValue.value = "{{teacherDetail.about_me}}";
+        </script>
+        {% endif %}
 
         <div class="col-sm-4">
 
@@ -138,9 +167,10 @@
 
 <script>
 
+    
+
     $(document).ready(function(){
-        console.log("{{teacherDetail.about_me}}");
-        $('#about_me').val("{{teacherDetail.about_me}}");
+        
         var schoolAvail = $('#schoolPart').val();
         console.log('inside school PArt:'+schoolAvail);
         $('input[type="checkbox"]').click(function(){
@@ -160,14 +190,19 @@
 
     $('#submit').click(function ($e) {
         console.log('inside submit btn function');
-        $(this).prop('disabled','true');
+        // $('#submit').prop('disabled',true);
+        
+        
         $e.preventDefault();
         var form = $('#teacherRegForm');
+        var teacher_id = "{{teacher_id}}";
         //window.alert($('#bankName').val());
-        if($('#bankName').val()!="" && $('#accountHoldername').val()  && $('#accountNumber').val()!="" && $('#ifscCode').val()!="")
+        if($('#bankName').val()!=""&&$('#newValue').val()!='' && $('#accountHoldername').val()!=""  && $('#accountNumber').val()!="" && $('#ifscCode').val()!="")
         {
+        $('#submit').html('please wait...');
+        $('#submit').prop('disabled',true);
         $.ajax({
-            url: "/teacherRegForm",
+            url: "/teacherRegForm?teacher_id="+teacher_id,
             type: "POST",
             data: form.serialize(),
             success: function (response) {
@@ -180,6 +215,7 @@
                     M.toast({
                         html: '<h4>Teacher Registered Successfully</h4>'
                     });
+                    $('#submit').html('Submit');
                     $('#teachRegPage').hide();
                     $('#reviewPage').show();
                 }
