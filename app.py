@@ -1651,8 +1651,8 @@ def index():
             return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
     #if user.user_type==135:
     #    return redirect(url_for('admin'))
-    if request.url == "www.alllearn.in":
-        return redirect(url_for('all.alllearn.in'))
+    #if request.url == "www.alllearn.in":
+    #    return redirect(url_for('all.alllearn.in'))
     if user.user_type==234:
     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
         return redirect(url_for('practiceTest'))
@@ -2377,9 +2377,9 @@ def updateSearchIndex(task, fromPage="default"):
 @app.route('/',methods=["GET","POST"])
 @app.route('/courseHome')
 def courseHome():    
-    if ("alllearn.in" in str(request.url)):
+    if ("https://www.alllearn.in" in str(request.url)):
         print(request.url)
-        return redirect(url_for("all.alllearn.in"))
+        return redirect(url_for("https://all.alllearn.in"))
     if ("school.alllearn" in str(request.url)):
         print('#######this is the request url: '+ str(request.url))
         return redirect(url_for('index'))
