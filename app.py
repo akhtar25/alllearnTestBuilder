@@ -2377,7 +2377,7 @@ def updateSearchIndex(task, fromPage="default"):
 def courseHome():    
     if ("school.alllearn" in str(request.url)):
         print('#######this is the request url: '+ str(request.url))
-        return redirect(url_for('index'))
+        return redirect(url_for('index')) 
     #print(str(current_user.is_anonymous))
     upcomingClassData = ""
     
