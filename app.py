@@ -2373,8 +2373,17 @@ def updateSearchIndex(task, fromPage="default"):
         #except:
         #    return "Error Sending index data to algolia"
 
-
 @app.route('/',methods=["GET","POST"])
+# @app.route('/index')
+def ind():
+    if ("https://www.alllearn.in" in str(request.url)):
+        print(request.url)
+        return redirect(url_for("https://all.alllearn.in"))
+    if ("school.alllearn" in str(request.url)):
+        print('#######this is the request url: '+ str(request.url))
+        return redirect(url_for('index'))
+
+# @app.route('/',methods=["GET","POST"])
 @app.route('/courseHome')
 def courseHome():    
     if ("https://www.alllearn.in" in str(request.url)):
