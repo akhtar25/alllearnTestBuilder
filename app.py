@@ -2375,7 +2375,7 @@ def updateSearchIndex(task, fromPage="default"):
 
 @app.route('/',methods=["GET","POST"])
 # @app.route('/index')
-def ind():
+def home():
     if ("https://www.alllearn.in" in str(request.url)):
         print(request.url)
         return redirect(url_for("https://all.alllearn.in"))
