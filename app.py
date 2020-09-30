@@ -6554,6 +6554,7 @@ def startPracticeTest():
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     print('Response Session Id:'+str(resp_session_id))
+    studentRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
@@ -6566,6 +6567,7 @@ def feedbackCollectionStudDev():
 
         if testQuestions!=None:
             questionListSize = len(testQuestions)
+        print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
             resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
@@ -7598,6 +7600,7 @@ def loadQuestionStud():
     else:
         studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
     #print('#######this is the current user id'+ str(current_user.id))
+    print('student_id:'+str(studentRow.student_id))
     resp_id = str(resp_session_id)
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id = resp_id).first()
     #print('########### Session details have been fetched')
