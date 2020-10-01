@@ -6553,8 +6553,10 @@ def startPracticeTest():
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
+    studId = request.args.get('student_id')
+    print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
-    studentRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    studentRow = StudentProfile.query.filter_by(student_id=studId).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
@@ -6570,7 +6572,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -7584,6 +7586,8 @@ def loadQuestion():
 def loadQuestionStud():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
+    student_id = request.args.get('student_id')
+    print('Student id in student_id:'+str(student_id))
     qnum= request.args.get('qnum')
     print('Question Num:'+str(qnum))
     print('totalQCount:'+str(totalQCount))
@@ -7598,7 +7602,7 @@ def loadQuestionStud():
     if current_user.is_anonymous:        
         studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
-        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+        studentRow=StudentProfile.query.filter_by(student_id=student_id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     print('student_id:'+str(studentRow.student_id))
     resp_id = str(resp_session_id)
@@ -7670,7 +7674,7 @@ def loadQuestionStud():
     checkResponse = ''
     if last_q_id:
         print('inside if qId not empty')
-        checkResponse = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id).first()
+        checkResponse = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
         if checkResponse:
             if btn=='submitandnext':
                 print('inside submitandnext')
@@ -7712,12 +7716,12 @@ def loadQuestionStud():
             db.session.commit()
             if btn=='submitandnext':
                 print('inside submitandnext')
-                response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id).first()
+                response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
                 response_cap.answer_status = 239
                 db.session.commit()
             if btn=='save':
                 print('inside savebtn')
-                response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id).first()
+                response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
                 response_cap.answer_status = 241
                 db.session.commit()
         
@@ -7741,7 +7745,7 @@ def loadQuestionStud():
         questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
         print('this is the last q id#################:'+last_q_id)
         
-        answerRes = ResponseCapture.query.filter_by(resp_session_id = resp_session_id).all()
+        answerRes = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,student_id=studentRow.student_id).all()
         # session['status'] = []
         answer_list = []
         print('response_session_id:'+str(resp_session_id))
@@ -7756,7 +7760,7 @@ def loadQuestionStud():
         for row in answer_list:
             print(row[0])
             print(row[1])
-        chooseOption = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id=question_id).first()
+        chooseOption = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id=question_id,student_id=studentRow.student_id).first()
         correctOpt = ''
         if chooseOption:
             correctOpt = chooseOption.response_option
@@ -8252,13 +8256,13 @@ def classPerformance():
     form.subject_name.choices= ''
     # subject_name_list
 
-    testDetailQuery = "select distinct t1.resp_session_id, t1.last_modified_Date as test_date, t5.teacher_name as conducted_by,t4.class_val, t4.section, "
+    testDetailQuery = "select distinct t1.resp_session_id, t1.last_modified_Date as test_date, t5.teacher_name as conducted_by,t4.class_val, t4.section,t1.session_id, "
     testDetailQuery = testDetailQuery+ "t3.description as subject "
     testDetailQuery = testDetailQuery+ " from session_detail t1 "
     testDetailQuery = testDetailQuery+ " inner join test_details t2 on t2.test_id=t1.test_id "
     testDetailQuery = testDetailQuery+ " inner join message_detail t3 on t2.subject_id=t3.msg_id "
     testDetailQuery = testDetailQuery+ " inner join class_section t4 on t1.class_Sec_id=t4.class_sec_id "
-    testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by test_date desc "
+    testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by t1.session_id desc "
     testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
     return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
 

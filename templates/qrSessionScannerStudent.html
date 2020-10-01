@@ -67,7 +67,7 @@
     $('#textRespIntputBTN').click(function () {
         var resp_session_code = $('#textRespCodeInput').val();
         if (resp_session_code != "") {
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code;
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code+"&student_id={{studentDetails.student_id}}";
         }
     });
 
