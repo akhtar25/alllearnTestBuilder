@@ -7348,6 +7348,9 @@ def feedbackCollection():
         qtest_id = request.args.get('test_id')
         weightage = request.args.get('weightage')
         NegMarking = request.args.get('negativeMarking')
+        nMarking = abs(int(NegMarking))
+        # Marks = int(nMarking)
+        nMark = -nMarking
         duration = request.args.get('duration')
         print('Test Id:'+str(qtest_id))
         qclass_val = request.args.get('class_val')
@@ -7408,7 +7411,7 @@ def feedbackCollection():
                     print('if sessionDetailRowCheck is none')
                     #print(sessionDetailRowCheck)                    
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=NegMarking, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -7612,7 +7615,7 @@ def loadQuestionStud():
     teacherID = sessionDetailRow.teacher_id
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
-        totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
+        totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
         print('Total Marks Query:'+totalMarksQuery)
         totalQ = "select count(*) as num_of_questions from test_questions where test_id='"+str(sessionDetailRow.test_id)+"'"
         print('Query:'+str(totalQ))
@@ -7620,33 +7623,33 @@ def loadQuestionStud():
         
         print('Total questions:'+str(totalQ.num_of_questions))
         totalMarksVal = db.session.execute(text(totalMarksQuery)).first()
-        neg_marks = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+        # neg_marks = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
         # marksScoredQuery =  "select sum(suggested_weightage) as marks_scored, count(*) as correct_ans from question_details where question_id "
         # marksScoredQuery=marksScoredQuery+"in (select distinct question_id from response_capture where is_correct='Y' and "
         # marksScoredQuery=marksScoredQuery+"student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"')"
-        incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(resp_session_id)+"' and (answer_status=239 or answer_status=241)"
-        print(' Query for incorrect question:'+str(incorrect_ques))
-        incorrect_ques = db.session.execute(text(incorrect_ques)).first()
+        # incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(resp_session_id)+"' and (answer_status=239 or answer_status=241)"
+        # print(' Query for incorrect question:'+str(incorrect_ques))
+        # incorrect_ques = db.session.execute(text(incorrect_ques)).first()
         marksScoredQuery = "select sum(marks_scored) as marks_scored, count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
         print('Query for scored marks:'+str(marksScoredQuery))
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
-        print('Marks Scored Query:'+marksScoredQuery)
-        print('Marks Scored:'+str(marksScoredVal.marks_scored))
+        # print('Marks Scored Query:'+marksScoredQuery)
+        # print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(totalMarksVal.total_marks))
-        negative_marks = 0
+        # negative_marks = 0
         marks_scored = 0
-        if neg_marks.incorrect_marks>0:
-            print('incorrect Ques:'+str(incorrect_ques.incorrect_ques))
+        # if neg_marks.incorrect_marks>0:
+        #     print('incorrect Ques:'+str(incorrect_ques.incorrect_ques))
 
-            negative_marks = int(neg_marks.incorrect_marks) * int(incorrect_ques.incorrect_ques)
-        if marksScoredVal.marks_scored!=None:
+        #     negative_marks = int(neg_marks.incorrect_marks) * int(incorrect_ques.incorrect_ques)
+        if totalMarksVal.total_marks!=None:
             print('inside marksscoredval is not empty')
-            marks_scored = int(marksScoredVal.marks_scored)
-        if negative_marks>0:
-            print('Negative Marks:'+str(negative_marks))
-            marks_scored = int(marks_scored) - int(negative_marks)
-        else:
-            marks_scored = int(marks_scored)
+            marks_scored = int(totalMarksVal.total_marks)
+        # if negative_marks>0:
+        #     print('Negative Marks:'+str(negative_marks))
+        #     marks_scored = int(marks_scored) - int(negative_marks)
+        # else:
+        #     marks_scored = int(marks_scored)
         try:
             if marks_scored>0:
                 marksPercentage = (marks_scored/sessionDetailRow.total_marks) *100
@@ -7702,15 +7705,24 @@ def loadQuestionStud():
         if checkResponse:
             if checkResponse.response_option==None or checkResponse.response_option:
                 checkResponse.response_option = response_option
-                checkResponse.is_correct = ansCheck
+                if ansCheck=='N':
+                    checkResponse.is_correct = ansCheck
+                    checkResponse.marks_scored = resp_weightage.incorrect_marks
+                else:
+                    checkResponse.is_correct = ansCheck
                 
                 db.session.commit()
             print('data already exist')
         else:
             print('new data insert in response capture')
-            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-            question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
+            if ansCheck=='N':
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= date.today())
+            else:
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -7973,35 +7985,37 @@ def feedbackReport():
         # responseResultQuery = responseResultQuery + "qd.question_id=rc.question_id "
         # responseResultQuery = responseResultQuery + "and rc.resp_session_id='"+str(responseSessionID)+"', total_marks_cte "
         # responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage "
-        responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id,SUM(CASE WHEN rc.is_correct='Y' and rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end) as marks_scored from "
-        responseResultQuery = responseResultQuery + "student_profile sp inner join response_capture rc on sp.student_id = rc.student_id where "
+        responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id,SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end) as marks_scored, (SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end)*100)/sd.total_marks AS percentage_marks from "
+        responseResultQuery = responseResultQuery + "response_capture rc inner join student_profile sp on sp.student_id = rc.student_id "
+        responseResultQuery = responseResultQuery + "inner join session_detail sd on sd.resp_session_id = rc.resp_session_id where "
         responseResultQuery = responseResultQuery + "rc.resp_session_id = '"+str(responseSessionID)+"' "
-        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id"
+        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id,sd.total_marks"
         print('Query:'+str(responseResultQuery))
         responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
         responseResultRowCount = 0
         total = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
         incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(responseSessionID)+"' and (answer_status='239' or answer_status='241')"
         incorrect_ques = db.session.execute(text(incorrect_ques)).first()
-        neg_marks = 0
-        if total.incorrect_marks>0:
-            neg_marks = int(incorrect_ques.incorrect_ques)*int(total.incorrect_marks)
+        # neg_marks = 0
+        # if total.incorrect_marks>0:
+        #     neg_marks = int(incorrect_ques.incorrect_ques)*int(total.incorrect_marks)
         if responseResultRow:
-            totalPointsScored =  0
-            totalPointsLimit = 0   
+            allStudentsTotalMarks =  0
+            totalPointsLimit = 0  
+            grandTotal = 0 
             # print(responseResultRow)
             # print('ResultRow length:'+str(len(responseResultRow)))         
             # for row in responseResultRow:
             #     totalPointsScored = totalPointsScored + row.points_scored
             #     totalPointsLimit = totalPointsLimit + row.total_weightage
             totalPointsLimit = total.total_marks
+            grandTotal = totalPointsLimit * len(responseResultRow)
             for row in responseResultRow:
-                totalPointsScored = row.marks_scored
+                allStudentsTotalMarks = allStudentsTotalMarks + row.marks_scored
             classAverage = 0
-            totalPointsScored = totalPointsScored - neg_marks
             if totalPointsLimit !=0 and totalPointsLimit != None:
-                if totalPointsScored>0:
-                    classAverage = (totalPointsScored/totalPointsLimit) *100
+                if allStudentsTotalMarks>0:
+                    classAverage = (allStudentsTotalMarks/grandTotal) *100
                 else:
                     classAverage = 0
             else:
@@ -8014,7 +8028,7 @@ def feedbackReport():
         print("Error collecting data from ajax request. Some values could be null")
 
     if responseResultRowCount>0:
-        return render_template('_feedbackReport.html',totalPointsLimit=totalPointsLimit,neg_marks=neg_marks,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+        return render_template('_feedbackReport.html',totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
     else:
          return jsonify(['NA'])
          
