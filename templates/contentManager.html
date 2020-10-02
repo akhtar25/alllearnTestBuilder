@@ -156,7 +156,12 @@
                           </div>
                           <div style="display: flex;margin-top: -15px;margin-left: 30px;">
                             <div id="uploadContent" style="visibility: hidden;">
-                              <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" id="file-input"><a href="#" id="uploadBtn" onclick="uploadBtn();" style="float: right;">Upload</a></div><br><label style="margin-left: 111px;">OR</label>
+                              <div style="display:flex;"><input type="file" style="height: 25px;width: 200px;" onchange="initUpload();" id="file-input">
+                                <!-- <a href="#" id="uploadBtn" onclick="" style="float: right;">Upload</a> -->
+                                <div id="contentLoader" style="width:20px;display:none;">
+                                  <img src="../static/images/loader.gif" style="width: 100%;">
+                              </div>
+                              </div><br><label style="margin-left: 111px;">OR</label>
                               <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
                               <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
                               <input type="hidden" id="reference" name="reference" value="">
@@ -856,6 +861,7 @@ selected_class.onchange = function()  {
       $('#docDiv').hide();
       $('#audioDiv').hide();
       $('#iframeDiv').hide();
+      $('#contentLoader').hide();
     }
   }
   if(contentType==2){
@@ -865,6 +871,7 @@ selected_class.onchange = function()  {
       $('#audioDiv').hide();
       $('#iframeDiv').hide();
       $('#preview').hide();
+      $('#contentLoader').hide();
     }
   }
   if(contentType==3){
@@ -874,6 +881,7 @@ selected_class.onchange = function()  {
     $('#preview').hide();
     $('#docDiv').hide();
     $('#audioDiv').hide();
+    $('#contentLoader').hide();
     }
   }
   if(contentType==4){
@@ -883,6 +891,7 @@ selected_class.onchange = function()  {
     $('#iframeDiv').hide();
     $('#preview').hide();
     $('#docDiv').hide();
+    $('#contentLoader').hide();
     }
   }
             document.getElementById('reference').value = url;
@@ -925,21 +934,24 @@ selected_class.onchange = function()  {
     */
     
 
-    function uploadBtn(){
-      if($('#file-input').val()){
-    console.log('Inside file length');
+    // function uploadBtn(){
+      // if($('#file-input').val()){
+    // alert('Inside file length');
     // $('#uploadBtn').css('visibility','visible');
-    $('#message').hide();
-    initUpload();
-  }else{
-    $('#message').show();
-  }
-    };
+    // $('#message').hide();
+    // $('#contentLoader').show();
+    // alert('inside file length');
+    // initUpload();
+  // }else{
+  //   $('#message').show();
+  // }
+    // };
 
 
     function initUpload(){
       const files = document.getElementById('file-input').files;
       const file = files[0];
+      $('#contentLoader').show();
       console.log('Inside initUpload');
       if(!file){
         return alert('No file selected.');
