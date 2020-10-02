@@ -11,6 +11,7 @@
             <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle" width="100px">
             {% endif %}
             <h3>{{teacher_name}}</h3>
+            <a href="{{url_for('teacherRegistration',teacher_id=tutor_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a>
             {% if current_user.about_me %}
             <h4>{{current_user.about_me}}</h4>
             {% else %}
