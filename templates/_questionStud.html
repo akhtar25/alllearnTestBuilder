@@ -9,9 +9,15 @@
     {% endif %}
     <h3>Q: {{ question.question_description }}</h3>
     {%if question.reference_link !=None %}
-    <aside class="right">
-      <img src="{{ question.reference_link }}" height="210px" width="300px" style="margin-top: 20px;">
+    {% if question.question_description!='Question' %}
+<aside class="right">    
+    <img src="{{ question.reference_link }}" height="210px" width="300px">
+</aside>
+    {% else %}
+    <aside class="right">    
+        <img src="{{ question.reference_link }}" height="300px" width="570px" style="margin-top: 20px;">
     </aside>
+    {% endif %}
     {% endif %}
 
     <br>
