@@ -9,22 +9,21 @@
     {% endif %}
     <h3>Q: {{ question.question_description }}</h3>
     {%if question.reference_link !=None %}
-    {% if question.question_description!='Question' %}
-<aside class="right">    
-    <img src="{{ question.reference_link }}" height="210px" width="300px">
+<aside class="">    
+    <img src="{{ question.reference_link }}" height="300" width="700">
 </aside>
     {% else %}
-    <aside class="right">    
-        <img src="{{ question.reference_link }}" height="300px" width="570px" style="margin-top: 20px;">
+    <aside class="">    
+        <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="300" width="700">
     </aside>
-    {% endif %}
+    
     {% endif %}
 
     <br>
     {% for optionVal in questionOp %}
     {% if  optionVal.option_desc %}
     <!--<li style="display:flex;"></li>    -->
-    <p>
+    <p style="display: flex;">
       <label>
         {% if correctOpt==optionVal.option %}
         <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}" checked/>
