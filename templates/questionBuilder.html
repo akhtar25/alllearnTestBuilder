@@ -1,94 +1,88 @@
-{%extends "layout.html"%} {%block content%}
-<div class="container">
-    <h2>Question Builder
-</h2> 
-                <div class="row">
-                        <div class="col-sm-3">
-                        <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type1"  value="single"><span style="font-size:13px;">Create Single Question</span></label></p>
-                        </div>
-                        <div class="col-sm-3">
-                        <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type2" value="bulk"><span style="font-size:13px;">Bulk Upload Questions</span></label></p>
-                        </div>
-                        <div id="topicTableHeader" style="display:none;float:right;margin-top: -30px;margin-right: 278px;"><h3>Topics</h3></div>
-    
-                        <div id="topicTable" style="width:350px;float:right;overflow-y: auto;position: relative;display:none;height: 100px;border:green solid;padding: 10px;">
-                            <!-- <div id="topicLoader" style="display: none;padding-left: 300px;">
-                                <img src="../static/images/loader.gif"></div> -->
-                        </div>
-                </div>
-             
-                <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->
-      
-            <form action="{{ url_for('questionBuilder') }}" name="form1" method="POST" enctype="multipart/form-data">
-                   
-            <div id="new" style="display:None;">
-                
-
-                
-            </div>  
-            
-            </form>
-            
+<!-- <div class="container"> -->
+  <h2>Question Builder
+  </h2> 
+                  <div class="row" id="radBtn">
+                          <div class="col-sm-3">
+                          <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type1"  value="single"><span style="font-size:13px;width: 180px;">Create Single Question</span></label></p>
+                          </div>
+                          <div class="col-sm-3">
+                          <p><label><input type="radio" class="with-gap" name="newpage" id="upload_type2" value="bulk"><span style="font-size:13px;width: 180px;margin-left: 120px;">Bulk Upload Questions</span></label></p>
+                          </div>
+                          
+                  </div>
+               
+                  <!--<p><button class="btn waves-light green lighten-1 white-text" type="submit" style="margin-top:23px;">Submit</button></p>-->
         
-    </div>
-
-<script>
-    var upload_type1=document.getElementById('upload_type1')
-    var upload_type2=document.getElementById('upload_type2')
-    var new_form=document.getElementById('new')
-    upload_type1.onclick=function(){
-        $(function(){
-            $.ajax({
-                  url: "/questionUpload",
-                  type: "get",
-                  success: function(response) {
-                    $("#new").show();
-                    $("#new").html(response);
-                    $("#buttonbox").show();        
-                    },
-                  error: function(xhr) {
-                    window.alert("error occurred while loading question");
-                  }
-                });        
-
-        });
-        
-    }
-    upload_type2.onclick=function(){
-       
-        $(function(){
-            $.ajax({
-                  url: "/questionFile",
-                  type: "get",
-                  success: function(response) {
-                    $("#new").show(); 
-                    $("#new").html(response);        
-                    },
-                  error: function(xhr) {
-                    window.alert("error occurred while loading question");
-                  }
-                });        
-
-        });}
-
-    /*function validate(){
-        var correct=document.forms['form1']['correct'];
-        if (correct.value==''){
-            alert('Please select a correct option')
-            return false;
-        }
-    }
-    function validate(){
-    var radios = document.forms['form1']['option'];
-    var formValid = false;
-    var i = 0;
-    while (!formValid && i < radios.length) {
-        if (radios[i].checked) formValid = true;
-        i++;        
-    }
-    if (!formValid) alert("Must check some option!");
-    return formValid;
-}​   */ 
-</script>
-
-{%endblock%}
+              <form action="{{ url_for('questionBuilder') }}" name="form1" method="POST" enctype="multipart/form-data">
+                     
+              <div id="new" style="display:None;">
+                  
+  
+                  
+              </div>  
+              
+              </form>
+              
+          
+      <!-- </div> -->
+  
+  <script>
+      var upload_type1=document.getElementById('upload_type1')
+      var upload_type2=document.getElementById('upload_type2')
+      var new_form=document.getElementById('new')
+      upload_type1.onclick=function(){
+          $(function(){
+              $.ajax({
+                    url: "/questionUpload",
+                    type: "get",
+                    success: function(response) {
+                      $('#radBtn').hide();
+                      $("#new").show();
+                      $("#new").html(response);
+                      $("#buttonbox").show();        
+                      },
+                    error: function(xhr) {
+                      window.alert("error occurred while loading question");
+                    }
+                  });        
+  
+          });
+          
+      }
+      upload_type2.onclick=function(){
+         
+          $(function(){
+              $.ajax({
+                    url: "/questionFile",
+                    type: "get",
+                    success: function(response) {
+                      $('#radBtn').hide();
+                      $("#new").show(); 
+                      $("#new").html(response);        
+                      },
+                    error: function(xhr) {
+                      window.alert("error occurred while loading question");
+                    }
+                  });        
+  
+          });}
+  
+      /*function validate(){
+          var correct=document.forms['form1']['correct'];
+          if (correct.value==''){
+              alert('Please select a correct option')
+              return false;
+          }
+      }
+      function validate(){
+      var radios = document.forms['form1']['option'];
+      var formValid = false;
+      var i = 0;
+      while (!formValid && i < radios.length) {
+          if (radios[i].checked) formValid = true;
+          i++;        
+      }
+      if (!formValid) alert("Must check some option!");
+      return formValid;
+  }​   */ 
+  </script>

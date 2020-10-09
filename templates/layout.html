@@ -457,7 +457,14 @@
 
           {%if user_type_val=='' %}
           {% elif current_user.is_anonymous or disconn == 1  %}
-
+          {% if user_type=='134' %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('liveClass',user_id = current_user.id)}}">Live Class</a>
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',info='layout')}}">Content Manager</a>
+          </li>
+          {% endif %}
           {%if current_user.is_anonymous%}
           <div class="right">
           <li>
@@ -482,6 +489,10 @@
               More
             </a>
           </li>
+          {% elif user_type!='134' %}
+            <li>
+              <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',data='user')}}">Content Manager</a>
+            </li>
           {%endif%}
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"

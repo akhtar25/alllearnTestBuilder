@@ -12,11 +12,11 @@
                <tbody style="font-size:medium">
                    {% for row in topicDet %}
                    <tr>
-                       <td>
-                           <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
-                               <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
-                           </a>
-                       </td>
+                    <td>
+                        <a href="{{url_for('openLiveClass', topic_id=row.topic_id,course_id=row.course_id)}}">
+                            <img src="../static/images/playButton.jpg" class="circle" width="15%">{{row.topic_name}}
+                        </a>
+                    </td>
                        <td>
                            {% if row.video_class_url %}
                            <i class="fa fa-check" aria-hidden="true"
@@ -35,4 +35,49 @@
            {%else%}
            <h3 class="grey-text">No topics added in this course</h3>
            {%endif%}
+           <div id="videoModal" class="modal" style="background-color:white;height: 360px;">
+            <div id="videoLoader" class="center" style="display: none;height: 100%;">
+                <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="topicListModal" style="height: 360px;">
+                <!-- <div id="videoContent"> -->
+                    <span style='color:grey;display: none;margin-left: 200px;font-size: 30px;' id="msg">Video is not available</span>
+                    <video src="" id="preview" class="" style="display: none;" width="100%" height="320px" controls></video>
+                <!-- </div> -->
+        
+            </div>
+        </div>
        </div>
+       <script>
+           $(document).ready(function(){
+            $(".modal").modal();
+           });
+
+           function fetchVideo(tId){
+               $('#preview').hide();
+               $('#videoLoader').show();
+            $.ajax({
+                url:"fetchClassVideo?topic_id="+tId,
+                type:"POST",
+                data:"",
+                success:function(response){
+                    if(response){
+                    document.getElementById('preview').src = response;
+                    
+                    $('#videoLoader').hide();
+                    $('#msg').hide();
+                    $('#preview').show();
+                    }else{
+                        $('#preview').hide();
+                        $('#videoLoader').hide();
+                        $('#msg').show();
+                    }
+                    
+                },
+                error:function(xhr){
+
+                }
+            });
+           };
+
+       </script>

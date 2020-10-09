@@ -2,8 +2,9 @@
 <!--{{ form.hidden_tag() }}-->
 
         <div class="form-group " style="padding-top:5px;">
+          <form id="addSurveyForm">
                 <div class="row">
-                    
+                  
                         <div class="col-sm-3">
                                 <div style="width:150px;">
                                         {{ form.class_val.label(class='labelsize') }}
@@ -16,11 +17,11 @@
                                         {% endfor %}
                                         </div>
                                         {% else %}
-                                        {{ form.class_val(class='form-control') }}
+                                        {{ form.class_val(class='form-control',id="classId") }}
                                         {% endif %}
                                 </div>
                         </div>
-                        <div class="col-sm-2" style="margin-left: -120px;">
+                        <div class="col-sm-2">
                                 <div style="width:150px;">
                                                 {{ form.subject_name.label(class='labelsize') }}
                                                 <div id='loader1'style='display: none; float: right;'>
@@ -35,19 +36,22 @@
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.subject_name(class='form-control') }}
+                                                {{ form.subject_name(class='form-control',id="subId") }}
                                                 {% endif %}      
                                 </div>
                         </div>              
-                    <div class="col-sm-4" style="padding-top:22px; padding-left:20px;margin-left: -20px;">
+                    <div class="col-sm-4" style="padding-top:22px; padding-left:80px;">
                       <a href="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/sample_templates/sample_question_builder_template.csv"><input class="btn waves-light green lighten-1 white-text" id="UploadBtn" type="button" value="Sample template" style="height:30px; width:160px;"></a><br><span>  *Dowload the sample template and edit the data .</span>
                     </div>
+
+                   
                     
                     </div>
 
                     <span id="message" style="color:Red;display: none;float:left;"></span>
 
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
+</form>
 <span style="color:maroon;">Only 20 questions  can be uploaded at a time.</span><br>
 <h5>Steps:</h5>
 <ol>
@@ -57,7 +61,12 @@
 <li>Download Sample Template</li>
 <li>Enter questions and upload. Note: The Correct Answer column should contain the full answer and not the optino number</li>
 </ol>
-
+<div id="topicTableHeader" style="display:none;"><h3>Topics</h3></div>
+      
+<div id="topicTable" style="width:350px;float:left;overflow-y: auto;position: relative;display:none;height: 100px;border:green solid;padding: 10px;">
+    <!-- <div id="topicLoader" style="display: none;padding-left: 300px;">
+        <img src="../static/images/loader.gif"></div> -->
+</div>
 <!-- <div id="topicTable">
     <div id="topicLoader" style="display: none;padding-left: 300px;">
         <img src="../static/images/loader.gif"></div>
@@ -75,11 +84,11 @@
      <div id="question_table">
      </div>
     </div>
-    <!--</div>
-   </div>-->
+    </div>
+   <!-- </div> -->
  <script>
-   var class_select = document.getElementById("class_val");
-    var subject_select = document.getElementById("subject_name");
+   var class_select = document.getElementById("classId");
+    var subject_select = document.getElementById("subId");
     var topic_select = document.getElementById("topics");
     var chapter_num_select = document.getElementById("chapter_num");
     var optionHTMLClass = '';
@@ -87,7 +96,7 @@
     var optionHTMLTopic = '';
     var optionHTMLChapter = '';
     $(document).ready(function(){
-        $('#class_val').val("na");
+        $('#classId').val("na");
         optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
         class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
         optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
@@ -131,19 +140,19 @@
         class_val = class_select.value;
         subject_id = subject_select.value;
         console.log('Inside subject_select on change')
-        $("#loader2").show();
-        var cl = class_val.replace("/","-");
-        fetch('/questionChapterpicker/' + cl + '/'+ subject_id).then(function(response) {
-            response.json().then(function(data){
-                $("#loader2").hide();
-                var optionHTML = '';
-                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
-                for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
-                  }
-                  chapter_num_select.innerHTML =  optionHTML;
-            })
-        });
+        // $("#loader2").show();
+        // var cl = class_val.replace("/","-");
+        // fetch('/questionChapterpicker/' + cl + '/'+ subject_id).then(function(response) {
+        //     response.json().then(function(data){
+        //         $("#loader2").hide();
+        //         var optionHTML = '';
+        //         optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+        //         for (var chapterNo of data.chapterNum){
+        //             optionHTML += '<option value="' + chapterNo.chapter_num + '">' + 'Chapter - ' +chapterNo.chapter_num + '</option>';
+        //           }
+        //           chapter_num_select.innerHTML =  optionHTML;
+        //     })
+        // });
 
 
         var data="";
@@ -191,12 +200,12 @@
     //  }
 
 
-
+    classValue = document.getElementById('classId').value;
+    subjectValue = document.getElementById('subId').value;
 
     $(document).ready(function(){
     $('#file-input').click(function(){
-        classValue = document.getElementById('class_val').value;
-            subjectValue = document.getElementById('subject_name').value;
+        
             testTypeValue = document.getElementById('topics').value;
             chapterNumValue = document.getElementById('chapter_num').value;
             console.log(classValue);
@@ -282,12 +291,87 @@
      
      table_data += '</table>';
 
-     table_data+='<p><button class="btn waves-light green lighten-1 white-text" type="submit" id="upload" name="upload" style="margin-top:15px;">Upload</button></p>'
+     table_data+='<p><a class="btn btn-primary newBulkUploadQuesBtn" onclick="uploadQuesFile();" style="margin-top:15px;">Upload</a></p>'
      $('#question_table').html(table_data);
   }
   rdr.readAsText($("#file-input")[0].files[0]);
 });
 });
+
+var fileInput = document.getElementById("file-input");
+// var fileData = '';
+//     readFile = function () {
+//         var reader = new FileReader();
+//         reader.onload = function () {
+//              fileData = reader.result;
+//             alert(fileData);
+//         };
+//         // start reading the file. When it is done, calls the onload event defined above.
+//         reader.readAsBinaryString(fileInput.files[0]);
+//     };
+
+var csvFileData = [];
+
+readFile = function () {
+  var file = document.querySelector('#file-input').files[0];
+  var reader = new FileReader();
+  reader.readAsText(file);
+  alert('inside readFile');
+  //if you need to read a csv file with a 'ISO-8859-1' encoding
+  /*reader.readAsText(file,'ISO-8859-1');*/
+
+  //When the file finish load
+  reader.onload = function(event) {
+
+    //get the file.
+    var csv = event.target.result;
+
+    //split and get the rows in an array
+    var rows = csv.split('\n');
+
+    //move line by line
+    for (var i = 1; i < rows.length; i++) {
+      //split by separator (,) and get the columns
+      cols = rows[i].split(',');
+      var tempList = [];
+      //move column by column
+      for (var j = 0; j < cols.length; j++) {
+        /*the value of the current column.
+        Do whatever you want with the value*/
+        alert(cols[j]);
+        tempList.append(cols[j]);
+      }
+      csvFileData.append(tempList);
+    }
+  }
+}
+
+fileInput.addEventListener('change', readFile);
+
+function uploadQuesFile(){
+  
+  var form = $('#addSurveyForm'); 
+  // var files = $("#file-input")[0].files[0];
+  // const files = document.getElementById('file-input').files;
+  // const file = files[0];
+  alert('inside uploadQuesFile');
+  alert(csvFileData);
+  $.ajax({
+                  url: "/quesFileUpload?fileData="+fileData,
+                  type: "POST",
+                  data:form.serialize(),
+                  success: function(response) {
+                           alert(response);
+                            if(response=='1'){
+                              alert('if response is one');
+                              M.toast({html:'Question added successfully'});
+                            }
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                });
+};
 
   var button_id=0
 /*

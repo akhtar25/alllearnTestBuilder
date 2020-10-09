@@ -79,7 +79,7 @@
                         <div style="width:170px;">
                           <select id="class_val" name="class_val">
                             <option value="" disabled selected>Select Class</option>
-                            {% for row in available_class_section %}
+                            {% for row in distinctClasses %}
                             <option value="{{row.class_val}}">{{row.class_val}}</option>
                             {% endfor %}
                           </select>
@@ -338,7 +338,7 @@ function hide(){
                 M.toast({html: 'Schedule created!'})
               }
               $('#msgforwait').hide();
-              $('#addSchedule').show();
+              $('#addSchedule').hide();
            
             },
             error: function (xhr) {

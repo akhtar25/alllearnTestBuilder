@@ -1,211 +1,225 @@
- {{ form.csrf_token() }}
-      <div class="updateFormDiv">
-        <div class="form-group " style="padding-top:5px;">
-                <div class="row">
-                        <div class="col-sm-3">
-                                <div style="width:250px;">
-                                        {{ form.class_val.label(class='labelsize') }}
-                                        <br>
-                                        {% if form.class_val.errors %}
-                                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                        {% for error in form.class_val.errors %}
-                                         <span>{{ error }}</span>
-                                        {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        {{ form.class_val(class='form-control',id='classValSelected',style='width: 215px;') }}
-                                        {% endif %}
-                                </div>
-                        </div>
-                        <div class="col-sm-2">
-                                <div style="width:150px;" > 
-                                                {{ form.subject_name.label(class='labelsize') }}
-                                                <div id='loaderSubject'style='display: none; float: right;'>
-                                                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                                </div>
-                                        <br>
-                                                {% if form.subject_name.errors %}
-                                                {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                                                <div class="invalid-feedback">
-                                                {% for error in form.subject_name.errors %}
-                                                 <span>{{ error }}</span>
-                                                {% endfor %}
-                                        </div>
-                                                {% else %}
-                                                {{ form.subject_name(class='form-control',id='subjectNameSelected',style='width: 140px;') }}
-                                                {% endif %}
-    
-                                                
-                                </div>
-                        </div>
-    
-                        <div class="col-sm-2">
-                            <div style="width:150px;" > 
-                                            {{ form.topics.label(class='labelsize') }}
-                                            <div id='loaderTopic'style='display: none; float: right;'>
-                                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                                            </div>
-                                    <br>
-                                            {% if form.topics.errors %}
-                                            {{ form.topics(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedback">
-                                            {% for error in form.topics.errors %}
-                                             <span>{{ error }}</span>
-                                            {% endfor %}
-                                    </div>
-                                            {% else %}
-                                            {{ form.topics(class='form-control',id='topicNameSelect',style='width: 140px;') }}
-                                            {% endif %}
-    
-                                            
-                            </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div style="width:150px;">
-                            {{ form.question_type.label(class='labelsize') }}
-                    <br>
-                            {% if form.question_type.errors %}
-                            {{ form.question_type(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                            {% for error in form.question_type.errors %}
-                             <span>{{ error }}</span>
-                            {% endfor %}
-                    </div>
-                            {% else %}
-                            {{ form.question_type(class='form-control',id='questionType') }}
-                            {% endif %}    
-            </div>
+{{ form.csrf_token() }}
+<div class="updateFormDiv">
+  <div class="form-group " style="padding-top:5px;">
+          <div class="row">
+                  <div class="col-sm-2" style="margin-right: 60px;">
+                          <div style="width:250px;">
+                                  {{ form.class_val.label(class='labelsize') }}
+                                  <br>
+                                  {% if form.class_val.errors %}
+                                  {{ form.class_val(class="form-control form-control-lg is-invalid") }}
+                                  <div class="invalid-feedback">
+                                  {% for error in form.class_val.errors %}
+                                   <span>{{ error }}</span>
+                                  {% endfor %}
+                                  </div>
+                                  {% else %}
+                                  {{ form.class_val(class='form-control',id='classValSelected',style='width: 116px;') }}
+                                  {% endif %}
+                          </div>
+                  </div>
+                  <div class="col-sm-2" style="margin-left: -50px;">
+                          <div style="width:150px;" > 
+                                          {{ form.subject_name.label(class='labelsize') }}
+                                          <div id='loaderSubject'style='display: none; float: right;margin-right:10px;'>
+                                                          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                          </div>
+                                  <br>
+                                          {% if form.subject_name.errors %}
+                                          {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
+                                          <div class="invalid-feedback">
+                                          {% for error in form.subject_name.errors %}
+                                           <span>{{ error }}</span>
+                                          {% endfor %}
+                                  </div>
+                                          {% else %}
+                                          {{ form.subject_name(class='form-control',id='subjectNameSelected',style='width: 140px;') }}
+                                          {% endif %}
+
+                                          
+                          </div>
+                  </div>
+
+                  <div class="col-sm-2" style="margin-left: 31px;">
+                      <div style="width:150px;" > 
+                                      {{ form.topics.label(class='labelsize') }}
+                                      <div id='loaderTopic'style='display: none; float: right;margin-right:-50px;'>
+                                                      <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                                                      </div>
+                              <br>
+                                      {% if form.topics.errors %}
+                                      {{ form.topics(class="form-control form-control-lg is-invalid") }}
+                                      <div class="invalid-feedback">
+                                      {% for error in form.topics.errors %}
+                                       <span>{{ error }}</span>
+                                      {% endfor %}
+                              </div>
+                                      {% else %}
+                                      {{ form.topics(class='form-control',id='topicNameSelect',style='width: 200px;') }}
+                                      {% endif %}
+
+                                      
+                      </div>
+              </div>
+              <div class="col-sm-2" style="margin-left: 91px;">
+                  <div style="width:171px;">
+                      {{ form.question_type.label(class='labelsize') }}
+              <br>
+                      {% if form.question_type.errors %}
+                      {{ form.question_type(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                      {% for error in form.question_type.errors %}
+                       <span>{{ error }}</span>
+                      {% endfor %}
+              </div>
+                      {% else %}
+                      {{ form.question_type(class='form-control',id='questionType') }}
+                      {% endif %}    
+      </div>
 
 
-            <div id="topiclist" style="display: none;">
-              {% if topic_list %}
-        <div class="col-sm-3">
-            <h3>Topics</h3>
-            <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
-                {% for topic in topic_list %}
-                <label for="{{ topic.topic_id }}" style="font-weight: 500;">
-                    <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
-                        value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
-                </label><br>
-                {% endfor %}
-            </div>
-            <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text"
-                    onclick="questions(); ">Load Questions</button></p>
-            {% endif %}
-        </div>
-            </div>
-                    </div>
-                    </div>
-                    
-                
+      <div id="topiclist" style="display: none;">
+        {% if topic_list %}
+  <div class="col-sm-3">
+      <h3>Topics</h3>
+      <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
+          {% for topic in topic_list %}
+          <label for="{{ topic.topic_id }}" style="font-weight: 500;">
+              <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
+                  value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
+          </label><br>
+          {% endfor %}
+      </div>
+      <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text"
+              onclick="questions(); ">Load Questions</button></p>
+      {% endif %}
+  </div>
+      </div>
+              </div>
+              </div>
+              
+          
 
 <div class="row">
-    <div class="col-sm-8">
-    <h4>Question</h4> 
-    {{ form.question_desc.label(class='labelsize') }}
-    <br>
-    {% if form.question_desc.errors %}
-    {{ form.question_desc(class="form-control form-control-lg is-invalid") }}
-    <div class="invalid-feedback">
-    {% for error in form.question_descl.errors %}
-     <span>{{ error }}</span>
-    {% endfor %}
-    </div>
-    {% else %}
-    {% if  flag %}
-    {{ form.question_desc(class='form-control',id='questionDesc') }}
-    {% else %}
-    {{ form.question_desc(class='form-control',id='questionDesc') }} 
-    {% endif %}
-    {% endif %}
-    <br>
-    <div class="row">
-    <div class="col-sm-6">
-      
-            <div style="display:none;" id="MCQ1_type">
-              {% if  flag %}
-              <!-- start -->
-              {% if avail_options %}
-              <!-- /start -->
-                {% for option in avail_options %}
-                {% if option.option_desc==correctOption %}
-                
-            <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
-            <input type="hidden" id="correct" name="correct" value=""> 
-                  
-            {% else %}
-                <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
-                <input type="hidden" id="correct" name="correct" value=""> 
-                {% endif %}
-                 {% endfor %}
-                 <!-- else -->
-                 {% else %}
-                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
-                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
-                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
-                 <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br><br>
-                 <input type="hidden" id="correct" name="correct" value="">
-                 <!-- /else -->
-                 {% endif %}
-                 
-              {% else %}
-              <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_desc1" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_desc2" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_desc3" name="option_desc"></span></label><br><br>
-              <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_desc4" name="option_desc"></span></label><br><br><br>
-              <input type="hidden" id="correct" name="correct" value="">
-              {% endif %}
-            </div>
-    <label for="weightage">Weightage</label>
-    {% if  flag %}
-    <input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.suggested_weightage }}" placeholder="Enter the Weightage of Question">
-    {% else %}
-    <input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
-    {% endif %}
-    </div>
-    <div class="col-sm-2">
-    <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input">
-    <br>
-    <input type="hidden" id="reference" name="reference" value="">
-    <div style="margin-top: 30px; margin-left: 10px;">
-       {% if  flag %} 
-        {% if  questionUpdateUpload.reference_link  %}
-            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">     
+<div class="col-sm-12" style="display: flex;">
+{{ form.question_desc.label(class='labelsize') }}
+<br>
+{% if form.question_desc.errors %}
+{{ form.question_desc(class="form-control form-control-lg is-invalid") }}
+<div class="invalid-feedback">
+{% for error in form.question_descl.errors %}
+<span>{{ error }}</span>
+{% endfor %}
+</div>
+{% else %}
+{% if  flag %}
+{{ form.question_desc(class='form-control',id='questionDesc',style='width:400px;height:60px;margin-top:30px;margin-left:-54px;') }}
+{% else %}
+{{ form.question_desc(class='form-control',id='questionDesc',style='width:400px;height:60px;margin-top:30px;margin-left:-54px;') }} 
+{% endif %}
+{% endif %}
+<div style=" margin-left: 57px;">
+{% if  flag %} 
+ {% if  questionUpdateUpload.reference_link  %}
+     <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">     
+ {% else %}
+     <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+ {% endif %}  
+{% else %}
+<img style="border:1px solid gray; width:200px; height: 200px;visibility:hidden;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+{% endif %} 
+ </div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-6" style="margin-top: -120px;">
+
+      <div style="display:none;" id="MCQ1_type">
+        {% if  flag %}
+        <!-- start -->
+        {% if avail_options %}
+        <!-- /start -->
+          {% for option in avail_options %}
+          {% if option.option_desc==correctOption %}
+          
+      <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);" checked><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+      <input type="hidden" id="correct" name="correct" value=""> 
+            
+      {% else %}
+          <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="{{ option.option_desc }}" onclick="correctOption(this);"><span><input type="text" style="width:200px;font-weight: 500;font-family: serif;font-size: 1.4rem;" id="option_Desc1" class="option_class" value="{{ option.option_desc }}" name="option_desc"></span></label><br><br>
+          <input type="hidden" id="correct" name="correct" value=""> 
+          {% endif %}
+           {% endfor %}
+           <!-- else -->
+           {% else %}
+           <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+           <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+           <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br>
+           <label><input class="with-gap" id="optionRad1" name="optionChoice" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_Desc1" class="option_class" name="option_desc"></span></label><br><br><br>
+           <input type="hidden" id="correct" name="correct" value="">
+           <!-- /else -->
+           {% endif %}
+           
         {% else %}
-            <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
-        {% endif %}  
-       {% else %}
-      <img style="border:1px solid gray; width:200px; height: 200px;display:none;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
-      {% endif %} 
-        </div>
-    </div>
-    </div>
-    <div class="row">
-      <span id="message" style="color:Red;display: none;float:left;"></span>
-      {% if  flag %} 
-      <input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
-    <p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
-      <input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
-       {% else %}
-      <p><button class="btn waves-light green lighten-1 white-text" style="float: right;" id="submit" name="submit" value="submit">Confirm</button>
-      {% endif %}   
-    
-  </div>
-  </div>
+        <label><input class="with-gap" id="option1" name="option" type="radio" value="1" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="1" id="option_desc1" class="options" name="option_desc"></span></label><br><br>
+        <label><input class="with-gap" id="option2" name="option" type="radio" value="2" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="2" id="option_desc2" class="options" name="option_desc"></span></label><br><br>
+        <label><input class="with-gap" id="option3" name="option" type="radio" value="3" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="3" id="option_desc3" class="options" name="option_desc"></span></label><br><br>
+        <label><input class="with-gap" id="option4" name="option" type="radio" value="4" onclick="correctOption(this);"><span><input type="text" style="width:200px;" placeholder="4" id="option_desc4" class="options" name="option_desc"></span></label><br><br><br>
+        <input type="hidden" id="correct" name="correct" value="">
+        {% endif %}
+      </div>
+<label for="weightage">Weightage</label>
+{% if  flag %}
+<input type="number" id="weightage" name="weightage" value="{{ questionUpdateUpload.suggested_weightage }}" placeholder="Enter the Weightage of Question">
+{% else %}
+<input type="number" id="weightage" name="weightage" value="" placeholder="Enter the Weightage of Question">        
+{% endif %}
 
-  <!-- Extraaa -->
+<!-- <div style="margin-top: 30px; margin-left: 10px;">
+{% if  flag %} 
+ {% if  questionUpdateUpload.reference_link  %}
+     <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="{{ questionUpdateUpload.reference_link }}">     
+ {% else %}
+     <img style="border:1px solid gray; width:200px; height: 200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+ {% endif %}  
+{% else %}
+<img style="border:1px solid gray; width:200px; height: 200px;display:none;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png">
+{% endif %} 
+ </div> -->
+ <input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
+<input type="hidden" id="reference" name="reference" value="">
+</div>
+<!-- <div class="col-sm-2">
+<input type="file" style="height: 30px; margin-top: 10px;" onchange="loadImageFile();" id="file-input"><br>
+<input type="hidden" id="reference" name="reference" value="">
 
+</div> -->
 
-
-  <!-- /Extraaa -->
+<div class="row">
+<span id="message" style="color:Red;display: none;float:left;"></span>
+{% if  flag %} 
+<input type="button" class="btn waves-light green lighten-1 white-text" style="float:left; margin-right: 20px; width:80px; height:35px;margin-top: 12px;" id="back" name="back" value="Back" onclick="back();"></p>
+<p><button class="btn waves-light green lighten-1 white-text" name="{{ questionUpdateUpload.question_id }}" style="float: right;" id="updateButton" name="">Update</button>
+<input type="button" class="btn waves-light green lighten-1 white-text" style="float:right; margin-right: 20px; width:80px; height:35px;" id="clear" name="clear" value="clear" onclick="Clear();"></p>
+ {% else %}
+<a href="#" id="submit" style="margin-right: 170px;" class="btn green right">Confirm</a>
+{% endif %}   
 
 </div>
+</div>
+
+<!-- Extraaa -->
+
+
+
+<!-- /Extraaa -->
+
+<!-- </div> -->
 </div>
 <div class="col-sm-9" id="question">
-  <div id="Qloader" style="display: none;padding-left: 300px;">
-      <img src="../static/images/loader.gif">
-  </div>
+<div id="Qloader" style="display: none;padding-left: 300px;">
+<img src="../static/images/loader.gif">
+</div>
 </div>
 </div>
 
@@ -234,7 +248,7 @@ fileReader.onload = function (event) {
       );
       console.log('Inside preview');
       document.getElementById("preview").src = canvas.toDataURL();
-      $('#preview').show();
+      $('#preview').css('visibility','unset');
       String.prototype.filename=function(extension){
     var s= this.replace(/\\/g, '/');
     s= s.substring(s.lastIndexOf('/')+ 1);
@@ -437,7 +451,11 @@ var loadImageFile = function () {
             questionTypeValue = document.getElementById('questionType').value;
             var weightage = document.getElementById("weightage").value;
             var questionDesc = document.getElementById("questionDesc").value;
+            var ansOption = $('.with-gap').val();
+            var reference = document.getElementById('reference').value;
+            console.log('selected option:'+ansOption);
             console.log(classValue);
+            var correct = document.getElementById('correct').value;
             if(classValue=='na'){
                 console.log('Inside message');
                 tag = document.getElementById('message');
@@ -475,9 +493,36 @@ var loadImageFile = function () {
                 tag.innerHTML = 'Create Weightage';
                 $('#message').show();
                 event.preventDefault();
-  }
+            }else
+            if(correct==''){
+              tag = document.getElementById('message');
+                tag.innerHTML = 'Select Option';
+                $('#message').show();
+                event.preventDefault();
+            }
             else{
+                var opt = [];
+                var options = $('.options');
+                for(var i=0;i<options.length;i++){
+                  opt.push($(options[i]).val());
+                }
+                opt = JSON.stringify(opt);
                 $('#message').hide();
+                $.ajax({
+                  url: "/createQuestion?weightage="+weightage+"&questionDesc="+questionDesc+"&questionTypeValue="+questionTypeValue+"&topicValue="+topicValue+"&subjectValue="+subjectValue+"&classValue="+classValue+"&reference="+reference+"&correct="+correct,
+                  type: "POST",
+                  contentType:"application/json",
+                  data:opt,
+                  success: function(response) {
+                           console.log(response);
+                            if(response=='1'){
+                              M.toast({html:'Question added successfully'});
+                            }
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                }); 
             }
             
         });
