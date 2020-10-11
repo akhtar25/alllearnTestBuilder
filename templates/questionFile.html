@@ -2,7 +2,6 @@
 <!--{{ form.hidden_tag() }}-->
 
         <div class="form-group " style="padding-top:5px;">
-          <form id="addSurveyForm">
                 <div class="row">
                   
                         <div class="col-sm-3">
@@ -51,7 +50,6 @@
                     <span id="message" style="color:Red;display: none;float:left;"></span>
 
 <input type="file" class="load_data" accept=".csv" style="height: 30px; margin-top: 10px;" id="file-input" name="file-input"><br>
-</form>
 <span style="color:maroon;">Only 20 questions  can be uploaded at a time.</span><br>
 <h5>Steps:</h5>
 <ol>
@@ -80,7 +78,7 @@
       <button type="button" name="load_data" id="load_data" class="btn btn-info">Load Data</button>
      </div>
      <br />-->
-     <div class="container" style="overflow-y: auto; height:500px; position: relative;">
+     <div class="container" style="overflow-y: auto; height:500px; position: relative;width:700px;">
      <div id="question_table">
      </div>
     </div>
@@ -291,7 +289,7 @@
      
      table_data += '</table>';
 
-     table_data+='<p><a class="btn btn-primary newBulkUploadQuesBtn" onclick="uploadQuesFile();" style="margin-top:15px;">Upload</a></p>'
+     table_data+='<p><a class="btn btn-primary newBulkUploadQuesBtn" onclick="uploadQuesFile();" style="margin-top:15px;">Upload</a></p><a id="msg" style="cursor:auto;color:green;font-size:16px;"></a>'
      $('#question_table').html(table_data);
   }
   rdr.readAsText($("#file-input")[0].files[0]);
@@ -311,12 +309,11 @@ var fileInput = document.getElementById("file-input");
 //     };
 
 var csvFileData = [];
-
+var rowLength = 0;
 readFile = function () {
   var file = document.querySelector('#file-input').files[0];
   var reader = new FileReader();
   reader.readAsText(file);
-  alert('inside readFile');
   //if you need to read a csv file with a 'ISO-8859-1' encoding
   /*reader.readAsText(file,'ISO-8859-1');*/
 
@@ -333,37 +330,51 @@ readFile = function () {
     for (var i = 1; i < rows.length; i++) {
       //split by separator (,) and get the columns
       cols = rows[i].split(',');
+
       var tempList = [];
+      rowLength = rows.length;
       //move column by column
       for (var j = 0; j < cols.length; j++) {
         /*the value of the current column.
         Do whatever you want with the value*/
-        alert(cols[j]);
-        tempList.append(cols[j]);
+        
+        tempList.push(cols[j]);
+        
       }
-      csvFileData.append(tempList);
+      csvFileData.push(tempList);
     }
   }
 }
 
 fileInput.addEventListener('change', readFile);
-
+var quesImg = [];
 function uploadQuesFile(){
-  
-  var form = $('#addSurveyForm'); 
+  //  alert('inside uploadQuesFile');
+   $('.newBulkUploadQuesBtn').hide();
+  $('#msg').html("submitting data please wait...");
   // var files = $("#file-input")[0].files[0];
   // const files = document.getElementById('file-input').files;
   // const file = files[0];
-  alert('inside uploadQuesFile');
-  alert(csvFileData);
+  for(i=1;i<=rowLength-1;i++){
+    var url = 'reference-url'+i.toString();
+    // alert(url);
+    quesImg.push(document.getElementById(url).value);
+  }
+  var  fileAllData = [];
+  fileAllData.push(csvFileData);
+  // alert(quesImg);
+  fileAllData.push(quesImg);
+  fileAllData = JSON.stringify(fileAllData); 
+  var classVal = $('#classId').val();
+  var subjectVal = $('#subId').val();
   $.ajax({
-                  url: "/quesFileUpload?fileData="+fileData,
+                  url: "/quesFileUpload?subjectValue="+subjectVal+"&classValue="+classVal,
                   type: "POST",
-                  data:form.serialize(),
+                  contentType: "application/json",
+                  data: fileAllData,
                   success: function(response) {
-                           alert(response);
                             if(response=='1'){
-                              alert('if response is one');
+                              $('#msg').html("Data Submitted");
                               M.toast({html:'Question added successfully'});
                             }
                     },
@@ -373,7 +384,8 @@ function uploadQuesFile(){
                 });
 };
 
-  var button_id=0
+  var button_id=0;
+  
 /*
       Function to carry out the actual POST request to S3 using the signed request from the Python app.
     */
@@ -393,13 +405,18 @@ function uploadQuesFile(){
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            // alert('Uploaded')
-            reference_name='reference-url'+button_id
+            // alert('Uploaded');
+            reference_name='reference-url'+button_id;
+            // alert(url);
+            // quesImg.push(url);
             document.getElementById(reference_name).value = url;
+            // quesImg.push(document.getElementById(reference_name).value);
             // alert( document.getElementById(reference_name).value)
             
-            $('#upload').html("Upload");
-            $('#upload').prop("disabled",false);
+            // $('.newBulkUploadQuesBtn').html("Upload");
+            $('#msg').html("");
+            $('.newBulkUploadQuesBtn').show();
+            // $('#upload').prop("disabled",false);
           }
           else{
             window.alert("this is where the problem is");
@@ -441,8 +458,9 @@ function uploadQuesFile(){
        start upload procedure by asking for a signed request from the app.
     */
     function initUpload(element){
-      $('#upload').prop("disabled",true);
-      $('#upload').html("uploading please wait...");
+      // $('#upload').prop("disabled",true);
+      $('.newBulkUploadQuesBtn').hide();
+      $('#msg').html("uploading please wait...");
       button_id=element.id
       // alert(button_id)
       const files = document.getElementById(button_id).files;

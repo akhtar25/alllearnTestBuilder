@@ -8806,65 +8806,58 @@ def studentList(class_val,section):
 @app.route('/quesFileUpload',methods=['POST','GET'])
 def quesFileUpload():
     print('inside quesFileUpload')
-    fileData = request.args.get('fileData')
-    data = fileData.split(",")
-    print(data[0])
-    print(data)
-    print('fileData:')
-    print(fileData)
-    # csv_file=request.form['file-input']
-    class_val = request.form['class_val']
-    subject_name = request.form['subject_name']
-    print('inside quesFileUpload')
-    print(subject_name)
-    # print(csv_file)
-    print(class_val)
-    # df1=pd.read_csv(file_name.name)
-    # print(df1)
-    # print('inside quesFileUpload')
-        # for index ,row in df1.iterrows():
-        #     reference = request.form['reference-url'+str(index+1)]
-        #     if row['Question Type']=='MCQ1':
-        #         print("Inside MCQ")
-
-        #         question=QuestionDetails(class_val=str(class_val),subject_id=str(subject_name),question_description=row['Question Description'],
-        #         topic_id=row['Topic Id'],question_type='MCQ1',reference_link=str(reference),archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
-        #         db.session.add(question)
-        #         question_id=db.session.query(QuestionDetails).filter_by(class_val=str(class_val),topic_id=row['Topic Id'],question_description=row['Question Description']).first()
-        #         for i in range(1,5):
-        #             option_no=str(i)
-        #             option_name='Option'+option_no
-
-        #             print(row[option_name])
-        #             if row['CorrectAnswer']=='Option'+option_no:
-        #                 correct='Y'
-        #                 weightage=row['Suggested Weightage']
-        #             else:
-        #                 correct='N'
-        #                 weightage='0'
-        #             if i==1:
-        #                 option_val='A'
-        #             elif i==2:
-        #                 option_val='B'
-        #             elif i==3:
-        #                 option_val='C'
-        #             else:
-        #                 option_val='D'
-        #             print(row[option_name])
-        #             print(question_id.question_id)
-        #             print(correct)
-        #             print(option_val)
-        #             options=QuestionOptions(option_desc=row[option_name],question_id=question_id.question_id,is_correct=correct,option=option_val,weightage=int(weightage))
-        #             print(options)
-        #             db.session.add(options)
-        #     else:
-        #         print("Inside Subjective")
-        #         question=QuestionDetails(class_val=str(class_val),subject_id=str(subject_name),question_description=row['Question Description'],
-        #         topic_id=row['Topic Id'],question_type='Subjective',reference_link=str(reference),archive_status=str('N'),suggested_weightage=row['Suggested Weightage'])
-        #         db.session.add(question)
-        #         db.session.commit()
-        #         flash('Successfully Uploaded !')
-        # print('inside fileQuestionUpload')
+    data = request.get_json()
+    fileData = data[0]
+    imgData = data[1]
+    class_val = request.args.get('classValue')
+    subject_name = request.args.get('subjectValue')
+    # print(subject_name)
+    # print(fileData)
+    # print(imgData)
+    # print(class_val)
+    k=0
+    # print(len(fileData))
+    # print(fileData[0])
+    # print(fileData[0][0])
+    # print('after first row')
+    # print(fileData[1][0])
+    # print('after second row')
+    for i in range(0,len(fileData)):
+        print('inside for loop:'+str(k))
+        print(fileData[k][0])
+        if fileData[k][2]=='MCQ1':
+            print("Inside MCQ")
+            print('loop index:'+str(k))
+            print(k)
+            print(fileData[k][0])
+            print(fileData[k][1])
+            print(fileData[k][2])
+            
+            print(imgData[k])
+            question=QuestionDetails(class_val=str(class_val),subject_id=str(subject_name),question_description=fileData[k][0],
+            topic_id=fileData[k][1],question_type=fileData[k][2],reference_link=str(imgData[k]),archive_status=str('N'),suggested_weightage=fileData[k][3])
+            db.session.add(question)
+            db.session.commit()
+            question_id=question.question_id
+            for j in range(4,8):
+                if fileData[k][8]==fileData[k][j]:
+                    correct='Y'
+                    weightage=fileData[k][3]
+                else:
+                    correct='N'
+                    weightage='0'
+                if j==4:
+                    option_val='A'
+                elif j==5:
+                    option_val='B'
+                elif j==6:
+                    option_val='C'
+                else:
+                    option_val='D'
+                options=QuestionOptions(option_desc=fileData[k][j],question_id=question_id,is_correct=correct,option=option_val,weightage=int(fileData[k][3]))
+                db.session.add(options)
+                db.session.commit()
+        k=k+1
     return jsonify(['1'])
 
 @app.route('/createQuestion',methods=['POST','GET'])
@@ -9274,10 +9267,14 @@ def subject_list(class_val):
         else:
             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
         cl = class_val.replace("-","/")
+        print('New Class value:'+str(cl))
         board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(cl),board_id=board_id).all()
+        print(cl)
+        print(board_id)
+        print(teacher_id.school_id)
+        subject_id=BoardClassSubject.query.with_entities(BoardClassSubject.subject_id).distinct().filter_by(class_val=str(cl),board_id=board_id.board_id,school_id=teacher_id.school_id).all()
         subject_name_list=[]
-
+        print(subject_id)
         for id in subject_id:
 
             subject_name=MessageDetails.query.filter_by(msg_id=id).first()

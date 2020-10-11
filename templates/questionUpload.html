@@ -340,8 +340,10 @@ var loadImageFile = function () {
          
          class_val = class_select_update.value;
          $("#loaderSubject").show();
+         console.log('Class:'+class_val);
          console.log('Inside class value Onchange')
-         var cl = classVal.replace("/","-");
+         var cl = class_val.replace("/","-");
+         console.log('class_val:'+cl);
          fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderSubject").hide();    
@@ -359,15 +361,15 @@ var loadImageFile = function () {
              })
              
          });
-         if (class_val>5){ 
-           subject_id='56';
-         }
-         else if(class_val>2 && class_val<=5){
-         subject_id='55';
-         }
-         else{
-           subject_id='54';
-         }
+        //  if (class_val>5){ 
+        //    subject_id='56';
+        //  }
+        //  else if(class_val>2 && class_val<=5){
+        //  subject_id='55';
+        //  }
+        //  else{
+        //    subject_id='54';
+        //  }
  
  
  
@@ -379,7 +381,7 @@ var loadImageFile = function () {
          }else{
           subId=subject_id;
          }
-         var cl = classVal.replace("/","-");
+         var cl = class_val.replace("/","-");
          fetch('/questionBuilder/' + cl + '/'+ subId).then(function(response) {
               response.json().then(function(data) {
                       $("#loaderTopic").hide();    
@@ -404,7 +406,8 @@ var loadImageFile = function () {
          subject_id = subject_select_update.value;
          $("#loaderTopic").show();
          console.log('Inside subject value Onchange')
-         var cl = classVal.replace("/","-");
+         class_val = class_select_update.value;
+         var cl = class_val.replace("/","-");
          fetch('/questionBuilder/' + cl + '/'+ subject_id).then(function(response) {
              response.json().then(function(data) {
                      $("#loaderTopic").hide();    
@@ -454,8 +457,20 @@ var loadImageFile = function () {
             var ansOption = $('.with-gap').val();
             var reference = document.getElementById('reference').value;
             console.log('selected option:'+ansOption);
+            var optionsSelect = $('#MCQ1_type').is(":hidden");  
+            console.log('Select:'+optionsSelect);
+            var corrSol = '';
+            var ele = document.getElementsByName('optionChoice');
+            for(const elsa of ele){
+              console.log(elsa.checked);
+              if(elsa.checked){
+              corrSol = elsa.value;
+              }
+            }
+            console.log('Ans option:'+corrSol);
             console.log(classValue);
             var correct = document.getElementById('correct').value;
+    if(!optionsSelect){
             if(classValue=='na'){
                 console.log('Inside message');
                 tag = document.getElementById('message');
@@ -485,9 +500,18 @@ var loadImageFile = function () {
             if(questionDesc==''){
                 tag = document.getElementById('message');
                 tag.innerHTML = 'Create Question';
+                // alert($('#MCQ1_type').is(":hidden"));
                 $('#message').show();
                 event.preventDefault();
-            }else
+            }
+            else
+                  if($('.options').val()==''){
+                    tag = document.getElementById('message');
+                    tag.innerHTML = 'please fill options';
+                    $('#message').show();
+                    event.preventDefault();
+                  }
+            else
             if(weightage==''){
                 tag = document.getElementById('message');
                 tag.innerHTML = 'Create Weightage';
@@ -524,6 +548,78 @@ var loadImageFile = function () {
                   }
                 }); 
             }
+    }else{
+      if(classValue=='na'){
+                console.log('Inside message');
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Class Selected';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else
+            if(subjectValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Subject Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(topicValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Topic Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(questionTypeValue=='na'){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'No Question Type Selected';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(questionDesc==''){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'Create Question';
+                // alert($('#MCQ1_type').is(":hidden"));
+                $('#message').show();
+                event.preventDefault();
+            } 
+            else
+            if(weightage==''){
+                tag = document.getElementById('message');
+                tag.innerHTML = 'Create Weightage';
+                $('#message').show();
+                event.preventDefault();
+            }else
+            if(correct==''){
+              tag = document.getElementById('message');
+                tag.innerHTML = 'Select Option';
+                $('#message').show();
+                event.preventDefault();
+            }
+            else{
+                var opt = [];
+                var options = $('.options');
+                for(var i=0;i<options.length;i++){
+                  opt.push($(options[i]).val());
+                }
+                opt = JSON.stringify(opt);
+                $('#message').hide();
+                $.ajax({
+                  url: "/createQuestion?weightage="+weightage+"&questionDesc="+questionDesc+"&questionTypeValue="+questionTypeValue+"&topicValue="+topicValue+"&subjectValue="+subjectValue+"&classValue="+classValue+"&reference="+reference+"&correct="+correct,
+                  type: "POST",
+                  contentType:"application/json",
+                  data:opt,
+                  success: function(response) {
+                           console.log(response);
+                            if(response=='1'){
+                              M.toast({html:'Question added successfully'});
+                            }
+                    },
+                  error: function(xhr) {
+                    window.alert("error occurred while loading question");
+                  }
+                }); 
+            }
+    }
             
         });
 
@@ -711,7 +807,8 @@ if(b!=1){
             
             // document.getElementById('preview').src = url;
             alert('Url for reference:'+url);
-            document.getElementById('reference').value = url;
+            // document.getElementById('reference').value = url;
+            document.getElementById('preview').src = url;
           }
           else{
             window.alert("this is where the problem is");
@@ -766,7 +863,7 @@ if(b!=1){
     // })();
 
     var updateButton = document.getElementById('updateButton')
-    
+    var corAns = '';
     $('#updateButton').click(function(){
                       var question_id = $(this).attr('name');
                       var updatedCV = document.getElementById('classValSelected').value;
@@ -780,11 +877,13 @@ if(b!=1){
         var corrans="";
           var ele = document.getElementsByName('optionChoice');
           console.log("No of choices:"+ele.length);
+          
             for(var i=0;i<ele.length;i++){
               if(ele[i].value!=null){
                 // console.log(ele[i].value);
                 console.log(ele[i].checked);
               if(ele[i].checked==true){
+                corAns = ele[i].value;
                 corrans = ele[i].value;
                 console.log('Correct Ans:'+ele[i].value);
               }
