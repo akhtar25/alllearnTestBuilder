@@ -66,6 +66,15 @@
             </div>
         </div>
     </form>
+    <div class="addQuestionButton"> 
+        <button style="margin-left: 1000px;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
+            class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
+    </div>
+    <div id="modal1" class="modal">
+        <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
+            <div id="quesBuilder"></div>
+        </div>
+        </div> 
         <!-- <div class="addQuestionButton">
             <button style="margin-left: 1000px;"
                 class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Question</a></button>
@@ -98,6 +107,10 @@
 </div>
 <script type="text/javascript">
 
+$(document).ready(function(){
+    $('.modal').modal();
+  });
+
 var count_marks = 0;
     var class_select = document.getElementById("classVal");
     var subject_select = document.getElementById("subId");
@@ -121,7 +134,9 @@ var count_marks = 0;
          
          $("#loader").show();
          console.log('Inside class value Onchange')
+         console.log('class val:'+class_val);
          var cl = class_val.replace('/','-');
+         console.log(cl);
          fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
@@ -282,6 +297,22 @@ var count_marks = 0;
     {  count_marks=count_marks-parseInt(weightage)
         $("#marks").text(count_marks);
     }
+}
+
+function createQuestion(){
+    console.log('create Question');
+    $.ajax({
+            url: "/questionBuilder",
+            type: "GET",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                $('#quesBuilder').html(response);
+            },
+            error: function(xhr){
+
+            }
+        });
 }
 
 </script>

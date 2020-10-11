@@ -9282,7 +9282,8 @@ def subject_list(class_val):
                 continue
             subject_name_list.append(subject_name)
         subjectArray = []
-
+        print('Subject Array:')
+        print(subjectArray)
         for subject in subject_name_list:
             subjectObj = {}
             subjectObj['subject_id'] = subject.msg_id

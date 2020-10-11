@@ -35,7 +35,7 @@
                                                 {% endfor %}
                                         </div>
                                                 {% else %}
-                                                {{ form.subject_name(class='form-control',id="subId") }}
+                                                {{ form.subject_name(class='form-control',id="subjectID") }}
                                                 {% endif %}      
                                 </div>
                         </div>              
@@ -86,7 +86,7 @@
    <!-- </div> -->
  <script>
    var class_select = document.getElementById("classId");
-    var subject_select = document.getElementById("subId");
+    var subject_select = document.getElementById("subjectID");
     var topic_select = document.getElementById("topics");
     var chapter_num_select = document.getElementById("chapter_num");
     var optionHTMLClass = '';
@@ -199,7 +199,7 @@
 
 
     classValue = document.getElementById('classId').value;
-    subjectValue = document.getElementById('subId').value;
+    subjectValue = document.getElementById('subjectID').value;
 
     $(document).ready(function(){
     $('#file-input').click(function(){
@@ -366,7 +366,7 @@ function uploadQuesFile(){
   fileAllData.push(quesImg);
   fileAllData = JSON.stringify(fileAllData); 
   var classVal = $('#classId').val();
-  var subjectVal = $('#subId').val();
+  var subjectVal = $('#subjectID').val();
   $.ajax({
                   url: "/quesFileUpload?subjectValue="+subjectVal+"&classValue="+classVal,
                   type: "POST",
