@@ -337,7 +337,7 @@ var topics = '';
     var class_val = select_class.value;
     var test_type = select_test.value;
     topics = $('#selectChapters').val();
-    alert('Topics:'+topics);
+    // alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,

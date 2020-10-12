@@ -665,7 +665,8 @@ if(b!=1){
           if(xhr.status === 200 || xhr.status === 204){
             
             // document.getElementById('preview').src = url;
-            alert('Url for reference:'+url);
+            $('#submit').prop('disabled',false);
+            $('#submit').html('confirm');
             document.getElementById('reference').value = url;
           }
           else{
@@ -707,11 +708,26 @@ if(b!=1){
     */
     function initUpload(){
       const files = document.getElementById('file-input').files;
+      $('#submit').prop('disabled',true);
+      $('#submit').html('uploading image please wait...');
+      // file name change
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      var Image = 'questionImage';
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += '.png';
+      var element = document.getElementById('file-input');
+      var filename = element.files[0];
+      var blob = filename.slice(0, filename.size, 'image/png'); 
+      newFile = new File([blob], Image, {type: 'image/png'});
+
+      // end of file name change
       const file = files[0];
-      if(!file){
+      if(!newFile){
         return alert('No file selected.');
       }
-      getSignedRequest(file);
+      getSignedRequest(newFile);
     }
     /*
        Bind listeners when the page loads.
