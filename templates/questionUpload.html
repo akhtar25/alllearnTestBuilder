@@ -667,6 +667,7 @@ if(b!=1){
             // document.getElementById('preview').src = url;
             $('#submit').prop('disabled',false);
             $('#submit').html('confirm');
+            // alert(url);
             document.getElementById('reference').value = url;
           }
           else{
@@ -713,12 +714,16 @@ if(b!=1){
       // file name change
       var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       var charactersLength = characters.length;
-      var Image = 'questionImage';
+      var element = document.getElementById('file-input');
+      var filename = element.files[0];
+      var nameFile = filename.name.split('.')[0];
+      var Image = nameFile;
+      // 'questionImage';
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += '.png';
-      var element = document.getElementById('file-input');
-      var filename = element.files[0];
+      
+      // alert(Image)
       var blob = filename.slice(0, filename.size, 'image/png'); 
       newFile = new File([blob], Image, {type: 'image/png'});
 

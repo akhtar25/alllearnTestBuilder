@@ -360,13 +360,28 @@
       $('#upload').prop("disabled",true);
       $('#upload').html("uploading please wait...");
       button_id=element.id
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      var element = document.getElementById(button_id);
+      var filename = element.files[0];
+      var nameFile = filename.name.split('.')[0];
+      var Image = nameFile;
+      // 'questionImage';
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += '.png';
+      
+      // alert(Image)
+      var blob = filename.slice(0, filename.size, 'image/png'); 
+      newFile = new File([blob], Image, {type: 'image/png'});
+
       // alert(button_id)
-      const files = document.getElementById(button_id).files;
-      const file = files[0];
-      if(!file){
+      // const files = document.getElementById(button_id).files;
+      // const file = files[0];
+      if(!newFile){
         return alert('No file selected.');
       }
-      getSignedRequest(file);
+      getSignedRequest(newFile);
     }
     /*
        Bind listeners when the page loads.
