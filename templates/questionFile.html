@@ -309,7 +309,7 @@
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            // alert('Uploaded')
+            alert(url);
             reference_name='reference-url'+button_id
             document.getElementById(reference_name).value = url;
             // alert( document.getElementById(reference_name).value)
@@ -367,6 +367,8 @@
       var nameFile = filename.name.split('.')[0];
       var Image = nameFile;
       // 'questionImage';
+      var currentDate = new Date();
+      Image += currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds();
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += '.png';

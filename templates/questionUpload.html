@@ -667,7 +667,7 @@ if(b!=1){
             // document.getElementById('preview').src = url;
             $('#submit').prop('disabled',false);
             $('#submit').html('confirm');
-            // alert(url);
+             alert(url);
             document.getElementById('reference').value = url;
           }
           else{
@@ -718,7 +718,8 @@ if(b!=1){
       var filename = element.files[0];
       var nameFile = filename.name.split('.')[0];
       var Image = nameFile;
-      // 'questionImage';
+      var currentDate = new Date();
+      Image += currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds();
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += '.png';
