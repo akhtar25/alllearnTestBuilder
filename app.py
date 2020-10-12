@@ -7713,10 +7713,12 @@ def loadQuestionStud():
         currentTestId = sessionDetailRow.test_id
         fetchRemQues = "select distinct tq.question_id from test_questions tq left join response_capture rc on tq.question_id = rc.question_id where tq.test_id = '"+str(currentTestId)+"' and rc.question_id is null"
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
+        print(fetchRemQues)
         for remQues in fetchRemQues:
+            print('insert into responsecapture table')
             insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= remQues.question_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,last_modified_date= date.today())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today())
             db.session.add(insertRes)
             db.session.commit()
         totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
