@@ -7711,9 +7711,10 @@ def loadQuestionStud():
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
-        fetchRemQues = "select distinct tq.question_id from test_questions tq left join response_capture rc on tq.question_id = rc.question_id where tq.test_id = '"+str(currentTestId)+"' and rc.question_id is null"
-        fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
+        fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
+        fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
+        
         for remQues in fetchRemQues:
             print('insert into responsecapture table')
             insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
