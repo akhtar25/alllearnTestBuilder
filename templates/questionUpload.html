@@ -667,7 +667,7 @@ if(b!=1){
             // document.getElementById('preview').src = url;
             $('#submit').prop('disabled',false);
             $('#submit').html('confirm');
-            //  alert(url);
+             alert(url);
             document.getElementById('reference').value = url;
           }
           else{
@@ -719,7 +719,18 @@ if(b!=1){
       var nameFile = filename.name.split('.')[0];
       var Image = nameFile;
       var currentDate = new Date();
-      Image += currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds();
+      Image += currentDate.getDate();
+      Image += currentDate.getHours();
+      Image += currentDate.getMinutes();
+      Image += currentDate.getSeconds();
+      Image += currentDate.getMilliseconds();
+      console.log('Date:'+currentDate.getDate());
+      console.log('Hours:'+currentDate.getHours());
+      console.log('Minutes:'+currentDate.getMinutes());
+      console.log('Seconds:'+currentDate.getSeconds());
+      console.log('Miliseconds:'+currentDate.getMilliseconds());
+      console.log('DateTime:'+currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds());
+      console.log('Image:'+Image);
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += characters.charAt(Math.floor(Math.random() * charactersLength));
       Image += '.png';
