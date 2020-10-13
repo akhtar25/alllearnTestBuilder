@@ -400,7 +400,7 @@ function uploadQuesFile(){
   }
   var  fileAllData = [];
   fileAllData.push(csvFileData);
-  alert(fileAllData);
+  // alert(fileAllData);
   fileAllData.push(quesImg);
   fileAllData = JSON.stringify(fileAllData); 
   var classVal = $('#classId').val();
@@ -500,13 +500,34 @@ function uploadQuesFile(){
       $('.newBulkUploadQuesBtn').hide();
       $('#msg').html("uploading please wait...");
       button_id=element.id
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      var element = document.getElementById(button_id);
+      var filename = element.files[0];
+      var nameFile = filename.name.split('.')[0];
+      var Image = nameFile;
+      // 'questionImage';
+      var currentDate = new Date();
+      Image += currentDate.getDate();
+      Image += currentDate.getHours();
+      Image += currentDate.getMinutes();
+      Image += currentDate.getSeconds();
+      Image += currentDate.getMilliseconds();
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      Image += '.png';
+      
+      // alert(Image)
+      var blob = filename.slice(0, filename.size, 'image/png'); 
+      newFile = new File([blob], Image, {type: 'image/png'});
+
       // alert(button_id)
-      const files = document.getElementById(button_id).files;
-      const file = files[0];
-      if(!file){
+      // const files = document.getElementById(button_id).files;
+      // const file = files[0];
+      if(!newFile){
         return alert('No file selected.');
       }
-      getSignedRequest(file);
+      getSignedRequest(newFile);
     }
     /*
        Bind listeners when the page loads.

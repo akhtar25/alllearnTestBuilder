@@ -6213,8 +6213,20 @@ def testBuilderFileUpload():
     ###### Inserting record in the Test Detail table
     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
 
+    # Test create date
+    format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+    now_utc = datetime.now(timezone('UTC'))
+    print(now_utc.strftime(format))
+    # Convert to local time zone
+    now_local = now_utc.astimezone(get_localzone())
+    print('Date of test creation:'+str(now_local.strftime(format)))
+    # date_utc = date.now(timezone('UTC'))
+    # date_local = date_utc.astimezone(get_localzone())
+    # print('Date of Test:'+str(date_local.strftime(format)))
+    # Test end date
     testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=datetime.now(),
+        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
         date_of_test=str(date), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
     db.session.add(testDetailsUpd)
     db.session.commit()
@@ -6678,9 +6690,16 @@ def startPracticeTest():
         session['anonUser']==False
 
     ##Create session
-    if len(questions) >0:        
+    if len(questions) >0:  
+        format = "%Y-%m-%d %H:%M:%S"
+        # Current time in UTC
+        now_utc = datetime.now(timezone('UTC'))
+        print(now_utc.strftime(format))
+        # Convert to local time zone
+        now_local = now_utc.astimezone(get_localzone())
+        print(now_local.strftime(format))      
         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',
-            class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=datetime.today(),correct_marks=10,incorrect_marks=0,test_time=0,total_marks=total_marks )
+            class_sec_id=classSecData.class_sec_id,test_id=testDetailsAdd.test_id, last_modified_date=now_local.strftime(format),correct_marks=10,incorrect_marks=0,test_time=0,total_marks=total_marks )
         db.session.add(sessionDetailRowInsert)
         db.session.commit()        
 
@@ -7573,9 +7592,16 @@ def feedbackCollection():
                 #print(sessionDetailRowCheck)
                 if sessionDetailRowCheck==None:
                     print('if sessionDetailRowCheck is none')
-                    #print(sessionDetailRowCheck)                    
+                    #print(sessionDetailRowCheck)   
+                    format = "%Y-%m-%d %H:%M:%S"
+                    # Current time in UTC
+                    now_utc = datetime.now(timezone('UTC'))
+                    print(now_utc.strftime(format))
+                    # Convert to local time zone
+                    now_local = now_utc.astimezone(get_localzone())
+                    print(now_local.strftime(format))                 
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = date.today())
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = now_local.strftime(format))
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -7780,6 +7806,18 @@ def loadQuestionStud():
     teacherID = sessionDetailRow.teacher_id
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
+        currentTestId = sessionDetailRow.test_id
+        fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"') and test_id='"+str(sessionDetailRow.test_id)+"'"
+        print(fetchRemQues)
+        fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
+        
+        for remQues in fetchRemQues:
+            print('insert into responsecapture table')
+            insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+            question_id= remQues.question_id, teacher_id= teacherID,
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today())
+            db.session.add(insertRes)
+            db.session.commit()
         if studentRow:
             totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
         else:
@@ -8237,7 +8275,7 @@ def studentFeedbackReport():
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
         responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
         responseCaptureQuery = responseCaptureQuery +"left join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
-        responseCaptureQuery = responseCaptureQuery +"inner join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+        responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
         responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
     else:
         responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
@@ -8246,7 +8284,7 @@ def studentFeedbackReport():
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
         responseCaptureQuery = responseCaptureQuery +"inner join question_Details qd on rc.question_id = qd.question_id  and qd.archive_status='N' "    
         responseCaptureQuery = responseCaptureQuery +"left join question_options qo on qo.question_id = rc.question_id and qo.is_correct='Y'  "
-        responseCaptureQuery = responseCaptureQuery +"inner join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
+        responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
         responseCaptureQuery = responseCaptureQuery +"where student_user_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
     print('Response Capture Query:'+str(responseCaptureQuery))
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
@@ -8474,7 +8512,7 @@ def classPerformance():
     testDetailQuery = testDetailQuery+ " inner join test_details t2 on t2.test_id=t1.test_id "
     testDetailQuery = testDetailQuery+ " inner join message_detail t3 on t2.subject_id=t3.msg_id "
     testDetailQuery = testDetailQuery+ " inner join class_section t4 on t1.class_Sec_id=t4.class_sec_id "
-    testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by t1.session_id desc "
+    testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by test_date desc "
     testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
     return render_template('classPerformance.html',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
 
