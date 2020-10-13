@@ -8808,7 +8808,11 @@ def quesFileUpload():
     print('inside quesFileUpload')
     data = request.get_json()
     fileData = data[0]
+    print('print File Content')
+    print(fileData)
     imgData = data[1]
+    print('print image list')
+    print(imgData)
     class_val = request.args.get('classValue')
     subject_name = request.args.get('subjectValue')
     # print(subject_name)

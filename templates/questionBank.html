@@ -137,15 +137,18 @@ var count_marks = 0;
          console.log('class val:'+class_val);
          var cl = class_val.replace('/','-');
          console.log(cl);
+         var sub_sel = document.getElementById('subId');
          fetch('/questionBuilder/' + cl).then(function(response) {
              response.json().then(function(data) {
                      $("#loader").hide();    
                      var optionHTML = '';
                      optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
                      for (var subject of data.subjects) {
+                         console.log(subject.subject_id);
                      optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
                  }
-                 subject_select.innerHTML = optionHTML;
+                 console.log(optionHTML);
+                 sub_sel.innerHTML = optionHTML;
              })
              
          });
@@ -299,7 +302,7 @@ var count_marks = 0;
     }
 }
 
-function createQuestion(){
+function createQuestion(){ 
     console.log('create Question');
     $.ajax({
             url: "/questionBuilder",

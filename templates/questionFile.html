@@ -257,12 +257,30 @@
         var rdr = new FileReader();
         rdr.onload = function (e) {
       //get the rows into an array
+      // console.log('raw data:'+e.target.result);
       var data = e.target.result.split(/\r?\n|\r/);
+      //  data = data.replace(',','~');
+      // console.log('csv Data:'+data);
      //var employee_data = data.split(/\r?\n|\r/);
      var table_data = '<table class="table table-bordered table-striped">';
      for(var count = 0; count<data.length; count++)
      {
-      var cell_data = data[count].split(",");
+      //  console.log('data count:'+data[count])
+      // console.log(typeof data[count]);
+      var fileData = '';
+      if(data[count].includes('",')){
+      var first = data[count].split('",')[0];
+      var second = data[count].split('",')[1];
+      // console.log('first:'+first);
+      // console.log('second:'+second);
+       fileData = second.replaceAll(',','~');
+      fileData = first + '~'+fileData;
+      }else{
+        fileData = data[count].replaceAll(",","~");
+      }
+      // console.log('FileData:'+fileData);
+      var cell_data = fileData.split("~");
+      // console.log('cell Data:'+cell_data);
       table_data += '<tr>';
       for(var cell_count=0; cell_count<cell_data.length; cell_count++)
       { 
@@ -327,9 +345,28 @@ readFile = function () {
     var rows = csv.split('\n');
 
     //move line by line
+    // alert('Rows:'+rows);
+    // console.log('Row length:'+rows.length);
     for (var i = 1; i < rows.length; i++) {
       //split by separator (,) and get the columns
-      cols = rows[i].split(',');
+      console.log('Row:'+i);
+      console.log('rows['+i+']:'+rows[i]);
+      // console.log(typeof rows[i]);
+      var fileData = '';
+      if(rows[i].includes('",')){
+      var first = rows[i].split('",')[0];
+      var second = rows[i].split('",')[1];
+      // console.log('first:'+first);
+      // console.log('second:'+second);
+       fileData = second.replaceAll(',','~');
+      fileData = first + '~'+fileData;
+      }else{
+        fileData = rows[i].replaceAll(",","~");
+      }
+      // console.log('FileData:'+fileData);
+      fileData = fileData.replaceAll('"',' ');
+      var cols = fileData.split("~");
+      // cols = rows[i].split(',');
 
       var tempList = [];
       rowLength = rows.length;
@@ -337,10 +374,11 @@ readFile = function () {
       for (var j = 0; j < cols.length; j++) {
         /*the value of the current column.
         Do whatever you want with the value*/
-        
-        tempList.push(cols[j]);
-        
+        var dat = cols[j].replace("\r","");
+        tempList.push(dat);
+        // console.log('cols['+j+']:'+cols[j]);
       }
+      console.log('Templist:'+tempList);
       csvFileData.push(tempList);
     }
   }
@@ -362,7 +400,7 @@ function uploadQuesFile(){
   }
   var  fileAllData = [];
   fileAllData.push(csvFileData);
-  // alert(quesImg);
+  alert(fileAllData);
   fileAllData.push(quesImg);
   fileAllData = JSON.stringify(fileAllData); 
   var classVal = $('#classId').val();
