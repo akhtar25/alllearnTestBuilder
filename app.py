@@ -6575,6 +6575,24 @@ def qrSessionScannerStudent():
     
     return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails,testHistory=testHistory)
 
+@app.route('/fetchStudentTestReport', methods=['GET','POST'])
+def fetchStudentTestReport():
+    student_id = request.args.get('student_id')
+    print('Student Id:'+str(student_id))
+    testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(student_id)+") order by test_date desc limit 50"
+    testHistory = db.session.execute(testHistoryQuery).fetchall()
+    testResData = []
+    for test in testHistory:
+        testData = {}
+        testData['subject'] = test.subject
+        testData['topics'] = test.topics
+        testData['test_date'] = test.test_date
+        testData['perf_percentage'] = test.perf_percentage
+        testData['resp_session_id'] = test.resp_session_id
+        testResData.append(testData)
+    print('Test Res Data:')
+    print(testResData)
+    return jsonify({'testResult':testResData})
 
 
 @app.route('/viewHomework')

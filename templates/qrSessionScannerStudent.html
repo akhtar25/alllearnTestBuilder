@@ -20,7 +20,7 @@
     </div>
     <div class="col-md-10" style="margin-top:50px;">
         <div id="testHistory"
-        style="border-radius: 25px;border: 2px solid white;padding: 10px;max-height: 500px;overflow-y: auto;"
+        style="border-radius: 25px;border: 2px solid white;padding: 10px;max-height: 500px;"
         class="z-depth-1 hoverable row colorClass">
         <h4>Test History</h4>
         <table class="highlight">
@@ -32,9 +32,9 @@
                 <th>Performance</th>
                 <th>See Report</th>
             </thead>
-            {%if testHistory%}
-            <tbody>
-                {%for row in testHistory%}
+            <!-- {%if testHistory%} -->
+            <tbody id="testData">
+                <!-- {%for row in testHistory%}
                 <tr>
                     <td>{{row.subject}}</td>
                     <td>{{row.topics}}</td>
@@ -53,11 +53,15 @@
                     <td>
                         <span style="font-size: larger;" class="grey-text">No Test history found</span>
                     </td>
-                </tr>
+                </tr> -->
             </tbody>
-            {%endif%}
+            
+            <!-- {%endif%} -->
             
         </table>
+        <a href="javascript:prevPage()" id="btn_prev">Prev</a>
+<a href="javascript:nextPage()" id="btn_next">Next</a>
+page: <span id="page"></span>&nbsp;&nbsp;&nbsp;records per page:&nbsp;&nbsp;<span id="recordsperpage"></span>
     </div>
     </div>
 
@@ -114,11 +118,124 @@
         }
     });
 
-
+    var objJson = '';
     $(document).ready(function () {
         $('.menu-toggle').click(function () {
             $('nav').toggleClass('active')
         });
+
+        $.ajax({
+            url:"/fetchStudentTestReport?student_id={{studentDetails.student_id}}",
+            type:"POST",
+            contentType:"/appilcation/json",
+            data:"",
+            success:function(response){
+                console.log(response.testResult);
+                // alert(response.testResult);
+                objJson = response.testResult;
+                console.log('Object length:'+objJson.length);
+            //     var tableHtml = '';
+            // if(response){
+            //     for(var res of response.testResult){
+            //         // alert(res.resp_session_id);
+            //         var resp_id = res.resp_session_id;
+            //         // console.log(resp_id);
+            //         tableHtml = tableHtml+ '<tr><td>'+res.subject+'</td><td>'+res.topics+'</td><td>'+res.test_date+'</td><td>'+res.perf_percentage+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&studentName={{studentDetails.full_name}}&resp_session_id='+resp_id+'" class="seeReportClass">See Report</a></td></tr>';
+            //         // console.log(tableHtml);
+            //     }
+            // }else{
+            //     tableHtml = '<tr><span style="font-size: larger;" class="grey-text">No Test history found</span></tr>'
+            // }
+            //     document.getElementById('testData').innerHTML = tableHtml;
+            },
+            error:function(xhr){
+
+            }
+        });
     });
+
+
+
+    // Pagination for table
+    var current_page = 1;
+var records_per_page = 20;
+
+//  = [
+//     { adName: "AdName 1"},
+//     { adName: "AdName 2"},
+//     { adName: "AdName 3"},
+//     { adName: "AdName 4"},
+//     { adName: "AdName 5"},
+//     { adName: "AdName 6"},
+//     { adName: "AdName 7"},
+//     { adName: "AdName 8"},
+//     { adName: "AdName 9"},
+//     { adName: "AdName 10"}
+// ];
+ // Can be obtained from another source, such as your objJson variable
+
+function prevPage()
+{
+    if (current_page > 1) {
+        current_page--;
+        changePage(current_page);
+    }
+}
+
+function nextPage()
+{
+    if (current_page < numPages()) {
+        current_page++;
+        changePage(current_page);
+    }
+}
+    
+function changePage(page)
+{
+    // alert(records_per_page);
+    document.getElementById('recordsperpage').innerText=records_per_page;
+    var btn_next = document.getElementById("btn_next");
+    var btn_prev = document.getElementById("btn_prev");
+    var listing_table = document.getElementById("testData");
+    var page_span = document.getElementById("page");
+ 
+    // Validate page
+    // alert(numPages());
+    if (page < 1) page = 1;
+    if (page > numPages()) page = numPages();
+
+    listing_table.innerHTML = "";
+    tableHtml = ''
+    for (var i = (page-1) * records_per_page; i < (page * records_per_page); i++) {
+        console.log(objJson[i]);
+        listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+objJson[i].perf_percentage+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&studentName={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
+        // objJson[i].adName + "<br>";
+
+    }
+    // listing_table.innerHTML = tableHtml;
+    page_span.innerHTML = page;
+    // alert(page);
+    if (page == 1) {
+        btn_prev.style.visibility = "hidden";
+    } else {
+        btn_prev.style.visibility = "visible";
+    }
+
+    if (page == numPages()) {
+        btn_next.style.visibility = "hidden";
+    } else {
+        btn_next.style.visibility = "visible";
+    }
+}
+
+function numPages()
+{
+    return Math.ceil(objJson.length / records_per_page);
+}
+
+window.onload = function() {
+    changePage(1);
+};
+    // End
 </script>
 {% endblock%}
