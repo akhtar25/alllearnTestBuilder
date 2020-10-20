@@ -2,7 +2,7 @@
 <div class="container" height=100%>
 
 
-  <div class="sidebar-mini">
+  <div class="sidebar-mini"> 
      <aside class="main-sidebar" style="padding:0px;">            
             <section class="sidebar" id="leftPanel" style="display: none;">
               <div id="timeDiv">
@@ -209,6 +209,12 @@
 
     var c = 0;
     var j=0;
+  
+  var clearBtn = document.getElementById('clear');
+  clearBtn.addEventListener('click',function(){
+    $('#startAndNextBTN').prop('disabled',true);
+    $('#save').prop('disabled',true);
+  });
   function fetchSubmitQuestion(num,btn) {
     
     $('#leftPanel').show();

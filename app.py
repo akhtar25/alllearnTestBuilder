@@ -4292,7 +4292,7 @@ def login():
     glogin = request.args.get('glogin')
     gemail = request.args.get('gemail')
     ##end of new section
-
+    session['submit'] = 0
     form = LoginForm()
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
@@ -6567,8 +6567,13 @@ def qrSessionScanner():
 @app.route('/qrSessionScannerStudent')
 @login_required
 def qrSessionScannerStudent():
+    
     studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+    
+    testHistoryQuery = "SELECT *FROM fn_student_performance_response_capture("+str(studentDetails.student_id)+") order by test_date desc limit 50"
+    testHistory = db.session.execute(testHistoryQuery).fetchall()
+    
+    return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentDetails,testHistory=testHistory)
 
 
 
@@ -6717,7 +6722,22 @@ def feedbackCollectionStudDev():
     print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
     studentRow = StudentProfile.query.filter_by(student_id=studId).first()
+    classData = ClassSection.query.filter_by(class_sec_id=studentRow.class_sec_id).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
+    testDet = TestDetails.query.filter_by(test_id=sessionDetailRow.test_id).first()
+    print('Test of Class:'+str(testDet.class_val))
+    print('Student of class:'+str(classData.class_val))
+    responseExist = "select rc.student_id,sd.test_id from response_capture rc inner join session_detail sd on rc.resp_session_id = sd.resp_session_id where sd.resp_session_id='"+str(resp_session_id)+"' and rc.student_id='"+str(studId)+" '"
+    responseExist = db.session.execute(text(responseExist)).first()
+    print('Submit Btn:'+str(session['submit']))
+    if responseExist and session['submit']:
+        print('Inside if test already attempt')
+        flash('Sorry, you have already attempt this test')
+        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
+    if(str(testDet.class_val)!=str(classData.class_val)):
+        print('Inside if classes are same')
+        flash('Sorry, you can not attempt this test')
+        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
         if sessionDetailRow.session_status=='80':
@@ -7807,6 +7827,7 @@ def loadQuestionStud():
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
+        session['submit'] = btn
         fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
@@ -8256,18 +8277,23 @@ def feedbackReport():
 def studentFeedbackReport():
     student_id = request.args.get('student_id')  
     student_name = request.args.get('student_name') 
-    student_id=student_id.strip()
-    if student_id==None:
-        student_id = current_user.id
-    if student_name==None:
-        student_name = str(current_user.first_name)+' '+str(current_user.last_name)
     resp_session_id = request.args.get('resp_session_id')
+    student_id=student_id.strip()
     studentRow = ''
-    if current_user.is_anonymous:        
-        studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+    if student_id!=None:
+        studentRow=StudentProfile.query.filter_by(student_id=student_id).first()
     else:
-        studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()   
+        if student_id==None:
+            student_id = current_user.id
+        if student_name==None:
+            student_name = str(current_user.first_name)+' '+str(current_user.last_name)
+        if current_user.is_anonymous:        
+            studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
+        else:
+            studentRow=StudentProfile.query.filter_by(user_id=current_user.id).first()   
+            
     responseCaptureQuery = ''
+    
     if studentRow:
         responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
         responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
@@ -9377,7 +9403,7 @@ def questionTopicPicker():
 @app.route('/questionChapterpicker/<class_val>/<subject_id>')
 def chapter_list(class_val,subject_id):
     cl = class_val.replace('-','/')
-    chapter_num = "select chapter_num,chapter_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+cl+"' and td.subject_id='"+subject_id+"' and tt.is_archived='N' order by td.chapter_num"
+    chapter_num = "select distinct td.chapter_num,td.chapter_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+cl+"' and td.subject_id='"+subject_id+"' and tt.is_archived='N' order by td.chapter_num,td.chapter_name"
     print(chapter_num)
     print('Inside chapterPicker')
     

@@ -18,6 +18,49 @@
         </div>
         <!-- <a class="waves-effect waves-light btn green" id="stopScanner" >Stop Scanner</a> -->
     </div>
+    <div class="col-md-10" style="margin-top:50px;">
+        <div id="testHistory"
+        style="border-radius: 25px;border: 2px solid white;padding: 10px;max-height: 500px;overflow-y: auto;"
+        class="z-depth-1 hoverable row colorClass">
+        <h4>Test History</h4>
+        <table class="highlight">
+
+            <thead>
+                <th>Subject</th>
+                <th>Topics</th>
+                <th>Test Date</th>
+                <th>Performance</th>
+                <th>See Report</th>
+            </thead>
+            {%if testHistory%}
+            <tbody>
+                {%for row in testHistory%}
+                <tr>
+                    <td>{{row.subject}}</td>
+                    <td>{{row.topics}}</td>
+                    <td>{{row.test_date.strftime('%d %B %Y')}}</td>
+
+                    <td>{{row.perf_percentage}}%</td>
+                    <td><a target="_blank"
+                            href="{{url_for('studentFeedbackReport', student_id=studentDetails.student_id, studentName=studentDetails.full_name, resp_session_id = row.resp_session_id)}}"
+                            class="seeReportClass">See Report</a></td>
+                </tr>
+                {%endfor%}
+            </tbody>
+            {%else%}
+            <tbody>
+                <tr>
+                    <td>
+                        <span style="font-size: larger;" class="grey-text">No Test history found</span>
+                    </td>
+                </tr>
+            </tbody>
+            {%endif%}
+            
+        </table>
+    </div>
+    </div>
+
 </div>
 <script type="text/javascript">
     $('#startScanner').click(function () {
