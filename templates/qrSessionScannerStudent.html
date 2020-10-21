@@ -183,9 +183,10 @@ function prevPage()
 }
 
 function nextPage()
-{
+{   
     if (current_page < numPages()) {
         current_page++;
+        // alert('Current page:'+current_page);
         changePage(current_page);
     }
 }
@@ -208,9 +209,10 @@ function changePage(page)
     tableHtml = ''
     for (var i = (page-1) * records_per_page; i < (page * records_per_page); i++) {
         console.log(objJson[i]);
+        if(objJson[i]){
         listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+objJson[i].perf_percentage+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&studentName={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
         // objJson[i].adName + "<br>";
-
+        }
     }
     // listing_table.innerHTML = tableHtml;
     page_span.innerHTML = page;

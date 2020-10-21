@@ -6586,7 +6586,7 @@ def fetchStudentTestReport():
         testData = {}
         testData['subject'] = test.subject
         testData['topics'] = test.topics
-        testData['test_date'] = test.test_date
+        testData['test_date'] = test.test_date.strftime('%d %B %Y')
         testData['perf_percentage'] = test.perf_percentage
         testData['resp_session_id'] = test.resp_session_id
         testResData.append(testData)
