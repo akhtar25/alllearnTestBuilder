@@ -4292,7 +4292,7 @@ def login():
     glogin = request.args.get('glogin')
     gemail = request.args.get('gemail')
     ##end of new section
-    session['submit'] = 0
+    
     form = LoginForm()
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
@@ -6745,14 +6745,14 @@ def feedbackCollectionStudDev():
     testDet = TestDetails.query.filter_by(test_id=sessionDetailRow.test_id).first()
     print('Test of Class:'+str(testDet.class_val))
     print('Student of class:'+str(classData.class_val))
-    responseExist = "select rc.student_id,sd.test_id from response_capture rc inner join session_detail sd on rc.resp_session_id = sd.resp_session_id where sd.resp_session_id='"+str(resp_session_id)+"' and rc.student_id='"+str(studId)+" '"
-    responseExist = db.session.execute(text(responseExist)).first()
-    print('Submit Btn:'+str(session['submit']))
-    if responseExist and session['submit']:
-        print('Inside if test already attempt')
-        flash('Sorry, you have already attempt this test')
-        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
-    if(str(testDet.class_val)!=str(classData.class_val)):
+    # responseExist = "select rc.student_id,sd.test_id from response_capture rc inner join session_detail sd on rc.resp_session_id = sd.resp_session_id where sd.resp_session_id='"+str(resp_session_id)+"' and rc.student_id='"+str(studId)+" '"
+    # responseExist = db.session.execute(text(responseExist)).first()
+    
+    # if responseExist:
+    #     print('Inside if test already attempt')
+    #     flash('Sorry, you have already attempt this test')
+    #     return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
+    if((str(testDet.class_val)!=str(classData.class_val)) and (testDet.school_id==classData.school_id)):
         print('Inside if classes are same')
         flash('Sorry, you can not attempt this test')
         return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
@@ -7845,7 +7845,7 @@ def loadQuestionStud():
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
-        session['submit'] = btn
+        
         fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
@@ -7880,16 +7880,16 @@ def loadQuestionStud():
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         # print('Marks Scored Query:'+marksScoredQuery)
         # print('Marks Scored:'+str(marksScoredVal.marks_scored))
-        print('Total Marks:'+str(totalMarksVal.total_marks))
+        print('Total Marks:'+str(marksScoredVal.marks_scored))
         # negative_marks = 0
         marks_scored = 0
         # if neg_marks.incorrect_marks>0:
         #     print('incorrect Ques:'+str(incorrect_ques.incorrect_ques))
 
         #     negative_marks = int(neg_marks.incorrect_marks) * int(incorrect_ques.incorrect_ques)
-        if totalMarksVal.total_marks!=None:
+        if marksScoredVal.marks_scored!=None:
             print('inside marksscoredval is not empty')
-            marks_scored = int(totalMarksVal.total_marks)
+            marks_scored = int(marksScoredVal.marks_scored)
         # if negative_marks>0:
         #     print('Negative Marks:'+str(negative_marks))
         #     marks_scored = int(marks_scored) - int(negative_marks)
@@ -9138,7 +9138,7 @@ def uploadMarks():
     board_id=SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
     classValue = request.args.get('class_val')
     class_section = request.args.get('class_section')
-    class_sec_id=ClassSection.query.filter_by(class_val=int(classValue),school_id=teacher_id.school_id,section=class_section).first()
+    class_sec_id=ClassSection.query.filter_by(class_val=str(classValue),school_id=teacher_id.school_id,section=class_section).first()
     student_list=StudentProfile.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacher_id.school_id).all()
     paperUrl = request.args.get('paperUrl')
     subject_id = request.args.get('subject_id')
@@ -9166,7 +9166,7 @@ def uploadMarks():
     else:
         testType = MessageDetails.query.filter_by(msg_id=test_type).first()
         testPaper = TestDetails(test_type=testType.description,total_marks=Tmarks,
-        last_modified_date=datetime.today(),board_id=board_id.board_id,subject_id=subject_id,class_val=classValue,date_of_creation=datetime.today(),school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id,test_paper_link=paperUrl)
+        last_modified_date=datetime.today(),board_id=board_id.board_id,subject_id=subject_id,class_val=str(classValue),date_of_creation=datetime.today(),school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id,test_paper_link=paperUrl)
         db.session.add(testPaper)
     for marksSubjectWise in marks:
         if marksSubjectWise=='-1':
@@ -9541,7 +9541,7 @@ def indivStudentProfile():
             optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
         else:
             optionURL=""
-        qrArray.append(optionURL)
+        qrArray.append(optionURL) 
         #print(optionURL)
     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
