@@ -234,20 +234,57 @@ $(document).ready(function(){
         window.alert('error occured while loading chapters');
       }
     });
-    $('#testBuilderQuestions').hide();
-    $("questions").hide();
-    $('#questionloader').show();
+    // $('#testBuilderQuestions').hide();
+    // $("questions").hide();
+    // $('#questionloader').show();
     
+    // $.ajax({
+    //         url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
+    //         type: "POST",
+    //         contentType: "application/json",
+    //         data: "",
+            
+    //         success: function (response) {
+    //             $('#testBuilderQuestions').show();
+    //             $("#questions").show();  
+    //             $('#questionloader').hide(); 
+    //             if(response==1){
+    //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+                  
+    //             }
+    //             else{
+    //                 $("#questions").html(response);
+                    
+    //             }  
+    //             console.log('loader hide');
+                
+                        
+    //         },
+    //         error: function (xhr) {
+    //             window.alert("error occurred while loading question");
+    //         }
+    //     });
+    // For new Questions
+    $('#testBuilderQuestions').hide();
+    $('questions').hide();
+    $('#questionloader').show();
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    topics = $('#selectChapters').val();
+    // alert('Topics:'+topics);
+    var topicList = JSON.stringify(topics);
     $.ajax({
-            url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
+            url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
             type: "POST",
             contentType: "application/json",
-            data: "",
-            
+            data: topicList,
             success: function (response) {
+                // $("#loaderDiv").hide();
+                $('#questionloader').hide();
                 $('#testBuilderQuestions').show();
-                $("#questions").show();  
-                $('#questionloader').hide(); 
+                $('#questions').show();
+                console.log(response);
                 if(response==1){
                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
                   
@@ -255,15 +292,13 @@ $(document).ready(function(){
                 else{
                     $("#questions").html(response);
                     
-                }  
-                console.log('loader hide');
-                
-                        
+                }                           
             },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
             }
         });
+    // End
 }
 
 select_chapter.onchange = function(){
@@ -355,7 +390,7 @@ var topics = '';
     var class_val = select_class.value;
     var test_type = select_test.value;
     topics = $('#selectChapters').val();
-    alert('Topics:'+topics);
+    // alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,

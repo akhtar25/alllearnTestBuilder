@@ -6047,6 +6047,8 @@ def testBuilder():
 @app.route('/filterQuestionsfromTopic',methods=['GET','POST'])
 def filterQuestionsfromTopic():
     topics = request.get_json()
+    print('topics:'+str(topics))
+    
     for topic in topics:
         print('topic:'+str(topic))
     class_val = request.args.get('class_val')
@@ -6054,56 +6056,94 @@ def filterQuestionsfromTopic():
     test_type = request.args.get('test_type')
     print('Class feedback:'+str(test_type))
     questions = []
+    questionList = ''
     if topics:
+        print('if topics available')
         for topic in topics:
-            if test_type == 'Class Feedback':
-                if class_val!=None:
-                    if subject_id!=None:
+            # if test_type == 'Class Feedback':
+            if class_val!=None:
+                if subject_id!=None:
+                    if test_type!=None:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
                     else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-                else:
-                    if subject_id!=None:
-                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-            else:
-                if class_val!=None:
-                    if subject_id!=None:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                 else:
-                    if subject_id!=None:
-                        questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).order_by(QuestionDetails.question_id).all()
+                    if test_type!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
                     else:
-                        questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all() 
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()           
+            else:
+                if subject_id!=None:
+                    if test_type!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+                else:
+                    if test_type!=None:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    else:
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+            # else:
+            #     if class_val!=None:
+            #         if subject_id!=None:
+            #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+            #         else:
+            #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+            #     else:
+            #         if subject_id!=None:
+            #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).order_by(QuestionDetails.question_id).all()
+            #         else:
+            #             questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all() 
             if questionList:  
                 questions.append(questionList)
     else:
-        if test_type == 'Class Feedback':
-            if class_val!=None:
-                if subject_id!=None:
+        print('if topics not available')
+        # if test_type == 'Class Feedback':
+        if class_val!=None:
+            print('if class_val available:'+str(class_val))
+            if subject_id!=None:
+                print('if subject_id available:'+str(subject_id))
+                if test_type:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
                 else:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-            else:
-                if subject_id!=None:
-                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-                else:
-                    questionList = QuestionDetails.query.filter_by(archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
-        else:
-            if class_val!=None:
-                if subject_id!=None:
+                    print('if test type is empty')
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-                else:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').order_by(QuestionDetails.question_id).all()
             else:
-                if subject_id!=None:
-                    questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).order_by(QuestionDetails.question_id).all()
+                if test_type!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
                 else:
-                    questionList = QuestionDetails.query.filter_by(archive_status='N').order_by(QuestionDetails.question_id).all() 
-        return render_template('testBuilderQuestions.html',questions=questionList)
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+        else:
+            if subject_id!=None:
+                if test_type!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+            else:
+                if test_type!=None:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                else:
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+        # else:
+        #     if class_val!=None:
+        #         if subject_id!=None:
+        #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+        #         else:
+        #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').order_by(QuestionDetails.question_id).all()
+        #     else:
+        #         if subject_id!=None:
+        #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).order_by(QuestionDetails.question_id).all()
+        #         else:
+        #             questionList = QuestionDetails.query.filter_by(archive_status='N').order_by(QuestionDetails.question_id).all() 
+        print('QuestionList:'+str(questionList))
+        for ques in questionList:
+            print('inside for of QuestionList')
+            print(ques.question_id)
+        if len(questionList)==0:
+            print('returning 1')
+            return jsonify(['1']) 
+        else:
+            return render_template('testBuilderQuestions.html',questions=questionList)
     if len(questions)==0:
         print('returning 1')
         return jsonify(['1']) 
