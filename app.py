@@ -7614,6 +7614,13 @@ def feedbackCollection():
         nMark = -nMarking
         duration = request.args.get('duration')
         print('Test Id:'+str(qtest_id))
+        print('Duration:'+str(duration))
+        durTime = duration.split('.')[0]
+        duration = int(durTime)
+        print('Duration in int:'+str(duration))
+        if duration=='':
+            print('if duration is null')
+            duration=0 
         qclass_val = request.args.get('class_val')
         qsection = request.args.get('section')
         qsubject_id = request.args.get('subject_id')
@@ -7677,7 +7684,8 @@ def feedbackCollection():
                     print(now_utc.strftime(format))
                     # Convert to local time zone
                     now_local = now_utc.astimezone(get_localzone())
-                    print(now_local.strftime(format))                 
+                    print(now_local.strftime(format))  
+                                
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
                         class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = now_local.strftime(format))
                     db.session.add(sessionDetailRowInsert)
