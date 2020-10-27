@@ -532,13 +532,13 @@
             <a style="color: green;font-size: 15px;" href="{{url_for('liveClass')}}">Live Class</a>
           </li>
           {% endif %}
-          {% if current_user.user_type!=253 %}
+          <!-- {% if current_user.user_type!=253 %}
           <li>
           
             <span style="font-size: 15px;color: green;">Menu</span>
     
           </li>
-          {% endif %}
+          {% endif %} -->
           <!-- <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
           </li> -->
@@ -599,7 +599,9 @@
 
             <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
             {% if current_user.user_type!=253 %}
-            <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;"><i
+            <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;">
+              <span style="font-size: 15px;color: green;margin-right: 15px;">Menu</span>
+              <i
                 class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a>
               {% endif %}
             <!-- </a> -->
@@ -688,7 +690,7 @@
   <script src="../static/js/jquery.magicsearch.js"></script>
 
 </body>
-<footer class="page-footer black ">
+<footer class="page-footer black " style="position: inherit;">
   <div class="container">
     <div class="row">
       <div class="col l6 s12">
