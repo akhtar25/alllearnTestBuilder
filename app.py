@@ -7318,7 +7318,7 @@ def contentManager():
     form=QuestionBankQueryForm() # resusing form used in question bank 
     available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
     available_class = db.session.execute(text(available_class)).fetchall()
- 
+    
     if request.method=='POST':
         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
@@ -7333,7 +7333,12 @@ def contentManager():
         else:
             return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     if user_type_val==134:
-        return render_template('contentManager.html',title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+        classVal = ClassSection.query.filter_by(class_sec_id=teacher_id.class_sec_id).first()
+        class_values = classVal.class_val
+        available_subject = "select distinct subject_id,description as subject_name from board_class_subject bcs inner join message_detail md on bcs.subject_id=md.msg_id where class_val='"+str(class_values)+"' and school_id='"+str(teacher_id.school_id)+"'"
+        print('Subject:'+str(available_subject))
+        available_subject = db.session.execute(text(available_subject)).fetchall()
+        return render_template('contentManager.html',available_subject=available_subject,class_values=class_values,title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
         return render_template('contentManager.html',title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
 
@@ -7385,6 +7390,28 @@ def contentDetails():
     if current_user.user_type==134:
         print('if user is student')
         teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        classVal = ClassSection.query.filter_by(class_sec_id=teacher.class_sec_id).first()
+        content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+        content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+        content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+        content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id<>'"+str(teacher.school_id)+"' "
+        content = content + "union "
+        content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+        content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+        content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+        content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where cd.archive_status = 'N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id='"+str(teacher.school_id)+"' order by content_id desc limit 5"
+        print('query:'+str(content))
+        contentDetail = db.session.execute(text(content)).fetchall()
+    
+        if len(contentDetail)==0:
+            print("No data present in the content manager details")
+            return jsonify(["NA"])
+        else:
+            print(len(contentDetail))
+            for c in contentDetail:
+                print("Content List"+str(c.content_name))    
+        
+            return render_template('_contentDetails.html',contents=contentDetail,info=info,data=data)
     elif current_user.user_type==71:
         print('if user is teacher')
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -7416,7 +7443,11 @@ def contentDetails():
 
 @app.route('/filterContentfromTopic',methods=['GET','POST'])
 def filterContentfromTopic():
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    teacher = ''
+    if current_user.user_type==71 or current_user.user_type==135 :
+        teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    elif current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
     class_value = request.args.get('class_val')
     subject_id = request.args.get('subject_id')
     print(class_value)

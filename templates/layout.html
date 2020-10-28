@@ -218,7 +218,7 @@
           <a style="color: green;" href="{{url_for('studentHomeWork')}}">HomeWork</a>
         </li>
         <li>
-          <a style="color: green;" href="{{url_for('contentManager')}}">Content Manager</a>
+          <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
         </li>
         <li>
           <a style="color: green;" href="{{url_for('liveClass')}}">Live Class</a>
@@ -462,7 +462,7 @@
             <a style="color: green; font-size:15px;" href="{{url_for('liveClass',user_id = current_user.id)}}">Live Class</a>
           </li>
           <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',info='layout')}}">Content Manager</a>
+            <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
           </li>
           {% endif %}
           {%if current_user.is_anonymous%}
@@ -491,7 +491,7 @@
           </li>
           {% elif user_type!='134' %}
             <li>
-              <a style="color: green; font-size:15px;" href="{{url_for('contentDetails',data='user')}}">Content Manager</a>
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
             </li>
           {%endif%}
           <li>

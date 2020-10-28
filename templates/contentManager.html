@@ -3,6 +3,16 @@
     <h3>Content Manager</h3>
         <div class="form-group " style="padding-top:5px;">
             <div class="row">
+              {% if user_type_val=='134' %}
+              <div class="col-sm-2">
+                <div class="input-field col s12">
+                  <select id="selectClass">
+                    <!-- <option value="" disabled selected>Select Class</option> -->
+                    <option value="{{class_values}}">class - {{class_values}}</option>
+                  </select>
+                </div>
+              </div>
+              {% else %}
                 <div class="col-sm-2">
                   <div class="input-field col s12">
                     <select id="selectClass">
@@ -13,6 +23,9 @@
                     </select>
                   </div>
                 </div>
+                {% endif %}
+                
+                {% if user_type_val=='134' %}
                 <div class="col-sm-2">
                   <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
                     <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -20,10 +33,25 @@
                   <div class="input-field col s12">
                     <select id="selectSubject">
                       <option value="" disabled selected>Select Subject</option>
-                      
+                      {% for subject in available_subject %}
+                      <option value="{{subject.subject_id}}">{{subject.subject_name}}</option>
+                      {% endfor %}
                     </select>
                   </div>
                     </div>
+                    {% else %}
+                    <div class="col-sm-2">
+                      <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
+                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
+                    </div>
+                      <div class="input-field col s12">
+                        <select id="selectSubject">
+                          <option value="" disabled selected>Select Subject</option>
+                          
+                        </select>
+                      </div>
+                        </div>
+                    {% endif %}
                 <div class="col-sm-3">
                   <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
                     <img src='../static/images/spinner.gif' width='25px' height='25px'>
@@ -500,9 +528,18 @@ $(document).ready(function(){
         });
      
      $(document).ready(function(){
-        
+        var class_val = $('#selectClass').val();
+        // alert(class_val);
+        var DataUrl = '';
+        {% if user_type_val=='134' %}
+        DataUrl =  "/recentContentDetails?class_val="+class_val,
+            {% else %}
+            DataUrl =  "/recentContentDetails",
+            {% endif %}
+           
         $.ajax({
-            url: "/recentContentDetails",
+          
+            url: DataUrl,
             type: "POST",
             contentType: "application/json",
             data: "",
