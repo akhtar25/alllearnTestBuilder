@@ -5,10 +5,8 @@
     <div style="display: flex;">
     <a href="{{ file_name }}"><p style="margin-left:550px;"><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text" value="{{ file_name }}">Download</button></p></a>
     <input type="text" id="testId" val="" style="display: none;">
-    {% if testPaperData.test_type =='Class Feedback' %}
     <a href="#modal2{{testPaperData.test_id}}" style="margin-top: 22px;margin-left: 164px;" class='btn green modal-trigger'>Conduct
         Test</a>
-    {% endif %}
     <div id="modal2{{testPaperData.test_id}}" class="modal" style="background-color:white; height: 420px;position: fixed;overflow-y: auto;">
             <form action="/feedbackCollection" method="GET">
               <div class="modal-content">
@@ -30,7 +28,7 @@
                 </p>
                 <div id="durationDiv" style="display: none;">
                 <h4>Duration</h4>
-                <input type="text" name='duration' value="0"></div>
+                <input type="text" name='duration' value="" placeholder="place time in minutes eg. 30"></div>
                 <h4>Weightage</h4>
                 <input type="text" name="weightage" value="10">
                 <h4>Negative Marking</h4>

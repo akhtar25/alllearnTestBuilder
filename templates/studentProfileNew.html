@@ -99,7 +99,11 @@
             </div>
             <div class="col-sm-9">
                 <div id="studentProfileData" style="display: none;"></div>
-                <div id="questionloader" style="padding-left: 300px;padding-top: 100px;">
+                {% if available_student_list %}
+                {% else %}
+                <h3 class="grey-text" id="NewMsg">There are no registered students. Please use the Add Student page to register students</h3>
+                {% endif %}
+                <div id="questionloader" style="padding-left: 300px;padding-top: 100px;display:none;">
                     <img src="../static/images/loader.gif">
                 </div>
             </div>

@@ -78,8 +78,13 @@ $('#clear').click(function(){
     var d = new Date();
     var duration = "{{ duration }}";
     if(duration>0){
+      var num = duration;
+var hours = (num / 60);
+var rhours = Math.floor(hours);
+var minutes = (hours - rhours) * 60;
+var rminutes = Math.round(minutes);
     duration = parseInt(duration);
-  var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+duration)+':'+d.getMinutes()+':'+d.getSeconds();
+  var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+rhours)+':'+(d.getMinutes()+rminutes)+':'+d.getSeconds();
   var d = dat.toString();
 var countDownDate = new Date(d).getTime();
 

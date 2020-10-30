@@ -46,9 +46,19 @@
                                 {% for paper in test_papers %}
                                 <option value="{{paper.description}}">{{paper.description}}</option>
                               {% endfor %}
-                            </select>
+                            </select> 
                           </div>
-                    </div>                
+                    </div>   
+                    <div class="addQuestionButton">
+                        <button style="margin-left: 1000px;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
+                            class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
+                    </div>
+                      <!-- Modal Structure -->
+                    <div id="modal1" class="modal">
+                    <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
+                        <div id="quesBuilder"></div>
+                    </div>
+                    </div>              
                 <!-- <div class="col-sm-2">
                     <p><button style="margin-top:22px; margin-left:5px;"
                             class="btn waves-light green lighten-1 white-text" id="topic" type="submit">Load Topics</button></p>
@@ -85,6 +95,10 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
+    $('.modal').modal();
+  });
+
+$(document).ready(function(){
     $('.datepicker').datepicker();
     $(".dropdown-content>li>a").css("font-family", "arial");
   });
@@ -102,6 +116,7 @@ $(document).ready(function(){
   var select_subject = document.getElementById('selectSubject');
   
   select_class.onchange = function(){
+    count_marks=0;
       $('#subjectLoader').show();
       $('#selectSubject').html('');
     console.log('inside select class function');
@@ -158,6 +173,7 @@ $(document).ready(function(){
 
     var select_chapter = document.getElementById('selectChapters');
   select_subject.onchange = function(){
+    count_marks = 0;
     $("#filebox").html('');
       $('#chapterLoader').show();
       $('#selectChapters').html('');
@@ -218,20 +234,57 @@ $(document).ready(function(){
         window.alert('error occured while loading chapters');
       }
     });
-    $('#testBuilderQuestions').hide();
-    $("questions").hide();
-    $('#questionloader').show();
+    // $('#testBuilderQuestions').hide();
+    // $("questions").hide();
+    // $('#questionloader').show();
     
+    // $.ajax({
+    //         url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
+    //         type: "POST",
+    //         contentType: "application/json",
+    //         data: "",
+            
+    //         success: function (response) {
+    //             $('#testBuilderQuestions').show();
+    //             $("#questions").show();  
+    //             $('#questionloader').hide(); 
+    //             if(response==1){
+    //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+                  
+    //             }
+    //             else{
+    //                 $("#questions").html(response);
+                    
+    //             }  
+    //             console.log('loader hide');
+                
+                        
+    //         },
+    //         error: function (xhr) {
+    //             window.alert("error occurred while loading question");
+    //         }
+    //     });
+    // For new Questions
+    $('#testBuilderQuestions').hide();
+    $('questions').hide();
+    $('#questionloader').show();
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    topics = $('#selectChapters').val();
+    // alert('Topics:'+topics);
+    var topicList = JSON.stringify(topics);
     $.ajax({
-            url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
+            url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
             type: "POST",
             contentType: "application/json",
-            data: "",
-            
+            data: topicList,
             success: function (response) {
+                // $("#loaderDiv").hide();
+                $('#questionloader').hide();
                 $('#testBuilderQuestions').show();
-                $("#questions").show();  
-                $('#questionloader').hide(); 
+                $('#questions').show();
+                console.log(response);
                 if(response==1){
                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
                   
@@ -239,18 +292,17 @@ $(document).ready(function(){
                 else{
                     $("#questions").html(response);
                     
-                }  
-                console.log('loader hide');
-                
-                        
+                }                           
             },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
             }
         });
+    // End
 }
 
 select_chapter.onchange = function(){
+    count_marks = 0;
     console.log('inside select chapter onchange');
     $("#filebox").html('');
     var subject_id = select_subject.value;
@@ -312,6 +364,7 @@ var topics = '';
 
   var select_test = document.getElementById('selectTest');
   select_test.onchange = function(){
+    count_marks = 0;
     // $('.tooltipped').tooltip('close');
     $('#msg').hide();
     $("#filebox").html('');
@@ -337,7 +390,7 @@ var topics = '';
     var class_val = select_class.value;
     var test_type = select_test.value;
     topics = $('#selectChapters').val();
-    alert('Topics:'+topics);
+    // alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
@@ -592,6 +645,22 @@ $(document).ready(function(){
             }
     });
 });
+
+function createQuestion(){
+    console.log('create Question');
+    $.ajax({
+            url: "/questionBuilder",
+            type: "GET",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                $('#quesBuilder').html(response);
+            },
+            error: function(xhr){
+
+            }
+        });
+}
 $(document).ready(function(){
     var dtToday = new Date();
     
