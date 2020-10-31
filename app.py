@@ -7646,8 +7646,9 @@ def feedbackCollection():
         duration = request.args.get('duration')
         print('Test Id:'+str(qtest_id))
         print('Duration:'+str(duration))
-        durTime = duration.split('.')[0]
-        duration = int(durTime)
+        if duration!='':
+            durTime = duration.split('.')[0]
+            duration = int(durTime)
         print('Duration in int:'+str(duration))
         if duration=='':
             print('if duration is null')
