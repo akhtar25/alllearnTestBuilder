@@ -2349,8 +2349,9 @@ def liveClass():
     #    db.session.add(liveClassData)
     #    db.session.commit()     
     #    #adding records to topic tracker while registering school                         
-    #    flash('New class listed successfully!')               
-    return render_template('liveClass.html',title='Live Classes',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now(),studentDetails=studentDetails)    
+    #    flash('New class listed successfully!') 
+    indic='live'              
+    return render_template('liveClass.html',indic=indic,title='Live Classes',allLiveClasses=allLiveClasses,form=form,user_type_val=str(current_user.user_type),current_time=datetime.now(),studentDetails=studentDetails)    
 
 #end of live class section
 
@@ -6782,6 +6783,11 @@ def feedbackCollectionStudDev():
     studentRow = StudentProfile.query.filter_by(student_id=studId).first()
     classData = ClassSection.query.filter_by(class_sec_id=studentRow.class_sec_id).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
+    print('Session Detail Row:'+str(sessionDetailRow))
+    if sessionDetailRow==None:
+        print('Response Session id is wrong')
+        flash('please enter correct test id')
+        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
     testDet = TestDetails.query.filter_by(test_id=sessionDetailRow.test_id).first()
     print('Test of Class:'+str(testDet.class_val))
     print('Student of class:'+str(classData.class_val))
@@ -7329,7 +7335,7 @@ def contentManager():
         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
         if user_type_val==134:
-            return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+            return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_value=str(current_user.user_type),user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         else:
             return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     if user_type_val==134:
@@ -7338,7 +7344,8 @@ def contentManager():
         available_subject = "select distinct subject_id,description as subject_name from board_class_subject bcs inner join message_detail md on bcs.subject_id=md.msg_id where class_val='"+str(class_values)+"' and school_id='"+str(teacher_id.school_id)+"'"
         print('Subject:'+str(available_subject))
         available_subject = db.session.execute(text(available_subject)).fetchall()
-        return render_template('contentManager.html',available_subject=available_subject,class_values=class_values,title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+        flag='home'
+        return render_template('contentManager.html',flag=flag,available_subject=available_subject,class_values=class_values,title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_value=str(current_user.user_type),user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
         return render_template('contentManager.html',title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
 
@@ -10035,7 +10042,8 @@ def studentHomeWork():
         homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
         print('student_id:'+str(student_id.student_id))
         studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()  
-    return render_template('studentHomeWork.html',student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
+        indic='homework'
+    return render_template('studentHomeWork.html',indic=indic,student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
 
 @app.route('/HomeWork')
 @login_required
@@ -10070,7 +10078,8 @@ def HomeWork():
     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    return render_template('HomeWork.html',title='Homework', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
+    indic='homework'
+    return render_template('HomeWork.html',indic=indic,title='Homework', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
 
 @app.route('/homeworkReview')
 @login_required

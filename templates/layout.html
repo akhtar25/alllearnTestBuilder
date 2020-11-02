@@ -211,7 +211,7 @@
         {%elif user_type_val=='134'%}
 
         <li>
-          <a style="color: green;" href="{{url_for('qrSessionScannerStudent')}}">Tests</a>
+          <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
         </li>
 
         <li>
@@ -489,10 +489,48 @@
               More
             </a>
           </li>
-          {% elif user_type!='134' %}
-            <li>
-              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+          {% elif user_type_val_for_liveClass=='134' %}
+          <li id="TestLink">
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+          </li>
+          <li>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
+          </li>
+
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+            </a>
+          </li>
+          <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;"><li>
+        
+            <span style="font-size: 15px;color: green;">Menu</span>
+    
+          </li><i
+            class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a>
+
+          {% elif user_type!='134' and user_type_value!='134' %}
+          <li id="TestLink">
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+          </li>
+          {% elif user_type_value=='134' %}
+            <li id="TestLink">
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
             </li>
+            <li>
+              <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+              </a>
+            </li>
+  
+            <li>
+              <a style="color: green;font-size: 15px;" href="{{url_for('liveClass')}}">Live Class</a>
+            </li>
+            <!-- <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;">
+              <li>
+          
+              <span style="font-size: 15px;color: green;">Menu</span>
+      
+            </li><i
+              class="material-icons right" style="font-size: 40px;">menu </i></a> -->
           {%endif%}
           <li>
             <a style="color: green; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
@@ -530,18 +568,25 @@
           </li>
           {% endif %}
           {% if current_user.user_type==134 %}
-          <li>
-            <a style="color: green; font-size:15px;" href="{{url_for('qrSessionScannerStudent')}}">Tests
-            </a>
+          {% if indic %}
+          <li id="TestLink">
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
           </li>
+          {% endif %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('contentManager')}}">Content Manager</a>
+          </li>
+          {% if indic!='homework' %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
             </a>
           </li>
-
+          {% endif %}
+          {% if indic!='live' %}
           <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('liveClass')}}">Live Class</a>
           </li>
+          {% endif %}
           {% endif %}
           {% if current_user.user_type!=253 %}
           <li>
