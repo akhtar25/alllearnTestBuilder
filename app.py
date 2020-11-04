@@ -1431,7 +1431,7 @@ def studentRegistration():
                 relation=request.form.getlist('relation')
                 print('Insert into ClassSec table')
                 student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
-                class_val=int(form.class_val.data), section=form.section.data, is_current='Y',last_modified_date=datetime.today()) 
+                class_val=str(form.class_val.data), section=form.section.data, is_current='Y',last_modified_date=datetime.today()) 
                 db.session.add(student_class_sec)
                 for i in range(len(first_name)):
                     relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
