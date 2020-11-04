@@ -558,16 +558,40 @@
 
           {%else%}
           {% if current_user.user_type==71 or current_user.user_type==135 %}
+          {% if indic=='DashBoard' %}
           <li>
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
           </li>
+          {% endif %}
+          {% if indic=='selected' %}
+          
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+          </li>
+          {% else %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('contentManager')}}">Content Manager</a>
+          </li>
+          {% endif %}
+          {% if indic=='class' %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+          </li>
+          {% else %}
           <li>
             <a class='classSpecLink' style="color: green; font-size:15px;" href="{{url_for('classCon')}}">Class</a>
           </li>
+          {% endif %}
+          {% if indic=='leaderBoard' %}
+          <li>
+            <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+          </li>
+          {% else %}
           <li>
             <a style="color: green; font-size: 15px;" class='classSpecLink'
               href="{{url_for('leaderBoard')}}">Leaderboard</a>
           </li>
+          {% endif %}
           {% endif %}
           {% if current_user.user_type==134 %}
           {% if indic %}

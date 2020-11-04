@@ -2450,7 +2450,8 @@ def courseHome():
                 if d not in idealList:
                     idealList.append(d)
     print('List:'+str(idealList))
-    return render_template('courseHome.html',idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
+    indic='DashBoard'
+    return render_template('courseHome.html',indic=indic,idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
@@ -6576,7 +6577,8 @@ def classCon():
         attendance = "select count(*) from attendance where class_sec_id="+str(selectedClassSection.class_sec_id)+" and school_id="+str(teacher.school_id)+" and is_present='Y'"
         attendance = db.session.execute(text(attendance)).first()
         print('Attendance:'+str(attendance[0]))
-        return render_template('class.html',attendance=attendance, classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
+        indic='class'
+        return render_template('class.html',indic=indic,attendance=attendance, classSecCheckVal=classSecCheck(),classsections=classSections,summaryData=summaryData, 
             qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
             topicRows=topicRows,title='Class', user_type_val=str(current_user.user_type), loginData=loginData)
     else:
@@ -7091,7 +7093,8 @@ def leaderBoard():
             subHeader = ''
             data = ''
             classSecCheckVal = ''
-            return render_template('leaderBoard.html',title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
+            indic='leaderBoard'
+            return render_template('leaderBoard.html',indic=indic,title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=leaderBoardData,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
         else:
             df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
@@ -7189,10 +7192,11 @@ def leaderBoard():
             #    print(s[1])
             #print('Inside subjects')
             classSecCheckVal=classSecCheck()
-            return render_template('leaderBoard.html',title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
+            indic='leaderBoard'
+            return render_template('leaderBoard.html',indic=indic,title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
-
-    return render_template('leaderBoard.html',title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
+    indic='leaderBoard'
+    return render_template('leaderBoard.html',indic=indic,title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
 @app.route('/classDelivery',methods=['GET','POST'])
 @login_required
@@ -7337,7 +7341,8 @@ def contentManager():
         if user_type_val==134:
             return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,disconn=1,user_type_value=str(current_user.user_type),user_type_val=str(current_user.user_type),studentDetails=studentDetails)
         else:
-            return render_template('contentManager.html',title='Content Manager',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+            indic='selected'
+            return render_template('contentManager.html',indic=indic,title='Content Manager',form=form,formContent=formContent,topics=topic_list,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     if user_type_val==134:
         classVal = ClassSection.query.filter_by(class_sec_id=teacher_id.class_sec_id).first()
         class_values = classVal.class_val
@@ -7347,7 +7352,8 @@ def contentManager():
         flag='home'
         return render_template('contentManager.html',flag=flag,available_subject=available_subject,class_values=class_values,title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,disconn=1,user_type_value=str(current_user.user_type),user_type_val=str(current_user.user_type),studentDetails=studentDetails)
     else:
-        return render_template('contentManager.html',title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
+        indic='selected'
+        return render_template('contentManager.html',indic=indic,title='Content Manager',classSecCheckVal=classSecCheck(),form=form,formContent=formContent,user_type_val=str(current_user.user_type),studentDetails=studentDetails,available_class=available_class)
 
 
 @app.route('/loadContent',methods=['GET','POST'])
