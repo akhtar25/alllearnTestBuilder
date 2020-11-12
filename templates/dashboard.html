@@ -119,6 +119,7 @@
                   </div>
                 <div id="schoolPerformanceGraph">
                 </div>
+                <!-- <canvas id="pieChart"></canvas> -->
                 </div>
                 <div id="pieChartloader" style="display: none;margin-left: 150px;">
                     <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
@@ -592,24 +593,29 @@ function passStudentList(data){
                 console.log('%age no of students between 50 to 70'+result.no_of_students_50_70);
                 console.log('%age no of students between below 50'+result.no_of_students_below_50);
                 var data = [{
-                  values: [result.no_of_students_above_90, result.no_of_students_80_90, result.no_of_students_70_80, result.no_of_students_50_70
+                  values: [result.no_of_students_above_90, result.no_of_students_80_90, result.no_of_students_70_80, result.no_of_students_50_70,result.no_of_students_below_50
                     ],
-                    labels: ['1 - No of students above 90%', '2 - Between 80%-90%', '3 - Between 70%-80%', '4 - Between 50%-70%'
+                    labels: ['No of students above 90%', 'Between 80%-90%', 'Between 70%-80%', 'Between 50%-70%','Below 50%'
                     ],
+                    textinfo: "label+percent",
                     // values: [result.no_of_students_below_50,result.no_of_students_above_90, result.no_of_students_80_90, result
                     //     .no_of_students_70_80, result.no_of_students_50_70
                     // ],
                     // labels: ['Below 50%','No of students above 90%', 'Between 80%-90%', 'Between 70%-80%',
                     //     'Between 50%-70%'
                     // ],
-                    title:{
-                      text:"School Performance",
-                    },
-                    type: 'pie'
+                    // title:{
+                    //   text:"School Performance",
+                    // },
+                    type: 'pie',
+                    textposition: "outside",
+                    automargin: true
                 }];
                 var layout = {
                     height: 400,
-                    width: 500
+                    width: 500,
+                    margin: {"t": 0, "b": 0, "l": 0, "r": 0},
+                    showlegend: false
                 };
 
                 Plotly.newPlot('schoolPerformanceGraph', data, layout, {

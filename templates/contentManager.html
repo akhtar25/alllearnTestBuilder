@@ -833,6 +833,8 @@ selected_class.onchange = function()  {
   }
   if(contentType==3){
     if(contentUrl!=''){
+      // alert('Url'+url);
+    url = url.replace("watch?v=","embed/");
     document.getElementById('iframeDiv').src = url;
     $('#iframeDiv').show();
     $('#preview').hide();
