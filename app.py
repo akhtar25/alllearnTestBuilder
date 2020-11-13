@@ -2595,7 +2595,7 @@ def courseBatchDetail():
     courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' "    
     courseBatchData = courseBatchData + " and cb.batch_end_date > NOW() "
     courseBatchData = courseBatchData + " order by cb.batch_start_date desc"
-    #print('Query:'+str(courseBatchData))
+    print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
     return render_template('_courseBatchDetail.html', courseBatchData=courseBatchData,teacherUser=teacherUser
         ,course_id=course_id)
