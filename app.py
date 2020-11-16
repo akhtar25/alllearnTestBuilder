@@ -2805,11 +2805,14 @@ def createBatch():
     days = request.form.getlist('Days')
     studentLimit = request.form.get('studentLimit')
     batchFee = request.form.get('batchFee')
+    coId = request.form.get('coId')
+    print('New courseId:'+str(coId))
     if batchFee==None:
         batchFee=0
     enrolledStudents = request.form.get('enrolledStudents')
     feeReceived = request.form.get('feeReceived')
     courseId = request.args.get('courseId')
+    print('previous courseID:'+str(courseId))
     selectType = request.form.get('selectType')
     print('startDate:'+str(startDate))
     print('selectType:'+str(selectType))
