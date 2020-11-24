@@ -5250,7 +5250,7 @@ def deleteChapters():
         print(updateTT)
         updateTT = db.session.execute(text(updateTT))
         db.session.commit()
-    return ("delete chapter successfully")
+    return jsonify([""])
 
 @app.route('/generalSyllabusBooks')
 def generalSyllabusBooks():
