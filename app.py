@@ -6300,6 +6300,7 @@ def testPaperTable():
     #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
     testPaperQuery = "select *from test_details where school_id="+ str(teacher_id.school_id)
     testPaperQuery = testPaperQuery  +" order by date_of_creation desc fetch first "+str(paper_count)+" rows only"
+    print('Query:'+str(testPaperQuery))
     testPaperData = db.session.execute(testPaperQuery).fetchall()
     subjectNames=MessageDetails.query.filter_by(category='Subject')
     return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
