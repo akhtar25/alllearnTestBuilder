@@ -9371,7 +9371,7 @@ def addChapterTopics():
 @app.route('/addClass',methods=['GET','POST'])
 def addClass():
     class_val = request.args.get('class_val')
-
+    print('inside add class')
     ##########
     if current_user.is_anonymous:
         studentData = StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
@@ -9388,9 +9388,11 @@ def addClass():
     #board_id = SchoolProfile.query.filter_by(school_id=school_id).first()
     subjects = BoardClassSubject.query.filter_by(class_val=str(class_val),school_id=school_id).all()
     subjectArray = []
+    print(subjects)
     for subject in subjects:
         subject_name = "select description as subject_name from message_detail where msg_id='"+str(subject.subject_id)+"'"
         subject_name = db.session.execute(text(subject_name)).first()
+        print(str(subject.subject_id)+":"+str(subject_name.subject_name))
         subjectArray.append(str(subject.subject_id)+":"+str(subject_name.subject_name))
 
     if subjectArray:
