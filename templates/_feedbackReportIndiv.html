@@ -24,7 +24,13 @@
         <h4>Total Marks Scored </h4>
       </td>
       <td class="pt-3-half" contenteditable="false">
-        <h4>{{marksScoredVal.marks_scored}} out of {{sessionDetailRow.total_marks}}</h4>
+        <h4>
+          {% if marksScoredVal.marks_scored=='None' %}
+          0
+          {% else %}
+          {{marksScoredVal.marks_scored}} 
+          {% endif %}
+          out of {{sessionDetailRow.total_marks}}</h4>
       </td>
     </tr>
     <tr>

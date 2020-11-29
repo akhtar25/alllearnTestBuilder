@@ -6793,13 +6793,13 @@ def feedbackCollectionStudDev():
     testDet = TestDetails.query.filter_by(test_id=sessionDetailRow.test_id).first()
     print('Test of Class:'+str(testDet.class_val))
     print('Student of class:'+str(classData.class_val))
-    # responseExist = "select rc.student_id,sd.test_id from response_capture rc inner join session_detail sd on rc.resp_session_id = sd.resp_session_id where sd.resp_session_id='"+str(resp_session_id)+"' and rc.student_id='"+str(studId)+" '"
-    # responseExist = db.session.execute(text(responseExist)).first()
+    responseExist = "select rc.student_id,sd.test_id from response_capture rc inner join session_detail sd on rc.resp_session_id = sd.resp_session_id where sd.resp_session_id='"+str(resp_session_id)+"' and rc.student_id='"+str(studId)+" '"
+    responseExist = db.session.execute(text(responseExist)).first()
     
-    # if responseExist:
-    #     print('Inside if test already attempt')
-    #     flash('Sorry, you have already attempt this test')
-    #     return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
+    if responseExist:
+        print('Inside if test already attempt')
+        flash('Sorry, you have already attempt this test')
+        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
     if((str(testDet.class_val)!=str(classData.class_val)) and (testDet.school_id==classData.school_id)):
         print('Inside if classes are same')
         flash('Sorry, you can not attempt this test')
@@ -7939,7 +7939,7 @@ def loadQuestionStud():
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
         
-        fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"') and test_id='"+str(sessionDetailRow.test_id)+"'"
+        fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
         
@@ -7951,9 +7951,9 @@ def loadQuestionStud():
             db.session.add(insertRes)
             db.session.commit()
         if studentRow:
-            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"'"
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279'"
         else:
-            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"'"
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279'"
         print('Total Marks Query:'+totalMarksQuery)
         totalQ = "select count(*) as num_of_questions from test_questions where test_id='"+str(sessionDetailRow.test_id)+"' and is_archived='N'"
         print('Query:'+str(totalQ))
@@ -7968,13 +7968,13 @@ def loadQuestionStud():
         # incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(resp_session_id)+"' and (answer_status=239 or answer_status=241)"
         # print(' Query for incorrect question:'+str(incorrect_ques))
         # incorrect_ques = db.session.execute(text(incorrect_ques)).first()
-        marksScoredQuery = "select sum(marks_scored) as marks_scored from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
+        marksScoredQuery = "select sum(marks_scored) as marks_scored from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279'"
         print('Query for scored marks:'+str(marksScoredQuery))
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         # print('Marks Scored Query:'+marksScoredQuery)
         # print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(marksScoredVal.marks_scored))
-        correctAns = "select count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241')"
+        correctAns = "select count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279'"
         print('Query for number of correct answer:'+str(correctAns))
         correctAns = db.session.execute(text(correctAns)).first()
         # negative_marks = 0
@@ -8110,6 +8110,10 @@ def loadQuestionStud():
         print('this is the last q id#################:'+last_q_id)
         
         answerRes = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,student_id=studentRow.student_id).all()
+        if len(answerRes)==0:
+            insertData = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+            question_id= last_q_id, teacher_id= teacherID,
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= 0,answer_status=279,last_modified_date= date.today())
         # session['status'] = []
         answer_list = []
         print('response_session_id:'+str(resp_session_id))
