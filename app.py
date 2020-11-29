@@ -7385,7 +7385,12 @@ def loadContent():
     contentName = request.args.get('contentName')
     contentTypeId = request.args.get('contentTypeId')
     contentUrl = request.args.get('contentUrl')
+    contentUrl = contentUrl.replace("watch?v=", "embed/")
+    print('contentUrl:'+str(contentUrl))
     reference = request.args.get('reference')
+    print('Reference:'+str(reference))
+    # url = "https://youtube.com/watch?v=TESTURLNOTTOBEUSED"
+    reference = reference.replace("watch?v=", "embed/")
     public = request.args.get('public')
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     today = date.today()
@@ -7418,6 +7423,7 @@ def loadContent():
 def contentDetails():
     info = request.args.get('info')
     data = request.args.get('data')
+    forDash = request.args.get('forDash')
     teacher = ''
     print(info)
     if current_user.user_type==134:
@@ -7443,8 +7449,8 @@ def contentDetails():
             print(len(contentDetail))
             for c in contentDetail:
                 print("Content List"+str(c.content_name))    
-        
-            return render_template('_contentDetails.html',contents=contentDetail,info=info,data=data)
+            
+            return render_template('_contentDetails.html',forDash=forDash,contents=contentDetail,info=info,data=data)
     elif current_user.user_type==71:
         print('if user is teacher')
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()
@@ -7471,7 +7477,7 @@ def contentDetails():
         for c in contentDetail:
             print("Content List"+str(c.content_name))    
         
-        return render_template('_contentDetails.html',contents=contentDetail,info=info,data=data)
+        return render_template('_contentDetails.html',forDash=forDash,contents=contentDetail,info=info,data=data)
 
 
 @app.route('/filterContentfromTopic',methods=['GET','POST'])
@@ -7558,7 +7564,8 @@ def filterContentfromTopic():
         #     print("Content List"+str(c.content_name)) 
         flag = 'true'
         flagTopic = 'true'
-        return render_template('_contentDetails.html',contents=contents,flag=flag,flagTopic=flagTopic)
+        forDash = ''
+        return render_template('_contentDetails.html',forDash = forDash,contents=contents,flag=flag,flagTopic=flagTopic)
 
 @app.route('/recentContentDetails',methods=['GET','POST'])
 def recentContentDetails():
@@ -7627,11 +7634,20 @@ def recentContentDetails():
         for c in contentDetail:
             print("Content List"+str(c.content_name)) 
         flag = 'true'
-        return render_template('_contentDetails.html',contents=contentDetail,flag=flag)
+        forDash = ''
+        return render_template('_contentDetails.html',forDash = forDash,contents=contentDetail,flag=flag)
     # if contentList:
     #     return render_template('_contentManagerDetails.html',contents=contentList)
     # else:
     #     return jsonify(["NA"])
+
+@app.route('/deleteContentById',methods=['GET','POST'])
+def deleteContentById():
+    content_id=request.args.get('content_id')
+    content = ContentDetail.query.filter_by(content_id=content_id).first()
+    content.archive_status = 'Y'
+    db.session.commit()
+    return jsonify(['1'])
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():

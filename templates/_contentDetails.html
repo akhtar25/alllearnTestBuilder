@@ -62,8 +62,13 @@
                                         <h5 style="margin-top: 0px;">Class : <span>{{content.class_val}}</span></h5>
                                         <h5 style="margin-left: 50px;margin-top: 0px;">Subject: <span>{{content.subject_name}}</span></h5>
                                     </div>
-                                    <div>
-                                        <h5 style="margin-top: 0px;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                    <div style="height: 40px;">
+                                        <h5 style="margin-top: 0px;display: inline;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                        <a title="Delete Content" name="" style="margin-left: 100px;" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
+                                            <i class="material-icons small" onclick="deleteContent('{{content.content_id}}');" style="cursor:pointer;">
+                                                delete
+                                            </i>
+                                        </a>
                                     </div>
                                 </div>           
                             </div>                                                   
@@ -119,8 +124,13 @@
                                             <h5 style="margin-top: 0px;">Class : <span>{{content.class_val}}</span></h5>
                                             <h5 style="margin-left: 50px;margin-top: 0px;">Subject: <span>{{content.subject_name}}</span></h5>
                                         </div>
-                                        <div>
-                                            <h5 style="margin-top: 0px;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                        <div style="height: 40px;">
+                                            <h5 style="margin-top: 0px;display: inline;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                            <a title="Delete Content" style="margin-left: 100px;" name="" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
+                                                <i class="material-icons small" onclick="deleteContent('{{content.content_id}}');" style="cursor:pointer;">
+                                                    delete
+                                                </i>
+                                            </a>
                                         </div>
                                     </div>           
                                 </div>                                                   
@@ -201,8 +211,13 @@
                                     <h5 style="margin-top: 0px;">Class : <span>{{content.class_val}}</span></h5>
                                     <h5 style="margin-left: 50px;margin-top: 0px;">Subject: <span>{{content.subject_name}}</span></h5>
                                 </div>
-                                <div>
-                                    <h5 style="margin-top: 0px;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                <div style="height: 40px;">
+                                    <h5 style="margin-top: 0px;display: inline;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                    <a title="Delete Content" name="" style="margin-left: 100px;" href="javascript:void(0);" class=" btn-floating btn-small orange deleteBTNClass">
+                                        <i class="material-icons small" onclick="deleteContent('{{content.content_id}}');" style="cursor:pointer;">
+                                            delete
+                                        </i>
+                                    </a>
                                 </div>
                             </div>           
                         </div>                                                   
@@ -219,8 +234,10 @@
                                       <source src="{{content.reference_link}}">
                                     </video>
                                     {%elif content.content_type==96%}
-        
-                                    <iframe src="{{content.reference_link}}" style="height: 130px;width: 180px;margin-top: 10px;margin-left: 15px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    <!-- <div id="videoDisplay"></div> -->
+                                    
+                                    <iframe width="180" height="130" src="{{content.reference_link}}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    <!-- <iframe src="https://youtu.be/DPh3mj4uvU4" style="height: 130px;width: 180px;margin-top: 10px;margin-left: 15px;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
                               {%elif content.content_type==93 or content.content_type==97 %}  
                               <audio controls style="margin-top: 60px;width:180px;">
                                       <source src="{{content.reference_link}}">
@@ -234,7 +251,7 @@
                               <a href="#modal1" class="modal-trigger"><img height="120" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
                               <div id="modal1" class="modal" style="background-color:white;">
                                       <div class="modal-content" style="height: 100%">
-                                        <h2>{{content.content_name}}</h4>                         
+                                        <h2>{{content.content_name}}{{content.reference_link}}</h4>                         
                                     </div>  
                                     </div>
                               {%endif%}
@@ -258,8 +275,27 @@
                                         <h5 style="margin-top: 0px;">Class : <span>{{content.class_val}}</span></h5>
                                         <h5 style="margin-left: 50px;margin-top: 0px;">Subject: <span>{{content.subject_name}}</span></h5>
                                     </div>
-                                    <div>
-                                        <h5 style="margin-top: 0px;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                    <div style="height: 40px;">
+                                        <h5 style="margin-top: 0px;display: inline;">Uploaded By : <span>{{content.uploaded_by}}</span></h5>
+                                        {% if forDash=='Dashboard'  %}
+                                        {% else %}
+                                        <a title="Delete Content" name="" style="margin-left: 100px;" href="#modal1" class=" btn-floating btn-small modal-trigger orange deleteBTNClass">
+                                            <i class="material-icons small" style="cursor:pointer;">
+                                                delete
+                                            </i>
+                                        </a>
+                                        {% endif %}
+                                        <div id="modal1" class="modal" style="width:52%;height:25%;">
+                                            <div class="modal-content">
+                                              <h1> 
+                                                Are you sure want to delete? 
+                                              </h1>
+                                            </div>
+                                            <div class="modal-footer">
+                                              <a href="#" onclick="deleteContent('{{content.content_id}}');" name="{{ content.content_id }}" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+                                               <a href="#" id="no" class="modal-close waves-effect waves-green btn-flat">No</a>
+                                            </div>
+                                          </div>
                                     </div>
                                 </div>           
                             </div>                                                   
@@ -276,5 +312,49 @@
         $(document).ready(function(){
 $('.modal').modal();
 });
+
+function deleteContent(content_id){
+    // alert('Delete function');
+    $.ajax({
+        url:"/deleteContentById?content_id="+content_id,
+        type:"POST",
+        data:"",
+        success:function(response){
+            if(response==1){
+                // alert('Delete permanently');
+                var class_val = $('#selectClass').val();
+        var DataUrl = '';
+        {% if user_type_val=='134' %}
+        DataUrl =  "/recentContentDetails?class_val="+class_val,
+            {% else %}
+            DataUrl =  "/recentContentDetails",
+            {% endif %}
+           
+        $.ajax({
+          
+            url: DataUrl,
+            type: "POST",
+            contentType: "application/json",
+            data: "",
+            success: function (response) {
+                console.log(response);
+                if (response=="NA"){
+                    $("#contentDiv").html('<h3 class="grey-text">No recent content found</h5>');
+                }
+                else{
+                $("#contentDiv").html(response);
+            }
+            },
+            error: function (xhr) { 
+                window.alert("error occurred while loading contents");
+            }
+        });
+            }
+        },
+        error:function(xhr){
+
+        }
+    });
+}
     </script>
 {% endif %}
