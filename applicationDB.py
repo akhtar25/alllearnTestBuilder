@@ -391,13 +391,15 @@ class ResponseCapture(db.Model):
     subject_id=db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     #slideshow_id=db.Column(db.ForeignKey('slide_tracker.slideshow_id'),nullable=True)
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
-    response_option=db.Column(db.String(1),nullable=True)
+    question_type=db.Column(db.String(120),nullable=True)
+    response_option=db.Column(db.String(500),nullable=True)
     is_correct=db.Column(db.String(1), nullable=True)
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
     #new cols added for online test upgrade    
     marks_scored = db.Column(db.Integer, nullable=True)
     answer_status = db.Column(db.Integer, nullable=True)
+    answer_type = db.Column(db.ForeignKey('message_detail.msg_id'),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class Address(db.Model):
