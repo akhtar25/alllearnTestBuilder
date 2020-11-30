@@ -113,11 +113,12 @@ page: <span id="page"></span>&nbsp;&nbsp;&nbsp;records per page:&nbsp;&nbsp;<spa
 
     $('#textRespIntputBTN').click(function () {
         
-        $('#TestLink').hide();
+        $('#TestLink').hide(); 
         // alert('Hide Link');
         var resp_session_code = $('#textRespCodeInput').val();
         if (resp_session_code != "") {
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code+"&student_id={{studentDetails.student_id}}";
+            // window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code+"&student_id={{studentDetails.student_id}}";
+            window.location.href = "/feedbackCollectionStudDev/resp_session_id="+resp_session_code+"/student_id={{studentDetails.student_id}}";
         }
     });
 

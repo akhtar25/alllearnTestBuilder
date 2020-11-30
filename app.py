@@ -6066,23 +6066,23 @@ def filterQuestionsfromTopic():
             if class_val!=None:
                 if subject_id!=None:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                 else:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()           
             else:
                 if subject_id!=None:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                 else:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
             # else:
@@ -6106,24 +6106,24 @@ def filterQuestionsfromTopic():
             if subject_id!=None:
                 print('if subject_id available:'+str(subject_id))
                 if test_type:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     print('if test type is empty')
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
             else:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
         else:
             if subject_id!=None:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
             else:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
         # else:
@@ -6780,6 +6780,10 @@ def startPracticeTest():
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     studId = request.args.get('student_id')
+    print('Student Id:'+str(studId))
+    if studId==None:
+        print('Student Id is null')
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId)
     print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
     studentRow = StudentProfile.query.filter_by(student_id=studId).first()

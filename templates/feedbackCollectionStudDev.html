@@ -1,6 +1,24 @@
 {%extends "layout.html"%} {%block content%}
+{% if studId==None %}
+  <div class="container" height="100%">
+  <div class="content">
+    <span>Student Id</span><input type="text" id="studentId" placeholder="enter student id"/>
+    <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
+  </div>
+</div>
+<script>
+  $('#studIdSubmitBtn').click(function(){
+    var sId = $('#studentId').val();
+    alert('Student Id:'+sId);
+        if (sId != "") {
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId;
+        }
+  });
+</script>
+  {% else %}
 <div class="container" height=100%>
 
+  
 
   <div class="sidebar-mini"> 
      <aside class="main-sidebar" style="padding:0px;">            
@@ -174,6 +192,7 @@
       </section>
     </div>
   </div>
+  
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!-- <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>                 -->
@@ -194,6 +213,8 @@
   $(document).ready(function(){
     $('#TestLink').hide();
   });
+
+  
 
   // $("#skipButton").click(function () {
   //   document.getElementById("startAndNextBTN").click();
@@ -246,7 +267,7 @@
     if (radioValue) {
       respOption =radioValue; 
     }
-    if (tempCountVar <= questionListSize) {  
+    if (tempCountVar <= questionListSize) {   
       var lastQIDVal = ''; 
       var valueQ = $("#lastQIDVal").val(); 
       if(valueQ){
@@ -374,5 +395,5 @@
 </script>
 <script src="../static/js/qrReader_zbar-main.js"></script>
 <script type="text/javascript" src="../static/js/zbar-processor.js"></script>
-
+{% endif %}
 {%endblock%}
