@@ -119,6 +119,7 @@
                   </div>
                 <div id="schoolPerformanceGraph">
                 </div>
+                <!-- <canvas id="pieChart"></canvas> -->
                 </div>
                 <div id="pieChartloader" style="display: none;margin-left: 150px;">
                     <img src="../static/images/smallLoader.gif" style="width: 260px;padding-top: 50px;">
@@ -580,29 +581,41 @@ function passStudentList(data){
                 $('#avg_score').html('Average Score <b>' + result.avg_score + '%</b>');
                 $('#highest_mark').html('Highest Score ' + result.highest_mark + '%');
                 $('#lowest_mark').html('Lowest Score ' + result.lowest_mark + '%');
-                $('#no_of_students_above_90').html(result.no_of_students_above_90);
-                $('#no_of_students_80_90').html(result.no_of_students_80_90);
-                $('#no_of_students_70_80').html(result.no_of_students_70_80);
-                $('#no_of_students_50_70').html(result.no_of_students_50_70);
-                $('#no_of_students_below_50').html(result.no_of_students_below_50);
-                $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                // $('#no_of_students_above_90').html(result.no_of_students_above_90);
+                // $('#no_of_students_80_90').html(result.no_of_students_80_90);
+                // $('#no_of_students_70_80').html(result.no_of_students_70_80);
+                // $('#no_of_students_50_70').html(result.no_of_students_50_70);
+                // $('#no_of_students_below_50').html(result.no_of_students_below_50);
+                // $('#no_of_students_cross_50').html(result.no_of_students_cross_50);
+                console.log('%age no of students above 90'+result.no_of_students_above_90);
+                console.log('%age no of students between 80 to 90'+result.no_of_students_80_90);
+                console.log('%age no of students between 70 to 80'+result.no_of_students_70_80);
+                console.log('%age no of students between 50 to 70'+result.no_of_students_50_70);
+                console.log('%age no of students between below 50'+result.no_of_students_below_50);
                 var data = [{
-                    values: [result.no_of_students_above_90, result.no_of_students_80_90, result
-                        .no_of_students_70_80, result.no_of_students_50_70, result
-                        .no_of_students_below_50,
-                        result.no_of_students_cross_50
+                  values: [result.no_of_students_above_90, result.no_of_students_80_90, result.no_of_students_70_80, result.no_of_students_50_70,result.no_of_students_below_50
                     ],
-                    labels: ['No of students above 90%', 'Between 80%-90%', 'Between 70%-80%',
-                        'Between 50%-70%', 'Below 50%', 'Above 50%'
+                    labels: ['No of students above 90%', 'Between 80%-90%', 'Between 70%-80%', 'Between 50%-70%','Below 50%'
                     ],
-                    title:{
-                      text:"School Performance",
-                    },
-                    type: 'pie'
+                    textinfo: "label+percent",
+                    // values: [result.no_of_students_below_50,result.no_of_students_above_90, result.no_of_students_80_90, result
+                    //     .no_of_students_70_80, result.no_of_students_50_70
+                    // ],
+                    // labels: ['Below 50%','No of students above 90%', 'Between 80%-90%', 'Between 70%-80%',
+                    //     'Between 50%-70%'
+                    // ],
+                    // title:{
+                    //   text:"School Performance",
+                    // },
+                    type: 'pie',
+                    textposition: "outside",
+                    automargin: true
                 }];
                 var layout = {
                     height: 400,
-                    width: 500
+                    width: 500,
+                    margin: {"t": 0, "b": 0, "l": 0, "r": 0},
+                    showlegend: false
                 };
 
                 Plotly.newPlot('schoolPerformanceGraph', data, layout, {
@@ -731,8 +744,9 @@ function passStudentList(data){
 
       $(document).ready(function(){
         console.log('Inside ready of content Details');
+        var forDash = 'Dashboard';
         $.ajax({
-            url: "/contentDetails",
+            url: "/contentDetails?forDash="+forDash,
             type: "POST",
             contentType: "application/json",
             data: "",

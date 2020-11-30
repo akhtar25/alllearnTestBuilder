@@ -314,7 +314,9 @@
         data: '', 
         success: function (response) {
           $('#submit').prop('disabled',false);
-        $('#next').prop('disabled',false);
+        $('#next').prop('disabled',true);
+        $('#save').prop('disabled',true);
+        $('#startAndNextBTN').prop('disabled',true);
           if(response!='0'){
           $("#questionSection").html(response);
           }
