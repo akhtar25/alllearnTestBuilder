@@ -6800,6 +6800,7 @@ def startPracticeTest():
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     studId = request.args.get('student_id')
+    school_id = request.args.get('school_id')
     print('Student Id:'+str(studId))
     if studId==None:
         print('Student Id is null')
@@ -6824,10 +6825,11 @@ def feedbackCollectionStudDev():
         print('Inside if test already attempt')
         flash('Sorry, you have already attempt this test')
         return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
-    if((str(testDet.class_val)!=str(classData.class_val)) and (testDet.school_id==classData.school_id)):
+    if((str(testDet.class_val)!=str(classData.class_val)) and (school_id==classData.school_id)):
         print('Inside if classes are same')
         flash('Sorry, you can not attempt this test')
-        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
+        studenId = None
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studenId)
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
         if sessionDetailRow.session_status=='80':
@@ -7807,7 +7809,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -7956,17 +7958,22 @@ def loadQuestionStud():
     print('Question Num:'+str(qnum))
     print('totalQCount:'+str(totalQCount))
     print('question_id:'+str(question_id))
+    print('questionId:'+str(question_id))
     btn = request.args.get('btn')
+    textAns = request.args.get('textAns')
     ######################################################
     response_option = request.args.get('response_option')
     resp_session_id = request.args.get('resp_session_id')
     subject_id =  request.args.get('subject_id')
     last_q_id =  request.args.get('last_q_id')
+    questionDet = QuestionDetails.query.filter_by(question_id=question_id).first()
     print('This is the response session id in: ' + str(resp_session_id) )
     studentRow = ''
-    if current_user.is_anonymous:        
+    if current_user.is_anonymous:     
+        print('if user is anonymous')   
         studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
+        print('if user is student of student id:'+str(student_id))
         studentRow=StudentProfile.query.filter_by(student_id=student_id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     print('student_id:'+str(studentRow.student_id))
@@ -8051,20 +8058,34 @@ def loadQuestionStud():
     # End
     print(studentRow)
     if btn=='next':
-        
-        if studentRow!=None:
-            print('inside if studentRow exist')
-            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-                question_id= last_q_id, teacher_id= teacherID,
-                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+        if questionDet.question_type=='Subjective':
+            if studentRow!=None:
+                print('inside if studentRow exist')
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= date.today())
+            else:
+                print('if student Row not exist')
+                responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= date.today())
+            print(responseStudUpdateQuery)
+            db.session.add(responseStudUpdateQuery)
+            db.session.commit()
         else:
-            print('if student Row not exist')
-            responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
-                question_id= last_q_id, teacher_id= teacherID,
-                resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
-        print(responseStudUpdateQuery)
-        db.session.add(responseStudUpdateQuery)
-        db.session.commit()
+            if studentRow!=None:
+                print('inside if studentRow exist')
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+            else:
+                print('if student Row not exist')
+                responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+            print(responseStudUpdateQuery)
+            db.session.add(responseStudUpdateQuery)
+            db.session.commit()
     print('qId:'+str(last_q_id))
     checkResponse = ''
     if last_q_id:
@@ -8073,10 +8094,16 @@ def loadQuestionStud():
         if checkResponse:
             if btn=='submitandnext':
                 print('inside submitandnext')
+                if textAns:
+                    checkResponse.response_option = textAns
+                    checkResponse.answer_type = 334
                 checkResponse.answer_status = 239
                 db.session.commit()
             if btn=='save':
                 print('inside savebtn')
+                if textAns:
+                    checkResponse.response_option = textAns
+                    checkResponse.answer_type = 334
                 checkResponse.answer_status = 241
                 db.session.commit()
     if response_option!='':

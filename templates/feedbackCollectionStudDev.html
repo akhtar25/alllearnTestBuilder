@@ -306,10 +306,14 @@
         console.log('inside else:'+num);
         qcount = questionIDListJS[parseInt(num)];
       }
+      var textAns = '';
+      if(document.getElementById('box_id')){
+       textAns = document.getElementById('box_id').value;
+      }
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}",
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns,
         type: "get",
         data: '', 
         success: function (response) {

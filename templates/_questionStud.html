@@ -13,7 +13,14 @@
     <img src="{{ question.reference_link }}" style="max-height: 300px;max-width: 700px;">
 </aside>
     {% endif %}
-
+    {% if question.question_type=='Subjective' %}
+    <div class="answerText">
+      <span style="display: block;font-size: 20px;">Answer:</span>
+      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
+      <span style="display: block;">OR</span>
+      <input type="file" id="attachFile" style="display: block;">
+    </div>
+      {% endif %}
     <br>
     {% for optionVal in questionOp %}
     {% if  optionVal.option_desc %}
@@ -37,6 +44,41 @@
 </div>
 
 <script>
+
+  function myTextVal(){
+    var textInput = document.getElementById('box_id').value;
+    
+    if(textInput!=''){
+      $("#startAndNextBTN").attr("disabled", false);
+    $("#save").attr("disabled", false);
+    $("#next").attr("disabled", false);
+    $("#submit").attr("disabled", false);
+    $('#attachFile').attr("disabled", true);
+    }else{
+      $("#startAndNextBTN").attr("disabled", true);
+    $("#save").attr("disabled", true);
+    $("#next").attr("disabled", true);
+    $('#attachFile').attr("disabled", false);
+    }
+  }
+
+  $('#attachFile').click(function(){
+    alert('file selected');
+    if(document.getElementById('attachFile').files.length==0){
+      // $('#box_id').attr("disabled",true);
+      $('#box_id').attr("disabled",false);
+      $("#startAndNextBTN").attr("disabled", true);
+    $("#save").attr("disabled", true);
+    $("#next").attr("disabled", true);
+    }else{
+      $('#box_id').attr("disabled",true);
+      $("#startAndNextBTN").attr("disabled", false);
+    $("#save").attr("disabled", false);
+    $("#next").attr("disabled", false);
+    $("#submit").attr("disabled", false);
+    }
+  });
+
     $(".ansOption").click(function (){
     $("#startAndNextBTN").attr("disabled", false);
     $("#save").attr("disabled", false);
@@ -70,6 +112,10 @@ $('#submit').click(function(){
 
 $('#clear').click(function(){
   $('.ansOption').prop('checked',false);
+  $('#box_id').val('');
+  $("#startAndNextBTN").attr("disabled", true);
+    $("#save").attr("disabled", true);
+    $("#next").attr("disabled", true);
 });
 
   (function () {
