@@ -18,7 +18,10 @@
       <span style="display: block;font-size: 20px;">Answer:</span>
       <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
       <span style="display: block;">OR</span>
-      <input type="file" id="attachFile" style="display: block;">
+      <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
+      <span id="msg" style="margin-top:10px;color:red;"></span>
+      <input type="hidden" value="" id="reference"/>
+      <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
     </div>
       {% endif %}
     <br>
@@ -62,8 +65,9 @@
     }
   }
 
-  $('#attachFile').click(function(){
-    alert('file selected');
+  window.setInterval(function(){
+    // alert('file selected');
+    if(document.getElementById('box_id').value==''){
     if(document.getElementById('attachFile').files.length==0){
       // $('#box_id').attr("disabled",true);
       $('#box_id').attr("disabled",false);
@@ -77,7 +81,8 @@
     $("#next").attr("disabled", false);
     $("#submit").attr("disabled", false);
     }
-  });
+    }
+  }, 1000);
 
     $(".ansOption").click(function (){
     $("#startAndNextBTN").attr("disabled", false);
@@ -221,4 +226,116 @@ var x = setInterval(function() {
             {% endif %}
           {% endfor %}
   })();
+
+
+      function uploadFile(file, s3Data, url){
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', s3Data.url);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+      const postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);      
+        //console.log(s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      //alert('This is the file' + file);
+      //alert('This is the url' + url);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204){
+            
+            // document.getElementById('preview').src = url;
+            // $('#submit').show();
+            $('#msg').html('');
+            $("#startAndNextBTN").attr("disabled", false);
+            $("#save").attr("disabled", false);
+            $("#next").attr("disabled", false);
+            $("#submit").attr("disabled", false);
+            // alert('Url for reference:'+url);
+            // document.getElementById('reference').value = url;
+            // document.getElementById('preview').src = url;
+            console.log('Url:'+url);
+            $('#reference').val(url);
+          }
+          else{
+            window.alert("this is where the problem is");
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      const xhr = new XMLHttpRequest();
+      var type = 'image/jpeg';
+      console.log('File Name:'+file.name+'File type:'+file.type)
+      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=answer_sheets/files`);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            //alert("this is reponse data"+ response.data);
+            //alert("this is reponse url"+ response.url);
+            uploadFile(file, response.data, response.url);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function initUpload(){
+      const files = document.getElementById('attachFile').files;
+      // $('#submit').hide();
+      $('#msg').html('uploading content please wait...');
+      $("#startAndNextBTN").attr("disabled", true);
+      $("#save").attr("disabled", true);
+      $("#next").attr("disabled", true);
+      $("#submit").attr("disabled", true);
+      // file name change
+      // var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      // var charactersLength = characters.length;
+      // var element = document.getElementById('attachFile');
+      // var filename = element.files[0];
+      // var nameFile = filename.name.split('.')[0];
+      // var Image = nameFile;
+      // var currentDate = new Date();
+      // Image += currentDate.getDate();
+      // Image += currentDate.getHours();
+      // Image += currentDate.getMinutes();
+      // Image += currentDate.getSeconds();
+      // Image += currentDate.getMilliseconds();
+      // console.log('Date:'+currentDate.getDate());
+      // console.log('Hours:'+currentDate.getHours());
+      // console.log('Minutes:'+currentDate.getMinutes());
+      // console.log('Seconds:'+currentDate.getSeconds());
+      // console.log('Miliseconds:'+currentDate.getMilliseconds());
+      // console.log('DateTime:'+currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds());
+      // console.log('Image:'+Image);
+      // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+      // Image += '.png';
+      
+      // alert(Image)
+      // var blob = filename.slice(0, filename.size, 'image/png'); 
+      // newFile = new File([blob], Image, {type: 'image/png'});
+
+      // end of file name change
+
+      const file = files[0];
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
 </script>

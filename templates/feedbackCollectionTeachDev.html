@@ -110,12 +110,13 @@
               <ol>
                 <li>
                   Logon to this URL: <a href="{{url_for('qrSessionScannerStudent')}}">http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&school_id={{school_id}}</a> </li><br>
+                  <a style="margin-bottom:10px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
                 <li>
-                  <p>Scan the QR or enter this test id: <br><span style="font-size: 40px;">{{resp_session_id}}</span>
+                  <p>Scan the QR : <br>
                   </p>
                 </li>
               </ol><br>
-              <div id='qrIMGDiv' class='center' ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
+              <div id='qrIMGDiv' class='center' style="margin-left:40px;" ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
               <div class="divider"></div>                            
             </div>
             <div>
@@ -139,6 +140,24 @@
     </section>
   </div>
 </div>
+<div id="modal4" class="modal" style="width: 350px;height: 198px;">
+    <div class="modal-content" style="height: 140px;text-align: center;">
+      <h4>Share</h4>
+      <div class="row">
+        <h5 class='grey-text'>Share Page</h5>
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&school_id={{school_id}}" style="margin-left: 100px;">
+            <a class="a2a_button_facebook modal-close"></a>
+            <a class="a2a_button_whatsapp modal-close"></a>
+            <a class="a2a_button_sms modal-close"></a>
+            <a class="a2a_button_google_gmail modal-close"></a>
+        </div>
+        <script async src="https://static.addtoany.com/menu/page.js"></script>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+  </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 

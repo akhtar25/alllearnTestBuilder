@@ -1,15 +1,29 @@
 {%extends "layout.html"%} {%block content%}
 {% if studId==None %}
   <div class="container" height="100%">
-  <div class="content">
-    <span>Student Id</span><input type="text" id="studentId" placeholder="enter student id"/>
-    <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
+
+  <div class="row">
+    <div class="col s10">
+      <div class="card">
+        <div class="card-image">
+          <img src="">
+          <span class="card-title">Student Id</span>
+        </div>
+        <div class="card-content">
+        <span style="display:block;">Student Id</span><input type="number" style="width:500px;" id="studentId" placeholder="enter student id"/>
+        <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
+
+        </div>
+        
+      </div>
+    </div>
   </div>
+  
 </div>
 <script>
   $('#studIdSubmitBtn').click(function(){
     var sId = $('#studentId').val();
-    alert('Student Id:'+sId);
+    // alert('Student Id:'+sId);
         if (sId != "") {
             window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId;
         }
@@ -307,13 +321,25 @@
         qcount = questionIDListJS[parseInt(num)];
       }
       var textAns = '';
+      var url = '';
       if(document.getElementById('box_id')){
        textAns = document.getElementById('box_id').value;
+      }
+      if(document.getElementById('reference')){
+        url = document.getElementById('reference').value;
+      }
+      if(textAns){
+        console.log('----Text Exist:'+textAns);
+        respOption = textAns;
+      }else
+      if(url){
+        console.log('---Url Exist:'+url);
+        respOption = url;
       }
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns,
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url,
         type: "get",
         data: '', 
         success: function (response) {
