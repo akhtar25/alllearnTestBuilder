@@ -8569,7 +8569,7 @@ def reviewSubjective():
     testId = SessionDetail.query.filter_by(resp_session_id=resp_sess_id).first()
     currentTestId = testId.test_id
     studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
-    questionDetailQuery = "select qd.question_description,qd.question_id,rc.response_option,rc.answer_type from test_questions tq inner join "
+    questionDetailQuery = "select qd.question_description,qd.question_id,qd.reference_link,rc.response_option,rc.answer_type from test_questions tq inner join "
     questionDetailQuery = questionDetailQuery + "response_capture rc on tq.question_id=rc.question_id inner join "
     questionDetailQuery = questionDetailQuery + "question_details qd on tq.question_id=qd.question_id where rc.question_type='Subjective' and tq.test_id='"+str(currentTestId)+"' "
     questionDetailQuery = questionDetailQuery + "and rc.student_id='"+str(student_id)+"' and rc.resp_session_id='"+str(resp_sess_id)+"' and (rc.answer_status='239' or rc.answer_status='241')"
