@@ -6303,7 +6303,8 @@ def testBuilderFileUpload():
     #    print('error inserting values into the test questions table')
     #### End of section ####
     testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id).order_by(TestDetails.date_of_creation.desc()).first()
-    return render_template('testPaperDisplay.html',file_name=file_name_val,testPaperData=testPaperData)
+    sections = ClassSection.query.filter_by(school_id=teacher_id.school_id,class_val=testPaperData.class_val).all()
+    return render_template('testPaperDisplay.html',file_name=file_name_val,testPaperData=testPaperData,sections=sections)
 
 @app.route('/testPapers')
 @login_required
@@ -6325,6 +6326,17 @@ def testPaperTable():
     subjectNames=MessageDetails.query.filter_by(category='Subject')
     return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
 
+@app.route('/findSection',methods=['GET','POST'])
+def findSection():
+    class_val=request.args.get('class_val')
+    school_id = User.query.filter_by(id=current_user.id).first()
+    print('Class:'+str(class_val))
+    print('School Id:'+str(school_id.school_id))
+    sections = ClassSection.query.filter_by(school_id=school_id.school_id,class_val=class_val)
+    sec = []
+    for section in sections:
+        sec.append(section.section)
+    return jsonify(sec)
 
 @app.route('/getChapterDetails')
 def getChapterDetails():

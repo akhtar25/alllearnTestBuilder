@@ -64,8 +64,12 @@
     <div class="modal-content">
       <p> Starting Test</p>
       <h4 id="class_name"></h4>
-      <h4>Enter <b>section</b> for which you want to run the test</h4>
-      <input type="text" name='section' placeholder="eg. A">
+      <h4>Select <b>section</b> for which you want to run the test</h4>
+      <!-- <input type="text" name='section' value="No value"> -->
+      
+      <select id="sectionList" name="section" style="display: block;">
+        
+      </select>
       <p>
         <label>
           <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
@@ -108,7 +112,28 @@
       $('#modal_class_val').val(selectionSplit[1]);      
       $('#modal_subject_id').val(selectionSplit[2]);
       $('#class_name').html("Class: "+$('#modal_class_val').val());
-      //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
+      alert('inside conduct test button');      //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
+      $.ajax({
+        url:"/findSection?class_val="+$('#modal_class_val').val(),
+        type:"POST",
+        data:"",
+        success:function(response){
+          // alert(response);
+          var responseArr = response.toString().split(',');
+          // alert(responseArr);
+          var select = document.getElementById('sectionList');
+          var optionHtml = '<option value="" disabled selected>Select Section</option>';
+          for(var i=0;i<responseArr.length;i++){
+            console.log(responseArr[i]);
+            optionHtml += '<option value="'+responseArr[i]+'">'+responseArr[i]+'</option>';
+          }
+          console.log(optionHtml);
+          select.innerHTML = optionHtml;
+        },
+        error:function(xhr){
+
+        }
+      });
 
     });
 
