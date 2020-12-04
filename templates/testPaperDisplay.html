@@ -12,8 +12,14 @@
               <div class="modal-content">
                 <p> Starting Test</p>
                 <h4>Class: {{testPaperData.class_val}}</h4>
-                <h4>Enter <b>section</b> for which you want to run the test</h4>
-                <input type="text" name='section' placeholder="eg. A">
+                <h4>Select <b>section</b> for which you want to run the test</h4>
+                <!-- <input type="text" name='section' placeholder="eg. A"> -->
+                <select name="section" style="display: block;">
+                  <option disabled selected>Select Section</option>
+                  {% for section in sections %}
+                    <option value="{{section.section}}">{{section.section}}</option>
+                  {% endfor %}
+                </select>
                 <p>
                   <label>
                     <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>

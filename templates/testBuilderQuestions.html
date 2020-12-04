@@ -98,10 +98,12 @@
         </div>
     </div> 
 </div> 
+<div style="display: block;height: 35px;">
 <div style="float:right; width:130px; border:1px solid;">
     <p style="font-weight:bold;">Total Marks : <span id='marks'></span></p>
 </div>
-<div class="col-sm-6" style="display: flex;">
+</div>
+<div class="col-sm-4" style="display: flex;float:right;margin-right: -30px;">
     <div class="input-field col s12">
     <input type="text" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
     </div>
@@ -149,7 +151,8 @@ $(".datepicker").datepicker({
     var test_type = select_test.value;
     var date = $('#test_date').val();
     topics = $('#selectChapters').val();
-    if(subject_id && class_val && test_type && topics){
+    console.log('weightage:'+weightage);
+    if(subject_id && class_val && test_type && topics && weightage){
         console.log('if all are not empty');
         $('#questionSubmitBtn').prop('disabled',false);
     }else{
