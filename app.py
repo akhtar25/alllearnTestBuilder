@@ -8074,6 +8074,8 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
+        performanceProcedureQuery = "call sp_performance_detail_load_feedback2()" 
+        performanceQuery = db.session.execute(text(performanceProcedureQuery))
         flag = 1
         if studentRow:
             if studentRow.points!=None and studentRow.points!="":
@@ -9823,7 +9825,7 @@ def indivStudentProfile():
 
     perfRows = db.session.execute(text(performanceQuery)).fetchall()
     
-    testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(student_id)+ "'"
+    testCountQuery = "select count(*) as testcountval from performance_detail where student_id='"+str(student_id)+ "'"
 
     testCount = db.session.execute(text(testCountQuery)).first()
 
