@@ -15,14 +15,15 @@
             {%if testDetailRows | length !=0%}
             {% for eachRow in testDetailRows%}
             <tr style="margin-top:5px;">
-                <td><img height="50px"
-                        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/classNumberImages/class{{eachRow.class_val}}.png">
-                </td>
+              <td>
+                <span style="font-size: 20px;">{{eachRow.class_val}}</span>
+              </td>
                 <td>{{eachRow.section}}</td>
                 <td>{{eachRow.subject}}</td>
                 <td>{{eachRow.test_date.strftime('%d %B %Y')}}</td>
                 <td>{{eachRow.conducted_by}}</td>
-                <td><input type="button" class="seeTestReportClass btn green" value="See Report" name="{{eachRow.resp_session_id}}"  style="height: 40px; width: 200px;"></td>                
+                <td><input type="button" class="seeTestReportClass btn green" value="See Report" name="{{eachRow.resp_session_id}}"  style="height: 40px; width: 200px;">
+                </td>                
             </tr>
             {% endfor %}
 
@@ -32,14 +33,19 @@
                 <br>
                 <h5>You can create tests and conduct them from using <a href="{{url_for('testBuilder')}}">Test
                         Builder</a></h5>
+                
+
             </td>
             {%endif%}
-        </table>        
+        </table>         
     </div>
     <div id="feedbackReportDiv" style="display: none;">        
     </div>
-            <input class="btn btn-primary pull-right green" id="backToQuestions" 
+            <input class="btn btn-primary pull-left green" id="backToQuestions" 
     style="height: 40px; width: 200px;display: none;" type="button" value="Back">
+    <input class="btn green pull-right" id="refreshReport" 
+              style="height: 40px; width: 200px;display: none;" type="button" value="Refresh">
+    <input type="hidden" value="" id="resp"/>
 </div>
 
 <script>
@@ -47,12 +53,47 @@
 $("#backToQuestions").click(function(){                    
           $("#feedbackReportDiv").hide();         
           $("#backToQuestions").hide();               
-          $("#testReportsDiv").show();         
+          $("#testReportsDiv").show(); 
+          $("#refreshReport").hide();
+});
+$("#refreshReport").click(function(){
+  // $(".seeTestReportClass").click();
+  var resp_sess = $('#resp').val();
+  console.log(resp_sess);
+  $.ajax({ 
+        url: "/feedbackReport?resp_session_id=" +resp_sess,
+        type: "get",
+        data: '',   
+        beforeSend: function() {                           
+                            $("#loaderDiv").show();
+                        },
+        success: function (response) {
+            if (response!='NA'){
+          $("#feedbackReportDiv").html(response);          
+          
+        }
+        else{
+            $("#feedbackReportDiv").html("<h4 class='grey-text'>No report available for the selection</h4>");
+        }
+        $("#feedbackReportDiv").show();         
+          $("#backToQuestions").show();  
+          $("#testReportsDiv").hide();  
+          $("#refreshReport").show();  
+          console.log('inside seeTestReport');                                  
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading report");
+        }
+      }); 
 });
 
   $(".seeTestReportClass").click(function () {
+    
+    
     var resp_session_id = $(this).attr('name');
-      $.ajax({
+    $('#resp').val(resp_session_id);
+    console.log('Response_Session_id:'+resp_session_id);
+      $.ajax({ 
         url: "/feedbackReport?resp_session_id=" +resp_session_id,
         type: "get",
         data: '',   
@@ -70,7 +111,8 @@ $("#backToQuestions").click(function(){
         $("#feedbackReportDiv").show();         
           $("#backToQuestions").show();  
           $("#testReportsDiv").hide();  
-                                               
+          $("#refreshReport").show();  
+          console.log('inside seeTestReport');                                  
         },
         error: function (xhr) {
           window.alert("error occurred while loading report");

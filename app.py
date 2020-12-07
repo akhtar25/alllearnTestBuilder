@@ -7700,20 +7700,22 @@ def contentManagerDetails():
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
-    if request.method=='GET':
+    if request.method=='POST':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
         #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        qtest_id = request.args.get('test_id')
-        weightage = request.args.get('weightage')
-        NegMarking = request.args.get('negativeMarking')
+        qtest_id = request.form.get('test_id')
+        weightage = request.form.get('weightage')
+        NegMarking = request.form.get('negativeMarking')
+        print('Neg Marks:'+str(NegMarking))
+        print(type(NegMarking))
         nMarking = abs(int(NegMarking))
         # Marks = int(nMarking)
         nMark = -nMarking
-        duration = request.args.get('duration')
+        duration = request.form.get('duration')
         print('Test Id:'+str(qtest_id))
         print('Duration:'+str(duration))
         if duration!='':
@@ -7723,11 +7725,12 @@ def feedbackCollection():
         if duration=='':
             print('if duration is null')
             duration=0 
-        qclass_val = request.args.get('class_val')
-        qsection = request.args.get('section')
-        qsubject_id = request.args.get('subject_id')
-        batch_test =  request.args.get('batch_test')
-        batch_id =  request.args.get('batch_id')        
+        qclass_val = request.form.get('class_val')
+        qsection = request.form.get('section')
+        qsubject_id = request.form.get('subject_id')
+        batch_test =  request.form.get('batch_test')
+        batch_id =  request.form.get('batch_id')    
+            
         print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
         if batch_test=="1":
             print("Entered feedback coll")
@@ -7789,7 +7792,7 @@ def feedbackCollection():
                     print(now_local.strftime(format))  
                                 
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = now_local.strftime(format))
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -7832,60 +7835,60 @@ def feedbackCollection():
                 print('the device preference is external webcame' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
 
-    elif request.method == 'POST':
-        allCoveredTopics = request.form.getlist('topicCheck')
-        class_val = request.form['class_val']
-        section = request.form['section']
-        subject_id = request.form['subject_id']
-        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-        #sidebar queries
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
-        # end of sidebarm
+    # elif request.method == 'POST':
+    #     allCoveredTopics = request.form.getlist('topicCheck')
+    #     class_val = request.form['class_val']
+    #     section = request.form['section']
+    #     subject_id = request.form['subject_id']
+    #     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
+    #     #sidebar queries
+    #     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+    #     distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+    #     # end of sidebarm
 
-        curr_class_sec_id=""
+    #     curr_class_sec_id=""
 
-        for eachRow in classSections:
-            if str(eachRow.section).strip()==str(section).strip():
-                if str(eachRow.class_val).strip()==str(class_val).strip():                    
-                    curr_class_sec_id=eachRow.class_sec_id
+    #     for eachRow in classSections:
+    #         if str(eachRow.section).strip()==str(section).strip():
+    #             if str(eachRow.class_val).strip()==str(class_val).strip():                    
+    #                 curr_class_sec_id=eachRow.class_sec_id
 
-        #start of - db update to ark the checked topics as completed        
-        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        currCoveredTopics=[]
+    #     #start of - db update to ark the checked topics as completed        
+    #     #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+    #     currCoveredTopics=[]
 
-        for val in allCoveredTopics:
-            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
-            if topicFromTracker != None:
-                if topicFromTracker.is_covered!='Y':
-                    topicFromTracker.is_covered='Y'
-                    currCoveredTopics.append(val)
-                    db.session.commit()
-        # end of  - update to mark the checked topics as completed
+    #     for val in allCoveredTopics:
+    #         topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+    #         if topicFromTracker != None:
+    #             if topicFromTracker.is_covered!='Y':
+    #                 topicFromTracker.is_covered='Y'
+    #                 currCoveredTopics.append(val)
+    #                 db.session.commit()
+    #     # end of  - update to mark the checked topics as completed
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
-        questionListSize = len(questionList)
+    #     questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
+    #     questionListSize = len(questionList)
         
-        responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
-        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-        #changes for use with PC+ mobile cam combination
-        print('Question list size:'+str(questionListSize))
-        if questionListSize >0:
-            sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=curr_class_sec_id)
-            db.session.add(sessionDetailRowInsert)
-            db.session.commit()
+    #     responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
+    #     responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+    #     #changes for use with PC+ mobile cam combination
+    #     print('Question list size:'+str(questionListSize))
+    #     if questionListSize >0:
+    #         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+    #                     class_sec_id=curr_class_sec_id)
+    #         db.session.add(sessionDetailRowInsert)
+    #         db.session.commit()
             
-            for eachQuestion in questionList:
-                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
-                db.session.add(respSessionQuestionRowInsert)
-                db.session.commit()
-            # topic_id, question_id, question_status, resp_session_id
+    #         for eachQuestion in questionList:
+    #             respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
+    #             db.session.add(respSessionQuestionRowInsert)
+    #             db.session.commit()
+    #         # topic_id, question_id, question_status, resp_session_id
 
-        if teacherProfile.device_preference==78:        
-            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
-        else:
-            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+    #     if teacherProfile.device_preference==78:        
+    #         return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+    #     else:
+    #         return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
     else:
         return redirect(url_for('classCon'))
 
@@ -8882,6 +8885,7 @@ def classPerformance():
     testDetailQuery = testDetailQuery+ " inner join message_detail t3 on t2.subject_id=t3.msg_id "
     testDetailQuery = testDetailQuery+ " inner join class_section t4 on t1.class_Sec_id=t4.class_sec_id "
     testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by test_date desc "
+    print(testDetailQuery)
     testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
     indic='DashBoard'
     return render_template('classPerformance.html',indic=indic,title='Feedback Report',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
@@ -9827,13 +9831,13 @@ def indivStudentProfile():
     
     testCountQuery = "select count(*) as testcountval from performance_detail where student_id='"+str(student_id)+ "'"
 
-    testCount = db.session.execute(text(testCountQuery)).first()
+    testCount = db.session.execute(text(testCountQuery)).first() 
 
     testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
     testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
     testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
-    #print(testResultQuery)
+    print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
     
     #Remarks info
