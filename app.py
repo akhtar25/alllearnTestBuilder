@@ -6819,6 +6819,16 @@ def feedbackCollectionStudDev():
     if studId==None:
         print('Student Id is null')
         return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId)
+    emailDet = StudentProfile.query.filter_by(student_id=studId).first()
+    user = ''
+    if emailDet:
+        user = User.query.filter_by(email=emailDet.email).first()
+    if user:
+        login_user(user,remember='Y')
+    else:
+        flash('please create student account first')
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=None)
+
     print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
     studentRow = StudentProfile.query.filter_by(student_id=studId).first()
@@ -9850,12 +9860,44 @@ def indivStudentProfile():
     urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
     overallSum = 0
     overallPerfValue = 0
-
+    sumMarks = 0
+    sum1 = 0
+    sum2 = 0
+    totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(totalOfflineTestMarks)
+    totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
+    if totalOfflineTestMarks.sum1:
+        print(totalOfflineTestMarks.sum1)
+        sum1 = totalOfflineTestMarks.sum1
+    totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
+    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+    
+    if totalOnlineTestMarks.sum2:
+        print(totalOnlineTestMarks.sum2)
+        sum2 = totalOnlineTestMarks.sum2
+    sumMarks = int(sum1) + int(sum2)
+    print('Total Marks:'+str(sumMarks))
+    total1 = "select sum(total_marks) as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(total1)
+    total1 = db.session.execute(text(total1)).first()
+    tot1 = 0
+    if total1.offlinetotal:
+        print(total1.offlinetotal)
+        tot1 = total1.offlinetotal
+    total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
+    total2 = db.session.execute(text(total2)).first()
+    total3 = 0
+    grandTotal = 0
+    if total2.count:
+        print(total2.count)
+        total3 = total2.count*100
+    grandTotal = int(tot1) + int(total3)
+    print('Grand Total:'+str(grandTotal))
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         #print(overallSum)
     try:
-        overallPerfValue = round(overallSum/(len(perfRows)),2)    
+        overallPerfValue = round(sumMarks/(grandTotal),2)    
     except:
         overallPerfValue=0    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
