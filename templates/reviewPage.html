@@ -1,0 +1,77 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container" height="100%">
+<div class="box-title">
+    <h2>{{studentName}}</h2>
+    <h3 class="box-title">{{testType}} - {{subjectName}} </h3>
+</div>
+<div class="box-body table-responsive">
+<form id="addMarksForm">
+{% for row in questionDetailRow %}
+    <h3>Q: {{row.question_description}}</h3>
+    <aside class="" style="display: block;">    
+        <img src="{{ row.reference_link }}" style="max-height: 300px;max-width: 700px;">
+    </aside>
+    <span style="display: block;font-size: 20px;">Answer:</span>
+    
+    <h4 style="display:block;">
+    {% if row.answer_type==334 %}
+    {{row.response_option}}
+    {% else %}
+    <a href="{{row.response_option}}" target="_blank">Click to see content</a>
+    {% endif %}
+    </h4>
+    <div style="display:flex;">
+    <p><label><input type="checkbox" class="{{loop.index}}" name="isCorrect" value="Y" id="marksCount"/><span></span></label></p><span style="font-size:18px;">Marks:</span><input style="width:60px;margin-left:10px;" type="number" name="marks" value="0" class="marks" id="marks{{loop.index}}" disabled/>
+    <input type="hidden" value="{{loop.index}}" class=""/>
+    </div>
+    <input type="hidden" name="quesId" value="{{row.question_id}}"/>
+<hr>
+{% endfor %}
+<input type="button" id="addMarksBtn" style="width:auto;height:40px;padding-left:20px;padding-right:20px;" class="btn btn-primary pull-right green" value="Submit" />
+</form>
+</div>
+</div>
+<script>
+    $('#addMarksBtn').click(function($e){
+        console.log('inside add Marks Btn');
+        $e.preventDefault(); 
+        var form = $('#addMarksForm');
+        $('#addMarksBtn').val('submitting data please wait....');
+        var resp_session_id = "{{resp_session_id}}";
+        $.ajax({
+            url: "/addSubjMarks?resp_session_id="+resp_session_id,
+            type: "POST",
+            data: form.serialize(),
+            success: function (formResponse) { 
+                // alert('success');
+                $('#addMarksBtn').prop('disabled',true);
+                $('#addMarksBtn').val('Submit');
+            },
+            error:function (xhr){
+                alert('error in add subject marks');
+            }
+    });
+    });
+
+
+    
+        $('input[type="checkbox"]').click(function(){
+            // alert($(this).attr("class"));
+            if($(this).prop("checked") == true){
+                console.log("Checkbox is checked.");
+                var ids = "#marks"+$(this).attr("class");
+                // alert(ids);
+                $(ids).prop('disabled',false);
+                $(ids).val(10);
+            }
+            else if($(this).prop("checked") == false){
+                // alert($(this).attr("class"));
+                console.log("Checkbox is unchecked.");
+                var ids = "#marks"+$(this).attr("class");
+                $(ids).prop('disabled',true);
+                $(ids).val(0);
+            }
+        });
+    
+</script>
+{%endblock%}

@@ -5822,6 +5822,7 @@ def syllabusTopics():
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
+    print(queryTopics)
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
     i=1
     print(len(queryTopics))
@@ -6085,23 +6086,23 @@ def filterQuestionsfromTopic():
             if class_val!=None:
                 if subject_id!=None:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                 else:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()           
             else:
                 if subject_id!=None:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                 else:
                     if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic,question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
                     else:
                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
             # else:
@@ -6125,24 +6126,24 @@ def filterQuestionsfromTopic():
             if subject_id!=None:
                 print('if subject_id available:'+str(subject_id))
                 if test_type:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     print('if test type is empty')
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
             else:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
         else:
             if subject_id!=None:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
             else:
                 if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',question_type='MCQ1').order_by(QuestionDetails.question_id).all()
+                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
                 else:
                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
         # else:
@@ -6813,6 +6814,21 @@ def startPracticeTest():
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     studId = request.args.get('student_id')
+    school_id = request.args.get('school_id')
+    print('Student Id:'+str(studId))
+    if studId==None:
+        print('Student Id is null')
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId)
+    emailDet = StudentProfile.query.filter_by(student_id=studId).first()
+    user = ''
+    if emailDet:
+        user = User.query.filter_by(email=emailDet.email).first()
+    if user:
+        login_user(user,remember='Y')
+    else:
+        flash('please create student account first')
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=None)
+
     print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
     studentRow = StudentProfile.query.filter_by(student_id=studId).first()
@@ -6832,11 +6848,13 @@ def feedbackCollectionStudDev():
     if responseExist:
         print('Inside if test already attempt')
         flash('Sorry, you have already attempt this test')
-        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
-    if((str(testDet.class_val)!=str(classData.class_val)) and (testDet.school_id==classData.school_id)):
+        studenId = None
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studenId)
+    if((str(testDet.class_val)!=str(classData.class_val)) and (school_id==classData.school_id)):
         print('Inside if classes are same')
         flash('Sorry, you can not attempt this test')
-        return render_template('qrSessionScannerStudent.html',user_type_val=str(current_user.user_type),studentDetails=studentRow)
+        studenId = None
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studenId)
     if sessionDetailRow!=None:
         print("This is the session status - "+str(sessionDetailRow.session_status))
         if sessionDetailRow.session_status=='80':
@@ -7692,20 +7710,22 @@ def contentManagerDetails():
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
-    if request.method=='GET':
+    if request.method=='POST':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
         #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
         teacherProfile = teacher
         #using today's date to build response session id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        qtest_id = request.args.get('test_id')
-        weightage = request.args.get('weightage')
-        NegMarking = request.args.get('negativeMarking')
+        qtest_id = request.form.get('test_id')
+        weightage = request.form.get('weightage')
+        NegMarking = request.form.get('negativeMarking')
+        print('Neg Marks:'+str(NegMarking))
+        print(type(NegMarking))
         nMarking = abs(int(NegMarking))
         # Marks = int(nMarking)
         nMark = -nMarking
-        duration = request.args.get('duration')
+        duration = request.form.get('duration')
         print('Test Id:'+str(qtest_id))
         print('Duration:'+str(duration))
         if duration!='':
@@ -7715,11 +7735,12 @@ def feedbackCollection():
         if duration=='':
             print('if duration is null')
             duration=0 
-        qclass_val = request.args.get('class_val')
-        qsection = request.args.get('section')
-        qsubject_id = request.args.get('subject_id')
-        batch_test =  request.args.get('batch_test')
-        batch_id =  request.args.get('batch_id')        
+        qclass_val = request.form.get('class_val')
+        qsection = request.form.get('section')
+        qsubject_id = request.form.get('subject_id')
+        batch_test =  request.form.get('batch_test')
+        batch_id =  request.form.get('batch_id')    
+            
         print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
         if batch_test=="1":
             print("Entered feedback coll")
@@ -7748,8 +7769,8 @@ def feedbackCollection():
             responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
             
-
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+            url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
     
             questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
             if weightage==None or weightage=="":
@@ -7781,7 +7802,7 @@ def feedbackCollection():
                     print(now_local.strftime(format))  
                                 
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = now_local.strftime(format))
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -7816,7 +7837,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -7824,60 +7845,60 @@ def feedbackCollection():
                 print('the device preference is external webcame' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
 
-    elif request.method == 'POST':
-        allCoveredTopics = request.form.getlist('topicCheck')
-        class_val = request.form['class_val']
-        section = request.form['section']
-        subject_id = request.form['subject_id']
-        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-        #sidebar queries
-        classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
-        distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
-        # end of sidebarm
+    # elif request.method == 'POST':
+    #     allCoveredTopics = request.form.getlist('topicCheck')
+    #     class_val = request.form['class_val']
+    #     section = request.form['section']
+    #     subject_id = request.form['subject_id']
+    #     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
+    #     #sidebar queries
+    #     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+    #     distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+    #     # end of sidebarm
 
-        curr_class_sec_id=""
+    #     curr_class_sec_id=""
 
-        for eachRow in classSections:
-            if str(eachRow.section).strip()==str(section).strip():
-                if str(eachRow.class_val).strip()==str(class_val).strip():                    
-                    curr_class_sec_id=eachRow.class_sec_id
+    #     for eachRow in classSections:
+    #         if str(eachRow.section).strip()==str(section).strip():
+    #             if str(eachRow.class_val).strip()==str(class_val).strip():                    
+    #                 curr_class_sec_id=eachRow.class_sec_id
 
-        #start of - db update to ark the checked topics as completed        
-        #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-        currCoveredTopics=[]
+    #     #start of - db update to ark the checked topics as completed        
+    #     #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
+    #     currCoveredTopics=[]
 
-        for val in allCoveredTopics:
-            topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
-            if topicFromTracker != None:
-                if topicFromTracker.is_covered!='Y':
-                    topicFromTracker.is_covered='Y'
-                    currCoveredTopics.append(val)
-                    db.session.commit()
-        # end of  - update to mark the checked topics as completed
+    #     for val in allCoveredTopics:
+    #         topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
+    #         if topicFromTracker != None:
+    #             if topicFromTracker.is_covered!='Y':
+    #                 topicFromTracker.is_covered='Y'
+    #                 currCoveredTopics.append(val)
+    #                 db.session.commit()
+    #     # end of  - update to mark the checked topics as completed
 
-        questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
-        questionListSize = len(questionList)
+    #     questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
+    #     questionListSize = len(questionList)
         
-        responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
-        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-        #changes for use with PC+ mobile cam combination
-        print('Question list size:'+str(questionListSize))
-        if questionListSize >0:
-            sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=curr_class_sec_id)
-            db.session.add(sessionDetailRowInsert)
-            db.session.commit()
+    #     responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
+    #     responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+    #     #changes for use with PC+ mobile cam combination
+    #     print('Question list size:'+str(questionListSize))
+    #     if questionListSize >0:
+    #         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+    #                     class_sec_id=curr_class_sec_id)
+    #         db.session.add(sessionDetailRowInsert)
+    #         db.session.commit()
             
-            for eachQuestion in questionList:
-                respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
-                db.session.add(respSessionQuestionRowInsert)
-                db.session.commit()
-            # topic_id, question_id, question_status, resp_session_id
+    #         for eachQuestion in questionList:
+    #             respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
+    #             db.session.add(respSessionQuestionRowInsert)
+    #             db.session.commit()
+    #         # topic_id, question_id, question_status, resp_session_id
 
-        if teacherProfile.device_preference==78:        
-            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
-        else:
-            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
+    #     if teacherProfile.device_preference==78:        
+    #         return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+    #     else:
+    #         return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
     else:
         return redirect(url_for('classCon'))
 
@@ -7965,17 +7986,23 @@ def loadQuestionStud():
     print('Question Num:'+str(qnum))
     print('totalQCount:'+str(totalQCount))
     print('question_id:'+str(question_id))
+    print('questionId:'+str(question_id))
     btn = request.args.get('btn')
+    textAns = request.args.get('textAns')
+    url = request.args.get('url')
     ######################################################
     response_option = request.args.get('response_option')
     resp_session_id = request.args.get('resp_session_id')
     subject_id =  request.args.get('subject_id')
     last_q_id =  request.args.get('last_q_id')
+    questionDet = QuestionDetails.query.filter_by(question_id=question_id).first()
     print('This is the response session id in: ' + str(resp_session_id) )
     studentRow = ''
-    if current_user.is_anonymous:        
+    if current_user.is_anonymous and student_id=='':     
+        print('if user is anonymous')   
         studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
     else:
+        print('if user is student of student id:'+str(student_id))
         studentRow=StudentProfile.query.filter_by(student_id=student_id).first()
     #print('#######this is the current user id'+ str(current_user.id))
     print('student_id:'+str(studentRow.student_id))
@@ -7987,7 +8014,18 @@ def loadQuestionStud():
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
-        
+        totQues = "select count(*) as totQues from test_questions tq where test_id = '"+str(sessionDetailRow.test_id)+"'"
+        print(totQues)
+        totQuesVal = db.session.execute(text(totQues)).first()
+        print(totQuesVal)
+        totMCQQues = "select count(*) as totMCQQues from test_questions tq inner join question_details qd on tq.question_id = qd.question_id where qd.question_type='MCQ1' and tq.test_id='"+str(sessionDetailRow.test_id)+"'"
+        print(totMCQQues)
+        totMCQQuesVal = db.session.execute(text(totMCQQues)).first()
+        print(totMCQQuesVal)
+        print('Total Ques:'+str(totQuesVal[0]))
+        print('Total MCQ Ques:'+str(totMCQQuesVal[0]))
+        if totQuesVal[0]> totMCQQuesVal[0]:
+            return render_template('_feedbackReportIndiv.html',flag='')
         fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
@@ -8049,31 +8087,48 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
+        performanceProcedureQuery = "call sp_performance_detail_load_feedback2()" 
+        performanceQuery = db.session.execute(text(performanceProcedureQuery))
+        flag = 1
         if studentRow:
             if studentRow.points!=None and studentRow.points!="":
                 studentRow.points = int(studentRow.points) + 1
                 db.session.commit()
-            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
+            return render_template('_feedbackReportIndiv.html',flag=flag,btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
         else:
-            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=current_user.id, student_name= str(current_user.first_name)+' '+str(current_user.last_name), resp_session_id = resp_session_id )
+            return render_template('_feedbackReportIndiv.html',flag=flag,btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=current_user.id, student_name= str(current_user.first_name)+' '+str(current_user.last_name), resp_session_id = resp_session_id )
 
     # End
     print(studentRow)
     if btn=='next':
-        
-        if studentRow!=None:
-            print('inside if studentRow exist')
-            responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-                question_id= last_q_id, teacher_id= teacherID,
-                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+        if questionDet.question_type=='Subjective':
+            if studentRow!=None:
+                print('inside if studentRow exist')
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= date.today())
+            else:
+                print('if student Row not exist')
+                responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= date.today())
+            print(responseStudUpdateQuery)
+            db.session.add(responseStudUpdateQuery)
+            db.session.commit()
         else:
-            print('if student Row not exist')
-            responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
-                question_id= last_q_id, teacher_id= teacherID,
-                resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
-        print(responseStudUpdateQuery)
-        db.session.add(responseStudUpdateQuery)
-        db.session.commit()
+            if studentRow!=None:
+                print('inside if studentRow exist')
+                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+            else:
+                print('if student Row not exist')
+                responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
+                    question_id= last_q_id, teacher_id= teacherID,
+                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+            print(responseStudUpdateQuery)
+            db.session.add(responseStudUpdateQuery)
+            db.session.commit()
     print('qId:'+str(last_q_id))
     checkResponse = ''
     if last_q_id:
@@ -8082,13 +8137,33 @@ def loadQuestionStud():
         if checkResponse:
             if btn=='submitandnext':
                 print('inside submitandnext')
+                if questionDet.question_type=='Subjective':
+                    checkResponse.response_option = response_option
+                    if textAns:
+                        checkResponse.answer_type = 334
+                    else:
+                        checkResponse.answer_type = 335
+                else:
+                    checkResponse.response_option = response_option
+                    checkResponse.answer_type = 336
                 checkResponse.answer_status = 239
                 db.session.commit()
             if btn=='save':
                 print('inside savebtn')
+                if questionDet.question_type=='Subjective':
+                    checkResponse.response_option = response_option
+                    if textAns:
+                        checkResponse.answer_type = 334
+                    else:
+                        checkResponse.answer_type = 335
+                else:
+                    checkResponse.response_option = response_option
+                    checkResponse.answer_type = 336
                 checkResponse.answer_status = 241
                 db.session.commit()
+    print('Response Option:'+str(response_option))
     if response_option!='':
+        print('if response_option is not null')
         #print('###############Response option is not null###############. This is it' + str(response_option)+ '-')
         optionCheckRow = QuestionOptions.query.filter_by(question_id=last_q_id, option=response_option).first()                    
 
@@ -8115,15 +8190,27 @@ def loadQuestionStud():
                 db.session.commit()
             print('data already exist')
         else:
-            print('new data insert in response capture')
-            if ansCheck=='N':
-                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= date.today())
+            questionType = QuestionDetails.query.filter_by(question_id=last_q_id).first()
+            if questionType.question_type=='Subjective':
+                print('new data insert in response capture in Subjective type')
+                if textAns:
+                    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today(),answer_type=334,question_type='Subjective')
+                else:
+                    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today(),answer_type=335,question_type='Subjective')
             else:
-                responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
-                question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today())
+                print('new data insert in response capture in objective type')
+                if ansCheck=='N':
+                    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= date.today(),answer_type=336,question_type='MCQ1')
+                else:
+                    responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
+                    question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today(),answer_type=336,question_type='MCQ1')
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8375,6 +8462,9 @@ def feedbackReport():
 
     if responseSessionID!=None:
         #
+        testId = "select test_id from session_detail sd where resp_session_id = '"+str(responseSessionID)+"'"
+        testId = db.session.execute(text(testId)).first()
+
         # print('Class Section Id in feedbackReport:'+str(classSecRow.class_sec_id))
         print('Here is response session id in feedback report: ' + responseSessionID)   
         # responseResultQuery = "with total_marks_cte as ( "
@@ -8390,60 +8480,159 @@ def feedbackReport():
         # responseResultQuery = responseResultQuery + "qd.question_id=rc.question_id "
         # responseResultQuery = responseResultQuery + "and rc.resp_session_id='"+str(responseSessionID)+"', total_marks_cte "
         # responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id, total_marks_cte.total_weightage "
-        responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id,SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end) as marks_scored, (SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end)*100)/sd.total_marks AS percentage_marks from "
-        responseResultQuery = responseResultQuery + "response_capture rc inner join student_profile sp on sp.student_id = rc.student_id "
-        responseResultQuery = responseResultQuery + "inner join session_detail sd on sd.resp_session_id = rc.resp_session_id where "
-        responseResultQuery = responseResultQuery + "rc.resp_session_id = '"+str(responseSessionID)+"' "
-        responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id,sd.total_marks"
-        print('Query:'+str(responseResultQuery))
-        responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
-        responseResultRowCount = 0
-        total = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-        incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(responseSessionID)+"' and (answer_status='239' or answer_status='241')"
-        incorrect_ques = db.session.execute(text(incorrect_ques)).first()
-        # neg_marks = 0
-        # if total.incorrect_marks>0:
-        #     neg_marks = int(incorrect_ques.incorrect_ques)*int(total.incorrect_marks)
-        if responseResultRow:
-            allStudentsTotalMarks =  0
-            totalPointsLimit = 0  
-            grandTotal = 0 
-            # print(responseResultRow)
-            # print('ResultRow length:'+str(len(responseResultRow)))         
-            # for row in responseResultRow:
-            #     totalPointsScored = totalPointsScored + row.points_scored
-            #     totalPointsLimit = totalPointsLimit + row.total_weightage
-            totalPointsLimit = total.total_marks
-            grandTotal = totalPointsLimit * len(responseResultRow)
-            for row in responseResultRow:
-                allStudentsTotalMarks = allStudentsTotalMarks + row.marks_scored
-            classAverage = 0
-            if totalPointsLimit !=0 and totalPointsLimit != None:
-                if allStudentsTotalMarks>0:
-                    classAverage = (allStudentsTotalMarks/grandTotal) *100
+        totQues = "select count(*) as totQues from test_questions tq where test_id = '"+str(testId.test_id)+"'"
+        print(totQues)
+        totQuesVal = db.session.execute(text(totQues)).first()
+        print(totQuesVal)
+        totMCQQues = "select count(*) as totMCQQues from test_questions tq inner join question_details qd on tq.question_id = qd.question_id where qd.question_type='MCQ1' and tq.test_id='"+str(testId.test_id)+"'"
+        print(totMCQQues)
+        totMCQQuesVal = db.session.execute(text(totMCQQues)).first()
+        print(totMCQQuesVal)
+        print('Total Ques:'+str(totQuesVal[0]))
+        print('Total MCQ Ques:'+str(totMCQQuesVal[0]))
+        if totQuesVal[0]> totMCQQuesVal[0]:
+            print('If Subjective question is available')
+            responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id,SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') and question_type ='MCQ1' THEN rc.marks_scored ELSE 0 end) as Objective_marks, SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') and question_type = 'Subjective' THEN rc.marks_scored ELSE 0 end) AS Subjective_marks,SUM(case when rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') then rc.marks_scored else 0 end) as total_marks "
+            responseResultQuery = responseResultQuery + "from response_capture rc inner join student_profile sp on sp.student_id = rc.student_id "
+            responseResultQuery = responseResultQuery + "inner join session_detail sd on sd.resp_session_id = rc.resp_session_id where "
+            responseResultQuery = responseResultQuery + "rc.resp_session_id = '"+str(responseSessionID)+"' "
+            responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id"
+            print('Query:'+str(responseResultQuery))
+            responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+            responseResultRowCount = 0
+            total = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+            incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(responseSessionID)+"' and (answer_status='239' or answer_status='241')"
+            incorrect_ques = db.session.execute(text(incorrect_ques)).first()
+            # neg_marks = 0
+            # if total.incorrect_marks>0:
+            #     neg_marks = int(incorrect_ques.incorrect_ques)*int(total.incorrect_marks)
+            if responseResultRow:
+                allStudentsTotalMarks =  0
+                totalPointsLimit = 0  
+                grandTotal = 0 
+                # print(responseResultRow)
+                # print('ResultRow length:'+str(len(responseResultRow)))         
+                # for row in responseResultRow:
+                #     totalPointsScored = totalPointsScored + row.points_scored
+                #     totalPointsLimit = totalPointsLimit + row.total_weightage
+                totalPointsLimit = total.total_marks
+                grandTotal = totalPointsLimit * len(responseResultRow)
+                for row in responseResultRow:
+                    print('Objective Question:'+str(row.objective_marks))
+                    print('Subjective Question:'+str(row.subjective_marks))
+                    allStudentsTotalMarks = allStudentsTotalMarks + row.total_marks
+                classAverage = 0
+                if totalPointsLimit !=0 and totalPointsLimit != None:
+                    if allStudentsTotalMarks>0:
+                        classAverage = (allStudentsTotalMarks/grandTotal) *100
+                    else:
+                        classAverage = 0
                 else:
                     classAverage = 0
-            else:
-                classAverage = 0
-                print("total Points limit is zero")
+                    print("total Points limit is zero")
 
-            responseResultRowCount = len(responseResultRow)
+                responseResultRowCount = len(responseResultRow)
+        else:
+            responseResultQuery = "select distinct sp.roll_number, sp.full_name, sp.student_id,SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end) as marks_scored, (SUM(CASE WHEN rc.resp_session_id = '"+str(responseSessionID)+"' and (rc.answer_status='239' or answer_status='241') THEN rc.marks_scored ELSE 0 end)*100)/sd.total_marks AS percentage_marks from "
+            responseResultQuery = responseResultQuery + "response_capture rc inner join student_profile sp on sp.student_id = rc.student_id "
+            responseResultQuery = responseResultQuery + "inner join session_detail sd on sd.resp_session_id = rc.resp_session_id where "
+            responseResultQuery = responseResultQuery + "rc.resp_session_id = '"+str(responseSessionID)+"' "
+            responseResultQuery = responseResultQuery + "group by sp.roll_number, sp.full_name, sp.student_id,sd.total_marks"
+            print('Query:'+str(responseResultQuery))
+            responseResultRow = db.session.execute(text(responseResultQuery)).fetchall()
+            responseResultRowCount = 0
+            total = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+            incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(responseSessionID)+"' and (answer_status='239' or answer_status='241')"
+            incorrect_ques = db.session.execute(text(incorrect_ques)).first()
+            # neg_marks = 0
+            # if total.incorrect_marks>0:
+            #     neg_marks = int(incorrect_ques.incorrect_ques)*int(total.incorrect_marks)
+            if responseResultRow:
+                allStudentsTotalMarks =  0
+                totalPointsLimit = 0  
+                grandTotal = 0 
+                # print(responseResultRow)
+                # print('ResultRow length:'+str(len(responseResultRow)))         
+                # for row in responseResultRow:
+                #     totalPointsScored = totalPointsScored + row.points_scored
+                #     totalPointsLimit = totalPointsLimit + row.total_weightage
+                totalPointsLimit = total.total_marks
+                grandTotal = totalPointsLimit * len(responseResultRow)
+                for row in responseResultRow:
+                    allStudentsTotalMarks = allStudentsTotalMarks + row.marks_scored
+                classAverage = 0
+                if totalPointsLimit !=0 and totalPointsLimit != None:
+                    if allStudentsTotalMarks>0:
+                        classAverage = (allStudentsTotalMarks/grandTotal) *100
+                    else:
+                        classAverage = 0
+                else:
+                    classAverage = 0
+                    print("total Points limit is zero")
+
+                responseResultRowCount = len(responseResultRow)
+
         #print('Here is the questionListJson: ' + str(questionListJson))
     else:
         print("Error collecting data from ajax request. Some values could be null")
 
     if responseResultRowCount>0:
-        return render_template('_feedbackReport.html',totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+        flag=''
+        if totQuesVal[0]> totMCQQuesVal[0]:
+            print('If Subjective Question included')
+            flag=1
+            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+        else:
+            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
     else:
          return jsonify(['NA'])
          
 
+@app.route('/reviewSubjective',methods=['GET','POST'])
+def reviewSubjective():
+    resp_sess_id = request.args.get('resp_session_id')
+    student_id = request.args.get('student_id')
+    print('Response_sess_id:'+str(resp_sess_id))
+    print('Student_id:'+str(student_id))
+    testId = SessionDetail.query.filter_by(resp_session_id=resp_sess_id).first()
+    currentTestId = testId.test_id
+    studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
+    questionDetailQuery = "select qd.question_description,qd.question_id,qd.reference_link,rc.response_option,rc.answer_type from test_questions tq inner join "
+    questionDetailQuery = questionDetailQuery + "response_capture rc on tq.question_id=rc.question_id inner join "
+    questionDetailQuery = questionDetailQuery + "question_details qd on tq.question_id=qd.question_id where rc.question_type='Subjective' and tq.test_id='"+str(currentTestId)+"' "
+    questionDetailQuery = questionDetailQuery + "and rc.student_id='"+str(student_id)+"' and rc.resp_session_id='"+str(resp_sess_id)+"' and (rc.answer_status='239' or rc.answer_status='241')"
+    print('Query:'+str(questionDetailQuery))
+    questionDetailRow = db.session.execute(text(questionDetailQuery)).fetchall()
+    TestDet = TestDetails.query.filter_by(test_id=currentTestId).first()
+    testType = TestDet.test_type
+    subject = MessageDetails.query.filter_by(msg_id=TestDet.subject_id).first()
+    subjectName = subject.description
+    return render_template('reviewPage.html',studentName=studentDet.full_name,questionDetailRow=questionDetailRow,testType=testType,subjectName=subjectName,resp_session_id=resp_sess_id)
+
+@app.route('/addSubjMarks',methods=['GET','POST'])
+def addSubjMarks():
+    marksList = request.form.getlist('marks')
+    quesIdList = request.form.getlist('quesId')
+    resp_session_id = request.args.get('resp_session_id')    
+    isCorrect = request.form.getlist('isCorrect')
+    
+    for i in range(len(marksList)):
+        print('Marks:'+str(marksList[i]))
+        print('QuesList:'+str(quesIdList[i]))
+        questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
+        questionDet.marks_scored = marksList[i]
+        if isCorrect[i]:
+            questionDet.is_correct = 'Y'
+        else:
+            questionDet.is_correct = 'N'
+        db.session.commit()
+    return jsonify(['0'])
 
 @app.route('/studentFeedbackReport')
 @login_required
 def studentFeedbackReport():
     student_id = request.args.get('student_id')  
-    student_name = request.args.get('student_name') 
+    studentName = request.args.get('student_name') 
     resp_session_id = request.args.get('resp_session_id')
     student_id=student_id.strip()
     studentRow = ''
@@ -8452,8 +8641,8 @@ def studentFeedbackReport():
     else:
         if student_id==None:
             student_id = current_user.id
-        if student_name==None:
-            student_name = str(current_user.first_name)+' '+str(current_user.last_name)
+        if studentName==None:
+            studentName = str(current_user.first_name)+' '+str(current_user.last_name)
         if current_user.is_anonymous:        
             studentRow=StudentProfile.query.filter_by(user_id=app.config['ANONYMOUS_USERID']).first()
         else:
@@ -8462,7 +8651,7 @@ def studentFeedbackReport():
     responseCaptureQuery = ''
     
     if studentRow:
-        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
         responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
         responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
@@ -8471,7 +8660,7 @@ def studentFeedbackReport():
         responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
         responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
     else:
-        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
         responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
         responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
@@ -8482,7 +8671,7 @@ def studentFeedbackReport():
     print('Response Capture Query:'+str(responseCaptureQuery))
     responseCaptureRow = db.session.execute(text(responseCaptureQuery)).fetchall()
 
-    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),student_name=student_name, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
 
 @app.route('/testPerformance')
 @login_required
@@ -8706,6 +8895,7 @@ def classPerformance():
     testDetailQuery = testDetailQuery+ " inner join message_detail t3 on t2.subject_id=t3.msg_id "
     testDetailQuery = testDetailQuery+ " inner join class_section t4 on t1.class_Sec_id=t4.class_sec_id "
     testDetailQuery = testDetailQuery+ " inner join teacher_profile t5 on t5.teacher_id=t1.teacher_id  and t5.school_id='"+str(teacher_id.school_id)+"' order by test_date desc "
+    print(testDetailQuery)
     testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
     indic='DashBoard'
     return render_template('classPerformance.html',indic=indic,title='Feedback Report',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
@@ -9649,15 +9839,15 @@ def indivStudentProfile():
 
     perfRows = db.session.execute(text(performanceQuery)).fetchall()
     
-    testCountQuery = "select count(*) as testcountval from result_upload where student_id='"+str(student_id)+ "'"
+    testCountQuery = "select count(*) as testcountval from performance_detail where student_id='"+str(student_id)+ "'"
 
-    testCount = db.session.execute(text(testCountQuery)).first()
+    testCount = db.session.execute(text(testCountQuery)).first() 
 
     testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
     testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
     testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
-    #print(testResultQuery)
+    print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
     
     #Remarks info
@@ -9670,12 +9860,44 @@ def indivStudentProfile():
     urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
     overallSum = 0
     overallPerfValue = 0
-
+    sumMarks = 0
+    sum1 = 0
+    sum2 = 0
+    totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(totalOfflineTestMarks)
+    totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
+    if totalOfflineTestMarks.sum1:
+        print(totalOfflineTestMarks.sum1)
+        sum1 = totalOfflineTestMarks.sum1
+    totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
+    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+    
+    if totalOnlineTestMarks.sum2:
+        print(totalOnlineTestMarks.sum2)
+        sum2 = totalOnlineTestMarks.sum2
+    sumMarks = int(sum1) + int(sum2)
+    print('Total Marks:'+str(sumMarks))
+    total1 = "select sum(total_marks) as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(total1)
+    total1 = db.session.execute(text(total1)).first()
+    tot1 = 0
+    if total1.offlinetotal:
+        print(total1.offlinetotal)
+        tot1 = total1.offlinetotal
+    total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
+    total2 = db.session.execute(text(total2)).first()
+    total3 = 0
+    grandTotal = 0
+    if total2.count:
+        print(total2.count)
+        total3 = total2.count*100
+    grandTotal = int(tot1) + int(total3)
+    print('Grand Total:'+str(grandTotal))
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         #print(overallSum)
     try:
-        overallPerfValue = round(overallSum/(len(perfRows)),2)    
+        overallPerfValue = round(sumMarks/(grandTotal),2)    
     except:
         overallPerfValue=0    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()

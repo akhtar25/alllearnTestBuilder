@@ -1,6 +1,38 @@
 {%extends "layout.html"%} {%block content%}
+{% if studId==None %}
+  <div class="container" height="100%">
+
+  <div class="row">
+    <div class="col s10">
+      <div class="card">
+        <div class="card-image">
+          <img src="">
+          <span class="card-title"></span>
+        </div>
+        <div class="card-content">
+        <span style="display:block;">Enter your student Id and submit</span><input type="number" style="width:500px;" id="studentId"/>
+        <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
+
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+<script>
+  $('#studIdSubmitBtn').click(function(){
+    var sId = $('#studentId').val();
+    // alert('Student Id:'+sId);
+        if (sId != "") {
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId;
+        }
+  });
+</script>
+  {% else %}
 <div class="container" height=100%>
 
+  
 
   <div class="sidebar-mini"> 
      <aside class="main-sidebar" style="padding:0px;">            
@@ -174,6 +206,7 @@
       </section>
     </div>
   </div>
+  
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!-- <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>                 -->
@@ -194,6 +227,8 @@
   $(document).ready(function(){
     $('#TestLink').hide();
   });
+
+  
 
   // $("#skipButton").click(function () {
   //   document.getElementById("startAndNextBTN").click();
@@ -246,7 +281,7 @@
     if (radioValue) {
       respOption =radioValue; 
     }
-    if (tempCountVar <= questionListSize) {  
+    if (tempCountVar <= questionListSize) {   
       var lastQIDVal = ''; 
       var valueQ = $("#lastQIDVal").val(); 
       if(valueQ){
@@ -285,10 +320,26 @@
         console.log('inside else:'+num);
         qcount = questionIDListJS[parseInt(num)];
       }
+      var textAns = '';
+      var url = '';
+      if(document.getElementById('box_id')){
+       textAns = document.getElementById('box_id').value;
+      }
+      if(document.getElementById('reference')){
+        url = document.getElementById('reference').value;
+      }
+      if(textAns){
+        console.log('----Text Exist:'+textAns);
+        respOption = textAns;
+      }else
+      if(url){
+        console.log('---Url Exist:'+url);
+        respOption = url;
+      }
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}",
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url,
         type: "get",
         data: '', 
         success: function (response) {
@@ -376,5 +427,5 @@
 </script>
 <script src="../static/js/qrReader_zbar-main.js"></script>
 <script type="text/javascript" src="../static/js/zbar-processor.js"></script>
-
+{% endif %}
 {%endblock%}

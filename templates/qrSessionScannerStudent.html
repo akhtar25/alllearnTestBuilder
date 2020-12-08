@@ -113,11 +113,12 @@ page: <span id="page"></span>&nbsp;&nbsp;&nbsp;records per page:&nbsp;&nbsp;<spa
 
     $('#textRespIntputBTN').click(function () {
         
-        $('#TestLink').hide();
+        $('#TestLink').hide(); 
         // alert('Hide Link');
         var resp_session_code = $('#textRespCodeInput').val();
         if (resp_session_code != "") {
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code+"&student_id={{studentDetails.student_id}}";
+            // window.location.href = "/feedbackCollectionStudDev?resp_session_id=" + resp_session_code+"&student_id={{studentDetails.student_id}}";
+            window.location.href = "/feedbackCollectionStudDev/resp_session_id="+resp_session_code+"/student_id={{studentDetails.student_id}}";
         }
     });
 
@@ -214,9 +215,9 @@ function changePage(page)
         console.log(objJson[i]);
         if(objJson[i]){
             if(objJson[i].perf_percentage<0){
-                listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+0+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&studentName={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
+                listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+0+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&student_name={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
             }else{
-        listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+objJson[i].perf_percentage+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&studentName={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
+        listing_table.innerHTML +=  '<tr><td>'+objJson[i].subject+'</td><td>'+objJson[i].topics+'</td><td>'+objJson[i].test_date+'</td><td>'+objJson[i].perf_percentage+'</td><td><a target="_blank" href="{{'studentFeedbackReport'}}?student_id={{studentDetails.student_id}}&student_name={{studentDetails.full_name}}&resp_session_id='+objJson[i].resp_session_id+'" class="seeReportClass">See Report</a></td></tr>';
         // objJson[i].adName + "<br>";
             }
         }

@@ -1,4 +1,6 @@
+{% if flag %}
 <div class="box-title">
+
   <h3 class="box-title">Test Report - {{student_name}} <span style="float:right;display: none;" id="tm_ot">Timeout</span></h3>
 </div>
 <div class="box-body table-responsive">
@@ -52,7 +54,12 @@
   <br>
   <br>
 </div>
-
+{% else %}
+  <div class="Message">
+    <span style="font-size:25px;">Your answers have been submitted. 
+    You will receive a notification once the test results are ready.</span>
+  </div>
+{% endif %}
 <script>
   (function(){
     $('#TestLink').show();

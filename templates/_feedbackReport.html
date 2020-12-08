@@ -1,5 +1,5 @@
 <div class="box-title">
-    <h3 class="box-title">Feedback Report </h3>
+    <h3 class="box-title">Online Test Report </h3>
 </div>
 <div class="box-body table-responsive">
   <table class="table table-bordered table-responsive-md table-striped table-centered">
@@ -19,7 +19,50 @@
         </tr>
   </table>
 <table class="table table-bordered table-hover table-striped text-center">
+                      {% if flag==1 %} 
                       <tr>
+                       
+                        <th>Student Name</th>
+                        <th>Student Id </th>
+                        <th>Objective Marks</th>
+                        <th>Subjective </th>
+                        <th>Total Marks </th>
+                        <th>Details </th>
+                      </tr>                                                                    
+                           {% for row in responseResultRow %}   
+                      <tr> 
+                        <td>{{row.full_name}} </td>
+                        <td> {{row.student_id}}</td>
+                        <td> 
+                          {% if row.objective_marks >= 0 %}
+                          {{row.objective_marks}}
+                          {% else %}
+                          0
+                          {% endif %}
+                        </td>
+                        <td> 
+                          {% if row.subjective_marks > 0 %}
+                          {{row.subjective_marks}}
+                          {% else %}
+                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Not Reviewed</a>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if row.subjective_marks > 0 %}
+                          {% if row.total_marks>=0 %}
+                           {{ row.total_marks}}
+                          {% else %}
+                          0
+                          {% endif %}
+                          {% else %}
+                          ____
+                          {% endif %}
+                          </td>
+                        <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
+                      </tr>
+                      {% endfor %}
+                      {% else %}
+                             <tr>
                         <th>Roll Number </th>
                         <th>Student Name</th>
                         <th>Marks Scored</th>
@@ -49,7 +92,27 @@
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}
+                      {% endif %}
                     </table>                                                                       
                     <br>
                     <br>                    
                   </div>
+
+                  <script>
+                    function reviewPage(resp_sess_id,studID){
+                      console.log('Resp_sess_id:'+resp_sess_id);
+                      console.log('studID:'+studID);
+                      $.ajax({
+        url: "/reviewSubjective?resp_session_id=" +resp_sess_id+"&student_id="+studID,
+        type: "get",
+        data: '',  
+        success: function (response) {
+             console.log(response);
+          $("#feedbackReportDiv").html(response);
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading report");
+        }
+      });
+                    }
+                  </script>
