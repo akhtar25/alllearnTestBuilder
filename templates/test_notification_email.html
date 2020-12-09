@@ -1,0 +1,13 @@
+<div class="container">
+    <p>Dear {{name}},</p>
+    <p>
+        Greetings from allLearn. 
+        <p>The test report for the online test conducted on the {{exam_date.strftime('%d-%B-%Y')}} has been created.
+             To see your report, please click on this link: {{url_for('qrSessionScannerStudent', _external=True)}}</p>
+    </p>
+    <p>For any suggestions and queries, please write to us at contact@alllearn.in.</p>
+    
+    <p>Thanks</p>
+    <p>allLearn Team</p>
+    </div>
+
