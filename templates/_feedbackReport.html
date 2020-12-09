@@ -60,7 +60,9 @@
                           {% endif %}
                           </td>
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
-                        <td><button class="waves-effect waves-light btn sendNotificationEmailBtn" name="{{row.student_id}}" id="emailBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button></td>
+                        <td><button class="waves-effect waves-light btn sendNotificationEmailBtn" name="{{row.student_id}}" id="emailBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button>
+                          <p style="font-size: 12px;float:right;display:none;color:green;" id="emailMsg">Email Sent</p>
+                        </td>
                       </tr>
                       {% endfor %}
                       {% else %}
@@ -128,6 +130,8 @@
       data: "",
       success: function(response){
         console.log('Message Sent');
+        $('#emailBtn').hide();
+        $('#emailMsg').show();
       },
       error: function(xhr){
         window.alert("Error occured while sending email");

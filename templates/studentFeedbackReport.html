@@ -6,19 +6,19 @@
 <div class="box-body table-responsive">
   <table class="table table-bordered table-hover table-striped text-center">
     <tr>
-      <th>Overall Percantage</th>
+      <th>Overall Percentage and Marks</th>
       <th>Subjective Marks</th>
       <th>Objective Marks</th>
       <th>Correct Questions/Total Questions</th>
     </tr>
     <tr>
-      <td>{{marksPercentage}}</td>
+      <td>{{'%0.2f' % marksPercentage|float}}%&nbsp;({{totalMarks}})</td>
       <td>{{subjective_marks}}</td>
       <td>{{objective_marks}}</td>
       <td>{{correct_question}}/{{total_questions}}</td>
     </tr>
   </table>
-<table class="table table-bordered table-hover table-striped text-center">
+<table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
                       <tr>
                         <th>Q No</th>
                         <th>Question Id</th>

@@ -4463,12 +4463,14 @@ def sendNotificationEmail():
     school_id = school.school_id
     adminEmail=db.session.execute(text("select t2.email,t2.full_name,t1.school_name from school_profile t1 inner join student_profile t2 on t1.school_id=t2.school_id where t1.school_id='"+str(school_id)+"' and t2.student_id='"+str(student_id)+"'")).first()
     testDate = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    respCapture = ResponseCapture.query.filter_by(resp_session_id=resp_session_id).first()
+    subject = MessageDetails.query.filter_by(msg_id=respCapture.subject_id).first()
     testType = TestDetails.query.filter_by(test_id=testDate.test_id).first()
     print('Test Type:'+str(testType.test_type))
     print('Response_session_id:'+str(resp_session_id))
     print('Student_id:'+str(student_id))
     if adminEmail!=None:
-        test_report_email(adminEmail.email,adminEmail.full_name, adminEmail.school_name,school_id,testDate.last_modified_date,testType.test_type,resp_session_id,student_id)
+        test_report_email(adminEmail.email,adminEmail.full_name, adminEmail.school_name,school_id,testDate.last_modified_date,testType.test_type,resp_session_id,student_id,subject.description)
         return jsonify(["0"])
     else:
         return jsonify(["1"])
@@ -8769,7 +8771,8 @@ def studentFeedbackReport():
     correctQuestions = db.session.execute(text(correctQuestions)).first()
     totalQuestions = "select count(*) as totalQues from test_questions where test_id='"+str(sessionDetailRow.test_id)+"'"
     totalQuestions = db.session.execute(text(totalQuestions)).first()
-    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),marksPercentage=marksPercentage,subjective_marks=SubjectiveMarks.marks_scored,objective_marks=ObjectiveMarks.marks_scored,correct_question=correctQuestions.correctques,total_questions=totalQuestions.totalques,studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
+    totalMarks = int(SubjectiveMarks.marks_scored) + int(ObjectiveMarks.marks_scored)
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),totalMarks=totalMarks,marksPercentage=marksPercentage,subjective_marks=SubjectiveMarks.marks_scored,objective_marks=ObjectiveMarks.marks_scored,correct_question=correctQuestions.correctques,total_questions=totalQuestions.totalques,studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
 
 @app.route('/testPerformance')
 @login_required

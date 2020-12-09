@@ -2,8 +2,8 @@
     <p>Dear {{name}},</p>
     <p>
         Greetings from allLearn. 
-        <p>The test report for the online test conducted on the {{exam_date.strftime('%d-%B-%Y')}} has been created.
-             To see your report, please click on this link: {{url_for('qrSessionScannerStudent', _external=True)}}</p>
+        <p>The test report for the online test conducted on the {{exam_date.strftime('%d-%B-%Y')}} for {{subject}} has been created.
+             To see your report, please click on this link: {{url_for('studentFeedbackReport',student_id=student_id,student_name=name,resp_session_id=resp_session_id, _external=True)}}</p>
     </p>
     <p>For any suggestions and queries, please write to us at contact@alllearn.in.</p>
     
