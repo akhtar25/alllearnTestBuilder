@@ -16,7 +16,7 @@
     {% if question.question_type=='Subjective' %}
     <div class="answerText">
       <span style="display: block;font-size: 20px;">Answer:</span>
-      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
+      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" data-length="500" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
       <span style="display: block;">OR</span>
       <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
       <span id="msg" style="margin-top:10px;color:red;"></span>
@@ -47,6 +47,10 @@
 </div>
 
 <script>
+
+  $(document).ready(function(){
+    $('input#input_text, textarea#box_id').characterCounter();
+  });
 
   function myTextVal(){
     var textInput = document.getElementById('box_id').value;
