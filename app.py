@@ -6521,6 +6521,56 @@ def sendFeeSMS():
                     ##Message sent 
     return jsonify(['1']) 
 
+@app.route('/sendSMS',methods=["GET","POST"])
+def sendSMS():
+        # commType = request.form.get('commType')
+    commType = 'sms'
+    message = request.args.get('message')
+    student_id = request.args.get('student_id')
+    print('Message:'+str(message))
+    print('student_id:'+str(student_id))
+    class_sec = StudentProfile.query.filter_by(student_id=student_id).first()
+    class_sec_id = class_sec.class_sec_id
+    if class_sec_id !=None and class_sec_id !="":
+        teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            #insert into communication detail table
+        commDataAdd=CommunicationDetail(message = message,status=231 , school_id=teacherData.school_id,             
+        teacher_id=teacherData.teacher_id,last_modified_date =datetime.today())
+        db.session.add(commDataAdd)
+            #db.session.flush()
+        db.session.commit() 
+        getStudNumQuery = "select student_id, phone from student_profile sp where class_sec_id ="+ str(class_sec_id)            
+        studentPhones = db.session.execute(getStudNumQuery).fetchall()
+        phoneList =[]
+        for phoneRow in studentPhones:
+            if phoneRow.phone!=None and phoneRow.phone!='':
+                phoneList.append(phoneRow.phone)
+        if studentPhones!=None:
+            if commType=='sms':
+                apiPath = "http://173.212.233.109/app/smsapisr/index.php?key=35EF8379A04DB8&"
+                apiPath = apiPath + "campaign=9967&routeid=6&type=text&"
+                apiPath = apiPath + "contacts="+str(phoneList).replace('[','').replace(']','').replace('\'','').replace(' ','')+"&senderid=GLOBAL&"
+                apiPath = apiPath + "msg="+ quote(message)
+                print(apiPath)
+                    ##Sending message here
+                try:
+                    r = requests.post(apiPath)                    
+                    returnData = str(r.text)
+                    print(returnData)
+                    if "SMS-SHOOT-ID" in returnData:
+                        for val in studentPhones:
+                            commTransAdd = CommunicationTransaction(comm_id=commDataAdd.comm_id, student_id=val.student_id,last_modified_date = datetime.today())
+                            db.session.add(commTransAdd)
+                        commDataAdd.status=232
+                        db.session.commit()                                        
+                        return jsonify(['0'])
+                    else:
+                        return jsonify(['1'])                    
+                except:
+                    return jsonify(['1'])
+                    ##Message sent                    
+    return jsonify(['1'])
+
 @app.route('/sendComm',methods=["GET","POST"])
 def sendComm():
     if request.method=="POST":
@@ -8648,9 +8698,9 @@ def feedbackReport():
         if totQuesVal[0]> totMCQQuesVal[0]:
             print('If Subjective Question included')
             flag=1
-            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
         else:
-            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID)
+            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
     else:
          return jsonify(['NA'])
          
