@@ -10,7 +10,7 @@
           <span class="card-title"></span>
         </div>
         <div class="card-content">
-        <span style="display:block;">Enter your student Id and submit</span><input type="number" style="width:500px;" id="studentId"/>
+        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
         <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
 
         </div>
@@ -25,7 +25,7 @@
     var sId = $('#studentId').val();
     // alert('Student Id:'+sId);
         if (sId != "") {
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId;
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}";
         }
   });
 </script>
@@ -41,20 +41,20 @@
               <h4>Remaining Time:<span id="remTime"></span></h4>
             </div>
               <!-- panel -->
-              <div class="panel panel-body panel-default mb0 mt10" style="border:dotted;padding: 0px;">
+              <div class="panel panel-body panel-default mb0 mt10" style="padding: 0px;width: 259px;margin-left: -30px;">
                 <div class="table-responsive">
                   <table class="table table-borderless mb0">
                     <thead>
                       <tr>
-                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">10</a></td>
+                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Not Answered</td>
-                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">10</a></td>
+                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Answered</td>
                       </tr>
                       <tr>
-                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">10</a></td>
+                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Marked for review</td>
-                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">10</a></td>
+                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Answered and marked for review</td>
                       </tr>
                     </thead>
@@ -62,9 +62,9 @@
                 </div>
               </div>
               <!-- End -->
-              <div class="panel panel-default">
-                <div class="panel-body" style="height:300px;overflow-y:scroll;">
-                  <ul class="pagination test-questions">
+              <div class="panel panel-default" style="margin-left: -30px;">
+                <div class="panel-body" style="height:330px;width: 259px;">
+                  <ul class="pagination test-questions" style="margin-top: 0px;">
 
                     {% for row in questionList %}
                     <li class="active" data-seq="1">
@@ -113,13 +113,13 @@
             </aside>        
     <!--------------------------------------------------------------------------------------------->
     <div class="content-wrapper" style="background-color: white;">
-      <section class="content">
+      <section class="content" style="margin-top: -15px;">
         <div class="row">
           <div class="row">
             <div class="col-xs-8" style="width:100%;">
               <div class="box" id="feedbackQuestionDiv">
                 <div class="box-header">
-                  <h3 class="box-title">{{test_type}} </h3><span style="padding-left: 10px;"> Class:
+                  <h5 class="box-title">{{test_type}} </h5><span style="padding-left: 10px;"> Class:
                     {{ class_val }} | Section: {{ section }}</span>
                 </div>
                 <span id="questionList" style="display: none;">{{ questionList }}</span>
@@ -133,7 +133,8 @@
                     <br>
                     <br>
                     {% if questionList|length > 0 %}
-                    <p style="font-size: 48px;line-height: inherit;" class="grey-text text-lighten-1">Click Start to load questions</p>
+                    <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Welcome {{studentName}}</p><br>
+                    <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Click START to load questions</p>
                     <br><br><br><br><br><br><br><br>
 
                     {%else %}
@@ -339,7 +340,7 @@
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url,
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url+"&uploadStatus={{uploadStatus}}",
         type: "get",
         data: '', 
         success: function (response) {
