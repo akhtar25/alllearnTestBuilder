@@ -1,4 +1,65 @@
 {%extends "layout.html"%} {%block content%}
+<style>
+  @media only screen and (max-width: 992px) {
+    
+    .devicePanel{
+      display: none;
+    }
+    .mobEntryPage{
+      display: block;
+    }
+    .deviceEntryPage{
+      display: none;
+    }
+    
+    .deviceQuesImage{
+      display: none;
+    }
+    .mobQuesImage{
+      display: block;
+    }
+    .deviceMapPanel{
+      display: none;
+    }
+    .mobilePanel{
+      display: block;
+    }
+    .mobileMapPanel{
+      display: block;
+    }
+    .mobileSubmitBtn{
+      display: block;
+    }
+    #timeDiv{
+      display: none;
+    }
+    #timeDivMob{
+      display: block;
+    }
+  }
+  @media only screen and (min-width: 992px ){
+    #timeDivMob{
+      display: none;
+    }
+    .deviceEntryPage{
+      display: block;
+    }
+    .mobEntryPage{
+      display: none;
+    }
+    
+    .mobilePanel{
+      display: none;
+    }
+    .mobileMapPanel{
+      display: none;
+    }
+    .mobQuesImage{
+      display: none;
+    }
+    
+  }
+</style>
 {% if studId==None %}
   <div class="container" height="100%">
 
@@ -9,11 +70,16 @@
           <img src="">
           <span class="card-title"></span>
         </div>
-        <div class="card-content">
-        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
-        <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green"/>
+        <div class="card-content deviceEntryPage">
+        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" class="studentId"/>
+        <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
 
         </div>
+        <div class="card-content mobEntryPage" style="height: 160px;">
+          <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:200px;" class="studentId"/>
+          <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
+  
+          </div>
         
       </div>
     </div>
@@ -21,8 +87,8 @@
   
 </div>
 <script>
-  $('#studIdSubmitBtn').click(function(){
-    var sId = $('#studentId').val();
+  $('.studIdSubmitBtn').click(function(){
+    var sId = $('.studentId').val();
     // alert('Student Id:'+sId);
         if (sId != "") {
             window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}";
@@ -41,7 +107,7 @@
               <h4>Remaining Time:<span id="remTime"></span></h4>
             </div>
               <!-- panel -->
-              <div class="panel panel-body panel-default mb0 mt10" style="padding: 0px;width: 259px;margin-left: -30px;">
+              <div class="panel panel-body panel-default mb0 mt10 devicePanel" style="padding: 0px;width: 259px;margin-left: -30px;">
                 <div class="table-responsive">
                   <table class="table table-borderless mb0">
                     <thead>
@@ -62,57 +128,57 @@
                 </div>
               </div>
               <!-- End -->
-              <div class="panel panel-default" style="margin-left: -30px;">
+              <div class="panel panel-default deviceMapPanel" style="margin-left: -30px;">
                 <div class="panel-body" style="height:330px;width: 259px;">
                   <ul class="pagination test-questions" style="margin-top: 0px;">
 
                     {% for row in questionList %}
-                    <li class="active" data-seq="1">
-
-                      <!-- <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a> -->
-                      
+                    <li class="active" data-seq="1">                      
                       <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
                     </li>
                     {% endfor %}
-                    <!-- <li class="active" data-seq="1">
-                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">02</a>
-                    </li>
-                    <li class="active" data-seq="1">
-                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">03</a>
-                    </li>
-                    <li class="active" data-seq="1">
-                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">04</a>
-                    </li>
-                    <li class="active" data-seq="1">
-                      <a href="javascript:void(0);" class="test-ques que-not-answered" style="margin-left: 2px;" data-href="">05</a>
-                    </li> -->
                   </ul>
                 </div>
               </div>                    
-              <!-- <ul class="sidebar-menu" data-widget="tree">
-                  {% for singleClass in distinctClasses %}
-                         <li class="treeview">
-                           <a href="#">
-                             <i class="glyphicon glyphicon-education"></i>
-                             <span>Class {{singleClass[0]}}</span>
-                             <span class="pull-right-container">
-                               <span class="label label-primary pull-right">{{singleClass[1]}}</span>
-                             </span>
-                           </a>                                                      
-                           <ul class="treeview-menu">                            
-                              {% for classsection in classSections %}
-                                 {% if classsection.class_val==singleClass[0] %}
-                             <li><a href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
-                              {% endif %}
-                             {% endfor %}
-                           </ul>                                                      
-                         </li>
-                         {% endfor %}                
-         <ul>                   -->
         </section>                
             </aside>        
     <!--------------------------------------------------------------------------------------------->
     <div class="content-wrapper" style="background-color: white;">
+      <div id="timeDivMob">
+        <h4>Remaining Time:<span id="remTimeMob"></span></h4>
+      </div>
+      <div class="panel panel-body panel-default mb0 mt10 mobilePanel" style="padding: 0px;width: 296px;">
+        <div class="table-responsive">
+          <table class="table table-borderless mb0">
+            <thead>
+              <tr>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td>Not Answered</td>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td>Answered</td>
+              </tr>
+              <tr>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td>Marked for review</td>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td>Answered and marked for review</td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+      <div class="panel panel-default mobileMapPanel">
+        <div class="panel-body" style="width: 296px;">
+          <ul class="pagination test-questions" style="margin-top: 0px;">
+
+            {% for row in questionList %}
+            <li class="active" data-seq="1">                      
+              <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>  
       <section class="content" style="margin-top: -15px;">
         <div class="row">
           <div class="row">
@@ -133,6 +199,19 @@
                     <br>
                     <br>
                     {% if questionList|length > 0 %}
+                    <style>
+                    @media only screen and (max-width: 992px) {
+                      .mobilePanel{
+                        display: none;
+                      }
+                      .mobileMapPanel{
+                        display: none;
+                      }
+                      #timeDivMob{
+                        display: none;
+                      }
+                    }
+                  </style>
                     <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Welcome {{studentName}}</p><br>
                     <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Click START to load questions</p>
                     <br><br><br><br><br><br><br><br>
@@ -162,8 +241,9 @@
                   {% endif %}
                   <!-- <input type="button" value="Skip" class="btn btn-primary left" id="skipButton"
                   style="height: 40px; width: 150px;display:none;margin-top: 20px;color: black;background-color: white;" onclick="fetchSubmitQuestion('q');"> -->
-                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green" id="submit" onclick="fetchSubmitQuestion('q','submit');"
+                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green deviceSubmitBtn" id="submit" onclick="fetchSubmitQuestion('q','submit');"
                   style="height: 40px; width: 200px;display:none;margin-top: 20px;">
+                  
                   <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green" id="timeout" onclick="fetchSubmitQuestion('q','timeout');"
                   style="height: 40px; width: 200px;display:none;margin-top: 20px;">
                   <!-- <a id="skipButton" style="display:none;float:right;margin-right:5px;cursor: pointer;">Skip</a> -->

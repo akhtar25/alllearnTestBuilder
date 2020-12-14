@@ -6622,6 +6622,7 @@ def classCon():
 def topicList():
     class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
+    class_val = request.args.get('class_val')
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
     topicListQuery = "select t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
@@ -6631,7 +6632,7 @@ def topicList():
     topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
-    return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id)
+    return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id,class_val=class_val)
 
 
 
@@ -7117,6 +7118,7 @@ def rename(dataframe):
 def leaderBoard():
     form = LeaderBoardQueryForm()
     qclass_val = request.args.get("class_val")
+    print('Class:'+str(qclass_val))
     #print('class:'+str(qclass_val))
     if current_user.is_authenticated:        
         user = User.query.filter_by(username=current_user.username).first_or_404()
@@ -7126,7 +7128,7 @@ def leaderBoard():
         class_sec_id=ClassSection.query.filter_by(class_val='1',school_id=teacher_id.school_id).first()
         form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
 
-        form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
+        # form.testdate.choices = [(i.exam_date,i.exam_date) for i in ResultUpload.query.filter_by(class_sec_id=class_sec_id.class_sec_id).all()]
         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()  
         form.section.choices= [(i.section,i.section) for i in available_section]
         
@@ -7356,8 +7358,12 @@ def classDelivery():
             liveClassData = db.session.execute(text("insert into live_class(class_sec_id,subject_id,topic_id,start_time,end_time,status,teacher_id,teacher_name,conf_link,school_id,is_archived,is_private,last_modified_date) values('"+str(qclass_sec_id)+"','"+str(qsubject_id)+"','"+str(qtopic_id)+"','"+str(now_local.strftime(format))+"','"+str(end_local.strftime(format))+"','Active','"+str(teacher.teacher_id)+"','"+str(current_user.first_name)+' '+str(current_user.last_name)+"','"+str(qconf_link)+"','"+str(teacher.school_id)+"','N','Y','"+str(now_local.strftime(format))+"')"))
         # db.session.add(liveClassData)
         db.session.commit() 
-        return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
-    return render_template('classDelivery.html', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
+        print('Before class Delivery')
+        indic='DashBoard'
+        return render_template('classDelivery.html',indic=indic,title='Class Delivery', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
+    print('Before class Delivery')
+    indic='DashBoard'
+    return render_template('classDelivery.html',indic=indic,title='Class Delivery', classSecCheckVal=classSecCheck(),classsections=classSections, currClassSecDet= currClassSecDet, distinctClasses=distinctClasses,form=form ,topicDet=topicDet ,bookDet=bookDet,topicTrackerDetails=topicTrackerDetails,contentData=contentData,subName=subName,retake=retake,user_type_val=str(current_user.user_type))
 
 
 
