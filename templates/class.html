@@ -1,26 +1,36 @@
 {%extends "layout.html"%} {%block content%}
+<style>
+  li.treeview a .rightArrow{
+  transform: rotate(0deg);
+}
+.downArrow{
+  transform: rotate(90deg); 
+}
+</style>
 <div class="container">
   <div class="hold-transition skin-blue sidebar-mini">
     <div id="sidebarDiv">
-      <div class="main-sidebar" style="margin-top:15px;">
-        <section class="sidebar">
+      <div class="main-sidebar">
+        <section class="sidebar" style="margin-top:-40px;">
           <ul class="sidebar-menu table-responsive" data-widget="tree">
             {% for singleClass in distinctClasses %}
             <li class="treeview">
 
-              <a href="#">
-                <i class="glyphicon glyphicon-education"></i>
+              <a href="#" class="arrowLink" name="{{loop.index}}">
+                <i class="fas fa-chevron-right downArrow" ></i> 
+                
+                <!-- <i class="glyphicon glyphicon-education"></i> -->
                 <span>Class {{singleClass[0]}}</span>
-                <span class="pull-right-container">
+                <!-- <span class="pull-right-container">
                   <span class="label label-primary pull-right">{{singleClass[2]}}</span>
-                </span>
+                </span> -->
               </a>
               <ul class="treeview-menu">
                 {% for classsection in classsections %}
                 {% if classsection.class_val|string == singleClass[0]|string %}
                 <li><a
-                    href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}"><i
-                      class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>
+                    href="{{ url_for('classCon',class_val=classsection.class_val, section=classsection.section) }}">
+                    <i class="glyphicon glyphicon-education"></i> Section {{classsection.section}}</a></li>
                 {% endif %}
                 {% endfor %}
               </ul>
@@ -31,8 +41,8 @@
       </div>
     </div>
     <div class="content-wrapper" style="background-color: white;">
-      <section class="content">
-        <div class="row"  id="summaryDiv">
+      <section class="content" style="margin-top: -15px;">
+        <div class="row"  id="summaryDiv" style="margin-left: 0px;width: 100%;">
           <div class="box">
             <div class="box-header">
               <h3 class="box-title">Class Summary</h3><span style="padding-left: 10px;"> Class: {{qclass_val}} |
@@ -82,7 +92,7 @@
                     <th>Topic Coverage</th>
                     <th>Total Topics</th>
                     <th>Last Updated </th>
-                    <th> &nbsp; &nbsp; &nbsp; See Topics</th>
+                    <th> See Topics</th>
                   </tr>
                   {% for eachRow in topicRows%}
                   <tr style="margin-top:5px;">
@@ -154,7 +164,7 @@
   <!--<span id="successSendList"></span>-->
 </div>
   <h4 class="orange-text" id="smsSendErrorMSG" style="display: none;">Error sending message to students. Please try later</h4>
-    </div>
+</div>
 </div>
 
 
@@ -378,7 +388,29 @@ var today = new Date();
               $('#sendSMSBTN').html('Send SMS');
             }
         }); 
-  });      
+  });    
+  var click = 0;
+  $('.arrowLink').click(function(){
+    var name = $(this).attr('name');
+    var ids = "#arrow"+name;
+    // if(click%2==0){
+    // $(ids).toggleClass("rightArrow downArrow");
+    // }else{
+    // $(ids).toggleClass("rightArrow downArrow");
+    // }
+    // var name = $(this).attr('name');
+    console.log(click);
+    // var ids = "#arrow"+name;
+    // console.log('Name:'+ids);
+    // if(click%2==0){
+    //   console.log('Even:'+click);
+    // $(ids).css('transform','rotate(90deg)');
+    // }else{
+    //   console.log('odd:'+click);
+    // $(ids).css('transform','rotate(0deg)');
+    // }
+    click = click + 1;
+  });  
 
 
 </script>

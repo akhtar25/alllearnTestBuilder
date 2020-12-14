@@ -1,5 +1,5 @@
 <div class="content">
-  <div class="row">
+  <div class="row" style="margin-left: 0px;">
 
     <label id="currQuestionLabel" style="width: 100%;">
       {% if totalQCount!=''%}
@@ -7,7 +7,7 @@
       Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
     </label>
     {% endif %}
-    <h3>Q: {{ question.question_description }}</h3>
+    <h3 style="margin-top: 0px;">Q: {{ question.question_description }}</h3>
     {%if question.reference_link !=None or question.reference_link!='' %}
 <aside class="">    
     <img src="{{ question.reference_link }}" style="max-height: 300px;max-width: 700px;">
@@ -15,12 +15,14 @@
     {% endif %}
     {% if question.question_type=='Subjective' %}
     <div class="answerText">
-      <span style="display: block;font-size: 20px;">Answer:</span>
-      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
+      <span style="display: block;font-size: 20px;">Answer:{{uploadStatus}}</span>
+      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" data-length="500" style="width:580px;height: 125px;margin-top: 20px;"></textarea>
+      {% if uploadStatus=='Y' %}
       <span style="display: block;">OR</span>
       <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
       <span id="msg" style="margin-top:10px;color:red;"></span>
       <input type="hidden" value="" id="reference"/>
+      {% endif %}
       <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
     </div>
       {% endif %}
@@ -47,6 +49,17 @@
 </div>
 
 <script>
+
+  $(document).ready(function(){
+    $('input#input_text, textarea#box_id').characterCounter();
+    var num = "{{qnum}}";
+    var totalnum = "{{totalQCount}}";
+    if(num==totalnum){
+      $("#submit").show();
+    }else{
+      $("#submit").hide();
+    }
+  });
 
   function myTextVal(){
     var textInput = document.getElementById('box_id').value;

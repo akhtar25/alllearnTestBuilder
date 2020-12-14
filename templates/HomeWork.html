@@ -1,24 +1,33 @@
 {% extends "layout.html" %} {% block content %}
+<style>
+  li.treeview a .rightArrow{
+  transform: rotate(0deg);
+}
+.downArrow{
+  transform: rotate(90deg); 
+}
+</style>
 <div class="container">
     <div class="hold-transition skin-blue sidebar-mini">  
         <div id="sidebarDiv" >   
-            <div class="main-sidebar" style="margin-top:15px;">
-                <section class="sidebar">                     
+            <div class="main-sidebar">
+                <section class="sidebar" style="margin-top:-40px;">                     
                       <ul class="sidebar-menu table-responsive" data-widget="tree">
                           {% for singleClass in distinctClasses %}
                                  <li class="treeview">
                                    
                                    <a href="#">
-                                    <i class="glyphicon glyphicon-education"></i>
+                                    <i class="fas fa-chevron-right downArrow" ></i> 
+                                    
                                     <span>Class {{singleClass[0]}}</span>
-                                    <span class="pull-right-container">
+                                    <!-- <span class="pull-right-container">
                                       <span class="label label-primary pull-right">{{singleClass[2]}}</span>
-                                    </span>
+                                    </span> -->
                                   </a>                                                    
                                    <ul class="treeview-menu">                            
                                       {% for classsection in classSections %}
                                          {% if classsection.class_val|string == singleClass[0]|string %}
-                                     <li><a href="{{ url_for('HomeWork',class_val=classsection.class_val, section=classsection.section) }}"><i class="fa fa-circle-o"></i> Section {{classsection.section}}</a></li>                              
+                                     <li><a href="{{ url_for('HomeWork',class_val=classsection.class_val, section=classsection.section) }}"><i class="glyphicon glyphicon-education"></i> Section {{classsection.section}}</a></li>                              
                                       {% endif %}
                                      {% endfor %}
                                    </ul>                                                      
@@ -30,7 +39,7 @@
             </div>
         </div>
     <div class="content-wrapper" style="background-color: white;">
-    <section class="content">
+    <section class="content" style="margin-top: -15px;">
         <div class="box-header">
             <h3 class="box-title">HomeWork</h3><span style="padding-left: 10px;">    Class: {{qclass_val}} | Section: {{qsection}}</span>        
           </div>
