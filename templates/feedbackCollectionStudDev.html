@@ -71,13 +71,13 @@
           <span class="card-title"></span>
         </div>
         <div class="card-content deviceEntryPage">
-        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" class="studentId"/>
-        <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
+        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
+        <input type="button" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
 
         </div>
         <div class="card-content mobEntryPage" style="height: 160px;">
-          <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:200px;" class="studentId"/>
-          <input type="button" id="studIdSubmitBtn" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
+          <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:200px;" id="studentMobId"/>
+          <input type="button" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
   
           </div>
         
@@ -88,10 +88,17 @@
 </div>
 <script>
   $('.studIdSubmitBtn').click(function(){
-    var sId = $('.studentId').val();
+    var sId = $('#studentId').val();
+    var sMobId = $('#studentMobId').val();
+    console.log('Student Id:'+sId);
+    console.log('StudentMobId:'+sMobId);
     // alert('Student Id:'+sId);
-        if (sId != "") {
+        if ((sId != "")||(sMobId!="")) {
+          if(sId!=""){
             window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}";
+          }else{
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}";
+          }
         }
   });
 </script>
