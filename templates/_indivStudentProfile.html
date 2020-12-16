@@ -100,32 +100,80 @@
                         {%else%}
                         <h3 class='red-text'>{{overallPerfValue}}%</h3> (<a href="#modal1" data-target="modal1" class="modal-trigger">{{testCount.testcountval}} tests</a>)
                         {%endif%}
-                        {% endif %}
+                        {% endif %} 
                         <div id="modal1" class="modal" style="background-color: white;">
-                            <div class="modal-content" >
-                              <h4>Tests details</h4>
-                              <table class="table table-hover" style='overflow-x:auto'>
-                                  <thead>
-                                      <tr>
-                                          <th>Exam date</th>
-                                          <th>Test Type</th>
-                                          <th>Subject</th>
-                                          <th>Marks Scored</th>
-                                          <th>Total Marks</th>
-                                      </tr>                                      
-                                  </thead>
-                                  <tbody>
-                                      {%for dataRows in testResultRows%}
-                                      <tr> 
-                                          <td>{{dataRows.exam_date.strftime('%d %B %Y')}}</td>
-                                          <td>{{dataRows.test_type}}</td>
-                                          <td>{{dataRows.subject}}</td>
-                                          <td>{{dataRows.marks_scored}}</td>
-                                          <td>{{dataRows.total_marks}}</td>
-                                      </tr>
-                                      {%endfor%}
-                                  </tbody>
-                              </table>
+                            <div class="modal-content" style="height: 460px;">
+                                <div class="rows">
+                                    <div class="col s12">
+                                        <ul class="tabs">
+                                          <li class="tab col s3"><a class="active" href="#offline">offline Tests</a></li>
+                                          <li class="tab col s3"><a href="#online">Online Tests</a></li>
+                                        </ul>
+                                      </div>
+                                      <div id="offline" class="col s12" style="margin-top: 20px;max-height: 350px;position: relative;overflow-y: auto;">
+                                        <table class="table table-hover" style='overflow-x:auto'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Exam date</th>
+                                                    <th>Test Type</th>
+                                                    <th>Subject</th>
+                                                    <th>Marks Scored</th>
+                                                    <th>Total Marks</th>
+                                                </tr>                                      
+                                            </thead>
+                                            <tbody>
+                                                {% if testResultRows %}
+                                                {%for dataRows in testResultRows%}
+                                                <tr> 
+                                                    <td>{{dataRows.exam_date.strftime('%d %B %Y')}}</td>
+                                                    <td>{{dataRows.test_type}}</td>
+                                                    <td>{{dataRows.subject}}</td>
+                                                    <td>{{dataRows.marks_scored}}</td>
+                                                    <td>{{dataRows.total_marks}}</td>
+                                                </tr>
+                                                {%endfor%}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="5" style="text-align: center;">No test details available</td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                      </div>
+                                      <div id="online" class="col s12" style="margin-top: 20px;max-height: 350px;position: relative;overflow-y: auto;">
+                                          <table class="table table-hover" style='overflow-x:auto'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Exam date</th>
+                                                    <th>Test Type</th>
+                                                    <th>Subject</th>
+                                                    <th>Marks Scored</th>
+                                                    <th>Total Marks</th>
+                                                </tr>                                      
+                                            </thead>
+                                            <tbody>
+                                                {% if onlineTestResultRows %}
+                                                {%for dataRows in onlineTestResultRows%}
+                                                <tr> 
+                                                    <td>{{dataRows.last_modified_date.strftime('%d %B %Y')}}</td>
+                                                    <td>{{dataRows.test_type}}</td>
+                                                    <td>{{dataRows.description}}</td>
+                                                    <td>{{dataRows.marks_scored}}</td>
+                                                    <td>{{dataRows.total_marks}}</td>
+                                                </tr>
+                                                {%endfor%}
+                                                {% else %}
+                                                <tr>
+                                                    <td colspan="5" style="text-align: center;">
+                                                        No test details available
+                                                    </td>
+                                                </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                      </div>
+                                </div>
+                              
                           </div>  
                           </div>
                     </td>
@@ -293,6 +341,7 @@
 $(document).ready(function(){
     console.log('Inside model');
     $('.modal').modal();
+    $('.tabs').tabs();
   });
 
 $('#remarkPostButton').click(function($e){

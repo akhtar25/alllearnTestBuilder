@@ -18,7 +18,7 @@
     {% endif %}
     {% if question.question_type=='Subjective' %}
     <div class="answerText">
-      <span style="display: block;font-size: 20px;">Answer:{{uploadStatus}}</span>
+      <span style="display: block;font-size: 20px;">Answer:</span>
       <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
       {% if uploadStatus=='Y' %}
       <span style="display: block;">OR</span>

@@ -116,7 +116,7 @@
       $('#modal_class_val').val(selectionSplit[1]);      
       $('#modal_subject_id').val(selectionSplit[2]);
       $('#class_name').html("Class: "+$('#modal_class_val').val());
-      alert('inside conduct test button');      //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
+           //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
       $.ajax({
         url:"/findSection?class_val="+$('#modal_class_val').val(),
         type:"POST",

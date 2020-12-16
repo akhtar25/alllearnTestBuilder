@@ -9869,6 +9869,12 @@ def indivStudentProfile():
     print(testResultQuery)
     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
     
+    onlineTestResultQuery = "select sd.last_modified_date,rc.resp_session_id,td.test_type,md.description , sum(marks_scored) as marks_scored,sd.total_marks from response_capture rc "
+    onlineTestResultQuery = onlineTestResultQuery + "inner join session_detail sd on rc.resp_session_id=sd.resp_session_id "
+    onlineTestResultQuery = onlineTestResultQuery + "inner join test_details td on sd.test_id = td.test_id "
+    onlineTestResultQuery = onlineTestResultQuery + "inner join message_detail md on md.msg_id = rc.subject_id where rc.student_id='"+str(student_id)+"' "
+    onlineTestResultQuery = onlineTestResultQuery + "group by rc.resp_session_id,sd.last_modified_date,sd.total_marks,td.test_type,md.description order by sd.last_modified_date desc "
+    onlineTestResultRows = db.session.execute(text(onlineTestResultQuery)).fetchall()
     #Remarks info
     studentRemarksQuery = "select student_id, tp.teacher_id, teacher_name, profile_picture, remark_desc, sr.last_modified_date as last_modified_date"
     studentRemarksQuery= studentRemarksQuery+ " from student_remarks sr inner join teacher_profile tp on sr.teacher_id=tp.teacher_id and student_id="+str(student_id) + " "
@@ -9941,7 +9947,7 @@ def indivStudentProfile():
         #print(optionURL)
     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
+        testResultRows = testResultRows,onlineTestResultRows=onlineTestResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
 
 @app.route('/attendanceReport',methods=["GET","POST"])
