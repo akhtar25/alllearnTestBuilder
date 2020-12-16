@@ -8050,7 +8050,7 @@ def loadQuestionStud():
             print('insert into responsecapture table')
             insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= remQues.question_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now())
             db.session.add(insertRes)
             db.session.commit()
         if studentRow:
@@ -8104,7 +8104,8 @@ def loadQuestionStud():
         
         print('Marks Percentage:'+str(marksPercentage))
         performanceProcedureQuery = "call sp_performance_detail_load_feedback2()" 
-        performanceQuery = db.session.execute(text(performanceProcedureQuery))
+        db.session.execute(text(performanceProcedureQuery))
+        db.session.commit()
         flag = 1
         if studentRow:
             if studentRow.points!=None and studentRow.points!="":
@@ -8122,12 +8123,12 @@ def loadQuestionStud():
                 print('inside if studentRow exist')
                 responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= date.today())
+                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= datetime.now())
             else:
                 print('if student Row not exist')
                 responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= date.today())
+                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= datetime.now())
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8136,12 +8137,12 @@ def loadQuestionStud():
                 print('inside if studentRow exist')
                 responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= datetime.now())
             else:
                 print('if student Row not exist')
                 responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= date.today())
+                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= datetime.now())
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8212,21 +8213,21 @@ def loadQuestionStud():
                 if textAns:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today(),answer_type=334,question_type='Subjective')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now(),answer_type=334,question_type='Subjective')
                 else:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= date.today(),answer_type=335,question_type='Subjective')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now(),answer_type=335,question_type='Subjective')
             else:
                 print('new data insert in response capture in objective type')
                 if ansCheck=='N':
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= date.today(),answer_type=336,question_type='MCQ1')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= datetime.now(),answer_type=336,question_type='MCQ1')
                 else:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= date.today(),answer_type=336,question_type='MCQ1')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= datetime.now(),answer_type=336,question_type='MCQ1')
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8267,7 +8268,7 @@ def loadQuestionStud():
         if len(answerRes)==0:
             insertData = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= 0,answer_status=279,last_modified_date= date.today())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= 0,answer_status=279,last_modified_date= datetime.now())
         # session['status'] = []
         answer_list = []
         print('response_session_id:'+str(resp_session_id))
