@@ -6,6 +6,7 @@
     <input type="hidden" value="{{section}}" name="qsection">
     <tr> 
       <th class="text-center">Student Name</th>
+      <th class="text-center">Roll Number</th>
       <th class="text-center">Fee Amount</th>
       <th class="text-center">Paid Amount</th>
       <th class="text-center">Pending Amount</th>
@@ -28,6 +29,7 @@
         {% endif %}
         <input type="hidden" value="{{row.student_id}}" name="student_id">
         </td>
+        <td>{{row.roll_number}}</td>
       <td class="total_amount pt-3-half">
         {% if total_amt %}
           {{total_amt}}
