@@ -55,8 +55,21 @@
   <br>
 </div>
 {% else %}
-  <div class="Message">
-    <span style="font-size:25px;">Your answers have been submitted. 
+<style>
+  @media only screen and (max-width: 992px) {
+    .mobilePanel{
+      display: none;
+    }
+    .mobileMapPanel{
+      display: none;
+    }
+    #timeDivMob{
+      display: none;
+    }
+  }
+</style>
+  <div class="Message" style="margin-left: 10px;">
+    <span style="font-size:23px;">Your answers have been submitted. 
     You will receive a notification once the test results are ready.</span>
   </div>
 {% endif %}
