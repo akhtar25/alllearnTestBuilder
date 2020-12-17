@@ -6818,10 +6818,12 @@ def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     studId = request.args.get('student_id')
     school_id = request.args.get('school_id')
+    uploadStatus=request.args.get('uploadStatus')
+    print('upload status:'+str(uploadStatus))
     print('Student Id:'+str(studId))
     if studId==None:
         print('Student Id is null')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId)
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus)
     emailDet = StudentProfile.query.filter_by(student_id=studId).first()
     user = ''
     if emailDet:
@@ -6872,7 +6874,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -7723,6 +7725,13 @@ def feedbackCollection():
         qtest_id = request.form.get('test_id')
         weightage = request.form.get('weightage')
         NegMarking = request.form.get('negativeMarking')
+        # code for upload file status
+        uploadStatus = request.form.get('uploadStatus')
+        print('upload status:'+str(uploadStatus))
+        if uploadStatus=='Y':
+            print('upload status is yes')
+        else:
+            print('upload status is no')
         print('Neg Marks:'+str(NegMarking))
         print(type(NegMarking))
         nMarking = abs(int(NegMarking))
@@ -7840,7 +7849,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -7984,6 +7993,7 @@ def loadQuestionStud():
     question_id = request.args.get('question_id')
     totalQCount = request.args.get('total')
     student_id = request.args.get('student_id')
+    uploadStatus = request.args.get('uploadStatus')
     print('Student id in student_id:'+str(student_id))
     qnum= request.args.get('qnum')
     print('Question Num:'+str(qnum))
@@ -8243,6 +8253,8 @@ def loadQuestionStud():
     # question = ''
     # questionOp = ''
     if int(qnum)<= int(totalQCount):
+        print('qnum:'+str(qnum))
+        print('totalQCount:'+str(totalQCount))
         print('###############q number LESS THAN TOTAL Q COUNT###############')
         question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').first()
         questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option).all()
@@ -8271,7 +8283,7 @@ def loadQuestionStud():
         correctOpt = ''
         if chooseOption:
             correctOpt = chooseOption.response_option
-        return render_template('_questionStud.html',correctOpt = correctOpt,duration=sessionDetailRow.test_time,btn=btn,answer_list=answer_list,question=question, questionOp=questionOp,qnum = int(qnum)+1,totalQCount = totalQCount, last_q_id=question_id)
+        return render_template('_questionStud.html',uploadStatus=uploadStatus,correctOpt = correctOpt,duration=sessionDetailRow.test_time,btn=btn,answer_list=answer_list,question=question, questionOp=questionOp,qnum = int(qnum)+1,totalQCount = totalQCount, last_q_id=question_id)
     # else:
     #     return jsonify(['0'])
     #     print('###############q number MORE THAN TOTAL Q COUNT###############')
