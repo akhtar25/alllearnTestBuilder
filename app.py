@@ -8027,6 +8027,12 @@ def loadQuestionStud():
     #print('########### Session details have been fetched')
     #print(sessionDetailRow)
     teacherID = sessionDetailRow.teacher_id
+    format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+    now_utc = datetime.now(timezone('UTC'))
+    print(now_utc.strftime(format))
+    now_local = now_utc.astimezone(get_localzone())
+    print(now_local.strftime(format))
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
         currentTestId = sessionDetailRow.test_id
@@ -8040,6 +8046,7 @@ def loadQuestionStud():
         print(totMCQQuesVal)
         print('Total Ques:'+str(totQuesVal[0]))
         print('Total MCQ Ques:'+str(totMCQQuesVal[0]))
+        
         if totQuesVal[0]> totMCQQuesVal[0]:
             return render_template('_feedbackReportIndiv.html',flag='')
         fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and test_id='"+str(sessionDetailRow.test_id)+"'"
@@ -8050,7 +8057,7 @@ def loadQuestionStud():
             print('insert into responsecapture table')
             insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= remQues.question_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= now_local.strftime(format))
             db.session.add(insertRes)
             db.session.commit()
         if studentRow:
@@ -8103,9 +8110,9 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
-        performanceProcedureQuery = "call sp_performance_detail_load_feedback2()" 
-        db.session.execute(text(performanceProcedureQuery))
+        db.session.execute(text('call sp_performance_detail_load_feedback()'))
         db.session.commit()
+        print('After load sp_performance_detail_load_feedback()')
         flag = 1
         if studentRow:
             if studentRow.points!=None and studentRow.points!="":
@@ -8123,12 +8130,12 @@ def loadQuestionStud():
                 print('inside if studentRow exist')
                 responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= datetime.now())
+                    class_sec_id=studentRow.class_sec_id,question_type='Subjective', subject_id = subject_id, resp_session_id = resp_session_id,answer_status=242,last_modified_date= now_local.strftime(format))
             else:
                 print('if student Row not exist')
                 responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= datetime.now())
+                    resp_session_id = resp_session_id,question_type='Subjective',answer_status=242,last_modified_date= now_local.strftime(format))
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8137,12 +8144,12 @@ def loadQuestionStud():
                 print('inside if studentRow exist')
                 responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= datetime.now())
+                    class_sec_id=studentRow.class_sec_id ,question_type='MCQ1', subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= now_local.strftime(format))
             else:
                 print('if student Row not exist')
                 responseStudUpdateQuery=ResponseCapture(student_user_id=current_user.id,
                     question_id= last_q_id, teacher_id= teacherID,
-                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= datetime.now())
+                    resp_session_id = resp_session_id ,question_type='MCQ1', marks_scored= sessionDetailRow.correct_marks,answer_status=242,last_modified_date= now_local.strftime(format))
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8213,21 +8220,21 @@ def loadQuestionStud():
                 if textAns:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now(),answer_type=334,question_type='Subjective')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= now_local.strftime(format),answer_type=334,question_type='Subjective')
                 else:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= datetime.now(),answer_type=335,question_type='Subjective')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= now_local.strftime(format),answer_type=335,question_type='Subjective')
             else:
                 print('new data insert in response capture in objective type')
                 if ansCheck=='N':
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= datetime.now(),answer_type=336,question_type='MCQ1')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.incorrect_marks,answer_status=240,last_modified_date= now_local.strftime(format),answer_type=336,question_type='MCQ1')
                 else:
                     responseStudUpdateQuery=ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
                     question_id= last_q_id, response_option=response_option, is_correct = ansCheck, teacher_id= teacherID,
-                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= datetime.now(),answer_type=336,question_type='MCQ1')
+                    class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= resp_weightage.correct_marks,answer_status=240,last_modified_date= now_local.strftime(format),answer_type=336,question_type='MCQ1')
             print(responseStudUpdateQuery)
             db.session.add(responseStudUpdateQuery)
             db.session.commit()
@@ -8268,7 +8275,7 @@ def loadQuestionStud():
         if len(answerRes)==0:
             insertData = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= last_q_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= 0,answer_status=279,last_modified_date= datetime.now())
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id, marks_scored= 0,answer_status=279,last_modified_date= now_local.strftime(format))
         # session['status'] = []
         answer_list = []
         print('response_session_id:'+str(resp_session_id))
@@ -8645,6 +8652,9 @@ def addSubjMarks():
         else:
             questionDet.is_correct = 'N'
         db.session.commit()
+    db.session.execute(text('call sp_performance_detail_load_feedback()'))
+    db.session.commit()
+    print('After load sp_performance_detail_load_feedback()')
     return jsonify(['0'])
 
 @app.route('/studentFeedbackReport')
@@ -9564,6 +9574,7 @@ def uploadMarks():
         count = count + 1
     db.session.execute(text('call sp_performance_detail_load()'))
     db.session.commit()
+    print('after call performance_detail_load function()')
     flash('Login required !')
     print('Class_val:'+str(classValue)+'subject_id:'+str(subject_id)+'classSection:'+class_section+"testdate:"+testdate+"Total marks:"+Tmarks+"TestId:"+testId+"Test type:"+test_type)
     
@@ -9902,11 +9913,11 @@ def indivStudentProfile():
         sum2 = totalOnlineTestMarks.sum2
     sumMarks = int(sum1) + int(sum2)
     print('Total Marks:'+str(sumMarks))
-    total1 = "select sum(total_marks) as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+    total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
     print(total1)
     total1 = db.session.execute(text(total1)).first()
     tot1 = 0
-    if total1.offlinetotal:
+    if total1:
         print(total1.offlinetotal)
         tot1 = total1.offlinetotal
     total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
@@ -9922,7 +9933,7 @@ def indivStudentProfile():
         overallSum = overallSum + int(rows.student_score)
         #print(overallSum)
     try:
-        overallPerfValue = round(sumMarks/(grandTotal),2)    
+        overallPerfValue = round(sumMarks/(grandTotal)*100,2)    
     except:
         overallPerfValue=0    
     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
