@@ -93,7 +93,7 @@
                         </h5></div>
                         <h5>
                             {% if user.id==current_user.id %}
-                            <a class="modal-trigger" id="" onclick="clearForm();" href="#modal1">Schedule New Batch</a>
+                            <a class="modal-trigger" name="modalBatch" id="{{course.course_id}}" onclick="clearForm('{{course.course_id}}');" href="#modal1">Schedule New Batch</a>
                             {% endif %}
                         </h5>
                         <input type="hidden" id="courseId" value="{{course.course_id}}">
@@ -161,7 +161,7 @@
       <h3>Schedule New Batch</h3>
       <form id="batchForm">
       <div>
-        
+        <input type="hidden" id="coId" value="">
         <div class="col-sm-3">
             Start Date: <input type="date" name="startDate" id="startDate">
         </div>
@@ -267,10 +267,13 @@
                 <a href="#" id="addSurveyDataBTN" class="btn green right">Create Survey</a>
             </div>
         </form>
+        <input type="hidden" id="couId" value="">
     </div>
 
 </div>
 <script>
+
+    
 
     $(document).ready(function () {
         $('#selectType').formSelect();
@@ -322,7 +325,8 @@
         });
     }
 
-    function clearForm(){
+    function clearForm(coID){
+        $('#couId').val(coID);
         $('#startDate').val('');
         $('#EndDate').val('');
         $('#startTime').val('');
@@ -340,7 +344,8 @@
         $e.preventDefault();
         $('#batchMsg').html('');
         var form = $('#batchForm');
-        var courseId = $('#courseId').val();
+        var courseId = document.getElementById('couId').value;
+        // alert('course ID'+courseId);
         console.log('Start time:'+startTime);
         console.log('End Time:'+endTime);
         $.ajax({

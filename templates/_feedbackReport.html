@@ -25,11 +25,13 @@
                         <th>Student Name</th>
                         <th>Student Id </th>
                         <th>Objective Marks</th>
-                        <th>Subjective </th>
+                        <th>Subjective Marks</th>
                         <th>Total Marks </th>
                         <th>Details </th>
+                        <th>Mail</th>
+                        <!-- <th>SMS</th> -->
                       </tr>                                                                    
-                           {% for row in responseResultRow %}   
+                      {% for row in responseResultRow %}   
                       <tr> 
                         <td>{{row.full_name}} </td>
                         <td> {{row.student_id}}</td>
@@ -59,6 +61,15 @@
                           {% endif %}
                           </td>
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
+                        <td><button class="waves-effect waves-light btn sendNotificationEmailBtn" name="{{row.student_id}}" id="emailBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button>
+                          <p style="font-size: 12px;float:right;display:none;color:green;" id="emailMsg">Email Sent</p>
+                        </td>
+                        <!-- <td>
+                          <button class="waves-effect waves-light btn sendNotificationSMSBtn" name="{{row.student_id}}" id="smsBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button>
+                          <p style="font-size: 12px;float:right;display:none;color:green;" id="smsMsg">SMS Sent</p>
+                          <input type="hidden" id="message" 
+                          value="The test report for the online test conducted on the <exam_date> for <subject> has been created. To see your report, please click on this link: <link to the report>"/> -->
+                        <!-- </td> -->
                       </tr>
                       {% endfor %}
                       {% else %}
@@ -84,11 +95,11 @@
                         <td> {{totalPointsLimit}}</td>
                         <td>
                           {% if row.percentage_marks>=0 %}
-                           {{'%0.2f' % row.percentage_marks|float}}%
+                           <!-- {{'%0.2f' % row.percentage_marks|float}}%
                           {% else %}
                           0.00%
                           {% endif %}
-                          </td>
+                          </td> -->
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}
@@ -115,4 +126,65 @@
         }
       });
                     }
+
+  $('.sendNotificationEmailBtn').click(function(){
+    console.log('Send Performance Email');
+    var student_id = $(this).attr("name"); 
+    console.log('Student_id:'+student_id);
+    $.ajax({
+      url: "/sendNotificationEmail?student_id="+student_id+"&resp_session_id={{resp_session_id}}",
+      type: "get",
+      data: "",
+      success: function(response){
+        console.log('Message Sent');
+        $('#emailBtn').hide();
+        $('#emailMsg').show();
+      },
+      error: function(xhr){
+        window.alert("Error occured while sending email");
+      }
+
+    });
+  });
+
+
+  $('.sendNotificationSMSBtn').click(function(){
+    
+  // var form = $('#sendSMSForm'); 
+    var student_id = $(this).attr("name");
+    var message = $('#message').val();  
+    console.log('Student_id:'+student_id);
+    console.log('message:'+message);    
+    $.ajax({
+            url: "/sendSMS?message="+message+"&student_id="+student_id,
+            type: "POST",
+            data: "",
+            success: function (response) {        
+                if (response=='1'){   
+                    // $('#smsSendErrorMSG').show();                       
+                //clicks = 0;
+                console.log('Error in send message');
+                $('#smsMsg').html('Error');
+                $('#smsMsg').show();
+                $('#smsBtn').hide();
+            }
+            else{
+                //$('#sendSuccessMSG').show();  
+              M.toast({html: '<h4>New Message Sent</h4>'});
+              $('#smsMsg').show();
+              console.log('Message Sent');
+                // var elem = $('#smsModal')
+                // var instance = M.Modal.getInstance(elem);                   
+                // instance.close();
+            }
+            // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+            // $('#sendSMSBTN').html('Send SMS');
+            },
+            error: function (xhr) {
+              // $('#smsSendErrorMSG').show();
+              // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+              // $('#sendSMSBTN').html('Send SMS');
+            }
+        }); 
+  });
                   </script>

@@ -73,6 +73,20 @@ def performance_report_email(email,name,school,studentData,test_count,average_sc
     message = render_template('performance_summary_email.html', name=name,school=school,studentlist=studentData,test_count=test_count,average_score=average_score,school_id=school_id)
     send_email(email, name, subject, message)
 
+def test_report_email(email,name,school,school_id,exam_date,test_type,resp_session_id,student_id,subject_name):
+    print('Email:'+str(email))
+    print('Name:'+str(name))
+    print('School:'+str(school))
+    print('School Id:'+str(school_id))
+    print('Exam Date:'+str(exam_date))
+    print('Test Type:'+str(test_type))
+    print('Resp_session_id:'+str(resp_session_id))
+    print('Subject:'+str(subject_name))
+    subject = "allLearn - Notification for "+str(subject_name)+" "+str(test_type)  
+    message = render_template('test_notification_email.html',exam_date=exam_date,school_id=school_id,student_id=student_id,name=name,resp_session_id=resp_session_id,subject=subject_name)
+    send_email(email,name,subject,message)
+
+
 def access_granted_email(email,name, school):
     subject = "allLearn - Access granted to %s" % school
     message = render_template('access_granted_email.html', name=name, school=school)
