@@ -2606,7 +2606,7 @@ def courseBatchDetail():
     courseBatchData = courseBatchData + " where cb.course_id = '"+str(course_id)+"' and cb.is_archived='N' "    
     courseBatchData = courseBatchData + " and cb.batch_end_date > NOW() "
     courseBatchData = courseBatchData + " order by cb.batch_start_date desc"
-    #print('Query:'+str(courseBatchData))
+    print('Query:'+str(courseBatchData))
     courseBatchData = db.session.execute(text(courseBatchData)).fetchall()
     return render_template('_courseBatchDetail.html', courseBatchData=courseBatchData,teacherUser=teacherUser
         ,course_id=course_id)
@@ -2816,11 +2816,14 @@ def createBatch():
     days = request.form.getlist('Days')
     studentLimit = request.form.get('studentLimit')
     batchFee = request.form.get('batchFee')
+    coId = request.form.get('coId')
+    print('New courseId:'+str(coId))
     if batchFee==None:
         batchFee=0
     enrolledStudents = request.form.get('enrolledStudents')
     feeReceived = request.form.get('feeReceived')
     courseId = request.args.get('courseId')
+    print('previous courseID:'+str(courseId))
     selectType = request.form.get('selectType')
     print('startDate:'+str(startDate))
     print('selectType:'+str(selectType))
