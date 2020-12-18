@@ -95,9 +95,9 @@
     // alert('Student Id:'+sId);
         if ((sId != "")||(sMobId!="")) {
           if(sId!=""){
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}";
           }else{
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}";
           }
         }
   });
@@ -427,7 +427,7 @@
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url+"&uploadStatus={{uploadStatus}}",
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}",
         type: "get",
         data: '', 
         success: function (response) {

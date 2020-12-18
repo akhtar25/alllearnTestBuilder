@@ -6891,11 +6891,13 @@ def feedbackCollectionStudDev():
     studId = request.args.get('student_id')
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
+    resultStatus = request.args.get('resultStatus')
     print('upload status:'+str(uploadStatus))
+    print('result status:'+str(resultStatus))
     print('Student Id:'+str(studId))
     if studId==None:
         print('Student Id is null')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus)
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus)
     emailDet = StudentProfile.query.filter_by(student_id=studId).first()
     user = ''
     if emailDet:
@@ -6992,7 +6994,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -7850,7 +7852,13 @@ def feedbackCollection():
         NegMarking = request.form.get('negativeMarking')
         # code for upload file status
         uploadStatus = request.form.get('uploadStatus')
+        resultStatus = request.form.get('resultStatus')
         print('upload status:'+str(uploadStatus))
+        print('resultStatus:'+str(resultStatus))
+        if resultStatus=='Y':
+            print('result status is yes')
+        else:
+            print('result status is no')
         if uploadStatus=='Y':
             print('upload status is yes')
         else:
@@ -7972,7 +7980,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -8117,6 +8125,7 @@ def loadQuestionStud():
     totalQCount = request.args.get('total')
     student_id = request.args.get('student_id')
     uploadStatus = request.args.get('uploadStatus')
+    resultStatus = request.args.get('resultStatus')
     print('Student id in student_id:'+str(student_id))
     qnum= request.args.get('qnum')
     print('Question Num:'+str(qnum))
@@ -8167,8 +8176,8 @@ def loadQuestionStud():
         print('Total Ques:'+str(totQuesVal[0]))
         print('Total MCQ Ques:'+str(totMCQQuesVal[0]))
         
-        if totQuesVal[0]> totMCQQuesVal[0]:
-            return render_template('_feedbackReportIndiv.html',flag='')
+        # if totQuesVal[0]> totMCQQuesVal[0]:
+        #     return render_template('_feedbackReportIndiv.html',flag='')
         fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
@@ -8181,9 +8190,9 @@ def loadQuestionStud():
             db.session.add(insertRes)
             db.session.commit()
         if studentRow:
-            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279'"
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279' and question_type='MCQ1'"
         else:
-            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279'"
+            totalMarksQuery = "select sum(marks_scored) as total_marks, count(*) as num_of_questions from response_capture where student_user_id="+str(current_user.id)+" and resp_session_id='"+str(resp_session_id)+"' and  answer_status<>'279' and question_type='MCQ1'"
         print('Total Marks Query:'+totalMarksQuery)
         totalQ = "select count(*) as num_of_questions from test_questions where test_id='"+str(sessionDetailRow.test_id)+"' and is_archived='N'"
         print('Query:'+str(totalQ))
@@ -8198,13 +8207,13 @@ def loadQuestionStud():
         # incorrect_ques = "select count(*) as incorrect_ques from response_capture rc where is_correct = 'N' and resp_session_id = '"+str(resp_session_id)+"' and (answer_status=239 or answer_status=241)"
         # print(' Query for incorrect question:'+str(incorrect_ques))
         # incorrect_ques = db.session.execute(text(incorrect_ques)).first()
-        marksScoredQuery = "select sum(marks_scored) as marks_scored from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279'"
+        marksScoredQuery = "select sum(marks_scored) as marks_scored from response_capture where student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279' and question_type='MCQ1'"
         print('Query for scored marks:'+str(marksScoredQuery))
         marksScoredVal = db.session.execute(text(marksScoredQuery)).first()
         # print('Marks Scored Query:'+marksScoredQuery)
         # print('Marks Scored:'+str(marksScoredVal.marks_scored))
         print('Total Marks:'+str(marksScoredVal.marks_scored))
-        correctAns = "select count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279'"
+        correctAns = "select count(*) as correct_ans from response_capture where is_correct='Y' and student_id="+str(studentRow.student_id)+" and resp_session_id='"+str(resp_session_id)+"' and (answer_status='239' or answer_status='241') and answer_status<>'279' and question_type='MCQ1'"
         print('Query for number of correct answer:'+str(correctAns))
         correctAns = db.session.execute(text(correctAns)).first()
         # negative_marks = 0
@@ -8238,9 +8247,9 @@ def loadQuestionStud():
             if studentRow.points!=None and studentRow.points!="":
                 studentRow.points = int(studentRow.points) + 1
                 db.session.commit()
-            return render_template('_feedbackReportIndiv.html',flag=flag,btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id )
+            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=studentRow.student_id, student_name= studentRow.full_name, resp_session_id = resp_session_id,resultStatus=resultStatus )
         else:
-            return render_template('_feedbackReportIndiv.html',flag=flag,btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=current_user.id, student_name= str(current_user.first_name)+' '+str(current_user.last_name), resp_session_id = resp_session_id )
+            return render_template('_feedbackReportIndiv.html',btn=btn,totalQ=totalQ,sessionDetailRow=sessionDetailRow,marksPercentage=marksPercentage,marksScoredVal=marksScoredVal,correctAns=correctAns , marks_scored= marks_scored,totalMarksVal =totalMarksVal, student_id=current_user.id, student_name= str(current_user.first_name)+' '+str(current_user.last_name), resp_session_id = resp_session_id,resultStatus=resultStatus )
 
     # End
     print(studentRow)
@@ -8761,12 +8770,15 @@ def addSubjMarks():
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
-    
+    for i in range(len(quesIdList)):
+        quesStatus = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
+        quesStatus.answer_status = 241
     for i in range(len(marksList)):
         print('Marks:'+str(marksList[i]))
         print('QuesList:'+str(quesIdList[i]))
         questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         questionDet.marks_scored = marksList[i]
+        questionDet.answer_status = 241
         if isCorrect[i]:
             questionDet.is_correct = 'Y'
         else:
