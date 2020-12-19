@@ -8161,6 +8161,7 @@ def loadQuestionStud():
     now_utc = datetime.now(timezone('UTC'))
     print(now_utc.strftime(format))
     now_local = now_utc.astimezone(get_localzone())
+    print('Time:')
     print(now_local.strftime(format))
     # If Test is submitted
     if btn=='submit' or btn=='timeout':
@@ -8770,14 +8771,24 @@ def addSubjMarks():
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
+    format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+    now_utc = datetime.now(timezone('UTC'))
+    print(now_utc.strftime(format))
+    now_local = now_utc.astimezone(get_localzone())
+    print('Time:')
+    print(now_local.strftime(format))
     for i in range(len(quesIdList)):
         quesStatus = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         quesStatus.answer_status = 241
+        quesStatus.last_modified_date = now_local.strftime(format)
+        db.session.commit()
     for i in range(len(marksList)):
         print('Marks:'+str(marksList[i]))
         print('QuesList:'+str(quesIdList[i]))
         questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         questionDet.marks_scored = marksList[i]
+        quesStatus.last_modified_date = now_local.strftime(format)
         questionDet.answer_status = 241
         if isCorrect[i]:
             questionDet.is_correct = 'Y'
