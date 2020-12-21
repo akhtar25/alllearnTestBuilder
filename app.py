@@ -9128,7 +9128,7 @@ def classPerformance():
     print(testDetailQuery)
     testDetailRows= db.session.execute(text(testDetailQuery)).fetchall()
     indic='DashBoard'
-    return render_template('classPerformance.html',indic=indic,title='Feedback Report',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
+    return render_template('classPerformance.html',indic=indic,title='Online Test Reports',classSecCheckVal=classSecCheck(),form=form, school_id=teacher_id.school_id, testDetailRows=testDetailRows,user_type_val=str(current_user.user_type))
 
 
 
