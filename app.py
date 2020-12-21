@@ -8587,6 +8587,23 @@ def feedbackReport():
     fromClassPerf = request.args.get('fromClassPerf')
     responseSessionID=request.args.get('resp_session_id')
     print('Response Session Id in FeedBack Report route'+str(responseSessionID))
+    responseDataQuery = ResponseCapture.query.filter_by(resp_session_id=responseSessionID).first()
+    subjectId = responseDataQuery.subject_id
+    classSecId = responseDataQuery.class_sec_id
+    classDataQuery = ClassSection.query.filter_by(class_sec_id=classSecId).first()
+    classVal = classDataQuery.class_val
+    section = classDataQuery.section
+    subject = MessageDetails.query.filter_by(msg_id=subjectId).first()
+    subjectName = subject.description
+    testData = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+    totalMarks = testData.total_marks
+    testId = testData.test_id
+    test = TestDetails.query.filter_by(test_id=testId).first()
+    testType = test.test_type
+    print('Class:'+str(classVal))
+    print('Section:'+str(section))
+    print('Subject:'+str(subjectName))
+    print('testType:'+str(testType))
     if fromClassPerf!=None:
     #questionListJson=request.args.get('question_id')
         class_val=request.args.get('class_val')
@@ -8737,9 +8754,9 @@ def feedbackReport():
         if totQuesVal[0]> totMCQQuesVal[0]:
             print('If Subjective Question included')
             flag=1
-            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
+            return render_template('_feedbackReport.html',total_marks=totalMarks,class_val=classVal,section=section,subjectName=subjectName,testType=testType,flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
         else:
-            return render_template('_feedbackReport.html',flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
+            return render_template('_feedbackReport.html',total_marks=totalMarks,class_val=classVal,section=section,subjectName=subjectName,testType=testType,flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
     else:
          return jsonify(['NA'])
          
@@ -8876,7 +8893,14 @@ def studentFeedbackReport():
     correctQuestions = db.session.execute(text(correctQuestions)).first()
     totalQuestions = "select count(*) as totalQues from test_questions where test_id='"+str(sessionDetailRow.test_id)+"'"
     totalQuestions = db.session.execute(text(totalQuestions)).first()
-    totalMarks = int(SubjectiveMarks.marks_scored) + int(ObjectiveMarks.marks_scored)
+    objMarks = 0
+    subjMarks = 0
+    if ObjectiveMarks.marks_scored:
+        objMarks = ObjectiveMarks.marks_scored
+    if SubjectiveMarks.marks_scored:
+        subjMarks = SubjectiveMarks.marks_scored
+    
+    totalMarks = int(subjMarks) + int(objMarks)
     return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),totalMarks=totalMarks,marksPercentage=marksPercentage,subjective_marks=SubjectiveMarks.marks_scored,objective_marks=ObjectiveMarks.marks_scored,correct_question=correctQuestions.correctques,total_questions=totalQuestions.totalques,studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
 
 @app.route('/testPerformance')

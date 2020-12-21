@@ -13,8 +13,20 @@
     </tr>
     <tr>
       <td>{{'%0.2f' % marksPercentage|float}}%&nbsp;({{totalMarks}})</td>
-      <td>{{subjective_marks}}</td>
-      <td>{{objective_marks}}</td>
+      <td>
+        {% if subjective_marks %}
+          {{subjective_marks}}
+        {% else %}
+          NA
+        {% endif %}
+      </td>
+      <td>
+        {% if objective_marks %}
+          {{objective_marks}}
+        {% else %}
+          NA
+        {% endif %}
+      </td>
       <td>{{correct_question}}/{{total_questions}}</td>
     </tr>
   </table>

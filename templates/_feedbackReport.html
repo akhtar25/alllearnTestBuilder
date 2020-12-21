@@ -1,5 +1,5 @@
 <div class="box-title">
-    <h3 class="box-title">Online Test Report </h3>
+    <h4 class="box-title">{{testType}} | Class:{{class_val}} | Section:{{section}} | Subject:{{subjectName}} </h4> 
 </div>
 <div class="box-body table-responsive">
   <table class="table table-bordered table-responsive-md table-striped table-centered">
@@ -85,6 +85,7 @@
                       <tr> 
                         <td>{{row.roll_number}} </td>
                         <td> {{row.full_name}}</td>
+                        <td>{{total_marks}}</td>
                         <td> 
                           {% if row.marks_scored >= 0 %}
                           {{row.marks_scored}}
@@ -92,14 +93,14 @@
                           0
                           {% endif %}
                         </td>
-                        <td> {{totalPointsLimit}}</td>
-                        <td>
+                        <td> 
                           {% if row.percentage_marks>=0 %}
-                           <!-- {{'%0.2f' % row.percentage_marks|float}}%
+                            {{'%0.2f' % row.percentage_marks|float}}%
                           {% else %}
-                          0.00%
+                            0.00%
                           {% endif %}
-                          </td> -->
+                        </td>
+                        
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}
