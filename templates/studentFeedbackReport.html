@@ -119,7 +119,7 @@
                           {% if respRow.answer_status==239 %}
                             Inreviewed
                           {% else %}
-                            {% if respRow.result=='Correct' %}
+                            {% if respRow.is_correct=='Y' %}
                               <i class="large material-icons icon-green">check</i> 
                             {% else %}
                               <i class="large material-icons icon-orangered">clear</i> 

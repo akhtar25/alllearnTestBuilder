@@ -4,13 +4,13 @@
 <div class="box-body table-responsive">
   <table class="table table-bordered table-responsive-md table-striped table-centered">
       <tr>
-          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4>Total Unique Responses</h4></td>
-          <td class="pt-3-half" contenteditable="false" style="font-size:16px;"><h3 >{{responseResultRowCount}}</h3></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Total Unique Responses</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:16px;"><h3 style="font-size:16px;">{{responseResultRowCount}}</h3></td>
           
         </tr>
         <!-- This is our clonable table line -->
         <tr>
-          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4>Average Class Percentage</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Average Class Percentage</h4></td>
           {% if classAverage > 50 %}
           <td class="pt-3-half" contenteditable="false"><h3 class="green-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% else %}
@@ -46,7 +46,7 @@
                           {% if row.subjective_marks > 0 %}
                           {{row.subjective_marks}}
                           {% else %}
-                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Not Reviewed</a>
+                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Review</a>
                           {% endif %}
                         </td>
                         <td>
