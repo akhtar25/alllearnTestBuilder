@@ -1,20 +1,20 @@
 <div class="box-title">
-    <h4 class="box-title">{{testType}} | Class:{{class_val}} | Section:{{section}} | Subject:{{subjectName}} </h4> 
+    <h4 class="box-title" style="font-size:14px;margin-left:10px;">{{testType}} | Class:{{class_val}} | Section:{{section}} | Subject:{{subjectName}} </h4> 
 </div>
 <div class="box-body table-responsive">
   <table class="table table-bordered table-responsive-md table-striped table-centered">
       <tr>
-          <td class="pt-3-half" contenteditable="false"><h4>Total Unique Responses</h4></td>
-          <td class="pt-3-half" contenteditable="false"><h3 >{{responseResultRowCount}}</h3></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4>Total Unique Responses</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:16px;"><h3 >{{responseResultRowCount}}</h3></td>
           
         </tr>
         <!-- This is our clonable table line -->
         <tr>
-          <td class="pt-3-half" contenteditable="false"><h4>Average Class Percentage</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4>Average Class Percentage</h4></td>
           {% if classAverage > 50 %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="green-text">{{'%0.2f' % classAverage|float}}%</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="green-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% else %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="red-text">{{'%0.2f' % classAverage|float}}%</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="red-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% endif %}
         </tr>
   </table>
