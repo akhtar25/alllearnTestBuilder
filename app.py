@@ -6892,12 +6892,14 @@ def feedbackCollectionStudDev():
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
+    advance = request.args.get('advance')
     print('upload status:'+str(uploadStatus))
     print('result status:'+str(resultStatus))
+    print('advance:'+str(advance))
     print('Student Id:'+str(studId))
     if studId==None:
         print('Student Id is null')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus)
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     emailDet = StudentProfile.query.filter_by(student_id=studId).first()
     user = ''
     if emailDet:
@@ -6994,7 +6996,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -7853,8 +7855,10 @@ def feedbackCollection():
         # code for upload file status
         uploadStatus = request.form.get('uploadStatus')
         resultStatus = request.form.get('resultStatus')
+        advance = request.form.get('advance')
         print('upload status:'+str(uploadStatus))
         print('resultStatus:'+str(resultStatus))
+        print('advance:'+str(advance))
         if resultStatus=='Y':
             print('result status is yes')
         else:
@@ -7863,6 +7867,10 @@ def feedbackCollection():
             print('upload status is yes')
         else:
             print('upload status is no')
+        if advance=='Y':
+            print('Test type is Advance')
+        else:
+            print('Test type is basic')
         print('Neg Marks:'+str(NegMarking))
         print(type(NegMarking))
         nMarking = abs(int(NegMarking))
@@ -7980,7 +7988,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
@@ -8179,7 +8187,7 @@ def loadQuestionStud():
         
         # if totQuesVal[0]> totMCQQuesVal[0]:
         #     return render_template('_feedbackReportIndiv.html',flag='')
-        fetchRemQues = "select question_id from test_questions tq where question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and test_id='"+str(sessionDetailRow.test_id)+"'"
+        fetchRemQues = "select tq.question_id,qd.question_type from test_questions tq inner join question_details qd on tq.question_id = qd.question_id where tq.question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and tq.test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
         
@@ -8187,7 +8195,7 @@ def loadQuestionStud():
             print('insert into responsecapture table')
             insertRes = ResponseCapture(school_id=studentRow.school_id,student_id=studentRow.student_id,
             question_id= remQues.question_id, teacher_id= teacherID,
-            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= now_local.strftime(format))
+            class_sec_id=studentRow.class_sec_id, subject_id = subject_id, resp_session_id = resp_session_id,answer_status=240,marks_scored=0,last_modified_date= now_local.strftime(format),question_type=remQues.question_type)
             db.session.add(insertRes)
             db.session.commit()
         if studentRow:
@@ -8588,17 +8596,23 @@ def feedbackReport():
     responseSessionID=request.args.get('resp_session_id')
     print('Response Session Id in FeedBack Report route'+str(responseSessionID))
     responseDataQuery = ResponseCapture.query.filter_by(resp_session_id=responseSessionID).first()
-    subjectId = responseDataQuery.subject_id
-    classSecId = responseDataQuery.class_sec_id
-    classDataQuery = ClassSection.query.filter_by(class_sec_id=classSecId).first()
-    classVal = classDataQuery.class_val
-    section = classDataQuery.section
-    subject = MessageDetails.query.filter_by(msg_id=subjectId).first()
-    subjectName = subject.description
+    subjectId = ''
+
+    if responseDataQuery:
+        subjectId = responseDataQuery.subject_id
     testData = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
     totalMarks = testData.total_marks
     testId = testData.test_id
     test = TestDetails.query.filter_by(test_id=testId).first()
+    classDataQuery = ClassSection.query.filter_by(class_sec_id=testData.class_sec_id).first()
+    classVal = classDataQuery.class_val
+    section = classDataQuery.section
+    subject = MessageDetails.query.filter_by(msg_id=test.subject_id).first()
+    subjectName = ''
+    if subject:
+        subjectName = subject.description
+    
+    
     testType = test.test_type
     print('Class:'+str(classVal))
     print('Section:'+str(section))

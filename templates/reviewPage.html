@@ -35,6 +35,7 @@
     $('#addMarksBtn').click(function($e){
         console.log('inside add Marks Btn');
         $e.preventDefault(); 
+        $('#addMarksBtn').prop('disabled',true);
         var form = $('#addMarksForm');
         $('#addMarksBtn').val('submitting data please wait....');
         var resp_session_id = "{{resp_session_id}}";

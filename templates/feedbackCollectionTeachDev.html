@@ -7,7 +7,7 @@
           <div class="col-xs-7">
             <div class="box" id="feedbackQuestionDiv">
               <div class="box-header">
-                <h3 class="box-title">{{testType}}</h3>
+                <span class="">{{testType}}</span>
                 
                 <span style="padding-left: 10px;"> 
                   {%if batch_test!="1"%}
@@ -27,15 +27,15 @@
                     <table class="table table-bordered table-responsive-md table-striped text-center" style="margin-top: -38px;">
                       <thead>
                         <tr>
-                          <th scope="col">Question</th>
-                          <th scope="col">Type</th>
-                          <th scope="col">Weightage</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Question</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Type</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Weightage</th>
                         </tr>
                       </thead>
                       <tbody>
                         {% for question in questions %}
                         <tr>
-                          <td>
+                          <td style="text-align:left;padding-left:20px;">
                             {% if question.question_type=='MCQ1' %}
                             <ul>
                               <li> 
@@ -63,8 +63,8 @@
                             {% endif %}
 
                           </td>
-                          <td> {{ question.question_type }} </td>
-                          <td>
+                          <td style="text-align:left;padding-left:20px;"> {{ question.question_type }} </td>
+                          <td  style="text-align:left;padding-left:20px;">
                             {% if weightage %}
                             {{ weightage }}<input type="hidden"
                               value="{{ weightage }}" id="{{ question.question_id }}select">
@@ -107,10 +107,13 @@
           <div class="col-xs-3" style="margin-top:20px;">   
             {%if batch_test!="1"%}
             <div id="answerCounter" >
-              <h4>To write this test</h4>
+              <h4 style="margin-left:30px;">To write this test</h4>
               <ol>
                 <li>
-                  Logon to this URL: <a href="{{url_for('classPerformance')}}">{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus, _external=True)}}</a> </li><br>
+                  Logon to this URL: 
+                  <span class="urlBox">
+                  <a href="{{url_for('classPerformance')}}" target="_blank">{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}</a> </li>
+                  </span><br>
                   <a style="margin-bottom:10px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
                 <li>
                   <p>Scan the QR : <br>
