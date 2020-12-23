@@ -131,7 +131,7 @@
                   <!-- <div class="selectLabel">
                       <label><h4>Select Class and Section</h4></label>
                   </div> -->
-                  <div class="selectClassSectionDashboard">
+                  <div class="selectClassSectionDashboard" style="width:200px">
                       {{ form.class_section1.label(class='labelsize labelDashboard') }}
                       <br>
                       {% if form.class_section1.errors %}
@@ -163,7 +163,7 @@
                       <h4 class="box-title">Topic To Teach</h4>
                     </p>
                     <div class="barChartBorder" style="position: relative;height:360px;margin-top: -5px;">
-                    <div class="selectClassSectionDashboard">
+                    <div class="selectClassSectionDashboard" style="width:200px">
                         {{ form.class_section2.label(class='labelsize labelDashboard') }}
                         <br>
                         {% if form.class_section2.errors %}
@@ -178,7 +178,7 @@
                         {% endif %}
                     </div>
                     <div class="topicCoveredTable">
-                        <h3 class="grey-text" style="padding-left: 20px;">No data available.</h3>
+                        <h3 class="grey-text" style="padding-left: 20px;">No data available</h3>
                     </div>
                     </div>
               </div>
@@ -253,7 +253,7 @@
                       {%endfor%}
                     </ul>
                     {%else%}
-                    <h3 class="grey-text">No data available</h3>
+                    <h3 class="grey-text" style="padding:20px;">No data available</h3>
                     {%endif%}
                   </div>
                 

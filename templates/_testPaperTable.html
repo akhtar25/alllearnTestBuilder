@@ -67,7 +67,7 @@
       <h4 style="font-size:14px;">Select <b>section</b> for which you want to run the test</h4>
       <!-- <input type="text" name='section' value="No value"> -->
       
-      <select id="sectionList" name="section" style="display: block;font-size:14px;">
+      <select id="sectionList" name="section" style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
         
       </select>
       <!-- <p style="margin-top:5px;">
@@ -90,14 +90,14 @@
       <input type="hidden" id='modal_class_val'  name='class_val'    value="">
       <input type="hidden" id='modal_subject_id' name='subject_id'   value="">
       <input type="hidden" id='modal_test_id'    name='test_id'      value="">
-      <p style=""><label><input name="timed" class="Toption" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
       <div id="durationDiv" style="display: none;margin-bottom:10px;">
         <h4 style="font-size:14px;">Duration</h4>
         <input style="font-size:14px;" type="text" name='duration' value="" placeholder="place time in minutes eg. 30">
       </div>
-      <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance</span></label></p><br>
-      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
-      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
+      <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
       <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
       
       <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
@@ -130,10 +130,10 @@
           var responseArr = response.toString().split(',');
           // alert(responseArr);
           var select = document.getElementById('sectionList');
-          var optionHtml = '<option value="" disabled selected>Select Section</option>';
+          var optionHtml = '<option value="" style="font-size:14px;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>';
           for(var i=0;i<responseArr.length;i++){
             console.log(responseArr[i]);
-            optionHtml += '<option value="'+responseArr[i]+'">'+responseArr[i]+'</option>';
+            optionHtml += '<option value="'+responseArr[i]+'" style="font-size:14px;;font-family:Source Sans Pro,sans-serif;">'+responseArr[i]+'</option>';
           }
           console.log(optionHtml);
           select.innerHTML = optionHtml;

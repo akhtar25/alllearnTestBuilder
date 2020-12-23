@@ -57,10 +57,10 @@
       <h4 style="font-size:14px;">Select <b>section</b> for which you want to run the test</h4>
       <!-- <input type="text" name='section' value="No value"> -->
       
-      <select name="section" style="display: block;font-size:14px;">
-                  <option disabled selected>Select Section</option>
+      <select name="section" style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
+                  <option style="font-size: 14px;;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>
                   {% for section in sections %}
-                    <option value="{{section.section}}">{{section.section}}</option>
+                    <option style="font-size: 14px;;font-family:Source Sans Pro,sans-serif;" value="{{section.section}}">{{section.section}}</option>
                   {% endfor %}
                 </select>
       <!-- <p style="margin-top:5px;">
@@ -83,7 +83,7 @@
       <input type="hidden" name='class_val' value="{{testPaperData.class_val}}">
       <input type="hidden" name='subject_id' value="{{testPaperData.subject_id}}">
       <input type="hidden" name='test_id' value="{{testPaperData.test_id}}">
-      <p style=""><label><input name="timed" class="Toption" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
       <div id="durationDiv" style="display: none;margin-bottom:10px;">
         <h4 style="font-size:14px;">Duration</h4>
         <input style="font-size:14px;" type="text" name='duration' value="" placeholder="place time in minutes eg. 30">

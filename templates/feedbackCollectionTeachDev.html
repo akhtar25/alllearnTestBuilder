@@ -111,9 +111,16 @@
               <ol>
                 <li>
                   Logon to this URL: 
-                  <span class="urlBox">
-                  <a href="{{url_for('classPerformance')}}" target="_blank">{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}</a> </li>
-                  </span><br>
+                  
+                  <!-- <a href="{{url_for('classPerformance')}}" target="_blank">
+                    <div class="urlBox">
+                      {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
+                    </div>
+                  </a>  -->
+                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;" id="myInput" readonly>
+                  <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy</span> </a>
+                </li>
+                  <br>
                   <a style="margin-bottom:10px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
                 <li>
                   <p>Scan the QR : <br>
@@ -168,6 +175,23 @@
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 
 <script>
+
+function copyText() {
+  /* Get the text field */
+  var copyText = document.getElementById("myInput");
+
+  /* Select the text field */
+  copyText.select();
+  // copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  console.log("Copied the text: " + copyText.value);
+  var text = '<span style="font-size:14px;">Text Copied</span>';
+  M.toast({html: text});
+}
 
 $("#backToQuestions").click(function(){          
           $("#feedbackQuestionDiv").show();

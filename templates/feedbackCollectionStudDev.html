@@ -134,7 +134,7 @@
                       <tr>
                         <td class="full-width"  style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:slateblue;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Marked for review</td>
-                        <td class="full-width"  style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-image:linear-gradient(45deg,slateblue,limegreen);color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                        <td class="full-width"  style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-image:linear-gradient(30deg,blue,limegreen);color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Answered and marked for review</td>
                       </tr>
                       {% endif %}
@@ -167,16 +167,16 @@
           <table class="table table-borderless mb0">
             <thead>
               <tr>
-                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color: #ddd;color: black;font-size:22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Not Answered</td>
-                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color: limegreen;color: black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Answered</td>
               </tr>
               {% if advance=='Y' %}
               <tr>
-                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:slateblue;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Marked for review</td>
-                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-image:linear-gradient(30deg,blue,limegreen);color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Answered and marked for review</td>
               </tr>
               {% endif %}
@@ -249,7 +249,7 @@
                     <!-- <input type="button" value="Clear" class="btn btn-primary left" id="clear"
                     style="height: 40px; width: 100px;margin-left:15px;margin-left: 30px;display:none;color: black;background-color: white;"> -->
                     <input type="button" value="Start" class="btn btn-primary pull-right green" id="start" onclick="fetchSubmitQuestion('q','Start');"
-                    style="height: 40px; width: 200px;margin-left: 30px;">
+                    style="height: 40px; width: 200px;margin-top: -150px;">
                     <input type="button" value="Submit and next" class="btn btn-primary left green" id="startAndNextBTN" onclick="fetchSubmitQuestion('q','submitandnext');"
                     style="height: 40px; width: 200px;margin-left: 15px;display:none;">
                     {% if advance=='Y' %}

@@ -227,21 +227,21 @@ var x = setInterval(function() {
     {% for row in answer_list %}
             console.log('inside for of session variable');
             {% if row[1]==239 %}
-              $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo3.png')");
-              $(".{{row[0]}}").css("border","0px");
+              $(".{{row[0]}}").css("background-color","limegreen");
+              // $(".{{row[0]}}").css("border","0px");
               $('.{{row[0]}}').css("color","white");
             {% elif row[1]==240 %}
               $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo2.png');");
-              $(".{{row[0]}}").css("border","0px");
+              // $(".{{row[0]}}").css("border","0px");
               $('.{{row[0]}}').css("color","white");
             {% elif row[1]==241 %}
 
-              $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo5.png')");
-              $(".{{row[0]}}").css("border","0px");
+              $(".{{row[0]}}").css("background-image","linear-gradient(30deg,blue,limegreen)");
+              // $(".{{row[0]}}").css("border","0px");
               $('.{{row[0]}}').css("color","white");
               {% elif row[1]==242 %}
-              $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo4.png')");
-              $(".{{row[0]}}").css("border","0px");
+              $(".{{row[0]}}").css("background-color","slateblue");
+              // $(".{{row[0]}}").css("border","0px");
               $('.{{row[0]}}').css("color","white");
             {% endif %}
           {% endfor %}

@@ -8913,9 +8913,21 @@ def studentFeedbackReport():
         objMarks = ObjectiveMarks.marks_scored
     if SubjectiveMarks.marks_scored:
         subjMarks = SubjectiveMarks.marks_scored
-    
+    x=''
+    y=''
+    for responseRow in responseCaptureRow:
+        if responseRow.question_type=='Subjective':
+            x=1
+        else:
+            y=1
+    if x==1 and y=='':
+        print('All are subjective')
+    elif y==1 and x=='':
+        print('All are objective')
+    elif x==1 and y==1:
+        print('Both')
     totalMarks = int(subjMarks) + int(objMarks)
-    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),totalMarks=totalMarks,marksPercentage=marksPercentage,subjective_marks=SubjectiveMarks.marks_scored,objective_marks=ObjectiveMarks.marks_scored,correct_question=correctQuestions.correctques,total_questions=totalQuestions.totalques,studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1)
+    return render_template('studentFeedbackReport.html',classSecCheckVal=classSecCheck(),totalMarks=totalMarks,marksPercentage=marksPercentage,subjective_marks=SubjectiveMarks.marks_scored,objective_marks=ObjectiveMarks.marks_scored,correct_question=correctQuestions.correctques,total_questions=totalQuestions.totalques,studentName=studentName, student_id=student_id, resp_session_id = resp_session_id, responseCaptureRow = responseCaptureRow,disconn=1,x=x,y=y)
 
 @app.route('/testPerformance')
 @login_required
