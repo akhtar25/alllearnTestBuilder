@@ -8854,7 +8854,7 @@ def studentFeedbackReport():
     responseCaptureQuery = ''
     
     if studentRow:
-        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description,rc.marks_scored, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description,rc.marks_scored,rc.answer_type, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
         responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
         responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "
@@ -8863,7 +8863,7 @@ def studentFeedbackReport():
         responseCaptureQuery = responseCaptureQuery +"left join question_options qo2 on qo2.question_id = rc.question_id and qo2.option = rc.response_option "
         responseCaptureQuery = responseCaptureQuery +"where student_id='" +  str(student_id) + "' and rc.resp_session_id='"+str(resp_session_id)+ "'"
     else:
-        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
+        responseCaptureQuery = "select rc.student_id,qd.question_id, qd.question_description,rc.answer_type, rc.response_option,rc.question_type,rc.is_correct, qo2.option_desc as option_desc,qo.option_desc as corr_option_desc, "   
         responseCaptureQuery = responseCaptureQuery +"qo.option as correct_option, rc.answer_status, "
         responseCaptureQuery = responseCaptureQuery +"CASE WHEN qo.option= response_option THEN 'Correct' ELSE 'Not Correct' END AS Result "
         responseCaptureQuery = responseCaptureQuery +"from response_capture rc  "

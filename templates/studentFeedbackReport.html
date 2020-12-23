@@ -53,8 +53,11 @@
       
         ____
       {% else %} 
-      {{respRow.response_option }}
-      
+      {% if respRow.answer_type==335 %}
+        <a href="{{respRow.response_option }}" target="_blank" class="waves-effect waves-light" style="font-size:14px;">click to see answer</a>
+      {% else %}
+        {{respRow.response_option }}
+      {% endif %}
       {% endif %}
     </td>
     
@@ -74,9 +77,9 @@
         In Review
       {% else %}
         {% if respRow.is_correct=='Y' %}
-          <i class="large material-icons icon-green">check</i> 
+          <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
         {% else %}
-          <i class="large material-icons icon-orangered">clear</i> 
+          <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
         {% endif %}
       {% endif %}
     {% endif %}
@@ -134,9 +137,9 @@
         No Answer Selected
       {% else %} 
     {% if respRow.result=='Correct' %}
-      <i class="large material-icons icon-green">check</i> 
+      <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
     {% else %}
-     <i class="large material-icons icon-orangered">clear</i> 
+     <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
     {% endif %}
     
     {% endif %}
@@ -194,9 +197,9 @@
         No Answer Selected
       {% else %} 
     {% if respRow.result=='Correct' %}
-      <i class="large material-icons icon-green">check</i> 
+      <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
     {% else %}
-     <i class="large material-icons icon-orangered">clear</i> 
+     <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
     {% endif %}
     
     {% endif %}
@@ -227,7 +230,11 @@
       
         ____
       {% else %} 
-      {{respRow.response_option }}
+      {% if respRow.answer_type==335 %}
+        <a href="{{respRow.response_option }}" target="_blank" class="waves-effect waves-light" style="font-size:14px;">click to see answer</a>
+      {% else %}
+        {{respRow.response_option }}
+      {% endif %}
       
       {% endif %}
     </td>
@@ -248,9 +255,9 @@
         In Review
       {% else %}
         {% if respRow.is_correct=='Y' %}
-          <i class="large material-icons icon-green">check</i> 
+          <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
         {% else %}
-          <i class="large material-icons icon-orangered">clear</i> 
+          <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
         {% endif %}
       {% endif %}
     {% endif %}

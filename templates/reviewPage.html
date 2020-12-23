@@ -18,11 +18,11 @@
     <textarea style="font-size: 14px;margin-left: -10px;height: 100px;border-radius: 10px;padding: 10px;" disabled>{{row.response_option}}</textarea>
     
     {% else %}
-    <a href="{{row.response_option}}" target="_blank" style="font-size: 14px;">Click to see content</a>
+    <a href="{{row.response_option}}" target="_blank" style="font-size: 14px;margin-left: -10px;">Click to see asnwer</a>
     {% endif %}
     </h4>
     <div style="display:flex;margin-left: -10px;">
-    <p><label><input type="checkbox" class="{{loop.index}} filled-in" name="isCorrect" value="Y" id="marksCount"/><span></span></label></p><span style="font-size:14px;">Marks:</span><input style="width:60px;margin-left:10px;margin-top: -7px;font-size: 14px;" type="number" name="marks" value="0" class="marks" id="marks{{loop.index}}" disabled/>
+    <p><label><input type="checkbox" class="{{loop.index}}" name="isCorrect" value="Y" id="marksCount"/><span></span></label></p><span style="font-size:14px;">Marks:</span><input style="width:60px;margin-left:10px;margin-top: -7px;font-size: 14px;" type="number" name="marks" value="0" class="marks" id="marks{{loop.index}}" disabled/>
     <input type="hidden" value="{{loop.index}}" class=""/>
     </div>
     <input type="hidden" name="quesId" value="{{row.question_id}}"/>
