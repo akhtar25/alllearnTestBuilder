@@ -383,7 +383,8 @@
     $('#start').hide();
 
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
-
+    console.log('TempCountVar:'+tempCountVar);
+    
     var radioValue = $("input[name='ansOption']:checked").val();
     var respOption = '';
     if (radioValue) {
@@ -420,13 +421,20 @@
         console.log('c:'+(parseInt(c)));
           }
         }
+        if(tempCountVar==questionIDListJS.length){
+          tempCountVar = tempCountVar - 1;
+        }
         qcount = questionIDListJS[tempCountVar];
+        console.log('New Count:'+tempCountVar);
+        console.log('Length:'+questionIDListJS.length);
+        console.log('Question Id:'+qcount);
       }else{
         tempCountVar = num;
         c = num;
         j=num;
         console.log('inside else:'+num);
         qcount = questionIDListJS[parseInt(num)];
+        console.log('Question Id:'+qcount);
       }
       var textAns = '';
       var url = '';

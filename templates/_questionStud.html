@@ -83,6 +83,7 @@
 
   window.setInterval(function(){
     // alert('file selected');
+  if(document.getElementById('box_id')){
     if(document.getElementById('box_id').value==''){
     if(document.getElementById('attachFile').files.length==0){
       // $('#box_id').attr("disabled",true);
@@ -98,6 +99,7 @@
     $("#submit").attr("disabled", false);
     }
     }
+  }
   }, 1000);
 
     $(".ansOption").click(function (){
