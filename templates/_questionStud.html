@@ -1,11 +1,11 @@
 <div class="content">
   <div class="row" style="margin-left: 0px;">
 
-    <label id="currQuestionLabel" style="float:right;margin-top:-45px;">
+    <span id="currQuestionLabel" style="float:right;margin-top:-45px;font-size: 14px;">
       {% if totalQCount!=''%}
       
-      Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
-    </label>
+      Q <span id="qnum" style="font-size: 14px;">{{ qnum}}</span> of <span id="totalQCount" style="font-size: 14px;">{{ totalQCount }}</span><br>
+    </span>
     {% endif %}
     <h4 style="margin-top: -10px;margin-left:-5px;">Q: {{ question.question_description }}</h4>
     {%if question.reference_link !=None or question.reference_link!='' %}
@@ -236,7 +236,7 @@ var x = setInterval(function() {
               $('.{{row[0]}}').css("color","white");
             {% elif row[1]==241 %}
 
-              $(".{{row[0]}}").css("background-image","linear-gradient(30deg,blue,limegreen)");
+              $(".{{row[0]}}").css("background-color","#008B8B");
               // $(".{{row[0]}}").css("border","0px");
               $('.{{row[0]}}').css("color","white");
               {% elif row[1]==242 %}

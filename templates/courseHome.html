@@ -80,13 +80,13 @@ justify-content: center;" id="containerDiv">
                 <h1 id="mainText" style="text-shadow: 1px 1px 1px black;"><b>Learning should be easy.</b>
                 </h1><br>
                 <div class="col-xs-12">
-                    <h2 id="subText" style="text-shadow: 1px 1px 1px rgb(177, 174, 174);color: rgb(110, 108, 108);"
+                    <h2 id="subText" style="text-shadow: 1px 1px 1px rgb(177, 174, 174);color: rgb(110, 108, 108);font-size: 18px;margin-left: -15px;"
                         class="  ">Learn as much or as little as you want from a range of courses - recorded and
                         live!<br></h2>
                 </div>
             </div>
             <div id="practiceTestDiv" class="col-xs-12 row ">
-                <div class="row">
+                <div class="row" style="margin-left: 0px;">
                     {% for ideal in idealList %}
                     <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable"
                         style="font-size: 14px;">{{ideal}}</a>
@@ -116,9 +116,9 @@ justify-content: center;" id="containerDiv">
 
                         <div class="row">
                             <div class="col-sm-12">
-                                <h4 class="grey-text">What do you want to learn today</h4>
+                                <h4 class="grey-text" style='font-size: 14px;'>What do you want to learn today</h4>
                                 <input placeholder="Search for Classes" class="searchText"
-                                    style="background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;;background-repeat: no-repeat;background-position: right;">
+                                    style="background-image: url('https://img.icons8.com/search'); background-size: 20px 20px;;background-repeat: no-repeat;background-position: right;font-size: 14px;">
                             </div>
                         </div>
                         <span id="errorStartMSG" class="orange-text" style="display: none;font-size: large;">Error
