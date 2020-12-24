@@ -8515,7 +8515,8 @@ def questionAllDetails():
     qnum= ''
     question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').order_by(QuestionDetails.question_id).first()
     questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
-    
+    print('Question Id:'+str(question_id))
+    print('Question Op:'+str(questionOp))
     return render_template('_question.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
 
 

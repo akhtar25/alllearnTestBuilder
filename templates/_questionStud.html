@@ -19,7 +19,7 @@
     {% if question.question_type=='Subjective' %}
     <div class="answerText" style="margin-left:-2px;">
       <span style="display: block;font-size: 18px;">Answer:</span>
-      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
+      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (character length should not be more than 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
       {% if uploadStatus=='Y' %}
       <span style="display: block;">OR</span>
       <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
@@ -54,6 +54,7 @@
 <script>
 
   $(document).ready(function(){
+    $('span.character-counter').css("margin-top","-50px");
     $('input#input_text, textarea#box_id').characterCounter();
     var num = "{{qnum}}";
     var totalnum = "{{totalQCount}}";

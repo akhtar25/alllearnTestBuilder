@@ -148,8 +148,12 @@
                   <ul class="pagination test-questions" style="margin-top: 0px;">
 
                     {% for row in questionList %}
-                    <li class="active" data-seq="1">                      
-                      <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+                    <li class="active" data-seq="1">   
+                      {% if loop.index>9 %}                   
+                        <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+                      {% else %}
+                        <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">0{{loop.index}}</a>
+                      {% endif %}
                     </li>
                     {% endfor %}
                   </ul>

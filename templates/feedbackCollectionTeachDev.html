@@ -40,16 +40,16 @@
                             <ul>
                               <li> 
                                 <div><a href="#modal2" name="{{ question.question_id }}"
-                                    class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a>
+                                    class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
                                 </div>
                                 <!-- Modal Structure  -->
-                                <div id="modal2" class="modal" style="background-color:white;">
-                                  <div id="questionloader1" style="display: none;">
+                                <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                                  <div id="questionloader1" style="display: none;margin-left: 120px;margin-top: 120px;">
                                     <img src="../static/images/loader.gif">
                                   </div>
-                                  <div class="modal-content" id="content" style="display:none;">
+                                  <div class="modal-content" id="content" style="display:none;overflow-y: auto;max-height: 500px;">
                                     <p>
-                                      <div id="questionDataList"></div>
+                                      <div id="questionDataList" style="margin-top: -30px;"></div>
                                     </p>
 
                                   </div>
@@ -57,9 +57,9 @@
                               </li>
                             </ul>
                             {% else %}
-                            <h5>
-                              {{ question.question_description }}
-                            </h5>
+                            <div><a href="#modal2" name="{{ question.question_id }}"
+                              class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                            </div>
                             {% endif %}
 
                           </td>
@@ -82,7 +82,7 @@
                     <!-- <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;"> -->
                     {%else %}
                     <div class='section'>
-                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions found for this test</p>
+                    <p style="font-size: 18px;margin-left: 10px;">No questions found for this test</p>
                   </div>
                     {% endif %}
                     

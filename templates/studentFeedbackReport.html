@@ -33,10 +33,11 @@
   
   {% if x==1 and y=='' %}
     <!-- Table for Subjective Questions -->
-<table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+<h4 style="margin-top: 30px;">Subjective Questions</h4>
+<table class="table table-bordered table-hover table-striped text-center">
   <tr>
     <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Type</th>
+    <th style="text-align:left;">Question Id</th>
     <th style="text-align:left;">Question</th>
     <th style="text-align:left;" colspan="2">Answer</th>
     <th style="text-align:left;">Marks Scored</th>
@@ -46,7 +47,7 @@
   {% if respRow.question_type=='Subjective'  %}                                          
   <tr> 
     <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_type }}</td>
+    <td style="text-align:left;"> {{ respRow.question_id }}</td>
     <td style="text-align:left;">{{ respRow.question_description}}</td>
     <td style="text-align:left;" colspan="2">
       {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
@@ -90,10 +91,11 @@
 </table> 
   {% elif y==1 and x=='' %}
       <!-- Table for Objective Questions -->
-<table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+<h4 style="margin-top: 30px;">Objective Questions</h4>
+<table class="table table-bordered table-hover table-striped text-center">
   <tr>
     <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Type</th>
+    <th style="text-align:left;">Question Id</th>
     <th style="text-align:left;">Question</th>
     <th style="text-align:left;">Option Selected</th>
     <th style="text-align:left;">Correct Option</th>
@@ -104,7 +106,7 @@
   {% if respRow.question_type=='MCQ1'  %}                                          
   <tr> 
     <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_type }}</td>
+    <td style="text-align:left;"> {{ respRow.question_id }}</td>
     <td style="text-align:left;">{{ respRow.question_description}}</td>
     <td style="text-align:left;">
       {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
@@ -150,10 +152,11 @@
 </table>  
   {% elif x==1 and y==1 %}
       <!-- Table for Objective Questions -->
-<table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+<h4 style="margin-top: 30px;">Objective Questions</h4>
+<table class="table table-bordered table-hover table-striped text-center">
   <tr>
     <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Type</th>
+    <th style="text-align:left;">Question Id</th>
     <th style="text-align:left;">Question</th>
     <th style="text-align:left;">Option Selected</th>
     <th style="text-align:left;">Correct Option</th>
@@ -164,7 +167,7 @@
   {% if respRow.question_type=='MCQ1'  %}                                          
   <tr> 
     <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_type }}</td>
+    <td style="text-align:left;"> {{ respRow.question_id }}</td>
     <td style="text-align:left;">{{ respRow.question_description}}</td>
     <td style="text-align:left;">
       {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
@@ -210,10 +213,11 @@
 </table>    
 
 <!-- Table for Subjective Questions -->
-<table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+<h4 style="margin-top: 30px;">Subjective Questions</h4>
+<table class="table table-bordered table-hover table-striped text-center">
   <tr>
     <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Type</th>
+    <th style="text-align:left;">Question Id</th>
     <th style="text-align:left;">Question</th>
     <th style="text-align:left;" colspan="2">Answer</th>
     <th style="text-align:left;">Marks Scored</th>
@@ -223,7 +227,7 @@
   {% if respRow.question_type=='Subjective'  %}                                          
   <tr> 
     <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_type }}</td>
+    <td style="text-align:left;"> {{ respRow.question_id }}</td>
     <td style="text-align:left;">{{ respRow.question_description}}</td>
     <td style="text-align:left;" colspan="2">
       {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
