@@ -6363,6 +6363,20 @@ def findSection():
         sec.append(section.section)
     return jsonify(sec)
 
+@app.route('/getQuestionDetails')
+def getQuestionDetails():
+    print('inside getQuestionDetails')
+    qtest_id = request.args.get('test_id')
+    print('Test Id:'+str(qtest_id)) 
+    getQuestionQuery = "select tq.question_id,qd.question_type,qd.question_description,td.total_marks as weightage from test_questions tq "
+    getQuestionQuery = getQuestionQuery + "inner join question_details qd on tq.question_id = qd.question_id "
+    getQuestionQuery = getQuestionQuery + "inner join test_details td on td.test_id = tq.test_id where td.test_id = '"+str(qtest_id)+"'"
+    testQuestionsDetails = db.session.execute(text(getQuestionQuery)).fetchall()
+    for questions in testQuestionsDetails:
+        print(questions.question_description)
+    totalQues = len(testQuestionsDetails)
+    return render_template('_getQuestionDetails.html',totalQues=totalQues,testQuestionsDetails=testQuestionsDetails)
+
 @app.route('/getChapterDetails')
 def getChapterDetails():
     qtest_id=request.args.get('test_id')

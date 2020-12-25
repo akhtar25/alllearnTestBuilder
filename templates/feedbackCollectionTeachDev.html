@@ -108,7 +108,7 @@
             {%if batch_test!="1"%}
             <div id="answerCounter" >
               <h4 style="margin-left:30px;">To write this test</h4>
-              <ol>
+              <ol style="width:372px;">
                 <li>
                   Logon to this URL: 
                   
@@ -117,18 +117,18 @@
                       {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
                     </div>
                   </a>  -->
-                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;" id="myInput" readonly>
-                  <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy</span> </a>
+                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;text-overflow: ellipsis;" id="myInput" readonly>
+                  <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
                 </li>
                   <br>
-                  <a style="margin-bottom:10px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
+                  <a style="margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
                 <li>
                   <p>Scan the QR : <br>
                   </p>
                 </li>
               </ol><br>
               <div id='qrIMGDiv' class='center' style="margin-left:40px;" ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
-              <div class="divider"></div>                            
+              <div class=""></div>                            
             </div>
             <div>
             </div>
@@ -189,7 +189,7 @@ function copyText() {
 
   /* Alert the copied text */
   console.log("Copied the text: " + copyText.value);
-  var text = '<span style="font-size:14px;">Text Copied</span>';
+  var text = '<span style="font-size:14px;">Url Copied</span>';
   M.toast({html: text});
 }
 

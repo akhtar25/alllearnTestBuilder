@@ -9,6 +9,7 @@
           <th>Total Marks</th>
           <th>Creation Date</th>
           <th>Chapters and Topics</th>
+          <th>Questions</th>
           <th>Download Paper</th>
           <th>Conduct Test</th>
         </tr>
@@ -31,12 +32,23 @@
 
           <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
           <div id="chapterModal" class="modal" style="background-color:white;">
-            <div id="questionloader1" style="display: none;">
+            <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
               <img src="../static/images/loader.gif">
             </div>
-            <div class="modal-content" id="content" style="display:none;">
+            <div class="modal-content" id="content" style="display:none;height: 465px;">
               <p>
-                <div id="chapterListDiv"></div>
+                <div id="chapterListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
+              </p>
+            </div>
+          </div>
+          <td><a href="#questionModal" name='{{eachRow.test_id}}' class='modal-trigger questionClass'>See Questions</a></td>
+          <div id="questionModal" class="modal" style="background-color:white;">
+            <div id="questionloader2" style="display: none;text-align: center;margin-top: 120px;">
+              <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="questionContent" style="display:none;height: 465px;">
+              <p>
+                <div id="questionDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
               </p>
             </div>
           </div>
@@ -154,7 +166,26 @@
     }
   });
 
-  
+  $('.questionClass').click(function(){
+    $('#questionloader2').show();
+    $('#questionDiv').html('');
+    var test_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/getQuestionDetails?test_id="+test_id,
+            type: "get",
+            data: data,
+            success: function(response){
+              console.log('Question fetch successfully');
+                console.log(response);
+                $('#questionloader2').hide();
+                $('#modal2').show();
+                $('#questionContent').show();
+                $('#questionDiv').html(response);
+            }
+        })
+  });
 
   $('.chapterClass').click(function(){
     $('#questionloader1').show();
