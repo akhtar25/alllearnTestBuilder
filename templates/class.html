@@ -49,7 +49,73 @@
                 Section: {{qsection}}</span>
             </div>
             <div class="box-body table-responsive no-padding">
-              <div class="col-xs-3">
+              <!-- Start -->
+
+              <div class="col-md-6 col-xl-6" style="margin-left: -3px;">
+                <div class="card mb-3 widget-content bg-arielle-smile-dashboart" style="height: 100px;">
+                  <div class="widget-content-wrapper text-white row" style="margin-bottom: -15px;margin-top: -14px;">
+                   <div class="widget-content-left leftContent">
+                      <!-- <div class="widget-heading">
+                        Teachers
+                      </div> -->
+                      <div class="widget-subheading" style="color:black;margin-left: 20px;font-size: 14px;">
+                        Average Performance
+                      </div>
+                    </div> 
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;margin-right: 20px;">
+                        {%if summaryData.avgclassperfomance!=None%}
+                          <h3 class="green-text" style="font-size: 14px;">{{summaryData.avgclassperfomance}}%</h3>
+                        {%else%}
+                          <h3 class="green-text" style="font-size: 14px;">NA</h3>
+                        {%endif%}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="widget-content-wrapper text-white row" style="margin-bottom: -15px;">
+                    <div class="widget-content-left leftContent">
+                      <!-- <div class="widget-heading">
+                        Teachers
+                      </div> -->
+                      <div class="widget-subheading" style="color:black;margin-left: 20px;font-size: 14px;">
+                        Total Students
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;margin-right: 20px;">
+                        
+                          <h3 class="blue-text" style="font-size: 14px;">{{summaryData.studcount}}</h3>
+                       
+                      </div>
+                    </div>
+                  </div>
+                  <div class="widget-content-wrapper text-white row" style="margin-bottom: -15px;">
+                    <div class="widget-content-left leftContent">
+                      <!-- <div class="widget-heading">
+                        Teachers
+                      </div> -->
+                      <div class="widget-subheading" style="color:black;margin-left: 20px;font-size: 14px;">
+                        Today's Attendance
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-white" style="font-size:26px;margin-right: 20px;">
+                        
+                        {%if attendance[0]%}
+                        <h3 class="green-text" style="font-size: 14px;">{{attendance[0]}}</h3>
+                        {%else%} 
+                        <h3 class="green-text" style="font-size: 14px;">NA</h3>
+                        {%endif%}
+                      </div>
+                    </div>
+                  </div>
+                  <!-- </div> -->
+                  
+                  
+                </div>
+              </div>
+              <!-- End -->
+              <!-- <div class="col-xs-3">
                 <h4 class="grey-text">Average Performance</h4>
                 {%if summaryData.avgclassperfomance!=None%}
                 <h3 class="green-text">{{summaryData.avgclassperfomance}}%</h3>
@@ -68,9 +134,9 @@
                 {%else%} 
                 <h3 class="green-text">NA</h3>
                 {%endif%}
-              </div>              
+              </div>               -->
               <div class="col-xs-3">
-                <h4 class="grey-text">Actions</h4>
+                <h4 class="grey-text" style="font-weight: 400;color: black !important;">Actions</h4>
                 <a href="#smsModal" class="modal-trigger" >Send SMS message</a><br>
                 <a  href="#loginChkModal" class="modal-trigger">Check Login Data</a><br>
                 <a href="#attendenceModal"  class="modal-trigger" onclick="fetchAttendence();">Mark Attendance</a>                

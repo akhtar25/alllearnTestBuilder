@@ -7,9 +7,9 @@
         <div class="card id">
             <div class="card-body">
                 {% if flag %}
-                <div id="table" class="table-bordered" style="overflow-y: auto; height:500px; position: relative;margin-top: -21px;">
+                <div id="table" class="table-bordered" style="overflow-y: auto; height:500px; position: relative;margin-top: -21px;overflow-x: hidden;">
                 {% else %}
-                <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;margin-top: -21px;">
+                <div id="table" class="table-bordered" style="overflow-y: auto; height:600px; position: relative;margin-top: -21px;overflow-x: hidden;">
                 {% endif %}
         <table>
             {% if flagTopic=='true' %}
@@ -38,7 +38,7 @@
                               <a href="#modal1" class="modal-trigger"><img height="120" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
                               <div id="modal1" class="modal" style="background-color:white;">
                                       <div class="modal-content" style="height: 100%">
-                                        <h2>{{content.content_name}}</h4>                         
+                                        <h2 style="margin-left: 8px;font-size: 18px;">{{content.content_name}}</h4>                         
                                     </div>  
                                     </div>
                               {%endif%}
@@ -48,12 +48,12 @@
                                     
                                     <div>
                                         
-                                        <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
+                                        <h3><span style="margin-left: 8px;font-size: 18px;"> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                     </div>
                                 </div>
                                 <div>
                                     <div>
-                                        <h4>{{content.topic_name}}</h4>
+                                        <h4 style="font-size: 16px;">{{content.topic_name}}</h4>
                                     </div>
                                     <div>
                                         <h5>Date Modified: {{content.last_modified_date.strftime('%d-%B-%Y')}}</h5>
@@ -100,7 +100,7 @@
                                   <a href="#modal1" class="modal-trigger"><img height="120" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
                                   <div id="modal1" class="modal" style="background-color:white;">
                                           <div class="modal-content" style="height: 100%">
-                                            <h2>{{content.content_name}}</h4>                         
+                                            <h2 style="margin-left: 8px;font-size: 18px;">{{content.content_name}}</h4>                         
                                         </div>  
                                         </div>
                                   {%endif%}
@@ -110,12 +110,12 @@
                                         
                                         <div>
                                             
-                                            <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
+                                            <h3><span style="margin-left: 8px;font-size: 18px;"> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                         </div>
                                     </div>
                                     <div>
                                         <div>
-                                            <h4>{{content.topic_name}}</h4>
+                                            <h4 style="font-size: 16px;">{{content.topic_name}}</h4>
                                         </div>
                                         <div>
                                             <h5>Date Modified: {{content.last_modified_date.strftime('%d-%B-%Y')}}</h5>
@@ -156,9 +156,9 @@
     <div class="card id">
         <div class="card-body">
             {% if flag %}
-            <div id="table" class="table-bordered" style="overflow-y: auto; height:500px; position: relative;margin-top: -21px;">
+            <div id="table" class="table-bordered" style="overflow-y: auto; height:500px; position: relative;margin-top: -21px;overflow-x: hidden;">
             {% else %}
-            <div id="table" class="table-bordered" style="overflow-y: auto; height:340px; position: relative;margin-top: -21px;">
+            <div id="table" class="table-bordered" style="overflow-y: auto; height:340px; position: relative;margin-top: -21px;overflow-x: hidden;">
             {% endif %}
     <table>
         {% if flagTopic=='true' %}
@@ -187,7 +187,7 @@
                           <a href="#modal1" class="modal-trigger"><img height="120" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/documentIcon.png"></a>
                           <div id="modal1" class="modal" style="background-color:white;">
                                   <div class="modal-content" style="height: 100%">
-                                    <h2>{{content.content_name}}</h4>                         
+                                    <h2 style="margin-left: 8px;font-size: 18px;">{{content.content_name}}</h4>                         
                                 </div>  
                                 </div>
                           {%endif%}
@@ -197,12 +197,12 @@
                                 
                                 <div>
                                     
-                                    <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
+                                    <h3><span style="margin-left: 8px;font-size: 18px;"> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                 </div>
                             </div>
                             <div>
                                 <div>
-                                    <h4>{{content.topic_name}}</h4>
+                                    <h4 style="font-size: 16px;">{{content.topic_name}}</h4>
                                 </div>
                                 <div>
                                     <h5>Date Modified: {{content.last_modified_date.strftime('%d-%B-%Y')}}</h5>
@@ -261,12 +261,12 @@
                                     
                                     <div>
                                         
-                                        <h3><span> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
+                                        <h3><span style="margin-left: 8px;font-size: 18px;"> <a href="{{content.reference_link}}" target="_blank">{{content.content_name|capitalize}}</a></span></h3>
                                     </div>
                                 </div>
                                 <div>
                                     <div>
-                                        <h4>{{content.topic_name}}</h4>
+                                        <h4 style="font-size: 16px;">{{content.topic_name}}</h4>
                                     </div>
                                     <div>
                                         <h5>Date Modified: {{content.last_modified_date.strftime('%d-%B-%Y')}}</h5>
