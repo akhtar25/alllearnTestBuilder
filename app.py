@@ -8199,8 +8199,11 @@ def loadQuestionStud():
         print('Total Ques:'+str(totQuesVal[0]))
         print('Total MCQ Ques:'+str(totMCQQuesVal[0]))
         
-        # if totQuesVal[0]> totMCQQuesVal[0]:
-        #     return render_template('_feedbackReportIndiv.html',flag='')
+        if totQuesVal[0] == totMCQQuesVal[0]:
+            db.session.execute(text('call sp_performance_detail_load_feedback()'))
+            db.session.commit()
+            print('After load sp_performance_detail_load_feedback()')
+            # return render_template('_feedbackReportIndiv.html',flag='')
         fetchRemQues = "select tq.question_id,qd.question_type from test_questions tq inner join question_details qd on tq.question_id = qd.question_id where tq.question_id not in (select question_id from response_capture rc where resp_session_id = '"+str(resp_session_id)+"' or answer_status='279') and tq.test_id='"+str(sessionDetailRow.test_id)+"'"
         print(fetchRemQues)
         fetchRemQues = db.session.execute(text(fetchRemQues)).fetchall()
@@ -8262,9 +8265,7 @@ def loadQuestionStud():
             marksPercentage=0        
         
         print('Marks Percentage:'+str(marksPercentage))
-        db.session.execute(text('call sp_performance_detail_load_feedback()'))
-        db.session.commit()
-        print('After load sp_performance_detail_load_feedback()')
+        
         flag = 1
         if studentRow:
             if studentRow.points!=None and studentRow.points!="":
