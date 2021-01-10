@@ -28,7 +28,7 @@
                     </div>
                   </div>
                   <div class="widget-content-right rightContent">
-                    <div class="widget-numbers text-white" style="font-size:26px;">
+                    <div class="widget-numbers text-white" style="font-size:20px;">
                       <span>{{teacherCount[0]}}</span>
                     </div>
                   </div>
@@ -50,7 +50,7 @@
                       </div>
                     </div>
                     <div class="widget-content-right rightContent">
-                      <div class="widget-numbers text-white" style="font-size:26px;">
+                      <div class="widget-numbers text-white" style="font-size:20px;">
                         <span>{{studentCount[0]}}</span>
                       </div>
                     </div>
@@ -73,7 +73,7 @@
                       </div>
                     </div>
                     <div class="widget-content-right rightContent">
-                      <div class="widget-numbers text-white" style="font-size:26px;">
+                      <div class="widget-numbers text-white" style="font-size:20px;">
                         <span>{{testCount[0]}}</span>
                       </div>
                     </div>
@@ -97,7 +97,7 @@
                         </div>
                       </div>
                       <div class="widget-content-right rightContent">
-                        <div class="widget-numbers text-white" style="font-size:26px;">
+                        <div class="widget-numbers text-white" style="font-size:20px;">
                           <span>{{lastWeekTestCount[0]}}</span>
                         </div>
                       </div>
@@ -178,7 +178,7 @@
                         {% endif %}
                     </div>
                     <div class="topicCoveredTable">
-                        <h3 class="grey-text" style="padding-left: 20px;">No data available</h3>
+                        <h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No data available</h3>
                     </div>
                     </div>
               </div>
@@ -202,8 +202,8 @@
                       </div>
                       {% endfor %}
                       {% else %}
-                      <h3 class="grey-text" style="margin-left: 20px;">No course data </h3>
-                      <h5 style="margin-left: 20px;">Please add classes to see data here</h5>
+                      <h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No course data </h3>
+                      <h5 style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">Please add classes to see data here</h5>
                       {% endif %}
                       <!-- /.progress-group -->
                     </div>
@@ -253,7 +253,7 @@
                       {%endfor%}
                     </ul>
                     {%else%}
-                    <h3 class="grey-text" style="padding:20px;">No data available</h3>
+                    <h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No data available</h3>
                     {%endif%}
                   </div>
                 
@@ -303,7 +303,7 @@
                               </tbody>
                             </table>
                             {%else%}
-                            <h3 class="grey-text">No events added yet</h3>
+                            <h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No events added yet</h3>
                             <h5>Please click on 'Add Event' button to update event details</h5>
                             {%endif%}
                           </div>
@@ -365,8 +365,8 @@
                         </tbody>
                       </table>
                       {%else%}
-                      <h3 class="grey-text">No jobs posted yet</h3>
-                      <h5>Please click on 'Post Job' button to get started</h5>
+                      <h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No jobs posted yet</h3>
+                      <h5 style="margin-left:40px;">Please click on 'Post Job' button to get started</h5>
                       {%endif%}
                     </div>
                   </div>
@@ -514,7 +514,7 @@ var class_section = document.getElementById('class_section1')
         $('#barChartloader').hide();
       }else{
         $('#barChartloader').hide();
-            $('#chart2').html('<h3 class="grey-text" style="margin-left: 20px;margin-top:50px;">No data available.</h3>');
+            $('#chart2').html('<h3 class="grey-text" style="margin-left: 40px;margin-top:50px;font-size:16px;color: black !important;font-weight: 400;">No data available.</h3>');
             $('#chart2').show();
           }
             },
@@ -728,7 +728,7 @@ function passStudentList(data){
         $('#chart').show();
       }else{
         $('#barChartloader').hide();
-            $('#chart2').html('<h3 class="grey-text" style="margin-left: 20px;margin-top:50px;">No data available.</h3>');
+            $('#chart2').html('<h3 class="grey-text" style="margin-left: 40px;margin-top:50px;font-size:16px;color: black !important;font-weight: 400;">No data available.</h3>');
             $('#chart2').show();
           }
             },
@@ -752,7 +752,7 @@ function passStudentList(data){
             data: "",
             success: function (response) {
                 if (response=="NA"){
-                    $(".contentDiv").html('<h3 class="grey-text">No recent content found.</h3><a href="{{url_for("contentManager")}}" style="float:right">Add content</a>');
+                    $(".contentDiv").html('<h3 class="grey-text" style="margin-left:40px;margin-top:50px;font-size:16px;color:black !important;font-weight:400;">No recent content found.</h3><a href="{{url_for("contentManager")}}" style="float:right">Add content</a>');
                     // $(".contentDiv").html('');
                 }
                 else{

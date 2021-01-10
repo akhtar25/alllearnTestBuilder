@@ -1,324 +1,375 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Question Bank</h3>
-    <form action="" method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <div class="form-group " style="padding-top:5px;">
-            <div class="row">
-                <div class="col-sm-3">
-                    <div style="width:250px;">
-                        {{ form.class_val.label(class='labelsize') }}
-                        <br>
-                        {% if form.class_val.errors %}
-                        {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.class_val.errors %}
-                            <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.class_val(class='form-control',id='classVal') }}
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                        <div style="width:150px;">
-                            {{ form.subject_name.label(class='labelsize') }}
-                            <div id='loader' style='display: none; float: right;'>
-                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                            </div>
-                            <br>
-                            {% if form.subject_name.errors %}
-                            {{ form.subject_name(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.subject_name.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.subject_name(class='form-control',id='subId') }}
-                            {% endif %}
-                        </div>
-                    </div>
-                <div class="col-sm-3">
-                        <div style="width:250px;">
-                            {{ form.chapter_num.label(class='labelsize') }}
-                            <div id='loader1' style='display: none; float: right;'>
-                                <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                            </div>
-                            <br>
-                            {% if form.chapter_num.errors %}
-                            {{ form.chapter_num(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.chapter_num.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.chapter_num(class='form-control',id='chapno') }}
-                            {% endif %}
-                        </div>
-                    </div>
-                <div class="col-sm-2">
-                    <p><button style="margin-top:22px; margin-left:5px;"
-                            class="btn waves-light green lighten-1 white-text" id="topic" type="submit">Load Topics</button></p>
-                </div>
+  <h3>Question Bank</h3>
+  <form action="" method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="form-group" style="padding-top: 5px">
+      <div class="row">
+        <div class="col-sm-3">
+          <div style="width: 250px">
+            {{
+            form.class_val.label(class='labelsize',style='font-weight:400;color:black')
+            }}
+            <br />
+            {% if form.class_val.errors %} {{ form.class_val(class="form-control
+            form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.class_val.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
             </div>
+            {% else %} {{ form.class_val(class='form-control',id='classVal') }}
+            {% endif %}
+          </div>
         </div>
-    </form>
-    <div class="addQuestionButton"> 
-        <button style="margin-left: 1000px;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
-            class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
+        <div class="col-sm-2">
+          <div style="width: 150px">
+            {{
+            form.subject_name.label(class='labelsize',style='font-weight:400;color:black')
+            }}
+            <div id="loader" style="display: none; float: right">
+              <img
+                src="../static/images/spinner.gif"
+                width="25px"
+                height="25px"
+              />
+            </div>
+            <br />
+            {% if form.subject_name.errors %} {{
+            form.subject_name(class="form-control form-control-lg is-invalid")
+            }}
+            <div class="invalid-feedback">
+              {% for error in form.subject_name.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %} {{ form.subject_name(class='form-control',id='subId') }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div style="width: 250px">
+            {{
+            form.chapter_num.label(class='labelsize',style='font-weight:400;color:black')
+            }}
+            <div id="loader1" style="display: none; float: right">
+              <img
+                src="../static/images/spinner.gif"
+                width="25px"
+                height="25px"
+              />
+            </div>
+            <br />
+            {% if form.chapter_num.errors %} {{
+            form.chapter_num(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.chapter_num.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %} {{ form.chapter_num(class='form-control',id='chapno') }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <p>
+            <button
+              style="margin-top: 22px; margin-left: 5px"
+              class="btn waves-light green lighten-1 white-text"
+              id="topic"
+              type="submit"
+            >
+              Load Topics
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
-    <div id="modal1" class="modal">
-        <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
-            <div id="quesBuilder"></div>
-        </div>
-        </div> 
-        <!-- <div class="addQuestionButton">
+  </form>
+  <div class="addQuestionButton">
+    <button
+      style="margin-left: 1000px"
+      data-target="modal1"
+      class="btn modal-trigger"
+      onclick="createQuestion();"
+      class="btn waves-light green lighten-1 white-text"
+      type="button"
+    >
+      Add Question
+    </button>
+  </div>
+  <div id="modal1" class="modal">
+    <div
+      class="modal-content"
+      style="height: 500px; position: relative; overflow-y: auto"
+    >
+      <div id="quesBuilder"></div>
+    </div>
+  </div>
+  <!-- <div class="addQuestionButton">
             <button style="margin-left: 1000px;"
                 class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Question</a></button>
         </div> -->
-    <div class="row">
-        {% if topics %}
-        <div class="col-sm-3">
-            <h3>Topics</h3>
-            <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
-                {% for topic in topics %}
-                <label for="{{ topic.topic_id }}" style="font-weight: 500;">
-                    <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
-                        value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
-                </label><br>
-                {% endfor %}
-            </div>
-            <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text"
-                    onclick="questions();">Load Questions</button></p>
-            {% endif %}
-        </div>
-        <span id="message" style="color:Red;display: none;float:left;"></span>
-        <div class="col-sm-9" id="questions">
-                <div id="questionloader" style="display: none;padding-left: 300px;">
-                    <img src="../static/images/loader.gif">
-                </div>
-        </div>
+  <div class="row">
+    {% if topics %}
+    <div class="col-sm-3">
+      <h3>Topics</h3>
+      <div
+        id="topic_box"
+        style="overflow-y: auto; height: 300px; position: relative"
+      >
+        {% for topic in topics %}
+        <label for="{{ topic.topic_id }}" style="font-weight: 500">
+          <input
+            type="checkbox"
+            id="{{ topic.topic_id }}"
+            name="topicCheckbox"
+            value="{{ topic.topic_id }}"
+          /><span>{{ topic.topic_name }}</span> </label
+        ><br />
+        {% endfor %}
+      </div>
+      <p>
+        <button
+          style="margin-top: 22px; margin-left: 5px"
+          class="btn waves-light green lighten-1 white-text"
+          onclick="questions();"
+        >
+          Load Questions
+        </button>
+      </p>
+      {% endif %}
     </div>
-    <div id="filebox" style="display: none;">
+    <span id="message" style="color: Red; display: none; float: left"></span>
+    <div class="col-sm-9" id="questions">
+      <div id="questionloader" style="display: none; padding-left: 300px">
+        <img src="../static/images/loader.gif" />
+      </div>
     </div>
+  </div>
+  <div id="filebox" style="display: none"></div>
 </div>
 <script type="text/javascript">
-
-$(document).ready(function(){
-    $('.modal').modal();
+  $(document).ready(function () {
+    $(".modal").modal();
   });
 
-var count_marks = 0;
-    var class_select = document.getElementById("classVal");
-    var subject_select = document.getElementById("subId");
-    var chapter_num_select = document.getElementById("chapno");
-    var optionHTMLClass = '';
-    var optionHTMLSubject = '';
-    var optionHTMLChapter = '';
-    $(document).ready(function(){
-        $('#classVal').val("na");
-        console.log("CLass Value:"+class_select.value);
-        optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-        class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-        optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
-        subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-        optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-        chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+  var count_marks = 0;
+  var class_select = document.getElementById("classVal");
+  var subject_select = document.getElementById("subId");
+  var chapter_num_select = document.getElementById("chapno");
+  var optionHTMLClass = "";
+  var optionHTMLSubject = "";
+  var optionHTMLChapter = "";
+  $(document).ready(function () {
+    $("#classVal").val("na");
+    console.log("CLass Value:" + class_select.value);
+    optionHTMLClass +=
+      '<option value="na"  selected disabled> Select Class </option>';
+    class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+    optionHTMLSubject +=
+      '<option value="na"  selected disabled> Select Subject </option>';
+    subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+    optionHTMLChapter +=
+      '<option value="na"  selected disabled> Select Chapter </option>';
+    chapter_num_select.innerHTML =
+      optionHTMLChapter + chapter_num_select.innerHTML;
+  });
+
+  class_select.onchange = function () {
+    class_val = class_select.value;
+
+    $("#loader").show();
+    console.log("Inside class value Onchange");
+    console.log("class val:" + class_val);
+    var cl = class_val.replace("/", "-");
+    console.log(cl);
+    var sub_sel = document.getElementById("subId");
+    fetch("/questionBuilder/" + cl).then(function (response) {
+      response.json().then(function (data) {
+        $("#loader").hide();
+        var optionHTML = "";
+        optionHTML +=
+          '<option value="na"  selected disabled> Select Subject </option>';
+        for (var subject of data.subjects) {
+          console.log(subject.subject_id);
+          optionHTML +=
+            '<option value="' +
+            subject.subject_id +
+            '">' +
+            subject.subject_name +
+            "</option>";
+        }
+        console.log(optionHTML);
+        sub_sel.innerHTML = optionHTML;
+      });
     });
-    
-    class_select.onchange = function()  {
-        class_val = class_select.value;
-         
-         $("#loader").show();
-         console.log('Inside class value Onchange')
-         console.log('class val:'+class_val);
-         var cl = class_val.replace('/','-');
-         console.log(cl);
-         var sub_sel = document.getElementById('subId');
-         fetch('/questionBuilder/' + cl).then(function(response) {
-             response.json().then(function(data) {
-                     $("#loader").hide();    
-                     var optionHTML = '';
-                     optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
-                     for (var subject of data.subjects) {
-                         console.log(subject.subject_id);
-                     optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-                 }
-                 console.log(optionHTML);
-                 sub_sel.innerHTML = optionHTML;
-             })
-             
-         });
-         
-     }
-    
-     
-     subject_select.onchange=function()  {
-        class_val = class_select.value;
-        subject_id = subject_select.value;
-        console.log('Inside subject_select on change')
-        $("#loader1").show();
-        var cl = class_val.replace('/','-');
-        fetch('/questionChapterpicker/' + cl + '/'+ subject_id).then(function(response) {
-            response.json().then(function(data){
-                $("#loader1").hide();
-                var optionHTML = '';
-                optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
-                for (var chapterNo of data.chapterNum){
-                    optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
-                  }
-                  chapter_num_select.innerHTML =  optionHTML;
-            })
-        });
-     }
+  };
 
-     $(document).ready(function(){      
-        var optionHTMLChapter='';
-        classValue = document.getElementById('classVal').value;
-        if(classValue=='na'){
-            var val = 'na';
-            optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-        chapter_num_select.innerHTML = optionHTMLChapter;
+  subject_select.onchange = function () {
+    class_val = class_select.value;
+    subject_id = subject_select.value;
+    console.log("Inside subject_select on change");
+    $("#loader1").show();
+    var cl = class_val.replace("/", "-");
+    fetch("/questionChapterpicker/" + cl + "/" + subject_id).then(function (
+      response
+    ) {
+      response.json().then(function (data) {
+        $("#loader1").hide();
+        var optionHTML = "";
+        optionHTML +=
+          '<option value="na"  selected disabled> Select Chapter </option>';
+        for (var chapterNo of data.chapterNum) {
+          optionHTML +=
+            '<option value="' +
+            chapterNo.chapter_num +
+            '">' +
+            chapterNo.chapter_num +
+            " - " +
+            chapterNo.chapter_name +
+            "</option>";
         }
-     });
+        chapter_num_select.innerHTML = optionHTML;
+      });
+    });
+  };
 
-     $('#topic').click(function(){
-            classValue = document.getElementById('classVal').value;
-            subjectValue = document.getElementById('subId').value;
-            chapterValue = document.getElementById('chapno').value;
-            console.log(classValue);
-            if(classValue=='na'){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Class Selected';
-                $('#message').show();
-                event.preventDefault();
-            }
-            else
-            if(subjectValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Subject Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            if(chapterValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Chapter Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else{
-                $('#message').hide();
-            }
-            
-        });
-     
-
-
-    function questions() {
-        var topic_list = document.getElementsByName('topicCheckbox');
-        var checkboxesChecked = [];
-        for (var i = 0; i < topic_list.length; i++) {
-            // And stick the checked ones onto an array...
-            if (topic_list[i].checked) {
-                checkboxesChecked.push(topic_list[i].value);
-            }
-        }
-        console.log(checkboxesChecked[0]);
-        checkboxesChecked = JSON.stringify(checkboxesChecked);
-        console.log(checkboxesChecked);
-        $.ajax({
-            url: "/questionBankQuestions",
-            type: "POST",
-            contentType: "application/json",
-            data: checkboxesChecked,
-            beforeSend: function() {    
-                $("#questionEditorDiV").hide();
-                $("#editQuestionsTableDiv").hide();
-              $("#questionloader").show();
-           },
-            success: function (response) {
-                $("#questionloader").hide();
-                $("#questionEditorDiV").show();
-                if(response==1){
-                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-                }
-                else{
-                    $("#questions").html(response);
-                }                                
-            },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
-            }
-        });
+  $(document).ready(function () {
+    var optionHTMLChapter = "";
+    classValue = document.getElementById("classVal").value;
+    if (classValue == "na") {
+      var val = "na";
+      optionHTMLChapter +=
+        '<option value="na"  selected disabled> Select Chapter </option>';
+      chapter_num_select.innerHTML = optionHTMLChapter;
     }
-    function questionFile() {
-        $("#questionSubmitBtn").attr("disabled", true);
-        $("#questionSubmitLoader").show();
-        var questions_list = document.getElementsByName('questionsCheckbox');
-        var checkboxesChecked = [];
-        for (var i = 0; i < questions_list.length; i++) {
-            // And stick the checked ones onto an array...
-            if (questions_list[i].checked) {
-                checkboxesChecked.push(questions_list[i].value);
-            }
-        }
-        //checkboxesChecked  = JSON.stringify(checkboxesChecked);   
-        var data_list = []
-        data_list.push(checkboxesChecked);
-        console.log(data_list);
-        data_list.push(count_marks);
-        console.log(data_list);
-        data_list = JSON.stringify(data_list);
-        $.ajax({
-            url: "/questionBankFileUpload",
-            type: "POST",
-            contentType: "application/json",
-            data: data_list,
-            success: function (response) {
-                $("#filebox").show();
-                $("#filebox").html(response);
-                $("#questionSubmitBtn").attr("disabled", false);
-                $("#questionSubmitLoader").hide();
-            },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
-            }
-        });
-    }
+  });
 
-    function calculate_marks(e){
-    checkbox_id=e.id
-    weightage=document.getElementById(checkbox_id+"select").value
-    if($(e).is(':checked'))
-    {   count_marks=count_marks+parseInt(weightage)
-         $("#marks").text(count_marks);
+  $("#topic").click(function () {
+    classValue = document.getElementById("classVal").value;
+    subjectValue = document.getElementById("subId").value;
+    chapterValue = document.getElementById("chapno").value;
+    console.log(classValue);
+    if (classValue == "na") {
+      console.log("Inside message");
+      tag = document.getElementById("message");
+      tag.innerHTML = "No Class Selected";
+      $("#message").show();
+      event.preventDefault();
+    } else if (subjectValue == "na") {
+      tag = document.getElementById("message");
+      tag.innerHTML = "No Subject Selected";
+      $("#message").show();
+      event.preventDefault();
+    } else if (chapterValue == "na") {
+      tag = document.getElementById("message");
+      tag.innerHTML = "No Chapter Selected";
+      $("#message").show();
+      event.preventDefault();
+    } else {
+      $("#message").hide();
     }
-    else
-    {  count_marks=count_marks-parseInt(weightage)
-        $("#marks").text(count_marks);
-    }
-}
+  });
 
-function createQuestion(){ 
-    console.log('create Question');
+  function questions() {
+    var topic_list = document.getElementsByName("topicCheckbox");
+    var checkboxesChecked = [];
+    for (var i = 0; i < topic_list.length; i++) {
+      // And stick the checked ones onto an array...
+      if (topic_list[i].checked) {
+        checkboxesChecked.push(topic_list[i].value);
+      }
+    }
+    console.log(checkboxesChecked[0]);
+    checkboxesChecked = JSON.stringify(checkboxesChecked);
+    console.log(checkboxesChecked);
     $.ajax({
-            url: "/questionBuilder",
-            type: "GET",
-            contentType: "application/json",
-            data: "",
-            success: function (response) {
-                $('#quesBuilder').html(response);
-            },
-            error: function(xhr){
+      url: "/questionBankQuestions",
+      type: "POST",
+      contentType: "application/json",
+      data: checkboxesChecked,
+      beforeSend: function () {
+        $("#questionEditorDiV").hide();
+        $("#editQuestionsTableDiv").hide();
+        $("#questionloader").show();
+      },
+      success: function (response) {
+        $("#questionloader").hide();
+        $("#questionEditorDiV").show();
+        if (response == 1) {
+          $("#questions").html(
+            '<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>'
+          );
+        } else {
+          $("#questions").html(response);
+        }
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading question");
+      },
+    });
+  }
+  function questionFile() {
+    $("#questionSubmitBtn").attr("disabled", true);
+    $("#questionSubmitLoader").show();
+    var questions_list = document.getElementsByName("questionsCheckbox");
+    var checkboxesChecked = [];
+    for (var i = 0; i < questions_list.length; i++) {
+      // And stick the checked ones onto an array...
+      if (questions_list[i].checked) {
+        checkboxesChecked.push(questions_list[i].value);
+      }
+    }
+    //checkboxesChecked  = JSON.stringify(checkboxesChecked);
+    var data_list = [];
+    data_list.push(checkboxesChecked);
+    console.log(data_list);
+    data_list.push(count_marks);
+    console.log(data_list);
+    data_list = JSON.stringify(data_list);
+    $.ajax({
+      url: "/questionBankFileUpload",
+      type: "POST",
+      contentType: "application/json",
+      data: data_list,
+      success: function (response) {
+        $("#filebox").show();
+        $("#filebox").html(response);
+        $("#questionSubmitBtn").attr("disabled", false);
+        $("#questionSubmitLoader").hide();
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading question");
+      },
+    });
+  }
 
-            }
-        });
-}
+  function calculate_marks(e) {
+    checkbox_id = e.id;
+    weightage = document.getElementById(checkbox_id + "select").value;
+    if ($(e).is(":checked")) {
+      count_marks = count_marks + parseInt(weightage);
+      $("#marks").text(count_marks);
+    } else {
+      count_marks = count_marks - parseInt(weightage);
+      $("#marks").text(count_marks);
+    }
+  }
 
+  function createQuestion() {
+    console.log("create Question");
+    $.ajax({
+      url: "/questionBuilder",
+      type: "GET",
+      contentType: "application/json",
+      data: "",
+      success: function (response) {
+        $("#quesBuilder").html(response);
+      },
+      error: function (xhr) {},
+    });
+  }
 </script>
-
 
 {%endblock%}
