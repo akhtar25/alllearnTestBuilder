@@ -7,13 +7,12 @@
     <input type="text" id="testId" val="" style="display: none;">
     <a href="#modal2{{testPaperData.test_id}}" style="margin-top: 22px;margin-left: 164px;" class='btn green modal-trigger'>Conduct
         Test</a>
-    <div id="modal2{{testPaperData.test_id}}" class="modal" style="background-color:white; height: 420px;position: fixed;overflow-y: auto;">
+    <!-- <div id="modal2{{testPaperData.test_id}}" class="modal" style="background-color:white; height: 420px;position: fixed;overflow-y: auto;">
             <form action="/feedbackCollection" method="POST">
               <div class="modal-content">
                 <p> Starting Test</p>
                 <h4>Class: {{testPaperData.class_val}}</h4>
                 <h4>Select <b>section</b> for which you want to run the test</h4>
-                <!-- <input type="text" name='section' placeholder="eg. A"> -->
                 <select name="section" style="display: block;">
                   <option disabled selected>Select Section</option>
                   {% for section in sections %}
@@ -47,11 +46,57 @@
                 <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
                 
               </div>
-              <!-- <div class="modal-footer">  
-                <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
-              </div> -->
+             
             </form>
-          </div>
+          </div> -->
+          <div id="modal2{{testPaperData.test_id}}" class="modal" style="background-color:white; height: 453px;width:500px;overflow-y: auto;position: fixed;">
+  <form action="/feedbackCollection" method="POST">
+    <div class="modal-content">
+      <h4 style="font-size:14px;"> Starting Test</h4>
+      <h4 style="font-size:14px;">Class: {{testPaperData.class_val}}</h4>
+      <h4 style="font-size:14px;">Select <b>section</b> for which you want to run the test</h4>
+      <!-- <input type="text" name='section' value="No value"> -->
+      
+      <select name="section" style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
+                  <option style="font-size: 14px;;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>
+                  {% for section in sections %}
+                    <option style="font-size: 14px;;font-family:Source Sans Pro,sans-serif;" value="{{section.section}}">{{section.section}}</option>
+                  {% endfor %}
+                </select>
+      <!-- <p style="margin-top:5px;">
+        <label>
+          <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
+          <span style="font-size:18px;color:black;font-weight:450">Untimed</span>
+        </label>
+      </p>
+      <p style="margin-top:-7px;">
+        <label>
+          <input name="timeOption" class="Toption" value="Timed" type="radio" />
+          <span style="font-size:18px;color:black;font-weight:450">Timed</span>
+        </label>
+      </p> -->
+      
+      <h4 style="font-size:14px;margin-top:10px;">Weightage</h4>
+      <input style="font-size:14px;" type="text" name="weightage" value="10">
+      <h4 style="font-size:14px;">Negative Marking</h4>
+      <input style="font-size:14px;" type="number" name="negativeMarking" value="0">
+      <input type="hidden" name='class_val' value="{{testPaperData.class_val}}">
+      <input type="hidden" name='subject_id' value="{{testPaperData.subject_id}}">
+      <input type="hidden" name='test_id' value="{{testPaperData.test_id}}">
+      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <div id="durationDiv" style="display: none;margin-bottom:10px;">
+        <h4 style="font-size:14px;">Duration</h4>
+        <input style="font-size:14px;" type="text" name='duration' value="" placeholder="place time in minutes eg. 30">
+      </div> 
+      <p style="margin-top:-10px;"><label><input name="advance" value="Y" class="filled-in" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance answer options</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" class="filled-in" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" class="filled-in" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
+      <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
+      
+      <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
+      </div>
+  </form>
+</div>
 </div>
 <script>
     // classVal = $('#class_val').val();
@@ -66,8 +111,8 @@
   });
 
   $('.Toption').click(function(){
-    var timeOption = $("input[name='timeOption']:checked").val();
-    if(timeOption=='Timed'){
+    var timeOption = $("input[name='timed']:checked").val();
+    if(timeOption=='Y'){
       $('#durationDiv').show();
     }else{
       $('#durationDiv').hide();

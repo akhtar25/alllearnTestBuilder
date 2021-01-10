@@ -1,11 +1,11 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
 
-  <div class="col-md-12">
+  <div class="col-md-12" style="padding-left:40px;padding-right:50px;">
     <h3>Test Papers</h3>
     <a href="{{url_for('testBuilder')}}" class='btn-primary btn pull-right'>Create New Test</a><br>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-4" style="margin-left:25px;">
     <select id="paper_count" >       
       <option value="50">Show last 50 papers</option>
       <option value="100">Show last 100 papers</option>
@@ -15,7 +15,7 @@
   <option value="12">12</option>-->
   </select>
   </div>
-  <div id="paperLoader" class="center" style="display: none;height: 100%;">
+  <div id="paperLoader" class="center" style="display: none;margin-top:180px;">
     <img src="../static/images/loader.gif">
 </div>
 

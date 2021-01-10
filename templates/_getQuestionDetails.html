@@ -1,0 +1,24 @@
+{%if testQuestionsDetails%}
+                              <table class="table table-hover" style='overflow-x:auto'>
+                                  <thead>
+                                      <tr>
+                                          <th>Questions</th>
+                                          <th>Type</th>
+                                          <th>Weightage</th>                                          
+                                      </tr>                                      
+                                  </thead>
+                                  <tbody>
+                                  
+                                      {%for dataRows in testQuestionsDetails%}
+                                      <tr>
+                                          <td style="overflow: hidden;text-overflow: ellipsis;width: 550px;white-space: nowrap;">{{dataRows.question_description}}</td>
+                                          <td>{{dataRows.question_type}}</td>
+                                          <td>{{(dataRows.weightage/totalQues)}}</td>
+                                      </tr>
+                                      {%endfor%}
+                                     
+                                  </tbody>
+                              </table>
+                              {%else%}
+                              <h4>No questions found</h4>
+                              {%endif%}

@@ -1,15 +1,15 @@
 <div class="content">
   <div class="row" style="margin-left: 0px;">
 
-    <label id="currQuestionLabel" style="width: 100%;">
+    <span id="currQuestionLabel" style="float:right;margin-top:-45px;font-size: 14px;">
       {% if totalQCount!=''%}
       
-      Q <label id="qnum">{{ qnum}}</label> of <label id="totalQCount">{{ totalQCount }}</label><br>
-    </label>
+      Q <span id="qnum" style="font-size: 14px;">{{ qnum}}</span> of <span id="totalQCount" style="font-size: 14px;">{{ totalQCount }}</span><br>
+    </span>
     {% endif %}
-    <h3 style="margin-top: 0px;">Q: {{ question.question_description }}</h3>
+    <h4 style="margin-top: -10px;margin-left:-5px;">Q: {{ question.question_description }}</h4>
     {%if question.reference_link !=None or question.reference_link!='' %}
-<aside class="deviceQuesImage">    
+<aside class="deviceQuesImage" style="margin-left:-7px;">    
     <img src="{{ question.reference_link }}" style="max-height: 300px;max-width: 700px;">
 </aside>
 <aside class="mobQuesImage">    
@@ -17,9 +17,9 @@
 </aside>
     {% endif %}
     {% if question.question_type=='Subjective' %}
-    <div class="answerText">
-      <span style="display: block;font-size: 20px;">Answer:</span>
-      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (words length can be upto 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
+    <div class="answerText" style="margin-left:-2px;">
+      <span style="display: block;font-size: 18px;">Answer:</span>
+      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (character length should not be more than 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
       {% if uploadStatus=='Y' %}
       <span style="display: block;">OR</span>
       <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
@@ -54,6 +54,7 @@
 <script>
 
   $(document).ready(function(){
+    $('span.character-counter').css("margin-top","-50px");
     $('input#input_text, textarea#box_id').characterCounter();
     var num = "{{qnum}}";
     var totalnum = "{{totalQCount}}";
@@ -83,6 +84,7 @@
 
   window.setInterval(function(){
     // alert('file selected');
+  if(document.getElementById('box_id')){
     if(document.getElementById('box_id').value==''){
     if(document.getElementById('attachFile').files.length==0){
       // $('#box_id').attr("disabled",true);
@@ -98,6 +100,7 @@
     $("#submit").attr("disabled", false);
     }
     }
+  }
   }, 1000);
 
     $(".ansOption").click(function (){
@@ -227,22 +230,22 @@ var x = setInterval(function() {
     {% for row in answer_list %}
             console.log('inside for of session variable');
             {% if row[1]==239 %}
-              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo3.png')");
-              $("#{{row[0]}}").css("border","0px");
-              $('#{{row[0]}}').css("color","white");
+              $(".{{row[0]}}").css("background-color","limegreen");
+              // $(".{{row[0]}}").css("border","0px");
+              $('.{{row[0]}}').css("color","white");
             {% elif row[1]==240 %}
-              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo2.png');");
-              $("#{{row[0]}}").css("border","0px");
-              $('#{{row[0]}}').css("color","white");
+              $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo2.png');");
+              // $(".{{row[0]}}").css("border","0px");
+              $('.{{row[0]}}').css("color","white");
             {% elif row[1]==241 %}
 
-              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo5.png')");
-              $("#{{row[0]}}").css("border","0px");
-              $('#{{row[0]}}').css("color","white");
+              $(".{{row[0]}}").css("background-color","#008B8B");
+              // $(".{{row[0]}}").css("border","0px");
+              $('.{{row[0]}}').css("color","white");
               {% elif row[1]==242 %}
-              $("#{{row[0]}}").css("background","url('https://data.nta.ac.in/img/QuizIcons/Logo4.png')");
-              $("#{{row[0]}}").css("border","0px");
-              $('#{{row[0]}}').css("color","white");
+              $(".{{row[0]}}").css("background-color","slateblue");
+              // $(".{{row[0]}}").css("border","0px");
+              $('.{{row[0]}}').css("color","white");
             {% endif %}
           {% endfor %}
   })();

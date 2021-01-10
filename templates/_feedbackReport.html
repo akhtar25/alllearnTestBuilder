@@ -1,20 +1,20 @@
 <div class="box-title">
-    <h3 class="box-title">Online Test Report </h3>
+    <h4 class="box-title" style="font-size:14px;margin-left:10px;">{{testType}} | Class:{{class_val}} | Section:{{section}} | Subject:{{subjectName}} </h4> 
 </div>
 <div class="box-body table-responsive">
   <table class="table table-bordered table-responsive-md table-striped table-centered">
       <tr>
-          <td class="pt-3-half" contenteditable="false"><h4>Total Unique Responses</h4></td>
-          <td class="pt-3-half" contenteditable="false"><h3 >{{responseResultRowCount}}</h3></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Total no of students attempted the test</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:16px;"><h3 style="font-size:16px;">{{responseResultRowCount}}</h3></td>
           
         </tr>
         <!-- This is our clonable table line -->
         <tr>
-          <td class="pt-3-half" contenteditable="false"><h4>Average Class Percentage</h4></td>
+          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Average Class Percentage</h4></td>
           {% if classAverage > 50 %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="green-text">{{'%0.2f' % classAverage|float}}%</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="green-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% else %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="red-text">{{'%0.2f' % classAverage|float}}%</h3></td>
+          <td class="pt-3-half" contenteditable="false"><h3 class="red-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
           {% endif %}
         </tr>
   </table>
@@ -46,7 +46,7 @@
                           {% if row.subjective_marks > 0 %}
                           {{row.subjective_marks}}
                           {% else %}
-                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Not Reviewed</a>
+                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Review</a>
                           {% endif %}
                         </td>
                         <td>
@@ -85,6 +85,7 @@
                       <tr> 
                         <td>{{row.roll_number}} </td>
                         <td> {{row.full_name}}</td>
+                        <td>{{total_marks}}</td>
                         <td> 
                           {% if row.marks_scored >= 0 %}
                           {{row.marks_scored}}
@@ -92,14 +93,14 @@
                           0
                           {% endif %}
                         </td>
-                        <td> {{totalPointsLimit}}</td>
-                        <td>
+                        <td> 
                           {% if row.percentage_marks>=0 %}
-                           <!-- {{'%0.2f' % row.percentage_marks|float}}%
+                            {{'%0.2f' % row.percentage_marks|float}}%
                           {% else %}
-                          0.00%
+                            0.00%
                           {% endif %}
-                          </td> -->
+                        </td>
+                        
                         <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
                       </tr>
                       {% endfor %}

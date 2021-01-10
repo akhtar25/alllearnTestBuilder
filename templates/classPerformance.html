@@ -1,7 +1,7 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h2>Class Test Reports</h2>
-    <div class="box-body table-responsive no-padding" id="testReportsDiv">
+    <h3 style="margin-left: 10px;">Online Test Reports</h3>
+    <div class="box-body table-responsive no-padding" id="testReportsDiv" style="margin-left: 5px;">
 
         <table class="table table-hover">
             <tr>
@@ -16,7 +16,7 @@
             {% for eachRow in testDetailRows%}
             <tr style="margin-top:5px;">
               <td>
-                <span style="font-size: 20px;">{{eachRow.class_val}}</span>
+                <span style="font-size: 14px;">{{eachRow.class_val}}</span>
               </td>
                 <td>{{eachRow.section}}</td>
                 <td>{{eachRow.subject}}</td>

@@ -18,6 +18,9 @@
     .mobQuesImage{
       display: block;
     }
+    #clearBtn{
+      display:flex;
+    }
     .deviceMapPanel{
       display: none;
     }
@@ -71,12 +74,12 @@
           <span class="card-title"></span>
         </div>
         <div class="card-content deviceEntryPage">
-        <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
+        <span style="display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
         <input type="button" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
 
         </div>
         <div class="card-content mobEntryPage" style="height: 160px;">
-          <span style="display:block;font-weight: 700;font-size: 15px;">Enter your student id and submit</span><input type="number" style="width:200px;" id="studentMobId"/>
+          <span style="display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:100%;" id="studentMobId"/>
           <input type="button" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
   
           </div>
@@ -95,9 +98,9 @@
     // alert('Student Id:'+sId);
         if ((sId != "")||(sMobId!="")) {
           if(sId!=""){
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
           }else{
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
           }
         }
   });
@@ -110,7 +113,7 @@
   <div class="sidebar-mini"> 
      <aside class="main-sidebar" style="padding:0px;">            
             <section class="sidebar" id="leftPanel" style="display: none;">
-              <div id="timeDiv">
+              <div id="timeDiv" style="margin-left:-30px;">
               <h4>Remaining Time:<span id="remTime"></span></h4>
             </div>
               <!-- panel -->
@@ -119,29 +122,38 @@
                   <table class="table table-borderless mb0">
                     <thead>
                       <tr>
-                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                        <td class="full-width" style="font-size: 23px;">
+                          <!-- <a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a> -->
+                          <a href="javascript:void(0);" id="" class="test-ques que-not-answered" style="background-color: #ddd;color: black;font-size:22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                        </td>
                         <td>Not Answered</td>
-                        <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                        <td class="full-width" style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color: limegreen;color: black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Answered</td>
                       </tr>
+                      {% if advance=='Y' %}
                       <tr>
-                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                        <td class="full-width"  style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:slateblue;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Marked for review</td>
-                        <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                        <td class="full-width"  style=""><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:#008B8B;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                         <td>Answered and marked for review</td>
                       </tr>
+                      {% endif %}
                     </thead>
                   </table>
                 </div>
               </div>
               <!-- End -->
               <div class="panel panel-default deviceMapPanel" style="margin-left: -30px;">
-                <div class="panel-body" style="height:330px;width: 259px;">
+                <div class="panel-body" style="max-height:330px;">
                   <ul class="pagination test-questions" style="margin-top: 0px;">
 
                     {% for row in questionList %}
-                    <li class="active" data-seq="1">                      
-                      <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+                    <li class="active" data-seq="1">   
+                      {% if loop.index>9 %}                   
+                        <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+                      {% else %}
+                        <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">0{{loop.index}}</a>
+                      {% endif %}
                     </li>
                     {% endfor %}
                   </ul>
@@ -159,28 +171,30 @@
           <table class="table table-borderless mb0">
             <thead>
               <tr>
-                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo1.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color: #ddd;color: black;font-size:22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Not Answered</td>
-                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo3.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width" style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color: limegreen;color: black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Answered</td>
               </tr>
+              {% if advance=='Y' %}
               <tr>
-                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo4.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:slateblue;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Marked for review</td>
-                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background: url('https://data.nta.ac.in/img/QuizIcons/Logo5.png');font-size: 23;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                <td class="full-width"  style="font-size: 23px;"><a class="test-ques-stats que-not-answered lblNotAttempted" style="background-color:#008B8B;color:black;font-size: 22px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                 <td>Answered and marked for review</td>
               </tr>
+              {% endif %}
             </thead>
           </table>
         </div>
       </div>
-      <div class="panel panel-default mobileMapPanel">
-        <div class="panel-body" style="width: 296px;">
+      <div class="panel panel-default mobileMapPanel" style="max-width: 296px;">
+        <div class="panel-body">
           <ul class="pagination test-questions" style="margin-top: 0px;">
 
             {% for row in questionList %}
             <li class="active" data-seq="1">                      
-              <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
+              <a href="javascript:void(0);" id="{{row.question_id}}" class="test-ques que-not-answered {{row.question_id}}" style="margin-left: 2px;background-color: #ddd;color: black;cursor: pointer;" data-href="" onclick="fetchSubmitQuestion('{{loop.index-1}}','skip');">{{loop.index}}</a>
             </li>
             {% endfor %}
           </ul>
@@ -190,9 +204,9 @@
         <div class="row">
           <div class="row">
             <div class="col-xs-8" style="width:100%;">
-              <div class="box" id="feedbackQuestionDiv">
-                <div class="box-header">
-                  <h5 class="box-title">{{test_type}} </h5><span style="padding-left: 10px;"> Class:
+              <div class="" id="feedbackQuestionDiv">
+                <div class="box-header" style="display:none;">
+                  <span class="">{{test_type}} </span><span style="padding-left: 10px;"> Class:
                     {{ class_val }} | Section: {{ section }}</span>
                 </div>
                 <span id="questionList" style="display: none;">{{ questionList }}</span>
@@ -220,7 +234,7 @@
                     }
                   </style>
                     <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Welcome {{studentName}}</p><br>
-                    <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Click START to load questions</p>
+                    <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Click START to begins the test</p>
                     <br><br><br><br><br><br><br><br>
 
                     {%else %}
@@ -233,22 +247,26 @@
                   {% if questionList|length > 0 %}
                   <div class="NewBtn">
                     <!-- Add more buttons -->
-                    <a id="clear" style="display:none;margin-left:30px;cursor: pointer;float: left;font-size: 18px;margin-top: 8px;">Clear</a>
+                    <div id="clearBtn">
+                    <a id="clear" style="display:none;margin-left:15px;cursor: pointer;float: left;font-size: 18px;margin-top: 8px;">Clear</a>
+                    </div>
                     <!-- <input type="button" value="Clear" class="btn btn-primary left" id="clear"
                     style="height: 40px; width: 100px;margin-left:15px;margin-left: 30px;display:none;color: black;background-color: white;"> -->
                     <input type="button" value="Start" class="btn btn-primary pull-right green" id="start" onclick="fetchSubmitQuestion('q','Start');"
-                    style="height: 40px; width: 200px;margin-left: 30px;">
+                    style="height: 40px; width: 200px;margin-top: -150px;">
                     <input type="button" value="Submit and next" class="btn btn-primary left green" id="startAndNextBTN" onclick="fetchSubmitQuestion('q','submitandnext');"
-                    style="height: 40px; width: 200px;margin-left: 30px;display:none;">
+                    style="height: 40px; width: 200px;margin-left: 15px;display:none;">
+                    {% if advance=='Y' %}
                     <input type="button" value="Mark for review and submit" class="btn btn-primary left" id="save" onclick="fetchSubmitQuestion('q','save');"
-                    style="height: 40px; width: 238px;margin-left:15px;margin-left: 30px;display:none;background-color: #f0ad4e;">
+                    style="height: 40px; width: 238px;margin-left:15px;display:none;background-color:#008B8B">
                     <input type="button" value="Mark for review and next" class="btn btn-primary left" id="next" onclick="fetchSubmitQuestion('q','next');"
-                    style="height: 40px; width: 220px;margin-left:15px;margin-left: 30px;display:none;">
+                    style="height: 40px; width: 220px;margin-left:15px;display:none;background-color: slateblue;">
+                    {% endif %}
                   </div>
                   {% endif %}
                   <!-- <input type="button" value="Skip" class="btn btn-primary left" id="skipButton"
                   style="height: 40px; width: 150px;display:none;margin-top: 20px;color: black;background-color: white;" onclick="fetchSubmitQuestion('q');"> -->
-                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green deviceSubmitBtn" id="submit" onclick="fetchSubmitQuestion('q','submit');"
+                  <input type="button" value="Submit and End Test" class="btn btn-primary pull-right deviceSubmitBtn" id="submit" onclick="fetchSubmitQuestion('q','submit');"
                   style="height: 40px; width: 200px;display:none;margin-top: 20px;">
                   
                   <input type="button" value="Submit and End Test" class="btn btn-primary pull-right green" id="timeout" onclick="fetchSubmitQuestion('q','timeout');"
@@ -316,6 +334,12 @@
     $('#TestLink').hide();
   });
 
+  $('#start').click(function(){
+    console.log('start btn clicked');
+    $('.box-header').show();
+    $("#feedbackQuestionDiv").addClass("box");
+  });
+
   
 
   // $("#skipButton").click(function () {
@@ -348,7 +372,7 @@
     $('#save').show();
     $('#next').show();
     $('#clear').show();
-    $('#submit').show();
+    // $('#submit').show();
     if(btn=='submit'||btn=='timeout'){
     $('#startAndNextBTN').hide();
     $('#save').hide();
@@ -363,7 +387,8 @@
     $('#start').hide();
 
     $("#currrent_question_id").val(questionIDListJS[tempCountVar]);
-
+    console.log('TempCountVar:'+tempCountVar);
+    
     var radioValue = $("input[name='ansOption']:checked").val();
     var respOption = '';
     if (radioValue) {
@@ -400,13 +425,20 @@
         console.log('c:'+(parseInt(c)));
           }
         }
+        if(tempCountVar==questionIDListJS.length){
+          tempCountVar = tempCountVar - 1;
+        }
         qcount = questionIDListJS[tempCountVar];
+        console.log('New Count:'+tempCountVar);
+        console.log('Length:'+questionIDListJS.length);
+        console.log('Question Id:'+qcount);
       }else{
         tempCountVar = num;
         c = num;
         j=num;
         console.log('inside else:'+num);
         qcount = questionIDListJS[parseInt(num)];
+        console.log('Question Id:'+qcount);
       }
       var textAns = '';
       var url = '';
@@ -427,7 +459,7 @@
       $.ajax({
         url: "/loadQuestionStud?qnum=" + tempCountVar + "&total=" + questionListSize + "&question_id=" +
         qcount + "&last_q_id="+lastQIDVal+ "&response_option="+ respOption+ "&resp_session_id="+ obj.resp_sessId+
-          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url+"&uploadStatus={{uploadStatus}}",
+          "&subject_id="+ {{subject_id}}+"&btn="+btn+"&student_id={{student_id}}&textAns="+textAns+"&url="+url+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}",
         type: "get",
         data: '', 
         success: function (response) {
