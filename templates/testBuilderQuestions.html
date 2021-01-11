@@ -3,14 +3,14 @@
 <h3 style="font-size: 18px;">Select questions</h3> 
 <div class="card id">
     <div class="card-body">
-        <div id="table" class="table-editable" style="overflow-y: auto; height:600px;position:relative;">
+        <div id="table" class="table-editable" style=" height:600px;position:relative;">
             <table class="table table-bordered table-responsive-md table-striped text-center">
                 <thead>
                     <tr>
-                        <th scope="col">Question</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Select</th>
-                        <th scope="col">Weightage</th>
+                        <th scope="col" style="text-align: left;">Question</th>
+                        <th scope="col" style="text-align: left;">Type</th>
+                        <th scope="col" style="text-align: left;">Select</th>
+                        <th scope="col" style="text-align: left;">Weightage</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -18,7 +18,7 @@
                     {% for q in questions %}
                     {% for question in q %}
                     <tr>
-                        <td>
+                        <td style="text-align: left;">
                                 {% if question.question_type=='MCQ1' %}                        
                                 <ul>
                                         <li>
@@ -42,14 +42,14 @@
                         {% endif %}
                             
                         </td>
-                        <td> {{ question.question_type }} </td>
-                        <td><label for="{{ question.question_id }}">
+                        <td style="text-align: left;"> {{ question.question_type }} </td>
+                        <td style="text-align: left;"><label for="{{ question.question_id }}">
                                 <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
                                     value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
                             </label>
                         </td>
 
-                        <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
+                        <td style="text-align: left;">{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
                                 id="{{ question.question_id }}select"></td>
                     </tr>
                     {% endfor %}
@@ -57,7 +57,7 @@
                     {% else %}
                     {% for question in questions %}
                     <tr>
-                        <td>
+                        <td style="text-align: left;">
                                 {% if question.question_type=='MCQ1' %}                        
                                 <ul>
                                         <li>
@@ -81,14 +81,14 @@
                         {% endif %}
                             
                         </td>
-                        <td> {{ question.question_type }} </td>
-                        <td><label for="{{ question.question_id }}">
+                        <td style="text-align: left;"> {{ question.question_type }} </td>
+                        <td style="text-align: left;"><label for="{{ question.question_id }}">
                                 <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
                                     value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
                             </label>
                         </td>
 
-                        <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
+                        <td style="text-align: left;">{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
                                 id="{{ question.question_id }}select"></td>
                     </tr>
                     {% endfor %}
@@ -105,7 +105,9 @@
 </div>
 <div class="col-sm-4" style="display: flex;float:right;margin-right: -30px;">
     <div class="input-field col s12">
-    <input type="text" style="font-size: 14px;" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
+        <!-- <input type="text" style="font-size: 14px;" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date"> -->
+        <input placeholder="Exam Date" style="font-size: 14px;" type="date" id="test_date" class="" onclick="validation();" name="test_date">
+        <label for="test_date">Exam Date</label>
     </div>
 
     <a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"></a><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
@@ -128,13 +130,21 @@
 {% endif %}
 <script>
 
-var today = new Date();
 
-$(".datepicker").datepicker({
-    changeMonth: true,
-    changeYear: true,
-    minDate: today // set the minDate to the today's date
-    // you can add other options here
+$(function(){
+    var dtToday = new Date();
+    
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+    
+    var minDate= year + '-' + month + '-' + day;
+    
+    $('#test_date').attr('min', minDate);
 });
 
 // $(document).ready(function(){

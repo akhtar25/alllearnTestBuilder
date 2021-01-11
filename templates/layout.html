@@ -647,7 +647,7 @@
               <!-- {%if row[2] not in lis %} -->
               <li>
 
-                <a class="subheader" style="margin-left: -15px;font-size: 16px;">{{row[2]}}</a>
+                <a class="subheader" style="margin-left: -15px;font-size: 20px;">{{row[2]}}</a>
 
               </li>
               <!-- {% endif %} -->
@@ -656,18 +656,18 @@
                 {% if current_user.user_type==71 or current_user.user_type==135 %}
                 {% if row[0]=='My Profile' %}
                 {% set username = current_user.username %}
-                <a style="color: green; font-size:20px;" href='{{row[1]}}/{{username}}'>{{row[0]}}</a>
+                <a style="color: green; font-size:18px;" href='{{row[1]}}/{{username}}'>{{row[0]}}</a>
                 {% else %}
-                <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
+                <a style="color: green; font-size:18px;" href="{{row[1]}}">{{row[0]}}</a>
                 {% endif %}
                 {% endif %}
 
                 {% if current_user.user_type==134 %}
                 {% if row[0]=='Student Directory' %}
-                <a style="color: green; font-size:20px;" href='{{row[1]}}?student_id={{session["studentId"]}}'>Student
+                <a style="color: green; font-size:18px;" href='{{row[1]}}?student_id={{session["studentId"]}}'>Student
                   Profile</a>
                 {% else %}
-                <a style="color: green; font-size:20px;" href="{{row[1]}}">{{row[0]}}</a>
+                <a style="color: green; font-size:18px;" href="{{row[1]}}">{{row[0]}}</a>
                 {% endif %}
 
                 {% endif %}

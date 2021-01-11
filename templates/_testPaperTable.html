@@ -71,7 +71,7 @@
 
 
 <!-- Modal structure-->
-<div id="conductTestModal" class="modal" style="background-color:white; height: 453px;width:500px;overflow-y: auto;position: fixed;">
+<div id="conductTestModal" class="modal" style="background-color:white; max-height: 482px;width:500px;overflow-y: auto;position: fixed;">
   <form action="/feedbackCollection" method="POST">
     <div class="modal-content">
       <h4 style="font-size:14px;"> Starting Test</h4>
@@ -110,6 +110,29 @@
       <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance answer options</span></label></p><br>
       <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
       <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
+      <!-- Add Instructions -->
+      <p style="margin-top: -10px">
+        <label
+          ><input
+            name="addInstuction"
+            value="Y"
+            class="instruction filled-in"
+            type="checkbox"
+          /><span
+            style="
+              font-family: 'Source Sans Pro';
+              font-weight: 450;
+              font-size: 14px;
+            "
+            >Add Instuctions</span
+          ></label
+        >
+      </p>
+      <div id="instructionDiv" style="display: none;margin-bottom:10px;">
+        <h4 style="font-size:14px;">Add here...</h4>
+        <input style="font-size:14px;" type="text" name='instructions' value="" placeholder="place instructions for students">
+      </div>
+      <!-- End -->
       <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
       
       <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
@@ -156,6 +179,15 @@
       });
 
     });
+
+    $('.instruction').click(function(){
+    var timeOption = $("input[name='addInstuction']:checked").val();
+    if(timeOption=='Y'){
+      $('#instructionDiv').show();
+    }else{
+      $('#instructionDiv').hide();
+    }
+  });
 
     $('.Toption').click(function(){
     var timeOption = $("input[name='timed']:checked").val();
