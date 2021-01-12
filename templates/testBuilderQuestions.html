@@ -24,23 +24,23 @@
                                         <li>
                                           <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                        
                                          <!-- Modal Structure  -->                                         
-                                        <div id="modal2" class="modal" style="background-color:white;">
-                                                <div id="questionloader1" style="display: none;">
-                                                        <img src="../static/images/loader.gif">
-                                                    </div>
-                                            <div class="modal-content" id="content">
-                                            <p><div id="questionDataList"></div> </p> 
-                                            
-                                            </div>
-                                        </div> 
+                                        
                                         </li>
                                 </ul>
                         {% else %}
                             <h5>
-                                {{ question.question_description }}
+                                <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>  
                             </h5>
                         {% endif %}
-                            
+                        <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                            <div id="questionloader1"  style="display: none;margin-left: 120px;margin-top: 120px;">
+                                    <img src="../static/images/loader.gif">
+                                </div>
+                        <div class="modal-content" id="content"  style="display:none;overflow-y: auto;max-height: 500px;">
+                        <p><div id="questionDataList"></div> </p> 
+                        
+                        </div>
+                    </div> 
                         </td>
                         <td style="text-align: left;"> {{ question.question_type }} </td>
                         <td style="text-align: left;"><label for="{{ question.question_id }}">
@@ -63,23 +63,23 @@
                                         <li>
                                           <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>                        
                                          <!-- Modal Structure  -->                                         
-                                        <div id="modal2" class="modal" style="background-color:white;">
-                                                <div id="questionloader1" style="display: none;">
-                                                        <img src="../static/images/loader.gif">
-                                                    </div>
-                                            <div class="modal-content" id="content" style="display:none;">
-                                            <p><div id="questionDataList"></div> </p> 
-                                            
-                                            </div>
-                                        </div> 
+                                        
                                         </li>
                                 </ul>
                         {% else %}
                             <h5>
-                                {{ question.question_description }}
+                                <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>   
                             </h5>
                         {% endif %}
-                            
+                        <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                            <div id="questionloader1"  style="display: none;margin-left: 120px;margin-top: 120px;">
+                                    <img src="../static/images/loader.gif">
+                                </div>
+                        <div class="modal-content" id="content"  style="display:none;overflow-y: auto;max-height: 500px;">
+                        <p><div id="questionDataList"></div> </p> 
+                        
+                        </div>
+                    </div> 
                         </td>
                         <td style="text-align: left;"> {{ question.question_type }} </td>
                         <td style="text-align: left;"><label for="{{ question.question_id }}">
