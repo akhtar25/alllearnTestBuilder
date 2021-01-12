@@ -117,7 +117,7 @@
                       {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
                     </div>
                   </a>  -->
-                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,instructions=instructions,advance=advance, _external=True)}}" style="width:333px;text-overflow: ellipsis;" id="myInput" readonly>
+                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;text-overflow: ellipsis;" id="myInput" readonly>
                   <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
                 </li>
                   <br>
@@ -156,7 +156,7 @@
       <h4>Share</h4>
       <div class="row">
         <h5 class='grey-text'>Share Page</h5>
-        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,instructions=instructions, _external=True)}}" style="margin-left: 100px;">
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus, _external=True)}}" style="margin-left: 100px;">
             <a class="a2a_button_facebook modal-close"></a>
             <a class="a2a_button_whatsapp modal-close"></a>
             <a class="a2a_button_sms modal-close"></a>

@@ -110,9 +110,9 @@
     // alert('Student Id:'+sId);
         if ((sId != "")||(sMobId!="")) {
           if(sId!=""){
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}&instructions={{instructions}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
           }else{
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}&instructions={{instructions}}";
+            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
           }
         }
   });
@@ -255,7 +255,7 @@
                   </style>
                     <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Welcome {{studentName}}</p><br>
                     <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">Click START to begins the test</p>
-                    <p style="font-size: 35px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">{{instructions}}</p>
+                    <p style="font-size: 20px;line-height: inherit;margin-left: 10px;" class="grey-text text-lighten-1">{{instructions}}</p>
                     <br><br><br><br><br><br><br><br>
 
                     {%else %}

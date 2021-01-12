@@ -6901,6 +6901,7 @@ def startPracticeTest():
 @app.route('/testLinkGenerate',methods=['GET','POST'])
 def testLinkGenerate():
     resp_session_id=request.args.get('resp_session_id')
+    
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
@@ -6910,26 +6911,26 @@ def testLinkGenerate():
     testId = testIdRow.test_id
     testPaperRow = TestDetails.query.filter_by(test_id=testId).first()
     testPaperLink = testPaperRow.test_paper_link
-    link=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,instructions=instructions, _external=True)
+    link=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus, _external=True)
     return jsonify({'testPaperLink':testPaperLink,'onlineTestLink':link})
 
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
+    instructionsRows = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    instructions = instructionsRows.instructions
     studId = request.args.get('student_id')
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
-    instructions = request.args.get('instructions')
     advance = request.args.get('advance')
     print('upload status:'+str(uploadStatus))
     print('result status:'+str(resultStatus))
     print('advance:'+str(advance))
     print('Student Id:'+str(studId))
-    print('Inside Stuudent Dev instructions:'+str(instructions))
     if studId==None:
         print('Student Id is null')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     emailDet = StudentProfile.query.filter_by(student_id=studId).first()
     user = ''
     if emailDet:
@@ -7026,7 +7027,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id),instructions=instructions, questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -7933,7 +7934,7 @@ def feedbackCollection():
             courseBatchData.is_ongoing='N'
             db.session.commit()
         if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
-            qsection = str(qsection).upper()
+            qsection = str(qsection)
             currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
 
             if currClassSecRow is None and batch_test!="1":
@@ -7985,7 +7986,7 @@ def feedbackCollection():
                     print(now_local.strftime(format))  
                                 
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -8020,7 +8021,7 @@ def feedbackCollection():
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
                     class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
                     subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
+                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
             elif teacherProfile.device_preference==78:
                 print('the device preference is not as expected' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
