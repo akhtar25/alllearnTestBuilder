@@ -6911,7 +6911,7 @@ def testLinkGenerate():
     testPaperRow = TestDetails.query.filter_by(test_id=testId).first()
     testPaperLink = testPaperRow.test_paper_link
     link=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,instructions=instructions, _external=True)
-    return jsonify({'testPaperLink':testPaperLink,'testLink':link})
+    return jsonify({'testPaperLink':testPaperLink,'onlineTestLink':link})
 
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
