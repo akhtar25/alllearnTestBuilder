@@ -6896,8 +6896,22 @@ def startPracticeTest():
         ## Start test
         return jsonify([responseSessionID])    
     else:
-        return jsonify(['1'])    
+        return jsonify(['1'])  
 
+@app.route('/testLinkGenerate',methods=['GET','POST'])
+def testLinkGenerate():
+    resp_session_id=request.args.get('resp_session_id')
+    school_id = request.args.get('school_id')
+    uploadStatus=request.args.get('uploadStatus')
+    resultStatus = request.args.get('resultStatus')
+    instructions = request.args.get('instructions')
+    advance = request.args.get('advance')
+    testIdRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
+    testId = testIdRow.test_id
+    testPaperRow = TestDetails.query.filter_by(test_id=testId).first()
+    testPaperLink = testPaperRow.test_paper_link
+    link=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,instructions=instructions, _external=True)
+    return jsonify({'testPaperLink':testPaperLink,'testLink':link})
 
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
