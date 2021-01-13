@@ -3054,7 +3054,6 @@ def roomCreation():
             "enable_chat": True,
             "start_video_off": True,
             "start_audio_off": True,
-            "owner_only_broadcast": True,
             "eject_at_room_exp": True,
             "eject_after_elapsed": 4
         }}
