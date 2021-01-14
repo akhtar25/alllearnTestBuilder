@@ -6234,6 +6234,8 @@ def testBuilderQuestions():
         print('returning template'+ str(questionList))
         return render_template('testBuilderQuestions.html',questions=questions)
 
+
+
 @app.route('/testBuilderFileUpload',methods=['GET','POST'])
 def testBuilderFileUpload():
     class_val = request.args.get('class_val')
@@ -6252,6 +6254,7 @@ def testBuilderFileUpload():
     data=request.get_json()
     question_list=data[0]
     count_marks=data[1]
+    
     document = Document()
     print('Date')
     print(date)
@@ -6898,27 +6901,14 @@ def startPracticeTest():
     else:
         return jsonify(['1'])  
 
-@app.route('/testLinkGenerate',methods=['GET','POST'])
-def testLinkGenerate():
-    resp_session_id=request.args.get('resp_session_id')
-    
-    school_id = request.args.get('school_id')
-    uploadStatus=request.args.get('uploadStatus')
-    resultStatus = request.args.get('resultStatus')
-    instructions = request.args.get('instructions')
-    advance = request.args.get('advance')
-    testIdRow = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    testId = testIdRow.test_id
-    testPaperRow = TestDetails.query.filter_by(test_id=testId).first()
-    testPaperLink = testPaperRow.test_paper_link
-    link=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus, _external=True)
-    return jsonify({'testPaperLink':testPaperLink,'onlineTestLink':link})
-
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     instructionsRows = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
-    instructions = instructionsRows.instructions
+    if instructionsRows:
+        instructions = instructionsRows.instructions
+    else:
+        instructions = ''
     studId = request.args.get('student_id')
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
@@ -7870,6 +7860,329 @@ def contentManagerDetails():
             print("Content List"+str(c))    
         return render_template('_contentManagerDetails.html',contents=contents)
 
+# API for existed Test Paper and Test Link Generation
+@app.route('/existedTestPaperLinkGenerate',methods=['POST'])
+def existedTestPaperLinkGenerate():
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id=teacher_id.school_id
+    print('SchoolId:',school_id)
+    uploadStatus=request.args.get('uploadStatus')
+    duration = request.args.get('duration')
+    if duration =='':
+        duration = 0
+    print('Duration:'+str(duration))
+    if uploadStatus=='' or uploadStatus==None:
+        uploadStatus = 'Y'
+    resultStatus = request.args.get('resultStatus')
+    if resultStatus=='' or resultStatus==None:
+        resultStatus = 'Y'
+    instructions = request.args.get('instructions')
+
+    advance = request.args.get('advance')
+    if advance=='' or advance==None:
+        advance = 'Y'
+    weightage = request.args.get('weightage')
+    if weightage=='' or weightage==None:
+        weightage = 10
+    NegMarking = request.args.get('negativeMarking')
+    if NegMarking=='' or NegMarking==None:
+        NegMarking = 0
+    testId = request.args.get('test_id')
+    testPaperLinkQuery = TestDetails.query.filter_by(test_id=testId).first()
+    test_paper_link = testPaperLinkQuery.test_paper_link
+    selectOption = request.args.get('selectOption')
+    print('SelectOption:'+str(selectOption))
+    currClassSecRow=ClassSection.query.filter_by(school_id=str(testPaperLinkQuery.school_id),class_val=str(testPaperLinkQuery.class_val).strip()).first()
+    resp_session_id = str(testPaperLinkQuery.subject_id).strip()+ str(datetime.today().strftime("%d%m%Y%H%M%S")).strip() + str(currClassSecRow.class_sec_id).strip()
+    if selectOption=='0':
+        print('download test paper')
+        return jsonify({'testPaperLink':test_paper_link})
+    elif selectOption=='1':
+        print('test link generate')
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testId,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=testPaperLinkQuery.class_val,section=currClassSecRow.section,subject_id=testPaperLinkQuery.subject_id, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=testPaperLinkQuery.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+        return jsonify({'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+    else:
+        print('test link generate and download paper')
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testId,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=testPaperLinkQuery.class_val,section=currClassSecRow.section,subject_id=testPaperLinkQuery.subject_id, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=testPaperLinkQuery.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+        return jsonify({'testPaperLink':test_paper_link,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+
+# API for New Test Paper Link and Test Link Generation
+@app.route('/newTestLinkGenerate',methods=['POST'])
+def newTestLinkGenerate():
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id=teacher_id.school_id
+    print('SchoolId:',school_id)
+    uploadStatus=request.args.get('uploadStatus')
+    duration = request.args.get('duration')
+    if duration =='':
+        duration = 0
+    print('Duration:'+str(duration))
+    if uploadStatus=='' or uploadStatus==None:
+        uploadStatus = 'Y'
+    resultStatus = request.args.get('resultStatus')
+    if resultStatus=='' or resultStatus==None:
+        resultStatus = 'Y'
+    instructions = request.args.get('instructions')
+
+    advance = request.args.get('advance')
+    if advance=='' or advance==None:
+        advance = 'Y'
+    weightage = request.args.get('weightage')
+    if weightage=='' or weightage==None:
+        weightage = 10
+    NegMarking = request.args.get('negativeMarking')
+    if NegMarking=='' or NegMarking==None:
+        NegMarking = 0
+    class_val = request.args.get('class_val')
+    test_type = request.args.get('test_type')
+    if test_type=='' or test_type==None:
+        test_type = 'Class Feedback'
+    subject = request.args.get('subject')
+    
+    print('Subject:'+str(subject))
+    subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+    print(subjectIDQuery)
+    print(subjectIDQuery.msg_id)
+    subject_id = subjectIDQuery.msg_id
+    quesCount = request.args.get('question_count')
+    count_marks = int(weightage) * int(quesCount)
+    topics = request.args.get('topics')
+    topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
+    topic_id = topicIdQuery.topic_id
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(class_val)+"' and subject_id='"+str(subject_id)+"' and archive_status='N' and topic_id='"+str(topic_id)+"' ORDER BY random() LIMIT 10"
+    print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
+    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+    # Code for Test Paper Creation
+    print('fetchQuesIds')
+    print(fetchQuesIds)
+    document = Document()
+    print('Date')
+    print(dateVal)
+    document.add_heading(schoolNameVal(), 0)
+    document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(dateVal) , 1)
+    document.add_heading("Subject : "+str(subject),2)
+    document.add_heading("Total Marks : "+str(count_marks),3)
+    p = document.add_paragraph()
+    for question in fetchQuesIds:
+        data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        #add question desc
+        document.add_paragraph(
+            data.question_description, style='List Number'
+        )    
+        if data.reference_link!='' and data.reference_link!=None:
+            try:
+                response = requests.get(data.reference_link, stream=True)
+                image = BytesIO(response.content)
+                document.add_picture(image, width=Inches(1.25))
+            except:
+                pass
+        for option in options:
+            if option.option_desc is not None:
+                document.add_paragraph(
+                    option.option+". "+option.option_desc) 
+    cl = class_val.replace("/","-")
+    file_name=str(teacher_id.school_id)+str(cl)+str(subject)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+    file_name = file_name.replace(" ", "")
+    if not os.path.exists('tempdocx'):
+        os.mkdir('tempdocx')
+    document.save('tempdocx/'+file_name)
+    #uploading to s3 bucket
+    client = boto3.client('s3', region_name='ap-south-1')
+    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+    #deleting file from temporary location after upload to s3
+    os.remove('tempdocx/'+file_name)
+    file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
+    format = "%Y-%m-%d %H:%M:%S"
+    # Current time in UTC
+    now_utc = datetime.now(timezone('UTC'))
+    print(now_utc.strftime(format))
+    # Convert to local time zone
+    now_local = now_utc.astimezone(get_localzone())
+    print('Date of test creation:'+str(now_local.strftime(format)))
+    board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+    testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
+        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+        date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+    db.session.add(testDetailsUpd)
+    db.session.commit()
+
+    createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
+    for questionVal in fetchQuesIds:
+        testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        db.session.add(testQuestionInsert)
+    db.session.commit()
+    currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
+    resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
+    linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=createdTestID.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
+    linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+    return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+    
+@app.route('/testLinkWhatsappBoot', methods=['GET', 'POST'])
+@login_required
+def testLinkWhatsappBoot():  
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
+        #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
+        #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
+    teacherProfile = teacher
+        #using today's date to build response session id
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    qtest_id = request.args.get('test_id')
+    weightage = request.args.get('weightage')
+    NegMarking = request.args.get('negativeMarking')
+        # code for upload file status
+    uploadStatus = request.args.get('uploadStatus')
+    resultStatus = request.args.get('resultStatus')
+    advance = request.args.get('advance')
+    instructions = request.args.get('instructions')
+    print('upload status:'+str(uploadStatus))
+    print('resultStatus:'+str(resultStatus))
+    print('feeedback Collection instructions:'+str(instructions))
+    print('advance:'+str(advance))
+    if resultStatus=='Y':
+        print('result status is yes')
+    else:
+        print('result status is no')
+    if uploadStatus=='Y':
+        print('upload status is yes')
+    else:
+        print('upload status is no')
+    if advance=='Y':
+        print('Test type is Advance')
+    else:
+        print('Test type is basic')
+    print('Neg Marks:'+str(NegMarking))
+    print(type(NegMarking))
+    if NegMarking==None:
+        NegMarking=0
+    nMarking = abs(int(NegMarking))
+        # Marks = int(nMarking)
+    nMark = -nMarking
+    duration = request.args.get('duration')
+    print('Test Id:'+str(qtest_id))
+    print('Duration:'+str(duration))
+    if duration!=None:
+        durTime = duration.split('.')[0]
+        duration = int(durTime)
+    print('Duration in int:'+str(duration))
+    if duration==None:
+        print('if duration is null')
+        duration=0 
+    qclass_val = request.args.get('class_val')
+    qsection = request.args.get('section')
+    qsubject_id = request.args.get('subject_id')
+    batch_test =  request.args.get('batch_test')
+    batch_id =  request.args.get('batch_id')    
+            
+    print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
+    if batch_test=="1":
+        print("Entered feedback coll")
+        print("batchtest: " + batch_test)
+        print("batch_id: " + batch_id)
+        courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
+        courseBatchData.is_ongoing='N'
+        db.session.commit()
+    if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
+        qsection = str(qsection)
+        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
+
+        if currClassSecRow is None and batch_test!="1":
+            flash('Class and section value not valid')
+            return redirect(url_for('testPapers'))
+        elif batch_test=="1" and  currClassSecRow is None:
+            class_sec_id = 1
+            qsubject_id=54
+        else:
+            class_sec_id = currClassSecRow.class_sec_id
+                #qsubject_id
+                #pass
+            #building response session ID
+            #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
+        responseSessionID = request.args.get('resp_session_id')
+        if responseSessionID=='':            
+            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
+        subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
+            
+        url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
+    
+        questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
+        if weightage==None or weightage=="":
+            qId = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').first()
+            weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+
+        print('Inside question id list')
+        print(questionIDList)          
+        questionListSize = len(questionIDList)
+
+        print('Question list size:'+str(questionListSize))
+        total_marks = int(weightage)*questionListSize
+            #creating a record in the session detail table  
+        if questionListSize !=0:
+            sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+                #print('Date:'+str(dateVal))
+            print('##########Response Session ID:'+str(responseSessionID))
+                #print('If Question list size is not zero')
+                #print(sessionDetailRowCheck)
+            if sessionDetailRowCheck==None:
+                print('if sessionDetailRowCheck is none')
+                    #print(sessionDetailRowCheck)   
+                format = "%Y-%m-%d %H:%M:%S"
+                    # Current time in UTC
+                now_utc = datetime.now(timezone('UTC'))
+                print(now_utc.strftime(format))
+                    # Convert to local time zone
+                now_local = now_utc.astimezone(get_localzone())
+                print(now_local.strftime(format))  
+                                
+                sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
+                db.session.add(sessionDetailRowInsert)
+                print('Adding to the db')
+
+            if batch_test=="1":
+                batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
+                    resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
+                db.session.add(batchTestInsert)
+                    #courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
+                    #courseBatchData.is_ongoing='N'
+            db.session.commit()
+
+        questionList = []
+        for questValue in questionIDList:
+            print('Question ID:'+str(questValue.question_id))
+            questionList.append(questValue.question_id)
+            
+
+        testDetailRow = TestDetails.query.filter_by(test_id=qtest_id).first()
+        testType = testDetailRow.test_type
+            #testTypeNameRow = MessageDetails.query.filter_by(msg_id=testTypeID).first()
+
+
+        questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()  
+        for  question in questions:
+            print('Question:'+str(question.question_description))         
+        totalMarks = 0
+        for eachQuest in questions:
+            totalMarks = totalMarks + int(eachQuest.suggested_weightage)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+        if teacherProfile.device_preference==195:
+            print('the device preference is as expected:' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
+                class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
+                subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
+                batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+        elif teacherProfile.device_preference==78:
+            print('the device preference is not as expected' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+        else:
+            print('the device preference is external webcame' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
+
+
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
@@ -7949,8 +8262,9 @@ def feedbackCollection():
                 #pass
             #building response session ID
             #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-                        
-            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
+            responseSessionID = request.args.get('resp_session_id')
+            if responseSessionID=='':            
+                responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
             
             url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
@@ -8029,60 +8343,6 @@ def feedbackCollection():
                 print('the device preference is external webcame' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
 
-    # elif request.method == 'POST':
-    #     allCoveredTopics = request.form.getlist('topicCheck')
-    #     class_val = request.form['class_val']
-    #     section = request.form['section']
-    #     subject_id = request.form['subject_id']
-    #     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-    #     #sidebar queries
-    #     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
-    #     distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
-    #     # end of sidebarm
-
-    #     curr_class_sec_id=""
-
-    #     for eachRow in classSections:
-    #         if str(eachRow.section).strip()==str(section).strip():
-    #             if str(eachRow.class_val).strip()==str(class_val).strip():                    
-    #                 curr_class_sec_id=eachRow.class_sec_id
-
-    #     #start of - db update to ark the checked topics as completed        
-    #     #topicTrackerDetails = TopicTracker.query.filter_by(school_id = teacherProfile.school_id).all()
-    #     currCoveredTopics=[]
-
-    #     for val in allCoveredTopics:
-    #         topicFromTracker = TopicTracker.query.filter_by(school_id = teacherProfile.school_id, topic_id=val).first()
-    #         if topicFromTracker != None:
-    #             if topicFromTracker.is_covered!='Y':
-    #                 topicFromTracker.is_covered='Y'
-    #                 currCoveredTopics.append(val)
-    #                 db.session.commit()
-    #     # end of  - update to mark the checked topics as completed
-
-    #     questionList = QuestionDetails.query.filter(QuestionDetails.topic_id.in_(currCoveredTopics),QuestionDetails.question_type.like('%MCQ%')).filter_by(archive_status='N').all()
-    #     questionListSize = len(questionList)
-        
-    #     responseSessionID = str(dateVal).strip() + str(subject_id).strip() + str(curr_class_sec_id).strip()
-    #     responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
-    #     #changes for use with PC+ mobile cam combination
-    #     print('Question list size:'+str(questionListSize))
-    #     if questionListSize >0:
-    #         sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-    #                     class_sec_id=curr_class_sec_id)
-    #         db.session.add(sessionDetailRowInsert)
-    #         db.session.commit()
-            
-    #         for eachQuestion in questionList:
-    #             respSessionQuestionRowInsert = RespSessionQuestion(question_id = eachQuestion.question_id, question_status='86', resp_session_id=responseSessionID)
-    #             db.session.add(respSessionQuestionRowInsert)
-    #             db.session.commit()
-    #         # topic_id, question_id, question_status, resp_session_id
-
-    #     if teacherProfile.device_preference==78:        
-    #         return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize, resp_session_id = responseSessionID)
-    #     else:
-    #         return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=subject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = class_val, section = section, questionList = questionList, questionListSize = questionListSize)
     else:
         return redirect(url_for('classCon'))
 
