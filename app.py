@@ -4218,7 +4218,7 @@ def register():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
         #By default we're setting the user as course taker
-        user = User(username=form.email.data, email=form.email.data, user_type='253', access_status='145', phone=form.phone.data,
+        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='145', phone=form.phone.data,
             first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
         user.set_password(form.password.data)
         db.session.add(user)
