@@ -1618,7 +1618,7 @@ def edit_profile():
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
-
+@app.route('/',methods=["GET","POST"])
 @app.route('/index')
 @app.route('/dashboard')
 @login_required 
@@ -2423,7 +2423,7 @@ def updateSearchIndex(task, fromPage="default"):
         #    return "Error Sending index data to algolia"
 
 
-@app.route('/',methods=["GET","POST"])
+
 @app.route('/courseHome')
 def courseHome():    
     if ("school.alllearn" in str(request.url)):
