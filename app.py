@@ -26,7 +26,7 @@ from flask import g, jsonify
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post  
-import barCode
+#import barCode
 import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
@@ -8537,15 +8537,15 @@ def questionAllDetails():
 
 
 
-@app.route('/decodes', methods=['GET', 'POST'])
-def decodeAjax():
-    if request.method == 'POST':
-        decodedData = barCode.decode(request.form['imgBase64'])
-        if decodedData:
-            json_data = json.dumps(decodedData)
-            print(json_data)
-            return jsonify(json_data)
-        return jsonify(['NO BarCode Found'])
+#@app.route('/decodes', methods=['GET', 'POST'])
+#def decodeAjax():
+#    if request.method == 'POST':
+#        decodedData = barCode.decode(request.form['imgBase64'])
+#        if decodedData:
+#            json_data = json.dumps(decodedData)
+#            print(json_data)
+#            return jsonify(json_data)
+#        return jsonify(['NO BarCode Found'])
 
 @app.route('/responseDBUpdate', methods=['POST'])
 def responseDBUpdate():   
