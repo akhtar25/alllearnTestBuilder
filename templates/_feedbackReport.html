@@ -1,191 +1,221 @@
 <div class="box-title">
-    <h4 class="box-title" style="font-size:14px;margin-left:10px;">{{testType}} | Class:{{class_val}} | Section:{{section}} | Subject:{{subjectName}} </h4> 
+  <h4 class="box-title" style="font-size: 14px; margin-left: 10px">
+    {{testType}} | Class:{{class_val}} | Section:{{section}} |
+    Subject:{{subjectName}}
+  </h4>
 </div>
 <div class="box-body table-responsive">
-  <table class="table table-bordered table-responsive-md table-striped table-centered">
-      <tr>
-          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Total no of students attempted the test</h4></td>
-          <td class="pt-3-half" contenteditable="false" style="font-size:16px;"><h3 style="font-size:16px;">{{responseResultRowCount}}</h3></td>
-          
-        </tr>
-        <!-- This is our clonable table line -->
-        <tr>
-          <td class="pt-3-half" contenteditable="false" style="font-size:14px;"><h4 style="font-size:14px;">Average Class Percentage</h4></td>
-          {% if classAverage > 50 %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="green-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
-          {% else %}
-          <td class="pt-3-half" contenteditable="false"><h3 class="red-text" style="font-size:16px;">{{'%0.2f' % classAverage|float}}%</h3></td>
-          {% endif %}
-        </tr>
+  <table
+    class="table table-bordered table-responsive-md table-striped table-centered"
+  >
+    <tr>
+      <td class="pt-3-half" contenteditable="false" style="font-size: 14px">
+        <h4 style="font-size: 14px">Total no of students attempted the test</h4>
+      </td>
+      <td class="pt-3-half" contenteditable="false" style="font-size: 16px">
+        <h3 style="font-size: 16px">{{responseResultRowCount}}</h3>
+      </td>
+    </tr>
+    <!-- This is our clonable table line -->
+    <tr>
+      <td class="pt-3-half" contenteditable="false" style="font-size: 14px">
+        <h4 style="font-size: 14px">Average Class Percentage</h4>
+      </td>
+      {% if classAverage > 50 %}
+      <td class="pt-3-half" contenteditable="false">
+        <h3 class="green-text" style="font-size: 16px">
+          {{'%0.2f' % classAverage|float}}%
+        </h3>
+      </td>
+      {% else %}
+      <td class="pt-3-half" contenteditable="false">
+        <h3 class="red-text" style="font-size: 16px">
+          {{'%0.2f' % classAverage|float}}%
+        </h3>
+      </td>
+      {% endif %}
+    </tr>
   </table>
-<table class="table table-bordered table-hover table-striped text-center">
-                      {% if flag==1 %} 
-                      <tr>
-                       
-                        <th>Student Name</th>
-                        <th>Student Id </th>
-                        <th>Objective Marks</th>
-                        <th>Subjective Marks</th>
-                        <th>Total Marks </th>
-                        <th>Details </th>
-                        <th>Mail</th>
-                        <!-- <th>SMS</th> -->
-                      </tr>                                                                    
-                      {% for row in responseResultRow %}   
-                      <tr> 
-                        <td>{{row.full_name}} </td>
-                        <td> {{row.student_id}}</td>
-                        <td> 
-                          {% if row.objective_marks >= 0 %}
-                          {{row.objective_marks}}
-                          {% else %}
-                          0
-                          {% endif %}
-                        </td>
-                        <td> 
-                          {% if row.subjective_marks > 0 %}
-                          {{row.subjective_marks}}
-                          {% else %}
-                          <a href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}" target="_blank">Review</a>
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if row.subjective_marks > 0 %}
-                          {% if row.total_marks>=0 %}
-                           {{ row.total_marks}}
-                          {% else %}
-                          0
-                          {% endif %}
-                          {% else %}
-                          ____
-                          {% endif %}
-                          </td>
-                        <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
-                        <td><button class="waves-effect waves-light btn sendNotificationEmailBtn" name="{{row.student_id}}" id="emailBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button>
-                          <p style="font-size: 12px;float:right;display:none;color:green;" id="emailMsg">Email Sent</p>
-                        </td>
-                        <!-- <td>
+  <table class="table table-bordered table-hover table-striped text-center">
+    {% if flag==1 %}
+    <tr>
+      <th style="text-align: left">Student Name</th>
+      <th style="text-align: left">Student Id</th>
+      <th style="text-align: left">Objective Marks</th>
+      <th style="text-align: left">Subjective Marks</th>
+      <th style="text-align: left">Total Marks</th>
+      <th style="text-align: left">Details</th>
+      <th style="text-align: left">Mail</th>
+      <!-- <th>SMS</th> -->
+    </tr>
+    {% for row in responseResultRow %}
+    <tr>
+      <td style="text-align: left">{{row.full_name}}</td>
+      <td style="text-align: left">{{row.student_id}}</td>
+      <td style="text-align: left">
+        {% if row.objective_marks >= 0 %} {{row.objective_marks}} {% else %} 0
+        {% endif %}
+      </td>
+      <td style="text-align: left">
+        {% if row.subjective_marks > 0 %} {{row.subjective_marks}} {% else %}
+        <a
+          href="{{url_for('reviewSubjective', resp_session_id=resp_session_id,student_id=row.student_id)}}"
+          target="_blank"
+          >Review</a
+        >
+        {% endif %}
+      </td>
+      <td style="text-align: left">
+        {% if row.subjective_marks > 0 %} {% if row.total_marks>=0 %} {{
+        row.total_marks}} {% else %} 0 {% endif %} {% else %} ____ {% endif %}
+      </td>
+      <td style="text-align: left">
+        <a
+          href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}"
+          target="_blank"
+          >Details</a
+        >
+      </td>
+      <td style="text-align: left">
+        <button
+          class="waves-effect waves-light btn sendNotificationEmailBtn"
+          name="{{row.student_id}}"
+          id="emailBtn"
+          value="Send"
+          style="border-radius: 7px; font-size: 12px; height: 30px"
+        >
+          Send
+        </button>
+        <p
+          style="font-size: 12px; float: right; display: none; color: green"
+          id="emailMsg"
+        >
+          Email Sent
+        </p>
+      </td>
+      <!-- <td>
                           <button class="waves-effect waves-light btn sendNotificationSMSBtn" name="{{row.student_id}}" id="smsBtn" value="Send" style="border-radius: 7px;font-size: 12px;height:30px;">Send</button>
                           <p style="font-size: 12px;float:right;display:none;color:green;" id="smsMsg">SMS Sent</p>
                           <input type="hidden" id="message" 
                           value="The test report for the online test conducted on the <exam_date> for <subject> has been created. To see your report, please click on this link: <link to the report>"/> -->
-                        <!-- </td> -->
-                      </tr>
-                      {% endfor %}
-                      {% else %}
-                             <tr>
-                        <th>Roll Number </th>
-                        <th>Student Name</th>
-                        <th>Marks Scored</th>
-                        <th>Total Marks </th>
-                        <th>Percentage </th>
-                        <th>Details </th>
-                      </tr>                                                                    
-                           {% for row in responseResultRow %}   
-                      <tr> 
-                        <td>{{row.roll_number}} </td>
-                        <td> {{row.full_name}}</td>
-                        <td>{{total_marks}}</td>
-                        <td> 
-                          {% if row.marks_scored >= 0 %}
-                          {{row.marks_scored}}
-                          {% else %}
-                          0
-                          {% endif %}
-                        </td>
-                        <td> 
-                          {% if row.percentage_marks>=0 %}
-                            {{'%0.2f' % row.percentage_marks|float}}%
-                          {% else %}
-                            0.00%
-                          {% endif %}
-                        </td>
-                        
-                        <td> <a href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}" target="_blank">Details</a> </td>
-                      </tr>
-                      {% endfor %}
-                      {% endif %}
-                    </table>                                                                       
-                    <br>
-                    <br>                    
-                  </div>
+      <!-- </td> -->
+    </tr>
+    {% endfor %} {% else %}
+    <tr>
+      <th style="text-align: left">Roll Number</th>
+      <th style="text-align: left">Student Name</th>
+      <th style="text-align: left">Marks Scored</th>
+      <th style="text-align: left">Total Marks</th>
+      <th style="text-align: left">Percentage</th>
+      <th>style="text-align: left;"Details</th>
+    </tr>
+    {% for row in responseResultRow %}
+    <tr>
+      <td style="text-align: left">{{row.roll_number}}</td>
+      <td style="text-align: left">{{row.full_name}}</td>
+      <td style="text-align: left">{{total_marks}}</td>
+      <td style="text-align: left">
+        {% if row.marks_scored >= 0 %} {{row.marks_scored}} {% else %} 0 {%
+        endif %}
+      </td>
+      <td style="text-align: left">
+        {% if row.percentage_marks>=0 %} {{'%0.2f' %
+        row.percentage_marks|float}}% {% else %} 0.00% {% endif %}
+      </td>
 
-                  <script>
-                    function reviewPage(resp_sess_id,studID){
-                      console.log('Resp_sess_id:'+resp_sess_id);
-                      console.log('studID:'+studID);
-                      $.ajax({
-        url: "/reviewSubjective?resp_session_id=" +resp_sess_id+"&student_id="+studID,
-        type: "get",
-        data: '',  
-        success: function (response) {
-             console.log(response);
-          $("#feedbackReportDiv").html(response);
-        },
-        error: function (xhr) {
-          window.alert("error occurred while loading report");
-        }
-      });
-                    }
+      <td style="text-align: left">
+        <a
+          href="{{url_for('studentFeedbackReport',student_id=row.student_id, student_name= row.full_name, resp_session_id = resp_session_id ) }}"
+          target="_blank"
+          >Details</a
+        >
+      </td>
+    </tr>
+    {% endfor %} {% endif %}
+  </table>
+  <br />
+  <br />
+</div>
 
-  $('.sendNotificationEmailBtn').click(function(){
-    console.log('Send Performance Email');
-    var student_id = $(this).attr("name"); 
-    console.log('Student_id:'+student_id);
+<script>
+  function reviewPage(resp_sess_id, studID) {
+    console.log("Resp_sess_id:" + resp_sess_id);
+    console.log("studID:" + studID);
     $.ajax({
-      url: "/sendNotificationEmail?student_id="+student_id+"&resp_session_id={{resp_session_id}}",
+      url:
+        "/reviewSubjective?resp_session_id=" +
+        resp_sess_id +
+        "&student_id=" +
+        studID,
       type: "get",
       data: "",
-      success: function(response){
-        console.log('Message Sent');
-        $('#emailBtn').hide();
-        $('#emailMsg').show();
+      success: function (response) {
+        console.log(response);
+        $("#feedbackReportDiv").html(response);
       },
-      error: function(xhr){
-        window.alert("Error occured while sending email");
-      }
+      error: function (xhr) {
+        window.alert("error occurred while loading report");
+      },
+    });
+  }
 
+  $(".sendNotificationEmailBtn").click(function () {
+    console.log("Send Performance Email");
+    var student_id = $(this).attr("name");
+    console.log("Student_id:" + student_id);
+    $.ajax({
+      url:
+        "/sendNotificationEmail?student_id=" +
+        student_id +
+        "&resp_session_id={{resp_session_id}}",
+      type: "get",
+      data: "",
+      success: function (response) {
+        console.log("Message Sent");
+        $("#emailBtn").hide();
+        $("#emailMsg").show();
+      },
+      error: function (xhr) {
+        window.alert("Error occured while sending email");
+      },
     });
   });
 
-
-  $('.sendNotificationSMSBtn').click(function(){
-    
-  // var form = $('#sendSMSForm'); 
+  $(".sendNotificationSMSBtn").click(function () {
+    // var form = $('#sendSMSForm');
     var student_id = $(this).attr("name");
-    var message = $('#message').val();  
-    console.log('Student_id:'+student_id);
-    console.log('message:'+message);    
+    var message = $("#message").val();
+    console.log("Student_id:" + student_id);
+    console.log("message:" + message);
     $.ajax({
-            url: "/sendSMS?message="+message+"&student_id="+student_id,
-            type: "POST",
-            data: "",
-            success: function (response) {        
-                if (response=='1'){   
-                    // $('#smsSendErrorMSG').show();                       
-                //clicks = 0;
-                console.log('Error in send message');
-                $('#smsMsg').html('Error');
-                $('#smsMsg').show();
-                $('#smsBtn').hide();
-            }
-            else{
-                //$('#sendSuccessMSG').show();  
-              M.toast({html: '<h4>New Message Sent</h4>'});
-              $('#smsMsg').show();
-              console.log('Message Sent');
-                // var elem = $('#smsModal')
-                // var instance = M.Modal.getInstance(elem);                   
-                // instance.close();
-            }
-            // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
-            // $('#sendSMSBTN').html('Send SMS');
-            },
-            error: function (xhr) {
-              // $('#smsSendErrorMSG').show();
-              // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
-              // $('#sendSMSBTN').html('Send SMS');
-            }
-        }); 
+      url: "/sendSMS?message=" + message + "&student_id=" + student_id,
+      type: "POST",
+      data: "",
+      success: function (response) {
+        if (response == "1") {
+          // $('#smsSendErrorMSG').show();
+          //clicks = 0;
+          console.log("Error in send message");
+          $("#smsMsg").html("Error");
+          $("#smsMsg").show();
+          $("#smsBtn").hide();
+        } else {
+          //$('#sendSuccessMSG').show();
+          M.toast({ html: "<h4>New Message Sent</h4>" });
+          $("#smsMsg").show();
+          console.log("Message Sent");
+          // var elem = $('#smsModal')
+          // var instance = M.Modal.getInstance(elem);
+          // instance.close();
+        }
+        // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+        // $('#sendSMSBTN').html('Send SMS');
+      },
+      error: function (xhr) {
+        // $('#smsSendErrorMSG').show();
+        // $('#sendSMSBTN').fadeIn("fast").prop("href", "#");
+        // $('#sendSMSBTN').html('Send SMS');
+      },
+    });
   });
-                  </script>
+</script>

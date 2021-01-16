@@ -58,14 +58,26 @@
               >Remember Me</span
             >
           </label>
+          <label style="float: right; font-weight: 400">
+            <a href="{{ url_for('reset_password_request') }}"
+              >Forgot Your Password?</a
+            >
+          </label>
         </p>
         <div class="center">
           <button
+            style="width: 190px; height: 45px; margin-bottom: 20px"
             class="btn-large waves-effect waves-light green white-text"
             type="submit"
           >
-            Sign In
-          </button>
+            Sign In</button
+          ><br />
+          <span>
+            New User?<br />
+            <a class="btn cyan" href="{{ url_for('register') }}"
+              >Click to Sign Up!</a
+            >
+          </span>
         </div>
       </form>
       <br />
@@ -73,17 +85,7 @@
       <div class="row center">
         <table class="center">
           <tr>
-            <td>
-              <a href="{{ url_for('reset_password_request') }}"
-                >Forgot Your Password?</a
-              >
-            </td>
-            <td class="right">
-              New User?<br />
-              <a class="btn cyan" href="{{ url_for('register') }}"
-                >Click to Sign Up!</a
-              >
-            </td>
+            <td class="right"></td>
           </tr>
         </table>
       </div>

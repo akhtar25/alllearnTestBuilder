@@ -1,364 +1,398 @@
 <div class="content">
-  <div class="row" style="margin-left: 0px;">
-
-    <span id="currQuestionLabel" style="float:right;margin-top:-45px;font-size: 14px;">
-      {% if totalQCount!=''%}
-      
-      Q <span id="qnum" style="font-size: 14px;">{{ qnum}}</span> of <span id="totalQCount" style="font-size: 14px;">{{ totalQCount }}</span><br>
+  <div class="row" style="margin-left: 0px">
+    <span
+      id="currQuestionLabel"
+      style="float: right; margin-top: -45px; font-size: 14px"
+    >
+      {% if totalQCount!=''%} Q
+      <span id="qnum" style="font-size: 14px">{{ qnum}}</span> of
+      <span id="totalQCount" style="font-size: 14px">{{ totalQCount }}</span
+      ><br />
     </span>
     {% endif %}
-    <h4 style="margin-top: -10px;margin-left:-5px;">Q: {{ question.question_description }}</h4>
+    <h4 style="margin-top: -20px; margin-left: -5px; margin-bottom: 5px">
+      Q: {{ question.question_description }}
+    </h4>
     {%if question.reference_link !=None or question.reference_link!='' %}
-<aside class="deviceQuesImage" style="margin-left:-7px;">    
-    <img src="{{ question.reference_link }}" style="max-height: 300px;max-width: 700px;">
-</aside>
-<aside class="mobQuesImage">    
-  <img src="{{ question.reference_link }}" style="max-height: 140px;">
-</aside>
-    {% endif %}
-    {% if question.question_type=='Subjective' %}
-    <div class="answerText" style="margin-left:-2px;">
-      <span style="display: block;font-size: 18px;">Answer:</span>
-      <textarea onkeyup="myTextVal()" id="box_id" placeholder="Type answer (character length should not be more than 500)" data-length="500" style="height: 125px;margin-top: 20px;"></textarea>
-      {% if uploadStatus=='Y' %}
-      <span style="display: block;">OR</span>
-      <input type="file" onchange="initUpload();" id="attachFile" style="display: block;height:30px;">
-      <span id="msg" style="margin-top:10px;color:red;"></span>
-      <input type="hidden" value="" id="reference"/>
-      {% endif %}
-      <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
+    <aside class="deviceQuesImage" style="margin-left: -7px">
+      <img
+        src="{{ question.reference_link }}"
+        style="max-height: 300px; max-width: 700px"
+      />
+    </aside>
+    <aside class="mobQuesImage">
+      <img src="{{ question.reference_link }}" style="max-height: 140px" />
+    </aside>
+    {% endif %} {% if question.question_type=='Subjective' %}
+    <div class="answerText" style="margin-left: -2px">
+      <span style="display: block; font-size: 18px">Answer:</span>
+      <textarea
+        onkeyup="myTextVal()"
+        id="box_id"
+        placeholder="Type answer (character length should not be more than 500)"
+        data-length="500"
+        style="height: 60px; margin-top: 3px"
+      ></textarea>
+
+      <input type="hidden" value="{{last_q_id}}" id="lastQIDVal" />
     </div>
-      {% endif %}
-    <br>
-    {% for optionVal in questionOp %}
-    {% if  optionVal.option_desc %}
+    {% if uploadStatus=='Y' %}
+    <span style="display: block">OR</span>
+    <input
+      type="file"
+      onchange="initUpload();"
+      id="attachFile"
+      style="display: block; height: 30px"
+    />
+    <span id="msg" style="margin-top: 10px; color: red"></span>
+    <input type="hidden" value="" id="reference" />
+    {% endif %} {% endif %}
+    <br />
+    {% for optionVal in questionOp %} {% if optionVal.option_desc %}
     <!--<li style="display:flex;"></li>    -->
-    <p style="display: flex;">
+    <p style="display: flex" style="margin-top: -12px">
       <label>
         {% if correctOpt==optionVal.option %}
-        <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}" checked/>
+        <input
+          name="ansOption"
+          class="ansOption"
+          type="radio"
+          value="{{ optionVal.option }}"
+          id="{{ optionVal.option }}"
+          checked
+        />
         {% else %}
-        <input name="ansOption" class='ansOption' type="radio"  value="{{ optionVal.option }}" id="{{ optionVal.option }}"/>
+        <input
+          name="ansOption"
+          class="ansOption"
+          type="radio"
+          value="{{ optionVal.option }}"
+          id="{{ optionVal.option }}"
+        />
         {% endif %}
-        <span style="font-size: 15px;">({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span>
-        <input type="hidden" value="{{last_q_id}}" id='lastQIDVal'>
+        <span style="font-size: 15px"
+          >({{ optionVal.option }})&nbsp;&nbsp;{{ optionVal.option_desc }}</span
+        >
+        <input type="hidden" value="{{last_q_id}}" id="lastQIDVal" />
       </label>
     </p>
-    {% endif %}
-    {% endfor %}
-
+    {% endif %} {% endfor %}
   </div>
-
 </div>
 
 <script>
 
-  $(document).ready(function(){
-    $('span.character-counter').css("margin-top","-50px");
-    $('input#input_text, textarea#box_id').characterCounter();
-    var num = "{{qnum}}";
-    var totalnum = "{{totalQCount}}";
-    if(num==totalnum){
-      $("#submit").show();
-    }else{
-      $("#submit").hide();
-    }
-  });
-
-  function myTextVal(){
-    var textInput = document.getElementById('box_id').value;
-    
-    if(textInput!=''){
-      $("#startAndNextBTN").attr("disabled", false);
-    $("#save").attr("disabled", false);
-    $("#next").attr("disabled", false);
-    $("#submit").attr("disabled", false);
-    $('#attachFile').attr("disabled", true);
-    }else{
-      $("#startAndNextBTN").attr("disabled", true);
-    $("#save").attr("disabled", true);
-    $("#next").attr("disabled", true);
-    $('#attachFile').attr("disabled", false);
-    }
-  }
-
-  window.setInterval(function(){
-    // alert('file selected');
-  if(document.getElementById('box_id')){
-    if(document.getElementById('box_id').value==''){
-    if(document.getElementById('attachFile').files.length==0){
-      // $('#box_id').attr("disabled",true);
-      $('#box_id').attr("disabled",false);
-      $("#startAndNextBTN").attr("disabled", true);
-    $("#save").attr("disabled", true);
-    $("#next").attr("disabled", true);
-    }else{
-      $('#box_id').attr("disabled",true);
-      $("#startAndNextBTN").attr("disabled", false);
-    $("#save").attr("disabled", false);
-    $("#next").attr("disabled", false);
-    $("#submit").attr("disabled", false);
-    }
-    }
-  }
-  }, 1000);
-
-    $(".ansOption").click(function (){
-    $("#startAndNextBTN").attr("disabled", false);
-    $("#save").attr("disabled", false);
-    $("#next").attr("disabled", false);
-    $("#submit").attr("disabled", false);
-});
-$('#startAndNextBTN').click(function(){
-  $('#startAndNextBTN').prop('disabled',true);
-  $('#save').prop('disabled',true);
-  $('#next').prop('disabled',true);
-  $('#submit').prop('disabled',true);
-});
-$('#save').click(function(){
-  $('#startAndNextBTN').prop('disabled',true);
-  $('#save').prop('disabled',true);
-  $('#next').prop('disabled',true);
-  $('#submit').prop('disabled',true);
-});
-$('#next').click(function(){
-  $('#startAndNextBTN').prop('disabled',true);
-  $('#save').prop('disabled',true);
-  $('#next').prop('disabled',true);
-  $('#submit').prop('disabled',true);
-});
-$('#submit').click(function(){
-  $('#startAndNextBTN').prop('disabled',true);
-  $('#save').prop('disabled',true);
-  $('#next').prop('disabled',true);
-  $('#submit').prop('disabled',true);
-});
-
-$('#clear').click(function(){
-  $('.ansOption').prop('checked',false);
-  $('#box_id').val('');
-  $("#startAndNextBTN").attr("disabled", true);
-    $("#save").attr("disabled", true);
-    $("#next").attr("disabled", true);
-});
-
-  (function () {
-    {% if btn=='Start' %}
-// Set the date we're counting down to
-    var d = new Date();
-    var duration = "{{ duration }}";
-    if(duration>0){
-      var num = duration;
-var hours = (num / 60);
-var rhours = Math.floor(hours);
-var minutes = (hours - rhours) * 60;
-var rminutes = Math.round(minutes);
-    duration = parseInt(duration);
-  var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+rhours)+':'+(d.getMinutes()+rminutes)+':'+d.getSeconds();
-  var d = dat.toString();
-var countDownDate = new Date(d).getTime();
-
-// Update the count down every 1 second
-var x = setInterval(function() {
-
-  // Get today's date and time
-  var now = new Date().getTime();
-  // var nw = new Date(); 
-  // var newDate = (nw.getHours()*60)+nw.getMinutes();
-    
-  // Find the distance between now and the count down date
-  var distance = countDownDate - now;
-  // alert('New Date:'+newDate+' Duration:'+duration+' Minutes'+nw.getHours());
-  // var newMin = newDate-duration;  
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  
-  // Output the result in an element with id="demo"
-  document.getElementById("remTime").innerHTML = " "+ hours + "h "
-  + minutes + "m " + seconds + "s ("+duration+"min)";
-  document.getElementById("remTimeMob").innerHTML = " "+ hours + "h "
-  + minutes + "m " + seconds + "s ("+duration+"min)";
-  
-    
-  // If the count down is over, write some text 
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("timeout").click();
-    // document.getElementById("remTime").innerHTML = "EXPIRED";
-  }
-}, 1000);
-    }else{
-      $('#timeDiv').hide();
-      $('#timeDivMob').hide();
-    }
-    {% endif %}
-
-    {% if correctOpt %}
-    $('#save').attr('disabled',false);
-    $('#startAndNextBTN').attr('disabled',false);
-    {% else %}
-    $('#save').attr('disabled',true);
-    $('#startAndNextBTN').attr('disabled',true);
-    {% endif %}
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src =
-    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
-
-    var config = 'MathJax.Hub.Config({' +
-      'extensions: ["tex2jax.js"],' +
-      'jax: ["input/TeX","output/HTML-CSS"]' +
-      '});' +
-      'MathJax.Hub.Startup.onload();';
-
-
-    if (window.opera) {
-      script.innerHTML = config
-    } else {
-      script.text = config
-    }
-
-    document.getElementsByTagName("head")[0].appendChild(script);
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-
-
-    // for test module
-    {% for row in answer_list %}
-            console.log('inside for of session variable');
-            {% if row[1]==239 %}
-              $(".{{row[0]}}").css("background-color","limegreen");
-              // $(".{{row[0]}}").css("border","0px");
-              $('.{{row[0]}}').css("color","white");
-            {% elif row[1]==240 %}
-              $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo2.png');");
-              // $(".{{row[0]}}").css("border","0px");
-              $('.{{row[0]}}').css("color","white");
-            {% elif row[1]==241 %}
-
-              $(".{{row[0]}}").css("background-color","#008B8B");
-              // $(".{{row[0]}}").css("border","0px");
-              $('.{{row[0]}}').css("color","white");
-              {% elif row[1]==242 %}
-              $(".{{row[0]}}").css("background-color","slateblue");
-              // $(".{{row[0]}}").css("border","0px");
-              $('.{{row[0]}}').css("color","white");
-            {% endif %}
-          {% endfor %}
-  })();
-
-
-      function uploadFile(file, s3Data, url){
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', s3Data.url);
-      xhr.setRequestHeader('x-amz-acl', 'public-read');
-      const postData = new FormData();
-      for(key in s3Data.fields){
-        postData.append(key, s3Data.fields[key]);      
-        //console.log(s3Data.fields[key]);
+    $(document).ready(function(){
+      $('span.character-counter').css("margin-top","-50px");
+      $('input#input_text, textarea#box_id').characterCounter();
+      var num = "{{qnum}}";
+      var totalnum = "{{totalQCount}}";
+      if(num==totalnum){
+        $("#submit").show();
+        $("#startAndNextBTN").prop("value", "Submit");
+        $('#next').prop("value","Mark for review");
+      }else{
+        $("#submit").hide();
+        $("#startAndNextBTN").prop("value", "Submit and Next");
+        $('#next').prop("value","Mark for review and next");
       }
-      postData.append('file', file);
-      //alert('This is the file' + file);
-      //alert('This is the url' + url);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200 || xhr.status === 204){
-            
-            // document.getElementById('preview').src = url;
-            // $('#submit').show();
-            $('#msg').html('');
-            $("#startAndNextBTN").attr("disabled", false);
-            $("#save").attr("disabled", false);
-            $("#next").attr("disabled", false);
-            $("#submit").attr("disabled", false);
-            // alert('Url for reference:'+url);
-            // document.getElementById('reference').value = url;
-            // document.getElementById('preview').src = url;
-            console.log('Url:'+url);
-            $('#reference').val(url);
-          }
-          else{
-            window.alert("this is where the problem is");
-            alert('Could not upload file.');
-          }
-        }
-      };
-      xhr.send(postData);
-    }
-    /*
-      Function to get the temporary signed request from the Python app.
-      If request successful, continue to upload the file using this signed
-      request.
-    */
-    function getSignedRequest(file){
-      const xhr = new XMLHttpRequest();
-      var type = 'image/jpeg';
-      console.log('File Name:'+file.name+'File type:'+file.type)
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=answer_sheets/files`);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200){
-            const response = JSON.parse(xhr.responseText);
-            //alert("this is reponse data"+ response.data);
-            //alert("this is reponse url"+ response.url);
-            uploadFile(file, response.data, response.url);
-          }
-          else{
-            alert('Could not get signed URL.');
-          }
-        }
-      };
-      xhr.send();
-    }
-    /*
-       Function called when file input updated. If there is a file selected, then
-       start upload procedure by asking for a signed request from the app.
-    */
-    function initUpload(){
-      const files = document.getElementById('attachFile').files;
-      // $('#submit').hide();
-      $('#msg').html('uploading content please wait...');
-      $("#startAndNextBTN").attr("disabled", true);
+    });
+
+    function myTextVal(){
+      var textInput = document.getElementById('box_id').value;
+
+      if(textInput!=''){
+        $("#startAndNextBTN").attr("disabled", false);
+      $("#save").attr("disabled", false);
+      $("#next").attr("disabled", false);
+      $("#submit").attr("disabled", false);
+      $('#attachFile').attr("disabled", true);
+      }else{
+        $("#startAndNextBTN").attr("disabled", true);
       $("#save").attr("disabled", true);
       $("#next").attr("disabled", true);
-      $("#submit").attr("disabled", true);
-      // file name change
-      // var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      // var charactersLength = characters.length;
-      // var element = document.getElementById('attachFile');
-      // var filename = element.files[0];
-      // var nameFile = filename.name.split('.')[0];
-      // var Image = nameFile;
-      // var currentDate = new Date();
-      // Image += currentDate.getDate();
-      // Image += currentDate.getHours();
-      // Image += currentDate.getMinutes();
-      // Image += currentDate.getSeconds();
-      // Image += currentDate.getMilliseconds();
-      // console.log('Date:'+currentDate.getDate());
-      // console.log('Hours:'+currentDate.getHours());
-      // console.log('Minutes:'+currentDate.getMinutes());
-      // console.log('Seconds:'+currentDate.getSeconds());
-      // console.log('Miliseconds:'+currentDate.getMilliseconds());
-      // console.log('DateTime:'+currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds());
-      // console.log('Image:'+Image);
-      // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      // Image += '.png';
-      
-      // alert(Image)
-      // var blob = filename.slice(0, filename.size, 'image/png'); 
-      // newFile = new File([blob], Image, {type: 'image/png'});
-
-      // end of file name change
-
-      const file = files[0];
-      if(!file){
-        return alert('No file selected.');
+      $('#attachFile').attr("disabled", false);
       }
-      getSignedRequest(file);
     }
+
+    window.setInterval(function(){
+      // alert('file selected');
+    if(document.getElementById('box_id')){
+      if(document.getElementById('box_id').value==''){
+      if(document.getElementById('attachFile').files.length==0){
+        // $('#box_id').attr("disabled",true);
+        $('#box_id').attr("disabled",false);
+        $("#startAndNextBTN").attr("disabled", true);
+      $("#save").attr("disabled", true);
+      $("#next").attr("disabled", true);
+      }else{
+        $('#box_id').attr("disabled",true);
+        $("#startAndNextBTN").attr("disabled", false);
+      $("#save").attr("disabled", false);
+      $("#next").attr("disabled", false);
+      $("#submit").attr("disabled", false);
+      }
+      }
+    }
+    }, 1000);
+
+      $(".ansOption").click(function (){
+      $("#startAndNextBTN").attr("disabled", false);
+      $("#save").attr("disabled", false);
+      $("#next").attr("disabled", false);
+      $("#submit").attr("disabled", false);
+  });
+  $('#startAndNextBTN').click(function(){
+    $('#startAndNextBTN').prop('disabled',true);
+    $('#save').prop('disabled',true);
+    $('#next').prop('disabled',true);
+    $('#submit').prop('disabled',true);
+  });
+  $('#save').click(function(){
+    $('#startAndNextBTN').prop('disabled',true);
+    $('#save').prop('disabled',true);
+    $('#next').prop('disabled',true);
+    $('#submit').prop('disabled',true);
+  });
+  $('#next').click(function(){
+    $('#startAndNextBTN').prop('disabled',true);
+    $('#save').prop('disabled',true);
+    $('#next').prop('disabled',true);
+    $('#submit').prop('disabled',true);
+  });
+  $('#submit').click(function(){
+    $('#startAndNextBTN').prop('disabled',true);
+    $('#save').prop('disabled',true);
+    $('#next').prop('disabled',true);
+    $('#submit').prop('disabled',true);
+  });
+
+  $('#clear').click(function(){
+    $('.ansOption').prop('checked',false);
+    $('#box_id').val('');
+    $("#startAndNextBTN").attr("disabled", true);
+      $("#save").attr("disabled", true);
+      $("#next").attr("disabled", true);
+  });
+
+    (function () {
+      $('.character-counter').css("margin-top","-50px");
+      {% if btn=='Start' %}
+  // Set the date we're counting down to
+      var d = new Date();
+      var duration = "{{ duration }}";
+      if(duration>0){
+        var num = duration;
+  var hours = (num / 60);
+  var rhours = Math.floor(hours);
+  var minutes = (hours - rhours) * 60;
+  var rminutes = Math.round(minutes);
+      duration = parseInt(duration);
+    var dat = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+(d.getHours()+rhours)+':'+(d.getMinutes()+rminutes)+':'+d.getSeconds();
+    var d = dat.toString();
+  var countDownDate = new Date(d).getTime();
+
+  // Update the count down every 1 second
+  var x = setInterval(function() {
+
+    // Get today's date and time
+    var now = new Date().getTime();
+    // var nw = new Date();
+    // var newDate = (nw.getHours()*60)+nw.getMinutes();
+
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+    // alert('New Date:'+newDate+' Duration:'+duration+' Minutes'+nw.getHours());
+    // var newMin = newDate-duration;
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Output the result in an element with id="demo"
+    document.getElementById("remTime").innerHTML = " "+ hours + "h "
+    + minutes + "m " + seconds + "s ("+duration+"min)";
+    document.getElementById("remTimeMob").innerHTML = " "+ hours + "h "
+    + minutes + "m " + seconds + "s ("+duration+"min)";
+
+
+    // If the count down is over, write some text
+    if (distance < 0) {
+      clearInterval(x);
+      document.getElementById("timeout").click();
+      // document.getElementById("remTime").innerHTML = "EXPIRED";
+    }
+  }, 1000);
+      }else{
+        $('#timeDiv').hide();
+        $('#timeDivMob').hide();
+      }
+      {% endif %}
+
+      {% if correctOpt %}
+      $('#save').attr('disabled',false);
+      $('#startAndNextBTN').attr('disabled',false);
+      {% else %}
+      $('#save').attr('disabled',true);
+      $('#startAndNextBTN').attr('disabled',true);
+      {% endif %}
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+      var config = 'MathJax.Hub.Config({' +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        '});' +
+        'MathJax.Hub.Startup.onload();';
+
+
+      if (window.opera) {
+        script.innerHTML = config
+      } else {
+        script.text = config
+      }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+
+
+      // for test module
+      {% for row in answer_list %}
+              console.log('inside for of session variable');
+              {% if row[1]==239 %}
+                $(".{{row[0]}}").css("background-color","limegreen");
+                // $(".{{row[0]}}").css("border","0px");
+                $('.{{row[0]}}').css("color","white");
+              {% elif row[1]==240 %}
+                $(".{{row[0]}}").css("background","url('https://nta.ac.in/img/QuizIcons/Logo2.png');");
+                // $(".{{row[0]}}").css("border","0px");
+                $('.{{row[0]}}').css("color","white");
+              {% elif row[1]==241 %}
+
+                $(".{{row[0]}}").css("background-color","#008B8B");
+                // $(".{{row[0]}}").css("border","0px");
+                $('.{{row[0]}}').css("color","white");
+                {% elif row[1]==242 %}
+                $(".{{row[0]}}").css("background-color","slateblue");
+                // $(".{{row[0]}}").css("border","0px");
+                $('.{{row[0]}}').css("color","white");
+              {% endif %}
+            {% endfor %}
+    })();
+
+
+        function uploadFile(file, s3Data, url){
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', s3Data.url);
+        xhr.setRequestHeader('x-amz-acl', 'public-read');
+        const postData = new FormData();
+        for(key in s3Data.fields){
+          postData.append(key, s3Data.fields[key]);
+          //console.log(s3Data.fields[key]);
+        }
+        postData.append('file', file);
+        //alert('This is the file' + file);
+        //alert('This is the url' + url);
+        xhr.onreadystatechange = () => {
+          if(xhr.readyState === 4){
+            if(xhr.status === 200 || xhr.status === 204){
+
+              // document.getElementById('preview').src = url;
+              // $('#submit').show();
+              $('#msg').html('');
+              $("#startAndNextBTN").attr("disabled", false);
+              $("#save").attr("disabled", false);
+              $("#next").attr("disabled", false);
+              $("#submit").attr("disabled", false);
+              // alert('Url for reference:'+url);
+              // document.getElementById('reference').value = url;
+              // document.getElementById('preview').src = url;
+              console.log('Url:'+url);
+              $('#reference').val(url);
+            }
+            else{
+              window.alert("this is where the problem is");
+              alert('Could not upload file.');
+            }
+          }
+        };
+        xhr.send(postData);
+      }
+      /*
+        Function to get the temporary signed request from the Python app.
+        If request successful, continue to upload the file using this signed
+        request.
+      */
+      function getSignedRequest(file){
+        const xhr = new XMLHttpRequest();
+        var type = 'image/jpeg';
+        console.log('File Name:'+file.name+'File type:'+file.type)
+        xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&folder=answer_sheets/files`);
+        xhr.onreadystatechange = () => {
+          if(xhr.readyState === 4){
+            if(xhr.status === 200){
+              const response = JSON.parse(xhr.responseText);
+              //alert("this is reponse data"+ response.data);
+              //alert("this is reponse url"+ response.url);
+              uploadFile(file, response.data, response.url);
+            }
+            else{
+              alert('Could not get signed URL.');
+            }
+          }
+        };
+        xhr.send();
+      }
+      /*
+         Function called when file input updated. If there is a file selected, then
+         start upload procedure by asking for a signed request from the app.
+      */
+      function initUpload(){
+        const files = document.getElementById('attachFile').files;
+        // $('#submit').hide();
+        $('#msg').html('uploading content please wait...');
+        $("#startAndNextBTN").attr("disabled", true);
+        $("#save").attr("disabled", true);
+        $("#next").attr("disabled", true);
+        $("#submit").attr("disabled", true);
+        // file name change
+        // var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        // var charactersLength = characters.length;
+        // var element = document.getElementById('attachFile');
+        // var filename = element.files[0];
+        // var nameFile = filename.name.split('.')[0];
+        // var Image = nameFile;
+        // var currentDate = new Date();
+        // Image += currentDate.getDate();
+        // Image += currentDate.getHours();
+        // Image += currentDate.getMinutes();
+        // Image += currentDate.getSeconds();
+        // Image += currentDate.getMilliseconds();
+        // console.log('Date:'+currentDate.getDate());
+        // console.log('Hours:'+currentDate.getHours());
+        // console.log('Minutes:'+currentDate.getMinutes());
+        // console.log('Seconds:'+currentDate.getSeconds());
+        // console.log('Miliseconds:'+currentDate.getMilliseconds());
+        // console.log('DateTime:'+currentDate.getDate()+currentDate.getHours()+currentDate.getMinutes()+currentDate.getSeconds()+currentDate.getMilliseconds());
+        // console.log('Image:'+Image);
+        // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+        // Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+        // Image += '.png';
+
+        // alert(Image)
+        // var blob = filename.slice(0, filename.size, 'image/png');
+        // newFile = new File([blob], Image, {type: 'image/png'});
+
+        // end of file name change
+
+        const file = files[0];
+        if(!file){
+          return alert('No file selected.');
+        }
+        getSignedRequest(file);
+      }
 </script>
