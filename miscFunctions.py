@@ -18,7 +18,7 @@ from flask import g, jsonify
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post
-import barCode
+#import barCode
 import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
