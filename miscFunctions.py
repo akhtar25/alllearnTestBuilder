@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, flash, redirect, url_for, Response,session,jsonify
 from send_email import welcome_email, send_password_reset_email
 from applicationDB import *
-from qrReader import *
+#from qrReader import *
 from config import Config
 from forms import LoginForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm,QuestionBuilderQueryForm,TestBuilderQueryForm
 from flask_migrate import Migrate
@@ -18,7 +18,7 @@ from flask import g, jsonify
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post
-import barCode
+#import barCode
 import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update

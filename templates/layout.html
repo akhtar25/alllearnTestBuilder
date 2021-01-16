@@ -102,7 +102,7 @@
   <nav class="white lighten-5 green-text header" id="mainNavBar" role="navigation" style="height: 100px;">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv">
-        <a id="logo-container" href="{{url_for('courseHome')}}" class="brand-logo left grey-text darken-4">
+        <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
           {%if current_user.is_anonymous %}
           <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% else %}
@@ -470,7 +470,7 @@
           {%if current_user.is_anonymous%}
           <div class="right">
           <li>
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('courseHome')}}">
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">
               Home
             </a>
           </li>
