@@ -5225,19 +5225,12 @@ small {
   margin-top: 20px;
 }
 .bg-grow-early-dashboard {
-  background-image: linear-gradient(
-    -225deg,
-    #7085b6 0%,
-    #87a7d9 50%,
-    #def3f8 100%
-  );
   padding: 1rem;
   flex-direction: row;
   align-items: center;
   height: 80px;
 }
 .bg-grow-early-dashboard1 {
-  background-image: linear-gradient(to top, #37ecba 0%, #72afd3 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
@@ -5664,7 +5657,6 @@ small {
   height: 80px;
 }
 .bg-arielle-smile-dashboard {
-  background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
   padding: 1rem;
   flex-direction: row;
   align-items: center;
@@ -5676,12 +5668,6 @@ small {
   color: black;
 }
 .bg-arielle-smile-dashboard1 {
-  background-image: radial-gradient(
-    circle 248px at center,
-    #16d9e3 0%,
-    #30c7ec 47%,
-    #46aef7 100%
-  ) !important;
   padding: 1rem;
   flex-direction: row;
   align-items: center;
@@ -6257,13 +6243,15 @@ button.btn-floating {
 
 .widget-content .widget-content-left .widget-heading {
   opacity: 0.8;
-  font-weight: bold;
+  font-weight: 400;
   font-size: 18px;
 }
 
 .widget-content .widget-content-left .widget-subheading {
   opacity: 0.5;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
 }
 
 .widget-content .widget-content-right {
@@ -6271,9 +6259,10 @@ button.btn-floating {
 }
 
 .widget-content .widget-numbers {
-  font-weight: bold;
+  font-weight: 400;
   font-size: 20px;
   display: block;
+  color: black;
 }
 
 .widget-content {
