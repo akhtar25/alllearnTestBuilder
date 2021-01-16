@@ -9,6 +9,7 @@
           <th>Total Marks</th>
           <th>Creation Date</th>
           <th>Chapters and Topics</th>
+          <th>Questions</th>
           <th>Download Paper</th>
           <th>Conduct Test</th>
         </tr>
@@ -16,7 +17,7 @@
         {% for eachRow in testPaperData%}
         <tr style="margin-top:5px;">
           <td>
-            <span style="font-size: 20px;">{{eachRow.class_val}}</span>
+            <span>{{eachRow.class_val}}</span>
           </td>
           <td>{{eachRow.test_type}}</td>
           {%for subRow in subjectNames%}
@@ -31,12 +32,23 @@
 
           <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
           <div id="chapterModal" class="modal" style="background-color:white;">
-            <div id="questionloader1" style="display: none;">
+            <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
               <img src="../static/images/loader.gif">
             </div>
-            <div class="modal-content" id="content" style="display:none;">
+            <div class="modal-content" id="content" style="display:none;height: 465px;">
               <p>
-                <div id="chapterListDiv"></div>
+                <div id="chapterListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
+              </p>
+            </div>
+          </div>
+          <td><a href="#questionModal" name='{{eachRow.test_id}}' class='modal-trigger questionClass'>See Questions</a></td>
+          <div id="questionModal" class="modal" style="background-color:white;">
+            <div id="questionloader2" style="display: none;text-align: center;margin-top: 120px;">
+              <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="questionContent" style="display:none;height: 465px;">
+              <p>
+                <div id="questionDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
               </p>
             </div>
           </div>
@@ -59,41 +71,45 @@
 
 
 <!-- Modal structure-->
-<div id="conductTestModal" class="modal" style="background-color:white; height: 420px;overflow-y: auto;position: fixed;">
+<div id="conductTestModal" class="modal" style="background-color:white; height: 453px;width:500px;overflow-y: auto;position: fixed;">
   <form action="/feedbackCollection" method="POST">
     <div class="modal-content">
-      <p> Starting Test</p>
-      <h4 id="class_name"></h4>
-      <h4>Select <b>section</b> for which you want to run the test</h4>
+      <h4 style="font-size:14px;"> Starting Test</h4>
+      <h4 style="font-size:14px;" id="class_name"></h4>
+      <h4 style="font-size:14px;">Select <b>section</b> for which you want to run the test</h4>
       <!-- <input type="text" name='section' value="No value"> -->
       
-      <select id="sectionList" name="section" style="display: block;">
+      <select id="sectionList" name="section" style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
         
       </select>
-      <p>
+      <!-- <p style="margin-top:5px;">
         <label>
           <input name="timeOption" class="Toption" value="Untimed" type="radio" checked/>
-          <span style="font-size: 18px;">Untimed</span>
+          <span style="font-size:18px;color:black;font-weight:450">Untimed</span>
         </label>
       </p>
-      <p>
+      <p style="margin-top:-7px;">
         <label>
           <input name="timeOption" class="Toption" value="Timed" type="radio" />
-          <span style="font-size: 18px;">Timed</span>
+          <span style="font-size:18px;color:black;font-weight:450">Timed</span>
         </label>
-      </p>
-      <div id="durationDiv" style="display: none;">
-      <h4>Duration</h4>
-      <input type="text" name='duration' value="" placeholder="place time in minutes eg. 30"></div>
-      <h4>Weightage</h4>
-      <input type="text" name="weightage" value="10">
-      <h4>Negative Marking</h4>
-      <input type="number" name="negativeMarking" value="0">
+      </p> -->
+      
+      <h4 style="font-size:14px;margin-top:10px;">Weightage</h4>
+      <input style="font-size:14px;" type="text" name="weightage" value="10">
+      <h4 style="font-size:14px;">Negative Marking</h4>
+      <input style="font-size:14px;" type="number" name="negativeMarking" value="0">
       <input type="hidden" id='modal_class_val'  name='class_val'    value="">
       <input type="hidden" id='modal_subject_id' name='subject_id'   value="">
       <input type="hidden" id='modal_test_id'    name='test_id'      value="">
-      
-      <p style="display:block;float: right;"><label><input name="uploadStatus" value="Y" type="checkbox" checked/><span style="font-family: 'Source Sans Pro';font-weight: 500;">Allow students to upload images/files as answers</span></label></p>
+      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <div id="durationDiv" style="display: none;margin-bottom:10px;">
+        <h4 style="font-size:14px;">Duration</h4>
+        <input style="font-size:14px;" type="text" name='duration' value="" placeholder="place time in minutes eg. 30">
+      </div>
+      <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance answer options</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
       <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
       
       <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
@@ -126,10 +142,10 @@
           var responseArr = response.toString().split(',');
           // alert(responseArr);
           var select = document.getElementById('sectionList');
-          var optionHtml = '<option value="" disabled selected>Select Section</option>';
+          var optionHtml = '<option value="" style="font-size:14px;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>';
           for(var i=0;i<responseArr.length;i++){
             console.log(responseArr[i]);
-            optionHtml += '<option value="'+responseArr[i]+'">'+responseArr[i]+'</option>';
+            optionHtml += '<option value="'+responseArr[i]+'" style="font-size:14px;;font-family:Source Sans Pro,sans-serif;">'+responseArr[i]+'</option>';
           }
           console.log(optionHtml);
           select.innerHTML = optionHtml;
@@ -142,15 +158,34 @@
     });
 
     $('.Toption').click(function(){
-    var timeOption = $("input[name='timeOption']:checked").val();
-    if(timeOption=='Timed'){
+    var timeOption = $("input[name='timed']:checked").val();
+    if(timeOption=='Y'){
       $('#durationDiv').show();
     }else{
       $('#durationDiv').hide();
     }
   });
 
-  
+  $('.questionClass').click(function(){
+    $('#questionloader2').show();
+    $('#questionDiv').html('');
+    var test_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/getQuestionDetails?test_id="+test_id,
+            type: "get",
+            data: data,
+            success: function(response){
+              console.log('Question fetch successfully');
+                console.log(response);
+                $('#questionloader2').hide();
+                $('#modal2').show();
+                $('#questionContent').show();
+                $('#questionDiv').html(response);
+            }
+        })
+  });
 
   $('.chapterClass').click(function(){
     $('#questionloader1').show();

@@ -7,7 +7,7 @@
           <div class="col-xs-7">
             <div class="box" id="feedbackQuestionDiv">
               <div class="box-header">
-                <h3 class="box-title">{{testType}}</h3>
+                <span class="">{{testType}}</span>
                 
                 <span style="padding-left: 10px;"> 
                   {%if batch_test!="1"%}
@@ -27,29 +27,29 @@
                     <table class="table table-bordered table-responsive-md table-striped text-center" style="margin-top: -38px;">
                       <thead>
                         <tr>
-                          <th scope="col">Question</th>
-                          <th scope="col">Type</th>
-                          <th scope="col">Weightage</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Question</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Type</th>
+                          <th scope="col" style="text-align:left;padding-left:20px;">Weightage</th>
                         </tr>
                       </thead>
                       <tbody>
                         {% for question in questions %}
                         <tr>
-                          <td>
+                          <td style="text-align:left;padding-left:20px;">
                             {% if question.question_type=='MCQ1' %}
                             <ul>
                               <li> 
                                 <div><a href="#modal2" name="{{ question.question_id }}"
-                                    class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a>
+                                    class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
                                 </div>
                                 <!-- Modal Structure  -->
-                                <div id="modal2" class="modal" style="background-color:white;">
-                                  <div id="questionloader1" style="display: none;">
+                                <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                                  <div id="questionloader1" style="display: none;margin-left: 120px;margin-top: 120px;">
                                     <img src="../static/images/loader.gif">
                                   </div>
-                                  <div class="modal-content" id="content" style="display:none;">
+                                  <div class="modal-content" id="content" style="display:none;overflow-y: auto;max-height: 500px;">
                                     <p>
-                                      <div id="questionDataList"></div>
+                                      <div id="questionDataList" style="margin-top: -30px;"></div>
                                     </p>
 
                                   </div>
@@ -57,14 +57,14 @@
                               </li>
                             </ul>
                             {% else %}
-                            <h5>
-                              {{ question.question_description }}
-                            </h5>
+                            <div><a href="#modal2" name="{{ question.question_id }}"
+                              class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                            </div>
                             {% endif %}
 
                           </td>
-                          <td> {{ question.question_type }} </td>
-                          <td>
+                          <td style="text-align:left;padding-left:20px;"> {{ question.question_type }} </td>
+                          <td  style="text-align:left;padding-left:20px;">
                             {% if weightage %}
                             {{ weightage }}<input type="hidden"
                               value="{{ weightage }}" id="{{ question.question_id }}select">
@@ -82,7 +82,7 @@
                     <!-- <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;"> -->
                     {%else %}
                     <div class='section'>
-                    <p style="font-size: 48px;" class="grey-text text-lighten-1">No questions found for this test</p>
+                    <p style="font-size: 18px;margin-left: 10px;">No questions found for this test</p>
                   </div>
                     {% endif %}
                     
@@ -107,18 +107,28 @@
           <div class="col-xs-3" style="margin-top:20px;">   
             {%if batch_test!="1"%}
             <div id="answerCounter" >
-              <h4>To write this test</h4>
-              <ol>
+              <h4 style="margin-left:30px;">To write this test</h4>
+              <ol style="width:372px;">
                 <li>
-                  Logon to this URL: <a href="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus)}}">{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus, _external=True)}}</a> </li><br>
-                  <a style="margin-bottom:10px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
+                  Logon to this URL: 
+                  
+                  <!-- <a href="{{url_for('classPerformance')}}" target="_blank">
+                    <div class="urlBox">
+                      {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
+                    </div>
+                  </a>  -->
+                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;text-overflow: ellipsis;" id="myInput" readonly>
+                  <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
+                </li>
+                  <br>
+                  <a style="margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share url</span> </a>  
                 <li>
                   <p>Scan the QR : <br>
                   </p>
                 </li>
               </ol><br>
               <div id='qrIMGDiv' class='center' style="margin-left:40px;" ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
-              <div class="divider"></div>                            
+              <div class=""></div>                            
             </div>
             <div>
             </div>
@@ -145,8 +155,8 @@
     <div class="modal-content" style="height: 140px;text-align: center;">
       <h4>Share</h4>
       <div class="row">
-        <h5 class='grey-text'>Share Page{{uploadStatus}}</h5>
-        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus, _external=True)}}" style="margin-left: 100px;">
+        <h5 class='grey-text'>Share Page</h5>
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus, _external=True)}}" style="margin-left: 100px;">
             <a class="a2a_button_facebook modal-close"></a>
             <a class="a2a_button_whatsapp modal-close"></a>
             <a class="a2a_button_sms modal-close"></a>
@@ -165,6 +175,23 @@
 <link rel="stylesheet" href="../static/css/skins/_all-skins.min.css">
 
 <script>
+
+function copyText() {
+  /* Get the text field */
+  var copyText = document.getElementById("myInput");
+
+  /* Select the text field */
+  copyText.select();
+  // copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  console.log("Copied the text: " + copyText.value);
+  var text = '<span style="font-size:14px;">Url Copied</span>';
+  M.toast({html: text});
+}
 
 $("#backToQuestions").click(function(){          
           $("#feedbackQuestionDiv").show();

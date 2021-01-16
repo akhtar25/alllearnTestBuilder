@@ -1,750 +1,799 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Test Builder</h3>
-        
-        <div class="form-group " style="padding-top:5px;">
-            <div class="row">
-                <div class="col-sm-2">
-                    <div class="input-field col s12">
-                        <select id="selectClass">
-                          <option value="" disabled selected>Select Class</option>
-                          {% for class in available_class %}
-                          <option value="{{class.class_val}}">{{class.class_val}}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                </div>
-                <div class="col-sm-2">
-                    <div id='subjectLoader' style='display: none; float: right;margin-top: -25px;'>
-                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                    </div>
-                    <div class="input-field col s12">                        
-                        <select id="selectSubject">
-                          <option value="" disabled selected>Select Subject</option>                          
-                        </select>
-                      </div>
-                </div>
-                <div class="col-sm-3">
-                    <div id='chapterLoader' style='display: none; float: right;margin-top: -25px;'>
-                        <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                    </div>
-                    <div class="input-field col s12">
-                        <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif;">
-                          <option value="" disabled selected>Select Chapters and topics</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                    <!-- <div class="col-sm-2">
+  <h3 style="margin-left: 8px">Test Builder</h3>
+
+  <div class="form-group" style="padding-top: 5px">
+    <div class="row">
+      <div class="col-sm-2" style="width: 250px">
+        <div class="input-field col s12">
+          <select id="selectClass">
+            <option value="" disabled selected>Select Class</option>
+            {% for class in available_class %}
+            <option value="{{class.class_val}}">{{class.class_val}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div
+          id="subjectLoader"
+          style="display: none; float: right; margin-top: -25px"
+        >
+          <img src="../static/images/spinner.gif" width="25px" height="25px" />
+        </div>
+        <div class="input-field col s12">
+          <select id="selectSubject">
+            <option value="" disabled selected>Select Subject</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div
+          id="chapterLoader"
+          style="display: none; float: right; margin-top: -25px"
+        >
+          <img src="../static/images/spinner.gif" width="25px" height="25px" />
+        </div>
+        <div class="input-field col s12">
+          <select
+            multiple
+            id="selectChapters"
+            style="font-family: Arial, Helvetica, sans-serif"
+          >
+            <option value="" disabled selected>
+              Select Chapters and topics
+            </option>
+          </select>
+        </div>
+      </div>
+      <!-- <div class="col-sm-2">
                         <p><button style="margin-top:22px; margin-left:5px;"
                                 class="btn waves-light green lighten-1 white-text" id="filter">Filter Selected Topics</button></p>
                     </div> -->
-                    <div class="col-sm-2" style="">
-                        <div class="input-field col s12">
-                            <select id="selectTest" name="selectTest">
-                                <option value="" disabled selected>Select Test Paper</option>
-                                {% for paper in test_papers %}
-                                <option value="{{paper.description}}">{{paper.description}}</option>
-                              {% endfor %}
-                            </select> 
-                          </div>
-                    </div>   
-                    <div class="addQuestionButton">
-                        <button style="float: right;" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
-                            class="btn waves-light green lighten-1 white-text" type="button">Add Question</button>
-                    </div>
-                      <!-- Modal Structure -->
-                    <div id="modal1" class="modal">
-                    <div class="modal-content" style="height: 500px;position: relative;overflow-y: auto;">
-                        <div id="quesBuilder"></div>
-                    </div>
-                    </div>              
-                <!-- <div class="col-sm-2">
+      <div class="col-sm-2" style="">
+        <div class="input-field col s12">
+          <select id="selectTest" name="selectTest">
+            <option value="" disabled selected>Select Test Paper</option>
+            {% for paper in test_papers %}
+            <option value="{{paper.description}}">{{paper.description}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="addQuestionButton">
+        <button
+          style="float: right"
+          data-target="modal1"
+          class="btn modal-trigger"
+          onclick="createQuestion();"
+          class="btn waves-light green lighten-1 white-text"
+          type="button"
+        >
+          Add Question
+        </button>
+      </div>
+      <!-- Modal Structure -->
+      <div id="modal1" class="modal">
+        <div
+          class="modal-content"
+          style="height: 500px; position: relative; overflow-y: auto"
+        >
+          <div id="quesBuilder"></div>
+        </div>
+      </div>
+      <!-- <div class="col-sm-2">
                     <p><button style="margin-top:22px; margin-left:5px;"
                             class="btn waves-light green lighten-1 white-text" id="topic" type="submit">Load Topics</button></p>
                 </div> -->
-                <!-- <div class="input-field col s12">
+      <!-- <div class="input-field col s12">
                     <input type="text" style="width: 150px;margin-left: 15px;" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date" />
                     </div> -->
-            </div>                          
-        </div>
-    <div class="row">
-        {% if topics %}
-        <div class="col-sm-3">
-            <h3>Topics</h3>
-            <div id="topic_box" style="overflow-y: auto; height:300px; position: relative;">
-                {% for topic in topics %}
-                <label for="{{ topic.topic_id }}" style="font-weight: 500;">
-                    <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox"
-                        value="{{ topic.topic_id }}"><span>{{ topic.topic_name }}</span>
-                </label><br>
-                {% endfor %}
-            </div>
-            <p><button style="margin-top:22px; margin-left:5px;" class="btn waves-light green lighten-1 white-text"
-                    onclick="questions(); ">Load Questions</button></p>
-            {% endif %}
-        </div>
-        <span id="message" style="color:Red;display: none;float:left;"></span>
-        <div class="col-sm-9" id="questions" style="">
-            
-        </div>
-        <div id="questionloader" style="display: none;padding-left: 300px;margin-top: 80px;margin-bottom: 100px;">
-            <img src="../static/images/loader.gif">
-            </div>
     </div>
-    <div id="filebox" style="display: none;">
+  </div>
+  <div class="row">
+    {% if topics %}
+    <div class="col-sm-3">
+      <h3>Topics</h3>
+      <div
+        id="topic_box"
+        style="overflow-y: auto; height: 300px; position: relative"
+      >
+        {% for topic in topics %}
+        <label for="{{ topic.topic_id }}" style="font-weight: 500">
+          <input
+            type="checkbox"
+            id="{{ topic.topic_id }}"
+            name="topicCheckbox"
+            value="{{ topic.topic_id }}"
+          /><span>{{ topic.topic_name }}</span> </label
+        ><br />
+        {% endfor %}
+      </div>
+      <p>
+        <button
+          style="margin-top: 22px; margin-left: 5px"
+          class="btn waves-light green lighten-1 white-text"
+          onclick="questions(); "
+        >
+          Load Questions
+        </button>
+      </p>
+      {% endif %}
     </div>
+    <span id="message" style="color: Red; display: none; float: left"></span>
+    <div class="col-sm-9" id="questions" style=""></div>
+    <div
+      id="questionloader"
+      style="
+        display: none;
+        padding-left: 300px;
+        margin-top: 80px;
+        margin-bottom: 100px;
+      "
+    >
+      <img src="../static/images/loader.gif" />
+    </div>
+  </div>
+  <div id="filebox" style="display: none"></div>
 </div>
 <script type="text/javascript">
-
-$(document).ready(function(){
-    $('.modal').modal();
+  $(document).ready(function () {
+    $(".modal").modal();
   });
-var weightage = 0;
-$(document).ready(function(){
-    $('.datepicker').datepicker();
+  var weightage = 0;
+  $(document).ready(function () {
+    $(".datepicker").datepicker();
     $(".dropdown-content>li>a").css("font-family", "arial");
   });
 
-$(document).ready(function(){
-    $('#selectClass').formSelect();
-    $('#selectSubject').formSelect();
-    $('#selectChapters').formSelect();
-    $('#selectTest').formSelect();
-    $('#filter').prop('disabled', true);
-    $('#questionSubmitBtn').prop('disabled',true);
+  $(document).ready(function () {
+    $("#selectClass").formSelect();
+    $("#selectSubject").formSelect();
+    $("#selectChapters").formSelect();
+    $("#selectTest").formSelect();
+    $("#filter").prop("disabled", true);
+    $("#questionSubmitBtn").prop("disabled", true);
   });
 
-  function validation(){
-    
-    console.log('inside test_date validation');
+  function validation() {
+    console.log("inside test_date validation");
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    
-    if(subject_id && class_val && test_type && topics && weightage){
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',true);
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+
+    if (subject_id && class_val && test_type && topics && weightage) {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", true);
     }
-    }
+  }
 
-  var select_class = document.getElementById('selectClass');
-  var select_subject = document.getElementById('selectSubject');
-  var select_test = document.getElementById('selectTest');
-  select_class.onchange = function(){
-    count_marks=0;
-      $('#subjectLoader').show();
-      $('#selectSubject').html('');
-    console.log('inside select class function');
-    var subject_id = select_subject.value;
-    var class_val = select_class.value;
-    var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    if(subject_id && class_val && test_type && date && topics && weightage){ 
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',true);
-    }
-    var class_val = select_class.value;
-    $.ajax({ 
-            url: "/addClass?class_val="+class_val,
-            type: "POST",
-            contentType: "application/json",
-            data: "",
-            success: function (response) {
-              console.log('inside success');
-                console.log(response);
-                if(response){
-                responseArr = response.toString().split(',');
-                var optionHTML = '<option value="" disabled selected>Select Subject</option>';
-              for(var i=0;i<responseArr.length;i++){
-                var subject_id = responseArr[i].toString().split(':')[0];
-                var subject_name = responseArr[i].toString().split(':')[1];
-                console.log(subject_id);
-                console.log(subject_name);
-                optionHTML +='<option value="' + subject_id + '">' + subject_name + '</option>';
-                
-              }
-            }else{
-                optionHTML +='<option value="">No data available</option>';
-            }
-              console.log(optionHTML);
-              console.log(select_subject);
-              select_subject.innerHTML = optionHTML;
-                $('#subjectLoader').hide();
-              $('#selectSubject').formSelect();
-            },
-            error: function (xhr) { 
-                window.alert("error occurred while loading subject");
-            }
-        });
-
-    }
-
-    
-
-
-
-    var select_chapter = document.getElementById('selectChapters');
-  select_subject.onchange = function(){
+  var select_class = document.getElementById("selectClass");
+  var select_subject = document.getElementById("selectSubject");
+  var select_test = document.getElementById("selectTest");
+  select_class.onchange = function () {
     count_marks = 0;
-    $("#filebox").html('');
-      $('#chapterLoader').show();
-      $('#selectChapters').html('');
-      console.log('inside subject onchange');
-      var subject_id = select_subject.value;
+    $("#subjectLoader").show();
+    $("#selectSubject").html("");
+    console.log("inside select class function");
+    var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    if(subject_id && class_val && test_type && date && topics && weightage){
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',true);
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    if (subject_id && class_val && test_type && date && topics && weightage) {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", true);
+    }
+    var class_val = select_class.value;
+    $.ajax({
+      url: "/addClass?class_val=" + class_val,
+      type: "POST",
+      contentType: "application/json",
+      data: "",
+      success: function (response) {
+        console.log("inside success");
+        console.log(response);
+        if (response) {
+          responseArr = response.toString().split(",");
+          var optionHTML =
+            '<option value="" disabled selected>Select Subject</option>';
+          for (var i = 0; i < responseArr.length; i++) {
+            var subject_id = responseArr[i].toString().split(":")[0];
+            var subject_name = responseArr[i].toString().split(":")[1];
+            console.log(subject_id);
+            console.log(subject_name);
+            optionHTML +=
+              '<option value="' +
+              subject_id +
+              '">' +
+              subject_name +
+              "</option>";
+          }
+        } else {
+          optionHTML += '<option value="">No data available</option>';
+        }
+        console.log(optionHTML);
+        console.log(select_subject);
+        select_subject.innerHTML = optionHTML;
+        $("#subjectLoader").hide();
+        $("#selectSubject").formSelect();
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading subject");
+      },
+    });
+  };
+
+  var select_chapter = document.getElementById("selectChapters");
+  select_subject.onchange = function () {
+    count_marks = 0;
+    $("#filebox").html("");
+    $("#chapterLoader").show();
+    $("#selectChapters").html("");
+    console.log("inside subject onchange");
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    if (subject_id && class_val && test_type && date && topics && weightage) {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", true);
     }
     var subject_id = select_subject.value;
-    var class_val = select_class.value; 
-    
-    $.ajax({
-      url: "/addChapterTopics?class_val="+class_val+"&subject_id="+subject_id,
-      type:"POST",
-      contentType:"/application/json",
-      data:"",
-      success: function(response){
-          console.log(response);
-        if(response){
-        responseArr = response.toString().split('/,/');
-        var optionHTML = '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
-        var bookNames = []; 
-        for(var i=0;i<responseArr.length;i++){
-          var book_name = responseArr[i].toString().split('@')[0];
-          var topic_name = responseArr[i].toString().split('@')[1];
-          var chapter_name = responseArr[i].toString().split('@')[2];
-          var topic_id = responseArr[i].toString().split('@')[3];
-          
-                      
-                      
-                      if(bookNames.includes(book_name)==false){
-                        console.log(bookNames);
-                        console.log('value:'+bookNames.includes(book_name));
-                        optionHTML +=  '<optgroup label="'+book_name+'"></optgroup>';
-                      
-                      }  
-                      bookNames.push(book_name);                  
-                optionHTML += '<option value="'+topic_id+'" name="topic_ids"> '+chapter_name+' - '+topic_name+'</option></optgroup>';
-        }
-    }else{
-        optionHTML += '<option value="" name="topic_ids" disabled selected>No data available</option>'
-    }
-        select_chapter.innerHTML = optionHTML;
-        $('#chapterLoader').hide();
+    var class_val = select_class.value;
 
-        $('#selectChapters').formSelect();
+    $.ajax({
+      url:
+        "/addChapterTopics?class_val=" +
+        class_val +
+        "&subject_id=" +
+        subject_id,
+      type: "POST",
+      contentType: "/application/json",
+      data: "",
+      success: function (response) {
+        console.log(response);
+        if (response) {
+          responseArr = response.toString().split("/,/");
+          var optionHTML =
+            '<option value="" disabled selected style="font-family:arial">Select Chapters and topics</option>';
+          var bookNames = [];
+          for (var i = 0; i < responseArr.length; i++) {
+            var book_name = responseArr[i].toString().split("@")[0];
+            var topic_name = responseArr[i].toString().split("@")[1];
+            var chapter_name = responseArr[i].toString().split("@")[2];
+            var topic_id = responseArr[i].toString().split("@")[3];
+
+            if (bookNames.includes(book_name) == false) {
+              console.log(bookNames);
+              console.log("value:" + bookNames.includes(book_name));
+              optionHTML += '<optgroup label="' + book_name + '"></optgroup>';
+            }
+            bookNames.push(book_name);
+            optionHTML +=
+              '<option value="' +
+              topic_id +
+              '" name="topic_ids"> ' +
+              chapter_name +
+              " - " +
+              topic_name +
+              "</option></optgroup>";
+          }
+        } else {
+          optionHTML +=
+            '<option value="" name="topic_ids" disabled selected>No data available</option>';
+        }
+        select_chapter.innerHTML = optionHTML;
+        $("#chapterLoader").hide();
+
+        $("#selectChapters").formSelect();
       },
-      error: function(xhr){
-        window.alert('error occured while loading chapters');
-      }
+      error: function (xhr) {
+        window.alert("error occured while loading chapters");
+      },
     });
     // $('#testBuilderQuestions').hide();
     // $("questions").hide();
     // $('#questionloader').show();
-    
+
     // $.ajax({
     //         url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
     //         type: "POST",
     //         contentType: "application/json",
     //         data: "",
-            
+
     //         success: function (response) {
     //             $('#testBuilderQuestions').show();
-    //             $("#questions").show();  
-    //             $('#questionloader').hide(); 
+    //             $("#questions").show();
+    //             $('#questionloader').hide();
     //             if(response==1){
     //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-                  
+
     //             }
     //             else{
     //                 $("#questions").html(response);
-                    
-    //             }  
+
+    //             }
     //             console.log('loader hide');
-                
-                        
+
     //         },
     //         error: function (xhr) {
     //             window.alert("error occurred while loading question");
     //         }
     //     });
     // For new Questions
-    $('#testBuilderQuestions').hide();
-    $('questions').hide();
-    $('#questionloader').show();
+    $("#testBuilderQuestions").hide();
+    $("questions").hide();
+    $("#questionloader").show();
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    topics = $('#selectChapters').val();
+    topics = $("#selectChapters").val();
     // alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
-            url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
-            type: "POST",
-            contentType: "application/json",
-            data: topicList,
-            success: function (response) {
-                // $("#loaderDiv").hide();
-                $('#questionloader').hide();
-                $('#testBuilderQuestions').show();
-                $('#questions').show();
-                console.log(response);
-                if(response==1){
-                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-                  
-                }
-                else{
-                    $("#questions").html(response);
-                    
-                }                           
-            },
-            error: function (xhr) { 
-                window.alert("error occurred while loading contents");
-            }
-        });
+      url:
+        "/filterQuestionsfromTopic?class_val=" +
+        class_val +
+        "&subject_id=" +
+        subject_id +
+        "&test_type=" +
+        test_type,
+      type: "POST",
+      contentType: "application/json",
+      data: topicList,
+      success: function (response) {
+        // $("#loaderDiv").hide();
+        $("#questionloader").hide();
+        $("#testBuilderQuestions").show();
+        $("#questions").show();
+        console.log(response);
+        if (response == 1) {
+          $("#questions").html(
+            '<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>'
+          );
+        } else {
+          $("#questions").html(response);
+        }
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading contents");
+      },
+    });
     // End
-}
+  };
 
-
-
-select_chapter.onchange = function(){
+  select_chapter.onchange = function () {
     count_marks = 0;
-    console.log('inside select chapter onchange');
-    $("#filebox").html('');
+    console.log("inside select chapter onchange");
+    $("#filebox").html("");
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    if(subject_id && class_val && test_type && date && topics && weightage){
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',true);
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    if (subject_id && class_val && test_type && date && topics && weightage) {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", true);
     }
     var arr = select_chapter.value;
-    if(arr.length!=0){
-    $('#filter').prop('disabled', false);
-    }else{
-      $('#filter').prop('disabled', true);
+    if (arr.length != 0) {
+      $("#filter").prop("disabled", false);
+    } else {
+      $("#filter").prop("disabled", true);
     }
-  }
+  };
 
-var topics = '';
-// $('#filter').click(function(){
-//     $('#testBuilderQuestions').hide();
-//     $('questions').hide();
-//     $('#questionloader').show();
-//     var subject_id = select_subject.value;
-//     var class_val = select_class.value;
-//     topics = $('#selectChapters').val();
-//     var topicList = JSON.stringify(topics);
-//     $.ajax({
-//             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id,
-//             type: "POST",
-//             contentType: "application/json",
-//             data: topicList,
-//             success: function (response) {
-//                 // $("#loaderDiv").hide();
-//                 $('#questionloader').hide();
-//                 $('#testBuilderQuestions').show();
-//                 $('#questions').show();
-//                 console.log(response);
-//                 if(response==1){
-//                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-                  
-//                 }
-//                 else{
-//                     $("#questions").html(response);
-                    
-//                 } 
-//             $('#loaderDiv').hide();
-//             $('#contentDiv').show();
-//             },
-//             error: function (xhr) { 
-//                 window.alert("error occurred while loading contents");
-//             }
-//         });
-//   });
+  var topics = "";
+  // $('#filter').click(function(){
+  //     $('#testBuilderQuestions').hide();
+  //     $('questions').hide();
+  //     $('#questionloader').show();
+  //     var subject_id = select_subject.value;
+  //     var class_val = select_class.value;
+  //     topics = $('#selectChapters').val();
+  //     var topicList = JSON.stringify(topics);
+  //     $.ajax({
+  //             url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id,
+  //             type: "POST",
+  //             contentType: "application/json",
+  //             data: topicList,
+  //             success: function (response) {
+  //                 // $("#loaderDiv").hide();
+  //                 $('#questionloader').hide();
+  //                 $('#testBuilderQuestions').show();
+  //                 $('#questions').show();
+  //                 console.log(response);
+  //                 if(response==1){
+  //                     $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
 
-  var select_test = document.getElementById('selectTest');
-  select_test.onchange = function(){
+  //                 }
+  //                 else{
+  //                     $("#questions").html(response);
+
+  //                 }
+  //             $('#loaderDiv').hide();
+  //             $('#contentDiv').show();
+  //             },
+  //             error: function (xhr) {
+  //                 window.alert("error occurred while loading contents");
+  //             }
+  //         });
+  //   });
+
+  var select_test = document.getElementById("selectTest");
+  select_test.onchange = function () {
     count_marks = 0;
     // $('.tooltipped').tooltip('close');
-    $('#msg').hide();
-    $("#filebox").html('');
-      console.log('inside select test');
-      var subject_id = select_subject.value;
-    var class_val = select_class.value;
-    var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    if(subject_id && class_val && test_type && date && topics && weightage){
-        console.log('if all are not empty in select test');
-        $('#questionSubmitBtn').prop('disabled',false);
-        
-    }else{
-        console.log('if all are empty in select test');
-        $('#questionSubmitBtn').prop('disabled',true);
-        
-    }
-    $('#testBuilderQuestions').hide();
-    $('questions').hide();
-    $('#questionloader').show();
+    $("#msg").hide();
+    $("#filebox").html("");
+    console.log("inside select test");
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    topics = $('#selectChapters').val();
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    if (subject_id && class_val && test_type && date && topics && weightage) {
+      console.log("if all are not empty in select test");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are empty in select test");
+      $("#questionSubmitBtn").prop("disabled", true);
+    }
+    $("#testBuilderQuestions").hide();
+    $("questions").hide();
+    $("#questionloader").show();
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    topics = $("#selectChapters").val();
     // alert('Topics:'+topics);
     var topicList = JSON.stringify(topics);
     $.ajax({
-            url: "/filterQuestionsfromTopic?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type,
-            type: "POST",
-            contentType: "application/json",
-            data: topicList,
-            success: function (response) {
-                // $("#loaderDiv").hide();
-                $('#questionloader').hide();
-                $('#testBuilderQuestions').show();
-                $('#questions').show();
-                console.log(response);
-                if(response==1){
-                    $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-                  
-                }
-                else{
-                    $("#questions").html(response);
-                    
-                }                           
-            },
-            error: function (xhr) { 
-                window.alert("error occurred while loading contents");
-            }
-        });
-    };
-    var count_marks = 0;
-    // var class_select = document.getElementById("class_val");
-    // var subject_select = document.getElementById("subject_name");
-    // var chapter_num_select = document.getElementById("chapno");
-    // var test_type_select = document.getElementById("test_type");
-    // var optionHTMLClass = '';
-    // var optionHTMLSubject = '';
-    // var optionHTMLChapter = '';
-    // var optionHTMLTestType = '';
-    // $(document).ready(function(){
-    //     $('#class_val').val("na");
-    //     optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
-    //     class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
-    //     optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
-    //     subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
-    //     optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-    //     chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
-    //     optionHTMLTestType += '<option value="na"  selected disabled> Select Test Type </option>';
-    //     test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
-    // });
-
-
-    // class_select.onchange = function () {
-    //     class_val = class_select.value;
-    //     fetch('/questionBuilder/' + class_val).then(function (response) {
-    //         response.json().then(function (data) {
-    //             var optionHTML = '';
-    //             optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
-    //             for (var subject of data.subjects) {
-    //                 optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
-    //             }
-    //             subject_select.innerHTML = optionHTML;
-    //         })
-    //     });
-    // }
-
-    // subject_select.onchange=function()  {
-    //     class_val = class_select.value;
-    //     subject_id = subject_select.value;
-    //     console.log('Inside subject_select on change')
-    //     $("#loader2").show();
-    //     fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
-    //         response.json().then(function(data){
-    //             $("#loader2").hide();
-    //             var optionHTML = '';
-    //             optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
-    //             for (var chapterNo of data.chapterNum){
-    //                 optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
-    //               }
-    //               chapter_num_select.innerHTML =  optionHTML;
-    //         })
-    //     });
-    //  }
-
-    //  $(document).ready(function(){      
-    //     var optionHTMLChapter='';
-    //     classValue = document.getElementById('class_val').value;
-    //     if(classValue=='na'){
-    //         var val = 'na';
-    //         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
-    //     chapter_num_select.innerHTML = optionHTMLChapter;
-    //     }
-    //  });
-    // function questions() {
-    //     count_marks = 0;
-    //     var topic_list = document.getElementsByName('topicCheckbox');
-    //     var checkboxesChecked = [];
-    //     for (var i = 0; i < topic_list.length; i++) {
-    //         // And stick the checked ones onto an array...
-    //         if (topic_list[i].checked) {
-    //             checkboxesChecked.push(topic_list[i].value);
-    //         }
-    //     }
-    //     console.log(checkboxesChecked[0]);
-    //     checkboxesChecked = JSON.stringify(checkboxesChecked);
-    //     console.log(checkboxesChecked);
-    //     $.ajax({
-    //         url: "/testBuilderQuestions",
-    //         type: "POST",
-    //         contentType: "application/json",
-    //         data: checkboxesChecked,
-    //         beforeSend: function() {
-    //           $("#testBuilderQuestions").hide();  
-    //        },
-    //         success: function (response) {
-    //             $("#testBuilderQuestions").show(); 
-                
-    //             if(response==1){
-    //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-    //             }
-    //             else{
-    //                 $("#questions").html(response);
-    //             }                
-    //         },
-    //         error: function (xhr) {
-    //             window.alert("error occurred while loading question");
-    //         }
-    //     });
-    // }sd
-    
-    function questionFile() {
-        var subject_id = select_subject.value;
-    var class_val = select_class.value;
-    var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-        $("#questionSubmitBtn").prop("disabled", true);
-        $("#questionSubmitLoader").show();
-        var questions_list = document.getElementsByName('questionsCheckbox');
-        var checkboxesChecked = [];
-        (function () {
-                    var script = document.createElement("script");
-                    script.type = "text/javascript";
-                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
-
-                    var config = 'MathJax.Hub.Config({' +
-                                    'extensions: ["tex2jax.js"],' +
-                                    'jax: ["input/TeX","output/HTML-CSS"]' +
-                                '});' +
-                                'MathJax.Hub.Startup.onload();';                                
-                    if (window.opera) {script.innerHTML = config}
-                                else {script.text = config}
-
-                    document.getElementsByTagName("head")[0].appendChild(script);
-                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-                    })();
-        for (var i = 0; i < questions_list.length; i++) {
-            // And stick the checked ones onto an array...
-            if (questions_list[i].checked) {
-                checkboxesChecked.push(questions_list[i].value);
-            }
+      url:
+        "/filterQuestionsfromTopic?class_val=" +
+        class_val +
+        "&subject_id=" +
+        subject_id +
+        "&test_type=" +
+        test_type,
+      type: "POST",
+      contentType: "application/json",
+      data: topicList,
+      success: function (response) {
+        // $("#loaderDiv").hide();
+        $("#questionloader").hide();
+        $("#testBuilderQuestions").show();
+        $("#questions").show();
+        console.log(response);
+        if (response == 1) {
+          $("#questions").html(
+            '<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>'
+          );
+        } else {
+          $("#questions").html(response);
         }
-        //checkboxesChecked  = JSON.stringify(checkboxesChecked);   
-        var data_list = []
-        data_list.push(checkboxesChecked);
-        console.log(data_list);
-        data_list.push(count_marks);
-        console.log(data_list);
-        data_list = JSON.stringify(data_list);
-        $.ajax({
-            url: "/testBuilderFileUpload?class_val="+class_val+"&subject_id="+subject_id+"&test_type="+test_type+"&date="+date,
-            type: "POST",
-            contentType: "application/json",
-            data: data_list,
-            success: function (response) {
-                $("#filebox").show();
-                $("#filebox").html(response);
-                $("#questionSubmitBtn").prop("disabled", true);
-                $("#questionSubmitLoader").hide();
-            },
-            error: function (xhr) {
-                window.alert("error occurred while loading question");
-            }
-        });
-    }
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading contents");
+      },
+    });
+  };
+  var count_marks = 0;
+  // var class_select = document.getElementById("class_val");
+  // var subject_select = document.getElementById("subject_name");
+  // var chapter_num_select = document.getElementById("chapno");
+  // var test_type_select = document.getElementById("test_type");
+  // var optionHTMLClass = '';
+  // var optionHTMLSubject = '';
+  // var optionHTMLChapter = '';
+  // var optionHTMLTestType = '';
+  // $(document).ready(function(){
+  //     $('#class_val').val("na");
+  //     optionHTMLClass += '<option value="na"  selected disabled> Select Class </option>';
+  //     class_select.innerHTML = optionHTMLClass + class_select.innerHTML;
+  //     optionHTMLSubject += '<option value="na"  selected disabled> Select Subject </option>';
+  //     subject_select.innerHTML = optionHTMLSubject + subject_select.innerHTML;
+  //     optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+  //     chapter_num_select.innerHTML = optionHTMLChapter + chapter_num_select.innerHTML;
+  //     optionHTMLTestType += '<option value="na"  selected disabled> Select Test Type </option>';
+  //     test_type_select.innerHTML = optionHTMLTestType + test_type_select.innerHTML;
+  // });
 
-    var today = new Date();
+  // class_select.onchange = function () {
+  //     class_val = class_select.value;
+  //     fetch('/questionBuilder/' + class_val).then(function (response) {
+  //         response.json().then(function (data) {
+  //             var optionHTML = '';
+  //             optionHTML += '<option value="na"  selected disabled> Select Subject </option>';
+  //             for (var subject of data.subjects) {
+  //                 optionHTML += '<option value="' + subject.subject_id + '">' + subject.subject_name + '</option>';
+  //             }
+  //             subject_select.innerHTML = optionHTML;
+  //         })
+  //     });
+  // }
 
-$(".datepicker").datepicker({
-    changeMonth: true,
-    changeYear: true,
-    minDate: today // set the minDate to the today's date
-    // you can add other options here
-});
+  // subject_select.onchange=function()  {
+  //     class_val = class_select.value;
+  //     subject_id = subject_select.value;
+  //     console.log('Inside subject_select on change')
+  //     $("#loader2").show();
+  //     fetch('/questionChapterpicker/' + class_val + '/'+ subject_id).then(function(response) {
+  //         response.json().then(function(data){
+  //             $("#loader2").hide();
+  //             var optionHTML = '';
+  //             optionHTML += '<option value="na"  selected disabled> Select Chapter </option>';
+  //             for (var chapterNo of data.chapterNum){
+  //                 optionHTML += '<option value="' + chapterNo.chapter_num + '">' + chapterNo.chapter_num+' - '+ chapterNo.chapter_name + '</option>';
+  //               }
+  //               chapter_num_select.innerHTML =  optionHTML;
+  //         })
+  //     });
+  //  }
 
-    function calculate_marks(e){
-    checkbox_id=e.id
-    $("#filebox").html('');
-    weightage=document.getElementById(checkbox_id+"select").value
-    if($(e).is(':checked'))
-    {   count_marks=count_marks+parseInt(weightage)
-         $("#marks").text(count_marks);
-    }
-    else
-    {  count_marks=count_marks-parseInt(weightage)
-        $("#marks").text(count_marks);
-    }
+  //  $(document).ready(function(){
+  //     var optionHTMLChapter='';
+  //     classValue = document.getElementById('class_val').value;
+  //     if(classValue=='na'){
+  //         var val = 'na';
+  //         optionHTMLChapter += '<option value="na"  selected disabled> Select Chapter </option>';
+  //     chapter_num_select.innerHTML = optionHTMLChapter;
+  //     }
+  //  });
+  // function questions() {
+  //     count_marks = 0;
+  //     var topic_list = document.getElementsByName('topicCheckbox');
+  //     var checkboxesChecked = [];
+  //     for (var i = 0; i < topic_list.length; i++) {
+  //         // And stick the checked ones onto an array...
+  //         if (topic_list[i].checked) {
+  //             checkboxesChecked.push(topic_list[i].value);
+  //         }
+  //     }
+  //     console.log(checkboxesChecked[0]);
+  //     checkboxesChecked = JSON.stringify(checkboxesChecked);
+  //     console.log(checkboxesChecked);
+  //     $.ajax({
+  //         url: "/testBuilderQuestions",
+  //         type: "POST",
+  //         contentType: "application/json",
+  //         data: checkboxesChecked,
+  //         beforeSend: function() {
+  //           $("#testBuilderQuestions").hide();
+  //        },
+  //         success: function (response) {
+  //             $("#testBuilderQuestions").show();
 
-    console.log('inside test_date calculate marks');
+  //             if(response==1){
+  //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
+  //             }
+  //             else{
+  //                 $("#questions").html(response);
+  //             }
+  //         },
+  //         error: function (xhr) {
+  //             window.alert("error occurred while loading question");
+  //         }
+  //     });
+  // }sd
+
+  function questionFile() {
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    console.log('weightage:'+weightage);
-    if(subject_id && class_val && test_type && date && weightage){
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',true);
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    $("#questionSubmitBtn").prop("disabled", true);
+    $("#questionSubmitLoader").show();
+    var questions_list = document.getElementsByName("questionsCheckbox");
+    var checkboxesChecked = [];
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+      var config =
+        "MathJax.Hub.Config({" +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        "});" +
+        "MathJax.Hub.Startup.onload();";
+      if (window.opera) {
+        script.innerHTML = config;
+      } else {
+        script.text = config;
+      }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    })();
+    for (var i = 0; i < questions_list.length; i++) {
+      // And stick the checked ones onto an array...
+      if (questions_list[i].checked) {
+        checkboxesChecked.push(questions_list[i].value);
+      }
     }
-}
-$(document).ready(function(){
-    $('#topic').click(function(){
-        classValue = document.getElementById('class_val').value;
-            subjectValue = document.getElementById('subject_name').value;
-            var chapterNumber = document.getElementById('chapno').value;
-            testTypeValue = document.getElementById('test_type').value;
-            testDateValue = document.getElementById('test_date').value;
-            console.log(classValue);
-            if(classValue=='na'){
-                console.log('Inside message');
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Class Selected';
-                $('#message').show();
-                event.preventDefault();
-            }
-            else
-            if(subjectValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Subject Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            if(chapterNumber=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Chapter Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            if(testTypeValue=='na'){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Test Type Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            if(testDateValue==''){
-                tag = document.getElementById('message');
-                tag.innerHTML = 'No Date Selected';
-                $('#message').show();
-                event.preventDefault();
-            }else
-            {
-                $('#message').hide();
-            }
-    });
-});
-
-function createQuestion(){
-    console.log('create Question');
+    //checkboxesChecked  = JSON.stringify(checkboxesChecked);
+    var data_list = [];
+    data_list.push(checkboxesChecked);
+    console.log(data_list);
+    data_list.push(count_marks);
+    console.log(data_list);
+    data_list = JSON.stringify(data_list);
     $.ajax({
-            url: "/questionBuilder",
-            type: "GET",
-            contentType: "application/json",
-            data: "",
-            success: function (response) {
-                $('#quesBuilder').html(response);
-            },
-            error: function(xhr){
+      url:
+        "/testBuilderFileUpload?class_val=" +
+        class_val +
+        "&subject_id=" +
+        subject_id +
+        "&test_type=" +
+        test_type +
+        "&date=" +
+        date,
+      type: "POST",
+      contentType: "application/json",
+      data: data_list,
+      success: function (response) {
+        $("#filebox").show();
+        $("#filebox").html(response);
+        $("#questionSubmitBtn").prop("disabled", true);
+        $("#questionSubmitLoader").hide();
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading question");
+      },
+    });
+  }
 
-            }
-        });
-}
-$(document).ready(function(){
+  var today = new Date();
+
+  $(".datepicker").datepicker({
+    changeMonth: true,
+    changeYear: true,
+    minDate: today, // set the minDate to the today's date
+    // you can add other options here
+  });
+
+  function calculate_marks(e) {
+    checkbox_id = e.id;
+    $("#filebox").html("");
+    weightage = document.getElementById(checkbox_id + "select").value;
+    if ($(e).is(":checked")) {
+      count_marks = count_marks + parseInt(weightage);
+      $("#marks").text(count_marks);
+    } else {
+      count_marks = count_marks - parseInt(weightage);
+      $("#marks").text(count_marks);
+    }
+
+    console.log("inside test_date calculate marks");
+    var subject_id = select_subject.value;
+    var class_val = select_class.value;
+    var test_type = select_test.value;
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    console.log("weightage:" + weightage);
+    if (subject_id && class_val && test_type && date && weightage) {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", true);
+    }
+  }
+  $(document).ready(function () {
+    $("#topic").click(function () {
+      classValue = document.getElementById("class_val").value;
+      subjectValue = document.getElementById("subject_name").value;
+      var chapterNumber = document.getElementById("chapno").value;
+      testTypeValue = document.getElementById("test_type").value;
+      testDateValue = document.getElementById("test_date").value;
+      console.log(classValue);
+      if (classValue == "na") {
+        console.log("Inside message");
+        tag = document.getElementById("message");
+        tag.innerHTML = "No Class Selected";
+        $("#message").show();
+        event.preventDefault();
+      } else if (subjectValue == "na") {
+        tag = document.getElementById("message");
+        tag.innerHTML = "No Subject Selected";
+        $("#message").show();
+        event.preventDefault();
+      } else if (chapterNumber == "na") {
+        tag = document.getElementById("message");
+        tag.innerHTML = "No Chapter Selected";
+        $("#message").show();
+        event.preventDefault();
+      } else if (testTypeValue == "na") {
+        tag = document.getElementById("message");
+        tag.innerHTML = "No Test Type Selected";
+        $("#message").show();
+        event.preventDefault();
+      } else if (testDateValue == "") {
+        tag = document.getElementById("message");
+        tag.innerHTML = "No Date Selected";
+        $("#message").show();
+        event.preventDefault();
+      } else {
+        $("#message").hide();
+      }
+    });
+  });
+
+  function createQuestion() {
+    console.log("create Question");
+    $.ajax({
+      url: "/questionBuilder",
+      type: "GET",
+      contentType: "application/json",
+      data: "",
+      success: function (response) {
+        $("#quesBuilder").html(response);
+      },
+      error: function (xhr) {},
+    });
+  }
+  $(document).ready(function () {
     var dtToday = new Date();
-    
+
     var month = dtToday.getMonth() + 1;
     var day = dtToday.getDate();
     var year = dtToday.getFullYear();
-    if(month < 10)
-        month = '0' + month.toString();
-    if(day < 10)
-        day = '0' + day.toString();
-    
-    var maxDate = year + '-' + month + '-' + day;
-    $('#test_date').attr('min', maxDate);
+    if (month < 10) month = "0" + month.toString();
+    if (day < 10) day = "0" + day.toString();
 
-});
+    var maxDate = year + "-" + month + "-" + day;
+    $("#test_date").attr("min", maxDate);
+  });
 
-window.onbeforeunload = function() {
-    console.log('before unload');
-    console.log($('#test_date').val());
-    localStorage.setItem("date", $('#test_date').val());
-    
+  window.onbeforeunload = function () {
+    console.log("before unload");
+    console.log($("#test_date").val());
+    localStorage.setItem("date", $("#test_date").val());
+
     // ...
-}
-window.onload = function() {
-    console.log('window onload');
+  };
+  window.onload = function () {
+    console.log("window onload");
     console.log(localStorage.getItem("date"));
     var date = localStorage.getItem("date");
-    if (date !== null) $('#test_date').val("date");
-}
-var test_date = document.getElementById('#test_date');
-test_date.onchange = function(){
-                        console.log('inside test_date test date on change');
+    if (date !== null) $("#test_date").val("date");
+  };
+  var test_date = document.getElementById("#test_date");
+  test_date.onchange = function () {
+    console.log("inside test_date test date on change");
     var subject_id = select_subject.value;
     var class_val = select_class.value;
     var test_type = select_test.value;
-    var date = $('#test_date').val();
-    topics = $('#selectChapters').val();
-    console.log('weightage:'+weightage);
-    if(subject_id && class_val && test_type && date && topics && weightage){
-        console.log('if all are empty');
-        $('#questionSubmitBtn').prop('disabled',false);
-    }else{
-        console.log('if all are not empty');
-        $('#questionSubmitBtn').prop('disabled',true);
+    var date = $("#test_date").val();
+    topics = $("#selectChapters").val();
+    console.log("weightage:" + weightage);
+    if (subject_id && class_val && test_type && date && topics && weightage) {
+      console.log("if all are empty");
+      $("#questionSubmitBtn").prop("disabled", false);
+    } else {
+      console.log("if all are not empty");
+      $("#questionSubmitBtn").prop("disabled", true);
     }
-                    };
-
-
-
-
-
+  };
 </script>
 
 {%endblock%}

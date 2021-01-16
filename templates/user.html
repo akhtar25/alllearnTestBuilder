@@ -1,140 +1,138 @@
 {% extends "layout.html" %} {% block content %}
-<div class="row col s12 m6 offset-m3 ">
-    <div class="col s8 offset-s2" style="background: whitesmoke">
-        <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
-            <h3>Profile</h3>
+<div class="row col s12 m6 offset-m3">
+  <div class="col s8 offset-s2" style="background: whitesmoke">
+    <div
+      style="padding: 1px; margin-bottom: 20px"
+      class="white-text center green z-depth-1 lighten-1"
+    >
+      <h3>Profile</h3>
+    </div>
+    <div class="col s4 m4 l4 center">
+      {% if teacher.profile_picture != none %}
+      <img class="responsive-img" src="{{teacher.profile_picture}}" />
+      {%else%}
+      <img
+        class="responsive-img"
+        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png"
+      />
+      {%endif%}
 
-        </div>
-        <div class="col s4 m4 l4 center">
-            {% if teacher.profile_picture != none %}
-            <img class="responsive-img " src="{{teacher.profile_picture}}">
-            {%else%}
-            <img class="responsive-img "
-                src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png">
-            {%endif%}
-
-            <h4 style="font-weight: bold;">{{user.first_name}} {{user.last_name}} </h4>
-            <table class="highlight">
-                <tr>
-                    <td>Phone</td>
-                    <td>{{user.phone}}</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td>{{user.email}}</td>
-                </tr>
-                <tr>
-                    <td>Registered On</td>
-                    <td>{{teacher.registration_date.strftime('%d %B-%Y')}}</td>
-                </tr>
-                <tr>
-                    <td>Testing Preference</td>
-                    <td>
-                        {%if teacher.device_preference==78%}
-                        Integrated Camera(eg. Tablet)
-                        {%else%}
-                        External Web Camera(eg. PC+ Mobile)
-                        {%endif%}
-                    </td>
-                </tr>
-                <tr>
-                    <td>School ID</td>
-                    <td>{{school_id}}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="col s4 m4 l6">
-            <table>
-                <tr>
-                    <div class="section">
-                        <h3>About</h3>
-                        <span style="white-space: pre-line">{{user.about_me}}</span>
-                    </div>
-                </tr>
-                <tr>
-                    <div class='section'>
-                        <h3>Education </h3>
-                        <span style="white-space: pre-line">{{user.education}}</span>
-                    </div>
-                </tr>
-                <tr>
-                    <div class='section'>
-                        <h3> Experience </h3>
-                        <span style="white-space: pre-line">{{user.experience}}</span>
-                    </div>
-                </tr>
-                
-
-            </table>
-            <h3>Class Subject Allocation</h3>
-            <table class="highlight">
-                {% for row in teacherData %}
-                <tr>
-                    
-                    <td>{{row.class_val}} - {{row.section}}</td>
-                    <td>{{row.subject_name}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-
-        </div>
-
-        {% if accessRequestListRows | length > 0 %}
-        <div class="col s4 m6 l6">
-            <h4>Access Requests</h4>
-            <ul class="collapsible">
-                {%for row in accessRequestListRows%}
-                <li class="accessRequestDiv">
-                    <div class="collapsible-header"><i class="material-icons">person_add</i>{{row.username}}</div>
-                    <div class="collapsible-body">
-                        <p>Email: {{row.email}}</p>
-                        <p>Phone: {{row.phone}}</p>
-                        <p>Requested Access as: {{row.user_type}}</p>
-                        <p>About requestor:{{row.about_me}}</p>
-                        <div class='grantAccessDiv'>
-                            <a class="waves-effect waves-light btn grantAccessBTNCLass" name="{{row.username}}"
-                                id="{{row.school_id}}">Grant Access</a>
-                        </div>
-                    </div>
-                </li>
-                {%endfor%}
-            </ul>
-        </div>
-        {%endif%}
-
+      <h4 style="font-weight: bold">{{user.first_name}} {{user.last_name}}</h4>
+      <table class="highlight">
+        <tr>
+          <td>Phone</td>
+          <td>{{user.phone}}</td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>{{user.email}}</td>
+        </tr>
+        <tr>
+          <td>Registered On</td>
+          <td>{{teacher.registration_date.strftime('%d %B-%Y')}}</td>
+        </tr>
+        <tr>
+          <td>Testing Preference</td>
+          <td>
+            {%if teacher.device_preference==78%} Integrated Camera(eg. Tablet)
+            {%else%} External Web Camera(eg. PC+ Mobile) {%endif%}
+          </td>
+        </tr>
+        <tr>
+          <td>School ID</td>
+          <td>{{school_id}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col s4 m4 l6">
+      <table>
+        <tr>
+          <div class="section">
+            <h3 style="font-size: 18px">About</h3>
+            <span style="white-space: pre-line">{{user.about_me}}</span>
+          </div>
+        </tr>
+        <tr>
+          <div class="section">
+            <h3 style="font-size: 18px">Education</h3>
+            <span style="white-space: pre-line">{{user.education}}</span>
+          </div>
+        </tr>
+        <tr>
+          <div class="section">
+            <h3 style="font-size: 18px">Experience</h3>
+            <span style="white-space: pre-line">{{user.experience}}</span>
+          </div>
+        </tr>
+      </table>
+      <h3 style="font-size: 18px">Class Subject Allocation</h3>
+      <table class="highlight">
+        {% for row in teacherData %}
+        <tr>
+          <td>{{row.class_val}} - {{row.section}}</td>
+          <td>{{row.subject_name}}</td>
+        </tr>
+        {% endfor %}
+      </table>
     </div>
 
+    {% if accessRequestListRows | length > 0 %}
+    <div class="col s4 m6 l6">
+      <h4>Access Requests</h4>
+      <ul class="collapsible">
+        {%for row in accessRequestListRows%}
+        <li class="accessRequestDiv">
+          <div class="collapsible-header">
+            <i class="material-icons">person_add</i>{{row.username}}
+          </div>
+          <div class="collapsible-body">
+            <p>Email: {{row.email}}</p>
+            <p>Phone: {{row.phone}}</p>
+            <p>Requested Access as: {{row.user_type}}</p>
+            <p>About requestor:{{row.about_me}}</p>
+            <div class="grantAccessDiv">
+              <a
+                class="waves-effect waves-light btn grantAccessBTNCLass"
+                name="{{row.username}}"
+                id="{{row.school_id}}"
+                >Grant Access</a
+              >
+            </div>
+          </div>
+        </li>
+        {%endfor%}
+      </ul>
+    </div>
+    {%endif%}
+  </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-        $('.collapsible').collapsible();
+  $(document).ready(function () {
+    $(".collapsible").collapsible();
+  });
+
+  $(".grantAccessBTNCLass").click(function () {
+    //$('#loaderDiv').show();
+    //$('#classTrackerDiv').hide();
+    console.log("Granting access");
+
+    var username = $(this).attr("name");
+    var school_id = $(this).attr("id");
+    console.log(username);
+    var data = "";
+    $.ajax({
+      url: "/grantUserAccess?username=" + username + "&school_id=" + school_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $(".grantAccessDiv").html("<p style:'green-text'>Access Granted</p>");
+        console.log("Inside success");
+      },
+      error: function (xhr) {
+        window.alert("Guardian not associated to any student");
+      },
     });
-
-    $('.grantAccessBTNCLass').click(function () {
-        //$('#loaderDiv').show();
-        //$('#classTrackerDiv').hide();    
-        console.log("Granting access");
-
-        var username = $(this).attr('name');
-        var school_id = $(this).attr('id');
-        console.log(username);
-        var data = "";
-        $.ajax({
-            url: "/grantUserAccess?username=" + username + "&school_id=" + school_id,
-            type: "get",
-            data: data,
-            success: function (response) {
-                $('.grantAccessDiv').html("<p style:'green-text'>Access Granted</p>");
-                console.log('Inside success');
-
-
-            },
-            error: function (xhr) {
-                window.alert("Guardian not associated to any student");
-            }
-        });
-
-    });
+  });
 </script>
 {% endblock %}

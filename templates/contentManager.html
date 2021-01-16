@@ -1,6 +1,6 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Content Manager</h3>
+    <h3 style="margin-left: 5px;">Content Manager</h3>
         <div class="form-group " style="padding-top:5px;">
             <div class="row">
               {% if user_type_val=='134' %}
@@ -85,11 +85,11 @@
                     <div class="form-group " style="padding-top:5px;">
                       <div class="row" style="margin-left: 15px;margin-bottom: 10px;margin-top: 15px;">
                         <div class="col-sm-12" style="display:flex;">
-                            <label style="width:110px;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;">
+                            <label style="width:110px;font-weight: 400;color: black;">Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 300px;font-size: 14px;color: black;">
                             <p style="margin-left:100px;">
                               <label>
                                 <input type="checkbox" id="public" value="Y" />
-                                <span>public</span>
+                                <span style="color: black;">public</span>
                               </label>
                             </p>
                         </div>
@@ -97,7 +97,7 @@
                       <div class="row" id="classDetailsDiv">
                             <div class="col-sm-3">
                                 <div style="margin-left:30px;">
-                                    {{ formContent.class_val.label(class='labelsize') }}
+                                    {{ formContent.class_val.label(class='labelsize',style='font-weight: 400;color: black;') }}
                                     <br>
                                     {% if formContent.class_val.errors %}
                                     {{ formContent.class_val(class="form-control form-control-lg is-invalid") }}
@@ -113,7 +113,7 @@
                             </div>
                             <div class="col-sm-2" style="width: 0px;margin-left: -20px;">
                                 <div style="width:130px;">
-                                    {{ formContent.subject_name.label(class='labelsize') }}
+                                    {{ formContent.subject_name.label(class='labelsize',style='font-weight: 400;color: black;') }}
                                     <div id='loaderSubject' style='display: none; float: right;'>
                                         <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                     </div>
@@ -132,7 +132,7 @@
                             </div>
                               <div class="col-sm-3" style="width:0px;">
                                   <div style="width:125px;margin-left: 120px;">
-                                      {{ formContent.chapter_num.label(class='labelsize') }}
+                                      {{ formContent.chapter_num.label(class='labelsize',style='font-weight: 400;color: black;') }}
                                       <div id='loaderChapter' style='display: none; float: right;'>
                                           <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                       </div>
@@ -151,7 +151,7 @@
                               </div>
                               <div class="col-sm-2" style="width: 0px;">
                                   <div style="width:160px;margin-left: 240px;" > 
-                                                  {{ formContent.topics.label(class='labelsize') }}
+                                                  {{ formContent.topics.label(class='labelsize',style='font-weight: 400;color: black;') }}
                                                   <div id='loaderTopic'style='display: none; float: right;'>
                                                                   <img src='../static/images/spinner.gif' width='25px' height='25px'>
                                                                   </div>
@@ -174,11 +174,11 @@
                           <div class="row">
                           <div class="col-sm-6" style="width: 100%;margin-left: 30px;">
                           <!-- <label>Content Name</label><input type="text" id="contentNameDiv" name="contentName" placeholder="enter content name" style="width: 200px;margin-left: 28px;"></br> -->
-                          <label>Content Type:</label>&nbsp;
-                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Image</label></span>
-                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Document</label></span>
-                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Video</label></span>
-                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;">Audio</label></span>
+                          <label style='font-weight: 400;color: black;'>Content Type:</label>&nbsp;
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="1" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;font-weight: 400;color: black;">Image</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="2" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;font-weight: 400;color: black;">Document</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="3" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;font-weight: 400;color: black;">Video</label></span>
+                          <label><input class="with-gap" id="contentTypeId" name="contentChoice" type="radio" value="4" onclick="contentOption(this);"><span style="margin-right: 10px;"><label style="margin-left: -10px;font-weight: 400;color: black;">Audio</label></span>
                           <input type="hidden" id="contentType" name="contentType" value="">
                           </div>
                           </div>
@@ -189,20 +189,20 @@
                                 <div id="contentLoader" style="width:20px;display:none;">
                                   <img src="../static/images/loader.gif" style="width: 100%;">
                               </div>
-                              </div><br><label style="margin-left: 111px;">OR</label>
+                              </div><br><label style="margin-left: 111px;font-weight: 400;color: black;">OR</label>
                               <span id="message" style="color:Red;display: none;float:left;font-size: 11px;margin-top: -15px;">*please choose file</span>
-                              <div style="display: flex;"><label>URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;"></div>
+                              <div style="display: flex;"><label style="font-weight: 400;color: black;">URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;font-size: 14px;"></div>
                               <input type="hidden" id="reference" name="reference" value="">
                             </div>
-                            <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 90px;float: right;margin-top: -15px;" id="preview" src=" ">
-                            <iframe src=" " id="iframeDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-                            <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 90px;float: right;margin-top: -15px;display:none;"><source src=" "></audio>
-                            <embed width="251" height="115" id="docDiv" style="margin-left: 90px;float: right;margin-top: -15px;display:none;" src=" " type="application/pdf">
+                            <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 118px;float: right;margin-top: -15px;" id="preview" src=" ">
+                            <iframe src=" " id="iframeDiv" style="width: 251px;height: 115px;margin-left: 118px;float: right;margin-top: -15px;display:none;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                            <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 118px;float: right;margin-top: -15px;display:none;"><source src=" "></audio>
+                            <embed width="251" height="115" id="docDiv" style="margin-left: 118px;float: right;margin-top: -15px;display:none;" src=" " type="application/pdf">
                            
                             </embed>                           
                         </div>
                           </div>
-                          <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 35px;margin-top: -8px;">Confirm</button>
+                          <p><button class="btn waves-light green lighten-1 white-text" id="submit" style="float: right;margin-right: 100px;margin-top: -8px;">Confirm</button>
                             </form>
                             <span id="contentMessage" style="color:Red;display: none;float:left;margin-left: 30px;"></span>
                 </div>
@@ -225,7 +225,7 @@
             {% endif %}
         </div>
         <span id="message" style="color:Red;display: none;float:left;"></span>
-        <div class="col-sm-9" id="contentDiv" style="" >
+        <div class="col-sm-9" id="contentDiv" style="margin-left: -10px;" >
                 
         </div>
         <div id="loaderDiv" style="display: none;padding-left: 300px;margin-top: 80px;margin-bottom: 100px;">

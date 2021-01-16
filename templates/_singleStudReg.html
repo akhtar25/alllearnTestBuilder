@@ -1,893 +1,974 @@
-
 {{ form.hidden_tag() }}
-<div class="form-group " style="padding-top:5px;">
+<div class="form-group" style="padding-top: 5px">
   <div class="row">
     <div class="col-sm-9">
-    <div class="row">
-        <h4>Student Details</h4>
+      <div class="row">
+        <h4 style="margin-left: 14px">Student Details</h4>
         <div class="col-sm-4">
-            {{ form.first_name.label(class='labelsize') }}
-            <br>
-            {% if form.first_name.errors %}
-            {{ form.first_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
+          {{
+          form.first_name.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.first_name.errors %} {{ form.first_name(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
             {% for error in form.first_name.errors %}
-             <span>{{ error }}</span>
+            <span>{{ error }}</span>
             {% endfor %}
-            </div>
-            {% else %}
-            {{ form.first_name(class='form-control') }}
-            {% endif %}
-        </div>
-        <div class="col-sm-4">
-            {{ form.last_name.label(class='labelsize') }}
-            <br>
-            {% if form.last_name.errors %}
-            {{ form.last_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.last_name.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.last_name(class='form-control') }}
-            {% endif %}
           </div>
-          <div class="col-sm-2">
-          {{ form.gender.label(class='labelsize') }}
-                    <br>
-                    {% if form.gender.errors %}
-                    {{ form.gender(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                    {% for error in form.gender.errors %}
-                     <span>{{ error }}</span>
-                    {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.gender(class='form-control') }}
-                    {% endif %}
-            </div>
-          
-        </div>
-    <div class="row">
-            <div class="col-sm-3">
-                <label for="birthdate">Date of Birth</label>
-                <!-- <input type="date" id="birthdate" name="birthdate"> -->
-                <input type="text" class="datepicker" id="birthdate" name="birthdate">
-              </div>
-
-        <div class="col-sm-4">
-            {{ form.phone.label(class='labelsize') }}
-                    <br>
-                    {% if form.phone.errors %}
-                    {{ form.phone(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                    {% for error in form.phone.errors %}
-                     <span>{{ error }}</span>
-                    {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.phone(class='form-control') }}
-                    {% endif %}
-        </div>
-
-        
-    </div>
-    <div class="row">
-      <h4>Address Details</h4>
-        <div class="col-sm-4">
-            {{ form.address1.label(class='labelsize') }}
-            <br>
-            {% if form.address1.errors %}
-            {{ form.address1(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.address1.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.address1(class='form-control') }}
-            {% endif %}
+          {% else %} {{
+          form.first_name(class='form-control',style='font-size:14px') }} {%
+          endif %}
         </div>
         <div class="col-sm-4">
-            {{ form.address2.label(class='labelsize') }}
-            <br>
-            {% if form.address2.errors %}
-            {{ form.address2(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.address2.errors %}
-             <span>{{ error }}</span>
+          {{
+          form.last_name.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.last_name.errors %} {{ form.last_name(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.last_name.errors %}
+            <span>{{ error }}</span>
             {% endfor %}
-            </div>
-            {% else %}
-            {{ form.address2(class='form-control') }}
-            {% endif %}
+          </div>
+          {% else %} {{
+          form.last_name(class='form-control',style='font-size:14px') }} {%
+          endif %}
         </div>
-        <div class="col-sm-3">
-            {{ form.locality.label(class='labelsize') }}
-            <br>
-            {% if form.locality.errors %}
-            {{ form.locality(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.locality.errors %}
-             <span>{{ error }}</span>
+        <div class="col-sm-2">
+          {{
+          form.gender.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.gender.errors %} {{ form.gender(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.gender.errors %}
+            <span>{{ error }}</span>
             {% endfor %}
-            </div>
-            {% else %}
-            {{ form.locality(class='form-control') }}
-            {% endif %}
-        </div> 
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            {{ form.city.label(class='labelsize') }}
-            <br>
-            {% if form.city.errors %}
-            {{ form.city(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.city.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.city(class='form-control') }}
-            {% endif %}
-        </div> 
-
-        <div class="col-sm-3">
-            {{ form.state.label(class='labelsize') }}
-            <br>
-            {% if form.state.errors %}
-            {{ form.state(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.state.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.state(class='form-control') }}
-            {% endif %}
+          </div>
+          {% else %} {{ form.gender(class='form-control',style='font-size:14px')
+          }} {% endif %}
         </div>
-        <div class="col-sm-3">
-            {{ form.country.label(class='labelsize') }}
-            <br>
-            {% if form.country.errors %}
-            {{ form.country(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.country.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.country(class='form-control') }}
-            {% endif %}
-        </div>
-        <div class="col-sm-3">
-            {{ form.pincode.label(class='labelsize') }}
-            <br>
-            {% if form.pincode.errors %}
-            {{ form.pincode(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.pincode.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.pincode(class='form-control') }}
-            {% endif %}
-        </div>
-
-    </div>
-
-    <div class="row">
-      <h4>Class Details</h4>
-        <div class="col-sm-3">
-            <div style="width:200px;">
-                    {{ form.class_val.label(class='labelsize') }}
-                    <br>
-                    {% if form.class_val.errors %}
-                    {{ form.class_val(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                    {% for error in form.class_val.errors %}
-                     <span>{{ error }}</span>
-                    {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.class_val(class='form-control') }}
-                    {% endif %}
-            </div>
-    </div>
-    <div class="col-sm-2">
-            <div style="width:100px;" >
-                            {{ form.section.label(class='labelsize') }}
-                            <div id='loader'style='display: none; float: right;'>
-                                            <img src='../static/images/spinner.gif' width='25px' height='25px'>
-                                            </div>
-                    <br>
-                            {% if form.section.errors %}
-                            {{ form.section(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedback">
-                            {% for error in form.section.errors %}
-                             <span>{{ error }}</span>
-                            {% endfor %}
-                    </div>
-                            {% else %}
-                            {{ form.section(class='form-control') }}
-                            {% endif %}                                                
-            </div>
-    </div>
-      <div class="col-sm-2">
-        <label for="roll_number">Roll Number</label>
-        <input type="number" id="roll_number" name="roll_number" min=1 max=10000 placeholder="Roll No." onKeyPress="if(this.value.length==4) return false;">
       </div>
-      <div class="col-sm-3">
-          <label for="school_admn_no">Admission No.</label>
-          <input id="school_admn_no" name="school_admn_no" min=1 placeholder="School Admission No." maxlength="10">
-        </div>
-    </div>
-</div>
-<div class="col-sm-3">
-        <img style="border:1px solid gray;width:200px;" id="preview" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"><br>
-        <br>
+      <div class="row">
         <div class="col-sm-3">
-            <input type="file" style="height: 30px; margin-top: 10px;" id="file-input" onchange="loadImageFile();" accept="image/*"/><br>
-            <input type="hidden" id="profile_image" name="profile_image" value="">
+          <label for="birthdate" style="font-weight: 400; color: black"
+            >Date of Birth</label
+          >
+          <!-- <input type="date" id="birthdate" name="birthdate"> -->
+          <input
+            type="text"
+            class="datepicker"
+            style="font-size: 14px"
+            id="birthdate"
+            name="birthdate"
+          />
         </div>
-</div>
-</div>
- 
-<div id="guardianbox" name="guardianbox">
+
+        <div class="col-sm-4">
+          {{
+          form.phone.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.phone.errors %} {{ form.phone(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.phone.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{ form.phone(class='form-control',style='font-size:14px')
+          }} {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <h4 style="margin-left: 14px">Address Details</h4>
+        <div class="col-sm-4">
+          {{
+          form.address1.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.address1.errors %} {{ form.address1(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.address1.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{
+          form.address1(class='form-control',style='font-size:14px') }} {% endif
+          %}
+        </div>
+        <div class="col-sm-4">
+          {{
+          form.address2.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.address2.errors %} {{ form.address2(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.address2.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{
+          form.address2(class='form-control',style='font-size:14px') }} {% endif
+          %}
+        </div>
+        <div class="col-sm-3">
+          {{
+          form.locality.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.locality.errors %} {{ form.locality(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.locality.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{
+          form.locality(class='form-control',style='font-size:14px') }} {% endif
+          %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          {{
+          form.city.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.city.errors %} {{ form.city(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.city.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{ form.city(class='form-control',style='font-size:14px')
+          }} {% endif %}
+        </div>
+
+        <div class="col-sm-3">
+          {{
+          form.state.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.state.errors %} {{ form.state(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.state.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{ form.state(class='form-control',style='font-size:14px')
+          }} {% endif %}
+        </div>
+        <div class="col-sm-3">
+          {{
+          form.country.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.country.errors %} {{ form.country(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.country.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{
+          form.country(class='form-control',style='font-size:14px') }} {% endif
+          %}
+        </div>
+        <div class="col-sm-3">
+          {{
+          form.pincode.label(class='labelsize',style='color:black;font-weight:400')
+          }}
+          <br />
+          {% if form.pincode.errors %} {{ form.pincode(class="form-control
+          form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+            {% for error in form.pincode.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% else %} {{
+          form.pincode(class='form-control',style='font-size:14px') }} {% endif
+          %}
+        </div>
+      </div>
+
+      <div class="row">
+        <h4 style="margin-left: 14px">Class Details</h4>
+        <div class="col-sm-3">
+          <div style="width: 200px">
+            {{
+            form.class_val.label(class='labelsize',style='color:black;font-weight:400')
+            }}
+            <br />
+            {% if form.class_val.errors %} {{ form.class_val(class="form-control
+            form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.class_val.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %} {{
+            form.class_val(class='form-control',style='font-size:14px') }} {%
+            endif %}
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div style="width: 100px">
+            {{
+            form.section.label(class='labelsize',style='color:black;font-weight:400')
+            }}
+            <div id="loader" style="display: none; float: right">
+              <img
+                src="../static/images/spinner.gif"
+                width="25px"
+                height="25px"
+              />
+            </div>
+            <br />
+            {% if form.section.errors %} {{ form.section(class="form-control
+            form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.section.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %} {{
+            form.section(class='form-control',style='font-size:14px') }} {%
+            endif %}
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <label for="roll_number" style="color: black; font-weight: 400"
+            >Roll Number</label
+          >
+          <input
+            type="number"
+            style="font-size: 14px"
+            id="roll_number"
+            name="roll_number"
+            min="1"
+            max="10000"
+            placeholder="Roll No."
+            onKeyPress="if(this.value.length==4) return false;"
+          />
+        </div>
+        <div class="col-sm-3">
+          <label for="school_admn_no" style="color: black; font-weight: 400"
+            >Admission No.</label
+          >
+          <input
+            id="school_admn_no"
+            style="font-size: 14px"
+            name="school_admn_no"
+            min="1"
+            placeholder="School Admission No."
+            maxlength="10"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3">
+      <img
+        style="border: 1px solid gray; width: 200px"
+        id="preview"
+        src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultProfileImage.png"
+      /><br />
+      <br />
+      <div class="col-sm-3">
+        <input
+          type="file"
+          style="height: 30px; margin-top: 10px"
+          id="file-input"
+          onchange="loadImageFile();"
+          accept="image/*"
+        /><br />
+        <input type="hidden" id="profile_image" name="profile_image" value="" />
+      </div>
+    </div>
   </div>
-      <input type="text" value="{{student_id}}" style="display:none;" name="tag">
-  <p><input type='button' id="addGuardianbtn" style="width:150px; height:40px;" onclick="addGuardian();val();" value="Add Guardian"></p>
+
+  <div id="guardianbox" name="guardianbox"></div>
+  <input type="text" value="{{student_id}}" style="display: none" name="tag" />
+  <p>
+    <input
+      type="button"
+      id="addGuardianbtn"
+      style="width: 150px; height: 40px"
+      onclick="addGuardian();val();"
+      value="Add Guardian"
+    />
+  </p>
   <div id="buttonbox">
-      <span id="message" style="color:Red;display: none;float:left;"></span>
-        <p><button class="btn waves-light green lighten-1 white-text" style="margin-top:5px; margin-right:550px;float:right;margin-bottom: 5px;" type="submit" id="submit" name="submit" value="submit">Confirm</button></p>
-</div>
+    <span id="message" style="color: Red; display: none; float: left"></span>
+    <p>
+      <button
+        class="btn waves-light green lighten-1 white-text"
+        style="
+          margin-top: 5px;
+          margin-right: 550px;
+          float: right;
+          margin-bottom: 5px;
+        "
+        type="submit"
+        id="submit"
+        name="submit"
+        value="submit"
+      >
+        Confirm
+      </button>
+    </p>
+  </div>
 </div>
 <script>
 
-document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('.datepicker');
-    var instances = M.Datepicker.init(elems, options);
-  });
+  document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('.datepicker');
+      var instances = M.Datepicker.init(elems, options);
+    });
 
-  // Or with jQuery
+    // Or with jQuery
 
-  $(document).ready(function(){
-    console.log('Inside datepicker');
-    $('.datepicker').datepicker();
+    $(document).ready(function(){
+      console.log('Inside datepicker');
+      $('.datepicker').datepicker();
 
-  });
+    });
 
-  $(document).ready(function(){
-  console.log('Inside function');
-  studId = '{{student_id}}';
-  console.log('Student Id:'+studId);
-    if(studId){
-    console.log('If you want to edit student details');
-    var gender = "{{studentDetailRow.gender}}";
-    var class_val = "{{studentDetailRow.class_val}}";
-    var section = "{{studentDetailRow.section}}";
-    var first_name = "{{studentDetailRow.first_name}}";
-    var last_name  = "{{studentDetailRow.last_name}}";
-    var profile_picture = "{{studentDetailRow.profile_picture}}";
-    var dob = "{{studentDetailRow.dob}}";
-    var phone = "{{studentDetailRow.phone}}";
-    var address1 = "{{studentDetailRow.address_1}}";
-    var address2 = "{{studentDetailRow.address_2}}";
-    var locality = "{{studentDetailRow.locality}}";
-    var city = "{{studentDetailRow.city}}";
-    var state = "{{studentDetailRow.state}}";
-    var country = "{{studentDetailRow.country}}";
-    var pin = "{{studentDetailRow.pin}}";
-    var roll = "{{studentDetailRow.roll_number}}";
-    var school_num = "{{studentDetailRow.school_adm_number}}";
-    console.log('DOB:'+dob);
-    $('#gender').val(gender);
-    $('#class_val').val(class_val);
-    $('#section').val(section);
-    $('#first_name').val(first_name);
-    $('#last_name').val(last_name);
-    console.log('Image path:'+profile_picture);
-    if(profile_picture!=''){
-    $('#preview').attr('src', profile_picture);
-    }
-    $('#profile_image').val(profile_picture);
-    //alert(dob);
-    if(dob=='None'){
-    $('#birthdate').val('');
-    }
-    else{
-      $('#birthdate').val(dob);
-    }
-    $('#phone').val(phone);
-    $('#address1').val(address1);
-    $('#address2').val(address2);
-    $('#locality').val(locality);
-    $('#city').val(city);
-    $('#state').val(state);
-    $('#country').val(country);
-    $('#pincode').val(pin);
-    $('#roll_number').val(roll);
-    $('#school_admn_no').val(school_num);
-    
-    guarDetail1 = "{{guardianDetail1}}";
-    console.log('Guardian list length:'+guarDetail1.length);
-    console.log(guarDetail1)
-    {% if guardianDetail1 %}
-      console.log('Inside Detail1 of guardian if not empty');
-      addGuardian();
-      val();
-      var guardian_first_name = "{{guardianDetail1.first_name}}";
-      var guardian_last_name = "{{guardianDetail1.last_name}}";
-      var email = "{{guardianDetail1.email}}";
-      var phone = "{{guardianDetail1.phone}}";
-      var relation = "{{guardianDetail1.relation}}";
-      $('#guardian_first_name').val(guardian_first_name);
-      $('#guardian_last_name').val(guardian_last_name);
-      $('#guardian_email').val(email);
-      $('#guardian_phone').val(phone);
-      $('#relation').val(relation);
-      guarDetail2 = "{{guardianDetail2}}";
-      console.log('guardian 2:'+guarDetail2);
-      {% if guardianDetail2 %}
-        console.log('Inside second guardian');
+    $(document).ready(function(){
+    console.log('Inside function');
+    studId = '{{student_id}}';
+    console.log('Student Id:'+studId);
+      if(studId){
+      console.log('If you want to edit student details');
+      var gender = "{{studentDetailRow.gender}}";
+      var class_val = "{{studentDetailRow.class_val}}";
+      var section = "{{studentDetailRow.section}}";
+      var first_name = "{{studentDetailRow.first_name}}";
+      var last_name  = "{{studentDetailRow.last_name}}";
+      var profile_picture = "{{studentDetailRow.profile_picture}}";
+      var dob = "{{studentDetailRow.dob}}";
+      var phone = "{{studentDetailRow.phone}}";
+      var address1 = "{{studentDetailRow.address_1}}";
+      var address2 = "{{studentDetailRow.address_2}}";
+      var locality = "{{studentDetailRow.locality}}";
+      var city = "{{studentDetailRow.city}}";
+      var state = "{{studentDetailRow.state}}";
+      var country = "{{studentDetailRow.country}}";
+      var pin = "{{studentDetailRow.pin}}";
+      var roll = "{{studentDetailRow.roll_number}}";
+      var school_num = "{{studentDetailRow.school_adm_number}}";
+      console.log('DOB:'+dob);
+      $('#gender').val(gender);
+      $('#class_val').val(class_val);
+      $('#section').val(section);
+      $('#first_name').val(first_name);
+      $('#last_name').val(last_name);
+      console.log('Image path:'+profile_picture);
+      if(profile_picture!=''){
+      $('#preview').attr('src', profile_picture);
+      }
+      $('#profile_image').val(profile_picture);
+      //alert(dob);
+      if(dob=='None'){
+      $('#birthdate').val('');
+      }
+      else{
+        $('#birthdate').val(dob);
+      }
+      $('#phone').val(phone);
+      $('#address1').val(address1);
+      $('#address2').val(address2);
+      $('#locality').val(locality);
+      $('#city').val(city);
+      $('#state').val(state);
+      $('#country').val(country);
+      $('#pincode').val(pin);
+      $('#roll_number').val(roll);
+      $('#school_admn_no').val(school_num);
+
+      guarDetail1 = "{{guardianDetail1}}";
+      console.log('Guardian list length:'+guarDetail1.length);
+      console.log(guarDetail1)
+      {% if guardianDetail1 %}
+        console.log('Inside Detail1 of guardian if not empty');
         addGuardian();
         val();
-        var guardian_first_name2 = "{{guardianDetail2.first_name}}";
-        var guardian_last_name2 = "{{guardianDetail2.last_name}}";
-        var email2 = "{{guardianDetail2.email}}";
-        var phone2 = "{{guardianDetail2.phone}}";
-        var relation2 = "{{guardianDetail2.relation}}";
-        $('#guardianfname').val(guardian_first_name2);
-        $('#guardianlname').val(guardian_last_name2);
-        $('#guardianemail').val(email2);
-        $('#guardianphone').val(phone2);
-        $('#guardianrelation').val(relation2);
+        var guardian_first_name = "{{guardianDetail1.first_name}}";
+        var guardian_last_name = "{{guardianDetail1.last_name}}";
+        var email = "{{guardianDetail1.email}}";
+        var phone = "{{guardianDetail1.phone}}";
+        var relation = "{{guardianDetail1.relation}}";
+        $('#guardian_first_name').val(guardian_first_name);
+        $('#guardian_last_name').val(guardian_last_name);
+        $('#guardian_email').val(email);
+        $('#guardian_phone').val(phone);
+        $('#relation').val(relation);
+        guarDetail2 = "{{guardianDetail2}}";
+        console.log('guardian 2:'+guarDetail2);
+        {% if guardianDetail2 %}
+          console.log('Inside second guardian');
+          addGuardian();
+          val();
+          var guardian_first_name2 = "{{guardianDetail2.first_name}}";
+          var guardian_last_name2 = "{{guardianDetail2.last_name}}";
+          var email2 = "{{guardianDetail2.email}}";
+          var phone2 = "{{guardianDetail2.phone}}";
+          var relation2 = "{{guardianDetail2.relation}}";
+          $('#guardianfname').val(guardian_first_name2);
+          $('#guardianlname').val(guardian_last_name2);
+          $('#guardianemail').val(email2);
+          $('#guardianphone').val(phone2);
+          $('#guardianrelation').val(relation2);
+        {% endif %}
       {% endif %}
-    {% endif %}
-    }else{
-      console.log('If you want to add Student');
-    }
-  });
-
-var fileReader = new FileReader();
-var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
-var ImageName = '';
-fileReader.onload = function (event) {
-  var image = new Image();
-  
-  image.onload=function(){
-      // document.getElementById("preview").src=image.src;
-      var canvas=document.createElement("canvas");
-      var context=canvas.getContext("2d");
-      canvas.width=200;
-      canvas.height=200;
-      context.drawImage(image,
-          0,
-          0,
-          image.width,
-          image.height,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-      );
-      
-      document.getElementById("preview").src = canvas.toDataURL();
-      String.prototype.filename=function(extension){
-    var s= this.replace(/\\/g, '/');
-    s= s.substring(s.lastIndexOf('/')+ 1);
-    return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
-}     
-      console.log('Image Name:'+$('img').attr('src').filename());
-      var Image = $('img').attr('src').filename();
-      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      var charactersLength = characters.length;
-      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      Image += characters.charAt(Math.floor(Math.random() * charactersLength));
-      ImageName = Image;
-      console.log('Full image Name:'+ImageName);
-      initUpload();
-  }
-  image.src=event.target.result;
-  
-};
-var loadImageFile = function () {
-  var uploadImage = document.getElementById("file-input");
-  
-  //check and retuns the length of uploded file.
-  if (uploadImage.files.length === 0) { 
-    return; 
-  }
-  
-  //Is Used for validate a valid file.
-  var uploadFile = document.getElementById("file-input").files[0];
-  if (!filterType.test(uploadFile.type)) {
-    alert("Please select a valid image."); 
-    return;
-  }
-  
-  fileReader.readAsDataURL(uploadFile);
-  
-}
-
-var today = new Date();
-var dd = today.getDate();
-var mm = today.getMonth()+1; //January is 0!
-var yyyy = today.getFullYear();
- if(dd<10){
-        dd='0'+dd
-    } 
-    if(mm<10){
-        mm='0'+mm
-    } 
-
-today = yyyy+'-'+mm+'-'+dd;
-document.getElementById("birthdate").setAttribute("max", today);
-
-var class_select = document.getElementById("class_val");
-        var section_select = document.getElementById("section");
-        class_select.onchange = function()  {
-            class_val = class_select.value;
-            $("#loader").show();
-            
-            fetch('/resultUpload/' + class_val).then(function(response) {
-                response.json().then(function(data) {
-                        $("#loader").hide();    
-                        var optionHTML = '';
-                        for (var section of data.sections) {
-                        optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
-                    }
-                    section_select.innerHTML = optionHTML;
-                })
-            });
-        }
-  var guardianbox_data='';
-  var prevguardianbox_data='';
-  var count=0;
-  var guardian_first_name2 = 'na';
-  var guardian_email2 = 'na';
-  var guardian_phone2 = 'na';
-  var relation2 = 'na';
-  
-  function addGuardian(){
-  const div = document.createElement('div');
-  var row_id=document.getElementById('guardianbox');
-  count+=1;
-  console.log('Initial Count:'+count);
-  if(count==1){
-    console.log('Count:'+count);
-  guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
-  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
-  <div class='row'>
-  <div class='col-sm-3'>
-      {{ form.guardian_first_name.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_first_name.errors %}
-            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_first_name.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_first_name(class='form-control') }}
-            {% endif %}
-  </div>
-  <div class='col-sm-3'>
-      {{ form.guardian_last_name.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_last_name.errors %}
-            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_last_name.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_last_name(class='form-control') }}
-            {% endif %}
-      </div>
-      <div class='col-sm-3'>
-      {{ form.guardian_email.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_email.errors %}
-            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_email.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_email(class='form-control') }}
-            {% endif %}
-            </div>
-  </div>
-  <div class='row'>
-      <div class='col-sm-3'>
-      {{ form.guardian_phone.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_phone.errors %}
-            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_phone.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_phone(class='form-control') }}
-            {% endif %}</div>
-<div class='col-sm-2'>
-    <div style="width:250px;">
-        {{ form.relation.label(class='labelsize') }}
-            <br>
-        {% if form.relation.errors %}
-        {{ form.relation(class="form-control form-control-lg is-invalid") }}
-        <div class="invalid-feedback">
-        {% for error in form.relation.errors %}
-        <span>{{ error }}</span>
-        {% endfor %}
-        </div>
-        {% else %}
-        {{ form.relation(class='form-control') }}
-        {% endif %}
-    </div>
-  </div></div></div>`;
-  }else{
-    guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
-  <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
-  <div class='row'>
-  <div class='col-sm-3'>
-      {{ form.guardian_first_name.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_first_name.errors %}
-            {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_first_name.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_first_name(class='form-control',id='guardianfname') }}
-            {% endif %}
-  </div>
-  <div class='col-sm-3'>
-      {{ form.guardian_last_name.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_last_name.errors %}
-            {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_last_name.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_last_name(class='form-control',id='guardianlname') }}
-            {% endif %}
-      </div>
-      <div class='col-sm-3'>
-      {{ form.guardian_email.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_email.errors %}
-            {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_email.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_email(class='form-control',id='guardianemail') }}
-            {% endif %}
-            </div>
-  </div>
-  <div class='row'>
-      <div class='col-sm-3'>
-      {{ form.guardian_phone.label(class='labelsize') }}
-            <br>
-            {% if form.guardian_phone.errors %}
-            {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-            {% for error in form.guardian_phone.errors %}
-             <span>{{ error }}</span>
-            {% endfor %}
-            </div>
-            {% else %}
-            {{ form.guardian_phone(class='form-control',id='guardianphone') }}
-            {% endif %}</div>
-<div class='col-sm-2'>
-    <div style="width:250px;">
-        {{ form.relation.label(class='labelsize') }}
-            <br>
-        {% if form.relation.errors %}
-        {{ form.relation(class="form-control form-control-lg is-invalid") }}
-        <div class="invalid-feedback">
-        {% for error in form.relation.errors %}
-        <span>{{ error }}</span>
-        {% endfor %}
-        </div>
-        {% else %}
-        {{ form.relation(class='form-control',id='guardianrelation') }}
-        {% endif %}
-    </div>
-  </div></div></div>`;
-  }
-        div.innerHTML=guardianbox_data;
-        row_id.appendChild(div);
-        // $('#buttonbox').show();
-  if (count==2)
-  {
-    $("#addGuardianbtn").hide();
-  }
-  
-}
-var c=0;
-function val(){
-  console.log('Inside second function');
-  var c = c+1;
-  if(document.getElementById('guardianfname')){
-    guardian_first_name2 = '';
-    console.log('Guardian2 name:')
-    c=c + 1;
-    guardian_first_name2 = document.getElementById('guardianfname').value;
-  }
-  return c;
-}
-
-  /*
-      Function to carry out the actual POST request to S3 using the signed request from the Python app.
-    */
-    function uploadFile(file, s3Data, url){
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', s3Data.url);
-      xhr.setRequestHeader('x-amz-acl', 'public-read');
-      const postData = new FormData();
-      for(key in s3Data.fields){
-        postData.append(key, s3Data.fields[key]);      
-      }
-      postData.append('file', file);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200 || xhr.status === 204){
-
-            document.getElementById('profile_image').value = url;
-          }
-          else{
-            window.alert("this is where the problem is");
-            alert('Could not upload file.');
-          }
-        }
-      };
-      xhr.send(postData);
-    }
-    function getSignedRequest(file){
-      const xhr = new XMLHttpRequest();
-      var type = '.png';
-      xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200){
-            const response = JSON.parse(xhr.responseText);
-            uploadFile(file, response.data, response.url);
-          } 
-          else{
-            alert('Could not get signed URL.');
-          }
-        }
-      };
-      xhr.send();
-    }
-    function initUpload(){
-      const files = document.getElementById('file-input').files;
-      const file = files[0];
-      if(!file){
-        return alert('No file selected.');
-      }
-      console.log('FileName:'+file);
-      getSignedRequest(file);
-    }
-
-
-    $('#submit').click(function(){
-      console.log('Inside Submit button function');
-      
-      first_name = document.getElementById('first_name').value;
-      gender = document.getElementById('gender').value;
-      birthdate = document.getElementById('birthdate').value;
-      phone = document.getElementById('phone').value;
-      address1 = document.getElementById('address1').value;
-      locality = document.getElementById('locality').value;
-      city = document.getElementById('city').value;
-      state = document.getElementById('state').value;
-      country = document.getElementById('country').value;
-      pincode = document.getElementById('pincode').value;
-      class_val = document.getElementById('class_val').value;
-      section = document.getElementById('section').value;
-      roll_number = document.getElementById('roll_number').value;
-      school_admn_no = document.getElementById('school_admn_no').value;
-      
-      var c = val();
-      if(c==1){
-        guardian_first_name = document.getElementById('guardian_first_name').value;
-      guardian_email = document.getElementById('guardian_email').value;
-      guardian_phone = document.getElementById('guardian_phone').value;
-      relation = document.getElementById('relation').value;
-      }
-      if(c==2){
-        guardian_first_name2 = document.getElementById('guardianfname').value;
-        guardian_email2 = document.getElementById('guardianemail').value;
-        guardian_phone2 = document.getElementById('guardianphone').value;
-        relation2 = document.getElementById('guardianrelation').value;
-      }
-      if(first_name==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter first Name';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(gender==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter gender';
-        $('#message').show();
-        event.preventDefault();
-      }
-      // else
-      // if(birthdate==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter date of birth';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }
-      else
-      if(phone==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter phone';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(address1==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter Address 1';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(locality==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter locality';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(city==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter city';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(state==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter state';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(country==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter country';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(pincode==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter pincode';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(class_val==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please select class';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(section==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please select section';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(roll_number==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter roll number';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      if(school_admn_no==''){
-        console.log('Inside message');
-        tag = document.getElementById('message');
-        tag.innerHTML = 'please enter admission no';
-        $('#message').show();
-        event.preventDefault();
-      }else
-      // if(guardian_first_name==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter guardian first name';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(guardian_email==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter guardian email';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(guardian_phone==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter guardian phone no';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(relation==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter relation';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(guardian_first_name2==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter second guardian first name';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(guardian_email2==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter second guardian email';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(guardian_phone2==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter second guardian phone';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(relation2==''){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter second guardian relation';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }else
-      // if(relation==relation2){
-      //   console.log('Inside message');
-      //   tag = document.getElementById('message');
-      //   tag.innerHTML = 'please enter different relation for guardian second';
-      //   $('#message').show();
-      //   event.preventDefault();
-      // }
-      // else
-      { 
-        $('#message').hide();
-         
+      }else{
+        console.log('If you want to add Student');
       }
     });
 
+  var fileReader = new FileReader();
+  var filterType = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
+  var ImageName = '';
+  fileReader.onload = function (event) {
+    var image = new Image();
+
+    image.onload=function(){
+        // document.getElementById("preview").src=image.src;
+        var canvas=document.createElement("canvas");
+        var context=canvas.getContext("2d");
+        canvas.width=200;
+        canvas.height=200;
+        context.drawImage(image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        document.getElementById("preview").src = canvas.toDataURL();
+        String.prototype.filename=function(extension){
+      var s= this.replace(/\\/g, '/');
+      s= s.substring(s.lastIndexOf('/')+ 1);
+      return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
+  }
+        console.log('Image Name:'+$('img').attr('src').filename());
+        var Image = $('img').attr('src').filename();
+        var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+        Image += characters.charAt(Math.floor(Math.random() * charactersLength));
+        ImageName = Image;
+        console.log('Full image Name:'+ImageName);
+        initUpload();
+    }
+    image.src=event.target.result;
+
+  };
+  var loadImageFile = function () {
+    var uploadImage = document.getElementById("file-input");
+
+    //check and retuns the length of uploded file.
+    if (uploadImage.files.length === 0) {
+      return;
+    }
+
+    //Is Used for validate a valid file.
+    var uploadFile = document.getElementById("file-input").files[0];
+    if (!filterType.test(uploadFile.type)) {
+      alert("Please select a valid image.");
+      return;
+    }
+
+    fileReader.readAsDataURL(uploadFile);
+
+  }
+
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+   if(dd<10){
+          dd='0'+dd
+      }
+      if(mm<10){
+          mm='0'+mm
+      }
+
+  today = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("birthdate").setAttribute("max", today);
+
+  var class_select = document.getElementById("class_val");
+          var section_select = document.getElementById("section");
+          class_select.onchange = function()  {
+              class_val = class_select.value;
+              $("#loader").show();
+
+              fetch('/resultUpload/' + class_val).then(function(response) {
+                  response.json().then(function(data) {
+                          $("#loader").hide();
+                          var optionHTML = '';
+                          for (var section of data.sections) {
+                          optionHTML += '<option value="' + section.section_val + '">' + section.section_val + '</option>';
+                      }
+                      section_select.innerHTML = optionHTML;
+                  })
+              });
+          }
+    var guardianbox_data='';
+    var prevguardianbox_data='';
+    var count=0;
+    var guardian_first_name2 = 'na';
+    var guardian_email2 = 'na';
+    var guardian_phone2 = 'na';
+    var relation2 = 'na';
+
+    function addGuardian(){
+    const div = document.createElement('div');
+    var row_id=document.getElementById('guardianbox');
+    count+=1;
+    console.log('Initial Count:'+count);
+    if(count==1){
+      console.log('Count:'+count);
+    guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+    <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+    <div class='row'>
+    <div class='col-sm-3'>
+        {{ form.guardian_first_name.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_first_name.errors %}
+              {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_first_name.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_first_name(class='form-control',style='font-size:14px') }}
+              {% endif %}
+    </div>
+    <div class='col-sm-3'>
+        {{ form.guardian_last_name.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_last_name.errors %}
+              {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_last_name.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_last_name(class='form-control',style='font-size:14px') }}
+              {% endif %}
+        </div>
+        <div class='col-sm-3'>
+        {{ form.guardian_email.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_email.errors %}
+              {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_email.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_email(class='form-control',style='font-size:14px') }}
+              {% endif %}
+              </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-3'>
+        {{ form.guardian_phone.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_phone.errors %}
+              {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_phone.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_phone(class='form-control',style='font-size:14px') }}
+              {% endif %}</div>
+  <div class='col-sm-2'>
+      <div style="width:250px;">
+          {{ form.relation.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+          {% if form.relation.errors %}
+          {{ form.relation(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+          {% for error in form.relation.errors %}
+          <span>{{ error }}</span>
+          {% endfor %}
+          </div>
+          {% else %}
+          {{ form.relation(class='form-control',style='font-size:14px') }}
+          {% endif %}
+      </div>
+    </div></div></div>`;
+    }else{
+      guardianbox_data=`<h4 style="text-weight:Bold;">Guardian `+count+`</h4>
+    <div class="z-depth-1" style='padding-left:10px; padding-top:10px; padding-bottom:10px'>
+    <div class='row'>
+    <div class='col-sm-3'>
+        {{ form.guardian_first_name.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_first_name.errors %}
+              {{ form.guardian_first_name(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_first_name.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_first_name(class='form-control',id='guardianfname',style='font-size:14px') }}
+              {% endif %}
+    </div>
+    <div class='col-sm-3'>
+        {{ form.guardian_last_name.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_last_name.errors %}
+              {{ form.guardian_last_name(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_last_name.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_last_name(class='form-control',id='guardianlname',style='font-size:14px') }}
+              {% endif %}
+        </div>
+        <div class='col-sm-3'>
+        {{ form.guardian_email.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_email.errors %}
+              {{ form.guardian_email(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_email.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_email(class='form-control',id='guardianemail',style='font-size:14px') }}
+              {% endif %}
+              </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-3'>
+        {{ form.guardian_phone.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+              {% if form.guardian_phone.errors %}
+              {{ form.guardian_phone(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+              {% for error in form.guardian_phone.errors %}
+               <span>{{ error }}</span>
+              {% endfor %}
+              </div>
+              {% else %}
+              {{ form.guardian_phone(class='form-control',id='guardianphone',style='font-size:14px') }}
+              {% endif %}</div>
+  <div class='col-sm-2'>
+      <div style="width:250px;">
+          {{ form.relation.label(class='labelsize',style='color:black;font-weight:400') }}
+              <br>
+          {% if form.relation.errors %}
+          {{ form.relation(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+          {% for error in form.relation.errors %}
+          <span>{{ error }}</span>
+          {% endfor %}
+          </div>
+          {% else %}
+          {{ form.relation(class='form-control',id='guardianrelation',style='font-size:14px') }}
+          {% endif %}
+      </div>
+    </div></div></div>`;
+    }
+          div.innerHTML=guardianbox_data;
+          row_id.appendChild(div);
+          // $('#buttonbox').show();
+    if (count==2)
+    {
+      $("#addGuardianbtn").hide();
+    }
+
+  }
+  var c=0;
+  function val(){
+    console.log('Inside second function');
+    var c = c+1;
+    if(document.getElementById('guardianfname')){
+      guardian_first_name2 = '';
+      console.log('Guardian2 name:')
+      c=c + 1;
+      guardian_first_name2 = document.getElementById('guardianfname').value;
+    }
+    return c;
+  }
+
+    /*
+        Function to carry out the actual POST request to S3 using the signed request from the Python app.
+      */
+      function uploadFile(file, s3Data, url){
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', s3Data.url);
+        xhr.setRequestHeader('x-amz-acl', 'public-read');
+        const postData = new FormData();
+        for(key in s3Data.fields){
+          postData.append(key, s3Data.fields[key]);
+        }
+        postData.append('file', file);
+        xhr.onreadystatechange = () => {
+          if(xhr.readyState === 4){
+            if(xhr.status === 200 || xhr.status === 204){
+
+              document.getElementById('profile_image').value = url;
+            }
+            else{
+              window.alert("this is where the problem is");
+              alert('Could not upload file.');
+            }
+          }
+        };
+        xhr.send(postData);
+      }
+      function getSignedRequest(file){
+        const xhr = new XMLHttpRequest();
+        var type = '.png';
+        xhr.open('GET', `/sign-s3?file-name=${ImageName}&file-type=${type}&folder=student_profile`);
+        xhr.onreadystatechange = () => {
+          if(xhr.readyState === 4){
+            if(xhr.status === 200){
+              const response = JSON.parse(xhr.responseText);
+              uploadFile(file, response.data, response.url);
+            }
+            else{
+              alert('Could not get signed URL.');
+            }
+          }
+        };
+        xhr.send();
+      }
+      function initUpload(){
+        const files = document.getElementById('file-input').files;
+        const file = files[0];
+        if(!file){
+          return alert('No file selected.');
+        }
+        console.log('FileName:'+file);
+        getSignedRequest(file);
+      }
+
+
+      $('#submit').click(function(){
+        console.log('Inside Submit button function');
+
+        first_name = document.getElementById('first_name').value;
+        gender = document.getElementById('gender').value;
+        birthdate = document.getElementById('birthdate').value;
+        phone = document.getElementById('phone').value;
+        address1 = document.getElementById('address1').value;
+        locality = document.getElementById('locality').value;
+        city = document.getElementById('city').value;
+        state = document.getElementById('state').value;
+        country = document.getElementById('country').value;
+        pincode = document.getElementById('pincode').value;
+        class_val = document.getElementById('class_val').value;
+        section = document.getElementById('section').value;
+        roll_number = document.getElementById('roll_number').value;
+        school_admn_no = document.getElementById('school_admn_no').value;
+
+        var c = val();
+        if(c==1){
+          guardian_first_name = document.getElementById('guardian_first_name').value;
+        guardian_email = document.getElementById('guardian_email').value;
+        guardian_phone = document.getElementById('guardian_phone').value;
+        relation = document.getElementById('relation').value;
+        }
+        if(c==2){
+          guardian_first_name2 = document.getElementById('guardianfname').value;
+          guardian_email2 = document.getElementById('guardianemail').value;
+          guardian_phone2 = document.getElementById('guardianphone').value;
+          relation2 = document.getElementById('guardianrelation').value;
+        }
+        if(first_name==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter first Name';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(gender==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter gender';
+          $('#message').show();
+          event.preventDefault();
+        }
+        // else
+        // if(birthdate==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter date of birth';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }
+        else
+        if(phone==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter phone';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(address1==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter Address 1';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(locality==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter locality';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(city==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter city';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(state==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter state';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(country==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter country';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(pincode==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter pincode';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(class_val==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please select class';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(section==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please select section';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(roll_number==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter roll number';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        if(school_admn_no==''){
+          console.log('Inside message');
+          tag = document.getElementById('message');
+          tag.innerHTML = 'please enter admission no';
+          $('#message').show();
+          event.preventDefault();
+        }else
+        // if(guardian_first_name==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter guardian first name';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(guardian_email==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter guardian email';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(guardian_phone==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter guardian phone no';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(relation==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter relation';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(guardian_first_name2==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter second guardian first name';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(guardian_email2==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter second guardian email';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(guardian_phone2==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter second guardian phone';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(relation2==''){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter second guardian relation';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }else
+        // if(relation==relation2){
+        //   console.log('Inside message');
+        //   tag = document.getElementById('message');
+        //   tag.innerHTML = 'please enter different relation for guardian second';
+        //   $('#message').show();
+        //   event.preventDefault();
+        // }
+        // else
+        {
+          $('#message').hide();
+
+        }
+      });
 </script>

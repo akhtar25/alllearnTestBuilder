@@ -1,84 +1,104 @@
 {% extends "layout.html" %} {% block content %}
 
-<div class="container center" style="text-align: left;">
-
-    <div class='col-xs-6 hoverable z-depth-1'
-    style="margin-left:20%;border-radius: 25px;border: 2px solid #73AD21;padding: 10px;">
-        <div class='input-field'>
-            <!--            <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />-->
-            <div class="row">
-                <h2 style="color:Green;margin-left: 20px;">Register</h2>
-            </div>
-            <form action="" method="post">
-                {{ form.hidden_tag() }}
-                <!--<p>
+<div class="container center" style="text-align: left; margin-bottom: 20px">
+  <div
+    class="col-xs-6 hoverable z-depth-1"
+    style="
+      margin-left: 20%;
+      border-radius: 25px;
+      border: 2px solid #73ad21;
+      padding: 10px;
+    "
+  >
+    <div class="input-field">
+      <!--            <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />-->
+      <div class="row">
+        <h2 style="color: Green; margin-left: 12px">Register</h2>
+      </div>
+      <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <!--<p>
         form.username.label 
         <br>  form.username(size=32) 
         <br> for error in form.username.errors 
         <span style="color: red;">[ error ]</span>
          endfor 
     </p>-->
-                <div class="row">
-                    <div class="col-xs-6">
-                        {{ form.first_name.label }}
-                        <br> {{ form.first_name(size=64) }}
-                        <br> {% for error in form.first_name.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="col-xs-6">
-                        <!--above is first name below is last name-->
-                        {{ form.last_name.label }}
-                        <br> {{ form.last_name(size=64) }}
-                        <br> {% for error in form.last_name.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
+        <div class="row">
+          <div class="col-xs-6">
+            {{ form.first_name.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.first_name(size=64,style='font-size:14px') }} <br />
+            {% for error in form.first_name.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="col-xs-6">
+            <!--above is first name below is last name-->
+            {{ form.last_name.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.last_name(size=64,style='font-size:14px') }} <br />
+            {% for error in form.last_name.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
+        </div>
 
-                <div class="row">
-                    <div class="col-xs-6">
-                        {{ form.email.label }}
-                        <br> {{ form.email(size=64) }}
-                        <br> {% for error in form.email.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="col-xs-6">
-                        {{ form.phone.label }}
-                        <br> {{ form.phone(size=12) }}
-                        <br> {% for error in form.phone.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6">
-                        {{ form.password.label }}
-                        <br> {{ form.password(size=32) }}
-                        <br> {% for error in form.password.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="col-xs-6">
-                        {{ form.password2.label }}
-                        <br> {{ form.password2(size=32) }}
-                        <br> {% for error in form.password2.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}</div>
-                </div>
-                <div class="row center">
-                <button class="btn-large waves-effect green white-text" type="submit">Sign
-                    Up</button>
-                </div>
-            </form>
-            
+        <div class="row">
+          <div class="col-xs-6">
+            {{ form.email.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.email(size=64,style='font-size:14px') }} <br />
+            {% for error in form.email.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="col-xs-6">
+            {{ form.phone.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.phone(size=12,style='font-size:14px') }} <br />
+            {% for error in form.phone.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
         </div>
-        <div class="center">
-            <h6>By clicking Sign Up, you agree to our <a href="../static/docs/termsAndConditions.pdf"
-                    target="_blank">Terms</a> and <a href="{{url_for('privacyPolicy')}}" target="_blank">Privacy
-                    Policy</a>. <br>You may receive SMS or email notifications from us and can opt out at any time.</h6>
+        <div class="row">
+          <div class="col-xs-6">
+            {{ form.password.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.password(size=32,style='font-size:14px') }} <br />
+            {% for error in form.password.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="col-xs-6">
+            {{ form.password2.label(style='color:green;font-weight:400') }}
+            <br />
+            {{ form.password2(size=32,style='font-size:14px') }} <br />
+            {% for error in form.password2.errors %}
+            <span style="color: red">{{ error }}</span>
+            {% endfor %}
+          </div>
         </div>
+        <div class="row center">
+          <button class="btn-large waves-effect green white-text" type="submit">
+            Sign Up
+          </button>
+        </div>
+      </form>
     </div>
+    <div class="center">
+      <h6>
+        By clicking Sign Up, you agree to our
+        <a href="../static/docs/termsAndConditions.pdf" target="_blank"
+          >Terms</a
+        >
+        and
+        <a href="{{url_for('privacyPolicy')}}" target="_blank">Privacy Policy</a
+        >. <br />You may receive SMS or email notifications from us and can opt
+        out at any time.
+      </h6>
+    </div>
+  </div>
 </div>
 {% endblock %}

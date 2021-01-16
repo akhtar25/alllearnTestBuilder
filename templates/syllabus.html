@@ -10,7 +10,7 @@
     </div> -->
     
     <div class="row" id="titleSyllabus">
-            <h2 class="grey-text">Syllabus</h2>
+            <h2 class="grey-text" style="margin-left: 8px;font-weight: 400;color: black !important;">Syllabus</h2>
             {% if fromSchoolRegistration==True %}
             <div id="instructions">
                 
@@ -27,17 +27,17 @@
             <ul class="tabs">
                 {% if fromSchoolRegistration==False %}
                 <li class="tab col s6">
-                    <a href="javascript:void(0);" id="general" class="tabFont">General</a>
+                    <a href="javascript:void(0);" id="general" style="font-size: 18px;" class="tabFont">General</a>
                 </li>
                 <li class="tab col s6">
-                    <a href="" id="specificSchool" class="tabFont">{{school_name}}</a>
+                    <a href="" id="specificSchool" style="font-size: 18px;" class="tabFont">{{school_name}}</a>
                 </li>
                 {% else %}
                 <li class="tab col s6">
-                        <a href="" id="general" class="tabFont">General</a>
+                        <a href="" id="general" style="font-size: 18px;" class="tabFont">General</a>
                     </li>
                     <li class="tab col s6">
-                        <a href="javascript:void(0);" id="specificSchool" class="tabFont">{{school_name}}</a>
+                        <a href="javascript:void(0);" style="font-size: 18px;" id="specificSchool" class="tabFont">{{school_name}}</a>
                     </li>
                 {% endif %}
             </ul>
@@ -52,7 +52,7 @@
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
-                            <div class="card-title">Boards</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Boards</div>
 
                             <ul class="collection " id="boardDiv">
                                     <li class="collection-item generalBoardClass" id="{{generalBoard.msg_id}}">
@@ -80,7 +80,7 @@
                             </div>
                             {% endif %}
                         <div class="card-content ">
-                            <div class="card-title">Classes</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Classes</div>
                             <p id="selectall" style="display: none;">
                                 <label>
                                     <!-- <input type="checkbox" id="unselectAll" /> -->
@@ -107,7 +107,7 @@
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
-                            <div class="card-title">Subjects</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Subjects</div>
                             <div id="genSubject">
                             
                             <ul class="collection " id="generalSubjectDiv" style="max-height:380px;position:relative;overflow-y:auto">
@@ -138,7 +138,7 @@
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
-                            <div class="card-title">Books</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Books</div>
 
 
                             <ul class="collection " id="generalDivBooks" style="max-height:380px;position:relative;overflow-y:auto">
@@ -154,7 +154,7 @@
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
-                            <div class="card-title">Chapters</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Chapters</div>
 
 
                             <ul class="collection " id="generalDivChapters" style="max-height:380px;position:relative;overflow-y:auto">
@@ -172,7 +172,7 @@
                         <div class="card-image">
                         </div>
                         <div class="card-content ">
-                            <div class="card-title">Topics</div>
+                            <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Topics</div>
                             <ul class="collection " id="generalDivTopics" style="max-height:380px;position:relative;overflow-y:auto">
                             </ul>
                             <div id="generalTopicLoader" style="display: none;">
@@ -197,7 +197,7 @@
                                 
                             </div>
                             <div class="card-content ">
-                                <div class="card-title">Boards</div>
+                                <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Boards</div>
     
                                 <ul class="collection " id="boardDiv">
                                         <li class="collection-item boardClass" id="{{boardRowsId}}">
@@ -213,7 +213,7 @@
                             <div class="card-image">
                             </div>
                             <div class="card-content ">
-                                <div class="card-title">Classes</div>
+                                <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Classes</div>
                                 <ul class="collection " id="classDiv" style="display:none;">
     
                                 </ul>
@@ -252,7 +252,7 @@
                             <div class="card-image">
                             </div>
                             <div class="card-content ">
-                                <div class="card-title">Subjects</div>
+                                <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Subjects</div>
                                 <div id="subSpec">
                                 <div id='divSubject' style="display: none;">
                                 <ul class="collection " id="subjectDiv" style="max-height:380px;position:relative;overflow-y:auto">
@@ -293,7 +293,7 @@
                                 <div class="card-image">
                                 </div>
                                 <div class="card-content ">
-                                    <div class="card-title">Books</div>
+                                    <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Books</div>
                                 <input type="hidden" id="bookChapterId" value="">
                                 <div id='divBook' style="display: none;">
                                 <ul class="collection " id="bookDiv" style="max-height:380px;position:relative;overflow-y:auto">
@@ -332,7 +332,7 @@
                                 <div class="card-image">
                                 </div>
                                 <div class="card-content ">
-                                    <div class="card-title">Chapters</div>
+                                    <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Chapters</div>
     
                                 <div id='divChapter' style="display: none;">
                                 <ul class="collection " id="chapterDiv" style="margin-left:-5px;max-height:380px;position:relative;overflow-y:auto">
@@ -409,7 +409,7 @@
                             <div class="card-image">
                             </div>
                             <div class="card-content ">
-                                <div class="card-title">Topics</div>
+                                <div class="card-title" style="font-size: 18px;font-weight: 400;color: black;">Topics</div>
                                 <div id="topicSpec">
                                 <ul class="collection " id="topicDiv" style="display: none;max-height:380px;position:relative;overflow-y:auto">
                                 </ul>

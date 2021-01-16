@@ -1,6 +1,6 @@
 {% if questions %}
 <div id="testBuilderQuestions">
-<h3>Select questions</h3> 
+<h3 style="font-size: 18px;">Select questions</h3> 
 <div class="card id">
     <div class="card-body">
         <div id="table" class="table-editable" style="overflow-y: auto; height:600px;position:relative;">
@@ -100,12 +100,12 @@
 </div> 
 <div style="display: block;height: 35px;">
 <div style="float:right; width:130px; border:1px solid;">
-    <p style="font-weight:bold;">Total Marks : <span id='marks'></span></p>
+    <p style="font-size: 14px;margin-left: 5px;margin-top: 2px;font-weight: 400;">Total Marks : <span id='marks'></span></p>
 </div>
 </div>
 <div class="col-sm-4" style="display: flex;float:right;margin-right: -30px;">
     <div class="input-field col s12">
-    <input type="text" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
+    <input type="text" style="font-size: 14px;" class="datepicker" id="test_date" onclick="validation();" name="test_date" placeholder="Exam Date">
     </div>
 
     <a class="tooltipped" id="remove" data-position="bottom" data-tooltip="Select Test Type"></a><button id="questionSubmitBtn" style="margin-top:10px; margin-left:5px;"
