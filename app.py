@@ -8329,7 +8329,7 @@ def feedbackCollection():
             totalMarks = 0
             for eachQuest in questions:
                 totalMarks = totalMarks + int(eachQuest.suggested_weightage)
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+responseSessionID
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(responseSessionID)
             if teacherProfile.device_preference==195:
                 print('the device preference is as expected:' + str(teacherProfile.device_preference))
                 return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
