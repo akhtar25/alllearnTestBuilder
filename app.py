@@ -2,7 +2,7 @@ from flask import Flask, Markup, render_template, request, flash, redirect, url_
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
-from qrReader import *
+#from qrReader import *
 import csv
 import itertools
 from config import Config
@@ -26,7 +26,7 @@ from flask import g, jsonify
 from forms import SearchForm
 from forms import PostForm
 from applicationDB import Post  
-import barCode
+#import barCode
 import json, boto3
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func, distinct, text, update
@@ -1618,7 +1618,7 @@ def edit_profile():
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
-
+@app.route('/',methods=["GET","POST"])
 @app.route('/index')
 @app.route('/dashboard')
 @login_required 
@@ -2423,7 +2423,7 @@ def updateSearchIndex(task, fromPage="default"):
         #    return "Error Sending index data to algolia"
 
 
-@app.route('/',methods=["GET","POST"])
+
 @app.route('/courseHome')
 def courseHome():    
     if ("school.alllearn" in str(request.url)):
@@ -4218,7 +4218,7 @@ def register():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
         #By default we're setting the user as course taker
-        user = User(username=form.email.data, email=form.email.data, user_type='253', access_status='145', phone=form.phone.data,
+        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='145', phone=form.phone.data,
             first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
         user.set_password(form.password.data)
         db.session.add(user)
@@ -8537,15 +8537,15 @@ def questionAllDetails():
 
 
 
-@app.route('/decodes', methods=['GET', 'POST'])
-def decodeAjax():
-    if request.method == 'POST':
-        decodedData = barCode.decode(request.form['imgBase64'])
-        if decodedData:
-            json_data = json.dumps(decodedData)
-            print(json_data)
-            return jsonify(json_data)
-        return jsonify(['NO BarCode Found'])
+#@app.route('/decodes', methods=['GET', 'POST'])
+#def decodeAjax():
+#    if request.method == 'POST':
+#        decodedData = barCode.decode(request.form['imgBase64'])
+#        if decodedData:
+#            json_data = json.dumps(decodedData)
+#            print(json_data)
+#            return jsonify(json_data)
+#        return jsonify(['NO BarCode Found'])
 
 @app.route('/responseDBUpdate', methods=['POST'])
 def responseDBUpdate():   
