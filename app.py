@@ -8263,7 +8263,8 @@ def feedbackCollection():
             #building response session ID
             #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
             responseSessionID = request.args.get('resp_session_id')
-            if responseSessionID=='':            
+            print('Response session id:'+str(responseSessionID))
+            if responseSessionID=='' or responseSessionID==None:            
                 responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
             subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
             
