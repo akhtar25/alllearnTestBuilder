@@ -7911,10 +7911,11 @@ def existedTestPaperLinkGenerate():
 # API for New Test Paper Link and Test Link Generation
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_id=teacher_id.school_id
+    
     contact=request.args.get('contact')
     print('Contect:'+str(contact))
+    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    school_id=teacher_id.school_id
     print('SchoolId:'+str(school_id))
     uploadStatus=request.args.get('uploadStatus')
     duration = request.args.get('duration')
