@@ -7913,7 +7913,9 @@ def existedTestPaperLinkGenerate():
 def newTestLinkGenerate():
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_id=teacher_id.school_id
-    print('SchoolId:',school_id)
+    contact=request.args.get('contact')
+    print('Contect:'+str(contact))
+    print('SchoolId:'+str(school_id))
     uploadStatus=request.args.get('uploadStatus')
     duration = request.args.get('duration')
     if duration =='':
