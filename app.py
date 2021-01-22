@@ -7910,15 +7910,20 @@ def existedTestPaperLinkGenerate():
         return jsonify({'testPaperLink':test_paper_link,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
 
 # API for New Test Paper Link and Test Link Generation
-@app.route('/newTestLinkGenerate',methods=['POST'])
+@app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
-    if request.method == 'POST':
-        print('json data')
-        print(request.json)
-        data = request.json
-        a = json.load(data)
-        print('Data:')
-        print(a)
+    if request.method == 'GET':
+        # print('json data')
+        # print(request.json)
+        # data = request.json
+        jsonExamData = {'contact': {'phone': '9008262739'}, 'results': {'class_val': 'Beginner_Level_3', 'subject': 'Chess', 'question_count': '20', 'topics': 'Check mate', 'weightage': '20'}, 'custom_key': 'custom_value'}
+        print(jsonExamData)
+        a = json.dumps(jsonExamData)
+        print('a:')
+        print(a[0])
+        for b in a:
+            print('b:')
+            print(b)
         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id=teacher_id.school_id
         print('SchoolId:'+str(school_id))
