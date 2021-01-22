@@ -7915,6 +7915,7 @@ def newTestLinkGenerate():
     contact=request.args.get('contact')
     data=request.args.get('data')
     name=request.args.get('name')
+    print('name:'+str(name))
     print('data:'+str(data))
     print('Contect:'+str(contact))
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
