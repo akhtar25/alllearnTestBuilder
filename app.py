@@ -7913,6 +7913,8 @@ def existedTestPaperLinkGenerate():
 def newTestLinkGenerate():
     
     contact=request.args.get('contact')
+    data=request.args.get('data')
+    print('data:'+str(data))
     print('Contect:'+str(contact))
     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_id=teacher_id.school_id
