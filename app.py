@@ -7915,13 +7915,10 @@ def newTestLinkGenerate():
     if request.method == 'POST':
         print('json data')
         print(request.json)
-        
-        contact=request.args.get('contact')
-        data=request.args.get('data')
-        name=request.args.get('name')
-        print('name:'+str(name))
-        print('data:'+str(data))
-        print('Contect:'+str(contact))
+        data = request.json
+        a = json.loads(data)
+        print('Data:')
+        print(a)
         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id=teacher_id.school_id
         print('SchoolId:'+str(school_id))
