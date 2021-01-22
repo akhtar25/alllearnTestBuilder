@@ -7916,7 +7916,7 @@ def newTestLinkGenerate():
         print('json data')
         print(request.json)
         data = request.json
-        a = json.loads(data)
+        a = json.load(data)
         print('Data:')
         print(a)
         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
