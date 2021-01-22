@@ -7920,10 +7920,13 @@ def newTestLinkGenerate():
         print(jsonExamData)
         a = json.dumps(jsonExamData)
         print('a:')
-        print(a[0])
-        for b in a:
-            print('b:')
-            print(b)
+        print(json.loads(a))
+        z = json.loads(a)
+        print(type(z))
+        # da = json.load(jsonExamData)
+        for data in z['results']:
+            print('Data:')
+            print(data)
         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
         school_id=teacher_id.school_id
         print('SchoolId:'+str(school_id))
