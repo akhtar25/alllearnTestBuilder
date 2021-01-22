@@ -7910,13 +7910,13 @@ def existedTestPaperLinkGenerate():
         return jsonify({'testPaperLink':test_paper_link,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
 
 # API for New Test Paper Link and Test Link Generation
-@app.route('/newTestLinkGenerate',methods=['POST','GET'])
+@app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
-    if request.method == 'GET':
-        # print('json data')
-        # print(request.json)
-        # data = request.json
-        jsonExamData = {'contact': {'phone': '9008262739'}, 'results': {'class_val': 'Beginner_Level_3', 'subject': 'Chess', 'question_count': '20', 'topics': 'Check mate', 'weightage': '20'}, 'custom_key': 'custom_value'}
+    if request.method == 'POST':
+        print('json data')
+        print(request.json)
+        jsonExamData = request.json
+        # jsonExamData = {'contact': {'phone': '9008262739'}, 'results': {'class_val': 'Beginner_Level_3', 'subject': 'Chess', 'question_count': '20', 'topics': 'Check mate', 'weightage': '20'}, 'custom_key': 'custom_value'}
         print(jsonExamData)
         a = json.dumps(jsonExamData)
         print('a:')
@@ -7924,10 +7924,19 @@ def newTestLinkGenerate():
         z = json.loads(a)
         print(type(z))
         # da = json.load(jsonExamData)
-        for data in z['results']:
+        paramList = []
+        conList = []
+        for data in z['results'].values():
             print('Data:')
             print(data)
-        teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+            paramList.append(data)
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+        print(conList[0])
+        userId = User.query.filter_by(phone=conList[0]).first()
+        print('User ID:'+str(userId.id))
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         school_id=teacher_id.school_id
         print('SchoolId:'+str(school_id))
         uploadStatus=request.args.get('uploadStatus')
@@ -7945,26 +7954,26 @@ def newTestLinkGenerate():
         advance = request.args.get('advance')
         if advance=='' or advance==None:
             advance = 'Y'
-        weightage = request.args.get('weightage')
+        weightage = paramList[4]
         if weightage=='' or weightage==None:
             weightage = 10
         NegMarking = request.args.get('negativeMarking')
         if NegMarking=='' or NegMarking==None:
             NegMarking = 0
-        class_val = request.args.get('class_val')
+        class_val = paramList[0]
         test_type = request.args.get('test_type')
         if test_type=='' or test_type==None:
             test_type = 'Class Feedback'
-        subject = request.args.get('subject')
+        subject = paramList[1]
         
         print('Subject:'+str(subject))
         subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
         print(subjectIDQuery)
         print(subjectIDQuery.msg_id)
         subject_id = subjectIDQuery.msg_id
-        quesCount = request.args.get('question_count')
+        quesCount = paramList[2]
         count_marks = int(weightage) * int(quesCount)
-        topics = request.args.get('topics')
+        topics = paramList[3]
         topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
         topic_id = topicIdQuery.topic_id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
