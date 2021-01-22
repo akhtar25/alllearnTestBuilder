@@ -7912,131 +7912,133 @@ def existedTestPaperLinkGenerate():
 # API for New Test Paper Link and Test Link Generation
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
-    x = {
-    "name": "John",
-    "age": 30,
-    "city": "New York"
-    }
-    # convert into JSON string:
-    y = json.dumps(x)
-    # convert json string to Json Dict
-    jsonDict = json.loads(y)
+    if request.method == 'POST':
+        print(request.json)
+        x = {
+        "name": "John",
+        "age": 30,
+        "city": "New York"
+        }
+        # convert into JSON string:
+        y = json.dumps(x)
+        # convert json string to Json Dict
+        jsonDict = json.loads(y)
+        
+        print (jsonDict['name'])
+        contact=request.args.get('contact')
+        data=request.args.get('data')
+        name=request.args.get('name')
+        print('name:'+str(name))
+        print('data:'+str(data))
+        print('Contect:'+str(contact))
+        teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+        school_id=teacher_id.school_id
+        print('SchoolId:'+str(school_id))
+        uploadStatus=request.args.get('uploadStatus')
+        duration = request.args.get('duration')
+        if duration =='':
+            duration = 0
+        print('Duration:'+str(duration))
+        if uploadStatus=='' or uploadStatus==None:
+            uploadStatus = 'Y'
+        resultStatus = request.args.get('resultStatus')
+        if resultStatus=='' or resultStatus==None:
+            resultStatus = 'Y'
+        instructions = request.args.get('instructions')
 
-    print (jsonDict['name'])
-    contact=request.args.get('contact')
-    data=request.args.get('data')
-    name=request.args.get('name')
-    print('name:'+str(name))
-    print('data:'+str(data))
-    print('Contect:'+str(contact))
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_id=teacher_id.school_id
-    print('SchoolId:'+str(school_id))
-    uploadStatus=request.args.get('uploadStatus')
-    duration = request.args.get('duration')
-    if duration =='':
-        duration = 0
-    print('Duration:'+str(duration))
-    if uploadStatus=='' or uploadStatus==None:
-        uploadStatus = 'Y'
-    resultStatus = request.args.get('resultStatus')
-    if resultStatus=='' or resultStatus==None:
-        resultStatus = 'Y'
-    instructions = request.args.get('instructions')
+        advance = request.args.get('advance')
+        if advance=='' or advance==None:
+            advance = 'Y'
+        weightage = request.args.get('weightage')
+        if weightage=='' or weightage==None:
+            weightage = 10
+        NegMarking = request.args.get('negativeMarking')
+        if NegMarking=='' or NegMarking==None:
+            NegMarking = 0
+        class_val = request.args.get('class_val')
+        test_type = request.args.get('test_type')
+        if test_type=='' or test_type==None:
+            test_type = 'Class Feedback'
+        subject = request.args.get('subject')
+        
+        print('Subject:'+str(subject))
+        subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+        print(subjectIDQuery)
+        print(subjectIDQuery.msg_id)
+        subject_id = subjectIDQuery.msg_id
+        quesCount = request.args.get('question_count')
+        count_marks = int(weightage) * int(quesCount)
+        topics = request.args.get('topics')
+        topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
+        topic_id = topicIdQuery.topic_id
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(class_val)+"' and subject_id='"+str(subject_id)+"' and archive_status='N' and topic_id='"+str(topic_id)+"' ORDER BY random() LIMIT 10"
+        print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # Code for Test Paper Creation
+        print('fetchQuesIds')
+        print(fetchQuesIds)
+        document = Document()
+        print('Date')
+        print(dateVal)
+        document.add_heading(schoolNameVal(), 0)
+        document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(dateVal) , 1)
+        document.add_heading("Subject : "+str(subject),2)
+        document.add_heading("Total Marks : "+str(count_marks),3)
+        p = document.add_paragraph()
+        for question in fetchQuesIds:
+            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+            #add question desc
+            document.add_paragraph(
+                data.question_description, style='List Number'
+            )    
+            if data.reference_link!='' and data.reference_link!=None:
+                try:
+                    response = requests.get(data.reference_link, stream=True)
+                    image = BytesIO(response.content)
+                    document.add_picture(image, width=Inches(1.25))
+                except:
+                    pass
+            for option in options:
+                if option.option_desc is not None:
+                    document.add_paragraph(
+                        option.option+". "+option.option_desc) 
+        cl = class_val.replace("/","-")
+        file_name=str(teacher_id.school_id)+str(cl)+str(subject)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+        file_name = file_name.replace(" ", "")
+        if not os.path.exists('tempdocx'):
+            os.mkdir('tempdocx')
+        document.save('tempdocx/'+file_name)
+        #uploading to s3 bucket
+        client = boto3.client('s3', region_name='ap-south-1')
+        client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+        #deleting file from temporary location after upload to s3
+        os.remove('tempdocx/'+file_name)
+        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
+        format = "%Y-%m-%d %H:%M:%S"
+        # Current time in UTC
+        now_utc = datetime.now(timezone('UTC'))
+        print(now_utc.strftime(format))
+        # Convert to local time zone
+        now_local = now_utc.astimezone(get_localzone())
+        print('Date of test creation:'+str(now_local.strftime(format)))
+        board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
+            board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+            date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+        db.session.add(testDetailsUpd)
+        db.session.commit()
 
-    advance = request.args.get('advance')
-    if advance=='' or advance==None:
-        advance = 'Y'
-    weightage = request.args.get('weightage')
-    if weightage=='' or weightage==None:
-        weightage = 10
-    NegMarking = request.args.get('negativeMarking')
-    if NegMarking=='' or NegMarking==None:
-        NegMarking = 0
-    class_val = request.args.get('class_val')
-    test_type = request.args.get('test_type')
-    if test_type=='' or test_type==None:
-        test_type = 'Class Feedback'
-    subject = request.args.get('subject')
-    
-    print('Subject:'+str(subject))
-    subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
-    print(subjectIDQuery)
-    print(subjectIDQuery.msg_id)
-    subject_id = subjectIDQuery.msg_id
-    quesCount = request.args.get('question_count')
-    count_marks = int(weightage) * int(quesCount)
-    topics = request.args.get('topics')
-    topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
-    topic_id = topicIdQuery.topic_id
-    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-    fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(class_val)+"' and subject_id='"+str(subject_id)+"' and archive_status='N' and topic_id='"+str(topic_id)+"' ORDER BY random() LIMIT 10"
-    print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
-    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-    # Code for Test Paper Creation
-    print('fetchQuesIds')
-    print(fetchQuesIds)
-    document = Document()
-    print('Date')
-    print(dateVal)
-    document.add_heading(schoolNameVal(), 0)
-    document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(dateVal) , 1)
-    document.add_heading("Subject : "+str(subject),2)
-    document.add_heading("Total Marks : "+str(count_marks),3)
-    p = document.add_paragraph()
-    for question in fetchQuesIds:
-        data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-        #add question desc
-        document.add_paragraph(
-            data.question_description, style='List Number'
-        )    
-        if data.reference_link!='' and data.reference_link!=None:
-            try:
-                response = requests.get(data.reference_link, stream=True)
-                image = BytesIO(response.content)
-                document.add_picture(image, width=Inches(1.25))
-            except:
-                pass
-        for option in options:
-            if option.option_desc is not None:
-                document.add_paragraph(
-                    option.option+". "+option.option_desc) 
-    cl = class_val.replace("/","-")
-    file_name=str(teacher_id.school_id)+str(cl)+str(subject)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
-    file_name = file_name.replace(" ", "")
-    if not os.path.exists('tempdocx'):
-        os.mkdir('tempdocx')
-    document.save('tempdocx/'+file_name)
-    #uploading to s3 bucket
-    client = boto3.client('s3', region_name='ap-south-1')
-    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-    #deleting file from temporary location after upload to s3
-    os.remove('tempdocx/'+file_name)
-    file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
-    format = "%Y-%m-%d %H:%M:%S"
-    # Current time in UTC
-    now_utc = datetime.now(timezone('UTC'))
-    print(now_utc.strftime(format))
-    # Convert to local time zone
-    now_local = now_utc.astimezone(get_localzone())
-    print('Date of test creation:'+str(now_local.strftime(format)))
-    board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
-    testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-        date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
-    db.session.add(testDetailsUpd)
-    db.session.commit()
-
-    createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
-    for questionVal in fetchQuesIds:
-        testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-        db.session.add(testQuestionInsert)
-    db.session.commit()
-    currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
-    resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
-    linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=createdTestID.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
-    linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+        createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
+        for questionVal in fetchQuesIds:
+            testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+            db.session.add(testQuestionInsert)
+        db.session.commit()
+        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
+        resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=createdTestID.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
     return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     
 @app.route('/testLinkWhatsappBoot', methods=['GET', 'POST'])
