@@ -61,6 +61,7 @@ from algoliasearch.search_client import SearchClient
 import base64
 import hmac
 import hashlib
+import json
 # from moviepy.editor import *
 
 
@@ -7911,7 +7912,17 @@ def existedTestPaperLinkGenerate():
 # API for New Test Paper Link and Test Link Generation
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
-    
+    x = {
+    "name": "John",
+    "age": 30,
+    "city": "New York"
+    }
+    # convert into JSON string:
+    y = json.dumps(x)
+    # convert json string to Json Dict
+    jsonDict = json.loads(y)
+
+    print (jsonDict['name'])
     contact=request.args.get('contact')
     data=request.args.get('data')
     name=request.args.get('name')
