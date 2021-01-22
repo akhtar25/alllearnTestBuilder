@@ -7913,18 +7913,9 @@ def existedTestPaperLinkGenerate():
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
     if request.method == 'POST':
+        print('json data')
         print(request.json)
-        x = {
-        "name": "John",
-        "age": 30,
-        "city": "New York"
-        }
-        # convert into JSON string:
-        y = json.dumps(x)
-        # convert json string to Json Dict
-        jsonDict = json.loads(y)
         
-        print (jsonDict['name'])
         contact=request.args.get('contact')
         data=request.args.get('data')
         name=request.args.get('name')
