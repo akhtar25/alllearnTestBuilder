@@ -8011,10 +8011,10 @@ def newTestLinkGenerate():
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
         db.session.commit()
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
-        resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
-        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(paramList[4]).strip()).first()
+        resp_session_id = str(subjectIDQuery.msg_id).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjectIDQuery.msg_id, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     
     
