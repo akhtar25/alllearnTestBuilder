@@ -7936,42 +7936,31 @@ def newTestLinkGenerate():
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
    
         
-        uploadStatus=paramList[5]
-        duration = paramList[6]
+        # uploadStatus=paramList[5]
+        # duration = paramList[6]
         
-        resultStatus = paramList[7]
+        # resultStatus = paramList[7]
         
-        instructions = paramList[8]
+        # instructions = paramList[8]
 
-        advance = paramList[9]
+        # advance = paramList[9]
         
-        weightage = paramList[0]
-        NegMarking = paramList[10]
+        # weightage = paramList[0]
+        # NegMarking = paramList[10]
         
-        class_val = paramList[4]
-        test_type = paramList[11]
+        # class_val = paramList[4]
+        # test_type = paramList[11]
         
-        subject = paramList[2]
-        
-        
+        # subject = paramList[2]
         subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
-        
-        subject_id = subjectIDQuery.msg_id
-        quesCount = paramList[3]
         count_marks = int(paramList[0]) * int(paramList[3])
-        topics = paramList[1]
         topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
-        topic_id = topicIdQuery.topic_id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(paramList[4])+"' and subject_id='"+str(subjectIDQuery.msg_id)+"' and archive_status='N' and topic_id='"+str(topicIdQuery.topic_id)+"' ORDER BY random() LIMIT 10"
-        # print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
+        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(paramList[4])+"' and subject_id='"+str(subjectIDQuery.msg_id)+"' and archive_status='N' and topic_id='"+str(topicIdQuery.topic_id)+"' ORDER BY random() LIMIT '"+str(paramList[3])+"'"
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        # Code for Test Paper Creation
-        # print('fetchQuesIds')
-        print(fetchQuesIds)
+     
         document = Document()
-        # print('Date')
-        # print(dateVal)
+        
         document.add_heading(schoolNameVal(), 0)
         document.add_heading('Class '+str(paramList[4])+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
         document.add_heading("Subject : "+str(paramList[2]),2)
@@ -8010,8 +7999,6 @@ def newTestLinkGenerate():
         format = "%Y-%m-%d %H:%M:%S"
         # Current time in UTC
         now_utc = datetime.now(timezone('UTC'))
-        # print(now_utc.strftime(format))
-        # Convert to local time zone
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
         board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
@@ -8020,8 +8007,6 @@ def newTestLinkGenerate():
             date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
-
-        # createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
         for questionVal in fetchQuesIds:
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
