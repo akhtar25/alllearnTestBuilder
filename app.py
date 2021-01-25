@@ -7934,6 +7934,7 @@ def newTestLinkGenerate():
             paramList.append(data)
         for con in z['contact'].values():
             conList.append(con)
+        return jsonify({"success"})
         print(paramList)
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
@@ -8047,6 +8048,7 @@ def newTestLinkGenerate():
         linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=createdTestID.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
     return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+    
     
 @app.route('/testLinkWhatsappBoot', methods=['GET', 'POST'])
 @login_required
