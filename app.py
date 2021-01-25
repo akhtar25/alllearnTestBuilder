@@ -7916,7 +7916,7 @@ def newTestLinkGenerate():
         print('json data')
         print(request.json)
         jsonExamData = request.json
-        # jsonExamData = {'contact': {'phone': '9008262739'}, 'results': {'Result': {'category': '1', 'input': '1'}}, 'class_val': 'Beginner_Level_3', 'subject': 'Chess', 'question_count': '20', 'topics': 'Double attack', 'weightage': '20'}
+        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         print(jsonExamData)
         a = json.dumps(jsonExamData)
         print('a:')
@@ -7956,26 +7956,26 @@ def newTestLinkGenerate():
         advance = request.args.get('advance')
         if advance=='' or advance==None:
             advance = 'Y'
-        weightage = paramList[6]
+        weightage = paramList[0]
         if weightage=='' or weightage==None:
             weightage = 10
         NegMarking = request.args.get('negativeMarking')
         if NegMarking=='' or NegMarking==None:
             NegMarking = 0
-        class_val = paramList[2]
+        class_val = paramList[4]
         test_type = request.args.get('test_type')
         if test_type=='' or test_type==None:
             test_type = 'Class Feedback'
-        subject = paramList[3]
+        subject = paramList[2]
         
         print('Subject:'+str(subject))
         subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
         print(subjectIDQuery)
         print(subjectIDQuery.msg_id)
         subject_id = subjectIDQuery.msg_id
-        quesCount = paramList[4]
+        quesCount = paramList[3]
         count_marks = int(weightage) * int(quesCount)
-        topics = paramList[5]
+        topics = paramList[1]
         topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
         topic_id = topicIdQuery.topic_id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
