@@ -7934,7 +7934,8 @@ def newTestLinkGenerate():
             paramList.append(data)
         for con in z['contact'].values():
             conList.append(con)
-        return jsonify(["success"])
+        success = 'success'
+        return jsonify({"success":success})
         print(paramList)
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
