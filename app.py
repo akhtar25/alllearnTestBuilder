@@ -7913,67 +7913,49 @@ def existedTestPaperLinkGenerate():
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
     if request.method == 'POST':
-        print('json data')
-        print(request.json)
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
-        print(jsonExamData)
+        
         a = json.dumps(jsonExamData)
-        print('a:')
-        print(json.loads(a))
+      
         z = json.loads(a)
-        print(type(z))
-        # da = json.load(jsonExamData)
+        
+        
         paramList = []
         conList = []
-        print('Class:')
-        # print(z.class_val)
+        
         for data in z['results'].values():
-            print('Data:')
-            print(data)
+         
             paramList.append(data)
         for con in z['contact'].values():
             conList.append(con)
-        success = 'success'
-        return jsonify({"success":True,"data":success})
         print(paramList)
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
-        print('User ID:'+str(userId.id))
+        
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         school_id=teacher_id.school_id
-        print('SchoolId:'+str(school_id))
-        uploadStatus=request.args.get('uploadStatus')
-        duration = request.args.get('duration')
-        if duration =='':
-            duration = 0
-        print('Duration:'+str(duration))
-        if uploadStatus=='' or uploadStatus==None:
-            uploadStatus = 'Y'
-        resultStatus = request.args.get('resultStatus')
-        if resultStatus=='' or resultStatus==None:
-            resultStatus = 'Y'
-        instructions = request.args.get('instructions')
+        
+        uploadStatus=paramList[5]
+        duration = paramList[6]
+        
+        resultStatus = paramList[7]
+        
+        instructions = paramList[8]
 
-        advance = request.args.get('advance')
-        if advance=='' or advance==None:
-            advance = 'Y'
+        advance = paramList[9]
+        
         weightage = paramList[0]
-        if weightage=='' or weightage==None:
-            weightage = 10
-        NegMarking = request.args.get('negativeMarking')
-        if NegMarking=='' or NegMarking==None:
-            NegMarking = 0
+        NegMarking = paramList[10]
+        
         class_val = paramList[4]
-        test_type = request.args.get('test_type')
-        if test_type=='' or test_type==None:
-            test_type = 'Class Feedback'
+        test_type = paramList[11]
+        
         subject = paramList[2]
         
-        print('Subject:'+str(subject))
+        
         subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
-        print(subjectIDQuery)
-        print(subjectIDQuery.msg_id)
+        
         subject_id = subjectIDQuery.msg_id
         quesCount = paramList[3]
         count_marks = int(weightage) * int(quesCount)
@@ -7982,14 +7964,14 @@ def newTestLinkGenerate():
         topic_id = topicIdQuery.topic_id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
         fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(class_val)+"' and subject_id='"+str(subject_id)+"' and archive_status='N' and topic_id='"+str(topic_id)+"' ORDER BY random() LIMIT 10"
-        print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
+        # print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         # Code for Test Paper Creation
-        print('fetchQuesIds')
-        print(fetchQuesIds)
+        # print('fetchQuesIds')
+        # print(fetchQuesIds)
         document = Document()
-        print('Date')
-        print(dateVal)
+        # print('Date')
+        # print(dateVal)
         document.add_heading(schoolNameVal(), 0)
         document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(dateVal) , 1)
         document.add_heading("Subject : "+str(subject),2)
@@ -8028,7 +8010,7 @@ def newTestLinkGenerate():
         format = "%Y-%m-%d %H:%M:%S"
         # Current time in UTC
         now_utc = datetime.now(timezone('UTC'))
-        print(now_utc.strftime(format))
+        # print(now_utc.strftime(format))
         # Convert to local time zone
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
@@ -8039,14 +8021,14 @@ def newTestLinkGenerate():
         db.session.add(testDetailsUpd)
         db.session.commit()
 
-        createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
+        # createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
         for questionVal in fetchQuesIds:
-            testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
         db.session.commit()
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
         resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
-        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=createdTestID.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
     return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     
