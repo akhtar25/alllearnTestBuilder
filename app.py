@@ -7934,7 +7934,7 @@ def newTestLinkGenerate():
         userId = User.query.filter_by(phone=conList[0]).first()
         
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        school_id=teacher_id.school_id
+   
         
         uploadStatus=paramList[5]
         duration = paramList[6]
@@ -7954,27 +7954,27 @@ def newTestLinkGenerate():
         subject = paramList[2]
         
         
-        subjectIDQuery = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+        subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
         
         subject_id = subjectIDQuery.msg_id
         quesCount = paramList[3]
-        count_marks = int(weightage) * int(quesCount)
+        count_marks = int(paramList[0]) * int(paramList[3])
         topics = paramList[1]
-        topicIdQuery = Topic.query.filter_by(topic_name=topics,subject_id=subject_id,class_val=class_val).first()
+        topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
         topic_id = topicIdQuery.topic_id
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(class_val)+"' and subject_id='"+str(subject_id)+"' and archive_status='N' and topic_id='"+str(topic_id)+"' ORDER BY random() LIMIT 10"
+        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(paramList[4])+"' and subject_id='"+str(subjectIDQuery.msg_id)+"' and archive_status='N' and topic_id='"+str(topicIdQuery.topic_id)+"' ORDER BY random() LIMIT 10"
         # print('fetchQuesIdsQuery:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         # Code for Test Paper Creation
         # print('fetchQuesIds')
-        # print(fetchQuesIds)
+        print(fetchQuesIds)
         document = Document()
         # print('Date')
         # print(dateVal)
         document.add_heading(schoolNameVal(), 0)
-        document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(dateVal) , 1)
-        document.add_heading("Subject : "+str(subject),2)
+        document.add_heading('Class '+str(paramList[4])+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        document.add_heading("Subject : "+str(paramList[2]),2)
         document.add_heading("Total Marks : "+str(count_marks),3)
         p = document.add_paragraph()
         for question in fetchQuesIds:
@@ -7995,18 +7995,18 @@ def newTestLinkGenerate():
                 if option.option_desc is not None:
                     document.add_paragraph(
                         option.option+". "+option.option_desc) 
-        cl = class_val.replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(subject)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
-        file_name = file_name.replace(" ", "")
+        cl = paramList[4].replace("/","-")
+        file_name=str(teacher_id.school_id)+str(cl)+str(paramList[2])+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+   
         if not os.path.exists('tempdocx'):
             os.mkdir('tempdocx')
-        document.save('tempdocx/'+file_name)
+        document.save('tempdocx/'+file_name.replace(" ", ""))
         #uploading to s3 bucket
         client = boto3.client('s3', region_name='ap-south-1')
-        client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         #deleting file from temporary location after upload to s3
-        os.remove('tempdocx/'+file_name)
-        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
+        os.remove('tempdocx/'+file_name.replace(" ", ""))
+        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         format = "%Y-%m-%d %H:%M:%S"
         # Current time in UTC
         now_utc = datetime.now(timezone('UTC'))
@@ -8015,8 +8015,8 @@ def newTestLinkGenerate():
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
         board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
-        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
-            board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+        testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
+            board_id=str(board_id.board_id), subject_id=int(subjectIDQuery.msg_id),class_val=str(paramList[4]),date_of_creation=now_local.strftime(format),
             date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
@@ -8026,8 +8026,8 @@ def newTestLinkGenerate():
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
         db.session.commit()
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
-        resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(currClassSecRow.class_sec_id).strip()
+        # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(class_val).strip()).first()
+        resp_session_id = str(subject_id).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=weightage,negativeMarking=NegMarking,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions,duration=duration,class_val=class_val,section=currClassSecRow.section,subject_id=subject_id, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
     return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
