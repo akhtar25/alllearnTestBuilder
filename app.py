@@ -7928,7 +7928,7 @@ def newTestLinkGenerate():
         conList = []
         print('Class:')
         # print(z.class_val)
-        for data in z.values():
+        for data in z['results'].values():
             print('Data:')
             print(data)
             paramList.append(data)
