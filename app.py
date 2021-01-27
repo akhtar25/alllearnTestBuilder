@@ -3,6 +3,7 @@ from send_email import welcome_email, send_password_reset_email, user_access_req
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
+from threading import Thread
 import csv
 import itertools
 from config import Config
@@ -7969,13 +7970,42 @@ def testApp():
 
 #End API
 
+def insertData(question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+    with app.app_context():
+        print('inside insertData')
+        subjId = ''
+        topicID = ''
+        boardID = ''
+        for det in question_ids:
+            subjId = det.subject_id
+            topicID = det.topic_id
+            boardID = det.board_id
+            break
+        format = "%Y-%m-%d %H:%M:%S"
+        now_utc = datetime.now(timezone('UTC'))
+        now_local = now_utc.astimezone(get_localzone())
+        print('Date of test creation:'+str(now_local.strftime(format)))
+        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+            board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+            date_of_test=datetime.now(), school_id=school_id,test_paper_link='', teacher_id=teacher_id)
+        db.session.add(testDetailsUpd)
+        for questionVal in question_ids:
+            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+            db.session.add(testQuestionInsert)
+        db.session.commit()
+        print('after insertData')
+
+def threadUse(question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+    print('Inside threadUse')
+    Thread(target=insertData,args=(question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
+    
 
 # API for New Test Paper Link and Test Link Generation
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
     if request.method == 'POST':
-        jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        # jsonExamData = request.json
+        jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8032,19 +8062,8 @@ def newTestLinkGenerate():
             break
         # print('SubjectId:'+str(subjId))
         # print('topicID:'+str(topicID))
-        format = "%Y-%m-%d %H:%M:%S"
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
-        # testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(paramList[4]),date_of_creation=now_local.strftime(format),
-        #     date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link='', teacher_id=teacher_id.teacher_id)
-        # db.session.add(testDetailsUpd)
-        # db.session.commit()
-        # for questionVal in fetchQuesIds:
-        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-        #     db.session.add(testQuestionInsert)
-        # db.session.commit()
+        
+        threadUse(fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(paramList[4]).strip()).first()
         resp_session_id = str(subjId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjId, _external=True)
