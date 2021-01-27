@@ -7975,7 +7975,7 @@ def testApp():
 def newTestLinkGenerate():
     if request.method == 'POST':
         jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8013,58 +8013,32 @@ def newTestLinkGenerate():
         # test_type = paramList[11]
         
         # subject = paramList[2]
-        subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
+        # subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
         count_marks = int(paramList[0]) * int(paramList[3])
-        topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
+        # topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(paramList[4])+"' and subject_id='"+str(subjectIDQuery.msg_id)+"' and archive_status='N' and topic_id='"+str(topicIdQuery.topic_id)+"' ORDER BY random() LIMIT '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = "select td.board_id,qd.question_id,td.subject_id,td.topic_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name = '"+str(paramList[1])+"' and md.description = '"+str(paramList[2])+"' and td.class_val = '"+str(paramList[4])+"'"
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-     
-        # document = Document()
-        
-        # document.add_heading(schoolNameVal(), 0)
-        # document.add_heading('Class '+str(paramList[4])+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
-        # document.add_heading("Subject : "+str(paramList[2]),2)
-        # document.add_heading("Total Marks : "+str(count_marks),3)
-        # p = document.add_paragraph()
-        # for question in fetchQuesIds:
-            # data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-            # options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-            #add question desc
-        #     document.add_paragraph(
-        #         data.question_description, style='List Number'
-        #     )    
-        #     if data.reference_link!='' and data.reference_link!=None:
-        #         try:
-        #             response = requests.get(data.reference_link, stream=True)
-        #             image = BytesIO(response.content)
-        #             document.add_picture(image, width=Inches(1.25))
-        #         except:
-        #             pass
-        #     for option in options:
-        #         if option.option_desc is not None:
-        #             document.add_paragraph(
-        #                 option.option+". "+option.option_desc) 
-        # cl = paramList[4].replace("/","-")
-        # file_name=str(teacher_id.school_id)+str(cl)+str(paramList[2])+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
-   
-        # if not os.path.exists('tempdocx'):
-        #     os.mkdir('tempdocx')
-        # document.save('tempdocx/'+file_name.replace(" ", ""))
-        #uploading to s3 bucket
-        # client = boto3.client('s3', region_name='ap-south-1')
-        # client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
-        #deleting file from temporary location after upload to s3
-        # os.remove('tempdocx/'+file_name.replace(" ", ""))
-        # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+        subjId = ''
+        topicID = ''
+        boardID = ''
+        for det in fetchQuesIds:
+            subjId = det.subject_id
+            topicID = det.topic_id
+            boardID = det.board_id
+            break
+        # print('SubjectId:'+str(subjId))
+        # print('topicID:'+str(topicID))
         format = "%Y-%m-%d %H:%M:%S"
-        # Current time in UTC
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+        # board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
         testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
-            board_id=str(board_id.board_id), subject_id=int(subjectIDQuery.msg_id),class_val=str(paramList[4]),date_of_creation=now_local.strftime(format),
+            board_id=str(boardID), subject_id=int(subjId),class_val=str(paramList[4]),date_of_creation=now_local.strftime(format),
             date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link='', teacher_id=teacher_id.teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
@@ -8073,8 +8047,8 @@ def newTestLinkGenerate():
             db.session.add(testQuestionInsert)
         db.session.commit()
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(paramList[4]).strip()).first()
-        resp_session_id = str(subjectIDQuery.msg_id).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjectIDQuery.msg_id, _external=True)
+        resp_session_id = str(subjId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjId, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     return jsonify({'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
