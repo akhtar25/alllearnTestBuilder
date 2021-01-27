@@ -7964,7 +7964,7 @@ def testApp():
         #deleting file from temporary location after upload to s3
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-
+        print('Test Created successfully:'+str(file_name_val))
     return jsonify({'fileName':file_name_val})
 
 #End API
