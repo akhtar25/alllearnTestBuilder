@@ -7930,7 +7930,7 @@ def testApp():
         quesIdQuery = TestQuestions.query.filter_by(test_id=paramList[0]).all()
         document = Document()
         document.add_heading(schoolNameVal(), 0)
-        document.add_heading('Class '+str(testIDQuery.class_val)+" - "+str(testIDQuery.test_Type)+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        document.add_heading('Class '+str(testIDQuery.class_val)+" - "+str(testIDQuery.test_type)+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
         document.add_heading("Subject : "+str(subjectQuery.description),2)
         document.add_heading("Total Marks : "+str(testIDQuery.total_marks),3)
         p = document.add_paragraph()
@@ -7953,7 +7953,7 @@ def testApp():
                     document.add_paragraph(
                         option.option+". "+option.option_desc) 
         cl = testIDQuery.class_val.replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(testIDQuery.test_Type)+str(datetime.today().strftime("%Y%m%d"))+str(testIDQuery.total_marks)+'.docx'
+        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(testIDQuery.test_type)+str(datetime.today().strftime("%Y%m%d"))+str(testIDQuery.total_marks)+'.docx'
    
         if not os.path.exists('tempdocx'):
             os.mkdir('tempdocx')
