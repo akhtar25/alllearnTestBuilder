@@ -7970,7 +7970,7 @@ def testApp():
 
 #End API
 
-def insertData(question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
         subjId = ''
@@ -7985,14 +7985,15 @@ def insertData(question_ids,test_type,total_marks,class_val,teacher_id,school_id
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        resp_session_id = str(subjId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        
         
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
             date_of_test=datetime.now(), school_id=school_id,test_paper_link='', teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
+        db.session.commit()
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-            test_id=str(testDetailsUpd.test_id).strip(),correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
         db.session.add(sessionDetailRowInsert)
         for questionVal in question_ids:
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
@@ -8000,9 +8001,9 @@ def insertData(question_ids,test_type,total_marks,class_val,teacher_id,school_id
         db.session.commit()
         print('after insertData')
 
-def threadUse(question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     print('Inside threadUse')
-    Thread(target=insertData,args=(question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
+    Thread(target=insertData,args=(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
     
 
 # API for New Test Paper Link and Test Link Generation
@@ -8067,12 +8068,13 @@ def newTestLinkGenerate():
             break
         # print('SubjectId:'+str(subjId))
         # print('topicID:'+str(topicID))
-        
-        threadUse(fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(paramList[4]).strip()).first()
+        resp_session_id = str(subjId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
+
         
-        linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjId, _external=True)
-        linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBoot',respsessionid=resp_session_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjId, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     return jsonify({'onlineTestLink':linkForTeacher})
     
