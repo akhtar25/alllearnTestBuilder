@@ -8065,7 +8065,7 @@ def newTestLinkGenerate():
         board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
         testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
             board_id=str(board_id.board_id), subject_id=int(subjectIDQuery.msg_id),class_val=str(paramList[4]),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+            date_of_test=datetime.now(), school_id=teacher_id.school_id,test_paper_link='', teacher_id=teacher_id.teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
         for questionVal in fetchQuesIds:
