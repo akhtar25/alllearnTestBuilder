@@ -8073,8 +8073,8 @@ def newTestLinkGenerate():
         threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
 
         
-        linkForTeacher=url_for('testLinkWhatsappBoot',respsessionid=resp_session_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=paramList[4],section=currClassSecRow.section,subject_id=subjId, _external=True)
-        linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBoot',respsessionid=resp_session_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=paramList[4],section=currClassSecRow.section,subjectId=subjId, _external=True)
+        linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     return jsonify({'onlineTestLink':linkForTeacher})
     
