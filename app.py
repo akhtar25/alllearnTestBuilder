@@ -8020,43 +8020,43 @@ def newTestLinkGenerate():
         fetchQuesIdsQuery = "SELECT question_id FROM question_details where class_val='"+str(paramList[4])+"' and subject_id='"+str(subjectIDQuery.msg_id)+"' and archive_status='N' and topic_id='"+str(topicIdQuery.topic_id)+"' ORDER BY random() LIMIT '"+str(paramList[3])+"'"
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
      
-        document = Document()
+        # document = Document()
         
-        document.add_heading(schoolNameVal(), 0)
-        document.add_heading('Class '+str(paramList[4])+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
-        document.add_heading("Subject : "+str(paramList[2]),2)
-        document.add_heading("Total Marks : "+str(count_marks),3)
-        p = document.add_paragraph()
+        # document.add_heading(schoolNameVal(), 0)
+        # document.add_heading('Class '+str(paramList[4])+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        # document.add_heading("Subject : "+str(paramList[2]),2)
+        # document.add_heading("Total Marks : "+str(count_marks),3)
+        # p = document.add_paragraph()
         for question in fetchQuesIds:
             data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
             options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
             #add question desc
-            document.add_paragraph(
-                data.question_description, style='List Number'
-            )    
-            if data.reference_link!='' and data.reference_link!=None:
-                try:
-                    response = requests.get(data.reference_link, stream=True)
-                    image = BytesIO(response.content)
-                    document.add_picture(image, width=Inches(1.25))
-                except:
-                    pass
-            for option in options:
-                if option.option_desc is not None:
-                    document.add_paragraph(
-                        option.option+". "+option.option_desc) 
-        cl = paramList[4].replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(paramList[2])+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+        #     document.add_paragraph(
+        #         data.question_description, style='List Number'
+        #     )    
+        #     if data.reference_link!='' and data.reference_link!=None:
+        #         try:
+        #             response = requests.get(data.reference_link, stream=True)
+        #             image = BytesIO(response.content)
+        #             document.add_picture(image, width=Inches(1.25))
+        #         except:
+        #             pass
+        #     for option in options:
+        #         if option.option_desc is not None:
+        #             document.add_paragraph(
+        #                 option.option+". "+option.option_desc) 
+        # cl = paramList[4].replace("/","-")
+        # file_name=str(teacher_id.school_id)+str(cl)+str(paramList[2])+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
    
-        if not os.path.exists('tempdocx'):
-            os.mkdir('tempdocx')
-        document.save('tempdocx/'+file_name.replace(" ", ""))
+        # if not os.path.exists('tempdocx'):
+        #     os.mkdir('tempdocx')
+        # document.save('tempdocx/'+file_name.replace(" ", ""))
         #uploading to s3 bucket
-        client = boto3.client('s3', region_name='ap-south-1')
-        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
+        # client = boto3.client('s3', region_name='ap-south-1')
+        # client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         #deleting file from temporary location after upload to s3
-        os.remove('tempdocx/'+file_name.replace(" ", ""))
-        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+        # os.remove('tempdocx/'+file_name.replace(" ", ""))
+        # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         format = "%Y-%m-%d %H:%M:%S"
         # Current time in UTC
         now_utc = datetime.now(timezone('UTC'))
@@ -8076,7 +8076,8 @@ def newTestLinkGenerate():
         resp_session_id = str(subjectIDQuery.msg_id).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         linkForTeacher=url_for('testLinkWhatsappBoot',resp_session_id=resp_session_id,test_id=testDetailsUpd.test_id,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],class_val=paramList[4],section=currClassSecRow.section,subject_id=subjectIDQuery.msg_id, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
-    return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+    # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+    return jsonify({'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
     
     
 @app.route('/testLinkWhatsappBoot', methods=['GET', 'POST'])
