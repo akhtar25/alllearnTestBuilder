@@ -7909,6 +7909,67 @@ def existedTestPaperLinkGenerate():
         linkForStudent=url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=testPaperLinkQuery.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
         return jsonify({'testPaperLink':test_paper_link,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
 
+# Start API
+@app.route('/testApp',methods=['POST'])
+def testApp():
+    if request.method == 'POST':
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        for data in z['results'].values():
+            paramList.append(data)
+        for con in z['contact'].values():
+            conList.append(con)
+        testIDQuery = TestDetails.query.filter_by(test_id=paramList[0]).first()
+        subjectQuery = MessageDetails.query.filter_by(msg_id=testIDQuery.subject_id).first()
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        print('Test ID:'+str(paramList[0]))
+        quesIdQuery = TestQuestions.query.filter_by(test_id=paramList[0]).all()
+        document = Document()
+        document.add_heading(schoolNameVal(), 0)
+        document.add_heading('Class '+str(testIDQuery.class_val)+" - "+str(testIDQuery.test_Type)+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        document.add_heading("Subject : "+str(subjectQuery.description),2)
+        document.add_heading("Total Marks : "+str(testIDQuery.total_marks),3)
+        p = document.add_paragraph()
+        for question in quesIdQuery:
+            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+            #add question desc
+            document.add_paragraph(
+                data.question_description, style='List Number'
+            )    
+            if data.reference_link!='' and data.reference_link!=None:
+                try:
+                    response = requests.get(data.reference_link, stream=True)
+                    image = BytesIO(response.content)
+                    document.add_picture(image, width=Inches(1.25))
+                except:
+                    pass
+            for option in options:
+                if option.option_desc is not None:
+                    document.add_paragraph(
+                        option.option+". "+option.option_desc) 
+        cl = testIDQuery.class_val.replace("/","-")
+        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(testIDQuery.test_Type)+str(datetime.today().strftime("%Y%m%d"))+str(testIDQuery.total_marks)+'.docx'
+   
+        if not os.path.exists('tempdocx'):
+            os.mkdir('tempdocx')
+        document.save('tempdocx/'+file_name.replace(" ", ""))
+        #uploading to s3 bucket
+        client = boto3.client('s3', region_name='ap-south-1')
+        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
+        #deleting file from temporary location after upload to s3
+        os.remove('tempdocx/'+file_name.replace(" ", ""))
+        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+
+    return jsonify({'fileName':file_name_val})
+
+#End API
+
+
 # API for New Test Paper Link and Test Link Generation
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
