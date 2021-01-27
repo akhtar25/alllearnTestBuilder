@@ -8004,8 +8004,8 @@ def threadUse(question_ids,test_type,total_marks,class_val,teacher_id,school_id)
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
     if request.method == 'POST':
-        # jsonExamData = request.json
-        jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
