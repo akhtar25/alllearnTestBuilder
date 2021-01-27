@@ -8027,9 +8027,9 @@ def newTestLinkGenerate():
         # document.add_heading("Subject : "+str(paramList[2]),2)
         # document.add_heading("Total Marks : "+str(count_marks),3)
         # p = document.add_paragraph()
-        for question in fetchQuesIds:
-            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        # for question in fetchQuesIds:
+            # data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+            # options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
             #add question desc
         #     document.add_paragraph(
         #         data.question_description, style='List Number'
