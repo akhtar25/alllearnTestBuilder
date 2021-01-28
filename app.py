@@ -8025,7 +8025,7 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
 
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id,test_paper_link='', teacher_id=teacher_id)
+            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id, teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
