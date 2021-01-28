@@ -7982,12 +7982,14 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             boardID = det.board_id
             break
         format = "%Y-%m-%d %H:%M:%S"
+        schoolQuery = SchoolProfile.query.filter_by(school_id=school_id).first()
+        schoolName = schoolQuery.school_name
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        subjectQuery = MessageDetails.query.filter_by(mag_id=subjId).first()
+        subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
         document = Document()
-        document.add_heading(schoolNameVal(), 0)
+        document.add_heading(schoolName, 0)
         document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
         document.add_heading("Subject : "+str(subjectQuery.description),2)
         document.add_heading("Total Marks : "+str(total_marks),3)
@@ -8011,7 +8013,7 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
                     document.add_paragraph(
                         option.option+". "+option.option_desc) 
         cl = class_val.replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(total_marks)+'.docx'
+        file_name=str(school_id)+str(cl)+str(subjectQuery.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(total_marks)+'.docx'
    
         if not os.path.exists('tempdocx'):
             os.mkdir('tempdocx')
@@ -8047,7 +8049,7 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 def newTestLinkGenerate():
     if request.method == 'POST':
         jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        # jsonExamData = {"results": {"weightage": "10","topics": "Double attack","subject": "Chess","question_count": "10","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8088,14 +8090,20 @@ def newTestLinkGenerate():
         
         # subject = paramList[2]
         # subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
-        count_marks = int(paramList[0]) * int(paramList[3])
+        
         # topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name = '"+str(paramList[1])+"' and md.description = '"+str(paramList[2])+"' and td.class_val = '"+str(paramList[4])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name = '"+str(paramList[1])+"' and md.description = '"+str(paramList[2])+"' and td.class_val = '"+str(paramList[4])+"' limit '"+str(paramList[3])+"'"
+        print(fetchQuesIdsQuery)
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        listLength = len(fetchQuesIds)
+        count_marks = int(paramList[0]) * int(listLength)
+        print(paramList[0])
+        print(listLength)
+        print('total marks:'+str(count_marks))
         subjId = ''
         topicID = ''
         boardID = ''
@@ -8128,29 +8136,42 @@ def testLinkWhatsappBot():
     subjectName = subjectQuery.description
     classVal = request.args.get('classVal')
     clasVal = classVal.replace('@','_')
+    respsessionid = request.args.get('respsessionid')
+    testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
+    testId = testQuery.test_id
     section = request.args.get('section')
-    fetchQuesIds = request.args.get('fetchQuesIds')
-    for ques in fetchQuesIds:
+    fetchQuesQuery = "select question_id from test_questions where test_id='"+str(testId)+"'"
+    fetchQuesIds = db.session.execute(fetchQuesQuery).fetchall()
+    quesIds = []
+    for fetchIds in fetchQuesIds:
+        quesIds.append(fetchIds.question_id)
+    questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(quesIds)).all()  
+    for ques in questions:
         print('question description:')
+        print(ques.question_id)
         print(ques.question_description)
     # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
     questionListSize = len(fetchQuesIds)
     respsessionid = request.args.get('respsessionid')
     total_marks = request.args.get('total_marks')
     weightage = request.args.get('weightage')
-    test_type = request.args.get('test_type')
+    test_type = request.args.get('testType')
     test_type = test_type.replace('@','_')
     uploadStatus = request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
     advance = request.args.get('advance')
     print('inside testLinkWhatsappBot')
     print('Subject Id:'+str(subject_id))
+    studId = None
     if student:
         print('user id student')
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     else:
         print('user is teacher') 
+        url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
         return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=subject_id, 
-            class_val = clasVal, section = section,questions=fetchQuesIds, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode="QRValue",
+            class_val = clasVal, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode=responseSessionIDQRCode,
             subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
             batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
 
