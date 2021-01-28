@@ -8195,11 +8195,11 @@ def getClassList():
         print(classList)
         return jsonify({'class_list':classList})
 
-@app.route('/newTestLinkGenerate',methods=['POST'])
+@app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
     if request.method == 'POST':
         jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "10","topics": "Double attack","subject": "Chess","question_count": "10","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8219,41 +8219,87 @@ def newTestLinkGenerate():
         print(paramList)
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
-        
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-   
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)
+            classList.append(classVal)
+            j=j+1
         
-        # uploadStatus=paramList[5]
-        # duration = paramList[6]
-        
-        # resultStatus = paramList[7]
-        
-        # instructions = paramList[8]
-
-        # advance = paramList[9]
-        
-        # weightage = paramList[0]
-        # NegMarking = paramList[10]
-        
-        # class_val = paramList[4]
-        # test_type = paramList[11]
-        
-        # subject = paramList[2]
-        # subjectIDQuery = MessageDetails.query.filter_by(description=paramList[2],category='Subject').first()
-        
-        # topicIdQuery = Topic.query.filter_by(topic_name=paramList[1],subject_id=subjectIDQuery.msg_id,class_val=paramList[4]).first()
+        selClass = ''
+        print('Selected Class option:')
+        print(paramList[4])
+        for className in classList:
+            num = className.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[4]))
+            if int(num) == int(paramList[4]):
+                print(className)
+                selClass = className.split('-')[1]
+                print('selClass:'+str(selClass))
+        print('class')
+        selClass = selClass.strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[2]))
+            if int(num) == int(paramList[2]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+                
+        print('Subject:')
+        selSubject = selSubject.strip()
+        # Start for topic
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        #End topic
+        selChapter = selChapter.strip()
+        print('Chapter'+str(selChapter))
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name = '"+str(paramList[1])+"' and md.description = '"+str(paramList[2])+"' and td.class_val = '"+str(paramList[4])+"' limit '"+str(paramList[3])+"'"
-        print(fetchQuesIdsQuery)
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         listLength = len(fetchQuesIds)
         count_marks = int(paramList[0]) * int(listLength)
-        print(paramList[0])
-        print(listLength)
-        print('total marks:'+str(count_marks))
+        
         subjId = ''
         topicID = ''
         boardID = ''
@@ -8262,17 +8308,14 @@ def newTestLinkGenerate():
             topicID = det.topic_id
             boardID = det.board_id
             break
-        # print('SubjectId:'+str(subjId))
-        # print('topicID:'+str(topicID))
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(paramList[4]).strip()).first()
-        resp_session_id = str(subjId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
+        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+        resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
 
-        clasVal = paramList[4].replace('_','@')
+        clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],total_marks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId, _external=True)
-        linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
-    # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],total_marks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=selClass,section=currClassSecRow.section,subjectId=subId, _external=True)
+        # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     return jsonify({'onlineTestLink':linkForTeacher})
     
     
