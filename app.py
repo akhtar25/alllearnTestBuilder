@@ -8111,6 +8111,7 @@ def newTestLinkGenerate():
         threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,paramList[4],teacher_id.teacher_id,teacher_id.school_id)
 
         clasVal = paramList[4].replace('_','@')
+        testType = paramList[11].replace('_','@')
         linkForTeacher=url_for('testLinkWhatsappBot',test_type=paramList[11],total_marks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId, _external=True)
         linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     # return jsonify({'testPaperLink':file_name_val,'onlineTestLinkForTeacher':linkForTeacher,'onlineTestLinkForStudent':linkForStudent})
@@ -8138,6 +8139,7 @@ def testLinkWhatsappBot():
     total_marks = request.args.get('total_marks')
     weightage = request.args.get('weightage')
     test_type = request.args.get('test_type')
+    test_type = test_type.replace('@','_')
     uploadStatus = request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
     advance = request.args.get('advance')
