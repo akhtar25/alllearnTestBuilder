@@ -8045,6 +8045,7 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
     
 
 # API for New Test Paper Link and Test Link Generation
+
 @app.route('/getSubjectsList',methods=['POST','GET'])
 def getSubjectsList():
     if request.method == 'POST':
@@ -8052,23 +8053,33 @@ def getSubjectsList():
         jsonData = request.json
         data = json.dumps(jsonData)
         dataList = json.loads(data)
-        print(session['classList'])
+        
         conList = []
         selectedClassOption = []
         for con in dataList['contact'].values():
             conList.append(con)
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)
+            classList.append(classVal)
+            j=j+1
         for clas in dataList['result'].values():
             selectedClassOption.append(clas)
         selClass = ''
-        for className in session['classList']:
+        print('Selected Class option:')
+        print(selectedClassOption[0])
+        for className in classList:
             num = className.split('-')[0]
             print(num)
             if num == selectedClassOption[0]:
-                selClass = className.split('_')[1]
+                selClass = className.split('-')[1]
         print('class')
         print(selClass)
-        userId = User.query.filter_by(phone=conList[0]).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        
         subQuery = "select md.description as subject from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
         subjectData = db.session.execute(text(subQuery)).fetchall()
         subjectList = []
@@ -8100,7 +8111,6 @@ def getClassList():
             classList.append(classVal)
             j=j+1
         print(classList)
-        session['classList'] = classList
         return jsonify({'class_list':classList})
 
 @app.route('/newTestLinkGenerate',methods=['POST'])
