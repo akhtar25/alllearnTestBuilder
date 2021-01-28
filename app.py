@@ -8115,7 +8115,7 @@ def getTopicList():
         c=1
         chapterDetList = []
         for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)
+            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         return jsonify({'chapterDetList':chapterDetList})
@@ -8167,7 +8167,7 @@ def getSubjectsList():
         subjectList = []
         k=1
         for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)
+            sub = str(k)+str('-')+str(subj.subject)+str("\n")
             subjectList.append(sub)
             k=k+1
         return jsonify({'subject_list':subjectList}) 
