@@ -8045,6 +8045,12 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
     
 
 # API for New Test Paper Link and Test Link Generation
+# @app.route('/getSubjectsList',methods=['POST','GET'])
+# def getSubjectsList():
+#     if request.method == 'POST':
+#         print('inside getSubjectsList')
+#         jsonData = request.
+
 @app.route('/getClassList',methods=['POST','GET'])
 def getClassList():
     if request.method == 'POST':
@@ -8058,7 +8064,7 @@ def getClassList():
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_sec_id).all()
         classList = [] 
         j=1
         for classlist in classesListData:
