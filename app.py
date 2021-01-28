@@ -8063,7 +8063,7 @@ def getClassList():
         for classlist in classesListData:
             classList.append(classlist.class_val)
         print(classList)
-        return jsonify([classList])
+        return jsonify(classList)
 
 @app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
