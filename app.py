@@ -8067,7 +8067,7 @@ def getSubjectsList():
             classVal = str(j)+str(' - ')+str(classlist.class_val)
             classList.append(classVal)
             j=j+1
-        for clas in dataList['result'].values():
+        for clas in dataList['results'].values():
             selectedClassOption.append(clas)
         selClass = ''
         print('Selected Class option:')
