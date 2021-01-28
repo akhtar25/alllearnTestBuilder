@@ -8126,54 +8126,55 @@ def newTestLinkGenerate():
     return jsonify({'onlineTestLink':linkForTeacher})
     
     
-@app.route('/testLinkWhatsappBot', methods=['GET', 'POST'])
+@app.route('/testLinkWhatsappBot', methods=['POST'])
 @login_required
 def testLinkWhatsappBot():  
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
-    student = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    subject_id = request.args.get('subjectId')
-    subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
-    subjectName = subjectQuery.description
-    classVal = request.args.get('classVal')
-    clasVal = classVal.replace('@','_')
-    respsessionid = request.args.get('respsessionid')
-    testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
-    testId = testQuery.test_id
-    section = request.args.get('section')
-    fetchQuesQuery = "select question_id from test_questions where test_id='"+str(testId)+"'"
-    fetchQuesIds = db.session.execute(fetchQuesQuery).fetchall()
-    quesIds = []
-    for fetchIds in fetchQuesIds:
-        quesIds.append(fetchIds.question_id)
-    questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(quesIds)).all()  
-    for ques in questions:
-        print('question description:')
-        print(ques.question_id)
-        print(ques.question_description)
-    # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
-    questionListSize = len(fetchQuesIds)
-    respsessionid = request.args.get('respsessionid')
-    total_marks = request.args.get('total_marks')
-    weightage = request.args.get('weightage')
-    test_type = request.args.get('testType')
-    test_type = test_type.replace('@','_')
-    uploadStatus = request.args.get('uploadStatus')
-    resultStatus = request.args.get('resultStatus')
-    advance = request.args.get('advance')
-    print('inside testLinkWhatsappBot')
-    print('Subject Id:'+str(subject_id))
-    studId = None
-    if student:
-        print('user id student')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
-    else:
-        print('user is teacher') 
-        url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
-        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
-        return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=subject_id, 
-            class_val = clasVal, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode=responseSessionIDQRCode,
-            subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
-            batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+    if request.method == 'POST':
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+        student = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        subject_id = request.args.get('subjectId')
+        subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
+        subjectName = subjectQuery.description
+        classVal = request.args.get('classVal')
+        clasVal = classVal.replace('@','_')
+        respsessionid = request.args.get('respsessionid')
+        testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
+        testId = testQuery.test_id
+        section = request.args.get('section')
+        fetchQuesQuery = "select question_id from test_questions where test_id='"+str(testId)+"'"
+        fetchQuesIds = db.session.execute(fetchQuesQuery).fetchall()
+        quesIds = []
+        for fetchIds in fetchQuesIds:
+            quesIds.append(fetchIds.question_id)
+        questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(quesIds)).all()  
+        for ques in questions:
+            print('question description:')
+            print(ques.question_id)
+            print(ques.question_description)
+        # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
+        questionListSize = len(fetchQuesIds)
+        respsessionid = request.args.get('respsessionid')
+        total_marks = request.args.get('total_marks')
+        weightage = request.args.get('weightage')
+        test_type = request.args.get('testType')
+        test_type = test_type.replace('@','_')
+        uploadStatus = request.args.get('uploadStatus')
+        resultStatus = request.args.get('resultStatus')
+        advance = request.args.get('advance')
+        print('inside testLinkWhatsappBot')
+        print('Subject Id:'+str(subject_id))
+        studId = None
+        if student:
+            print('user id student')
+            return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+        else:
+            print('user is teacher') 
+            url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
+            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
+            return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=subject_id, 
+                class_val = clasVal, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode=responseSessionIDQRCode,
+                subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
+                batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
