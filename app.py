@@ -8062,8 +8062,9 @@ def getClassList():
         classList = [] 
         j=1
         for classlist in classesListData:
-            classVal = str(j)+str(classlist.class_val)+str("\n")
+            classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
+            j=j+1
         print(classList)
         return jsonify({'class_list':classList})
 
