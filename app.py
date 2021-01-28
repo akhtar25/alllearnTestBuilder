@@ -7985,11 +7985,47 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        
-        
+        subjectQuery = MessageDetails.query.filter_by(mag_id=subjId).first()
+        document = Document()
+        document.add_heading(schoolNameVal(), 0)
+        document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        document.add_heading("Subject : "+str(subjectQuery.description),2)
+        document.add_heading("Total Marks : "+str(total_marks),3)
+        p = document.add_paragraph()
+        for question in question_ids:
+            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+            #add question desc
+            document.add_paragraph(
+                data.question_description, style='List Number'
+            )    
+            if data.reference_link!='' and data.reference_link!=None:
+                try:
+                    response = requests.get(data.reference_link, stream=True)
+                    image = BytesIO(response.content)
+                    document.add_picture(image, width=Inches(1.25))
+                except:
+                    pass
+            for option in options:
+                if option.option_desc is not None:
+                    document.add_paragraph(
+                        option.option+". "+option.option_desc) 
+        cl = class_val.replace("/","-")
+        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(total_marks)+'.docx'
+   
+        if not os.path.exists('tempdocx'):
+            os.mkdir('tempdocx')
+        document.save('tempdocx/'+file_name.replace(" ", ""))
+        #uploading to s3 bucket
+        client = boto3.client('s3', region_name='ap-south-1')
+        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
+        #deleting file from temporary location after upload to s3
+        os.remove('tempdocx/'+file_name.replace(" ", ""))
+        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(), school_id=school_id,test_paper_link='', teacher_id=teacher_id)
+            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id,test_paper_link='', teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
@@ -8007,11 +8043,11 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
     
 
 # API for New Test Paper Link and Test Link Generation
-@app.route('/newTestLinkGenerate',methods=['POST','GET'])
+@app.route('/newTestLinkGenerate',methods=['POST'])
 def newTestLinkGenerate():
-    if request.method == 'GET':
-        # jsonExamData = request.json
-        jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+    if request.method == 'POST':
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "20","topics": "Double attack","subject": "Chess","question_count": "20","class_val": "Beginner_Level_3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8020,9 +8056,11 @@ def newTestLinkGenerate():
         
         paramList = []
         conList = []
-        
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
         for data in z['results'].values():
-         
+            
             paramList.append(data)
         for con in z['contact'].values():
             conList.append(con)
