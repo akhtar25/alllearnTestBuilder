@@ -8314,7 +8314,7 @@ def newTestLinkGenerate():
 
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],total_marks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=selClass,section=currClassSecRow.section,subjectId=subId, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=selClass,section=currClassSecRow.section,subjectId=subId, _external=True)
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     return jsonify({'onlineTestLink':linkForTeacher})
     
@@ -8346,7 +8346,7 @@ def testLinkWhatsappBot():
     # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
     questionListSize = len(fetchQuesIds)
     respsessionid = request.args.get('respsessionid')
-    total_marks = request.args.get('total_marks')
+    total_marks = request.args.get('totalMarks')
     weightage = request.args.get('weightage')
     test_type = request.args.get('testType')
     test_type = test_type.replace('@','_')
