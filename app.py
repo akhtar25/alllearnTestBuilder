@@ -8045,7 +8045,7 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
     
 
 # API for New Test Paper Link and Test Link Generation
-@app.route('/getClassList',methods=['POST'])
+@app.route('/getClassList',methods=['POST','GET'])
 def getClassList():
     if request.method == 'POST':
         print('inside getClassList')
