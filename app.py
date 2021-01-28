@@ -8046,12 +8046,12 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 
 # API for New Test Paper Link and Test Link Generation
 
-@app.route('getTopicList',methods=['POST','GET'])
+@app.route('/getTopicList',methods=['POST','GET'])
 def getTopicList():
-    if request.method == 'GET':
+    if request.method == 'POST':
         print('inside getTopicList')
         jsonData = request.json
-        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","custom_key": "custom_value"}}
+        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","subject":"1","custom_key": "custom_value"}}
         data = json.dumps(jsonData)
         dataList = json.loads(data)
         conList = []
@@ -8101,9 +8101,11 @@ def getTopicList():
                 print(subjectName)
                 selSubject = subjectName.split('-')[1]
                 print('selSubject:'+str(selSubject))
-                subId = subjectName.msg_id
+                
         print('Subject:')
         selSubject = selSubject.strip()
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
         print(selSubject)
         print('SubId:'+str(subId))
         extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
