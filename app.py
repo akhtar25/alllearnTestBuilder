@@ -8060,8 +8060,10 @@ def getClassList():
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
+        j=1
         for classlist in classesListData:
-            classList.append(classlist.class_val)
+            classVal = str(j)+str(classlist.class_val)+str("\n")
+            classList.append(classVal)
         print(classList)
         return jsonify({'class_list':classList})
 
