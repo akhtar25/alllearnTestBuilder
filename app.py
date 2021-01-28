@@ -8064,7 +8064,7 @@ def getClassList():
         print(conList[0])
         userId = User.query.filter_by(phone=conList[0]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_sec_id).all()
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_sec_id).all()
         classList = [] 
         j=1
         for classlist in classesListData:
