@@ -8085,7 +8085,9 @@ def getSubjectsList():
         print(selClass)
         
         subQuery = "select md.description as subject from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
         subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
         subjectList = []
         k=1
         for subj in subjectData:
