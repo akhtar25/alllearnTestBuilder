@@ -8046,6 +8046,79 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 
 # API for New Test Paper Link and Test Link Generation
 
+@app.route('getTopicList',methods=['POST','GET'])
+def getTopicList():
+    if request.method == 'GET':
+        print('inside getTopicList')
+        jsonData = request.json
+        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","custom_key": "custom_value"}}
+        data = json.dumps(jsonData)
+        dataList = json.loads(data)
+        conList = []
+        selectedOptions = []
+        for con in dataList['contact'].values():
+            conList.append(con)
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)
+            classList.append(classVal)
+            j=j+1
+        for clas in dataList['results'].values():
+            selectedOptions.append(clas)
+        selClass = ''
+        selSubject = ''
+        for className in classList:
+            num = className.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(selectedOptions[0]))
+            if int(num) == int(selectedOptions[0]):
+                print(className)
+                selClass = className.split('-')[1]
+                print('selClass:'+str(selClass))
+        print('class')
+        selClass = selClass.strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(selectedOptions[1]))
+            if int(num) == int(selectedOptions[1]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+                subId = subjectName.msg_id
+        print('Subject:')
+        selSubject = selSubject.strip()
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)
+            chapterDetList.append(chap)
+            c=c+1
+        return jsonify({'chapterDetList':chapterDetList})
+
+
 @app.route('/getSubjectsList',methods=['POST','GET'])
 def getSubjectsList():
     if request.method == 'POST':
@@ -8093,7 +8166,7 @@ def getSubjectsList():
         k=1
         for subj in subjectData:
             sub = str(k)+str('-')+str(subj.subject)
-            subjectList.append(subj.subject)
+            subjectList.append(sub)
             k=k+1
         return jsonify({'subject_list':subjectList}) 
 
