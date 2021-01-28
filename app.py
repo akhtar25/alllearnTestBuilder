@@ -8074,9 +8074,11 @@ def getSubjectsList():
         print(selectedClassOption[0])
         for className in classList:
             num = className.split('-')[0]
-            print(num)
+            print('num:'+str(num))
+            print('selClass:'+str(selectedClassOption[0]))
             if str(num) == str(selectedClassOption[0]):
                 selClass = className.split('-')[1]
+                print('selClass:'+str(selClass))
         print('class')
         print(selClass)
         
