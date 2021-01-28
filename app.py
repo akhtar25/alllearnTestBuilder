@@ -8051,6 +8051,7 @@ def getSubjectsList():
     if request.method == 'POST':
         print('inside getSubjectsList')
         jsonData = request.json
+        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","custom_key": "custom_value"}}
         data = json.dumps(jsonData)
         dataList = json.loads(data)
         
@@ -8075,8 +8076,9 @@ def getSubjectsList():
         for className in classList:
             num = className.split('-')[0]
             print('num:'+str(num))
-            print('selClass:'+str(selectedClassOption[0]))
-            if str(num) == str(selectedClassOption[0]):
+            print('class:'+str(selectedClassOption[0]))
+            if int(num) == int(selectedClassOption[0]):
+                print(className)
                 selClass = className.split('-')[1]
                 print('selClass:'+str(selClass))
         print('class')
