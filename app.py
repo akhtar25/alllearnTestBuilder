@@ -8198,6 +8198,63 @@ def getSubjectsList():
             k=k+1
         return jsonify({'subject_list':subjectList}) 
 
+@app.route('/getStudentDetails',methods=['GET','POST'])
+def getStudentDetails():
+    if request.method == 'POST':
+        print('inside getStudentDetails')
+        jsonData = request.json
+        data = json.dumps(jsonData)
+        dataList = json.loads(data)
+        selectedStudentOption = ''
+        for data in dataList['results'].values():
+            selectedStudentOption = data
+        conList = []
+        for con in dataList['contact'].values():
+            conList.append(con)
+        print(conList[0])
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)
+            classList.append(classVal)
+            j=j+1
+        print(classList)
+        selectedClassOption = ''
+        selClass = ''
+        selSection = ''
+        for data in dataList['results'].values():
+            selectedClassOption = data
+        for clas in classList:
+            option = clas.split('-')[0]
+            if int(option) == selectedClassOption:
+                selClass = clas.split('-')[1]
+                selSection = clas.split('-')[2]
+        selClass = selClass.strip()
+        selSection = selSection.strip()
+        print('Class:'+str(selClass))
+        print('Section:'+str(selSection))
+        classSec = ClassSection.query.filter_by(class_val=selClass,section=selSection,school_id=teacher_id.school_id).first()
+        classSecId = classSec.class_sec_id
+        studentListQuery = StudentProfile.query.filter_by(school_id=teacher_id.school_id,class_sec_id=classSecId).all()
+        l=1
+        studentList = []
+        for student in studentListQuery:
+            stud = str(l)+str('-')+str(student.full_name)+str("@")+str(student.student_id)
+            studentList.append(stud)
+            l=l+1
+        selStudentId = ''
+        for stud in studentList:
+            option = stud.split('-')[0]
+            if int(option) == int(selectedStudentOption):
+                selStudentId = stud.split('@')[1]
+        print('student_id:'+str(selStudentId))
+        studDetails = StudentProfile.query.filter_by(student_id=selStudentId,school_id=teacher_id.school_id).first()
+        studentDetailLink = url_for('indivStudentProfile',flag=1,student_id=studDetails.student_id,sponsor_id=studDetails.sponsor_id,sponsor_name=studDetails.sponsor_name,amount=amount, _external=True)
+        jsonify({'studentDetailLink':studentDetailLink})
+
 @app.route('/getStudentsList',methods=['GET','POST'])
 def getStudentsList():
     if request.method == 'POST':
@@ -8243,7 +8300,7 @@ def getStudentsList():
             studentList.append(stud)
             l=l+1
         return jsonify({'studentNewList':studentList})
-
+    
 
 @app.route('/getClassSectionList',methods=['POST','GET'])
 def getClassSectionList():
