@@ -8322,9 +8322,11 @@ def newTestLinkGenerate():
 @login_required
 def getTestPaperLink():
     if request.method == 'POST':
+        print('inside getTestPaperLink')
         testPaperQuery = "select test_id from test_details order by test_id desc limit 1"
         testPaperData = db.session.execute(text(testPaperQuery)).first()
         testPaperLink = testPaperData.test_paper_link
+        print('testPaperLink:'+str(testPaperLink))
         return jsonify({'TestPaperLink':testPaperLink})
 
     
