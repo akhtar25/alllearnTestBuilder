@@ -8197,7 +8197,7 @@ def getSubjectsList():
             k=k+1
         return jsonify({'subject_list':subjectList}) 
 
-@app.route('/getStudentsList',method=['GET','POST'])
+@app.route('/getStudentsList',methods=['GET','POST'])
 def getStudentsList():
     if request.method == 'POST':
         print('inside getStudentsList')
