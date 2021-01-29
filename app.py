@@ -8201,7 +8201,7 @@ def getClassList():
 def getEnteredTopicList():
     if request.method == 'POST':
         jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "10","topics": "double attack,Check mate","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
         a = json.dumps(jsonExamData)
       
@@ -8220,7 +8220,11 @@ def getEnteredTopicList():
             conList.append(con)
         print(paramList)
         print(conList[0])
-      
+        # Test for topic
+        print('Testing for topic')
+        print(type(paramList[1]))
+        print(int(paramList[1]))
+        # 
         userId = User.query.filter_by(phone=conList[0]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
