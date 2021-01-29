@@ -8197,6 +8197,29 @@ def getSubjectsList():
             k=k+1
         return jsonify({'subject_list':subjectList}) 
 
+@app.route('/getClassSectionList',methods=['POST','GET'])
+def getClassSectionList():
+    if request.method == 'POST':
+        print('inside getClassSectionList')
+        jsonData = request.json
+        data = json.dumps(jsonData)
+        dataList = json.loads(data)
+        conList = []
+        for con in dataList['contact'].values():
+            conList.append(con)
+        print(conList[0])
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
+            classList.append(classVal)
+            j=j+1
+        print(classList)
+        return jsonify({'class_list':classList}) 
+
 @app.route('/getClassList',methods=['POST','GET'])
 def getClassList():
     if request.method == 'POST':
