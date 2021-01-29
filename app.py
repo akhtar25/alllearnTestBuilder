@@ -8197,7 +8197,7 @@ def getClassList():
         print(classList)
         return jsonify({'class_list':classList})
 
-@app.route('/getEnteredTopicList',methods=['POST'])
+@app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
         jsonExamData = request.json
@@ -8220,11 +8220,7 @@ def getEnteredTopicList():
             conList.append(con)
         print(paramList)
         print(conList[0])
-        # Test for topic
-        print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
-        # 
+        
         userId = User.query.filter_by(phone=conList[0]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
