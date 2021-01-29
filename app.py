@@ -8075,7 +8075,7 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 @app.route('/getLeaderBoardLink',methods=['GET','POST'])
 def getLeaderBoardLink():
     if request.method == 'POST':
-        leaderBoardLink = url_for('leaderBoard',_external=true)
+        leaderBoardLink = url_for('leaderBoard', _external=True)
         return jsonify({'leaderboardLink':leaderBoardLink})
 
 @app.route('/getTopicList',methods=['POST','GET'])
