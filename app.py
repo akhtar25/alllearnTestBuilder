@@ -8215,6 +8215,7 @@ def getStudentDetails():
         for data in dataList['results'].values():
             selectedStudentOption = data
         conList = []
+        print('SelectedOption:'+str(selectedStudentOption))
         for con in dataList['contact'].values():
             conList.append(con)
         print(conList[0])
