@@ -8073,10 +8073,18 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 # API for New Test Paper Link and Test Link Generation
 
 @app.route('/getLeaderBoardLink',methods=['GET','POST'])
+@login_required
 def getLeaderBoardLink():
     if request.method == 'POST':
         leaderBoardLink = url_for('leaderBoard', _external=True)
         return jsonify({'leaderboardLink':leaderBoardLink})
+
+@app.route('/getCustomerSupportLink',methods=['GET','POST'])
+@login_required
+def getCustomerSupportLink():
+    if request.method == 'POST':
+        customerSupportLink = url_for('help',_external=True)
+        return jsonify({'helpLink':customerSupportLink})
 
 @app.route('/getTopicList',methods=['POST','GET'])
 def getTopicList():
