@@ -8317,7 +8317,16 @@ def newTestLinkGenerate():
         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId, _external=True)
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     return jsonify({'onlineTestLink':linkForTeacher})
-    
+
+@app.route('/getTestPaperLink',methods=['POST','GET'])
+@login_required
+def getTestPaperLink():
+    if request.method == 'POST':
+        testPaperQuery = "select test_id from test_details order by test_id desc limit 1"
+        testPaperData = db.session.execute(text(testPaperQuery)).first()
+        testPaperLink = testPaperData.test_paper_link
+        return jsonify({'TestPaperLink':testPaperLink})
+
     
 @app.route('/testLinkWhatsappBot', methods=['POST','GET'])
 @login_required
