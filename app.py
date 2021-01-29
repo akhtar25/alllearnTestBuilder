@@ -7976,6 +7976,8 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
         subjId = ''
         topicID = ''
         boardID = ''
+        print('question_ids:')
+        print(question_ids)
         for det in question_ids:
             subjId = det.subject_id
             topicID = det.topic_id
@@ -8308,6 +8310,8 @@ def newTestLinkGenerate():
             topicID = det.topic_id
             boardID = det.board_id
             break
+        print('subjId:'+str(subjId))
+        print(fetchQuesIds)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
