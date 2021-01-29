@@ -3065,7 +3065,7 @@ def getOnlineClassLink():
             roomResponse = roomCreation()
             roomResponseJson = roomResponse.json()
             print("New room ID created: " +str(roomResponseJson["url"]))
-            checkTeacher.room_id = str(roomResponseJson["url"])
+            teacher_id.room_id = str(roomResponseJson["url"])
             db.session.commit()
         OnlineClassLink = teacher_id.room_id
         return jsonify({'onlineClassLink':OnlineClassLink})
