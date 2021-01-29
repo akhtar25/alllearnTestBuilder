@@ -8248,14 +8248,15 @@ def getStudentDetails():
         l=1
         studentList = []
         for student in studentListQuery:
-            stud = str(l)+str('-')+str(student.full_name)+str("@")+str(student.student_id)
+            stud = str(l)+str('-')+str(student.full_name)+str("-")+str(student.student_id)
             studentList.append(stud)
             l=l+1
         selStudentId = ''
         for stud in studentList:
             option = stud.split('-')[0]
             if int(option) == int(selectedStudentOption):
-                selStudentId = stud.split('@')[1]
+                print(stud)
+                selStudentId = stud.split('-')[2]
         print('student_id:'+str(selStudentId))
         studDetails = StudentProfile.query.filter_by(student_id=selStudentId,school_id=teacher_id.school_id).first()
         studentDetailLink = url_for('indivStudentProfile',flag=1,student_id=studDetails.student_id,sponsor_id=studDetails.sponsor_id,sponsor_name=studDetails.sponsor_name,amount=amount, _external=True)
