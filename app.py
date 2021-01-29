@@ -8326,13 +8326,13 @@ def newTestLinkGenerate():
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
-        jsonData = request.json        
-        a = json.dumps(jsonData)
-        z = json.loads(a)
-        print('inside getTestPaperLink')
-        for data in z['results'].values():
-            print(data)
-        testPaperQuery = "select test_id from test_details order by test_id desc limit 1"
+        # jsonData = request.json        
+        # a = json.dumps(jsonData)
+        # z = json.loads(a)
+        # print('inside getTestPaperLink')
+        # for data in z['results'].values():
+        #     print(data)
+        testPaperQuery = "select test_paper_link from test_details order by test_id desc limit 1"
         print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
         testPaperLink = testPaperData.test_paper_link
