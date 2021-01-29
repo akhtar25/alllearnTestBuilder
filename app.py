@@ -7420,7 +7420,7 @@ def leaderBoard():
             classSecCheckVal=classSecCheck()
             indic='leaderBoard'
             return render_template('leaderBoard.html',indic=indic,title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
-
+    classSecCheckVal=classSecCheck()
     indic='leaderBoard'
     return render_template('leaderBoard.html',indic=indic,title='Leaderboard',classSecCheckVal=classSecCheckVal,form=form,distinctClasses=distinctClasses,leaderBoardData=data,colAll=colAll,columnNames=columnNames, qclass_val=qclass_val,subject=subj,subColumn=subColumn,subHeader=subHeader,user_type_val=str(current_user.user_type))
 
