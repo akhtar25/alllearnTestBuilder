@@ -8318,12 +8318,18 @@ def newTestLinkGenerate():
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
     return jsonify({'onlineTestLink':linkForTeacher})
 
-@app.route('/getTestPaperLink',methods=['POST','GET'])
+@app.route('/getTestPaperLink',methods=['POST'])
 @login_required
 def getTestPaperLink():
     if request.method == 'POST':
+        jsonData = request.json        
+        a = json.dumps(jsonData)
+        z = json.loads(a)
         print('inside getTestPaperLink')
+        for data in z['results']:
+            print(data)
         testPaperQuery = "select test_id from test_details order by test_id desc limit 1"
+        print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
         testPaperLink = testPaperData.test_paper_link
         print('testPaperLink:'+str(testPaperLink))
