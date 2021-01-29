@@ -8239,7 +8239,7 @@ def getStudentsList():
         l=1
         studentList = []
         for student in studentListQuery:
-            stud = str(l)+str('-')+str(student.full_name)
+            stud = str(l)+str('-')+str(student.full_name)+str("/n")
             studentList.append(stud)
             l=l+1
         return jsonify({'studentNewList':studentList})
