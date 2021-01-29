@@ -8254,6 +8254,8 @@ def getStudentDetails():
         selStudentId = ''
         for stud in studentList:
             option = stud.split('-')[0]
+            print(option)
+            print(selectedStudentOption)
             if int(option) == int(selectedStudentOption):
                 print(stud)
                 selStudentId = stud.split('-')[2]
