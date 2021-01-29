@@ -8267,8 +8267,8 @@ def getStudentDetails():
                 print(stud)
                 selStudentId = stud.split('-')[2]
         print('student_id:'+str(selStudentId))
-        studDetails = StudentProfile.query.filter_by(student_id=selStudentId,school_id=teacher_id.school_id).first()
-        studentDetailLink = url_for('studentProfile',student_id=studDetails.student_id, _external=True)
+        # studDetails = StudentProfile.query.filter_by(student_id=selStudentId,school_id=teacher_id.school_id).first()
+        studentDetailLink = url_for('studentProfile',student_id=selStudentId, _external=True)
         jsonify({'studentDetailLink':studentDetailLink})
 
 @app.route('/getStudentsList',methods=['GET','POST'])
