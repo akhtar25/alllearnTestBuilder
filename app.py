@@ -3049,7 +3049,8 @@ def teacherRegForm():
 @app.route('/getOnlineClassLink',methods=['GET','POST'])
 def getOnlineClassLink():
     if request.method == 'POST':
-        jsonExamData = request.json        
+        jsonExamData = request.json 
+        # jsonExamData = {"contact":{"phone":"9008262739"},"result":{"data":"1"}}       
         data = json.dumps(jsonExamData)
         response = json.loads(data)
         paramList = []
