@@ -3046,6 +3046,29 @@ def teacherRegForm():
     return jsonify(reviewStatus.review_status)
 
 
+@app.route('/getOnlineClassLink',methods=['GET','POST'])
+def getOnlineClassLink():
+    if request.method == 'POST':
+        jsonExamData = request.json        
+        data = json.dumps(jsonExamData)
+        response = json.loads(data)
+        paramList = []
+        conList = []
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
+        for data in response['contact'].values():
+            conList.append(data)
+        userId = User.query.filter_by(phone=conList[0]).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        if teacher_id.room_id==None:            
+            roomResponse = roomCreation()
+            roomResponseJson = roomResponse.json()
+            print("New room ID created: " +str(roomResponseJson["url"]))
+            checkTeacher.room_id = str(roomResponseJson["url"])
+            db.session.commit()
+        OnlineClassLink = teacher_id.room_id
+        return jsonify({'onlineClassLink':OnlineClassLink})
 
 ##Helper function
 def roomCreation():
