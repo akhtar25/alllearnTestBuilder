@@ -8072,6 +8072,12 @@ def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,cl
 
 # API for New Test Paper Link and Test Link Generation
 
+@app.route('/getLeaderBoardLink',methods=['GET','POST'])
+def getLeaderBoardLink():
+    if request.method == 'POST':
+        leaderBoardLink = url_for('leaderBoard',_external=true)
+        return jsonify({'leaderboardLink':leaderBoardLink})
+
 @app.route('/getTopicList',methods=['POST','GET'])
 def getTopicList():
     if request.method == 'POST':
