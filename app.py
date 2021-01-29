@@ -8219,9 +8219,9 @@ def getStudentDetails():
         jsonData = request.json
         data = json.dumps(jsonData)
         dataList = json.loads(data)
-        selectedStudentOption = ''
+        selectedStudentOption = []
         for data in dataList['results'].values():
-            selectedStudentOption = data
+            selectedStudentOption.append(data)
         conList = []
         print('SelectedOption:'+str(selectedStudentOption))
         for con in dataList['contact'].values():
@@ -8237,14 +8237,11 @@ def getStudentDetails():
             classList.append(classVal)
             j=j+1
         print(classList)
-        selectedClassOption = ''
         selClass = ''
         selSection = ''
-        for data in dataList['results'].values():
-            selectedClassOption = data
         for clas in classList:
             option = clas.split('-')[0]
-            if int(option) == selectedClassOption:
+            if int(option) == selectedStudentOption[1]:
                 selClass = clas.split('-')[1]
                 selSection = clas.split('-')[2]
         selClass = selClass.strip()
@@ -8264,8 +8261,8 @@ def getStudentDetails():
         for stud in studentList:
             option = stud.split('-')[0]
             print(option)
-            print(selectedStudentOption)
-            if int(option) == int(selectedStudentOption):
+            print(selectedStudentOption[0])
+            if int(option) == int(selectedStudentOption[0]):
                 print(stud)
                 selStudentId = stud.split('-')[2]
         print('student_id:'+str(selStudentId))
