@@ -8638,7 +8638,6 @@ def getTestPaperLink():
 
     
 @app.route('/testLinkWhatsappBot', methods=['POST','GET'])
-@login_required
 def testLinkWhatsappBot():  
     teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     student = StudentProfile.query.filter_by(user_id=current_user.id).first()
@@ -8648,6 +8647,7 @@ def testLinkWhatsappBot():
     classVal = request.args.get('classVal')
     emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
     user = ''
+    
     if emailDet:
         user = User.query.filter_by(email=teacher.email).first()
     if user:
