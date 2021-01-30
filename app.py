@@ -8646,6 +8646,12 @@ def testLinkWhatsappBot():
     subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
     subjectName = subjectQuery.description
     classVal = request.args.get('classVal')
+    emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
+    user = ''
+    if emailDet:
+        user = User.query.filter_by(email=emailDet.email).first()
+    if user:
+        login_user(user,remember='Y')
     clasVal = classVal.replace('@','_')
     respsessionid = request.args.get('respsessionid')
     testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
