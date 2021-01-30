@@ -6930,6 +6930,8 @@ def startPracticeTest():
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
+    print('inside feedbackCollectionStudDev')
+    print('Resp_session_id:'+str(resp_session_id))
     instructionsRows = SessionDetail.query.filter_by(resp_session_id=resp_session_id).first()
     if instructionsRows:
         instructions = instructionsRows.instructions
@@ -8686,7 +8688,7 @@ def testLinkWhatsappBot():
     studId = None
     if current_user.is_anonymous:
         print('user id student')
-        return redirect(url_for('feedbackCollectionStudDev',resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
+        return redirect(url_for('feedbackCollectionStudDev',student_id=studId,resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
         # return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     else:
         print('user is teacher') 
