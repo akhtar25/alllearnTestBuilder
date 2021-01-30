@@ -8363,16 +8363,16 @@ def getClassList():
         print(classList)
         return jsonify({'class_list':classList})
 
-@app.route('/getReqTopicList',methods=['POST','GET'])
-def getReqTopicList():
-    if request.method == 'POST':
-        jsonData = request.json
-        a = json.dumps(jsonData)
-        data = json.loads(a)
-        for value in data['results'].values():
-            print(value)
-    dataValue = 10
-    return jsonify({'Data':dataValue})
+# @app.route('/getReqTopicList',methods=['POST','GET'])
+# def getReqTopicList():
+#     if request.method == 'POST':
+#         jsonData = request.json
+#         a = json.dumps(jsonData)
+#         data = json.loads(a)
+#         for value in data['results'].values():
+#             print(value)
+#     dataValue = 10
+#     return jsonify({'Data':dataValue})
 
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
@@ -8459,7 +8459,7 @@ def getEnteredTopicList():
         for topic in topicList:
             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name like '"+str(topic)+"%' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name like '"+str(topic)+"%' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
@@ -8676,7 +8676,8 @@ def testLinkWhatsappBot():
     studId = None
     if student:
         print('user id student')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+        return render_template('feedbackCollectionStudDev.html',resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+        # return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     else:
         print('user is teacher') 
         url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
