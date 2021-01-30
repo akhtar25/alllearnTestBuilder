@@ -8697,169 +8697,6 @@ def testLinkWhatsappBot():
             subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
             batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
 
-@app.route('/feedbackCollectionTeachDev',methods=['GET','POST'])
-def feedbackCollectionTeachDev():    
-    if request.method=='POST':
-        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
-        #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
-        #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
-        teacherProfile = teacher
-        #using today's date to build response session id
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        qtest_id = request.form.get('test_id')
-        weightage = request.form.get('weightage')
-        NegMarking = request.form.get('negativeMarking')
-        # code for upload file status
-        uploadStatus = request.form.get('uploadStatus')
-        resultStatus = request.form.get('resultStatus')
-        advance = request.form.get('advance')
-        instructions = request.form.get('instructions')
-        print('upload status:'+str(uploadStatus))
-        print('resultStatus:'+str(resultStatus))
-        print('feeedback Collection instructions:'+str(instructions))
-        print('advance:'+str(advance))
-        if resultStatus=='Y':
-            print('result status is yes')
-        else:
-            print('result status is no')
-        if uploadStatus=='Y':
-            print('upload status is yes')
-        else:
-            print('upload status is no')
-        if advance=='Y':
-            print('Test type is Advance')
-        else:
-            print('Test type is basic')
-        print('Neg Marks:'+str(NegMarking))
-        print(type(NegMarking))
-        nMarking = abs(int(NegMarking))
-        # Marks = int(nMarking)
-        nMark = -nMarking
-        duration = request.form.get('duration')
-        print('Test Id:'+str(qtest_id))
-        print('Duration:'+str(duration))
-        if duration!='':
-            durTime = duration.split('.')[0]
-            duration = int(durTime)
-        print('Duration in int:'+str(duration))
-        if duration=='':
-            print('if duration is null')
-            duration=0 
-        qclass_val = request.form.get('class_val')
-        qsection = request.form.get('section')
-        qsubject_id = request.form.get('subject_id')
-        batch_test =  request.form.get('batch_test')
-        batch_id =  request.form.get('batch_id')    
-            
-        print("this is the section, class_val and teacher: "+ str(qsection).upper() + ' ' + str(qclass_val).strip() + ' '+ str(teacher.school_id))
-        if batch_test=="1":
-            print("Entered feedback coll")
-            print("batchtest: " + batch_test)
-            print("batch_id: " + batch_id)
-            courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
-            courseBatchData.is_ongoing='N'
-            db.session.commit()
-        if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
-            qsection = str(qsection)
-            currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
-
-            if currClassSecRow is None and batch_test!="1":
-                flash('Class and section value not valid')
-                return redirect(url_for('testPapers'))
-            elif batch_test=="1" and  currClassSecRow is None:
-                class_sec_id = 1
-                qsubject_id=54
-            else:
-                class_sec_id = currClassSecRow.class_sec_id
-                #qsubject_id
-                #pass
-            #building response session ID
-            #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-            responseSessionID = request.args.get('resp_session_id')
-            print('Response session id:'+str(responseSessionID))
-            if responseSessionID=='' or responseSessionID==None:            
-                responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
-            subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
-            
-            url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
-    
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
-            if weightage==None or weightage=="":
-                qId = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').first()
-                weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
-
-            print('Inside question id list')
-            print(questionIDList)          
-            questionListSize = len(questionIDList)
-
-            print('Question list size:'+str(questionListSize))
-            total_marks = int(weightage)*questionListSize
-            #creating a record in the session detail table  
-            if questionListSize !=0:
-                sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
-                #print('Date:'+str(dateVal))
-                print('##########Response Session ID:'+str(responseSessionID))
-                #print('If Question list size is not zero')
-                #print(sessionDetailRowCheck)
-                if sessionDetailRowCheck==None:
-                    print('if sessionDetailRowCheck is none')
-                    #print(sessionDetailRowCheck)   
-                    format = "%Y-%m-%d %H:%M:%S"
-                    # Current time in UTC
-                    now_utc = datetime.now(timezone('UTC'))
-                    print(now_utc.strftime(format))
-                    # Convert to local time zone
-                    now_local = now_utc.astimezone(get_localzone())
-                    print(now_local.strftime(format))  
-                                
-                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
-                    db.session.add(sessionDetailRowInsert)
-                    print('Adding to the db')
-
-                if batch_test=="1":
-                    batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
-                        resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
-                    db.session.add(batchTestInsert)
-                    #courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
-                    #courseBatchData.is_ongoing='N'
-                db.session.commit()
-
-            questionList = []
-            for questValue in questionIDList:
-                print('Question ID:'+str(questValue.question_id))
-                questionList.append(questValue.question_id)
-            
-
-            testDetailRow = TestDetails.query.filter_by(test_id=qtest_id).first()
-            testType = testDetailRow.test_type
-            #testTypeNameRow = MessageDetails.query.filter_by(msg_id=testTypeID).first()
-
-
-            questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()  
-            for  question in questions:
-                print('Question:'+str(question.question_description))         
-            totalMarks = 0
-            for eachQuest in questions:
-                totalMarks = totalMarks + int(eachQuest.suggested_weightage)
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(responseSessionID)
-            if teacherProfile.device_preference==195:
-                print('the device preference is as expected:' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
-                    class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
-                    subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
-            elif teacherProfile.device_preference==78:
-                print('the device preference is not as expected' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
-            else:
-                print('the device preference is external webcame' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
-
-    else:
-        return redirect(url_for('classCon'))
-
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
@@ -8923,106 +8760,106 @@ def feedbackCollection():
             courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
             courseBatchData.is_ongoing='N'
             db.session.commit()
-        if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
-            qsection = str(qsection)
-            currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
+        # if all(v is not None for v in [qtest_id, qclass_val, qsection, qsubject_id]):
+        qsection = str(qsection)
+        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher.school_id),class_val=str(qclass_val).strip(),section=str(qsection).strip()).first()
 
-            if currClassSecRow is None and batch_test!="1":
-                flash('Class and section value not valid')
-                return redirect(url_for('testPapers'))
-            elif batch_test=="1" and  currClassSecRow is None:
-                class_sec_id = 1
-                qsubject_id=54
-            else:
-                class_sec_id = currClassSecRow.class_sec_id
+        if currClassSecRow is None and batch_test!="1":
+            flash('Class and section value not valid')
+            return redirect(url_for('testPapers'))
+        elif batch_test=="1" and  currClassSecRow is None:
+            class_sec_id = 1
+            qsubject_id=54
+        else:
+            class_sec_id = currClassSecRow.class_sec_id
                 #qsubject_id
                 #pass
             #building response session ID
             #print('This is the class section id found in DB:'+ str(currClassSecRow.class_sec_id))
-            responseSessionID = request.args.get('resp_session_id')
-            print('Response session id:'+str(responseSessionID))
-            if responseSessionID=='' or responseSessionID==None:            
-                responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
-            subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
+        responseSessionID = request.args.get('resp_session_id')
+        print('Response session id:'+str(responseSessionID))
+        if responseSessionID=='' or responseSessionID==None:            
+            responseSessionID = str(qsubject_id).strip()+ str(dateVal).strip() + str(class_sec_id).strip()
+        subjectQueryRow = MessageDetails.query.filter_by(msg_id=qsubject_id).first()
             
-            url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
+        url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(responseSessionID)+"&school_id="+str(teacher.school_id)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
     
-            questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
-            if weightage==None or weightage=="":
-                qId = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').first()
-                weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+        questionIDList = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').all()              
+        if weightage==None or weightage=="":
+            qId = TestQuestions.query.filter_by(test_id=qtest_id,is_archived='N').first()
+            weightage = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
 
-            print('Inside question id list')
-            print(questionIDList)          
-            questionListSize = len(questionIDList)
+        print('Inside question id list')
+        print(questionIDList)          
+        questionListSize = len(questionIDList)
 
-            print('Question list size:'+str(questionListSize))
-            total_marks = int(weightage)*questionListSize
+        print('Question list size:'+str(questionListSize))
+        total_marks = int(weightage)*questionListSize
             #creating a record in the session detail table  
-            if questionListSize !=0:
-                sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
+        if questionListSize !=0:
+            sessionDetailRowCheck = SessionDetail.query.filter_by(resp_session_id=responseSessionID).first()
                 #print('Date:'+str(dateVal))
-                print('##########Response Session ID:'+str(responseSessionID))
+            print('##########Response Session ID:'+str(responseSessionID))
                 #print('If Question list size is not zero')
                 #print(sessionDetailRowCheck)
-                if sessionDetailRowCheck==None:
-                    print('if sessionDetailRowCheck is none')
+            if sessionDetailRowCheck==None:
+                print('if sessionDetailRowCheck is none')
                     #print(sessionDetailRowCheck)   
-                    format = "%Y-%m-%d %H:%M:%S"
+                format = "%Y-%m-%d %H:%M:%S"
                     # Current time in UTC
-                    now_utc = datetime.now(timezone('UTC'))
-                    print(now_utc.strftime(format))
+                now_utc = datetime.now(timezone('UTC'))
+                print(now_utc.strftime(format))
                     # Convert to local time zone
-                    now_local = now_utc.astimezone(get_localzone())
-                    print(now_local.strftime(format))  
+                now_local = now_utc.astimezone(get_localzone())
+                print(now_local.strftime(format))  
                                 
-                    sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
-                    db.session.add(sessionDetailRowInsert)
-                    print('Adding to the db')
+                sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
+                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
+                db.session.add(sessionDetailRowInsert)
+                print('Adding to the db')
 
-                if batch_test=="1":
-                    batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
-                        resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
-                    db.session.add(batchTestInsert)
+            if batch_test=="1":
+                batchTestInsert = BatchTest(batch_id=request.args.get('batch_id'), topic_id=request.args.get('topic_id'), test_id=request.args.get('test_id'), 
+                    resp_session_id=responseSessionID, is_current='Y', is_archived='N', last_modified_date=datetime.today())
+                db.session.add(batchTestInsert)
                     #courseBatchData = CourseBatch.query.filter_by(batch_id=batch_id).first()
                     #courseBatchData.is_ongoing='N'
-                db.session.commit()
+            db.session.commit()
 
-            questionList = []
-            for questValue in questionIDList:
-                print('Question ID:'+str(questValue.question_id))
-                questionList.append(questValue.question_id)
+        questionList = []
+        for questValue in questionIDList:
+            print('Question ID:'+str(questValue.question_id))
+            questionList.append(questValue.question_id)
             
 
-            testDetailRow = TestDetails.query.filter_by(test_id=qtest_id).first()
-            testType = testDetailRow.test_type
+        testDetailRow = TestDetails.query.filter_by(test_id=qtest_id).first()
+        testType = testDetailRow.test_type
             #testTypeNameRow = MessageDetails.query.filter_by(msg_id=testTypeID).first()
 
 
-            questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()  
-            for  question in questions:
-                print('Question:'+str(question.question_description))         
-            totalMarks = 0
-            for eachQuest in questions:
-                totalMarks = totalMarks + int(eachQuest.suggested_weightage)
-            responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(responseSessionID)
-            if teacherProfile.device_preference==195:
-                print('the device preference is as expected:' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
-                    class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
-                    subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
-                    batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
-            elif teacherProfile.device_preference==78:
-                print('the device preference is not as expected' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
-            else:
-                print('the device preference is external webcame' + str(teacherProfile.device_preference))
-                return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
+        questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(questionList)).all()  
+        for  question in questions:
+            print('Question:'+str(question.question_description))         
+        totalMarks = 0
+        for eachQuest in questions:
+            totalMarks = totalMarks + int(eachQuest.suggested_weightage)
+        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(responseSessionID)
+        if teacherProfile.device_preference==195:
+            print('the device preference is as expected:' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollectionTeachDev.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id, 
+                class_val = qclass_val, section = qsection,questions=questions, questionListSize = questionListSize, resp_session_id = responseSessionID,responseSessionIDQRCode=responseSessionIDQRCode,
+                subjectName = subjectQueryRow.description, totalMarks=total_marks,weightage=weightage, 
+                batch_test=batch_test,testType=testType,school_id=testDetailRow.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+        elif teacherProfile.device_preference==78:
+            print('the device preference is not as expected' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollection.html',classSecCheckVal=classSecCheck(), subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses, class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize, resp_session_id = responseSessionID)
+        else:
+            print('the device preference is external webcame' + str(teacherProfile.device_preference))
+            return render_template('feedbackCollectionExternalCam.html',classSecCheckVal=classSecCheck(), responseSessionIDQRCode = responseSessionIDQRCode, resp_session_id = responseSessionID,  subject_id=qsubject_id,classSections = classSections, distinctClasses = distinctClasses,questions=questions , class_val = qclass_val, section = qsection, questionList = questionIDList, questionListSize = questionListSize,qtest_id=qtest_id)
 
-    else:
-        return redirect(url_for('classCon'))
+    # else:
+    #     return redirect(url_for('classCon'))
 
 @app.route('/markSessionComplete')
 @login_required
