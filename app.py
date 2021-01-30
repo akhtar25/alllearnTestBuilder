@@ -8700,7 +8700,7 @@ def testLinkWhatsappBot():
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
 def feedbackCollection():    
-    if request.method=='POST':
+    if request.method=='GET':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
         #distinctClasses = db.session.execute(text("select distinct class_val, count(class_val) from class_section where school_id="+ str(teacher.school_id)+" group by class_val order by class_val")).fetchall()
