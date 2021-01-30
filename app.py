@@ -8647,7 +8647,9 @@ def testLinkWhatsappBot():
     subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
     subjectName = subjectQuery.description
     classVal = request.args.get('classVal')
-    emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
+    emailDet = ''
+    if student:
+      emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
     user = ''
     
     if emailDet:
