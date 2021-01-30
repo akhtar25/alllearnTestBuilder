@@ -8698,7 +8698,7 @@ def testLinkWhatsappBot():
             batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
 
 @app.route('/feedbackCollectionTeachDev',methods=['GET','POST'])
-def feedbackCollection():    
+def feedbackCollectionTeachDev():    
     if request.method=='POST':
         teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first()  
         #classSections=ClassSection.query.filter_by(school_id=teacher.school_id).order_by(ClassSection.class_val).all()  
