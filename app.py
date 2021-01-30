@@ -8649,7 +8649,7 @@ def testLinkWhatsappBot():
     emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
     user = ''
     if emailDet:
-        user = User.query.filter_by(email=emailDet.email).first()
+        user = User.query.filter_by(email=teacher.email).first()
     if user:
         login_user(user,remember='Y')
     clasVal = classVal.replace('@','_')
