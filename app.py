@@ -8363,6 +8363,17 @@ def getClassList():
         print(classList)
         return jsonify({'class_list':classList})
 
+@app.route('/getReqTopicList',methods=['POST','GET'])
+def getReqTopicList():
+    if request.method == 'POST':
+        jsonData = request.json
+        a = json.dumps(jsonData)
+        data = json.loads(a)
+        for value in data['results'].values():
+            print(value)
+    dataValue = 10
+    return jsonify({'Data':dataValue})
+
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
