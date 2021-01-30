@@ -8684,7 +8684,7 @@ def testLinkWhatsappBot():
     print('inside testLinkWhatsappBot')
     print('Subject Id:'+str(subject_id))
     studId = None
-    if student:
+    if current_user.is_anonymous:
         print('user id student')
         return redirect(url_for('feedbackCollectionStudDev',resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
         # return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
