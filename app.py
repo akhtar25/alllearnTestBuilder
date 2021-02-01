@@ -8363,7 +8363,11 @@ def getClassList():
             classList.append(classVal)
             j=j+1
         print(classList)
-        return jsonify({'class_list':classList})
+        msg = 'No Classes Available'
+        if classList:
+            return jsonify({'class_list':classList})
+        else:
+            return jsonify({'class_list':msg})
 
 # @app.route('/getReqTopicList',methods=['POST','GET'])
 # def getReqTopicList():
