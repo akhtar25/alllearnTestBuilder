@@ -8626,6 +8626,7 @@ def newTestLinkGenerate():
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'no questions available'
+        print('fetchQuesIds:'+str(fetchQuesIds))
         if fetchQuesIds==None or fetchQuesIds=='':
             return jsonify({'onlineTestLink':msg})
         listLength = len(fetchQuesIds)
