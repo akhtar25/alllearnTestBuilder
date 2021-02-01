@@ -8492,11 +8492,9 @@ def getEnteredTopicList():
             p=p+1
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'no questions available'
-        if fetchQuesIds:
-            return jsonify({'onlineTestLink':linkForTeacher})
-        else:
-            return jsonify({'onlineTestLink':msg})
+        Msg = 'no questions available'
+        if len(fetchQuesIds)==0:
+            return jsonify({'onlineTestLink':Msg})
         listLength = len(fetchQuesIds)
         count_marks = int(paramList[0]) * int(listLength)
         
