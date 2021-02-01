@@ -58,7 +58,7 @@
       </div>
         <div id="bookDiv">
           <div class="box-header">
-            <h3 class="box-title">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;"> Class:
+            <h3 class="box-title" style="font-size: 14px;margin-left: -24px;">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;"> Class:
               {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
           </div>
           <!-- /.box-header -->
@@ -79,17 +79,17 @@
                 full screen</button></a>
           </div>
           {% else %}
-          <h3 class="grey-text">Book preview not available</h3>
+          <h4 style="color: black;margin-left: -15px;font-weight: 400;">Book preview not available</h4>
           {% endif %}
           <br>
           <br>
         </div>
       </section>
-      <section class="col-md-4">
+      <section class="col-md-4" style="margin-top: -100px;">
         <form method="POST" action="/feedbackCollection">
           <ul data-widget="tree">
-              <li class="treeview">
-                <a href="#"><div class="box box-info"><h3 id="topicBtn">Topics</h3></div></a>
+              <li class="treeview" style="margin-left: 30px;">
+                <a href="#"><div class="box box-info"><h3 id="topicBtn" style="margin-left: 10px;">Topics</h3></div></a>
               <ul class="treeview-menu">
                  <li>
                     <div class="box-body" id="content">
@@ -109,7 +109,7 @@
                                   {% else %}
                                   <input type="checkbox" class="c1" onclick="checkedBox();" name="topicCheck" value="{{ topic.topic_id }}">
                                   {% endif %}
-                                  <span style="font-size: 12px;font-family: Arial"
+                                  <span style="font-size: 14px;font-family: Arial"
                                     class="text-grey">{{topic.chapter_num}}-{{topic.chapter_name}} - {{ topic.topic_name }} </span>
                                 </label>
                                 <input type="text" name="subject_id" value="{{ topic.subject_id }} " style="display: none;">
@@ -126,8 +126,8 @@
               </ul>
             </li>
          
-            <li class="treeview">
-              <a href="#"><div class="box box-info"><h3>Reference Content</h3></div></a>
+            <li class="treeview" style="margin-left: 30px;">
+              <a href="#"><div class="box box-info"><h3 style="margin-left: 10px;">Reference Content</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
                       <div style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
@@ -189,7 +189,7 @@
               </ul>
             </li>
             <br>
-            <li >
+            <li style="margin-left: 28px;">
                 <a class="btn btn-primary" id="conductTestBTN" href="{{url_for('testPapers')}}" style="height:40px;width:260px;background-color:green;margin-left: 13px;">Conduct Test</a>
             </li>
           </ul>

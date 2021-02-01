@@ -8196,15 +8196,15 @@ def feedbackCollection():
         qtest_id = request.form.get('test_id')
         weightage = request.form.get('weightage')
         NegMarking = request.form.get('negativeMarking')
+        dueDate = request.form.get('dueDate')
         # code for upload file status
         uploadStatus = request.form.get('uploadStatus')
         resultStatus = request.form.get('resultStatus')
         advance = request.form.get('advance')
         instructions = request.form.get('instructions')
-        dueDate = request.args.get('dueDate')
+        print('dueDate:'+str(dueDate))
         print('upload status:'+str(uploadStatus))
         print('resultStatus:'+str(resultStatus))
-        print('dueDate:'+str(dueDate))
         print('feeedback Collection instructions:'+str(instructions))
         print('advance:'+str(advance))
         if resultStatus=='Y':
@@ -8303,7 +8303,7 @@ def feedbackCollection():
                     print(now_local.strftime(format))  
                                 
                     sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
+                        class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions,test_due_date=dueDate)
                     db.session.add(sessionDetailRowInsert)
                     print('Adding to the db')
 
@@ -9097,10 +9097,10 @@ def reviewSubjective():
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
     marksList = request.form.getlist('marks')
-    remarksList = request.form.getlist('remarks')
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
+    remarksList = request.form.getlist('remarks')
     format = "%Y-%m-%d %H:%M:%S"
     # Current time in UTC
     now_utc = datetime.now(timezone('UTC'))
