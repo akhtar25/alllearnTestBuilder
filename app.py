@@ -8161,7 +8161,11 @@ def getTopicList():
             chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
-        return jsonify({'chapterDetList':chapterDetList})
+        msg = 'no topics available'
+        if chapterDetList:
+            return jsonify({'chapterDetList':chapterDetList})
+        else:
+            return jsonify({'chapterDetList':msg})
 
 
 @app.route('/getSubjectsList',methods=['POST','GET'])
@@ -8213,7 +8217,11 @@ def getSubjectsList():
             sub = str(k)+str('-')+str(subj.subject)+str("\n")
             subjectList.append(sub)
             k=k+1
-        return jsonify({'subject_list':subjectList}) 
+        msg = 'no subjects available'
+        if subjectList:
+            return jsonify({'subject_list':subjectList}) 
+        else:
+            return jsonify({'subject_list':msg})
 
 @app.route('/getStudentDetails',methods=['POST','GET'])
 def getStudentDetails():
@@ -8316,7 +8324,11 @@ def getStudentsList():
             stud = str(l)+str('-')+str(student.full_name)+str("\n")
             studentList.append(stud)
             l=l+1
-        return jsonify({'studentNewList':studentList})
+        msg = 'no students available'
+        if studentList:
+            return jsonify({'studentNewList':studentList})
+        else:
+            return jsonify({'studentNewList':msg})
     
 
 @app.route('/getClassSectionList',methods=['POST','GET'])
@@ -8340,7 +8352,12 @@ def getClassSectionList():
             classList.append(classVal)
             j=j+1
         print(classList)
-        return jsonify({'class_list':classList}) 
+        # return jsonify({'class_list':classList}) 
+        msg = 'no classes available'
+        if classList:
+            return jsonify({'class_list':classList})
+        else:
+            return jsonify({'class_list':msg})
 
 @app.route('/getClassList',methods=['POST','GET'])
 def getClassList():
@@ -8363,7 +8380,7 @@ def getClassList():
             classList.append(classVal)
             j=j+1
         print(classList)
-        msg = 'No Classes Available'
+        msg = 'no classes available'
         if classList:
             return jsonify({'class_list':classList})
         else:
@@ -8471,6 +8488,11 @@ def getEnteredTopicList():
             p=p+1
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        msg = 'no questions available'
+        if fetchQuesIds:
+            return jsonify({'onlineTestLink':linkForTeacher})
+        else:
+            return jsonify({'onlineTestLink':msg})
         listLength = len(fetchQuesIds)
         count_marks = int(paramList[0]) * int(listLength)
         
@@ -8603,6 +8625,9 @@ def newTestLinkGenerate():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        msg = 'no questions available'
+        if fetchQuesIds==None or fetchQuesIds=='':
+            return jsonify({'onlineTestLink':msg})
         listLength = len(fetchQuesIds)
         count_marks = int(paramList[0]) * int(listLength)
         
