@@ -381,6 +381,7 @@ class MessageDetails(db.Model):
     description = db.Column(db.String(500), nullable=True)
 
 
+
 class ResponseCapture(db.Model):
     __tablename__ = "response_capture"
     response_id = db.Column(db.Integer, primary_key=True)
