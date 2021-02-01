@@ -8201,8 +8201,10 @@ def feedbackCollection():
         resultStatus = request.form.get('resultStatus')
         advance = request.form.get('advance')
         instructions = request.form.get('instructions')
+        dueDate = request.args.get('dueDate')
         print('upload status:'+str(uploadStatus))
         print('resultStatus:'+str(resultStatus))
+        print('dueDate:'+str(dueDate))
         print('feeedback Collection instructions:'+str(instructions))
         print('advance:'+str(advance))
         if resultStatus=='Y':

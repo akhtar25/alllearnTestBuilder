@@ -348,7 +348,6 @@ class TestDetails(db.Model):
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     test_paper_link = db.Column(db.String(200), nullable=True)
     date_of_creation = db.Column(db.DateTime)
-    test_due_date = db.Column(db.DateTime)
     date_of_test = db.Column(db.DateTime)
     year=db.Column(db.Integer)
     month=db.Column(db.String(3))
@@ -868,6 +867,7 @@ class SessionDetail(db.Model):
     load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
     #new columns added for online test upgrade
     test_time = db.Column(db.Integer, nullable=True)
+    test_due_date = db.Column(db.DateTime)
     total_marks = db.Column(db.Integer, nullable=True)
     correct_marks = db.Column(db.Integer, nullable = True)
     incorrect_marks = db.Column(db.Integer, nullable=True)
