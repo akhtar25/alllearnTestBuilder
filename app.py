@@ -9095,6 +9095,7 @@ def reviewSubjective():
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
     marksList = request.form.getlist('marks')
+    remarksList = request.form.getlist('remarks')
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
@@ -9112,9 +9113,11 @@ def addSubjMarks():
         db.session.commit()
     for i in range(len(marksList)):
         print('Marks:'+str(marksList[i]))
+        print('Remarks:'+str(remarksList[i]))
         print('QuesList:'+str(quesIdList[i]))
         questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         questionDet.marks_scored = marksList[i]
+        questionDet.remark = remarksList[i]
         quesStatus.last_modified_date = now_local.strftime(format)
         questionDet.answer_status = 241
         if isCorrect[i]:
