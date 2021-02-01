@@ -8631,7 +8631,7 @@ def newTestLinkGenerate():
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'no questions available'
         print('fetchQuesIds:'+str(fetchQuesIds))
-        if fetchQuesIds.length==0 or fetchQuesIds=='':
+        if len(fetchQuesIds)==0 or fetchQuesIds=='':
             return jsonify({'onlineTestLink':msg})
         listLength = len(fetchQuesIds)
         count_marks = int(paramList[0]) * int(listLength)
