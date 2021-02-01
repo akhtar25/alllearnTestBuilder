@@ -348,6 +348,7 @@ class TestDetails(db.Model):
     teacher_id = db.Column(db.ForeignKey('teacher_profile.teacher_id'), nullable=True)
     test_paper_link = db.Column(db.String(200), nullable=True)
     date_of_creation = db.Column(db.DateTime)
+    test_due_date = db.Column(db.DateTime)
     date_of_test = db.Column(db.DateTime)
     year=db.Column(db.Integer)
     month=db.Column(db.String(3))
