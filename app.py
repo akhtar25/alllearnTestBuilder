@@ -8383,8 +8383,10 @@ def getClassList():
         for con in dataList['contact'].values():
             conList.append(con)
         print('Data Contact')
-        print(conList[2])
-        userId = User.query.filter_by(phone=conList[2]).first()
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = ''
         if userId:
             print('you are registered user')
