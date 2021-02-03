@@ -8349,10 +8349,13 @@ def getClassSectionList():
         else:
             Msg = 'you are not a registered user'
             return jsonify({'class_list':Msg})
+        classesListData = ''
         if teacher_id:
-            Msg = 'tou are not a registered teacher'
+            classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        else:
+            Msg = 'you are not a registered teacher'
             return jsonify({'class_list':Msg})
-        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        
         classList = [] 
         j=1
         for classlist in classesListData:
@@ -8389,10 +8392,13 @@ def getClassList():
         else:
             Msg = 'you are not a registered user'
             return jsonify({'class_list':Msg})
+        classesListData = ''
         if teacher_id:
+            classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        else:
             Msg = 'tou are not a registered teacher'
             return jsonify({'class_list':Msg})
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        
         classList = [] 
         j=1
         for classlist in classesListData:
