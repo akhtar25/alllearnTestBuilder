@@ -8367,6 +8367,8 @@ def getClassList():
         # jsonData = {'age_group': {'inserted_at': '2021-01-25T06:37:46.207982Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-17T13:33:39.265880Z', 'label': 'Name', 'type': 'string', 'value': 'Parag Sinha'}}
         data = json.dumps(jsonData)
         dataList = json.loads(data)
+        print('all data:')
+        print(dataList)
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
