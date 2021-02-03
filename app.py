@@ -8364,12 +8364,20 @@ def getClassList():
     if request.method == 'POST':
         print('inside getClassList')
         jsonData = request.json
+        # jsonData = {'age_group': {'inserted_at': '2021-01-25T06:37:46.207982Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-17T13:33:39.265880Z', 'label': 'Name', 'type': 'string', 'value': 'Parag Sinha'}}
         data = json.dumps(jsonData)
         dataList = json.loads(data)
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
         print(conList[0])
+        d = json.dumps(conList[0])
+        dList = json.loads(d)
+        cList = []
+        for c in dList['name'].values():
+            cList.append(c)
+        print('UserName')
+        print(cList[3])
         userId = User.query.filter_by(phone=conList[0]).first()
         if userId:
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
