@@ -8373,7 +8373,7 @@ def getClassList():
         for con in dataList['contact'].values():
             conList.append(con)
         print('Data Contact')
-        print(conList[1])
+        print(conList[2])
         d = json.dumps(conList[0])
         dList = json.loads(d)
         cList = []
