@@ -21,13 +21,13 @@
             <table class="responsive-table">
                 <tr>
                 <td>
-                    <h4 style="font-size: 16px;">Overall Performance Average</h4>
+                    <h4 style="font-size: 16px;width:145px;">Overall Performance Average</h4>
                 </td>
                 <td>
                     {%if overallPerfValue > 49 %}
-                        <h3 style="font-size: 22px;" class='green-text'>{{overallPerfValue}}%</h3>
+                        <h3 style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{overallPerfValue}}%</h3>
                         {%else%}
-                        <h3  style="font-size: 22px;" class='red-text'>{{overallPerfValue}}%</h3>
+                        <h3  style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{overallPerfValue}}%</h3>
                         {%endif%}
                 </td>
                 </tr>

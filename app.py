@@ -9164,7 +9164,7 @@ def loadQuestionStud():
                 else:
                     checkResponse.response_option = response_option
                     checkResponse.answer_type = 336
-                checkResponse.answer_status = 241
+                checkResponse.answer_status = 239
                 db.session.commit()
     print('Response Option:'+str(response_option))
     if response_option!='':
@@ -9227,7 +9227,7 @@ def loadQuestionStud():
             if btn=='save':
                 print('inside savebtn')
                 response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
-                response_cap.answer_status = 241
+                response_cap.answer_status = 239
                 db.session.commit()
         
         print('Question numbering')
