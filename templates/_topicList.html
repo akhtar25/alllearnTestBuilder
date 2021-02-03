@@ -2,16 +2,16 @@
   <h3 class="box-title">Curriculum details for Class: {{ class_val }}</h3>
   <div class="switch pull-right">
     <label>
-      Show Covered 
-      <input type="checkbox">
+      Show Covered
+      <input type="checkbox" />
       <span class="lever"></span>
       Hide Covered
     </label>
   </div>
 </div>
 
-<div style="height: 500px;overflow-y:auto;">
-  <div class="box-body  no-padding table-responsive">
+<div style="height: 500px; overflow-y: auto">
+  <div class="box-body no-padding table-responsive">
     <table class="table table-hover">
       <thead>
         <tr>
@@ -20,7 +20,9 @@
           <th>Chapter</th>
           <th>Topic</th>
           <th>Covered</th>
-          <th> &nbsp; &nbsp; &nbsp; Start Class</th>          
+          {% if current_user.user_type!=134 %}
+          <th>&nbsp; &nbsp; &nbsp; Start Class</th>
+          {% endif %}
         </tr>
       </thead>
       {% if topicList!="" %}
@@ -43,8 +45,16 @@
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span
                   class=" label label-success ">Start Class</span></a></td>
             {% endif %}-->
-            <td><a href="#modal1" class="modal-trigger green btn btn-default startliveClassBTN" name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N"><span
-              class=" label label-success ">Start Class</span></a></td>
+            {% if current_user.user_type!=134 %}
+            <td>
+              <a
+                href="#modal1"
+                class="modal-trigger green btn btn-default startliveClassBTN"
+                name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N"
+                ><span class="label label-success">Start Class</span></a
+              >
+            </td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>
@@ -52,38 +62,66 @@
       {% else %}
       <p>No data found in DB</p>
       {% endif %}
-
     </table>
   </div>
 </div>
 
-
-<div id="modal1" class="modal" style="background-color:white;height: 400px;width: 500px;">
+<div
+  id="modal1"
+  class="modal"
+  style="background-color: white; height: 400px; width: 500px"
+>
   <div class="modal-content" id="">
     <h4>Start Live Class</h4>
     <h6 id="chosenTopicDetail"></h6>
     <form action="" id="liveClassForm" method="POST">
-    <ol>
-      <li><h5>Start a live session</h5>
-        <a href="https://meet.google.com" target="_blank"><img src="../static/images/meet_img.png" width="150px"></a>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="https://zoom.us/start/videomeeting" target="_blank"><img src="../static/images/zoom_img.png" width="150px"></a>
-      </li>
-      <li>Enter the conference link: <input type="text" placeholder="Conference link" id="conferenceLink" name="conferenceLink"></li>
-      <li>Class duration: <input type="text" placeholder="Duration in hours" id="duration" name="duration"></li>
-      <button class="btn waves-light green lighten-1 white-text" id="saveConfBTN" type="submit">Save and Start class</button> <a class="right" href="#" id="skipAndStartBTN">Skip</a>
-    </ol>  
-  </form>
+      <ol>
+        <li>
+          <h5>Start a live session</h5>
+          <a href="https://meet.google.com" target="_blank"
+            ><img src="../static/images/meet_img.png" width="150px"
+          /></a>
+          &nbsp;&nbsp;&nbsp;&nbsp; OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="https://zoom.us/start/videomeeting" target="_blank"
+            ><img src="../static/images/zoom_img.png" width="150px"
+          /></a>
+        </li>
+        <li>
+          Enter the conference link:
+          <input
+            type="text"
+            placeholder="Conference link"
+            id="conferenceLink"
+            name="conferenceLink"
+          />
+        </li>
+        <li>
+          Class duration:
+          <input
+            type="text"
+            placeholder="Duration in hours"
+            id="duration"
+            name="duration"
+          />
+        </li>
+        <button
+          class="btn waves-light green lighten-1 white-text"
+          id="saveConfBTN"
+          type="submit"
+        >
+          Save and Start class
+        </button>
+        <a class="right" href="#" id="skipAndStartBTN">Skip</a>
+      </ol>
+    </form>
   </div>
 </div>
 
-
 <script type="text/javascript">
   $(document).ready(function () {
-    $('#saveConfBTN').attr("disabled", true);
+    $("#saveConfBTN").attr("disabled", true);
 
-    $('.modal').modal();
+    $(".modal").modal();
     $('input[type="checkbox"]').click(function () {
       if ($(this).is(":checked")) {
         console.log("Is checked");
@@ -94,50 +132,64 @@
     });
   });
 
- var subject_id = '';
- var class_sec_id = '';
- var topic_id = '';
- $('.startliveClassBTN').click(function(){
-  var classParams = $(this).attr("name");
-  var res = classParams.split("-");
-  class_sec_id = res[0];
-  subject_id = res[1];
-  topic_id = res[2];
+  var subject_id = "";
+  var class_sec_id = "";
+  var topic_id = "";
+  $(".startliveClassBTN").click(function () {
+    var classParams = $(this).attr("name");
+    var res = classParams.split("-");
+    class_sec_id = res[0];
+    subject_id = res[1];
+    topic_id = res[2];
 
-  
-   var classDeliveryURL = "{{url_for('classDelivery')}}";
-  classDeliveryURL = classDeliveryURL+ "?class_sec_id="+res[0]+"&subject_id="+res[1]+ "&topic_id="+res[2]+ "&retake=N";
-  
-  $('#skipAndStartBTN').attr('href',classDeliveryURL);
-  // $('#saveConfBTN').attr('href',classDeliveryURL);
- 
-  
- }); 
+    var classDeliveryURL = "{{url_for('classDelivery')}}";
+    classDeliveryURL =
+      classDeliveryURL +
+      "?class_sec_id=" +
+      res[0] +
+      "&subject_id=" +
+      res[1] +
+      "&topic_id=" +
+      res[2] +
+      "&retake=N";
 
- $('#duration').blur(function() {
-        if($('#conferenceLink').val() != '' && $('#duration').val() != '') {
-           $('#saveConfBTN').attr("disabled", false);
-           var url = "/classDelivery?class_sec_id="+class_sec_id+"&subject_id="+subject_id+ "&topic_id="+topic_id+ "&retake=N&duration="+$('#duration').val()+"&conf_link="+$('#conferenceLink').val();
-          $('#liveClassForm').attr("action", url);
-          //  var classParams = $(this).attr("name");
-          //   var res = classParams.split("-");
-          //  $('#liveClassForm').attr('action', 'http://uri-for-button1.com');
-          // var hrefVal =  $('#saveConfBTN').attr('href');
-          
-          // hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
-          
-          // if($('#duration').val() == '') {
-          //   console.log('if duration is empty');
-          //   hrefVal=hrefVal + '&duration=';
-          // }else{
-          //   console.log('if duration is not empty');
-          //   hrefVal=hrefVal + '&duration='+$('#duration').val();
-          // }
+    $("#skipAndStartBTN").attr("href", classDeliveryURL);
+    // $('#saveConfBTN').attr('href',classDeliveryURL);
+  });
 
-          // $('#saveConfBTN').attr('href',hrefVal);
-        }
-        else{
-          $('#saveConfBTN').attr("disabled", true);
-        }
-     });
+  $("#duration").blur(function () {
+    if ($("#conferenceLink").val() != "" && $("#duration").val() != "") {
+      $("#saveConfBTN").attr("disabled", false);
+      var url =
+        "/classDelivery?class_sec_id=" +
+        class_sec_id +
+        "&subject_id=" +
+        subject_id +
+        "&topic_id=" +
+        topic_id +
+        "&retake=N&duration=" +
+        $("#duration").val() +
+        "&conf_link=" +
+        $("#conferenceLink").val();
+      $("#liveClassForm").attr("action", url);
+      //  var classParams = $(this).attr("name");
+      //   var res = classParams.split("-");
+      //  $('#liveClassForm').attr('action', 'http://uri-for-button1.com');
+      // var hrefVal =  $('#saveConfBTN').attr('href');
+
+      // hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
+
+      // if($('#duration').val() == '') {
+      //   console.log('if duration is empty');
+      //   hrefVal=hrefVal + '&duration=';
+      // }else{
+      //   console.log('if duration is not empty');
+      //   hrefVal=hrefVal + '&duration='+$('#duration').val();
+      // }
+
+      // $('#saveConfBTN').attr('href',hrefVal);
+    } else {
+      $("#saveConfBTN").attr("disabled", true);
+    }
+  });
 </script>

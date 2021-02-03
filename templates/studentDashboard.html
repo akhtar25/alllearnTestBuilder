@@ -14,8 +14,8 @@
             <h4 class='grey-text' style="color:black !important;font-weight:400">Overall Performance Graph</h4>
         <div id='studentPerformanceGraphDiv'> Loading graph...</div>
     </div>
-    <div class="col s3">
-        <h3 class="box-title" style="font-size: 18px">Overall Performance</h3>
+    <div class="col s3" style="margin-top: 40px;margin-left: 20px;">
+        <!-- <h3 class="box-title" style="font-size: 18px">Overall Performance</h3> -->
         <div class="testDashboard" style="font-size: 14px;padding-left: 5px;padding-right: 5px;">
         <div class="">
             <table class="responsive-table">
@@ -34,22 +34,22 @@
             </table>
         </div>
         </div>
-        <h4 class="box-title" style="color:black !important;font-weight:400;font-size: 18px;">Subject Level Performance</h4>
-        <div class="testDashboard" style="padding-left: 5px;">
+        <h4 class="box-title" style="color:black !important;font-weight:400;font-size: 18px;margin-top: 20px;">Subject Level Performance</h4>
+        <div class="testDashboard" style="padding-left: 5px;max-height: 345px;position: relative;overflow-y: auto;">
         
                 {%if subjectPerf|length>0%}
                 <table class='responsive-table' style='font-size: 18px;'>
                     
-                        <tr>
+                        <tr style="border-bottom: 0px;">
                             {%for rows in subjectPerf%}
-                            <th style="font-weight: 400;">{{rows.subject}}</th>
+                            <td style="font-weight: 400;">{{rows.subject}}</td>
                             {%if rows.student_score > 49%}
                             <td style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{rows.student_score}}%</td>
                             {%else%}
                             <td style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{rows.student_score}}%</td>
                             {%endif%}
                             {%endfor%}
-                        </tr>          
+                        </tr> 
                 </table>
                 {%else%}
                 <h5>No Info Present</h5>
@@ -274,9 +274,9 @@
                         <td>{{eachRow.subject_name}}</td>
                         <td>{{eachRow.topics_covered}}</td>
                         <td>{{eachRow.total_topics}}</td>
-                        <td>{{eachRow.last_updated_date}}</td>
-                        <td><button class="courseDetailsButton btn green lighten-1" id="courseDetailsButton"
-                            name="{{eachRow.subject_id}}">See Topics</button><span style="display: none;"
+                        <td>{{eachRow.last_updated_date.strftime('%d %B %Y')}}</td>
+                        <td><button class="courseDetailsButton btn green lighten-1"
+                            name="{{eachRow.subject_id}}" id="courseDetailsButton">See Topics</button><span style="display: none;"
                             name="subjectIdSpan"></span></td>
                       </tr>
                       {% endfor %}
@@ -469,124 +469,124 @@
 
   //
   let pager = new Pager("pager", 10);
-  let pager2 = new Pager2("upcomingTestTable", 10);
+  // let pager2 = new Pager2("upcomingTestTable", 10);
 
   pager.init();
-  pager2.init();
+  // pager2.init();
   pager.showPageNav("pager", "pageNavPosition");
-  pager2.showPageNav("upcomingTestTable", "pageNavPosition2");
-  pager2.showPage(1);
+  // pager2.showPageNav("upcomingTestTable", "pageNavPosition2");
+  // pager2.showPage(1);
   pager.showPage(1);
 
   //   Start
-  function Pager2(tableName, itemsPerPage) {
-    "use strict";
+  // function Pager2(tableName, itemsPerPage) {
+  //   "use strict";
 
-    this.tableName = tableName;
-    this.itemsPerPage = itemsPerPage;
-    this.currentPage = 1;
-    this.pages = 0;
-    this.inited = false;
+  //   this.tableName = tableName;
+  //   this.itemsPerPage = itemsPerPage;
+  //   this.currentPage = 1;
+  //   this.pages = 0;
+  //   this.inited = false;
 
-    this.showRecords = function (from, to) {
-      let rows = document.getElementById(tableName).rows;
+  //   this.showRecords = function (from, to) {
+  //     let rows = document.getElementById(tableName).rows;
 
       // i starts from 1 to skip table header row
-      for (let i = 1; i < rows.length; i++) {
-        if (i < from || i > to) {
-          rows[i].style.display = "none";
-        } else {
-          rows[i].style.display = "";
-        }
-      }
-    };
+    //   for (let i = 1; i < rows.length; i++) {
+    //     if (i < from || i > to) {
+    //       rows[i].style.display = "none";
+    //     } else {
+    //       rows[i].style.display = "";
+    //     }
+    //   }
+    // };
 
-    this.showPage = function (pageNumber) {
-      if (!this.inited) {
+    // this.showPage = function (pageNumber) {
+    //   if (!this.inited) {
         // Not initialized
-        return;
-      }
+    //     return;
+    //   }
 
-      let oldPageAnchor = document.getElementById("pg1" + this.currentPage);
-      oldPageAnchor.className = "pg-normal1";
+    //   let oldPageAnchor = document.getElementById("pg1" + this.currentPage);
+    //   oldPageAnchor.className = "pg-normal1";
 
-      this.currentPage = pageNumber;
-      let newPageAnchor = document.getElementById("pg1" + this.currentPage);
-      newPageAnchor.className = "pg-selected1";
+    //   this.currentPage = pageNumber;
+    //   let newPageAnchor = document.getElementById("pg1" + this.currentPage);
+    //   newPageAnchor.className = "pg-selected1";
 
-      let from = (pageNumber - 1) * itemsPerPage + 1;
-      let to = from + itemsPerPage - 1;
-      this.showRecords(from, to);
+    //   let from = (pageNumber - 1) * itemsPerPage + 1;
+    //   let to = from + itemsPerPage - 1;
+    //   this.showRecords(from, to);
 
-      let pgNext = document.querySelector(".pg-next1"),
-        pgPrev = document.querySelector(".pg-prev1");
+    //   let pgNext = document.querySelector(".pg-next1"),
+    //     pgPrev = document.querySelector(".pg-prev1");
 
-      if (this.currentPage == this.pages) {
-        pgNext.style.display = "none";
-      } else {
-        pgNext.style.display = "";
-      }
+    //   if (this.currentPage == this.pages) {
+    //     pgNext.style.display = "none";
+    //   } else {
+    //     pgNext.style.display = "";
+    //   }
 
-      if (this.currentPage === 1) {
-        pgPrev.style.display = "none";
-      } else {
-        pgPrev.style.display = "";
-      }
-    };
+    //   if (this.currentPage === 1) {
+    //     pgPrev.style.display = "none";
+    //   } else {
+    //     pgPrev.style.display = "";
+    //   }
+    // };
 
-    this.prev = function () {
-      if (this.currentPage > 1) {
-        this.showPage(this.currentPage - 1);
-      }
-    };
+    // this.prev = function () {
+    //   if (this.currentPage > 1) {
+    //     this.showPage(this.currentPage - 1);
+    //   }
+    // };
 
-    this.next = function () {
-      if (this.currentPage < this.pages) {
-        this.showPage(this.currentPage + 1);
-      }
-    };
+    // this.next = function () {
+    //   if (this.currentPage < this.pages) {
+    //     this.showPage(this.currentPage + 1);
+    //   }
+    // };
 
-    this.init = function () {
-      let rows = document.getElementById(tableName).rows;
-      let records = rows.length - 1;
+    // this.init = function () {
+    //   let rows = document.getElementById(tableName).rows;
+    //   let records = rows.length - 1;
 
-      this.pages = Math.ceil(records / itemsPerPage);
-      this.inited = true;
-    };
+    //   this.pages = Math.ceil(records / itemsPerPage);
+    //   this.inited = true;
+    // };
 
-    this.showPageNav = function (pagerName, positionId) {
-      if (!this.inited) {
+    // this.showPageNav = function (pagerName, positionId) {
+    //   if (!this.inited) {
         // Not initialized
-        return;
-      }
+  //       return;
+  //     }
 
-      let element = document.getElementById(positionId),
-        pagerHtml =
-          '<span onclick="' +
-          pagerName +
-          '.prev();" class="pg-normal1 pg-prev1">&#171;</span>';
+  //     let element = document.getElementById(positionId),
+  //       pagerHtml =
+  //         '<span onclick="' +
+  //         pagerName +
+  //         '.prev();" class="pg-normal1 pg-prev1">&#171;</span>';
 
-      for (let page = 1; page <= this.pages; page++) {
-        pagerHtml +=
-          '<span id="pg1' +
-          page +
-          '" class="pg-normal1 pg-next1" onclick="' +
-          pagerName +
-          ".showPage(" +
-          page +
-          ');">' +
-          page +
-          "</span>";
-      }
+  //     for (let page = 1; page <= this.pages; page++) {
+  //       pagerHtml +=
+  //         '<span id="pg1' +
+  //         page +
+  //         '" class="pg-normal1 pg-next1" onclick="' +
+  //         pagerName +
+  //         ".showPage(" +
+  //         page +
+  //         ');">' +
+  //         page +
+  //         "</span>";
+  //     }
 
-      pagerHtml +=
-        '<span onclick="' +
-        pagerName +
-        '.next();" class="pg-normal1">&#187;</span>';
+  //     pagerHtml +=
+  //       '<span onclick="' +
+  //       pagerName +
+  //       '.next();" class="pg-normal1">&#187;</span>';
 
-      element.innerHTML = pagerHtml;
-    };
-  }
+  //     element.innerHTML = pagerHtml;
+  //   };
+  // }
   // End
 
   $('.chapterClass').click(function(){
@@ -613,6 +613,7 @@
 
       $('.courseDetailsButton').click(function () {
     $('#loaderDiv').show();
+    console.log('inside courseDetailsBtn');
     $('#classTrackerDiv').hide();
     var subject_id_val = $(this).attr('name');
     console.log(subject_id_val);
