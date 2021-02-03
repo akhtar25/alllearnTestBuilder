@@ -8378,10 +8378,9 @@ def getClassList():
             cList.append(c)
         print('UserName')
         print(cList[3])
-        userId = User.query.filter_by(phone=conList[0]).first()
-        if userId:
-            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        else:
+        teacher_id = TeacherProfile.query.filter_by(teacher_name=cList[3]).first()
+        # userId = User.query.filter_by(phone=conList[0]).first()
+        if teacher_id==None or teacher_id=='':
             Msg = 'you are not a registered user'
             return jsonify({'class_list':Msg})
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
