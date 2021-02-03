@@ -3060,7 +3060,7 @@ def getOnlineClassLink():
         # print(z['result'])
         for data in response['contact'].values():
             conList.append(data)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
@@ -8101,7 +8101,7 @@ def getTopicList():
         selectedOptions = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8181,7 +8181,7 @@ def getSubjectsList():
         selectedClassOption = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8237,8 +8237,8 @@ def getStudentDetails():
         print('SelectedOption:'+str(selectedStudentOption))
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print(conList[2])
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8290,8 +8290,8 @@ def getStudentsList():
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print(conList[2])
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8342,8 +8342,13 @@ def getClassSectionList():
         for con in dataList['contact'].values():
             conList.append(con)
         print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
+        teacher_id = ''
+        if userId:
+            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        else:
+            Msg = 'you are not a registered user'
+            return jsonify({'class_list':Msg})
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
         j=1
@@ -8364,7 +8369,6 @@ def getClassList():
     if request.method == 'POST':
         print('inside getClassList')
         jsonData = request.json
-        # jsonData = {'age_group': {'inserted_at': '2021-01-25T06:37:46.207982Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-17T13:33:39.265880Z', 'label': 'Name', 'type': 'string', 'value': 'Parag Sinha'}}
         data = json.dumps(jsonData)
         dataList = json.loads(data)
         print('all data:')
@@ -8374,16 +8378,12 @@ def getClassList():
             conList.append(con)
         print('Data Contact')
         print(conList[2])
-        d = json.dumps(conList[0])
-        dList = json.loads(d)
-        cList = []
-        for c in dList['name'].values():
-            cList.append(c)
-        print('UserName')
-        print(cList[3])
-        teacher_id = TeacherProfile.query.filter_by(teacher_name=cList[3]).first()
-        # userId = User.query.filter_by(phone=conList[0]).first()
-        if teacher_id==None or teacher_id=='':
+        userId = User.query.filter_by(phone=conList[2]).first()
+        teacher_id = ''
+        if userId:
+            print('you are registered user')
+            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        else:
             Msg = 'you are not a registered user'
             return jsonify({'class_list':Msg})
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
@@ -8433,9 +8433,9 @@ def getEnteredTopicList():
         for con in z['contact'].values():
             conList.append(con)
         print(paramList)
-        print(conList[0])
+        print(conList[2])
         
-        userId = User.query.filter_by(phone=conList[0]).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8551,13 +8551,13 @@ def newTestLinkGenerate():
         for con in z['contact'].values():
             conList.append(con)
         print(paramList)
-        print(conList[0])
+        print(conList[2])
         # Test for topic
         print('Testing for topic')
         print(type(paramList[1]))
         print(int(paramList[1]))
         # 
-        userId = User.query.filter_by(phone=conList[0]).first()
+        userId = User.query.filter_by(phone=conList[2]).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
