@@ -3060,7 +3060,11 @@ def getOnlineClassLink():
         # print(z['result'])
         for data in response['contact'].values():
             conList.append(data)
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
@@ -8101,7 +8105,11 @@ def getTopicList():
         selectedOptions = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8181,7 +8189,11 @@ def getSubjectsList():
         selectedClassOption = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8238,7 +8250,11 @@ def getStudentDetails():
         for con in dataList['contact'].values():
             conList.append(con)
         print(conList[2])
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8291,7 +8307,11 @@ def getStudentsList():
         for con in dataList['contact'].values():
             conList.append(con)
         print(conList[2])
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8341,8 +8361,11 @@ def getClassSectionList():
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = ''
         if userId:
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
@@ -8398,7 +8421,7 @@ def getClassList():
         if teacher_id:
             classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         else:
-            Msg = 'tou are not a registered teacher'
+            Msg = 'you are not a registered teacher'
             return jsonify({'class_list':Msg})
         
         classList = [] 
@@ -8449,7 +8472,11 @@ def getEnteredTopicList():
         print(paramList)
         print(conList[2])
         
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8571,7 +8598,11 @@ def newTestLinkGenerate():
         print(type(paramList[1]))
         print(int(paramList[1]))
         # 
-        userId = User.query.filter_by(phone=conList[2]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
