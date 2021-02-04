@@ -8825,7 +8825,7 @@ def newTestLinkGenerate():
         # link = 'https://alllearnreview-pr-229.herokuapp.com/feedbackCollection'
         key = '265e29e3968fc62f68da76a373e5af775fa60'
         url = urllib.parse.quote(linkForTeacher)
-        name  = 'alllearn'
+        name  = ''
         r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
         print('New Link')
         print(r.text)
