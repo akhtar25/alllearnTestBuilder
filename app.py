@@ -8449,6 +8449,27 @@ def getClassList():
 #     dataValue = 10
 #     return jsonify({'Data':dataValue})
 
+@app.route('/getUserDetails',methods=['POST','GET'])
+def getUserDetails():
+    if request.method == 'POST':
+        print('inside getUserDetails')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        if teacher_id:
+            msg = ' What do you want to do today?\n1 - Create or start Online Tests\n2 - Create Online Class Link\n3 - See student profile (Performance report included)\n4 - See Leaderboard\n5 - Customer Support'
+            return jsonify({'userDetails':msg})
+        else:
+            msg = 'you are not a registered user'
+            return jsonify({'userDetails':msg})
+
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
