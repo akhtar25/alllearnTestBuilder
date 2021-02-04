@@ -9794,8 +9794,10 @@ def reviewSubjective():
 def studentDashboard():
     print('inside student dashboard')
     student_id = ''
+    studentDet = ''
     if current_user.is_anonymous:
         student_id = request.args.get('student_id')
+        studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
     else:
         studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
         student_id = studentDet.student_id
