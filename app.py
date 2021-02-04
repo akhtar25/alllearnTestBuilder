@@ -8428,7 +8428,10 @@ def getClassList():
         classList = [] 
         j=1
         for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+            if j==1:
+                classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+            else:
+                classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
             j=j+1
         print(classList)
