@@ -8304,7 +8304,7 @@ def getStudentDetails():
         newLink = ''
         if studentDetailLink:
             newLink = str('Student Detail Link:\n')+str(studentDetailLink)
-        if newLink
+        if newLink:
             return jsonify({'studentDetailLink':newLink})
         else:
             msg = 'No students available'
