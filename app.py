@@ -8493,8 +8493,8 @@ def getStudentDashboard():
         link = url_for('studentDashboard',_external=True)
         return jsonify({'studentDashboard':link})
 
-@app.route('/getStudentDetails',methods=['POST','GET'])
-def getStudentDetails():
+@app.route('/getStudentDet',methods=['POST','GET'])
+def getStudentDet():
     if request.method == 'POST':
         print('inside getStudentDetails')
         jsonExamData = request.json
