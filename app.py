@@ -8709,9 +8709,9 @@ def newTestLinkGenerate():
         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
         # link = url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
-        link = 'https://alllearnreview-pr-229.herokuapp.com/feedbackCollection'
+        # link = 'https://alllearnreview-pr-229.herokuapp.com/feedbackCollection'
         key = '265e29e3968fc62f68da76a373e5af775fa60'
-        url = urllib.parse.quote(link)
+        url = urllib.parse.quote(linkForTeacher)
         name  = 'alllearn'
         r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
         print('New Link')
