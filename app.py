@@ -50,6 +50,7 @@ from random import randint
 import string
 import random
 import requests as rq
+import urllib
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
@@ -8707,6 +8708,12 @@ def newTestLinkGenerate():
         testType = paramList[11].replace('_','@')
         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
+        key = '[API_KEY]'
+        url = urllib.parse.quote(linkForTeacher)
+        name  = 'alllearn.in'
+        r = requests.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        print('New Link')
+        print(r.text)
     return jsonify({'onlineTestLink':linkForTeacher})
 
 @app.route('/getTestPaperLink',methods=['POST','GET'])
