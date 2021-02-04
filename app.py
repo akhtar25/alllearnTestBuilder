@@ -8471,27 +8471,27 @@ def getStudentPerformance():
         link = url_for('studentProfile',student_id=studentDetails.student_id,_external=True)
         return jsonify({'studentProfile':link})
 
-@app.route('/getStudentDashboard',methods=['POST','GET'])
-def getStudentDashboard():
-    if request.method == 'POST':
-        print('inside getStudentDashboard')
-        jsonExamData = request.json
-        a = json.dumps(jsonExamData)
-        z = json.loads(a)
-        conList = []
-        for con in z['contact'].values():
-            conList.append(con)
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
-        emailDet = studentDetails.email
-        if emailDet:
-            user = User.query.filter_by(email=studentDetails.email).first()
-        if user:
-            login_user(user,remember='Y')
-        link = url_for('studentDashboard',student_id=studentDetails.student_id,_external=True)
-        return jsonify({'studentDashboard':link})
+# @app.route('/getStudentDashboard',methods=['POST','GET'])
+# def getStudentDashboard():
+#     if request.method == 'POST':
+#         print('inside getStudentDashboard')
+#         jsonExamData = request.json
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         conList = []
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         userId = User.query.filter_by(phone=contactNo).first()
+#         studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+#         emailDet = studentDetails.email
+#         if emailDet:
+#             user = User.query.filter_by(email=studentDetails.email).first()
+#         if user:
+#             login_user(user,remember='Y')
+#         link = url_for('studentDashboard',student_id=studentDetails.student_id,_external=True)
+#         return jsonify({'studentDashboard':link})
 
 @app.route('/getStudentDet',methods=['POST','GET'])
 def getStudentDet():
@@ -9791,16 +9791,17 @@ def reviewSubjective():
     return render_template('reviewPage.html',studentName=studentDet.full_name,questionDetailRow=questionDetailRow,testType=testType,subjectName=subjectName,resp_session_id=resp_sess_id)
 
 @app.route('/studentDashboard',methods=['GET','POST'])
+@login_required
 def studentDashboard():
     print('inside student dashboard')
-    student_id = ''
-    studentDet = ''
-    if current_user.is_anonymous:
-        student_id = request.args.get('student_id')
-        studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
-    else:
-        studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
-        student_id = studentDet.student_id
+    # student_id = ''
+    # studentDet = ''
+    # if current_user.is_anonymous:
+    #     student_id = request.args.get('student_id')
+    #     studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
+    # else:
+    studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    student_id = studentDet.student_id
     print('Student Id:'+str(student_id))
     testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc "
     testHistoryQuery = testHistoryQuery + "inner join session_detail sd on fsprc.resp_session_id = sd.resp_session_id order by test_date desc limit 50"
