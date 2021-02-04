@@ -8711,7 +8711,7 @@ def newTestLinkGenerate():
         key = '[API_KEY]'
         url = urllib.parse.quote(linkForTeacher)
         name  = 'alllearn.in'
-        r = requests.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
         print('New Link')
         print(r.text)
     return jsonify({'onlineTestLink':linkForTeacher})
