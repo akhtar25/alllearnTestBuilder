@@ -8035,7 +8035,10 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             document.add_paragraph(
                 data.question_description, style='List Number'
             )    
+            print(data.reference_link)
             if data.reference_link!='' or data.reference_link!=None:
+                print('inside threadUse if ')
+                print(data.reference_link)
                 try:
                     response = requests.get(data.reference_link, stream=True)
                     image = BytesIO(response.content)
