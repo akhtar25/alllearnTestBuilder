@@ -8830,7 +8830,7 @@ def newTestLinkGenerate():
         print('New Link')
         print(r.text)
         linkList = []
-        jsonLink = json.dumps(jsonExamData)
+        jsonLink = json.dumps(r.text)
         newData = json.loads(jsonLink)
         for linkData in newData['url'].values():
             linkList.append(linkData)
