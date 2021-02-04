@@ -8829,8 +8829,26 @@ def newTestLinkGenerate():
         r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
         print('New Link')
         print(r.text)
-    return jsonify({'onlineTestLink':allLink})
+        linkList = []
+        jsonLink = json.dumps(jsonExamData)
+        newData = json.loads(jsonLink)
+        for linkData in newData['url'].values():
+            linkList.append(linkData)
+        finalLink = linkList[3]
+    return jsonify({'onlineTestLink':finalLink})
 
+@app.route('/getNewUrl',methods=['POST','GET'])
+def getNewUrl():
+    # if request.method == 'POST':
+    link = 'https://alllearnreview-pr-229.herokuapp.com/feedbackCollection'
+    key = '265e29e3968fc62f68da76a373e5af775fa60'
+    url = urllib.parse.quote(link)
+    name  = ''
+    r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+    print('New Link')
+    print(r.text)
+    data = r.text
+    return jsonify({'data':data})
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
