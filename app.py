@@ -8449,6 +8449,71 @@ def getClassList():
 #     dataValue = 10
 #     return jsonify({'Data':dataValue})
 
+@app.route('/getStudentPerformance',methods=['POST','GET'])
+def getStudentPerformance():
+    if request.method == 'POST':
+        print('inside getStudentPerformance')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+        emailDet = studentDetails.email
+        if emailDet:
+            user = User.query.filter_by(email=studentDetails.email).first()
+        if user:
+            login_user(user,remember='Y')
+        link = url_for('studentProfile',student_id=studentDetails.student_id,_external=True)
+        return jsonify({'studentProfile':link})
+
+@app.route('/getStudentDashboard',methods=['POST','GET'])
+def getStudentDashboard():
+    if request.method == 'POST':
+        print('inside getStudentDashboard')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+        emailDet = studentDetails.email
+        if emailDet:
+            user = User.query.filter_by(email=studentDetails.email).first()
+        if user:
+            login_user(user,remember='Y')
+        link = url_for('studentDashboard',_external=True)
+        return jsonify({'studentDashboard':link})
+
+@app.route('/getStudentDetails',methods=['POST','GET'])
+def getStudentDetails():
+    if request.method == 'POST':
+        print('inside getStudentDetails')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+        if studentDetails:
+            msg = 'What do you want to do today?\n1-See dashboard\n2-see performance\n3-Start practice test'
+            return jsonify({'studentDetails':msg})
+        else:
+            msg = 'you are not a registered student'
+            return jsonify({'studentDetails':msg})
+
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
     if request.method == 'POST':
@@ -8467,7 +8532,7 @@ def getUserDetails():
             msg = ' What do you want to do today?\n1 - Create or start Online Tests\n2 - Create Online Class Link\n3 - See student profile (Performance report included)\n4 - See Leaderboard\n5 - Customer Support'
             return jsonify({'userDetails':msg})
         else:
-            msg = 'you are not a registered user'
+            msg = 'you are not a registered teacher'
             return jsonify({'userDetails':msg})
 
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
