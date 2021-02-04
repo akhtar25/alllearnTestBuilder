@@ -1,0 +1,638 @@
+{%extends "layout.html"%} {%block content%}
+<div class="container">
+  <body class="white">
+    <div
+      class="wrapper"
+      style="background-image: linear-gradient(45deg, #e4ebf2, transparent)"
+    >
+      <section class="content-header">
+        <h1>Student's Dashboard</h1>
+      </section>
+      <div class="content">
+        <div class="row">
+            <div class="col s8" style="margin-left: 20px;"> 
+            <h4 class='grey-text' style="color:black !important;font-weight:400">Overall Performance Graph</h4>
+        <div id='studentPerformanceGraphDiv'> Loading graph...</div>
+    </div>
+    <div class="col s3" style="margin-top: 40px;margin-left: 20px;">
+        <!-- <h3 class="box-title" style="font-size: 18px">Overall Performance</h3> -->
+        <div class="testDashboard" style="font-size: 14px;padding-left: 5px;padding-right: 5px;">
+        <div class="">
+            <table class="responsive-table">
+                <tr>
+                <td>
+                    <h4 style="font-size: 16px;width:145px;">Overall Performance Average</h4>
+                </td>
+                <td>
+                    {%if overallPerfValue > 49 %}
+                        <h3 style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{overallPerfValue}}%</h3>
+                        {%else%}
+                        <h3  style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{overallPerfValue}}%</h3>
+                        {%endif%}
+                </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        <h4 class="box-title" style="color:black !important;font-weight:400;font-size: 18px;margin-top: 20px;">Subject Level Performance</h4>
+        <div class="testDashboard" style="padding-left: 5px;max-height: 345px;position: relative;overflow-y: auto;">
+        
+                {%if subjectPerf|length>0%}
+                <table class='responsive-table' style='font-size: 18px;'>
+                    
+                        <tr style="border-bottom: 0px;">
+                            {%for rows in subjectPerf%}
+                            <td style="font-weight: 400;">{{rows.subject}}</td>
+                            {%if rows.student_score > 49%}
+                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{rows.student_score}}%</td>
+                            {%else%}
+                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{rows.student_score}}%</td>
+                            {%endif%}
+                            {%endfor%}
+                        </tr> 
+                </table>
+                {%else%}
+                <h5>No Info Present</h5>
+                {%endif%}
+        </div>
+        </div> 
+        </div>
+        <!-- Start upcoming test  -->
+        <div class="row">
+          <div class="col-md-10" style="margin-left: 18px">
+            <div
+              id="testHistory"
+              style="
+                padding: 10px;
+                max-height: 500px;
+                background-color: white;
+                width: 1100px;
+              "
+              class="z-depth-1 hoverable row colorClass"
+            >
+              <h4>Upcoming Tests</h4>
+              <table
+                id="upcomingTestTable"
+                class="wp-list-table widefat striped posts"
+              >
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Due Date</th>
+                    <th>Duration</th>
+                    <th>Negative Marks</th>
+                    <th>Chapters and Topics</th>
+                    <th>Total Marks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in upcomigTestDetails %}
+                  <tr>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.subject}}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.test_due_date.strftime('%d %B %Y')}}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                        {% if row.test_time==0 %}
+                            untimed
+                        {% else %}
+                            {{row.test_time}}
+                        {% endif %}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.incorrect_marks}}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                        <a href="#chapterModal" name='{{row.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a>
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                        {{row.total_marks}}
+                    </th>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <div id="pageNavPosition2" class="pager-nav"></div>
+            </div>
+          </div>
+        </div>
+        <!-- End -->
+        <div class="row">
+            <div class="col-md-10" style="margin-left: 18px">
+              <div
+                id="testHistory"
+                style="
+                  padding: 10px;
+                  max-height: 500px;
+                  background-color: white;
+                  width: 1100px;
+                "
+                class="z-depth-1 hoverable row colorClass"
+              >
+                <h4>Test History</h4>
+                <table id="pager" class="wp-list-table widefat striped posts">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Topics</th>
+                      <th>Test Date</th>
+                      <th>Performance</th>
+                      <th>See Report</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in testHistory %}
+                    <tr>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.subject}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.topics}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.test_date.strftime('%d %B %Y')}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.perf_percentage}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        <a
+                          target="_blank"
+                          href="{{'studentFeedbackReport'}}?student_id={{studentDet.student_id}}&student_name={{studentDet.full_name}}&resp_session_id={{row.resp_session_id}}"
+                          class="seeReportClass"
+                          >See Report</a
+                        >
+                      </th>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+  
+                <div id="pageNavPosition" class="pager-nav"></div>
+              </div>
+            </div>
+          </div>
+        <!-- Modal for Chapters -->
+        <div id="chapterModal" class="modal" style="background-color:white;">
+            <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
+              <img src="../static/images/loader.gif">
+            </div>
+            <div class="modal-content" id="content" style="display:none;height: 465px;">
+              <p>
+                <div id="chapterListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
+              </p>
+            </div>
+          </div>
+        <!-- End -->
+        <!-- Student Homework -->
+        <div class="row">
+          <section class="col-lg-12 connectedSortable">
+            <h3 class="box-title" style="font-size: 18px">Recent Homeworks</h3>
+            <div class="testDashboard">
+              <!-- /.box-header -->
+              <div class="box-body">
+                <div>
+                  <div
+                    class="table-responsive"
+                    style="overflow: auto; height: 300px"
+                  >
+                    <table class="table no-margin">
+                      <thead>
+                        <tr>
+                          <th>HomeWork</th>
+                          <th>Created On</th>
+                          <th>Question Count</th>
+                          <th>Status</th>
+                          <th>Open</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {%if homeworkData %} {% for eachRow in homeworkData%}
+                        <tr style="margin-top: 5px">
+                          <td>{{eachRow.homework_name}}</td>
+                          <td>
+                            {{eachRow.last_modified_date.strftime('%d %B %Y')}}
+                          </td>
+                          <td>{{eachRow.question_count}}</td>
+                          {% if eachRow.ans_count >0%}
+                          <td>Submitted</td>
+                          {% else %}
+                          <td>Pending - {{eachRow.question_count}} Qs</td>
+                          {% endif %}
+                          <td>
+                            <a
+                              href="#homeworkModal"
+                              onclick="getQuestions('{{eachRow.homework_id}}');"
+                              id="open"
+                              class="modal-trigger btn green right"
+                              >Open</a
+                            >
+                          </td>
+                        </tr>
+                        {% endfor %} {%else%}
+                        <tr>
+                          <td colspan="5" style="text-align: center">
+                            No homework uploaded yet.
+                          </td>
+                        </tr>
+                        {%endif%}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="box-footer text-right">
+              <a href="{{url_for('studentHomeWork')}}" class="uppercase"
+                >View All List</a
+              >
+            </div>
+          </section>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+            <h3 class="box-title" style="font-size: 18px">Class Tracker</h3>
+            <div class="testDashboard">
+            
+                <div class="box" id="classTrackerDiv">
+                  <!-- /.box-header -->
+                  <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                      <tr>
+                        <th>Subject</th>
+                        <th>Topic Coverage</th>
+                        <th>Total Topics</th>
+                        <th>Last Updated </th>
+                        <th> See Topics</th>
+                      </tr>
+                      {% for eachRow in topicRows%}
+                      <tr style="margin-top:5px;">
+                        <td>{{eachRow.subject_name}}</td>
+                        <td>{{eachRow.topics_covered}}</td>
+                        <td>{{eachRow.total_topics}}</td>
+                        <td>{{eachRow.last_updated_date.strftime('%d %B %Y')}}</td>
+                        <td><button class="courseDetailsButton btn green lighten-1"
+                            name="{{eachRow.subject_id}}" id="courseDetailsButton">See Topics</button><span style="display: none;"
+                            name="subjectIdSpan"></span></td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
+                  <!-- /.box-body -->
+                </div>
+    
+                <div id="completeCourseDetailsDiv"></div>
+                <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+              </div>
+              <!-- <div id="backButton"><button class="btn pull-right green lighten-1"
+                id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div> -->
+              </div>
+        </div>
+
+
+        <div class="row">
+
+        </div>
+        <!-- End -->
+        <!-- Modal -->
+        <div
+          id="homeworkModal"
+          name="homeworkModal"
+          class="modal"
+          style="background-color: white"
+        >
+          <div class="modal-content" style="height: 100%; overflow-y: auto">
+            <div id="homeworkLoader" style="display: none" class="center">
+              <img src="../static/images/loader.gif" />
+            </div>
+            <div id="homeworkQuestionsDiv">
+              <!--This will contain ajax data for the selected survey-->
+            </div>
+          </div>
+        </div>
+        <!-- End -->
+      </div>
+    </div>
+  </body>
+</div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    $(document).ready(function () {        
+        var data = "";
+        $.ajax({
+            url: "/studentPerformanceGraph?student_id=" + "{{studentDet.student_id}}",
+            type: "get",
+            data: data,
+            success: function (response) {                
+                $("#studentPerformanceGraphDiv").show();
+                $("#studentPerformanceGraphDiv").html(response);
+            },
+            error: function (xhr) {
+                window.alert("error occurred while fetching graph");
+            }
+        });
+    });
+  $(document).ready(function () {
+    console.log("Inside model");
+    $(".modal").modal();
+  });
+
+  function getQuestions(homeworkId) {
+    $("#homeworkQuestionsDiv").html("");
+    $("#homeworkLoader").show();
+    $.ajax({
+      url: "/indivHomeworkDetail?homework_id=" + homeworkId,
+      type: "get",
+      data: "",
+      success: function (homeworkResponse) {
+        $("#homeworkLoader").hide();
+        $("#homeworkQuestionsDiv").html(homeworkResponse);
+      },
+      error: function (xhr) {
+        $("#homeworkLoader").hide();
+        $("#homeworkQuestionsDiv").html("Error LoadingHomework Data");
+      },
+    });
+  }
+  function Pager(tableName, itemsPerPage) {
+    "use strict";
+
+    this.tableName = tableName;
+    this.itemsPerPage = itemsPerPage;
+    this.currentPage = 1;
+    this.pages = 0;
+    this.inited = false;
+
+    this.showRecords = function (from, to) {
+      let rows = document.getElementById(tableName).rows;
+
+      // i starts from 1 to skip table header row
+      for (let i = 1; i < rows.length; i++) {
+        if (i < from || i > to) {
+          rows[i].style.display = "none";
+        } else {
+          rows[i].style.display = "";
+        }
+      }
+    };
+
+    this.showPage = function (pageNumber) {
+      if (!this.inited) {
+        // Not initialized
+        return;
+      }
+
+      let oldPageAnchor = document.getElementById("pg" + this.currentPage);
+      oldPageAnchor.className = "pg-normal";
+
+      this.currentPage = pageNumber;
+      let newPageAnchor = document.getElementById("pg" + this.currentPage);
+      newPageAnchor.className = "pg-selected";
+
+      let from = (pageNumber - 1) * itemsPerPage + 1;
+      let to = from + itemsPerPage - 1;
+      this.showRecords(from, to);
+
+      let pgNext = document.querySelector(".pg-next"),
+        pgPrev = document.querySelector(".pg-prev");
+
+      if (this.currentPage == this.pages) {
+        pgNext.style.display = "none";
+      } else {
+        pgNext.style.display = "";
+      }
+
+      if (this.currentPage === 1) {
+        pgPrev.style.display = "none";
+      } else {
+        pgPrev.style.display = "";
+      }
+    };
+
+    this.prev = function () {
+      if (this.currentPage > 1) {
+        this.showPage(this.currentPage - 1);
+      }
+    };
+
+    this.next = function () {
+      if (this.currentPage < this.pages) {
+        this.showPage(this.currentPage + 1);
+      }
+    };
+
+    this.init = function () {
+      let rows = document.getElementById(tableName).rows;
+      let records = rows.length - 1;
+
+      this.pages = Math.ceil(records / itemsPerPage);
+      this.inited = true;
+    };
+
+    this.showPageNav = function (pagerName, positionId) {
+      if (!this.inited) {
+        // Not initialized
+        return;
+      }
+
+      let element = document.getElementById(positionId),
+        pagerHtml =
+          '<span onclick="' +
+          pagerName +
+          '.prev();" class="pg-normal pg-prev">&#171;</span>';
+
+      for (let page = 1; page <= this.pages; page++) {
+        pagerHtml +=
+          '<span id="pg' +
+          page +
+          '" class="pg-normal pg-next" onclick="' +
+          pagerName +
+          ".showPage(" +
+          page +
+          ');">' +
+          page +
+          "</span>";
+      }
+
+      pagerHtml +=
+        '<span onclick="' +
+        pagerName +
+        '.next();" class="pg-normal">&#187;</span>';
+
+      element.innerHTML = pagerHtml;
+    };
+  }
+
+  //
+  let pager = new Pager("pager", 10);
+  // let pager2 = new Pager2("upcomingTestTable", 10);
+
+  pager.init();
+  // pager2.init();
+  pager.showPageNav("pager", "pageNavPosition");
+  // pager2.showPageNav("upcomingTestTable", "pageNavPosition2");
+  // pager2.showPage(1);
+  pager.showPage(1);
+
+  //   Start
+  // function Pager2(tableName, itemsPerPage) {
+  //   "use strict";
+
+  //   this.tableName = tableName;
+  //   this.itemsPerPage = itemsPerPage;
+  //   this.currentPage = 1;
+  //   this.pages = 0;
+  //   this.inited = false;
+
+  //   this.showRecords = function (from, to) {
+  //     let rows = document.getElementById(tableName).rows;
+
+      // i starts from 1 to skip table header row
+    //   for (let i = 1; i < rows.length; i++) {
+    //     if (i < from || i > to) {
+    //       rows[i].style.display = "none";
+    //     } else {
+    //       rows[i].style.display = "";
+    //     }
+    //   }
+    // };
+
+    // this.showPage = function (pageNumber) {
+    //   if (!this.inited) {
+        // Not initialized
+    //     return;
+    //   }
+
+    //   let oldPageAnchor = document.getElementById("pg1" + this.currentPage);
+    //   oldPageAnchor.className = "pg-normal1";
+
+    //   this.currentPage = pageNumber;
+    //   let newPageAnchor = document.getElementById("pg1" + this.currentPage);
+    //   newPageAnchor.className = "pg-selected1";
+
+    //   let from = (pageNumber - 1) * itemsPerPage + 1;
+    //   let to = from + itemsPerPage - 1;
+    //   this.showRecords(from, to);
+
+    //   let pgNext = document.querySelector(".pg-next1"),
+    //     pgPrev = document.querySelector(".pg-prev1");
+
+    //   if (this.currentPage == this.pages) {
+    //     pgNext.style.display = "none";
+    //   } else {
+    //     pgNext.style.display = "";
+    //   }
+
+    //   if (this.currentPage === 1) {
+    //     pgPrev.style.display = "none";
+    //   } else {
+    //     pgPrev.style.display = "";
+    //   }
+    // };
+
+    // this.prev = function () {
+    //   if (this.currentPage > 1) {
+    //     this.showPage(this.currentPage - 1);
+    //   }
+    // };
+
+    // this.next = function () {
+    //   if (this.currentPage < this.pages) {
+    //     this.showPage(this.currentPage + 1);
+    //   }
+    // };
+
+    // this.init = function () {
+    //   let rows = document.getElementById(tableName).rows;
+    //   let records = rows.length - 1;
+
+    //   this.pages = Math.ceil(records / itemsPerPage);
+    //   this.inited = true;
+    // };
+
+    // this.showPageNav = function (pagerName, positionId) {
+    //   if (!this.inited) {
+        // Not initialized
+  //       return;
+  //     }
+
+  //     let element = document.getElementById(positionId),
+  //       pagerHtml =
+  //         '<span onclick="' +
+  //         pagerName +
+  //         '.prev();" class="pg-normal1 pg-prev1">&#171;</span>';
+
+  //     for (let page = 1; page <= this.pages; page++) {
+  //       pagerHtml +=
+  //         '<span id="pg1' +
+  //         page +
+  //         '" class="pg-normal1 pg-next1" onclick="' +
+  //         pagerName +
+  //         ".showPage(" +
+  //         page +
+  //         ');">' +
+  //         page +
+  //         "</span>";
+  //     }
+
+  //     pagerHtml +=
+  //       '<span onclick="' +
+  //       pagerName +
+  //       '.next();" class="pg-normal1">&#187;</span>';
+
+  //     element.innerHTML = pagerHtml;
+  //   };
+  // }
+  // End
+
+  $('.chapterClass').click(function(){
+    $('#questionloader1').show();
+    //$('#modal2').hide();
+    //$('#content').hide();
+    $('#chapterListDiv').html('');
+    var test_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data="";
+        $.ajax({
+            url: "/getChapterDetails?test_id="+test_id,
+            type: "get",
+            data: data,
+            success: function(response){
+                $('#questionloader1').hide();
+                $('#modal2').show();
+                $('#content').show();
+                $('#chapterListDiv').html(response);
+            }
+        })
+      });
+
+
+      $('.courseDetailsButton').click(function () {
+    $('#loaderDiv').show();
+    console.log('inside courseDetailsBtn');
+    $('#classTrackerDiv').hide();
+    var subject_id_val = $(this).attr('name');
+    console.log(subject_id_val);
+    var data = "";
+    $.ajax({
+      url: "/topicList?class_sec_id={{studentDet.class_sec_id}}&subject_id=" + subject_id_val+"&class_val={{qclass_val}}",
+      type: "get",
+      data: data,
+      success: function (response) {
+        $("#completeCourseDetailsDiv").html(response);
+        $('#completeCourseDetailsDiv').show();
+        $('#backButton').show();
+        $('#loaderDiv').hide();
+      },
+      error: function (xhr) {
+        console.log("error occurred while loading data");
+      }
+    });
+
+  });
+</script>
+{% endblock%}

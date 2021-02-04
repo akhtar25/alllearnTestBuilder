@@ -1895,7 +1895,7 @@ def disconnectedAccount():
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
-        return redirect(url_for('qrSessionScannerStudent'))
+        return redirect(url_for('studentDashboard'))
     else:
         print('Inside else')
         return redirect(url_for('index'))
@@ -9314,7 +9314,7 @@ def loadQuestionStud():
                 else:
                     checkResponse.response_option = response_option
                     checkResponse.answer_type = 336
-                checkResponse.answer_status = 241
+                checkResponse.answer_status = 239
                 db.session.commit()
     print('Response Option:'+str(response_option))
     if response_option!='':
@@ -9377,7 +9377,7 @@ def loadQuestionStud():
             if btn=='save':
                 print('inside savebtn')
                 response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
-                response_cap.answer_status = 241
+                response_cap.answer_status = 239
                 db.session.commit()
         
         print('Question numbering')
@@ -9790,12 +9790,101 @@ def reviewSubjective():
     subjectName = subject.description
     return render_template('reviewPage.html',studentName=studentDet.full_name,questionDetailRow=questionDetailRow,testType=testType,subjectName=subjectName,resp_session_id=resp_sess_id)
 
+@app.route('/studentDashboard',methods=['GET','POST'])
+def studentDashboard():
+    print('inside student dashboard')
+    studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    student_id = studentDet.student_id
+    print('Student Id:'+str(student_id))
+    testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc "
+    testHistoryQuery = testHistoryQuery + "inner join session_detail sd on fsprc.resp_session_id = sd.resp_session_id order by test_date desc limit 50"
+    testHistory = db.session.execute(testHistoryQuery).fetchall()
+    homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
+    homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+    homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(studentDet.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(studentDet.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+    homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc limit 10"
+    print(homeworkDetailQuery)
+    homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
+    upcomingTestDetailQuery ="select md.description as subject,sd.test_due_date,sd.test_time, sd.total_marks, sd.incorrect_marks, sd.test_id from session_detail sd "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join test_details td on sd.test_id = td.test_id "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.test_due_date > now()"
+    upcomigTestDetails = db.session.execute(upcomingTestDetailQuery).fetchall()
+    print('Test Res Data:')
+    print(testHistory)
+    # Overall Performance
+    overallSum = 0
+    overallPerfValue = 0
+    sumMarks = 0
+    sum1 = 0
+    sum2 = 0
+    totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(totalOfflineTestMarks)
+    totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
+    if totalOfflineTestMarks.sum1:
+        print(totalOfflineTestMarks.sum1)
+        sum1 = totalOfflineTestMarks.sum1
+    totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
+    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+    
+    if totalOnlineTestMarks.sum2:
+        print(totalOnlineTestMarks.sum2)
+        sum2 = totalOnlineTestMarks.sum2
+    sumMarks = int(sum1) + int(sum2)
+    print('Total Marks:'+str(sumMarks))
+    total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(total1)
+    total1 = db.session.execute(text(total1)).first()
+    tot1 = 0
+    if total1:
+        print(total1.offlinetotal)
+        tot1 = total1.offlinetotal
+    total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
+    total2 = db.session.execute(text(total2)).first()
+    total3 = 0
+    grandTotal = 0
+    if total2.count:
+        print(total2.count)
+        total3 = total2.count*100
+    grandTotal = int(tot1) + int(total3)
+    print('Grand Total:'+str(grandTotal))
+    # for rows in perfRows:
+    #     overallSum = overallSum + int(rows.student_score)
+        #print(overallSum)
+    try:
+        overallPerfValue = round(sumMarks/(grandTotal)*100,2)    
+    except:
+        overallPerfValue=0 
+    # End
+    subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
+    subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    topicTrackerQuery = "with cte_total_topics as "
+    topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
+    topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
+    topicTrackerQuery = topicTrackerQuery +"  from topic_tracker where class_sec_id = '"+ str(studentDet.class_sec_id)+"' group by subject_id)  "
+    topicTrackerQuery = topicTrackerQuery +"select c1.subject_id,  t2.description as subject_name, c1.last_updated_date, "
+    topicTrackerQuery = topicTrackerQuery +"CASE WHEN COUNT(t1.subject_id) <> 0 THEN COUNT(c1.subject_id) ELSE 0 END "
+    topicTrackerQuery = topicTrackerQuery +"topics_covered, c1.total_topics  "
+    topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1  "
+    topicTrackerQuery = topicTrackerQuery +"right outer join cte_total_topics c1  "
+    topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id and class_sec_id= '"+ str(studentDet.class_sec_id)+"'  "
+    topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y'  "
+    topicTrackerQuery = topicTrackerQuery +"inner join   "
+    topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
+    topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
+    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
+    topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
+    classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
+    qclass_val = classQuery.class_val
+    return render_template('studentDashboard.html',qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
     marksList = request.form.getlist('marks')
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
+    remarksList = request.form.getlist('remarks')
     format = "%Y-%m-%d %H:%M:%S"
     # Current time in UTC
     now_utc = datetime.now(timezone('UTC'))
@@ -9810,9 +9899,11 @@ def addSubjMarks():
         db.session.commit()
     for i in range(len(marksList)):
         print('Marks:'+str(marksList[i]))
+        print('Remarks:'+str(remarksList[i]))
         print('QuesList:'+str(quesIdList[i]))
         questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         questionDet.marks_scored = marksList[i]
+        questionDet.remark = remarksList[i]
         quesStatus.last_modified_date = now_local.strftime(format)
         questionDet.answer_status = 241
         if isCorrect[i]:
