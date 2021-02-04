@@ -8035,7 +8035,7 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             document.add_paragraph(
                 data.question_description, style='List Number'
             )    
-            if data.reference_link!='' and data.reference_link!=None:
+            if data.reference_link!='' or data.reference_link!=None:
                 try:
                     response = requests.get(data.reference_link, stream=True)
                     image = BytesIO(response.content)
