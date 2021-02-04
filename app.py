@@ -8832,8 +8832,8 @@ def newTestLinkGenerate():
         linkList = []
         jsonLink = json.dumps(r.text)
         newData = json.loads(jsonLink)
-        print(newData['url'])
-        for linkData in newData['url'].values():
+        print(newData[0])
+        for linkData in newData[0].values():
             linkList.append(linkData)
         finalLink = linkList[3]
         return jsonify({'onlineTestLink':finalLink})
