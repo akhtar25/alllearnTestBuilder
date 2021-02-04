@@ -3073,7 +3073,7 @@ def getOnlineClassLink():
             print("New room ID created: " +str(roomResponseJson["url"]))
             teacher_id.room_id = str(roomResponseJson["url"])
             db.session.commit()
-        OnlineClassLink = teacher_id.room_id
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)
         return jsonify({'onlineClassLink':OnlineClassLink})
 
 ##Helper function
@@ -8167,7 +8167,10 @@ def getTopicList():
         c=1
         chapterDetList = []
         for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            if c==1:
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            else:
+                chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         msg = 'no topics available'
@@ -8227,7 +8230,10 @@ def getSubjectsList():
         subjectList = []
         k=1
         for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)+str("\n")
+            if k==1:
+                sub = str('Which Subject?\n')+str(k)+str('-')+str(subj.subject)+str("\n")
+            else:
+                sub = str(k)+str('-')+str(subj.subject)+str("\n")
             subjectList.append(sub)
             k=k+1
         msg = 'no subjects available'
@@ -8295,7 +8301,14 @@ def getStudentDetails():
                 selStudentId = stud.split('-')[2]
         print('getStudentDetails student_id:'+str(selStudentId))
         studentDetailLink = url_for('studentProfile',student_id=selStudentId, _external=True)
-        return jsonify({'studentDetailLink':studentDetailLink})
+        newLink = ''
+        if studentDetailLink:
+            newLink = str('Student Detail Link:\n')+str(studentDetailLink)
+        if newLink
+            return jsonify({'studentDetailLink':newLink})
+        else:
+            msg = 'No students available'
+            return jsonify({'studentDetailLink':msg})
 
 @app.route('/getStudentsList',methods=['GET','POST'])
 def getStudentsList():
@@ -8342,7 +8355,10 @@ def getStudentsList():
         l=1
         studentList = []
         for student in studentListQuery:
-            stud = str(l)+str('-')+str(student.full_name)+str("\n")
+            if l==1:
+                stud = str("Here's your students list:\n")+str(l)+str('-')+str(student.full_name)+str("\n")
+            else:
+                stud = str(l)+str('-')+str(student.full_name)+str("\n")
             studentList.append(stud)
             l=l+1
         msg = 'no students available'
@@ -8383,7 +8399,10 @@ def getClassSectionList():
         classList = [] 
         j=1
         for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
+            if j==1:
+                classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
+            else:
+                classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
             classList.append(classVal)
             j=j+1
         print(classList)
@@ -8821,7 +8840,7 @@ def getTestPaperLink():
         testPaperQuery = "select test_paper_link from test_details order by test_id desc limit 1"
         print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
-        testPaperLink = testPaperData.test_paper_link
+        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
         print('testPaperLink:'+str(testPaperLink))
         return jsonify({'TestPaperLink':testPaperLink})
 
