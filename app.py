@@ -8829,11 +8829,12 @@ def newTestLinkGenerate():
         r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
         print('New Link')
         print(r.text)
+        print(type(r.text))
         linkList = []
         jsonLink = json.dumps(r.text)
-        newData = json.loads(jsonLink)
-        print(newData[0])
-        for linkData in newData[0].values():
+        newData = json.loads(r.text)
+        print(type(newData))
+        for linkData in newData['url'].values():
             linkList.append(linkData)
         finalLink = linkList[3]
         return jsonify({'onlineTestLink':finalLink})
