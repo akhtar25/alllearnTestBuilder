@@ -8490,7 +8490,7 @@ def getStudentDashboard():
             user = User.query.filter_by(email=studentDetails.email).first()
         if user:
             login_user(user,remember='Y')
-        link = url_for('studentDashboard',_external=True)
+        link = url_for('studentDashboard',student_id=studentDetails.student_id,_external=True)
         return jsonify({'studentDashboard':link})
 
 @app.route('/getStudentDet',methods=['POST','GET'])
@@ -9793,8 +9793,12 @@ def reviewSubjective():
 @app.route('/studentDashboard',methods=['GET','POST'])
 def studentDashboard():
     print('inside student dashboard')
-    studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
-    student_id = studentDet.student_id
+    student_id = ''
+    if current_user.is_anonymous:
+        student_id = request.args.get('student_id')
+    else:
+        studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        student_id = studentDet.student_id
     print('Student Id:'+str(student_id))
     testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc "
     testHistoryQuery = testHistoryQuery + "inner join session_detail sd on fsprc.resp_session_id = sd.resp_session_id order by test_date desc limit 50"
