@@ -81,7 +81,7 @@ def notificationEmail(email,email2,name,phone):
     print('Email2:'+str(email2))
     print('Name:'+str(name))
     print('Phone:'+str(phone))
-    subject = "allLearn - Notification from "+str(name)
+    subject = "allLearn - New query received from "+str(name)+str("-")+str(phone)
     message = str(name)+str("-")+str(phone)
     newEmail(email2,name,subject,message)
     print('second email')
