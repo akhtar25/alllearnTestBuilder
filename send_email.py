@@ -82,7 +82,7 @@ def notificationEmail(email,email2,name,phone):
     print('Name:'+str(name))
     print('Phone:'+str(phone))
     subject = "allLearn - Notification from "+str(name)
-    message = "Name: "+str(name)+str("\nPhone:")+str(phone)
+    message = str(name)+str+(" - ")+str(phone)
     newEmail(email2,name,subject,message)
     print('second email')
     send_email(email,name,subject,message)
