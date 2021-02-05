@@ -4488,6 +4488,20 @@ def feeManagement():
 def privacyPolicy():
     return render_template('privacyPolicy.html')
 
+@app.route('/sendUserNotificationEmail',methods=['POST','GET'])
+def sendUserNotificationEmail():
+    if request.method == 'POST':
+        jsonData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        conList = []
+        print('data:')
+        for con in z['contact'].values():
+            conList.append(con)
+        print(conList)
+        return jsonify({'data':1})
+
 @app.route('/sendNotificationEmail')
 def sendNotificationEmail():
     student_id=request.args.get('student_id')
