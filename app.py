@@ -4506,8 +4506,7 @@ def sendUserNotificationEmail():
         print('name:'+str(name))
         email = 'contact@alllearn.in'
         email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
-        notificationEmail(email,name,contactNo)
-        notificationEmail2(email2,name,contactNo)
+        notificationEmail(email,email2,name,contactNo)
         return jsonify({'phone':contactNo,'name':name})
 
 @app.route('/sendNotificationEmail')

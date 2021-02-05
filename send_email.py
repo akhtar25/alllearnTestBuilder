@@ -73,21 +73,18 @@ def performance_report_email(email,name,school,studentData,test_count,average_sc
     message = render_template('performance_summary_email.html', name=name,school=school,studentlist=studentData,test_count=test_count,average_score=average_score,school_id=school_id)
     send_email(email, name, subject, message)
 
-def notificationEmail2(email,name,phone):
-    print('Email:'+str(email))
-    print('Name:'+str(name))
-    print('Phone:'+str(phone))
-    subject = "allLearn - Notification from "+str(name)
-    message = "Name: "+str(name)+str("\nPhone:")+str(phone)
-    send_email(email,name,subject,message)
+def newEmail(email2,name,subject,message):
+    send_email(email2,name,subject,message)
 
-def notificationEmail(email,name,phone):
+def notificationEmail(email,email2,name,phone):
     print('Email:'+str(email))
+    print('Email2:'+str(email2))
     print('Name:'+str(name))
     print('Phone:'+str(phone))
     subject = "allLearn - Notification from "+str(name)
     message = "Name: "+str(name)+str("\nPhone:")+str(phone)
-    
+    newEmail(email2,name,subject,message)
+    print('second email')
     send_email(email,name,subject,message)
 
 def test_report_email(email,name,school,school_id,exam_date,test_type,resp_session_id,student_id,subject_name):
