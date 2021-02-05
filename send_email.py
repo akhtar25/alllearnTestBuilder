@@ -74,11 +74,13 @@ def performance_report_email(email,name,school,studentData,test_count,average_sc
     send_email(email, name, subject, message)
 
 def notificationEmail(email,name,phone):
+    email = 'zaheen@alllearn.in'
     print('Email:'+str(email))
     print('Name:'+str(name))
     print('Phone:'+str(phone))
     subject = "allLearn - Notification from "+str(name)
     message = "Name: "+str(name)+str("\nPhone:")+str(phone)
+    
     send_email(email,name,subject,message)
 
 def test_report_email(email,name,school,school_id,exam_date,test_type,resp_session_id,student_id,subject_name):
