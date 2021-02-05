@@ -4501,10 +4501,10 @@ def sendUserNotificationEmail():
             conList.append(con)
         print(conList)
         contactNo = conList[2]
-        name = conList[1]
-        name1 = conList[1]['name']
         print('phone:'+str(contactNo))
+        name = conList[1]
         print('name:'+str(name))
+        name1 = conList[1]['name']
         print('name1:'+str(name1))
         return jsonify({'phone':contactNo,'name':name,'name1':name1})
 
