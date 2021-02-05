@@ -381,6 +381,7 @@ class MessageDetails(db.Model):
     description = db.Column(db.String(500), nullable=True)
 
 
+
 class ResponseCapture(db.Model):
     __tablename__ = "response_capture"
     response_id = db.Column(db.Integer, primary_key=True)
@@ -393,6 +394,7 @@ class ResponseCapture(db.Model):
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
     response_option=db.Column(db.String(500),nullable=True)
+    remark=db.Column(db.String(500),nullable=True)
     is_correct=db.Column(db.String(1), nullable=True)
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
@@ -865,6 +867,7 @@ class SessionDetail(db.Model):
     load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
     #new columns added for online test upgrade
     test_time = db.Column(db.Integer, nullable=True)
+    test_due_date = db.Column(db.DateTime)
     total_marks = db.Column(db.Integer, nullable=True)
     correct_marks = db.Column(db.Integer, nullable = True)
     incorrect_marks = db.Column(db.Integer, nullable=True)

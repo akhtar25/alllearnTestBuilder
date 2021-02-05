@@ -1,73 +1,83 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-    <h3>View HomeWork</h3>
-    <div id="uploadHistDiv">
-        <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
-        <div class="box-body table-responsive no-padding">
-            <table class="table table-hover">
-              <tr>
-               <th>HomeWork</th>
-               <th>Created On</th>
-                <th>Question Count</th>
-                <th>Status</th>                
-                <th>Open</th>         
-              </tr>
-              {%if homeworkData %}
-              {% for eachRow in homeworkData%}
-              <tr style="margin-top:5px;">
-                <td>{{eachRow.homework_name}}</td>                
-                <td>{{eachRow.last_modified_date.strftime('%d %B %Y')}}</td>
-                <td>{{eachRow.question_count}}</td>
-                {% if eachRow.ans_count >0%}
-                <td>Submitted</td>
-                {% else %}
-                <td>Pending - {{eachRow.question_count}} Qs</td>
-                {% endif %}
-                <td><a href="#homeworkModal" onclick="getQuestions('{{eachRow.homework_id}}');" id="open" class="modal-trigger btn green right" >Open</a></td>
-              </tr>
-                   {% endfor %}
-                   {%else%}
-                   
-                     <h3 class="grey-text">No homework uploaded yet.</h3>
-                   
-                   {%endif%}
-            </table>
-          </div>
-    </div> 
-    <div id="homeworkModal" name="homeworkModal" class="modal" style="background-color: white;">
-        <div class="modal-content" style="height: 100%;overflow-y: auto"> 
-                <div id="homeworkLoader" style="display: none;" class="center">
-                    <img src="../static/images/loader.gif">
-                </div>
-                <div id="homeworkQuestionsDiv">
+  <h3>View HomeWork</h3>
+  <div id="uploadHistDiv">
+    <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <tr>
+          <th>HomeWork</th>
+          <th>Created On</th>
+          <th>Question Count</th>
+          <th>Status</th>
+          <th>Open</th>
+        </tr>
+        {%if homeworkData %} {% for eachRow in homeworkData%}
+        <tr style="margin-top: 5px">
+          <td>{{eachRow.homework_name}}</td>
+          <td>{{eachRow.last_modified_date.strftime('%d %B %Y')}}</td>
+          <td>{{eachRow.question_count}}</td>
+          {% if eachRow.ans_count >0%}
+          <td>Submitted</td>
+          {% else %}
+          <td>Pending - {{eachRow.question_count}} Qs</td>
+          {% endif %}
+          <td>
+            <a
+              href="#homeworkModal"
+              onclick="getQuestions('{{eachRow.homework_id}}');"
+              id="open"
+              class="modal-trigger btn green right"
+              >Open</a
+            >
+          </td>
+        </tr>
+        {% endfor %} {%else%}
+
+        <h3 class="grey-text">No homework uploaded yet.</h3>
+
+        {%endif%}
+      </table>
+    </div>
+  </div>
+  <div
+    id="homeworkModal"
+    name="homeworkModal"
+    class="modal"
+    style="background-color: white"
+  >
+    <div class="modal-content" style="height: 100%; overflow-y: auto">
+      <div id="homeworkLoader" style="display: none" class="center">
+        <img src="../static/images/loader.gif" />
+      </div>
+      <div id="homeworkQuestionsDiv">
         <!--This will contain ajax data for the selected survey-->
-            </div>
-        </div>
-    </div>  
+      </div>
+    </div>
+  </div>
 </div>
 <script>
-
-$(document).ready(function(){
-    console.log('Inside model');
-    $('.modal').modal();
+  $(document).ready(function () {
+    console.log("Inside model");
+    $(".modal").modal();
   });
 
-    function getQuestions(homeworkId){
-      $('#homeworkQuestionsDiv').html('');
-      $('#homeworkLoader').show();
-        $.ajax({
-                url: "/indivHomeworkDetail?homework_id="+homeworkId,
-                type: "get",
-                data: '',
-                success: function (homeworkResponse) {
-                    $('#homeworkLoader').hide();      
-                    $('#homeworkQuestionsDiv').html(homeworkResponse);
-                },
-            error: function (xhr) {
-                $('#homeworkLoader').hide();   
-                $('#homeworkQuestionsDiv').html("Error LoadingHomework Data");
-            }
-            })
-    }
+  function getQuestions(homeworkId) {
+    $("#homeworkQuestionsDiv").html("");
+    $("#homeworkLoader").show();
+    $.ajax({
+      url: "/indivHomeworkDetail?homework_id=" + homeworkId,
+      type: "get",
+      data: "",
+      success: function (homeworkResponse) {
+        $("#homeworkLoader").hide();
+        $("#homeworkQuestionsDiv").html(homeworkResponse);
+      },
+      error: function (xhr) {
+        $("#homeworkLoader").hide();
+        $("#homeworkQuestionsDiv").html("Error LoadingHomework Data");
+      },
+    });
+  }
 </script>
 {% endblock %}

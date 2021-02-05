@@ -103,6 +103,11 @@
       <input type="hidden" id='modal_subject_id' name='subject_id'   value="">
       <input type="hidden" id='modal_test_id'    name='test_id'      value="">
       <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <!-- Start -->
+      <p style="float:right;margin-top: -40px;">
+        <span style="font-size:14px;"> Due Date: <input style="width: 150px;font-size: 14px;" type="date" id="dueDate" name="dueDate" /> </span>
+      </p>
+      <!-- End -->
       <div id="durationDiv" style="display: none;margin-bottom:10px;">
         <h4 style="font-size:14px;">Duration</h4>
         <input style="font-size:14px;" type="text" name='duration' value="" placeholder="Enter time in minutes eg. 30">
@@ -145,7 +150,33 @@
   <script>
     $(document).ready(function () {
     $('.modal').modal();
+    var date = new Date();
+
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+
+    if (month < 10) month = "0" + month;
+    if (day < 10) day = "0" + day;
+
+    var today = year + "-" + month + "-" + day;       
+    $("#dueDate").attr("value", today);
     });
+
+    $(function(){
+    var dtToday = new Date();
+    
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+    
+    var maxDate = year + '-' + month + '-' + day;
+    $('#dueDate').attr('min', maxDate);
+});
 
 
     $('.conductTestBTN').click(function(){

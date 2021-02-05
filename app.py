@@ -1,5 +1,5 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email
+from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
@@ -50,6 +50,7 @@ from random import randint
 import string
 import random
 import requests as rq
+import urllib
 #import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
 from flask_api import FlaskAPI, status, exceptions
@@ -1894,7 +1895,7 @@ def disconnectedAccount():
     elif userDetailRow.user_type==161:
         return redirect(url_for('openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
-        return redirect(url_for('qrSessionScannerStudent'))
+        return redirect(url_for('studentDashboard'))
     else:
         print('Inside else')
         return redirect(url_for('index'))
@@ -3060,7 +3061,11 @@ def getOnlineClassLink():
         # print(z['result'])
         for data in response['contact'].values():
             conList.append(data)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
@@ -3068,7 +3073,7 @@ def getOnlineClassLink():
             print("New room ID created: " +str(roomResponseJson["url"]))
             teacher_id.room_id = str(roomResponseJson["url"])
             db.session.commit()
-        OnlineClassLink = teacher_id.room_id
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)
         return jsonify({'onlineClassLink':OnlineClassLink})
 
 ##Helper function
@@ -4482,6 +4487,27 @@ def feeManagement():
 @app.route('/privacyPolicy')
 def privacyPolicy():
     return render_template('privacyPolicy.html')
+
+@app.route('/sendUserNotificationEmail',methods=['POST','GET'])
+def sendUserNotificationEmail():
+    if request.method == 'POST':
+        jsonData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        conList = []
+        print('data:')
+        for con in z['contact'].values():
+            conList.append(con)
+        print(conList)
+        contactNo = conList[2]
+        print('phone:'+str(contactNo))
+        name = conList[1]
+        print('name:'+str(name))
+        email = 'contact@alllearn.in'
+        email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
+        notificationEmail(email,email2,name,contactNo)
+        return jsonify({'phone':contactNo,'name':name})
 
 @app.route('/sendNotificationEmail')
 def sendNotificationEmail():
@@ -8030,7 +8056,10 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             document.add_paragraph(
                 data.question_description, style='List Number'
             )    
-            if data.reference_link!='' and data.reference_link!=None:
+            print(data.reference_link)
+            if data.reference_link!='' or data.reference_link!=None:
+                print('inside threadUse if ')
+                print(data.reference_link)
                 try:
                     response = requests.get(data.reference_link, stream=True)
                     image = BytesIO(response.content)
@@ -8101,7 +8130,11 @@ def getTopicList():
         selectedOptions = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8158,7 +8191,10 @@ def getTopicList():
         c=1
         chapterDetList = []
         for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            if c==1:
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            else:
+                chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         msg = 'no topics available'
@@ -8181,7 +8217,11 @@ def getSubjectsList():
         selectedClassOption = []
         for con in dataList['contact'].values():
             conList.append(con)
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8214,7 +8254,10 @@ def getSubjectsList():
         subjectList = []
         k=1
         for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)+str("\n")
+            if k==1:
+                sub = str('Which Subject?\n')+str(k)+str('-')+str(subj.subject)+str("\n")
+            else:
+                sub = str(k)+str('-')+str(subj.subject)+str("\n")
             subjectList.append(sub)
             k=k+1
         msg = 'no subjects available'
@@ -8237,8 +8280,12 @@ def getStudentDetails():
         print('SelectedOption:'+str(selectedStudentOption))
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print(conList[2])
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8278,7 +8325,14 @@ def getStudentDetails():
                 selStudentId = stud.split('-')[2]
         print('getStudentDetails student_id:'+str(selStudentId))
         studentDetailLink = url_for('studentProfile',student_id=selStudentId, _external=True)
-        return jsonify({'studentDetailLink':studentDetailLink})
+        newLink = ''
+        if studentDetailLink:
+            newLink = str('Student Detail Link:\n')+str(studentDetailLink)
+        if newLink:
+            return jsonify({'studentDetailLink':newLink})
+        else:
+            msg = 'No students available'
+            return jsonify({'studentDetailLink':msg})
 
 @app.route('/getStudentsList',methods=['GET','POST'])
 def getStudentsList():
@@ -8290,8 +8344,12 @@ def getStudentsList():
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print(conList[2])
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8321,7 +8379,10 @@ def getStudentsList():
         l=1
         studentList = []
         for student in studentListQuery:
-            stud = str(l)+str('-')+str(student.full_name)+str("\n")
+            if l==1:
+                stud = str("Here's your students list:\n")+str(l)+str('-')+str(student.full_name)+str("\n")
+            else:
+                stud = str(l)+str('-')+str(student.full_name)+str("\n")
             studentList.append(stud)
             l=l+1
         msg = 'no students available'
@@ -8341,14 +8402,31 @@ def getClassSectionList():
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = ''
+        if userId:
+            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        else:
+            Msg = 'you are not a registered user'
+            return jsonify({'class_list':Msg})
+        classesListData = ''
+        if teacher_id:
+            classesListData = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+        else:
+            Msg = 'you are not a registered teacher'
+            return jsonify({'class_list':Msg})
+        
         classList = [] 
         j=1
         for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
+            if j==1:
+                classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
+            else:
+                classVal = str(j)+str(' - ')+str(classlist.class_val)+str('-')+str(classlist.section)+str("\n")
             classList.append(classVal)
             j=j+1
         print(classList)
@@ -8366,21 +8444,37 @@ def getClassList():
         jsonData = request.json
         data = json.dumps(jsonData)
         dataList = json.loads(data)
+        print('all data:')
+        print(dataList)
         conList = []
         for con in dataList['contact'].values():
             conList.append(con)
-        print(conList[0])
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = ''
         if userId:
+            print('you are registered user')
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         else:
             Msg = 'you are not a registered user'
             return jsonify({'class_list':Msg})
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classesListData = ''
+        if teacher_id:
+            classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        else:
+            Msg = 'you are not a registered teacher'
+            return jsonify({'class_list':Msg})
+        
         classList = [] 
         j=1
         for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+            if j==1:
+                classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+            else:
+                classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
             j=j+1
         print(classList)
@@ -8400,6 +8494,92 @@ def getClassList():
 #             print(value)
 #     dataValue = 10
 #     return jsonify({'Data':dataValue})
+
+@app.route('/getStudentPerformance',methods=['POST','GET'])
+def getStudentPerformance():
+    if request.method == 'POST':
+        print('inside getStudentPerformance')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+        emailDet = studentDetails.email
+        if emailDet:
+            user = User.query.filter_by(email=studentDetails.email).first()
+        if user:
+            login_user(user,remember='Y')
+        link = url_for('studentProfile',student_id=studentDetails.student_id,_external=True)
+        return jsonify({'studentProfile':link})
+
+# @app.route('/getStudentDashboard',methods=['POST','GET'])
+# def getStudentDashboard():
+#     if request.method == 'POST':
+#         print('inside getStudentDashboard')
+#         jsonExamData = request.json
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         conList = []
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         userId = User.query.filter_by(phone=contactNo).first()
+#         studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+#         emailDet = studentDetails.email
+#         if emailDet:
+#             user = User.query.filter_by(email=studentDetails.email).first()
+#         if user:
+#             login_user(user,remember='Y')
+#         link = url_for('studentDashboard',student_id=studentDetails.student_id,_external=True)
+#         return jsonify({'studentDashboard':link})
+
+@app.route('/getStudentDet',methods=['POST','GET'])
+def getStudentDet():
+    if request.method == 'POST':
+        print('inside getStudentDetails')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        studentDetails = StudentProfile.query.filter_by(user_id=userId.id).first()
+        if studentDetails:
+            msg = 'What do you want to do today?\n1-See dashboard\n2-see performance\n3-Start practice test'
+            return jsonify({'studentDetails':msg})
+        else:
+            msg = 'you are not a registered student'
+            return jsonify({'studentDetails':msg})
+
+@app.route('/getUserDetails',methods=['POST','GET'])
+def getUserDetails():
+    if request.method == 'POST':
+        print('inside getUserDetails')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        if teacher_id:
+            msg = ' What do you want to do today?\n1 - Create or start Online Tests\n2 - Create Online Class Link\n3 - See student profile (Performance report included)\n4 - See Leaderboard\n5 - Customer Support'
+            return jsonify({'userDetails':msg})
+        else:
+            msg = 'you are not a registered teacher'
+            return jsonify({'userDetails':msg})
 
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
@@ -8423,9 +8603,13 @@ def getEnteredTopicList():
         for con in z['contact'].values():
             conList.append(con)
         print(paramList)
-        print(conList[0])
+        print(conList[2])
         
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8514,9 +8698,26 @@ def getEnteredTopicList():
 
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=conList[0], _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
+        # allLink = str('Here is the link to the online test:\n')+str(linkForTeacher)+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
-        return jsonify({'onlineTestLink':linkForTeacher})
+        key = '265e29e3968fc62f68da76a373e5af775fa60'
+        url = urllib.parse.quote(linkForTeacher)
+        name  = ''
+        r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        print('New Link')
+        print(r.text)
+        print(type(r.text))
+        linkList = []
+        jsonLink = json.dumps(r.text)
+        newData = json.loads(r.text)
+        print(type(newData))
+        for linkData in newData['url'].values():
+            linkList.append(linkData)
+        finalLink = linkList[3]
+        newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+        print('newLink'+str(newLink))
+        return jsonify({'onlineTestLink':newLink})
 
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
@@ -8541,13 +8742,17 @@ def newTestLinkGenerate():
         for con in z['contact'].values():
             conList.append(con)
         print(paramList)
-        print(conList[0])
+        print(conList[2])
         # Test for topic
         print('Testing for topic')
         print(type(paramList[1]))
         print(int(paramList[1]))
         # 
-        userId = User.query.filter_by(phone=conList[0]).first()
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
@@ -8650,10 +8855,36 @@ def newTestLinkGenerate():
 
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=conList[0], _external=True)
-        # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
-    return jsonify({'onlineTestLink':linkForTeacher})
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
+        key = '265e29e3968fc62f68da76a373e5af775fa60'
+        url = urllib.parse.quote(linkForTeacher)
+        name  = ''
+        r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        print('New Link')
+        print(r.text)
+        print(type(r.text))
+        linkList = []
+        jsonLink = json.dumps(r.text)
+        newData = json.loads(r.text)
+        print(type(newData))
+        for linkData in newData['url'].values():
+            linkList.append(linkData)
+        finalLink = linkList[3]
+        newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+        print('newLink'+str(newLink))
+        return jsonify({'onlineTestLink':newLink})
 
+@app.route('/getNewUrl',methods=['POST','GET'])
+def getNewUrl():
+    jsonData = {"url":{"status":7,"fullLink":"https:\/\/alllearnreview-pr-229.herokuapp.com\/testLinkWhatsappBot?testType=Class+Feedback&totalMarks=50&respsessionid=3320402202117572449&fetchQuesIds=%281004%2C+10%2C+%27Subjective%27%2C+6046%2C+%27Double+Attack%3A+White+to+Move%27%2C+332%2C+3081%29&fetchQuesIds=%281004%2C+10%2C+%27Subjective%27%2C+6048%2C+%27Double+Attack%3A+White+to+Move%27%2C+332%2C+3081%29&fetchQuesIds=%281004%2C+10%2C+%27Subjective%27%2C+6047%2C+%27Double+Attack%3A+White+to+Move%27%2C+332%2C+3081%29&fetchQuesIds=%281004%2C+10%2C+%27Subjective%27%2C+6051%2C+%27Double+Attack%3A+White+to+Move%27%2C+332%2C+3081%29&fetchQuesIds=%281004%2C+10%2C+%27Subjective%27%2C+6049%2C+%27Double+Attack%3A+White+to+Move%27%2C+332%2C+3081%29&weightage=10&negativeMarking=0&uploadStatus=Y&resultStatus=Y&advance=Y&instructions=&duration=0&classVal=Beginner%40Level%403&section=Abhishek+P&subjectId=332&phone=8802362259","date":"2021-02-04","shortLink":"https:\/\/cutt.ly\/IkkYl2L","title":"allLearn"}}
+    linkList = []
+    jsonLink = json.dumps(jsonData)
+    newData = json.loads(jsonLink)
+    print(newData)
+    for linkData in newData['url'].values():
+        linkList.append(linkData)
+    finalLink = linkList[3]
+    return jsonify({'data':finalLink})
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
@@ -8666,7 +8897,7 @@ def getTestPaperLink():
         testPaperQuery = "select test_paper_link from test_details order by test_id desc limit 1"
         print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
-        testPaperLink = testPaperData.test_paper_link
+        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
         print('testPaperLink:'+str(testPaperLink))
         return jsonify({'TestPaperLink':testPaperLink})
 
@@ -9164,7 +9395,7 @@ def loadQuestionStud():
                 else:
                     checkResponse.response_option = response_option
                     checkResponse.answer_type = 336
-                checkResponse.answer_status = 241
+                checkResponse.answer_status = 239
                 db.session.commit()
     print('Response Option:'+str(response_option))
     if response_option!='':
@@ -9227,7 +9458,7 @@ def loadQuestionStud():
             if btn=='save':
                 print('inside savebtn')
                 response_cap = ResponseCapture.query.filter_by(resp_session_id = resp_session_id,question_id= last_q_id,student_id=studentRow.student_id).first()
-                response_cap.answer_status = 241
+                response_cap.answer_status = 239
                 db.session.commit()
         
         print('Question numbering')
@@ -9640,12 +9871,108 @@ def reviewSubjective():
     subjectName = subject.description
     return render_template('reviewPage.html',studentName=studentDet.full_name,questionDetailRow=questionDetailRow,testType=testType,subjectName=subjectName,resp_session_id=resp_sess_id)
 
+@app.route('/studentDashboard',methods=['GET','POST'])
+@login_required
+def studentDashboard():
+    print('inside student dashboard')
+    # student_id = ''
+    # studentDet = ''
+    # if current_user.is_anonymous:
+    #     student_id = request.args.get('student_id')
+    #     studentDet = StudentProfile.query.filter_by(student_id=student_id).first()
+    # else:
+    studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    student_id = studentDet.student_id
+    print('Student Id:'+str(student_id))
+    testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc "
+    testHistoryQuery = testHistoryQuery + "inner join session_detail sd on fsprc.resp_session_id = sd.resp_session_id order by test_date desc limit 50"
+    testHistory = db.session.execute(testHistoryQuery).fetchall()
+    homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
+    homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+    homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(studentDet.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(studentDet.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+    homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc limit 10"
+    print(homeworkDetailQuery)
+    homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
+    upcomingTestDetailQuery ="select md.description as subject,sd.test_due_date,sd.test_time, sd.total_marks, sd.incorrect_marks, sd.test_id from session_detail sd "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join test_details td on sd.test_id = td.test_id "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.test_due_date > now()"
+    upcomigTestDetails = db.session.execute(upcomingTestDetailQuery).fetchall()
+    print('Test Res Data:')
+    print(testHistory)
+    # Overall Performance
+    overallSum = 0
+    overallPerfValue = 0
+    sumMarks = 0
+    sum1 = 0
+    sum2 = 0
+    totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(totalOfflineTestMarks)
+    totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
+    if totalOfflineTestMarks.sum1:
+        print(totalOfflineTestMarks.sum1)
+        sum1 = totalOfflineTestMarks.sum1
+    totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
+    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+    
+    if totalOnlineTestMarks.sum2:
+        print(totalOnlineTestMarks.sum2)
+        sum2 = totalOnlineTestMarks.sum2
+    sumMarks = int(sum1) + int(sum2)
+    print('Total Marks:'+str(sumMarks))
+    total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+    print(total1)
+    total1 = db.session.execute(text(total1)).first()
+    tot1 = 0
+    if total1:
+        print(total1.offlinetotal)
+        tot1 = total1.offlinetotal
+    total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
+    total2 = db.session.execute(text(total2)).first()
+    total3 = 0
+    grandTotal = 0
+    if total2.count:
+        print(total2.count)
+        total3 = total2.count*100
+    grandTotal = int(tot1) + int(total3)
+    print('Grand Total:'+str(grandTotal))
+    # for rows in perfRows:
+    #     overallSum = overallSum + int(rows.student_score)
+        #print(overallSum)
+    try:
+        overallPerfValue = round(sumMarks/(grandTotal)*100,2)    
+    except:
+        overallPerfValue=0 
+    # End
+    subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
+    subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    topicTrackerQuery = "with cte_total_topics as "
+    topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
+    topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
+    topicTrackerQuery = topicTrackerQuery +"  from topic_tracker where class_sec_id = '"+ str(studentDet.class_sec_id)+"' group by subject_id)  "
+    topicTrackerQuery = topicTrackerQuery +"select c1.subject_id,  t2.description as subject_name, c1.last_updated_date, "
+    topicTrackerQuery = topicTrackerQuery +"CASE WHEN COUNT(t1.subject_id) <> 0 THEN COUNT(c1.subject_id) ELSE 0 END "
+    topicTrackerQuery = topicTrackerQuery +"topics_covered, c1.total_topics  "
+    topicTrackerQuery = topicTrackerQuery +"from topic_tracker t1  "
+    topicTrackerQuery = topicTrackerQuery +"right outer join cte_total_topics c1  "
+    topicTrackerQuery = topicTrackerQuery +"on c1.subject_id=t1.subject_id and class_sec_id= '"+ str(studentDet.class_sec_id)+"'  "
+    topicTrackerQuery = topicTrackerQuery +"and t1.is_covered='Y'  "
+    topicTrackerQuery = topicTrackerQuery +"inner join   "
+    topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
+    topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
+    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
+    topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
+    classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
+    qclass_val = classQuery.class_val
+    return render_template('studentDashboard.html',qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
     marksList = request.form.getlist('marks')
     quesIdList = request.form.getlist('quesId')
     resp_session_id = request.args.get('resp_session_id')    
     isCorrect = request.form.getlist('isCorrect')
+    remarksList = request.form.getlist('remarks')
     format = "%Y-%m-%d %H:%M:%S"
     # Current time in UTC
     now_utc = datetime.now(timezone('UTC'))
@@ -9660,9 +9987,11 @@ def addSubjMarks():
         db.session.commit()
     for i in range(len(marksList)):
         print('Marks:'+str(marksList[i]))
+        print('Remarks:'+str(remarksList[i]))
         print('QuesList:'+str(quesIdList[i]))
         questionDet = ResponseCapture.query.filter_by(resp_session_id=resp_session_id,question_id=quesIdList[i]).first()
         questionDet.marks_scored = marksList[i]
+        questionDet.remark = remarksList[i]
         quesStatus.last_modified_date = now_local.strftime(format)
         questionDet.answer_status = 241
         if isCorrect[i]:

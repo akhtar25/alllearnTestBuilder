@@ -210,7 +210,7 @@
 
         {%elif user_type_val=='134'%}
         <li>
-          <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
         </li>
         <li>
           <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
@@ -493,7 +493,7 @@
           </li>
           {% elif user_type_val_for_liveClass=='134' %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           <li>
             <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
@@ -512,11 +512,11 @@
 
           {% elif user_type!='134' and user_type_value!='134' %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           {% elif user_type_value=='134' %}
             <li id="TestLink">
-              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
             </li>
             <li>
               <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
@@ -596,7 +596,7 @@
           {% if current_user.user_type==134 %}
           {% if indic %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           {% endif %}
           <li>
