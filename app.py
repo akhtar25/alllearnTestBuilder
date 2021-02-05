@@ -4500,7 +4500,13 @@ def sendUserNotificationEmail():
         for con in z['contact'].values():
             conList.append(con)
         print(conList)
-        return jsonify({'data':1})
+        contactNo = conList[2]
+        name = conList[1]
+        name1 = conList[1]['name']
+        print('phone:'+str(contactNo))
+        print('name:'+str(name))
+        print('name1:'+str(name1))
+        return jsonify({'phone':contactNo,'name':name,'name1':name1})
 
 @app.route('/sendNotificationEmail')
 def sendNotificationEmail():
