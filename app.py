@@ -1,5 +1,5 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email
+from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
@@ -4504,9 +4504,9 @@ def sendUserNotificationEmail():
         print('phone:'+str(contactNo))
         name = conList[1]
         print('name:'+str(name))
-        name1 = conList[1]['name']
-        print('name1:'+str(name1))
-        return jsonify({'phone':contactNo,'name':name,'name1':name1})
+        email = 'contact@alllearn.in'
+        notificationEmail(email,name,contactNo)
+        return jsonify({'phone':contactNo,'name':name})
 
 @app.route('/sendNotificationEmail')
 def sendNotificationEmail():
