@@ -5,68 +5,113 @@
       class="wrapper"
       style="background-image: linear-gradient(45deg, #e4ebf2, transparent)"
     >
-      <section class="content-header">
-        <h1>Student's Dashboard</h1>
+      <section class="content-header"> 
+        <h1>Welcome {{studentDet.full_name}}</h1>
       </section>
       <div class="content">
+        <!-- Start card -->
+        <div class="row"> 
+          <div class="col-md-3 col-xl-3">
+            <div class="card mb-3 widget-content bg-arielle-smile-dashboard1">
+              <div class="widget-content-wrapper">
+                <div class="widget-content-left leftContent">
+                  <div class="widget-heading">
+                    Test
+                  </div>
+                  <div class="widget-subheading">
+                    Total written test
+                  </div>
+                </div>
+                <div class="widget-content-right rightContent">
+                  <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                    <span>{{writtenTestCount}}</span>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+    
+          <!-- for total numbers of students -->
+          <div class="col-md-3 col-xl-3">
+              <div class="card mb-3 widget-content bg-grow-early-dashboard1">
+                <div class="widget-content-wrapper">
+                  <div class="widget-content-left leftContent">
+                    <div class="widget-heading">
+                      Test
+                    </div>
+                    <div class="widget-subheading">
+                      Total pending test
+                    </div>
+                  </div>
+                  <div class="widget-content-right rightContent">
+                    <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                      <span>{{pendingTestCount[0]}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+        <!-- </div> -->
+        <!-- <div class="row" style="margin-top: -20px;"> -->
+            <div class="col-md-3 col-xl-3">
+                <div class="">
+              <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+                <div class="widget-content-wrapper">
+                  <div class="widget-content-left leftContent">
+                    <div class="widget-heading">
+                      Homework
+                    </div>
+                    <div class="widget-subheading">
+                      Total written homework
+                    </div>
+                  </div>
+                  <div class="widget-content-right rightContent">
+                    <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                      <span>{{writtenHomeworkCount}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              </div>
+            </div>
+      
+            <!-- for total numbers of students -->
+            <div class="col-md-3 col-xl-3">
+                <div class="">
+                <div class="card mb-3 widget-content bg-grow-early-dashboard">
+                  <div class="widget-content-wrapper">
+                    <div class="widget-content-left leftContent">
+                      <div class="widget-heading">
+                        Homework
+                      </div>
+                      <div class="widget-subheading">
+                        Total pending homework
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                        <span>{{pendingHomeworkCount[0]}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        <!-- End -->
+        <!-- Start -->
+          <!-- Start upcoming test  -->
         <div class="row">
-            <div class="col s8" style="margin-left: 20px;"> 
-            <h4 class='grey-text' style="color:black !important;font-weight:400">Overall Performance Graph</h4>
-        <div id='studentPerformanceGraphDiv'> Loading graph...</div>
-    </div>
-    <div class="col s3" style="margin-top: 40px;margin-left: 20px;">
-        <!-- <h3 class="box-title" style="font-size: 18px">Overall Performance</h3> -->
-        <div class="testDashboard" style="font-size: 14px;padding-left: 5px;padding-right: 5px;">
-        <div class="">
-            <table class="responsive-table">
-                <tr>
-                <td>
-                    <h4 style="font-size: 16px;width:145px;">Overall Performance Average</h4>
-                </td>
-                <td>
-                    {%if overallPerfValue > 49 %}
-                        <h3 style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{overallPerfValue}}%</h3>
-                        {%else%}
-                        <h3  style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{overallPerfValue}}%</h3>
-                        {%endif%}
-                </td>
-                </tr>
-            </table>
-        </div>
-        </div>
-        <h4 class="box-title" style="color:black !important;font-weight:400;font-size: 18px;margin-top: 20px;">Subject Level Performance</h4>
-        <div class="testDashboard" style="padding-left: 5px;max-height: 345px;position: relative;overflow-y: auto;">
-        
-                {%if subjectPerf|length>0%}
-                <table class='responsive-table' style='font-size: 18px;'>
-                    
-                        <tr style="border-bottom: 0px;">
-                            {%for rows in subjectPerf%}
-                            <td style="font-weight: 400;">{{rows.subject}}</td>
-                            {%if rows.student_score > 49%}
-                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{rows.student_score}}%</td>
-                            {%else%}
-                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{rows.student_score}}%</td>
-                            {%endif%}
-                            {%endfor%}
-                        </tr> 
-                </table>
-                {%else%}
-                <h5>No Info Present</h5>
-                {%endif%}
-        </div>
-        </div> 
-        </div>
-        <!-- Start upcoming test  -->
-        <div class="row">
-          <div class="col-md-10" style="margin-left: 18px">
+          <div class="col-md-5" style="margin-left: 20px">
             <div
               id="testHistory"
               style="
                 padding: 10px;
-                max-height: 500px;
+                height: 330px;
                 background-color: white;
-                width: 1100px;
               "
               class="z-depth-1 hoverable row colorClass"
             >
@@ -79,10 +124,10 @@
                   <tr>
                     <th>Subject</th>
                     <th>Due Date</th>
-                    <th>Duration</th>
-                    <th>Negative Marks</th>
+                    <!-- <th>Duration</th>
+                    <th>Negative Marks</th> -->
                     <th>Chapters and Topics</th>
-                    <th>Total Marks</th>
+                    <th>Test</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,7 +139,7 @@
                     <th style="font-size: 14px; font-weight: 400">
                       {{row.test_due_date.strftime('%d %B %Y')}}
                     </th>
-                    <th style="font-size: 14px; font-weight: 400">
+                    <!-- <th style="font-size: 14px; font-weight: 400">
                         {% if row.test_time==0 %}
                             untimed
                         {% else %}
@@ -103,12 +148,12 @@
                     </th>
                     <th style="font-size: 14px; font-weight: 400">
                       {{row.incorrect_marks}}
-                    </th>
+                    </th> -->
                     <th style="font-size: 14px; font-weight: 400">
                         <a href="#chapterModal" name='{{row.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a>
                     </th>
                     <th style="font-size: 14px; font-weight: 400">
-                        {{row.total_marks}}
+                        
                     </th>
                   </tr>
                   {% endfor %}
@@ -118,17 +163,16 @@
               <div id="pageNavPosition2" class="pager-nav"></div>
             </div>
           </div>
-        </div>
+        <!-- </div> -->
         <!-- End -->
-        <div class="row">
-            <div class="col-md-10" style="margin-left: 18px">
+        <!-- <div class="row"> -->
+            <div class="col-md-6" style="margin-left: 50px">
               <div
                 id="testHistory"
                 style="
                   padding: 10px;
                   max-height: 500px;
                   background-color: white;
-                  width: 1100px;
                 "
                 class="z-depth-1 hoverable row colorClass"
               >
@@ -175,6 +219,56 @@
               </div>
             </div>
           </div>
+        <!-- End -->
+        <div class="row">
+            <div class="col s8" style="margin-left: 20px;"> 
+            <h4 class='grey-text' style="color:black !important;font-weight:400">Overall Performance Graph</h4>
+        <div id='studentPerformanceGraphDiv'> Loading graph...</div>
+    </div>
+    <div class="col s2" style="margin-top: 40px;margin-left: 40px;width: 313px;">
+        <!-- <h3 class="box-title" style="font-size: 18px">Overall Performance</h3> -->
+        <div class="testDashboard" style="font-size: 14px;padding-left: 5px;padding-right: 5px;">
+        <div class="">
+            <table class="responsive-table">
+                <tr>
+                <td>
+                    <h4 style="font-size: 16px;width:145px;">Overall Performance Average</h4>
+                </td>
+                <td>
+                    {%if overallPerfValue > 49 %}
+                        <h3 style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{overallPerfValue}}%</h3>
+                        {%else%}
+                        <h3  style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{overallPerfValue}}%</h3>
+                        {%endif%}
+                </td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        <h4 class="box-title" style="color:black !important;font-weight:400;font-size: 18px;margin-top: 20px;">Subject Level Performance</h4>
+        <div class="testDashboard" style="padding-left: 5px;max-height: 345px;position: relative;overflow-y: auto;">
+        
+                {%if subjectPerf|length>0%}
+                <table class='responsive-table' style='font-size: 18px;'>
+                    
+                        <tr style="border-bottom: 0px;">
+                            {%for rows in subjectPerf%}
+                            <td style="font-weight: 400;">{{rows.subject}}</td>
+                            {%if rows.student_score > 49%}
+                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='green-text'>{{rows.student_score}}%</td>
+                            {%else%}
+                            <td style="font-size: 22px;float: right;margin-right: 10px;" class='red-text'>{{rows.student_score}}%</td>
+                            {%endif%}
+                            {%endfor%}
+                        </tr> 
+                </table>
+                {%else%}
+                <h5>No Info Present</h5>
+                {%endif%}
+        </div>
+        </div> 
+        </div>
+        
         <!-- Modal for Chapters -->
         <div id="chapterModal" class="modal" style="background-color:white;">
             <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">

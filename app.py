@@ -8980,6 +8980,8 @@ def feedbackCollection():
         resultStatus = request.form.get('resultStatus')
         advance = request.form.get('advance')
         instructions = request.form.get('instructions')
+        dueDate = request.form.get('dueDate')
+        print('dueDate:'+str(dueDate))
         print('upload status:'+str(uploadStatus))
         print('resultStatus:'+str(resultStatus))
         print('feeedback Collection instructions:'+str(instructions))
@@ -9080,7 +9082,7 @@ def feedbackCollection():
                 print(now_local.strftime(format))  
                                 
                 sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions)
+                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions,test_due_date=dueDate)
                 db.session.add(sessionDetailRowInsert)
                 print('Adding to the db')
 
@@ -9896,7 +9898,7 @@ def studentDashboard():
     upcomingTestDetailQuery ="select md.description as subject,sd.test_due_date,sd.test_time, sd.total_marks, sd.incorrect_marks, sd.test_id from session_detail sd "
     upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join test_details td on sd.test_id = td.test_id "
     upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.test_due_date > now()"
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.resp_session_id not in (select distinct rc.resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and sd.test_due_date > now()"
     upcomigTestDetails = db.session.execute(upcomingTestDetailQuery).fetchall()
     print('Test Res Data:')
     print(testHistory)
@@ -9964,7 +9966,19 @@ def studentDashboard():
     topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
     classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
     qclass_val = classQuery.class_val
-    return render_template('studentDashboard.html',qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+    writtenTestCountQuery = "select distinct resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"'"
+    writtenTestCountData = db.session.execute(text(writtenTestCountQuery)).fetchall()
+    writtenTestCount = len(writtenTestCountData)
+    pendingTestCountQuery = "select distinct count(*) from session_detail sd where resp_session_id not in "
+    pendingTestCountQuery = pendingTestCountQuery + "(select distinct resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and class_sec_id = '"+str(studentDet.class_sec_id)+"'"
+    pendingTestCount = db.session.execute(text(pendingTestCountQuery)).first()
+    writtenHomeworkCountQuery = "select distinct homework_id from student_homework_response shr where student_id = '"+str(studentDet.student_id)+"'"
+    writtenHomeworkCountData = db.session.execute(text(writtenHomeworkCountQuery)).fetchall()
+    writtenHomeworkCount = len(writtenHomeworkCountData)
+    pendingHomeworkCountQuery = "select distinct count(*) from homework_detail hd where homework_id not in "
+    pendingHomeworkCountQuery = pendingHomeworkCountQuery + "(select distinct homework_id from student_homework_response shr where student_id = '"+str(studentDet.student_id)+"' ) and class_sec_id = '"+str(studentDet.class_sec_id)+"'"
+    pendingHomeworkCount = db.session.execute(text(pendingHomeworkCountQuery)).first()
+    return render_template('studentDashboard.html',pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
 
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
