@@ -872,6 +872,7 @@ class SessionDetail(db.Model):
     correct_marks = db.Column(db.Integer, nullable = True)
     incorrect_marks = db.Column(db.Integer, nullable=True)
     instructions = db.Column(db.String(500), nullable=True)
+    test_link = db.Column(db.String(5000), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
 class RespSessionQuestion(db.Model):
