@@ -8585,6 +8585,7 @@ def getUserDetails():
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
+        print('inside getEnteredTopicList')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
@@ -8741,6 +8742,7 @@ def getEnteredTopicList():
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
     if request.method == 'POST':
+        print('newTestLinkGenerate')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
@@ -8873,7 +8875,7 @@ def newTestLinkGenerate():
 
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
         key = '265e29e3968fc62f68da76a373e5af775fa60'
         url = urllib.parse.quote(linkForTeacher)
         name  = ''
@@ -8930,6 +8932,8 @@ def testLinkWhatsappBot():
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     student = StudentProfile.query.filter_by(user_id=user.id).first()
     subject_id = request.args.get('subjectId')
+    print('inside testlinkwhatsappbot')
+    print(subject_id)
     subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
     subjectName = subjectQuery.description
     classVal = request.args.get('classVal')
