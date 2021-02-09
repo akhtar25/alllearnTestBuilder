@@ -8705,7 +8705,7 @@ def getEnteredTopicList():
             date_of_test=datetime.now(),test_paper_link='', school_id=teacher_id.school_id, teacher_id=teacher_id.teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
-        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id.teacher_id,
             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=currClassSecRow.class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=count_marks, last_modified_date = str(now_local.strftime(format)))
         db.session.add(sessionDetailRowInsert)
         for questionVal in fetchQuesIds:
