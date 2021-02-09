@@ -8699,7 +8699,7 @@ def getEnteredTopicList():
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        # threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
         testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
             date_of_test=datetime.now(),test_paper_link='', school_id=teacher_id.school_id, teacher_id=teacher_id.teacher_id)
