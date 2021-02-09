@@ -8908,6 +8908,7 @@ def getNewUrl():
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
+        print('inside getTestPaperLink')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
