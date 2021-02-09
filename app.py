@@ -8694,8 +8694,23 @@ def getEnteredTopicList():
         print(fetchQuesIds)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        # threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)
+        now_utc = datetime.now(timezone('UTC'))
+        now_local = now_utc.astimezone(get_localzone())
+        print('Date of test creation:'+str(now_local.strftime(format)))
         threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-
+        testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
+            board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+            date_of_test=datetime.now(),test_paper_link='', school_id=teacher_id.school_id, teacher_id=teacher_id.teacher_id)
+        db.session.add(testDetailsUpd)
+        db.session.commit()
+        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=currClassSecRow.class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=count_marks, last_modified_date = str(now_local.strftime(format)))
+        db.session.add(sessionDetailRowInsert)
+        for questionVal in fetchQuesIds:
+            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+            db.session.add(testQuestionInsert)
+        db.session.commit()
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
