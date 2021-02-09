@@ -6773,6 +6773,8 @@ def topicList():
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
     topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
     topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
+    print('inside topicList')
+    print(topicListQuery)
     topicList= db.session.execute(text(topicListQuery)).fetchall()
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id,class_val=class_val)
@@ -6963,7 +6965,7 @@ def feedbackCollectionStudDev():
         instructions = instructionsRows.instructions
     else:
         instructions = ''
-    studId = request.args.get('student_id')
+    student_id = request.args.get('student_id')
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
@@ -6971,7 +6973,16 @@ def feedbackCollectionStudDev():
     print('upload status:'+str(uploadStatus))
     print('result status:'+str(resultStatus))
     print('advance:'+str(advance))
-    print('Student Id:'+str(studId))
+    print('Student Id:'+str(student_id))
+    studId = None
+    if student_id!=None:
+        studId=student_id
+    if current_user.is_anonymous:
+        print('user not registered')
+    else:
+        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        studId = studentDetails.student_id
+
     if studId==None:
         print('Student Id is null')
         return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
@@ -7657,6 +7668,36 @@ def loadContent():
             db.session.add(contentData)
     db.session.commit()
     return "Upload"
+
+@app.route('/getContentDetails',methods=['GET','POST'])
+def getContentDetails():
+    topic_id = request.args.get('topic_id')
+    if current_user.user_type==134:
+        print('if user is student')
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        classVal = ClassSection.query.filter_by(class_sec_id=teacher.class_sec_id).first()
+        content = "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+        content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+        content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+        content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where td.topic_id = '"+str(topic_id)+"' and cd.archive_status = 'N' and is_private='N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id<>'"+str(teacher.school_id)+"' "
+        content = content + "union "
+        content = content + "select cd.last_modified_date,cd.content_id, cd.content_type,cd.reference_link, cd.content_name,td.topic_name,md.description subject_name, cd.class_val,tp.teacher_name uploaded_by from content_detail cd "
+        content = content + "inner join topic_detail td on cd.topic_id = td.topic_id "
+        content = content + "inner join message_detail md on md.msg_id = cd.subject_id "
+        content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where td.topic_id = '"+str(topic_id)+"' and cd.archive_status = 'N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id='"+str(teacher.school_id)+"' order by content_id"
+        print(content)
+        contentDetail = db.session.execute(text(content)).fetchall()
+    
+        # if len(contentDetail)==0:
+        #     print("No data present in the content manager details")
+        #     return jsonify(["NA"])
+        # else:
+        print(len(contentDetail))
+        for c in contentDetail:
+            print("Content List"+str(c.content_name))    
+            
+        return render_template('_topicContentDetails.html',contents=contentDetail)
+
 
 @app.route('/contentDetails',methods=['GET','POST'])
 def contentDetails():
@@ -9080,9 +9121,10 @@ def feedbackCollection():
                     # Convert to local time zone
                 now_local = now_utc.astimezone(get_localzone())
                 print(now_local.strftime(format))  
-                                
+                testLink = url_for('feedbackCollectionStudDev',resp_session_id=responseSessionID,school_id=teacherProfile.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)
+                print('TestLink:'+str(testLink))            
                 sessionDetailRowInsert=SessionDetail(resp_session_id=responseSessionID,session_status='80',teacher_id= teacherProfile.teacher_id,
-                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions,test_due_date=dueDate)
+                    class_sec_id=class_sec_id, test_id=str(qtest_id).strip(),correct_marks=weightage,incorrect_marks=nMark, test_time=duration,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)),instructions=instructions,test_due_date=dueDate,test_link=testLink)
                 db.session.add(sessionDetailRowInsert)
                 print('Adding to the db')
 
@@ -9886,8 +9928,8 @@ def studentDashboard():
     studentDet = StudentProfile.query.filter_by(user_id=current_user.id).first()
     student_id = studentDet.student_id
     print('Student Id:'+str(student_id))
-    testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc "
-    testHistoryQuery = testHistoryQuery + "inner join session_detail sd on fsprc.resp_session_id = sd.resp_session_id order by test_date desc limit 50"
+    testHistoryQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc order by test_date desc"
+    # testHistoryQuery = testHistoryQuery + "inner join response_capture rc on fsprc.resp_session_id = rc.resp_session_id order by test_date desc limit 50"
     testHistory = db.session.execute(testHistoryQuery).fetchall()
     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
@@ -9895,10 +9937,12 @@ def studentDashboard():
     homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc limit 10"
     print(homeworkDetailQuery)
     homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
-    upcomingTestDetailQuery ="select md.description as subject,sd.test_due_date,sd.test_time, sd.total_marks, sd.incorrect_marks, sd.test_id from session_detail sd "
+    upcomingTestDetailQuery ="select md.description as subject,sd.test_due_date,sd.test_time, sd.total_marks,sd.test_link, sd.incorrect_marks, sd.test_id from session_detail sd "
     upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join test_details td on sd.test_id = td.test_id "
     upcomingTestDetailQuery = upcomingTestDetailQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.resp_session_id not in (select distinct rc.resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and sd.test_due_date > now()"
+    upcomingTestDetailQuery = upcomingTestDetailQuery + "where sd.resp_session_id not in (select distinct rc.resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and sd.test_due_date > now() and sd.class_sec_id='"+str(studentDet.class_sec_id)+"'"
+    print('fetch upcoming Test Query')
+    print(upcomingTestDetailQuery)
     upcomigTestDetails = db.session.execute(upcomingTestDetailQuery).fetchall()
     print('Test Res Data:')
     print(testHistory)
@@ -9966,11 +10010,13 @@ def studentDashboard():
     topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
     classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
     qclass_val = classQuery.class_val
-    writtenTestCountQuery = "select distinct resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"'"
+    writtenTestCountQuery = "SELECT fsprc.student_id,fsprc.subject,fsprc.topics,fsprc.test_date,fsprc.resp_session_id,fsprc.perf_percentage from fn_student_performance_response_capture("+str(student_id)+") fsprc order by test_date desc"
     writtenTestCountData = db.session.execute(text(writtenTestCountQuery)).fetchall()
     writtenTestCount = len(writtenTestCountData)
-    pendingTestCountQuery = "select distinct count(*) from session_detail sd where resp_session_id not in "
-    pendingTestCountQuery = pendingTestCountQuery + "(select distinct resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and class_sec_id = '"+str(studentDet.class_sec_id)+"'"
+    pendingTestCountQuery = "select count(*) from session_detail sd "
+    pendingTestCountQuery = pendingTestCountQuery + "inner join test_details td on sd.test_id = td.test_id "
+    pendingTestCountQuery = pendingTestCountQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    pendingTestCountQuery = pendingTestCountQuery + "where sd.resp_session_id not in (select distinct rc.resp_session_id from response_capture rc where student_id = '"+str(studentDet.student_id)+"') and sd.test_due_date > now() and sd.class_sec_id='"+str(studentDet.class_sec_id)+"'"
     pendingTestCount = db.session.execute(text(pendingTestCountQuery)).first()
     writtenHomeworkCountQuery = "select distinct homework_id from student_homework_response shr where student_id = '"+str(studentDet.student_id)+"'"
     writtenHomeworkCountData = db.session.execute(text(writtenHomeworkCountQuery)).fetchall()
@@ -9978,7 +10024,11 @@ def studentDashboard():
     pendingHomeworkCountQuery = "select distinct count(*) from homework_detail hd where homework_id not in "
     pendingHomeworkCountQuery = pendingHomeworkCountQuery + "(select distinct homework_id from student_homework_response shr where student_id = '"+str(studentDet.student_id)+"' ) and class_sec_id = '"+str(studentDet.class_sec_id)+"'"
     pendingHomeworkCount = db.session.execute(text(pendingHomeworkCountQuery)).first()
-    return render_template('studentDashboard.html',pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+    topicCoveredCountQuery = "select distinct count(*) from topic_tracker tt where is_covered = 'Y' and school_id = '"+str(studentDet.school_id)+"' and is_archived = 'N'"
+    topicCoveredCount = db.session.execute(text(topicCoveredCountQuery)).first()
+    topicunCoveredCountQuery = "select distinct count(*) from topic_tracker tt where is_covered = 'N' and school_id = '"+str(studentDet.school_id)+"' and is_archived = 'N'"
+    topicUncoveredCount = db.session.execute(text(topicunCoveredCountQuery)).first()
+    return render_template('studentDashboard.html',topicUncoveredCount=topicUncoveredCount,topicCoveredCount=topicCoveredCount,pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
 
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
