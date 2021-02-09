@@ -8908,20 +8908,133 @@ def getNewUrl():
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
-        jsonData = request.json        
-        a = json.dumps(jsonData)
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        
+        a = json.dumps(jsonExamData)
+      
         z = json.loads(a)
+        
+        
+        paramList = []
         conList = []
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
+        for data in z['results'].values():
+            
+            paramList.append(data)
         for con in z['contact'].values():
             conList.append(con)
+        print(paramList)
         print(conList[2])
-        user = User.query.filter_by(phone=conList[2]).first()
-        teacher = TeacherProfile.query.filter_by(user_id=user.id).first()
-        testPaperQuery = "select test_paper_link from test_details order by test_id desc limit 1"
+        # Test for topic
+        print('Testing for topic')
+        print(type(paramList[1]))
+        print(int(paramList[1]))
+        # 
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)
+            classList.append(classVal)
+            j=j+1
+        
+        selClass = ''
+        print('Selected Class option:')
+        print(paramList[4])
+        for className in classList:
+            num = className.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[4]))
+            if int(num) == int(paramList[4]):
+                print(className)
+                selClass = className.split('-')[1]
+                print('selClass:'+str(selClass))
+        print('class')
+        selClass = selClass.strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[2]))
+            if int(num) == int(paramList[2]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+                
+        print('Subject:')
+        selSubject = selSubject.strip()
+        # Start for topic
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        #End topic
+        selChapter = selChapter.strip()
+        print('Chapter'+str(selChapter))
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        fetchQuesIdsQuery = "select qd.question_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        oldQuesIds = []
+        for ques in fetchQuesIds:
+            if ques:
+                oldQuesIds.append(ques.question_id)
+        testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
         print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
-        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
-        print('testPaperLink:'+str(testPaperLink))
+        fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
+        newQuesIds = []
+        for ques in fetchLastPaperQuestionIds:
+            if ques:
+                newQuesIds.append(ques.question_id) 
+        testPaperLink = ''
+        if  oldQuesIds ==  newQuesIds:   
+            testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
+            print('testPaperLink:'+str(testPaperLink))
+        else:
+            testPaperLink = 'No testpaper available'
         return jsonify({'TestPaperLink':testPaperLink})
 
     
