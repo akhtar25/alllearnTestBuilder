@@ -2,6 +2,8 @@ from flask import Flask, Markup, render_template, request, flash, redirect, url_
 from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
+from flask_celery import make_celery
+from celery import Celery
 #from qrReader import *
 from threading import Thread
 import concurrent.futures
@@ -69,7 +71,33 @@ import json
 
 
 app=FlaskAPI(__name__)
+# Flask celery configuration
+app.config['CELERY_BROKER_URL'] = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
 
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+# @app.route('/process/<name>')
+# def process(name):
+#     reverse.delay(name)
+#     return 'I sent as asynchronous request!'
+
+# @celery.task(name='celery_example.reverse')
+# def reverse(string):
+#     return string[::-1]
+
+# @app.route('/process',methods=['GET','POST'])
+# def process():
+#     task = my_background_task.delay(10, 20)
+#     return 'I sent as asynchronous request!'
+
+# @celery.task
+# def my_background_task(arg1, arg2):
+#     # some long running task here
+#     result = arg1 + arg2
+#     return result
+
+# End
 talisman = Talisman(app, content_security_policy=None)
 
 
@@ -8023,7 +8051,7 @@ def testApp():
     return jsonify({'fileName':file_name_val})
 
 #End API
-
+@celery.task
 def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
@@ -8097,10 +8125,11 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             db.session.add(testQuestionInsert)
         db.session.commit()
         print('after insertData')
+        return 'sent Asynchronous data'
 
-def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
-    print('Inside threadUse')
-    Thread(target=insertData,args=(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
+# def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+#     print('Inside threadUse')
+#     Thread(target=insertData,args=(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
     
 
 # API for New Test Paper Link and Test Link Generation
@@ -8701,8 +8730,9 @@ def getEnteredTopicList():
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.submit(threadUse,currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+        #     executor.submit(threadUse,currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
         # testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
         #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
         #     date_of_test=datetime.now(),test_paper_link='', school_id=teacher_id.school_id, teacher_id=teacher_id.teacher_id)
@@ -8871,8 +8901,8 @@ def newTestLinkGenerate():
         print(fetchQuesIds)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-
+        # threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
@@ -12558,6 +12588,7 @@ def fetchStudTC():
 
 def format_currency(value):
     return "₹{:,.2f}".format(value)
+
 
 if __name__=="__main__":
     app.debug=True  
