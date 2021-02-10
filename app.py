@@ -85,16 +85,16 @@ celery.conf.update(app.config)
 # def reverse(string):
 #     return string[::-1]
 
-# @app.route('/process',methods=['GET','POST'])
-# def process():
-#     task = my_background_task.delay(10, 20)
-#     return 'I sent as asynchronous request!'
+@app.route('/process',methods=['GET','POST'])
+def process():
+    task = my_background_task.delay(10, 20)
+    return 'I sent as asynchronous request!'
 
-# @celery.task
-# def my_background_task(arg1, arg2):
-#     # some long running task here
-#     result = arg1 + arg2
-#     return result
+@celery.task
+def my_background_task(arg1, arg2):
+    # some long running task here
+    result = arg1 + arg2
+    return result
 
 # End
 talisman = Talisman(app, content_security_policy=None)
