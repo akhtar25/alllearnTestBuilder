@@ -8932,7 +8932,7 @@ def getTestPaperLink():
         # Test for topic
         print('Testing for topic')
         print(type(paramList[1]))
-        print(int(paramList[1]))
+        print(paramList[1])
         # 
         print('Data Contact')
         # print(conList[2])
