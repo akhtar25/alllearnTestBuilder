@@ -94,6 +94,7 @@ def process():
 def my_background_task(arg1, arg2):
     # some long running task here
     result = arg1 + arg2
+    print('Result:'+str(result))
     return result
 
 # End
