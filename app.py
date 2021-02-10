@@ -88,11 +88,13 @@ celery.conf.update(app.config)
 @app.route('/process',methods=['GET','POST'])
 def process():
     task = my_background_task.delay(10, 20)
+    print('inside process')
     return 'I sent as asynchronous request!'
 
 @celery.task
 def my_background_task(arg1, arg2):
     # some long running task here
+    print('inside my_background_task')
     result = arg1 + arg2
     print('Result:'+str(result))
     return result
