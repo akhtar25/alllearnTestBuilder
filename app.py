@@ -70,34 +70,7 @@ import json
 
 
 app=FlaskAPI(__name__)
-# Flask celery configuration
-app.config['CELERY_BROKER_URL'] = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
-# @app.route('/process/<name>')
-# def process(name):
-#     reverse.delay(name)
-#     return 'I sent as asynchronous request!'
-
-# @celery.task(name='celery_example.reverse')
-# def reverse(string):
-#     return string[::-1]
-
-@app.route('/process',methods=['GET','POST'])
-def process():
-    task = my_background_task.apply_async(args=[10, 20])
-    print('inside process')
-    return 'I sent as asynchronous request!'
-
-@celery.task
-def my_background_task(arg1, arg2):
-    # some long running task here
-    print('inside my_background_task')
-    result = arg1 + arg2
-    print('Result:'+str(result))
-    return result
 
 # End
 talisman = Talisman(app, content_security_policy=None)
@@ -187,6 +160,37 @@ def note_repr(key):
         'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
         'text': notes[key]
     }
+
+# Flask celery configuration
+print('app.name',app.name)
+celery = Celery('app.name', broker=app.config['CELERY_BROKER_URL'])
+# celery.conf.update(app.config)
+# @app.route('/process/<name>')
+# def process(name):
+#     reverse.delay(name)
+#     return 'I sent as asynchronous request!'
+
+# @celery.task(name='celery_example.reverse')
+# def reverse(string):
+#     return string[::-1]
+
+@celery.task
+def my_background_task():
+    # some long running task here
+    print('inside my_background_task')
+    result = 'a + b'
+    print('Result:'+str(result))
+    return result+'#res'
+
+@app.route('/process',methods=['GET','POST'])
+def process():
+    print('inside process')
+    task = my_background_task.apply_async()
+    print('task',task)
+    print('after execute task')
+    return 'I sent as asynchronous request!'
+
+
 
 
 @app.route('/robots.txt')
@@ -8053,11 +8057,11 @@ def testApp():
     return jsonify({'fileName':file_name_val})
 
 #End API
-@celery.task
-def exampleData(a,b):
-    print('inside exampleData')
-    z = a+b
-    return z
+# @celery.task
+# def exampleData(a,b):
+#     print('inside exampleData')
+#     z = a+b
+#     return z
 
 
 @celery.task
