@@ -6,7 +6,7 @@ class Config(object):
     # staging url  
     DATABASE_URL = os.environ.get("DATABASE_URL", None)
     #staging
-    # DATABASE_URL = "postgres://uf6as3sigg3bn5:p5203252e9b23d6af79a04f794f38041eed7e7114fbe40776d843cce06258783f@alllearnstaginginstanceid.c8et4fo3vjlv.ap-south-1.rds.amazonaws.com/d2vtb4it0a1hst"   
+    DATABASE_URL = "postgres://uf6as3sigg3bn5:p5203252e9b23d6af79a04f794f38041eed7e7114fbe40776d843cce06258783f@alllearnstaginginstanceid.c8et4fo3vjlv.ap-south-1.rds.amazonaws.com/d2vtb4it0a1hst"   
 
     #prod
     # DATABASE_URL = "postgres://u3oeikbfat3t4k:p3c0fc3ffa5a59d4a2680634fbf7f4c83fef3d8187462d99ac821cb406ba79fbc@d5u4rapacupf31.c8et4fo3vjlv.ap-south-1.rds.amazonaws.com/d5u4rapacupf31"
@@ -28,19 +28,16 @@ class Config(object):
     #ANONYMOUS_USERID = 886
     MODE = os.environ.get('MODE')
     #MODE = "TEST"
-    # Cerely
 
+    # Cerely
     CELERY_BROKER_URL = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
-    # os.environ.get('ELASTICSEARCH_URL')
     CELERY_RESULT_BACKEND = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
 
     
     #TEST CREDS
     ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID')
     ALLLEARN_CASHFREE_SECRET_KEY = os.environ.get('ALLLEARN_CASHFREE_SECRET_KEY')
-    
-    
-    
+     
     CASHFREE_API_TEST = "https://ces-gamma.cashfree.com"
     CASHFREE_API_PROD = "https://ces-api.cashfree.com"
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"

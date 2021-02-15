@@ -175,17 +175,17 @@ celery = Celery('app.name', broker=app.config['CELERY_BROKER_URL'])
 #     return string[::-1]
 
 @celery.task
-def my_background_task():
+def my_background_task(a,b):
     # some long running task here
     print('inside my_background_task')
-    result = 'a + b'
+    result = a + b
     print('Result:'+str(result))
     return result+'#res'
 
 @app.route('/process',methods=['GET','POST'])
 def process():
     print('inside process')
-    task = my_background_task.apply_async()
+    task = my_background_task.apply_async(args=[10,20])
     print('task',task)
     print('after execute task')
     return 'I sent as asynchronous request!'
