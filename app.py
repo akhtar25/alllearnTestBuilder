@@ -632,6 +632,10 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password_page.html', form=form)
 
+@app.route('/inReviewSchool')
+def inReviewSchool():
+    print('In review school:'+str(current_user.user_type))
+    return render_template('inReviewSchool.html')
 
 @app.route('/schoolProfile')
 @login_required
@@ -684,7 +688,7 @@ def schoolRegistration():
         school_picture=request.files['school_image']
         school_picture_name=request.form['file-input'] 
 
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data)
+        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data,is_verified='N')
         db.session.add(school)
         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
         if school_picture_name!='':
@@ -765,6 +769,15 @@ def schoolRegistration():
         generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
         generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
         fromSchoolRegistration = True
+        schoolData = SchoolProfile.query.filter_by(school_admin=newTeacherRow.teacher_id).first()
+        print('current user id:'+str(current_user.id))
+        print('schoolData:'+str(schoolData))
+        print('schoolData.is_verified'+str(schoolData.is_verified))
+        if schoolData:
+            print('if schoolData exist')
+            if schoolData.is_verified == 'N':
+                print('if schoolData.is_verified is N')
+                return redirect(url_for('inReviewSchool'))
         return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
@@ -1628,6 +1641,11 @@ def edit_profile():
 def index():
     #print('Inside index')
     #print("########This is the request url: "+str(request.url))
+    
+    schoolData = SchoolProfile.query.filter_by(school_admin=current_user.id).first()
+    if schoolData:
+        if schoolData.is_verified:
+            redirect(url_for('inReviewSchool'))
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
