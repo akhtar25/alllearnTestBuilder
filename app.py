@@ -4310,7 +4310,8 @@ def teachingApplicantProfile(user_id):
 @app.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()    
+    user = User.query.filter_by(username=username).first_or_404() 
+    print('current_user.id:'+str(current_user.id))   
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     school_name_val = schoolNameVal()        
     disconn = ''
@@ -4333,8 +4334,11 @@ def user(username):
         value=0
         if current_user.user_type==72:
             value=1
+        print('schoolAdminRow[0][0]:'+str(schoolAdminRow[0][0]))
+        print('teacher.teacher_id:'+str(teacher.teacher_id))
         if schoolAdminRow[0][0]==teacher.teacher_id:
-            accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status=143"
+            accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id inner join school_profile sp on t1.school_id = sp.school_id where t1.school_id='"+ str(teacher.school_id) +"' and sp.is_verified='N'"
+            print('Query accessReqQuery:'+str(accessReqQuery))
             accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
         teacherData = "select distinct teacher_name, description as subject_name, cs.class_val, cs.section,cs.class_sec_id from teacher_subject_class tsc "
         teacherData = teacherData + "inner join teacher_profile tp on tsc.teacher_id = tp.teacher_id "
@@ -5994,6 +5998,13 @@ def grantUserAccess():
     if userTableDetails.user_type==71:
         print('#########Gotten into 71')
         checkTeacherProfile=TeacherProfile.query.filter_by(user_id=userTableDetails.id).first()
+        if checkTeacherProfile:
+            print('if checkTeacherProfile not none')
+            checkSchoolProfile = SchoolProfile.query.filter_by(school_id=checkTeacherProfile.school_id).first()
+            if checkSchoolProfile:
+                print('if checkSchoolProfile not none')
+                checkSchoolProfile.is_veirfied = 'Y'
+                db.session.commit()
         if checkTeacherProfile==None:
             teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='195', user_id=userTableDetails.id)
             db.session.add(teacherData)    
