@@ -6003,7 +6003,9 @@ def grantUserAccess():
             checkSchoolProfile = SchoolProfile.query.filter_by(school_id=checkTeacherProfile.school_id).first()
             if checkSchoolProfile:
                 print('if checkSchoolProfile not none')
-                checkSchoolProfile.is_veirfied = 'Y'
+                print('checkSchoolProfile.is_veirfied:'+str(checkSchoolProfile.is_verified))
+                print('checkSchoolProfile.school_id'+str(checkSchoolProfile.school_id))
+                checkSchoolProfile.is_verified = 'Y'
                 db.session.commit()
         if checkTeacherProfile==None:
             teacherData=TeacherProfile(teacher_name=userFullName,school_id=school_id, registration_date=datetime.now(), email=userTableDetails.email, phone=userTableDetails.phone, device_preference='195', user_id=userTableDetails.id)
