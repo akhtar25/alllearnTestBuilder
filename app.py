@@ -4337,16 +4337,19 @@ def user(username):
         print('schoolAdminRow[0][0]:'+str(schoolAdminRow[0][0]))
         print('teacher.teacher_id:'+str(teacher.teacher_id))
         if schoolAdminRow[0][0]==teacher.teacher_id:
-            accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id inner join school_profile sp on t1.school_id = sp.school_id where t1.school_id='"+ str(teacher.school_id) +"' and sp.is_verified='N'"
-            print('Query accessReqQuery:'+str(accessReqQuery))
+            accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status='143'"
+            print('accessReqQuery:'+str(accessReqQuery))
             accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
+            accessSchoolReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id inner join school_profile sp on t1.school_id = sp.school_id where t1.school_id='"+ str(teacher.school_id) +"' and sp.is_verified='N'"
+            print('Query accessSchoolReqQuery:'+str(accessSchoolReqQuery))
+            accessSchoolRequestListRows = db.session.execute(text(accessSchoolReqQuery)).fetchall()
         teacherData = "select distinct teacher_name, description as subject_name, cs.class_val, cs.section,cs.class_sec_id from teacher_subject_class tsc "
         teacherData = teacherData + "inner join teacher_profile tp on tsc.teacher_id = tp.teacher_id "
         teacherData = teacherData + "inner join class_section cs on tsc.class_sec_id = cs.class_sec_id "
         teacherData = teacherData + "inner join message_detail md on tsc.subject_id = md.msg_id where tsc.school_id = '"+str(teacher.school_id)+"' and tsc.teacher_id = '"+str(teacher.teacher_id)+"' and tsc.is_archived = 'N' order by cs.class_sec_id"
         teacherData = db.session.execute(text(teacherData)).fetchall()
         indic='DashBoard'
-        return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
+        return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -5982,6 +5985,23 @@ def grantSchoolAdminAccess():
     schoolTableDetails = SchoolProfile.query.filter_by(school_id=school_id).first()
     schoolTableDetails.school_admin=teacher_id
     db.session.commit()
+    return jsonify(["String"])
+
+@app.route('/grantSchoolAccess')
+def grantSchoolAccess():
+    username=request.args.get('username')    
+    school_id=request.args.get('school_id')
+    school=schoolNameVal()
+    print("we're in grant access request. ")
+    userTableDetails = User.query.filter_by(username=username).first()
+    print("#######User Type: "+ str(userTableDetails.user_type))
+    SchoolDetailData = SchoolProfile.query.filter_by(school_id=userTableDetails.school_id).first()
+    if SchoolDetailData:
+        print('if checkSchoolProfile not none')
+        print('checkSchoolProfile.is_veirfied:'+str(SchoolDetailData.is_verified))
+        print('checkSchoolProfile.school_id'+str(SchoolDetailData.school_id))
+        SchoolDetailData.is_verified = 'Y'
+        db.session.commit()
     return jsonify(["String"])
 
 
