@@ -1,5 +1,5 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
+from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
@@ -635,7 +635,7 @@ def reset_password(token):
 @app.route('/inReviewSchool')
 def inReviewSchool():
     print('In review school:'+str(current_user.user_type))
-    return render_template('inReviewSchool.html')
+    return render_template('inReviewSchool.html', disconn = 1)
 
 @app.route('/schoolProfile')
 @login_required
@@ -777,7 +777,11 @@ def schoolRegistration():
             print('if schoolData exist')
             if schoolData.is_verified == 'N':
                 print('if schoolData.is_verified is N')
+                userTableDetails = User.query.filter_by(id=current_user.id).first()
+                adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+str(schoolData.school_id)+"'")).first()
+                user_school_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username, userTableDetails.user_type)
                 return redirect(url_for('inReviewSchool'))
+        
         return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
@@ -1641,18 +1645,25 @@ def edit_profile():
 def index():
     #print('Inside index')
     #print("########This is the request url: "+str(request.url))
-    
-    schoolData = SchoolProfile.query.filter_by(school_admin=current_user.id).first()
+    print('current_user.id:'+str(current_user.id))
+    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    schoolData = ''
+    if teacherData:
+        schoolData = SchoolProfile.query.filter_by(school_admin=teacherData.teacher_id).first()
     if schoolData:
-        if schoolData.is_verified:
-            redirect(url_for('inReviewSchool'))
+        if schoolData.is_verified == 'N':
+            return redirect(url_for('inReviewSchool'))
+    checkUser = User.query.filter_by(id=current_user.id).first()
+    if checkUser:
+        if checkUser.access_status == 143:
+            return redirect(url_for('disconnectedAccount'))
     user = User.query.filter_by(username=current_user.username).first_or_404()        
     school_name_val = schoolNameVal()
     #print('User Type Value:'+str(user.user_type))
     teacher_id = TeacherProfile.query.filter_by(user_id=user.id).first() 
     
     school_id = SchoolProfile.query.filter_by(school_name=school_name_val).first()
-    
+    print('school_name_val:',school_name_val)
     if user.user_type==71:
         classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
         #print('Insert new school')
@@ -4394,7 +4405,9 @@ def login():
             return redirect(url_for('login'))
 
         next_page = request.args.get('next')
+        print('next_page',next_page)
         if not next_page or url_parse(next_page).netloc != '':
+            print('if next_page is not empty',next_page)
             next_page = url_for('index')
         
         #setting global variables
@@ -4410,8 +4423,8 @@ def login():
         if current_user.user_type==253:
             school_id=1
         elif current_user.user_type==71:
-            teacherProfileData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = teacherProfileData.school_id
+            userProfileData = User.query.filter_by(id=current_user.id).first()
+            school_id = userProfileData.school_id
         elif current_user.user_type==134:
             studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
             school_id = studentProfileData.school_id            
@@ -4437,18 +4450,18 @@ def login():
         
         for det in moduleDetRow:
             eachList = []
-            print(det.module_name)
-            print(det.module_url)
+            # print(det.module_name)
+            # print(det.module_url)
             eachList.append(det.module_name)
             eachList.append(det.module_url)
             eachList.append(det.module_type)
             # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
             detList.append(eachList)
         session['moduleDet'] = detList
-        for each in session['moduleDet']:
-            print('module_name'+str(each[0]))
-            print('module_url'+str(each[1]))
-            print('module_type'+str(each[2]))
+        # for each in session['moduleDet']:
+        #     print('module_name'+str(each[0]))
+        #     print('module_url'+str(each[1]))
+        #     print('module_type'+str(each[2]))
         #print(session['schoolName'])
 
         return redirect(next_page)        
