@@ -4762,6 +4762,7 @@ def syllabusClasses():
 
 @app.route('/generalSyllabusSubjects',methods=['GET','POST'])
 def generalSyllabusSubjects():
+    print('inside generalSyllabusSubjects')
     board_id=request.args.get('board_id')
     class_val=request.args.get('class_val')
     sujectArray=[]

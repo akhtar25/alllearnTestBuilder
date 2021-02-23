@@ -2468,18 +2468,21 @@ $(document).ready(function(){
         
         {% for class in classValuesGeneral %}
             var desc = "{{class.class_val}}";
-            var clasId = '#'+desc.toString()+'general';
+            var desc1 = desc.replace('/','_');
+            var clasId = "#"+desc1.toString()+'general';
             $(clasId).css('background-color','');
             $(clasId).css('color','');
-            console.log('inside for'+clasId);
+            console.log('inside for:'+clasId);
             
         {% endfor %}
         // $('.switch').show();
-        var classId = '#'+selectedClassVal.toString()+'general';
-        console.log('outside for:'+selectedClassVal);
+        tempClass = selectedClassVal.replace('/','_');
+        var classId = '#'+tempClass.toString()+'general';
+        console.log('outside for:'+classId);
         $(classId).css('background-color','lightseagreen');
         $(classId).css('color','white');
         console.log('inside loadSubjects'+selectedClassVal);
+        // tempClass = selectedClassVal.replace('/','@');
         $.ajax({
             url: "/generalSyllabusSubjects?board_id=" + selectedBoardID + "&class_val=" + selectedClassVal,
             type: "get",
