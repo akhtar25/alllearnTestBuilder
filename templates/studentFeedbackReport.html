@@ -1,280 +1,240 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-<div class="box-title">
-    <h3 class="box-title" style="margin-left:10px;">Online Test Report - {{ studentName }} </h3>
-</div>
-<div class="box-body table-responsive">
-  <table class="table table-bordered table-hover table-striped text-center">
-    <tr>
-      <th>Overall Percentage and Marks</th>
-      <th>Subjective Marks</th>
-      <th>Objective Marks</th>
-      <th>Correct Questions/Total Questions</th>
-    </tr>
-    <tr>
-      <td>{{'%0.2f' % marksPercentage|float}}%&nbsp;({{totalMarks}})</td>
-      <td>
-        {% if subjective_marks %}
-          {{subjective_marks}}
-        {% else %}
-          0
-        {% endif %}
-      </td>
-      <td>
-        {% if objective_marks %}
-          {{objective_marks}}
-        {% else %}
-          0
-        {% endif %}
-      </td>
-      <td>{{correct_question}}/{{total_questions}}</td>
-    </tr>
-  </table>
-  
-  {% if x==1 and y=='' %}
+  <div class="box-title">
+    <h3 class="box-title" style="margin-left: 10px">
+      Online Test Report - {{ studentName }}
+    </h3>
+  </div>
+  <div class="box-body table-responsive">
+    <table class="table table-bordered table-hover table-striped text-center">
+      <tr>
+        <th>Overall Percentage and Marks</th>
+        <th>Subjective Marks</th>
+        <th>Objective Marks</th>
+        <th>Correct Questions/Total Questions</th>
+      </tr>
+      <tr>
+        <td>{{'%0.2f' % marksPercentage|float}}%&nbsp;({{totalMarks}})</td>
+        <td>
+          {% if subjective_marks %} {{subjective_marks}} {% else %} 0 {% endif
+          %}
+        </td>
+        <td>
+          {% if objective_marks %} {{objective_marks}} {% else %} 0 {% endif %}
+        </td>
+        <td>{{correct_question}}/{{total_questions}}</td>
+      </tr>
+    </table>
+
+    {% if x==1 and y=='' %}
     <!-- Table for Subjective Questions -->
-<h4 style="margin-top: 30px;">Subjective Questions</h4>
-<table class="table table-bordered table-hover table-striped text-center">
-  <tr>
-    <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Id</th>
-    <th style="text-align:left;">Question</th>
-    <th style="text-align:left;" colspan="2">Answer</th>
-    <th style="text-align:left;">Marks Scored</th>
-    <th style="text-align:left;">Result</th>                        
-  </tr>                                            
-  {% for respRow in responseCaptureRow %}  
-  {% if respRow.question_type=='Subjective'  %}                                          
-  <tr> 
-    <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_id }}</td>
-    <td style="text-align:left;">{{ respRow.question_description}}</td>
-    <td style="text-align:left;" colspan="2">
-      {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-      
-        ____
-      {% else %} 
-      {% if respRow.answer_type==335 %}
-        <a href="{{respRow.response_option }}" target="_blank" class="waves-effect waves-light" style="font-size:14px;">click to see answer</a>
-      {% else %}
-        {{respRow.response_option }}
-      {% endif %}
-      {% endif %}
-    </td>
-    
-    <td style="text-align:left;">
-      {% if respRow.marks_scored %}
-        {{respRow.marks_scored}}
-      {% else %}
-        0
-      {% endif %}
-    </td>
-    <td style="text-align:left;">
-    {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
+    <h4 style="margin-top: 30px">Subjective Questions</h4>
+    <table class="table table-bordered table-hover table-striped text-center">
+      <tr>
+        <th style="text-align: left">Q No</th>
+        <th style="text-align: left">Question Id</th>
+        <th style="text-align: left">Question</th>
+        <th style="text-align: left" colspan="2">Answer</th>
+        <th style="text-align: left">Marks Scored</th>
+        <th style="text-align: left">Result</th>
+      </tr>
+      {% for respRow in responseCaptureRow %} {% if
+      respRow.question_type=='Subjective' %}
+      <tr>
+        <td style="text-align: left">{{ loop.index }}</td>
+        <td style="text-align: left">{{ respRow.question_id }}</td>
+        <td style="text-align: left">{{ respRow.question_description}}</td>
+        <td style="text-align: left" colspan="2">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} ____ {% else %} {% if
+          respRow.answer_type==335 %}
+          <a
+            href="{{respRow.response_option }}"
+            target="_blank"
+            class="waves-effect waves-light"
+            style="font-size: 14px"
+            >click to see answer</a
+          >
+          {% else %} {{respRow.response_option }} {% endif %} {% endif %}
+        </td>
 
-        Not Answered
-    {% else %} 
-      {% if respRow.answer_status==239 %}
-        In Review
-      {% else %}
-        {% if respRow.is_correct=='Y' %}
-          <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
-        {% else %}
-          <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
-        {% endif %}
-      {% endif %}
-    {% endif %}
-  </td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-</table> 
-  {% elif y==1 and x=='' %}
-      <!-- Table for Objective Questions -->
-<h4 style="margin-top: 30px;">Objective Questions</h4>
-<table class="table table-bordered table-hover table-striped text-center">
-  <tr>
-    <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Id</th>
-    <th style="text-align:left;">Question</th>
-    <th style="text-align:left;">Option Selected</th>
-    <th style="text-align:left;">Correct Option</th>
-    <th style="text-align:left;">Marks Scored</th>
-    <th style="text-align:left;">Result</th>                        
-  </tr>                                            
-  {% for respRow in responseCaptureRow %}  
-  {% if respRow.question_type=='MCQ1'  %}                                          
-  <tr> 
-    <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_id }}</td>
-    <td style="text-align:left;">{{ respRow.question_description}}</td>
-    <td style="text-align:left;">
-      {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-      
-        No Answer Selected
-      {% else %} 
-      {{respRow.response_option }} : {{ respRow.option_desc}}
-      
-      {% endif %}
-    </td>
-    <td style="text-align:left;">   
-      
-      
-        {% if respRow.answer_status==240 or respRow.answer_status==242 or respRow.answer_status==279  %}
-          ____
-        {% else %}
-          {{ respRow.correct_option}} :   {{ respRow.corr_option_desc}}
-        {% endif %}
-    </td>
-    <td style="text-align:left;">
-      {% if respRow.marks_scored %}
-        {{respRow.marks_scored}}
-      {% else %}
-        0
-      {% endif %}
-    </td>
-    <td style="text-align:left;">
-    {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
+        <td style="text-align: left">
+          {% if respRow.marks_scored %} {{respRow.marks_scored}} {% else %} 0 {%
+          endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} Not Answered {% else %} {% if
+          respRow.answer_status==239 %} In Review {% else %} {% if
+          respRow.is_correct=='Y' %}
+          <i class="large material-icons icon-green" style="font-size: 30px"
+            >check</i
+          >
+          {% else %}
+          <i class="large material-icons icon-orangered" style="font-size: 30px"
+            >clear</i
+          >
+          {% endif %} {% endif %} {% endif %}
+        </td>
+      </tr>
+      {% endif %} {% endfor %}
+    </table>
+    {% elif y==1 and x=='' %}
+    <!-- Table for Objective Questions -->
+    <h4 style="margin-top: 30px">Objective Questions</h4>
+    <table class="table table-bordered table-hover table-striped text-center">
+      <tr>
+        <th style="text-align: left">Q No</th>
+        <th style="text-align: left">Question Id</th>
+        <th style="text-align: left">Question</th>
+        <th style="text-align: left">Option Selected</th>
+        <th style="text-align: left">Correct Option</th>
+        <th style="text-align: left">Marks Scored</th>
+        <th style="text-align: left">Result</th>
+      </tr>
+      {% for respRow in responseCaptureRow %} {% if
+      respRow.question_type=='MCQ1' %}
+      <tr>
+        <td style="text-align: left">{{ loop.index }}</td>
+        <td style="text-align: left">{{ respRow.question_id }}</td>
+        <td style="text-align: left">{{ respRow.question_description}}</td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} No Answer Selected {% else %}
+          {{respRow.response_option }} : {{ respRow.option_desc}} {% endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==240 or respRow.answer_status==242 or
+          respRow.answer_status==279 %} ____ {% else %} {{
+          respRow.correct_option}} : {{ respRow.corr_option_desc}} {% endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.marks_scored %} {{respRow.marks_scored}} {% else %} 0 {%
+          endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} No Answer Selected {% else %} {% if
+          respRow.result=='Correct' %}
+          <i class="large material-icons icon-green" style="font-size: 30px"
+            >check</i
+          >
+          {% else %}
+          <i class="large material-icons icon-orangered" style="font-size: 30px"
+            >clear</i
+          >
+          {% endif %} {% endif %}
+        </td>
+      </tr>
+      {% endif %} {% endfor %}
+    </table>
+    {% elif x==1 and y==1 %}
+    <!-- Table for Objective Questions -->
+    <h4 style="margin-top: 30px">Objective Questions</h4>
+    <table class="table table-bordered table-hover table-striped text-center">
+      <tr>
+        <th style="text-align: left">Q No</th>
+        <th style="text-align: left">Question Id</th>
+        <th style="text-align: left">Question</th>
+        <th style="text-align: left">Option Selected</th>
+        <th style="text-align: left">Correct Option</th>
+        <th style="text-align: left">Marks Scored</th>
+        <th style="text-align: left">Result</th>
+      </tr>
+      {% for respRow in responseCaptureRow %} {% if
+      respRow.question_type=='MCQ1' %}
+      <tr>
+        <td style="text-align: left">{{ loop.index }}</td>
+        <td style="text-align: left">{{ respRow.question_id }}</td>
+        <td style="text-align: left">{{ respRow.question_description}}</td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} No Answer Selected {% else %}
+          {{respRow.response_option }} : {{ respRow.option_desc}} {% endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==240 or respRow.answer_status==242 or
+          respRow.answer_status==279 %} ____ {% else %} {{
+          respRow.correct_option}} : {{ respRow.corr_option_desc}} {% endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.marks_scored %} {{respRow.marks_scored}} {% else %} 0 {%
+          endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} No Answer Selected {% else %} {% if
+          respRow.result=='Correct' %}
+          <i class="large material-icons icon-green" style="font-size: 30px"
+            >check</i
+          >
+          {% else %}
+          <i class="large material-icons icon-orangered" style="font-size: 30px"
+            >clear</i
+          >
+          {% endif %} {% endif %}
+        </td>
+      </tr>
+      {% endif %} {% endfor %}
+    </table>
 
-        No Answer Selected
-      {% else %} 
-    {% if respRow.result=='Correct' %}
-      <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
+    <!-- Table for Subjective Questions -->
+    <h4 style="margin-top: 30px">Subjective Questions</h4>
+    <table class="table table-bordered table-hover table-striped text-center">
+      <tr>
+        <th style="text-align: left">Q No</th>
+        <th style="text-align: left">Question Id</th>
+        <th style="text-align: left">Question</th>
+        <th style="text-align: left" colspan="2">Answer</th>
+        <th style="text-align: left">Marks Scored</th>
+        <th style="text-align: left">Result</th>
+      </tr>
+      {% for respRow in responseCaptureRow %} {% if
+      respRow.question_type=='Subjective' %}
+      <tr>
+        <td style="text-align: left">{{ loop.index }}</td>
+        <td style="text-align: left">{{ respRow.question_id }}</td>
+        <td style="text-align: left">{{ respRow.question_description}}</td>
+        <td style="text-align: left" colspan="2">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} ____ {% else %} {% if
+          respRow.answer_type==335 %}
+          <a
+            href="{{respRow.response_option }}"
+            target="_blank"
+            class="waves-effect waves-light"
+            style="font-size: 14px"
+            >click to see answer</a
+          >
+          {% else %} {{respRow.response_option }} {% endif %} {% endif %}
+        </td>
+
+        <td style="text-align: left">
+          {% if respRow.marks_scored %} {{respRow.marks_scored}} {% else %} 0 {%
+          endif %}
+        </td>
+        <td style="text-align: left">
+          {% if respRow.answer_status==242 or respRow.answer_status==240 or
+          respRow.answer_status==279 %} Not Answered {% else %} {% if
+          respRow.answer_status==239 %} In Review {% else %} {% if
+          respRow.is_correct=='Y' %}
+          <i class="large material-icons icon-green" style="font-size: 30px"
+            >check</i
+          >
+          {% else %}
+          <i class="large material-icons icon-orangered" style="font-size: 30px"
+            >clear</i
+          >
+          {% endif %} {% endif %} {% endif %}
+        </td>
+      </tr>
+      {% endif %} {% endfor %}
+    </table>
     {% else %}
-     <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
+    <h4>No Questions attempted</h4>
     {% endif %}
-    
-    {% endif %}
-  </td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-</table>  
-  {% elif x==1 and y==1 %}
-      <!-- Table for Objective Questions -->
-<h4 style="margin-top: 30px;">Objective Questions</h4>
-<table class="table table-bordered table-hover table-striped text-center">
-  <tr>
-    <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Id</th>
-    <th style="text-align:left;">Question</th>
-    <th style="text-align:left;">Option Selected</th>
-    <th style="text-align:left;">Correct Option</th>
-    <th style="text-align:left;">Marks Scored</th>
-    <th style="text-align:left;">Result</th>                        
-  </tr>                                            
-  {% for respRow in responseCaptureRow %}  
-  {% if respRow.question_type=='MCQ1'  %}                                          
-  <tr> 
-    <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_id }}</td>
-    <td style="text-align:left;">{{ respRow.question_description}}</td>
-    <td style="text-align:left;">
-      {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-      
-        No Answer Selected
-      {% else %} 
-      {{respRow.response_option }} : {{ respRow.option_desc}}
-      
-      {% endif %}
-    </td>
-    <td style="text-align:left;">   
-      
-      
-        {% if respRow.answer_status==240 or respRow.answer_status==242 or respRow.answer_status==279  %}
-          ____
-        {% else %}
-          {{ respRow.correct_option}} :   {{ respRow.corr_option_desc}}
-        {% endif %}
-    </td>
-    <td style="text-align:left;">
-      {% if respRow.marks_scored %}
-        {{respRow.marks_scored}}
-      {% else %}
-        0
-      {% endif %}
-    </td>
-    <td style="text-align:left;">
-    {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-
-        No Answer Selected
-      {% else %} 
-    {% if respRow.result=='Correct' %}
-      <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
-    {% else %}
-     <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
-    {% endif %}
-    
-    {% endif %}
-  </td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-</table>    
-
-<!-- Table for Subjective Questions -->
-<h4 style="margin-top: 30px;">Subjective Questions</h4>
-<table class="table table-bordered table-hover table-striped text-center">
-  <tr>
-    <th style="text-align:left;">Q No</th>
-    <th style="text-align:left;">Question Id</th>
-    <th style="text-align:left;">Question</th>
-    <th style="text-align:left;" colspan="2">Answer</th>
-    <th style="text-align:left;">Marks Scored</th>
-    <th style="text-align:left;">Result</th>                        
-  </tr>                                            
-  {% for respRow in responseCaptureRow %}  
-  {% if respRow.question_type=='Subjective'  %}                                          
-  <tr> 
-    <td style="text-align:left;"> {{ loop.index }}</td>
-    <td style="text-align:left;"> {{ respRow.question_id }}</td>
-    <td style="text-align:left;">{{ respRow.question_description}}</td>
-    <td style="text-align:left;" colspan="2">
-      {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-      
-        ____
-      {% else %} 
-      {% if respRow.answer_type==335 %}
-        <a href="{{respRow.response_option }}" target="_blank" class="waves-effect waves-light" style="font-size:14px;">click to see answer</a>
-      {% else %}
-        {{respRow.response_option }}
-      {% endif %}
-      
-      {% endif %}
-    </td>
-    
-    <td style="text-align:left;">
-      {% if respRow.marks_scored %}
-        {{respRow.marks_scored}}
-      {% else %}
-        0
-      {% endif %}
-    </td>
-    <td style="text-align:left;">
-    {% if respRow.answer_status==242 or respRow.answer_status==240 or respRow.answer_status==279 %}
-
-        Not Answered
-    {% else %} 
-      {% if respRow.answer_status==239 %}
-        In Review
-      {% else %}
-        {% if respRow.is_correct=='Y' %}
-          <i class="large material-icons icon-green" style="font-size: 30px;">check</i> 
-        {% else %}
-          <i class="large material-icons icon-orangered" style="font-size: 30px;">clear</i> 
-        {% endif %}
-      {% endif %}
-    {% endif %}
-  </td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-</table>  
-  {% else %}
-  <h4>No Questions attempted</h4>
-  {% endif %}
-  <!-- Table for Objective Questions -->
-<!-- <table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+    <!-- Table for Objective Questions -->
+    <!-- <table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
                       <tr>
                         <th style="text-align:left;">Q No</th>
                         <th style="text-align:left;">Question Type</th>
@@ -327,8 +287,8 @@
                       {% endfor %}
                     </table>     -->
 
-<!-- Table for Subjective Questions -->
-<!-- <table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
+    <!-- Table for Subjective Questions -->
+    <!-- <table class="table table-bordered table-hover table-striped text-center" style="margin-top:30px;">
                       <tr>
                         <th style="text-align:left;">Q No</th>
                         <th style="text-align:left;">Question Type</th>
@@ -374,7 +334,6 @@
                       {% endif %}
                       {% endfor %}
                     </table>   -->
-
-                  </div>
-                </div>
-                  {%endblock%}
+  </div>
+</div>
+{%endblock%}

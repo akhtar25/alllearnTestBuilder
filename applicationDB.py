@@ -381,6 +381,7 @@ class MessageDetails(db.Model):
     description = db.Column(db.String(500), nullable=True)
 
 
+
 class ResponseCapture(db.Model):
     __tablename__ = "response_capture"
     response_id = db.Column(db.Integer, primary_key=True)
@@ -393,6 +394,7 @@ class ResponseCapture(db.Model):
     question_id=db.Column(db.ForeignKey('question_details.question_id'),nullable=True)
     question_type=db.Column(db.String(120),nullable=True)
     response_option=db.Column(db.String(500),nullable=True)
+    remark=db.Column(db.String(500),nullable=True)
     is_correct=db.Column(db.String(1), nullable=True)
     resp_session_id = db.Column(db.String(20), nullable=True) #combination of date and subject and class_sec in integer form 
     teacher_id=db.Column(db.ForeignKey('teacher_profile.teacher_id'),nullable=True)
@@ -624,9 +626,13 @@ class SchoolProfile(db.Model):
     school_type = db.Column(db.String(50),nullable=True) #ngo, budget, elite, government
     location_type = db.Column(db.String(50),nullable=True) # urban  , remote
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
+    is_verified = db.Column(db.String(1), nullable=True)
     impact_school_id = db.Column(db.Integer, nullable=True)
     school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year    
     curr_vendor_id = db.Column(db.ForeignKey('bank_detail.vendor_id'), nullable=True) #this is to manage vendor ids from bank accounts table
+    font =  db.Column(db.String(500),nullable=True)
+    primary_color =  db.Column(db.String(500),nullable=True)
+    sub_domain =  db.Column(db.String(500),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
@@ -865,9 +871,12 @@ class SessionDetail(db.Model):
     load_new_question=db.Column(db.String(1),nullable=True) #tells if a new question has to be loaded on the pc screen when using pc+ mobile combination
     #new columns added for online test upgrade
     test_time = db.Column(db.Integer, nullable=True)
+    test_due_date = db.Column(db.DateTime)
     total_marks = db.Column(db.Integer, nullable=True)
     correct_marks = db.Column(db.Integer, nullable = True)
     incorrect_marks = db.Column(db.Integer, nullable=True)
+    instructions = db.Column(db.String(500), nullable=True)
+    test_link = db.Column(db.String(5000), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
 class RespSessionQuestion(db.Model):

@@ -102,7 +102,7 @@
   <nav class="white lighten-5 green-text header" id="mainNavBar" role="navigation" style="height: 100px;">
     <div class="nav-wrapper container top-nav" style="padding-top: 20px;width:1100px;">
       <div id="logoDiv">
-        <a id="logo-container" href="{{url_for('courseHome')}}" class="brand-logo left grey-text darken-4">
+        <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
           {%if current_user.is_anonymous %}
           <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
           {% else %}
@@ -210,7 +210,7 @@
 
         {%elif user_type_val=='134'%}
         <li>
-          <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+          <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
         </li>
         <li>
           <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
@@ -470,7 +470,7 @@
           {%if current_user.is_anonymous%}
           <div class="right">
           <li>
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('courseHome')}}">
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">
               Home
             </a>
           </li>
@@ -493,7 +493,7 @@
           </li>
           {% elif user_type_val_for_liveClass=='134' %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           <li>
             <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
@@ -512,11 +512,11 @@
 
           {% elif user_type!='134' and user_type_value!='134' %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           {% elif user_type_value=='134' %}
             <li id="TestLink">
-              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+              <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
             </li>
             <li>
               <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
@@ -596,7 +596,7 @@
           {% if current_user.user_type==134 %}
           {% if indic %}
           <li id="TestLink">
-            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('qrSessionScannerStudent')}}">Dashboard</a>
+            <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>
           </li>
           {% endif %}
           <li>
@@ -615,11 +615,9 @@
           {% endif %}
           {% endif %}
           {% if current_user.user_type!=253 %}
-          <li>
-          
-            <span style="font-size: 15px;color: green;">Menu</span>
-    
-          </li>
+          <!-- <li>          
+              <span style="font-size: 15px;color: green;">Menu</span>
+          </li> -->
           {% endif %}
           <!-- <li>
             <a style="color: green;font-size: 15px;" href="{{url_for('editCourse')}}">Add Course</a>
@@ -681,7 +679,9 @@
 
             <!-- <i class="material-icons right"  style="font-size: 40px">menu</i> -->
             {% if current_user.user_type!=253 %}
-            <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;"><i
+            <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;">
+              <span style="font-size: 15px;color: green;">Menu</span>
+              <i
                 class="material-icons right" style="font-size: 40px;margin:0px;">menu </i></a>
               {% endif %}
             <!-- </a> -->
@@ -867,7 +867,7 @@
   <div class="footer-copyright">
     <div class="container">
       <span><a class="yellow-text text-lighten-5" class='classSpecLink' href="http://www.alllearn.in" target="_blank">
-          &copy; 2019 AllLearn Solutions Private Limited</a></span>
+          &copy; 2021 AllLearn Solutions Private Limited</a></span>
       <span class="pull-right">1.3.7.0 Beta</span>
     </div>
   </div>
