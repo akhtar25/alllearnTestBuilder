@@ -14,114 +14,160 @@
 
 <div class="container" style="text-align: center">
   <div class="row" style="display: inline-block">
+    {% if primaryColor %}
     <div
       class="input-field col s12 z-depth-1 hoverable"
       style="
-        text-align: left;
-        border-radius: 25px;
-        border: 2px solid #73ad21;
-        padding: 10px;
-      "
+      text-align: left;
+      border-radius: 25px;
+      border: 2px solid {{primaryColor}};
+      padding: 10px;
+    "
     >
-      <h2 style="color: Green">Sign In</h2>
-
-      <div id="googleSignInDiv" class="row">
-        <div
-          class="g-signin2"
-          data-onsuccess="onSignIn"
-          data-width="250"
-          data-height="40"
-          data-longtitle="true"
-        ></div>
-      </div>
-      <div class="center row">OR</div>
-      <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-          {{ form.email.label(style='font-weight:400;color:green') }}
-          <br />
-          {{ form.email(size=64) }} {% for error in form.email.errors %}
-          <span style="color: red">[{{ error }}]</span>
-          {% endfor %}
-        </p>
-        <p>
-          {{ form.password.label(style='font-weight:400;color:green') }}
-          <br />
-          {{ form.password(size=32) }} {% for error in form.password.errors %}
-          <span style="color: red">[{{ error }}]</span>
-          {% endfor %}
-        </p>
-        <p>
-          <label>
-            <input id="remember_me" name="remember_me" type="checkbox" />
-            <span style="font-family: 'Source sans pro', sans-serif"
-              >Remember Me</span
-            >
-          </label>
-          <label style="float: right; font-weight: 400">
-            <a href="{{ url_for('reset_password_request') }}"
-              >Forgot Your Password?</a
-            >
-          </label>
-        </p>
-        <div class="center">
-          <button
-            style="width: 190px; height: 45px; margin-bottom: 20px"
-            class="btn-large waves-effect waves-light green white-text"
-            type="submit"
-          >
-            Sign In</button
-          ><br />
-          <span>
-            New User?<br />
-            <a class="btn cyan" href="{{ url_for('register') }}"
-              >Click to Sign Up!</a
-            >
-          </span>
+      {% else %}
+      <div
+        class="input-field col s12 z-depth-1 hoverable"
+        style="
+          text-align: left;
+          border-radius: 25px;
+          border: 2px solid #73ad21;
+          padding: 10px;
+        "
+      >
+        {% endif %} {% if primaryColor %}
+        <h2 style="color: {{primaryColor}}">Sign In</h2>
+        {% else %}
+        <h2 style="color: Green">Sign In</h2>
+        {% endif %}
+        <div id="googleSignInDiv" class="row">
+          <div
+            class="g-signin2"
+            data-onsuccess="onSignIn"
+            data-width="250"
+            data-height="40"
+            data-longtitle="true"
+          ></div>
         </div>
-      </form>
-      <br />
+        {% if primaryColor %}
+        <div class="center row" style="color:{{primaryColor}}">OR</div>
+        {% else %}
+        <div class="center row">OR</div>
+        {% endif %}
+        <form action="" method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <p>
+            {% if primaryColor %} {{
+            form.email.label(style='font-weight:400;color:primaryColor') }} {%
+            else %} {{ form.email.label(style='font-weight:400;color:green') }}
+            {% endif %}
+            <br />
+            {{ form.email(size=64) }} {% for error in form.email.errors %}
+            <span style="color: red">[{{ error }}]</span>
+            {% endfor %}
+          </p>
+          <p>
+            {% if primaryColor %} {{
+            form.password.label(style='font-weight:400;color:primaryColor') }}
+            {% else %} {{
+            form.password.label(style='font-weight:400;color:green') }} {% endif
+            %}
+            <br />
+            {{ form.password(size=32) }} {% for error in form.password.errors %}
+            <span style="color: red">[{{ error }}]</span>
+            {% endfor %}
+          </p>
+          <p>
+            {% if primaryColor %}
+            <label>
+              <input id="remember_me" name="remember_me" type="checkbox" />
+              <span
+                style="font-family: 'Source sans pro', sans-serif;color:{{primaryColor}}"
+                >Remember Me</span
+              >
+            </label>
+            {% else %}
+            <label>
+              <input id="remember_me" name="remember_me" type="checkbox" />
+              <span style="font-family: 'Source sans pro', sans-serif"
+                >Remember Me</span
+              >
+            </label>
+            {% endif %}
+            <label style="float: right; font-weight: 400">
+              <a href="{{ url_for('reset_password_request') }}"
+                >Forgot Your Password?</a
+              >
+            </label>
+          </p>
+          <div class="center">
+            {% if primaryColor %}
+            <button
+              style="width: 190px; height: 48px; margin-bottom: 20px;background-color:{{primaryColor}} !important"
+              class="btn-large waves-effect waves-light green white-text"
+              type="submit"
+            >
+              Sign In
+            </button>
+            {% else %}
+            <button
+              style="width: 190px; height: 48px; margin-bottom: 20px"
+              class="btn-large waves-effect waves-light green white-text"
+              type="submit"
+            >
+              Sign In</button
+            >{% endif %}
+            <br />
+            <span>
+              New User?<br />
+              <a class="btn cyan" href="{{ url_for('register') }}"
+                >Click to Sign Up!</a
+              >
+            </span>
+          </div>
+        </form>
+        <br />
 
-      <div class="row center">
-        <table class="center">
-          <tr>
-            <td class="right"></td>
-          </tr>
-        </table>
+        <div class="row center">
+          <table class="center">
+            <tr>
+              <td class="right"></td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
+  <script>
+    function onSignIn(googleUser) {
+      var profile = googleUser.getBasicProfile();
+      console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+      console.log("Full Name: " + profile.getName());
+      console.log("Given Name: " + profile.getGivenName());
+      console.log("Family Name: " + profile.getFamilyName());
+      console.log("Image URL: " + profile.getImageUrl());
+      console.log("Email: " + profile.getEmail());
+
+      // The ID token you need to pass to your backend:
+      var id_token = googleUser.getAuthResponse().id_token;
+      console.log("ID Token: " + id_token);
+
+      //Sending token id to server for verification
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", '{{url_for("gTokenSignin")}}');
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      //window.alert('about to send token. email='+ profile.getEmail());
+      xhr.send("idtoken=" + id_token);
+      xhr.onload = function () {
+        console.log("Signed in as: " + xhr.responseText);
+        var signInResponse = xhr.responseText;
+        //window.alert(xhr.responseText);
+        if (signInResponse == "0") {
+          window.location.href =
+            "/login?glogin=True&gemail=" + profile.getEmail();
+        }
+      };
+      //window.alert('Token sent to server');
+    }
+  </script>
+  {% endblock %}
 </div>
-<script>
-  function onSignIn(googleUser) {
-    var profile = googleUser.getBasicProfile();
-    console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-    console.log("Full Name: " + profile.getName());
-    console.log("Given Name: " + profile.getGivenName());
-    console.log("Family Name: " + profile.getFamilyName());
-    console.log("Image URL: " + profile.getImageUrl());
-    console.log("Email: " + profile.getEmail());
-
-    // The ID token you need to pass to your backend:
-    var id_token = googleUser.getAuthResponse().id_token;
-    console.log("ID Token: " + id_token);
-
-    //Sending token id to server for verification
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", '{{url_for("gTokenSignin")}}');
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    //window.alert('about to send token. email='+ profile.getEmail());
-    xhr.send("idtoken=" + id_token);
-    xhr.onload = function () {
-      console.log("Signed in as: " + xhr.responseText);
-      var signInResponse = xhr.responseText;
-      //window.alert(xhr.responseText);
-      if (signInResponse == "0") {
-        window.location.href =
-          "/login?glogin=True&gemail=" + profile.getEmail();
-      }
-    };
-    //window.alert('Token sent to server');
-  }
-</script>
-{% endblock %}

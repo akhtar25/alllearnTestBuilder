@@ -104,7 +104,11 @@
       <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
           {%if current_user.is_anonymous %}
-          <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
+            {% if schoolLogo %}
+              <img src="{{schoolLogo}}" width="120px"/>
+            {% else %}
+              <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
+            {% endif %}
           {% else %}
           {% if session['school_logo'] %}
           <img src="{{session['school_logo']}}" width="150px" style="margin-top:-20px;">
@@ -113,8 +117,14 @@
           {% endif %}
           {% endif %}
           {%if current_user.is_anonymous%}
+          {% if schoolName %}
+            <span style="font-size: 15px;" id="schoolNamDiv">{{schoolName}}</span>
+          {% endif %}
           {%elif current_user.user_type==253%}
           {% else %}
+          <!-- Start -->
+          
+          <!-- End -->
           {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px' id="schoolNamDiv">
             {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
         </a>
@@ -770,7 +780,14 @@
   <script src="../static/js/jquery.magicsearch.js"></script>
 
 </body>
+{% if session['primary_color'] %}
+
+<footer class="page-footer" style="background-color:{{session['primary_color']}};">
+{% elif primaryColor %}
+<footer class="page-footer" style="background-color:{{primaryColor}};"></footer>
+{% else %}
 <footer class="page-footer black ">
+{% endif %}
   <div class="container">
     <div class="row">
       <div class="col l6 s12">

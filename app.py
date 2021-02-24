@@ -4365,7 +4365,8 @@ def user(username):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print('Inside login')    
-    if current_user.is_authenticated:        
+    if current_user.is_authenticated:  
+        print(request.url)    
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
@@ -4435,6 +4436,9 @@ def login():
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
+            session['schoolName'] = school_pro.school_name
+            session['primary_color'] = school_pro.primary_color
+        print(session['primary_color'])
         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         print(query)
         print('Modules')
@@ -4463,7 +4467,18 @@ def login():
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
-    return render_template('login.html', title='Sign In', form=form)
+    schoolDataQuery = "select *from school_profile"
+    schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
+    schoolName = ''
+    schoolLogo = ''
+    primaryColor = '' 
+    print('Url:'+str(request.url)) 
+    for row in schoolData:
+        if str(request.url) == str(row.sub_domain):
+            schoolName = row.school_name
+            schoolLogo = row.school_logo
+            primaryColor = row.primary_color
+    return render_template('login.html',primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
 @app.route('/success',methods=['POST'])
 def success():
