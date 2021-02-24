@@ -104,12 +104,63 @@
       </ul>
     </div>
     {%endif%}
+
+    <!-- Start -->
+    {% if accessSchoolRequestListRows | length > 0 %}
+    <div class="col s4 m6 l6">
+      <h4>School Access Requests</h4>
+      <ul class="collapsible">
+        {%for row in accessSchoolRequestListRows%}
+        <li class="accessRequestDiv">
+          <div class="collapsible-header">
+            <i class="material-icons">person_add</i>{{row.username}}
+          </div>
+          <div class="collapsible-body">
+            <p>Email: {{row.email}}</p>
+            <p>Phone: {{row.phone}}</p>
+            <p>Requested Access as: {{row.user_type}}</p>
+            <p>About requestor:{{row.about_me}}</p>
+            <div class="grantAccessDiv">
+              <a
+                class="waves-effect waves-light btn grantAccessForSchoolBTNCLass"
+                name="{{row.username}}"
+                id="{{row.school_id}}"
+                >Grant Access</a
+              >
+            </div>
+          </div>
+        </li>
+        {%endfor%}
+      </ul>
+    </div>
+    {%endif%}
+    <!-- End -->
   </div>
 </div>
 
 <script>
   $(document).ready(function () {
     $(".collapsible").collapsible();
+  });
+
+  $(".grantAccessForSchoolBTNCLass").click(function () {
+    var username = $(this).attr("name");
+    var school_id = $(this).attr("id");
+    console.log(username);
+    var data = "";
+    $.ajax({
+      url:
+        "/grantSchoolAccess?username=" + username + "&school_id=" + school_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $(".grantAccessDiv").html("<p style:'green-text'>Access Granted</p>");
+        console.log("Inside success");
+      },
+      error: function (xhr) {
+        window.alert("Guardian not associated to any student");
+      },
+    });
   });
 
   $(".grantAccessBTNCLass").click(function () {

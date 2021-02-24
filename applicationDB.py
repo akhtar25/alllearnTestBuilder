@@ -626,6 +626,7 @@ class SchoolProfile(db.Model):
     school_type = db.Column(db.String(50),nullable=True) #ngo, budget, elite, government
     location_type = db.Column(db.String(50),nullable=True) # urban  , remote
     #camp_id =  db.Column(db.ForeignKey('campaign_detail.camp_id'), nullable=True)  We will have to uncheck it later
+    is_verified = db.Column(db.String(1), nullable=True)
     impact_school_id = db.Column(db.Integer, nullable=True)
     school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year    
     curr_vendor_id = db.Column(db.ForeignKey('bank_detail.vendor_id'), nullable=True) #this is to manage vendor ids from bank accounts table
@@ -872,6 +873,7 @@ class SessionDetail(db.Model):
     correct_marks = db.Column(db.Integer, nullable = True)
     incorrect_marks = db.Column(db.Integer, nullable=True)
     instructions = db.Column(db.String(500), nullable=True)
+    test_link = db.Column(db.String(5000), nullable=True)
     last_modified_date = db.Column(db.DateTime,nullable=True)
 
 class RespSessionQuestion(db.Model):
