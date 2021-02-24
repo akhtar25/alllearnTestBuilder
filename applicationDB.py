@@ -630,6 +630,9 @@ class SchoolProfile(db.Model):
     impact_school_id = db.Column(db.Integer, nullable=True)
     school_session_start = db.Column(db.DateTime, nullable=True) #The date school starts every year    
     curr_vendor_id = db.Column(db.ForeignKey('bank_detail.vendor_id'), nullable=True) #this is to manage vendor ids from bank accounts table
+    font =  db.Column(db.String(500),nullable=True)
+    primary_color =  db.Column(db.String(500),nullable=True)
+    sub_domain =  db.Column(db.String(500),nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
