@@ -59,10 +59,24 @@ def welcome_email(email, name):
     message = message + "<br> <br> Welcome once again! <br><br>Thanks, <br>allLearn "
     send_email(email, name, subject, message)
 
+def newUserEmail(email,name,subject,message):
+    print('inside newUserEmail')
+    send_email(email, name, subject, message)
+
+def user_school_access_request_email(email,name, school, requestFrom,adminUsername, user_type):
+    print('#################'+str(user_type)+ ' '+ str(requestFrom))
+    subject = "allLearn - school access request for %s" % ( requestFrom)
+    message = render_template('user_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
+    email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
+    newUserEmail(email2, name,subject,message)
+    send_email(email, name, subject, message)
+
 def user_access_request_email(email,name, school, requestFrom,adminUsername, user_type):
     print('#################'+str(user_type)+ ' '+ str(requestFrom))
     subject = "allLearn - %s access request for %s" % (user_type, requestFrom)
     message = render_template('user_access_req_email.html', name=name, school=school,requestFrom=requestFrom, adminUsername=adminUsername)
+    email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
+    newUserEmail(email2, name,subject,message)
     send_email(email, name, subject, message)
 
 def performance_report_email(email,name,school,studentData,test_count,average_score,school_id):
