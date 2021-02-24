@@ -104,7 +104,9 @@
       <div id="logoDiv">
         <a id="logo-container" href="{{url_for('index')}}" class="brand-logo left grey-text darken-4">
           {%if current_user.is_anonymous %}
-            {% if schoolLogo %}
+            {% if session['school_logo'] %}
+              <img src="{{session['school_logo']}}" width="120px"/>
+            {% elif schoolLogo %}
               <img src="{{schoolLogo}}" width="120px"/>
             {% else %}
               <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/alllearnGreenLogo.PNG" width="150px">
@@ -117,7 +119,10 @@
           {% endif %}
           {% endif %}
           {%if current_user.is_anonymous%}
-          {% if schoolName %}
+            
+          {% if session['schoolName'] %}
+            <span style="font-size: 15px;" id="schoolNamDiv">{{session['schoolName']}}</span>
+          {% elif schoolName %}
             <span style="font-size: 15px;" id="schoolNamDiv">{{schoolName}}</span>
           {% endif %}
           {%elif current_user.user_type==253%}
@@ -480,7 +485,9 @@
           {%if current_user.is_anonymous%}
           <div class="right">
           <li>
-            {% if primaryColor %}
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">Home</a>
+            {% elif primaryColor %}
             <a style="color: {{primaryColor}}; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">Home</a>
             {% else %}
             <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">
@@ -489,7 +496,9 @@
             {% endif %}
           </li>
           <li>
-            {% if primaryColor %}
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" class='classSpecLink' href="https://all.alllearn.in"></a>
+            {% elif primaryColor %}
             <a style="color: {{primaryColor}}; font-size:15px;" class='classSpecLink' href="https://all.alllearn.in">
               For Schools/Institutes
             </a>
@@ -500,7 +509,12 @@
             {% endif %}
           </li>
           <li>
-            {% if primaryColor %}
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="solutionDropdown">
+              Solutions
+            </a>
+            {% elif primaryColor %}
             <a style="color: {{primaryColor}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="solutionDropdown">
               Solutions
@@ -513,7 +527,12 @@
             {% endif %}
           </li>
           <li>
-            {% if primaryColor %}
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="moreDropDown">
+              More
+            </a>
+            {% elif primaryColor %}
             <a style="color: {{primaryColor}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="moreDropDown">
               More
@@ -569,7 +588,13 @@
               class="material-icons right" style="font-size: 40px;">menu </i></a> -->
           {%endif%}
           <li>
-            {% if primaryColor %}
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
+              data-target="dropdown2">
+
+              <i class="material-icons right" style="font-size: 40px">account_circle </i>
+            </a>
+            {% elif primaryColor %}
             <a style="color: {{primaryColor}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="dropdown2">
 
