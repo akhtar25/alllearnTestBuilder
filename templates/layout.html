@@ -916,17 +916,17 @@
 
 <footer class="page-footer" style="background-color:{{session['primary_color']}};">
 {% elif primaryColor %}
-<footer class="page-footer" style="background-color:{{primaryColor}};"></footer>
+<footer class="page-footer" style="background-color:{{primaryColor}};">
 {% else %}
 <footer class="page-footer black ">
 {% endif %}
   <div class="container">
     <div class="row">
       <div class="col l6 s12">
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
-          <strong>Contact to school</strong>
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;">
+          <strong>School contact</strong>
         </p>
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;">
           
           <strong>Phone:</strong>
             {% if phone %}
@@ -936,23 +936,23 @@
             {% endif %}
           
         </p>
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;">
           
-          <strong>Email:</strong>
+          <strong>email:</strong>
             {% if email %}
               <strong>{{email}}</strong>
             {% else %}
               <strong>{{session['email']}}</strong>
             {% endif %}
           
+        </p><br><br>
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;">
+          <strong>Alllearn contact</strong>
         </p>
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
-          <strong>Contact to alllearn</strong>
-        </p>
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;">
           <strong>WhatsApp <span>for any issues/queries</span>: 99103 68828 </strong>
         </p>
-        <p class="white-text text-lighten-4 left-align" style="font-size: 20px;"><strong>email:
+        <p class="white-text text-lighten-4 left-align" style="font-size: 16px;"><strong>email:
             contact@alllearn.in</strong>
         </p>
 
