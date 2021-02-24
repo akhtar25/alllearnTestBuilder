@@ -9,34 +9,41 @@
     </label>
   </div>
 </div>
+{% if current_user.user_type==134 %}
+<div style="height: 350px; overflow-y: auto">
+  {% else %}
+  <div style="height: 500px; overflow-y: auto">
+    {% endif %}
+    <div class="box-body no-padding table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Book</th>
+            <th>Chapter</th>
+            <th>Topic</th>
+            <th>Covered</th>
+            <th>Reference Content</th>
+            {% if current_user.user_type!=134 %}
+            <th>&nbsp; &nbsp; &nbsp; Start Class</th>
+            {% endif %}
+          </tr>
+        </thead>
+        {% if topicList!="" %}
+        <div>
+          <tbody>
+            {% for row in topicList %}
 
-<div style="height: 500px; overflow-y: auto">
-  <div class="box-body no-padding table-responsive">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Subject</th>
-          <th>Book</th>
-          <th>Chapter</th>
-          <th>Topic</th>
-          <th>Covered</th>
-          {% if current_user.user_type!=134 %}
-          <th>&nbsp; &nbsp; &nbsp; Start Class</th>
-          {% endif %}
-        </tr>
-      </thead>
-      {% if topicList!="" %}
-      <div>
-        <tbody>
-          {% for row in topicList %}
-
-          <tr class="{{row.is_covered}} list">
-            <td>{{row.subject_name}}</td>
-            <td>{{row.book_name}}</td>
-            <td>{{row.chapter_num}}</td>
-            <td>{{row.topic_name}}</td>
-            <td>{{row.is_covered}}</td>
-            <!--{% if row.is_covered == 'Y'%}
+            <tr class="{{row.is_covered}} list">
+              <td>{{row.subject_name}}</td>
+              <td>{{row.book_name}}</td>
+              <td>{{row.chapter_num}}</td>
+              <td>{{row.topic_name}}</td>
+              <td>{{row.is_covered}}</td>
+              <td>
+                <a href="#contentModal" name='{{row.topic_id}}' class='modal-trigger contentClass'>Reference Content</a>
+              </td>
+              <!--{% if row.is_covered == 'Y'%}
             <td><a class="btn btn-default"
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span
                   class=" label label-success ">Retake Class</span></a></td>
@@ -45,151 +52,198 @@
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id, topic_id= row.topic_id,retake='N')}}"><span
                   class=" label label-success ">Start Class</span></a></td>
             {% endif %}-->
-            {% if current_user.user_type!=134 %}
-            <td>
-              <a
-                href="#modal1"
-                class="modal-trigger green btn btn-default startliveClassBTN"
-                name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N"
-                ><span class="label label-success">Start Class</span></a
-              >
-            </td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </div>
-      {% else %}
-      <p>No data found in DB</p>
-      {% endif %}
-    </table>
+            <!-- Start -->
+            <div id="contentModal" class="modal" style="background-color:white;">
+              
+              <div class="modal-content" id="content" style="height: 465px;">
+                <div id="contentloader" style="display: none;text-align: center;margin-top: 120px;">
+                  <img src="../static/images/loader.gif">
+                </div>
+                <p>
+                  <div id="contentListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
+                </p>
+              </div>
+            </div>
+            <!-- End -->
+              {% if current_user.user_type!=134 %}
+              <td>
+                <a
+                  href="#modal1"
+                  class="modal-trigger green btn btn-default startliveClassBTN"
+                  name="{{class_sec_id}}-{{row.subject_id}}-{{row.topic_id}}-N"
+                  ><span class="label label-success">Start Class</span></a
+                >
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </div>
+        {% else %}
+        <p>No data found in DB</p>
+        {% endif %}
+      </table>
+    </div>
   </div>
-</div>
 
-<div
-  id="modal1"
-  class="modal"
-  style="background-color: white; height: 400px; width: 500px"
->
-  <div class="modal-content" id="">
-    <h4>Start Live Class</h4>
-    <h6 id="chosenTopicDetail"></h6>
-    <form action="" id="liveClassForm" method="POST">
-      <ol>
-        <li>
-          <h5>Start a live session</h5>
-          <a href="https://meet.google.com" target="_blank"
-            ><img src="../static/images/meet_img.png" width="150px"
-          /></a>
-          &nbsp;&nbsp;&nbsp;&nbsp; OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <a href="https://zoom.us/start/videomeeting" target="_blank"
-            ><img src="../static/images/zoom_img.png" width="150px"
-          /></a>
-        </li>
-        <li>
-          Enter the conference link:
-          <input
-            type="text"
-            placeholder="Conference link"
-            id="conferenceLink"
-            name="conferenceLink"
-          />
-        </li>
-        <li>
-          Class duration:
-          <input
-            type="text"
-            placeholder="Duration in hours"
-            id="duration"
-            name="duration"
-          />
-        </li>
-        <button
-          class="btn waves-light green lighten-1 white-text"
-          id="saveConfBTN"
-          type="submit"
-        >
-          Save and Start class
-        </button>
-        <a class="right" href="#" id="skipAndStartBTN">Skip</a>
-      </ol>
-    </form>
+  <div
+    id="modal1"
+    class="modal"
+    style="background-color: white; height: 400px; width: 500px"
+  >
+    <div class="modal-content" id="">
+      <h4>Start Live Class</h4>
+      <h6 id="chosenTopicDetail"></h6>
+      <form action="" id="liveClassForm" method="POST">
+        <ol>
+          <li>
+            <h5>Start a live session</h5>
+            <a href="https://meet.google.com" target="_blank"
+              ><img src="../static/images/meet_img.png" width="150px"
+            /></a>
+            &nbsp;&nbsp;&nbsp;&nbsp; OR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="https://zoom.us/start/videomeeting" target="_blank"
+              ><img src="../static/images/zoom_img.png" width="150px"
+            /></a>
+          </li>
+          <li>
+            Enter the conference link:
+            <input
+              type="text"
+              placeholder="Conference link"
+              id="conferenceLink"
+              name="conferenceLink"
+            />
+          </li>
+          <li>
+            Class duration:
+            <input
+              type="text"
+              placeholder="Duration in hours"
+              id="duration"
+              name="duration"
+            />
+          </li>
+          <button
+            class="btn waves-light green lighten-1 white-text"
+            id="saveConfBTN"
+            type="submit"
+          >
+            Save and Start class
+          </button>
+          <a class="right" href="#" id="skipAndStartBTN">Skip</a>
+        </ol>
+      </form>
+    </div>
   </div>
-</div>
 
-<script type="text/javascript">
-  $(document).ready(function () {
-    $("#saveConfBTN").attr("disabled", true);
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $("#saveConfBTN").attr("disabled", true);
 
+      $(".modal").modal();
+      $('input[type="checkbox"]').click(function () {
+        if ($(this).is(":checked")) {
+          console.log("Is checked");
+          $(".Y").hide();
+        } else {
+          $(".Y").show();
+        }
+      });
+    });
+
+    $(document).ready(function () {
+    console.log("Inside model");
     $(".modal").modal();
-    $('input[type="checkbox"]').click(function () {
-      if ($(this).is(":checked")) {
-        console.log("Is checked");
-        $(".Y").hide();
+  });
+
+  $('.contentClass').click(function(){
+    $('#contentloader').show();
+    //$('#modal2').hide();
+    //$('#content').hide();
+    $('#contentListDiv').html('');
+    var topic_id = $(this).attr('name');
+    console.log('Inside contentData');
+    var data="";
+        $.ajax({
+            url: "/getContentDetails?topic_id="+topic_id,
+            type: "get",
+            data: data,
+            success: function(response){
+              console.log('success');
+              console.log(response);
+                $('#contentloader').hide();
+                $('#contentModal').show();
+                $('#content').show();
+                if(response){
+                  $('#contentListDiv').html(response);
+                }else{
+                  response = '<h4>No content available</h4>'
+                  $('#contentListDiv').html(response);
+                }
+            }
+        })
+      });
+
+    var subject_id = "";
+    var class_sec_id = "";
+    var topic_id = "";
+    $(".startliveClassBTN").click(function () {
+      var classParams = $(this).attr("name");
+      var res = classParams.split("-");
+      class_sec_id = res[0];
+      subject_id = res[1];
+      topic_id = res[2];
+
+      var classDeliveryURL = "{{url_for('classDelivery')}}";
+      classDeliveryURL =
+        classDeliveryURL +
+        "?class_sec_id=" +
+        res[0] +
+        "&subject_id=" +
+        res[1] +
+        "&topic_id=" +
+        res[2] +
+        "&retake=N";
+
+      $("#skipAndStartBTN").attr("href", classDeliveryURL);
+      // $('#saveConfBTN').attr('href',classDeliveryURL);
+    });
+
+    $("#duration").blur(function () {
+      if ($("#conferenceLink").val() != "" && $("#duration").val() != "") {
+        $("#saveConfBTN").attr("disabled", false);
+        var url =
+          "/classDelivery?class_sec_id=" +
+          class_sec_id +
+          "&subject_id=" +
+          subject_id +
+          "&topic_id=" +
+          topic_id +
+          "&retake=N&duration=" +
+          $("#duration").val() +
+          "&conf_link=" +
+          $("#conferenceLink").val();
+        $("#liveClassForm").attr("action", url);
+        //  var classParams = $(this).attr("name");
+        //   var res = classParams.split("-");
+        //  $('#liveClassForm').attr('action', 'http://uri-for-button1.com');
+        // var hrefVal =  $('#saveConfBTN').attr('href');
+
+        // hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
+
+        // if($('#duration').val() == '') {
+        //   console.log('if duration is empty');
+        //   hrefVal=hrefVal + '&duration=';
+        // }else{
+        //   console.log('if duration is not empty');
+        //   hrefVal=hrefVal + '&duration='+$('#duration').val();
+        // }
+
+        // $('#saveConfBTN').attr('href',hrefVal);
       } else {
-        $(".Y").show();
+        $("#saveConfBTN").attr("disabled", true);
       }
     });
-  });
-
-  var subject_id = "";
-  var class_sec_id = "";
-  var topic_id = "";
-  $(".startliveClassBTN").click(function () {
-    var classParams = $(this).attr("name");
-    var res = classParams.split("-");
-    class_sec_id = res[0];
-    subject_id = res[1];
-    topic_id = res[2];
-
-    var classDeliveryURL = "{{url_for('classDelivery')}}";
-    classDeliveryURL =
-      classDeliveryURL +
-      "?class_sec_id=" +
-      res[0] +
-      "&subject_id=" +
-      res[1] +
-      "&topic_id=" +
-      res[2] +
-      "&retake=N";
-
-    $("#skipAndStartBTN").attr("href", classDeliveryURL);
-    // $('#saveConfBTN').attr('href',classDeliveryURL);
-  });
-
-  $("#duration").blur(function () {
-    if ($("#conferenceLink").val() != "" && $("#duration").val() != "") {
-      $("#saveConfBTN").attr("disabled", false);
-      var url =
-        "/classDelivery?class_sec_id=" +
-        class_sec_id +
-        "&subject_id=" +
-        subject_id +
-        "&topic_id=" +
-        topic_id +
-        "&retake=N&duration=" +
-        $("#duration").val() +
-        "&conf_link=" +
-        $("#conferenceLink").val();
-      $("#liveClassForm").attr("action", url);
-      //  var classParams = $(this).attr("name");
-      //   var res = classParams.split("-");
-      //  $('#liveClassForm').attr('action', 'http://uri-for-button1.com');
-      // var hrefVal =  $('#saveConfBTN').attr('href');
-
-      // hrefVal = hrefVal + '&conf_link='+$('#conferenceLink').val();
-
-      // if($('#duration').val() == '') {
-      //   console.log('if duration is empty');
-      //   hrefVal=hrefVal + '&duration=';
-      // }else{
-      //   console.log('if duration is not empty');
-      //   hrefVal=hrefVal + '&duration='+$('#duration').val();
-      // }
-
-      // $('#saveConfBTN').attr('href',hrefVal);
-    } else {
-      $("#saveConfBTN").attr("disabled", true);
-    }
-  });
-</script>
+  </script>
+</div>

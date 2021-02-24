@@ -5,16 +5,258 @@
       class="wrapper"
       style="background-image: linear-gradient(45deg, #e4ebf2, transparent)"
     >
-      <section class="content-header">
-        <h1>Student's Dashboard</h1>
+      <section class="content-header"> 
+        <h1>Welcome {{studentDet.full_name}}</h1>
       </section>
       <div class="content">
+        <!-- Start card -->
+        <div class="row"> 
+          <div class="col-md-4 col-xl-4">
+            <div class="card mb-3 widget-content bg-arielle-smile-dashboard1">
+              <div class="widget-content-wrapper">
+                <div class="widget-content-left leftContent">
+                  <div class="widget-heading">
+                    Test
+                  </div>
+                  <div class="widget-subheading">
+                    Total written<br>
+                    Total pending
+                  </div>
+                </div>
+                <div class="widget-content-right rightContent">
+                  <div class="widget-numbers text-green" style="font-size:16px;font-weight: 400;margin-top: 10px;">
+                    <span>{{writtenTestCount}}</span><br>
+                    <span>{{pendingTestCount[0]}}</span>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+    
+          <!-- for total numbers of students -->
+          <!-- <div class="col-md-3 col-xl-3">
+              <div class="card mb-3 widget-content bg-grow-early-dashboard1">
+                <div class="widget-content-wrapper">
+                  <div class="widget-content-left leftContent">
+                    <div class="widget-heading">
+                      Test
+                    </div>
+                    <div class="widget-subheading">
+                      Total pending test
+                    </div>
+                  </div>
+                  <div class="widget-content-right rightContent">
+                    <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                      <span>{{pendingTestCount[0]}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div> -->
+        <!-- </div> -->
+        <!-- <div class="row" style="margin-top: -20px;"> -->
+            <div class="col-md-4 col-xl-4">
+                <div class="">
+              <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+                <div class="widget-content-wrapper">
+                  <div class="widget-content-left leftContent">
+                    <div class="widget-heading">
+                      Homework
+                    </div>
+                    <div class="widget-subheading">
+                      Total written<br>
+                      Total pending
+                    </div>
+                  </div>
+                  <div class="widget-content-right rightContent">
+                    <div class="widget-numbers text-green" style="font-size:16px;font-weight: 400;margin-top: 10px;">
+                      <span>{{writtenHomeworkCount}}</span><br>
+                      <span>{{pendingHomeworkCount[0]}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-xl-4">
+              <div class="">
+            <div class="card mb-3 widget-content bg-arielle-smile-dashboard">
+              <div class="widget-content-wrapper">
+                <div class="widget-content-left leftContent">
+                  <div class="widget-heading">
+                    Topic
+                  </div>
+                  <div class="widget-subheading">
+                    Total covered<br>
+                    Total pending
+                  </div>
+                </div>
+                <div class="widget-content-right rightContent">
+                  <div class="widget-numbers text-green" style="font-size:16px;font-weight: 400;margin-top: 10px;">
+                    <span>{{topicCoveredCount[0]}}</span><br>
+                    <span>{{topicUncoveredCount[0]}}</span>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            </div>
+          </div>
+      
+            <!-- for total numbers of students -->
+            <!-- <div class="col-md-3 col-xl-3">
+                <div class="">
+                <div class="card mb-3 widget-content bg-grow-early-dashboard">
+                  <div class="widget-content-wrapper">
+                    <div class="widget-content-left leftContent">
+                      <div class="widget-heading">
+                        Homework
+                      </div>
+                      <div class="widget-subheading">
+                        Total pending homework
+                      </div>
+                    </div>
+                    <div class="widget-content-right rightContent">
+                      <div class="widget-numbers text-green" style="font-size:20px;font-weight: 400;">
+                        <span>{{pendingHomeworkCount[0]}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div> -->
+          </div>
+        <!-- End -->
+        <!-- Start -->
+          <!-- Start upcoming test  -->
+        <div class="row">
+          <div class="col-md-5" style="margin-left: 20px;overflow-y: auto;">
+            <div
+              id="testHistory"
+              style="
+                padding: 10px;
+                height: 330px;
+                background-color: white;
+                width: 475px;
+              "
+              class="z-depth-1 hoverable row colorClass"
+            >
+              <h4>Upcoming Tests</h4>
+              <table
+                id="upcomingTestTable"
+                class="wp-list-table widefat striped posts"
+              >
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Due Date</th>
+                    <!-- <th>Duration</th>
+                    <th>Negative Marks</th> -->
+                    <th>Chapters and Topics</th>
+                    <th>Start Test</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in upcomigTestDetails %}
+                  <tr>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.subject}}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.test_due_date.strftime('%d %b %Y')}}
+                    </th>
+                    <!-- <th style="font-size: 14px; font-weight: 400">
+                        {% if row.test_time==0 %}
+                            untimed
+                        {% else %}
+                            {{row.test_time}}
+                        {% endif %}
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                      {{row.incorrect_marks}}
+                    </th> -->
+                    <th style="font-size: 14px; font-weight: 400">
+                        <a href="#chapterModal" name='{{row.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a>
+                    </th>
+                    <th style="font-size: 14px; font-weight: 400">
+                        <a class="btn-primary btn" style="font-size: 11px;height: 28px;background-color: green;margin-bottom: 10px;margin-top: 10px;" href="{{row.test_link}}" target="_blank"><span>Start Test</span></a>
+                    </th>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <div id="pageNavPosition2" class="pager-nav"></div>
+            </div>
+          </div>
+        <!-- </div> -->
+        <!-- End -->
+        <!-- <div class="row"> -->
+            <div class="col-md-6" style="margin-left: 50px;overflow-y: auto;">
+              <div
+                id="testHistory"
+                style="
+                  padding: 10px;
+                  max-height: 500px;
+                  background-color: white;
+                  width:570px;
+                "
+                class="z-depth-1 hoverable row colorClass"
+              >
+                <h4>Test History</h4>
+                <table id="pager" class="wp-list-table widefat striped posts">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Topics</th>
+                      <th>Test Date</th>
+                      <th>Performance</th>
+                      <th>See Report</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in testHistory %}
+                    <tr>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.subject}}
+                      </th>
+                      <th  style="font-size: 14px; font-weight: 400;width: 150px !important;text-overflow: ellipsis;overflow: hidden;">
+                        {{row.topics}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.test_date.strftime('%d %b %Y')}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        {{row.perf_percentage}}
+                      </th>
+                      <th style="font-size: 14px; font-weight: 400">
+                        <a
+                          target="_blank"
+                          href="{{'studentFeedbackReport'}}?student_id={{studentDet.student_id}}&student_name={{studentDet.full_name}}&resp_session_id={{row.resp_session_id}}"
+                          class="seeReportClass"
+                          >See Report</a
+                        >
+                      </th>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+  
+                <div id="pageNavPosition" class="pager-nav"></div>
+              </div>
+            </div>
+          </div>
+        <!-- End -->
         <div class="row">
             <div class="col s8" style="margin-left: 20px;"> 
             <h4 class='grey-text' style="color:black !important;font-weight:400">Overall Performance Graph</h4>
         <div id='studentPerformanceGraphDiv'> Loading graph...</div>
     </div>
-    <div class="col s3" style="margin-top: 40px;margin-left: 20px;">
+    <div class="col s2" style="margin-top: 40px;width: 286px;">
         <!-- <h3 class="box-title" style="font-size: 18px">Overall Performance</h3> -->
         <div class="testDashboard" style="font-size: 14px;padding-left: 5px;padding-right: 5px;">
         <div class="">
@@ -57,124 +299,7 @@
         </div>
         </div> 
         </div>
-        <!-- Start upcoming test  -->
-        <div class="row">
-          <div class="col-md-10" style="margin-left: 18px">
-            <div
-              id="testHistory"
-              style="
-                padding: 10px;
-                max-height: 500px;
-                background-color: white;
-                width: 1100px;
-              "
-              class="z-depth-1 hoverable row colorClass"
-            >
-              <h4>Upcoming Tests</h4>
-              <table
-                id="upcomingTestTable"
-                class="wp-list-table widefat striped posts"
-              >
-                <thead>
-                  <tr>
-                    <th>Subject</th>
-                    <th>Due Date</th>
-                    <th>Duration</th>
-                    <th>Negative Marks</th>
-                    <th>Chapters and Topics</th>
-                    <th>Total Marks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for row in upcomigTestDetails %}
-                  <tr>
-                    <th style="font-size: 14px; font-weight: 400">
-                      {{row.subject}}
-                    </th>
-                    <th style="font-size: 14px; font-weight: 400">
-                      {{row.test_due_date.strftime('%d %B %Y')}}
-                    </th>
-                    <th style="font-size: 14px; font-weight: 400">
-                        {% if row.test_time==0 %}
-                            untimed
-                        {% else %}
-                            {{row.test_time}}
-                        {% endif %}
-                    </th>
-                    <th style="font-size: 14px; font-weight: 400">
-                      {{row.incorrect_marks}}
-                    </th>
-                    <th style="font-size: 14px; font-weight: 400">
-                        <a href="#chapterModal" name='{{row.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a>
-                    </th>
-                    <th style="font-size: 14px; font-weight: 400">
-                        {{row.total_marks}}
-                    </th>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-
-              <div id="pageNavPosition2" class="pager-nav"></div>
-            </div>
-          </div>
-        </div>
-        <!-- End -->
-        <div class="row">
-            <div class="col-md-10" style="margin-left: 18px">
-              <div
-                id="testHistory"
-                style="
-                  padding: 10px;
-                  max-height: 500px;
-                  background-color: white;
-                  width: 1100px;
-                "
-                class="z-depth-1 hoverable row colorClass"
-              >
-                <h4>Test History</h4>
-                <table id="pager" class="wp-list-table widefat striped posts">
-                  <thead>
-                    <tr>
-                      <th>Subject</th>
-                      <th>Topics</th>
-                      <th>Test Date</th>
-                      <th>Performance</th>
-                      <th>See Report</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in testHistory %}
-                    <tr>
-                      <th style="font-size: 14px; font-weight: 400">
-                        {{row.subject}}
-                      </th>
-                      <th style="font-size: 14px; font-weight: 400">
-                        {{row.topics}}
-                      </th>
-                      <th style="font-size: 14px; font-weight: 400">
-                        {{row.test_date.strftime('%d %B %Y')}}
-                      </th>
-                      <th style="font-size: 14px; font-weight: 400">
-                        {{row.perf_percentage}}
-                      </th>
-                      <th style="font-size: 14px; font-weight: 400">
-                        <a
-                          target="_blank"
-                          href="{{'studentFeedbackReport'}}?student_id={{studentDet.student_id}}&student_name={{studentDet.full_name}}&resp_session_id={{row.resp_session_id}}"
-                          class="seeReportClass"
-                          >See Report</a
-                        >
-                      </th>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-  
-                <div id="pageNavPosition" class="pager-nav"></div>
-              </div>
-            </div>
-          </div>
+        
         <!-- Modal for Chapters -->
         <div id="chapterModal" class="modal" style="background-color:white;">
             <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
@@ -188,11 +313,10 @@
           </div>
         <!-- End -->
         <!-- Student Homework -->
-        <div class="row">
+        <!-- <div class="row">
           <section class="col-lg-12 connectedSortable">
             <h3 class="box-title" style="font-size: 18px">Recent Homeworks</h3>
             <div class="testDashboard">
-              <!-- /.box-header -->
               <div class="box-body">
                 <div>
                   <div
@@ -252,11 +376,11 @@
               >
             </div>
           </section>
-        </div>
+        </div> -->
         <div class="row">
             <div class="col-xs-12">
             <h3 class="box-title" style="font-size: 18px">Class Tracker</h3>
-            <div class="testDashboard">
+            <div class="testDashboard" style="overflow-y: auto;">
             
                 <div class="box" id="classTrackerDiv">
                   <!-- /.box-header -->
@@ -288,8 +412,8 @@
                 <div id="completeCourseDetailsDiv"></div>
                 <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
               </div>
-              <!-- <div id="backButton"><button class="btn pull-right green lighten-1"
-                id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div> -->
+              <div id="backButton" style="display:none;"><button class="btn pull-right green lighten-1"
+                id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>
               </div>
         </div>
 
@@ -608,6 +732,15 @@
                 $('#chapterListDiv').html(response);
             }
         })
+      });
+
+      $('#backButton').click(function(){
+        // $('#loaderDiv').show();
+        console.log('inside backButton');
+        $('#completeCourseDetailsDiv').hide();
+        $('#backButton').hide();
+        $('#classTrackerDiv').show();
+        // $('#loaderDiv').hide();
       });
 
 
