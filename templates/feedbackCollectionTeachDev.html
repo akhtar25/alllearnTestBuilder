@@ -87,7 +87,11 @@
                     {% endif %}
                     
                 </div>
+                {% if session['primary_color'] %}
+                <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;background-color: {{session['primary_color']}} !important;">
+                {% else %}
                 <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;">
+                {% endif %}
               </div>
               <div id="questionButtons">
           
@@ -121,7 +125,11 @@
                   <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
                 </li>
                   <br>
+                  {% if session['primary_color'] %}
+                  <a style="background-color: {{session['primary_color']}} !important;margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn green modal-trigger" href="#modal4"><span>Share url</span> </a>  
+                  {% else %}
                   <a style="margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn green modal-trigger" href="#modal4"><span>Share url</span> </a>  
+                  {% endif %}
                 <li>
                   <p>Scan the QR : <br>
                   </p>

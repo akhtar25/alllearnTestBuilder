@@ -4438,6 +4438,10 @@ def login():
             session['schoolPicture'] = school_pro.school_picture
             session['schoolName'] = school_pro.school_name
             session['primary_color'] = school_pro.primary_color
+            teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
+            userData = User.query.filter_by(id=teacherData.user_id).first()
+            session['phone'] = userData.phone
+            session['email'] = userData.email
         print(session['primary_color'])
         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         print(query)
@@ -4472,13 +4476,21 @@ def login():
     schoolName = ''
     schoolLogo = ''
     primaryColor = '' 
+    phone = ''
+    email = ''
     print('Url:'+str(request.url)) 
     for row in schoolData:
         if str(request.url) == str(row.sub_domain):
             schoolName = row.school_name
             schoolLogo = row.school_logo
             primaryColor = row.primary_color
-    return render_template('login.html',primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
+            teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
+            userData = User.query.filter_by(id=teacherData.user_id).first()
+            phone = userData.phone
+            email = userData.email
+    print('phone:'+str(phone))
+    print('email:'+str(email))
+    return render_template('login.html',phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
 @app.route('/success',methods=['POST'])
 def success():
@@ -7015,6 +7027,8 @@ def feedbackCollectionStudDev():
         instructions = ''
     studId = request.args.get('student_id')
     school_id = request.args.get('school_id')
+    school_profile_data = SchoolProfile.query.filter_by(school_id=school_id).first()
+    # primaryColor = school_profile_data.primary_color
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
     advance = request.args.get('advance')
@@ -7023,6 +7037,10 @@ def feedbackCollectionStudDev():
     print('advance:'+str(advance))
     print('Student Id:'+str(studId))
     if studId==None:
+        session['school_logo'] = school_profile_data.school_logo
+        session['schoolName'] = school_profile_data.school_name
+        session['primary_color'] = school_profile_data.primary_color
+        
         print('Student Id is null')
         return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
     emailDet = StudentProfile.query.filter_by(student_id=studId).first()
@@ -7053,6 +7071,7 @@ def feedbackCollectionStudDev():
             school_id = userData.school_id
 
         school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
+        primaryColor = school_pro.primary_color
         session['school_logo'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
@@ -7121,7 +7140,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
+            resp_session_id=str(resp_session_id),primaryColor=primaryColor, questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
