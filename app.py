@@ -136,6 +136,210 @@ notes = {
     2: 'paint the door',
 }
 
+def note_repr(key):
+    return {
+        'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
+        'text': notes[key]
+    }
+
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
+
+
+#Route to verify google sign in token
+@app.route('/gTokenSignin',methods=["GET","POST"])
+def gTokenSignin():
+    try:
+        idtoken = request.form.get('idtoken')
+        # Specify the CLIENT_ID of the app that accesses the backend:
+        idinfo = id_token.verify_oauth2_token(idtoken, requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+        # ID token is valid. Get the user's Google Account ID from the decoded token.
+        userid = idinfo['sub']
+        print('This is the email: ')
+        print(idinfo["email"])
+        print('#############')
+                
+        #section to create new user
+        chkUserData = User.query.filter_by(email=str(idinfo["email"])).first()
+        if chkUserData==None:
+            user = User(username=idinfo["email"], email=idinfo["email"], user_type='253', access_status='145', 
+                first_name = idinfo["given_name"],last_name= idinfo["family_name"], last_modified_date = datetime.today(),
+                user_avatar = idinfo["picture"],school_id=1, login_type=244)
+            #user.set_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            #flash('Congratulations! You\'re now a registered user!')
+            #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
+            checkTeacherProf = TeacherProfile.query.filter_by(email=idinfo["email"]).first()
+            #if a student has already been added during school registration then simply add the new user's id to it's student profile value
+            checkStudentProf = StudentProfile.query.filter_by(email=idinfo["email"]).first()
+    
+            if checkTeacherProf!=None:
+                checkTeacherProf.user_id=user.id
+                db.session.commit()        
+            elif checkStudentProf!=None:
+                checkStudentProf.user_id=user.id
+                db.session.commit()
+            else:
+                pass
+        #end of section
+          
+        #section to create session and auto login
+
+        #endof section
+
+        return '0'
+        # // These six fields are included in all Google ID Tokens.
+        # "iss": "https://accounts.google.com",
+        # "sub": "110169484474386276334",
+        # "azp": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
+        # "aud": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
+        # "iat": "1433978353",
+        # "exp": "1433981953",
+        #
+        # // These seven fields are only included when the user has granted the "profile" and
+        # // "email" OAuth scopes to the application.
+        # "email": "testuser@gmail.com",
+        # "email_verified": "true",
+        # "name" : "Test User",
+        # "picture": "https://lh4.googleusercontent.com/-kYgzyAWpZzJ/ABCDEFGHI/AAAJKLMNOP/tIXL9Ir44LE/s99-c/photo.jpg",
+        # "given_name": "Test",
+        # "family_name": "User",
+        # "locale": "en"
+        #}
+    except ValueError:
+        # Invalid token
+        return '1'
+        
+
+
+
+#@register.filter
+#def month_name(month_number):
+#    return calendar.month_name[month_number]
+
+@app.route("/api", methods=['GET', 'POST'])
+def notes_list():
+    """
+    List or create notes.
+    """
+    if request.method == 'POST':
+        note = str(request.data.get('text', ''))
+        idx = max(notes.keys()) + 1
+        notes[idx] = note
+        return note_repr(idx), status.HTTP_201_CREATED
+
+    # request.method == 'GET'
+    return [note_repr(idx) for idx in sorted(notes.keys())]
+
+
+#@app.route("/api/leaderBoard/<int:schoolID>",methods=['GET','PUT','DELETE'])
+#def leaderboardAPI(schoolID):
+#    return leaderboardContent(schoolID)
+
+@property
+def serialize(self):
+ return {
+    'student_id': self.student_id,
+    'full_name': self.full_name,
+    #'class_val': self.class_val,
+    #'section': self.section,
+    #'sponsored_status': self.sponsored_status,
+    #'sponsored_on': self.sponsored_on,
+    #'sponsored_amount': self.sponsored_amount,
+    #'sponsored_till': self.sponsored_till,
+    #'profile_picture': self.profile_picture,
+    #'perf_avg': self.perf_avg,
+}
+
+
+
+@app.route("/api/studentList/<int:schoolID>/", methods=['GET', 'PUT', 'DELETE'])
+def studentListAPI(schoolID):
+    #studentList = StudentProfile.query.filter_by(school_id=schoolID).all()
+    studentListQuery = "select sp.student_id as student_id, sp.full_name as full_name , cs.class_val as class_val , cs.section as section , sponsored_status as spnsored_status, sponsored_on as sponsoted_on, sponsored_amount as sponsored_amount, sponsored_till as sponsored_till, "
+    studentListQuery = studentListQuery + "sp.profile_picture as profile_picture,  CAST ( round( avg(pd.student_score),2) as Varchar) as perf_avg "
+    studentListQuery = studentListQuery + "from student_profile sp "
+    studentListQuery = studentListQuery + "inner join class_section cs on "
+    studentListQuery = studentListQuery + "cs.class_sec_id  = sp.class_sec_id and "
+    studentListQuery = studentListQuery + "sp.school_id  = "+str(schoolID)
+    studentListQuery = studentListQuery + " inner join performance_detail pd on "
+    studentListQuery = studentListQuery + "pd.student_id  = sp.student_id "
+    studentListQuery = studentListQuery + "group by sp.student_id , sp.full_name , cs.class_val , cs.section , sp.profile_picture , sponsored_status , sponsored_on , sponsored_amount , sponsored_till "
+    studentListQuery = studentListQuery + "order by perf_avg desc"
+
+    studentListData = db.session.execute(text(studentListQuery)).fetchall()
+    
+    # the two lines below can also be used to send data but without the flask api library
+    #resp = jsonify({'result': [dict(row) for row in studentListData]})
+    #resp.status_code = 200
+
+    return {'result': [dict(row) for row in studentListData]}
+    #return [(str(idx.student_id)+','+str(idx.first_name)+','+str(idx.last_name)+',' +str(idx.sponsored_status)) for idx in studentList]
+
+
+
+
+
+@app.route("/api/<int:key>/", methods=['GET', 'PUT', 'DELETE'])
+def notes_detail(key):
+    """
+    Retrieve, update or delete note instances.
+    """
+    if request.method == 'PUT':
+        note = str(request.data.get('text', ''))
+        notes[key] = note
+        return note_repr(key)
+
+    elif request.method == 'DELETE':
+        notes.pop(key, None)
+        return '', status.HTTP_204_NO_CONTENT
+
+    # request.method == 'GET'
+    if key not in notes:
+        raise exceptions.NotFound()
+    return note_repr(key)
+##########################End of test section
+
+def stateList():
+    with open('stateList.txt', 'r') as f:
+        stateListVal = f.readlines()
+        stateListVal = str(stateListVal).split(',')
+        return stateListVal
+
+
+def cityList():
+    with open('cityList.txt', 'r') as f:
+        cityListVal = f.readlines()
+        cityListVal = str(cityListVal)
+        cityListVal = cityListVal.replace('[','').replace(']','').replace('\'','').replace(',',':null,')
+        cityListVal = cityListVal.split(',')
+        cityListVal[-1]=cityListVal[-1]+ ':null'
+        cityListDict = dict(item.split(':') for item in cityListVal)
+        #cityListVal = cityListVal.split(',')
+        return cityListDict
+
+
+def classSecCheck():
+    teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #print('#######this is teacher profile val '+ str(teacherProfile.teacher_id))
+    #print('#######this is current user '+ str(current_user.id))
+    if teacherProfile==None:
+        return 'N'
+    else:
+        classSecRow = ClassSection.query.filter_by(school_id=teacherProfile.school_id).all()
+        #print(classSecRow)
+        if len(classSecRow)==0:
+            print('returning N')
+            return 'N'            
+        else:
+            return 'Y'
+
+
 @app.route('/sign-s3')
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
