@@ -108,8 +108,6 @@ if not app.debug and not app.testing:
     app.logger.setLevel(logging.INFO)
     app.logger.info('allLearn startup')
 
-
-
 #helper methods
 def schoolNameVal():
     if current_user.is_authenticated:
