@@ -2,6 +2,7 @@ import os
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    
     # staging url  
     DATABASE_URL = os.environ.get("DATABASE_URL", None)
     #staging
@@ -27,13 +28,16 @@ class Config(object):
     #ANONYMOUS_USERID = 886
     MODE = os.environ.get('MODE')
     #MODE = "TEST"
+
+    # Cerely
+    CELERY_BROKER_URL = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
+    CELERY_RESULT_BACKEND = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
+
     
     #TEST CREDS
     ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID')
     ALLLEARN_CASHFREE_SECRET_KEY = os.environ.get('ALLLEARN_CASHFREE_SECRET_KEY')
-    
-    
-    
+     
     CASHFREE_API_TEST = "https://ces-gamma.cashfree.com"
     CASHFREE_API_PROD = "https://ces-api.cashfree.com"
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"

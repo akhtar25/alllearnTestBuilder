@@ -2,9 +2,11 @@ from flask import Flask, Markup, render_template, request, flash, redirect, url_
 from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
+from celery import Celery
 #from qrReader import *
 from threading import Thread
 import re
+import concurrent.futures
 import csv
 import itertools
 from config import Config
@@ -70,6 +72,8 @@ import json
 
 app=FlaskAPI(__name__)
 
+
+# End
 talisman = Talisman(app, content_security_policy=None)
 
 
@@ -158,6 +162,7 @@ def note_repr(key):
         'text': notes[key]
     }
 
+<<<<<<< HEAD
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 def check(email):
     if re.search(regex,email):
@@ -181,6 +186,37 @@ def send_sms(number,message):
     response = rq.request("GET", url, headers=headers, params=params)
     dic = response.json()
     print('dic',dic)
+=======
+# Flask celery configuration
+print('app.name',app.name)
+celery = Celery('app.name', broker=app.config['CELERY_BROKER_URL'])
+# celery.conf.update(app.config)
+# @app.route('/process/<name>')
+# def process(name):
+#     reverse.delay(name)
+#     return 'I sent as asynchronous request!'
+
+# @celery.task(name='celery_example.reverse')
+# def reverse(string):
+#     return string[::-1]
+
+@celery.task
+def my_background_task(a,b):
+    # some long running task here
+    print('inside my_background_task')
+    result = a + b
+    print('Result:'+str(result))
+    return result+'#res'
+
+@app.route('/process',methods=['GET','POST'])
+def process():
+    print('inside process')
+    task = my_background_task.apply_async(args=[10,20])
+    print('task',task)
+    print('after execute task')
+    return 'I sent as asynchronous request!'
+
+>>>>>>> AT-539
 
 
 
@@ -4392,7 +4428,8 @@ def user(username):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print('Inside login')    
-    if current_user.is_authenticated:        
+    if current_user.is_authenticated:  
+        print(request.url)    
         if current_user.user_type=='161':
             return redirect(url_for('openJobs'))
         else:
@@ -4483,6 +4520,13 @@ def login():
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
+            session['schoolName'] = school_pro.school_name
+            session['primary_color'] = school_pro.primary_color
+            teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
+            userData = User.query.filter_by(id=teacherData.user_id).first()
+            session['phone'] = userData.phone
+            session['email'] = userData.email
+        print(session['primary_color'])
         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
         print(query)
         print('Modules')
@@ -4511,7 +4555,26 @@ def login():
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
-    return render_template('login.html', title='Sign In', form=form)
+    schoolDataQuery = "select *from school_profile"
+    schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
+    schoolName = ''
+    schoolLogo = ''
+    primaryColor = '' 
+    phone = ''
+    email = ''
+    print('Url:'+str(request.url)) 
+    for row in schoolData:
+        if str(request.url) == str(row.sub_domain):
+            schoolName = row.school_name
+            schoolLogo = row.school_logo
+            primaryColor = row.primary_color
+            teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
+            userData = User.query.filter_by(id=teacherData.user_id).first()
+            phone = userData.phone
+            email = userData.email
+    print('phone:'+str(phone))
+    print('email:'+str(email))
+    return render_template('login.html',phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
 @app.route('/success',methods=['POST'])
 def success():
@@ -7097,6 +7160,8 @@ def feedbackCollectionStudDev():
         instructions = ''
     # student_id = request.args.get('student_id')
     school_id = request.args.get('school_id')
+    school_profile_data = SchoolProfile.query.filter_by(school_id=school_id).first()
+    # primaryColor = school_profile_data.primary_color
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
     advance = request.args.get('advance')
@@ -7213,7 +7278,7 @@ def feedbackCollectionStudDev():
         print('Student ID:'+str(studentRow.student_id))
         return render_template('feedbackCollectionStudDev.html',class_val = classSectionRow.class_val, 
             section=classSectionRow.section,questionListSize=questionListSize,
-            resp_session_id=str(resp_session_id), questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
+            resp_session_id=str(resp_session_id),primaryColor=primaryColor, questionList=testQuestions, subject_id=testDetailRow.subject_id, test_type=testDetailRow.test_type,disconn=1,student_id = studId,studentName=studentRow.full_name,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,instructions=instructions)
     else:
         flash('This is not a valid id or there are no question in this test')
         return redirect('index')
@@ -8194,7 +8259,14 @@ def testApp():
     return jsonify({'fileName':file_name_val})
 
 #End API
+# @celery.task
+# def exampleData(a,b):
+#     print('inside exampleData')
+#     z = a+b
+#     return z
 
+
+@celery.task
 def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
@@ -8268,10 +8340,11 @@ def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,c
             db.session.add(testQuestionInsert)
         db.session.commit()
         print('after insertData')
+        return 'sent Asynchronous data'
 
-def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
-    print('Inside threadUse')
-    Thread(target=insertData,args=(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
+# def threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
+#     print('Inside threadUse')
+#     Thread(target=insertData,args=(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)).start()
     
 
 # API for New Test Paper Link and Test Link Generation
@@ -8756,6 +8829,7 @@ def getUserDetails():
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
+        print('inside getEnteredTopicList')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
@@ -8842,7 +8916,7 @@ def getEnteredTopicList():
         for topic in topicList:
             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.topic_name like '"+str(topic)+"%' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
@@ -8866,11 +8940,29 @@ def getEnteredTopicList():
         print(fetchQuesIds)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-
+        # threadUse(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id)
+        format = "%Y-%m-%d %H:%M:%S"
+        now_utc = datetime.now(timezone('UTC'))
+        now_local = now_utc.astimezone(get_localzone())
+        print('Date of test creation:'+str(now_local.strftime(format)))
+        task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+        #     executor.submit(threadUse,currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        # testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
+        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+        #     date_of_test=datetime.now(),test_paper_link='', school_id=teacher_id.school_id, teacher_id=teacher_id.teacher_id)
+        # db.session.add(testDetailsUpd)
+        # db.session.commit()
+        # sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id.teacher_id,
+        #     test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=currClassSecRow.class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=count_marks, last_modified_date = str(now_local.strftime(format)))
+        # db.session.add(sessionDetailRowInsert)
+        # for questionVal in fetchQuesIds:
+        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        #     db.session.add(testQuestionInsert)
+        # db.session.commit()
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
         # allLink = str('Here is the link to the online test:\n')+str(linkForTeacher)+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
         # linkForStudent=url_for('feedbackCollectionStudDev',respsessionid=resp_session_id,schoolId=teacher_id.school_id,uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9], _external=True)
         key = '265e29e3968fc62f68da76a373e5af775fa60'
@@ -8895,6 +8987,7 @@ def getEnteredTopicList():
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
     if request.method == 'POST':
+        print('newTestLinkGenerate')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
@@ -9023,11 +9116,12 @@ def newTestLinkGenerate():
         print(fetchQuesIds)
         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-
+        # threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+        # task = exampleData.delay(10,20)
+        task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
         clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subId,phone=contactNo, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
         key = '265e29e3968fc62f68da76a373e5af775fa60'
         url = urllib.parse.quote(linkForTeacher)
         name  = ''
@@ -9060,17 +9154,134 @@ def getNewUrl():
 @app.route('/getTestPaperLink',methods=['POST','GET'])
 def getTestPaperLink():
     if request.method == 'POST':
-        # jsonData = request.json        
-        # a = json.dumps(jsonData)
-        # z = json.loads(a)
-        # print('inside getTestPaperLink')
-        # for data in z['results'].values():
-        #     print(data)
-        testPaperQuery = "select test_paper_link from test_details order by test_id desc limit 1"
+        print('inside getTestPaperLink')
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        
+        a = json.dumps(jsonExamData)
+      
+        z = json.loads(a)
+        
+        
+        paramList = []
+        conList = []
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
+        for data in z['results'].values():
+            
+            paramList.append(data)
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+        print(conList[2])
+        # Test for topic
+        print('Testing for topic')
+        print(type(paramList[1]))
+        print(int(paramList[1]))
+        # 
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        classList = [] 
+        j=1
+        for classlist in classesListData:
+            classVal = str(j)+str(' - ')+str(classlist.class_val)
+            classList.append(classVal)
+            j=j+1
+        
+        selClass = ''
+        print('Selected Class option:')
+        print(paramList[4])
+        for className in classList:
+            num = className.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[4]))
+            if int(num) == int(paramList[4]):
+                print(className)
+                selClass = className.split('-')[1]
+                print('selClass:'+str(selClass))
+        print('class')
+        selClass = selClass.strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[2]))
+            if int(num) == int(paramList[2]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+                
+        print('Subject:')
+        selSubject = selSubject.strip()
+        # Start for topic
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        #End topic
+        selChapter = selChapter.strip()
+        print('Chapter'+str(selChapter))
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        fetchQuesIdsQuery = "select qd.question_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        oldQuesIds = []
+        for ques in fetchQuesIds:
+            if ques:
+                oldQuesIds.append(ques.question_id)
+        testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
         print(testPaperQuery)
         testPaperData = db.session.execute(text(testPaperQuery)).first()
-        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
-        print('testPaperLink:'+str(testPaperLink))
+        fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
+        newQuesIds = []
+        for ques in fetchLastPaperQuestionIds:
+            if ques:
+                newQuesIds.append(ques.question_id) 
+        testPaperLink = ''
+        if  oldQuesIds ==  newQuesIds:   
+            testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
+            print('testPaperLink:'+str(testPaperLink))
+        else:
+            testPaperLink = 'No testpaper available'
         return jsonify({'TestPaperLink':testPaperLink})
 
     
@@ -9081,6 +9292,8 @@ def testLinkWhatsappBot():
     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
     student = StudentProfile.query.filter_by(user_id=user.id).first()
     subject_id = request.args.get('subjectId')
+    print('inside testlinkwhatsappbot')
+    print(subject_id)
     subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
     subjectName = subjectQuery.description
     classVal = request.args.get('classVal')
@@ -12622,6 +12835,7 @@ def fetchStudTC():
 
 def format_currency(value):
     return "₹{:,.2f}".format(value)
+
 
 if __name__=="__main__":
     app.debug=True  

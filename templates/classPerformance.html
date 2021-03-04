@@ -1,123 +1,163 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3 style="margin-left: 10px;">Online Test Reports</h3>
-    <div class="box-body table-responsive no-padding" id="testReportsDiv" style="margin-left: 5px;">
-
-        <table class="table table-hover">
-            <tr>
-                <th>Class</th>
-                <th>Section</th>
-                <th>Subject</th>
-                <th>Test Date</th>
-                <th>Conducted By</th>
-                <th>See Report</th>
-            </tr>
-            {%if testDetailRows | length !=0%}
-            {% for eachRow in testDetailRows%}
-            <tr style="margin-top:5px;">
-              <td>
-                <span style="font-size: 14px;">{{eachRow.class_val}}</span>
-              </td>
-                <td>{{eachRow.section}}</td>
-                <td>{{eachRow.subject}}</td>
-                <td>{{eachRow.test_date.strftime('%d %B %Y')}}</td>
-                <td>{{eachRow.conducted_by}}</td>
-                <td><input type="button" class="seeTestReportClass btn green" value="See Report" name="{{eachRow.resp_session_id}}"  style="height: 40px; width: 200px;">
-                </td>                
-            </tr>
-            {% endfor %}
-
-            {%else%}
-            <td>
-                <h3 class="grey-text">No Class test data available</h3>
-                <br>
-                <h5>You can create tests and conduct them from using <a href="{{url_for('testBuilder')}}">Test
-                        Builder</a></h5>
-                
-
-            </td>
-            {%endif%}
-        </table>         
-    </div>
-    <div id="feedbackReportDiv" style="display: none;">        
-    </div>
-            <input class="btn btn-primary pull-left green" id="backToQuestions" 
-    style="height: 40px; width: 200px;display: none;" type="button" value="Back">
-    <input class="btn green pull-right" id="refreshReport" 
-              style="height: 40px; width: 200px;display: none;" type="button" value="Refresh">
-    <input type="hidden" value="" id="resp"/>
+  <h3 style="margin-left: 10px">Online Test Reports</h3>
+  <div
+    class="box-body table-responsive no-padding"
+    id="testReportsDiv"
+    style="margin-left: 5px"
+  >
+    <table class="table table-hover">
+      <tr>
+        <th>Class</th>
+        <th>Section</th>
+        <th>Subject</th>
+        <th>Test Date</th>
+        <th>Conducted By</th>
+        <th>See Report</th>
+      </tr>
+      {%if testDetailRows | length !=0%} {% for eachRow in testDetailRows%}
+      <tr style="margin-top: 5px">
+        <td>
+          <span style="font-size: 14px">{{eachRow.class_val}}</span>
+        </td>
+        <td>{{eachRow.section}}</td>
+        <td>{{eachRow.subject}}</td>
+        <td>{{eachRow.test_date.strftime('%d %B %Y')}}</td>
+        <td>{{eachRow.conducted_by}}</td>
+        <td>
+          {% if session['primary_color'] %}
+          <input
+            type="button"
+            class="seeTestReportClass btn green"
+            value="See Report"
+            name="{{eachRow.resp_session_id}}"
+            style="height: 40px; width: 200px;background-color: {{session['primary_color']}} !important;"
+          />
+          {% else %}
+          <input
+            type="button"
+            class="seeTestReportClass btn green"
+            value="See Report"
+            name="{{eachRow.resp_session_id}}"
+            style="height: 40px; width: 200px"
+          />
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %} {%else%}
+      <td>
+        <h3 class="grey-text">No Class test data available</h3>
+        <br />
+        <h5>
+          You can create tests and conduct them from using
+          <a href="{{url_for('testBuilder')}}">Test Builder</a>
+        </h5>
+      </td>
+      {%endif%}
+    </table>
+  </div>
+  <div id="feedbackReportDiv" style="display: none"></div>
+  {% if session['primary_color'] %}
+  <input
+    class="btn btn-primary pull-left green"
+    id="backToQuestions"
+    style="height: 40px; width: 200px; display: none;background-color: {{session['primary_color']}}!important;"
+    type="button"
+    value="Back"
+  />
+  <input
+    class="btn green pull-right"
+    id="refreshReport"
+    style="height: 40px; width: 200px; display: none;background-color: {{session['primary_color']}}!important;"
+    type="button"
+    value="Refresh"
+  />
+  {% else %}
+  <input
+    class="btn btn-primary pull-left green"
+    id="backToQuestions"
+    style="height: 40px; width: 200px; display: none"
+    type="button"
+    value="Back"
+  />
+  <input
+    class="btn green pull-right"
+    id="refreshReport"
+    style="height: 40px; width: 200px; display: none"
+    type="button"
+    value="Refresh"
+  />
+  {% endif %}
+  <input type="hidden" value="" id="resp" />
 </div>
 
 <script>
-    
-$("#backToQuestions").click(function(){                    
-          $("#feedbackReportDiv").hide();         
-          $("#backToQuestions").hide();               
-          $("#testReportsDiv").show(); 
-          $("#refreshReport").hide();
-});
-$("#refreshReport").click(function(){
-  // $(".seeTestReportClass").click();
-  var resp_sess = $('#resp').val();
-  console.log(resp_sess);
-  $.ajax({ 
-        url: "/feedbackReport?resp_session_id=" +resp_sess,
-        type: "get",
-        data: '',   
-        beforeSend: function() {                           
-                            $("#loaderDiv").show();
-                        },
-        success: function (response) {
-            if (response!='NA'){
-          $("#feedbackReportDiv").html(response);          
-          
+  $("#backToQuestions").click(function () {
+    $("#feedbackReportDiv").hide();
+    $("#backToQuestions").hide();
+    $("#testReportsDiv").show();
+    $("#refreshReport").hide();
+  });
+  $("#refreshReport").click(function () {
+    // $(".seeTestReportClass").click();
+    var resp_sess = $("#resp").val();
+    console.log(resp_sess);
+    $.ajax({
+      url: "/feedbackReport?resp_session_id=" + resp_sess,
+      type: "get",
+      data: "",
+      beforeSend: function () {
+        $("#loaderDiv").show();
+      },
+      success: function (response) {
+        if (response != "NA") {
+          $("#feedbackReportDiv").html(response);
+        } else {
+          $("#feedbackReportDiv").html(
+            "<h4 class='grey-text'>No report available for the selection</h4>"
+          );
         }
-        else{
-            $("#feedbackReportDiv").html("<h4 class='grey-text'>No report available for the selection</h4>");
-        }
-        $("#feedbackReportDiv").show();         
-          $("#backToQuestions").show();  
-          $("#testReportsDiv").hide();  
-          $("#refreshReport").show();  
-          console.log('inside seeTestReport');                                  
-        },
-        error: function (xhr) {
-          window.alert("error occurred while loading report");
-        }
-      }); 
-});
+        $("#feedbackReportDiv").show();
+        $("#backToQuestions").show();
+        $("#testReportsDiv").hide();
+        $("#refreshReport").show();
+        console.log("inside seeTestReport");
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading report");
+      },
+    });
+  });
 
   $(".seeTestReportClass").click(function () {
-    
-    
-    var resp_session_id = $(this).attr('name');
-    $('#resp').val(resp_session_id);
-    console.log('Response_Session_id:'+resp_session_id);
-      $.ajax({ 
-        url: "/feedbackReport?resp_session_id=" +resp_session_id,
-        type: "get",
-        data: '',   
-        beforeSend: function() {                           
-                            $("#loaderDiv").show();
-                        },
-        success: function (response) {
-            if (response!='NA'){
-          $("#feedbackReportDiv").html(response);          
-          
+    var resp_session_id = $(this).attr("name");
+    $("#resp").val(resp_session_id);
+    console.log("Response_Session_id:" + resp_session_id);
+    $.ajax({
+      url: "/feedbackReport?resp_session_id=" + resp_session_id,
+      type: "get",
+      data: "",
+      beforeSend: function () {
+        $("#loaderDiv").show();
+      },
+      success: function (response) {
+        if (response != "NA") {
+          $("#feedbackReportDiv").html(response);
+        } else {
+          $("#feedbackReportDiv").html(
+            "<h4 class='grey-text'>No report available for the selection</h4>"
+          );
         }
-        else{
-            $("#feedbackReportDiv").html("<h4 class='grey-text'>No report available for the selection</h4>");
-        }
-        $("#feedbackReportDiv").show();         
-          $("#backToQuestions").show();  
-          $("#testReportsDiv").hide();  
-          $("#refreshReport").show();  
-          console.log('inside seeTestReport');                                  
-        },
-        error: function (xhr) {
-          window.alert("error occurred while loading report");
-        }
-      });    
+        $("#feedbackReportDiv").show();
+        $("#backToQuestions").show();
+        $("#testReportsDiv").hide();
+        $("#refreshReport").show();
+        console.log("inside seeTestReport");
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading report");
+      },
+    });
   });
 </script>
 {%endblock%}
