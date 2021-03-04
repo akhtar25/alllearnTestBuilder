@@ -162,7 +162,6 @@ def note_repr(key):
         'text': notes[key]
     }
 
-<<<<<<< HEAD
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 def check(email):
     if re.search(regex,email):
@@ -186,37 +185,6 @@ def send_sms(number,message):
     response = rq.request("GET", url, headers=headers, params=params)
     dic = response.json()
     print('dic',dic)
-=======
-# Flask celery configuration
-print('app.name',app.name)
-celery = Celery('app.name', broker=app.config['CELERY_BROKER_URL'])
-# celery.conf.update(app.config)
-# @app.route('/process/<name>')
-# def process(name):
-#     reverse.delay(name)
-#     return 'I sent as asynchronous request!'
-
-# @celery.task(name='celery_example.reverse')
-# def reverse(string):
-#     return string[::-1]
-
-@celery.task
-def my_background_task(a,b):
-    # some long running task here
-    print('inside my_background_task')
-    result = a + b
-    print('Result:'+str(result))
-    return result+'#res'
-
-@app.route('/process',methods=['GET','POST'])
-def process():
-    print('inside process')
-    task = my_background_task.apply_async(args=[10,20])
-    print('task',task)
-    print('after execute task')
-    return 'I sent as asynchronous request!'
-
->>>>>>> AT-539
 
 
 
@@ -4522,6 +4490,8 @@ def login():
             session['schoolPicture'] = school_pro.school_picture
             session['schoolName'] = school_pro.school_name
             session['primary_color'] = school_pro.primary_color
+            session['isGooglelogin'] = school_pro.google_login
+            session['show_school_name'] = school_pro.show_school_name
             teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
             userData = User.query.filter_by(id=teacherData.user_id).first()
             session['phone'] = userData.phone
@@ -8266,7 +8236,7 @@ def testApp():
 #     return z
 
 
-@celery.task
+# @celery.task
 def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
