@@ -6888,7 +6888,26 @@ def topicList():
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id,class_val=class_val)
 
+@app.route('/setGoogleLogin',methods=['POST','GET'])
+def setGoogleLogin():
+    isgoogleLogin = request.args.get('isGoogleLogin')
+    school_id = request.args.get('school_id')
+    schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+    print(isgoogleLogin)
+    schoolData.google_login = isgoogleLogin
+    db.session.commit()
+    return jsonify([0])
 
+@app.route('/setSchoolName',methods=['POST','GET'])
+def setSchoolName():
+    isSchoolName = request.args.get('isSchoolName')
+    school_id = request.args.get('school_id')
+    print(school_id)
+    schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+    print(isSchoolName)
+    schoolData.show_school_name = isSchoolName
+    db.session.commit()
+    return jsonify([0])
 
 @app.route('/qrSessionScanner')
 @login_required

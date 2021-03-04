@@ -141,7 +141,7 @@
         <div class="switch pull-right">
           <label>
             Show option to login via google
-            <input type="checkbox" />
+            <input type="checkbox" id="googleLogin" />
             <span class="lever"></span>
             Hide
           </label>
@@ -150,7 +150,7 @@
         <div class="switch pull-right">
           <label>
             Show school name at the right side of school logo
-            <input type="checkbox" />
+            <input type="checkbox" id="schoolName" />
             <span class="lever"></span>
             Hide
           </label>
@@ -160,4 +160,51 @@
     </div>
   </div>
 </div>
+<script>
+  $("#googleLogin").click(function () {
+    console.log("inside google login");
+    var isGoogleLogin = "";
+    if ($(this).is(":checked")) {
+      console.log("Is checked");
+      isGoogleLogin = "Y";
+    } else {
+      console.log("not checked");
+      isGoogleLogin = "N";
+    }
+    $.ajax({
+      url:
+        "/setGoogleLogin?isGoogleLogin=" +
+        isGoogleLogin +
+        "&school_id={{schoolProfileRow.school_id}}",
+      type: "get",
+      data: "",
+      success: function (xhr) {
+        console.log("inside success");
+      },
+    });
+  });
+
+  $("#schoolName").click(function () {
+    console.log("inside schoolName");
+    var isSchoolName = "";
+    if ($(this).is(":checked")) {
+      console.log("Is checked");
+      isSchoolName = "Y";
+    } else {
+      console.log("not checked");
+      isSchoolName = "N";
+    }
+    $.ajax({
+      url:
+        "/setSchoolName?isSchoolName=" +
+        isSchoolName +
+        "&school_id={{schoolProfileRow.school_id}}",
+      type: "get",
+      data: "",
+      success: function (xhr) {
+        console.log("inside success");
+      },
+    });
+  });
+</script>
 {% endblock %}
