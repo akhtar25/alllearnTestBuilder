@@ -4,6 +4,7 @@ from send_email import new_teacher_invitation,new_applicant_for_job, application
 from applicationDB import *
 #from qrReader import *
 from threading import Thread
+import re
 import csv
 import itertools
 from config import Config
@@ -156,6 +157,31 @@ def note_repr(key):
         'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
         'text': notes[key]
     }
+
+regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+def check(email):
+    if re.search(regex,email):
+        return 'Y'
+    else:
+        return 'N'
+
+def send_sms(number,message):
+    url = 'https://www.fast2sms.com/dev/bulkV2'
+    params = {
+        'authorization':'TvQr5N7IgSt3JenP6XAjiLMHfohCKBpUqmduVkWsD0G8b24zyxoIOg7ABHhZ9JFQv2CXW5wkiSYqpdDR',
+        'sender_id':'FSTSMS',
+        'message':message,
+        'route':'p',
+        'numbers':number
+    }
+
+    headers = {
+    'cache-control': "no-cache"
+    }
+    response = rq.request("GET", url, headers=headers, params=params)
+    dic = response.json()
+    print('dic',dic)
+
 
 
 @app.route('/robots.txt')
@@ -4273,7 +4299,7 @@ def register():
     #gSigninData = request.args.get
 
     #default form submit action
-    form = RegistrationForm()
+    form = RegistrationForm() 
     if form.validate_on_submit():
         print('Validated form submit')
         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
@@ -4388,7 +4414,26 @@ def login():
                 print('Email not registered')
                 return redirect(url_for('login'))
         else: 
-            user=User.query.filter_by(email=form.email.data).first()   
+            print('Input data:'+str(form.email.data))
+            checkEmailValidation = check(form.email.data)
+            user = ''
+            if checkEmailValidation == 'Y':
+                user=User.query.filter_by(email=form.email.data).first() 
+            else:
+                Input = form.email.data
+                string = 'studId'
+                if Input.find(string) == 0:
+                    print('this is student id')
+                    studentId = Input[6:]
+                    print('studentId:'+str(studentId))
+                    studData = StudentProfile.query.filter_by(student_id=studentId).first()
+                    email = studData.email
+                    user=User.query.filter_by(email=email).first() 
+                else:
+                    print('phone no')
+                    user=User.query.filter_by(phone=Input).first()
+
+  
             try:             
                 if user is None or not user.check_password(form.password.data):        
                     flash("Invalid email or password")
@@ -7019,7 +7064,9 @@ def startPracticeTest():
     else:
         return jsonify(['1'])  
 
+
 @app.route('/feedbackCollectionStudDev', methods=['GET', 'POST'])
+@login_required
 def feedbackCollectionStudDev():
     resp_session_id=request.args.get('resp_session_id')
     print('inside feedbackCollectionStudDev')
@@ -7029,7 +7076,7 @@ def feedbackCollectionStudDev():
         instructions = instructionsRows.instructions
     else:
         instructions = ''
-    student_id = request.args.get('student_id')
+    # student_id = request.args.get('student_id')
     school_id = request.args.get('school_id')
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
@@ -7037,78 +7084,79 @@ def feedbackCollectionStudDev():
     print('upload status:'+str(uploadStatus))
     print('result status:'+str(resultStatus))
     print('advance:'+str(advance))
-    print('Student Id:'+str(student_id))
-    studId = None
-    if student_id!=None:
-        studId=student_id
-    if current_user.is_anonymous:
-        print('user not registered')
-    else:
-        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
-        studId = studentDetails.student_id
+    # print('Student Id:'+str(student_id))
+    # studId = None
+    # if student_id!=None:
+    #     studId=student_id
+    # if current_user.is_anonymous:
+    #     print('user not registered')
+    # else:
+    #     studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    #     studId = studentDetails.student_id
 
-    if studId==None:
-        print('Student Id is null')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
-    emailDet = StudentProfile.query.filter_by(student_id=studId).first()
-    user = ''
-    if emailDet:
-        user = User.query.filter_by(email=emailDet.email).first()
-    if user:
-        login_user(user,remember='Y')
-        session['schoolName'] = schoolNameVal()
+    # if studId==None:
+    #     print('Student Id is null')
+    #     return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+    # emailDet = StudentProfile.query.filter_by(student_id=studId).first()
+    # user = ''
+    # if emailDet:
+    #     user = User.query.filter_by(email=emailDet.email).first()
+    # if user:
+    #     login_user(user,remember='Y')
+    #     session['schoolName'] = schoolNameVal()
         
-        print('user name')
-        #print(session['username'])
-        school_id = ''
-        print('user type')
-        #print(session['userType'])
-        session['studentId'] = ''
-        if current_user.user_type==253:
-            school_id=1
-        elif current_user.user_type==71:
-            teacherProfileData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = teacherProfileData.school_id
-        elif current_user.user_type==134:
-            studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentProfileData.school_id            
-            session['studentId'] = studentProfileData.student_id
-        else:
-            userData = User.query.filter_by(id=current_user.id).first()
-            school_id = userData.school_id
+    #     print('user name')
+    #     #print(session['username'])
+    #     school_id = ''
+    #     print('user type')
+    #     #print(session['userType'])
+    #     session['studentId'] = ''
+    #     if current_user.user_type==253:
+    #         school_id=1
+    #     elif current_user.user_type==71:
+    #         teacherProfileData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #         school_id = teacherProfileData.school_id
+    #     elif current_user.user_type==134:
+    #         studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    #         school_id = studentProfileData.school_id            
+    #         session['studentId'] = studentProfileData.student_id
+    #     else:
+    #         userData = User.query.filter_by(id=current_user.id).first()
+    #         school_id = userData.school_id
 
-        school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
-        session['school_logo'] = ''
-        if school_pro:
-            session['school_logo'] = school_pro.school_logo
-            session['schoolPicture'] = school_pro.school_picture
-        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
-        print(query)
-        print('Modules')
-        moduleDetRow = db.session.execute(query).fetchall()
-        print('School profile')
-        #print(session['schoolPicture'])
-        # det_list = [1,2,3,4,5]
-        session['moduleDet'] = []
-        detList = session['moduleDet']
+    #     school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
+    #     session['school_logo'] = ''
+    #     if school_pro:
+    #         session['school_logo'] = school_pro.school_logo
+    #         session['schoolPicture'] = school_pro.school_picture
+    #     query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+    #     print(query)
+    #     print('Modules')
+    #     moduleDetRow = db.session.execute(query).fetchall()
+    #     print('School profile')
+    #     #print(session['schoolPicture'])
+    #     # det_list = [1,2,3,4,5]
+    #     session['moduleDet'] = []
+    #     detList = session['moduleDet']
         
-        for det in moduleDetRow:
-            eachList = []
-            print(det.module_name)
-            print(det.module_url)
-            eachList.append(det.module_name)
-            eachList.append(det.module_url)
-            eachList.append(det.module_type)
-            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
-            detList.append(eachList)
-        session['moduleDet'] = detList
-    else:
-        flash('please create student account first')
-        return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=None)
+    #     for det in moduleDetRow:
+    #         eachList = []
+    #         print(det.module_name)
+    #         print(det.module_url)
+    #         eachList.append(det.module_name)
+    #         eachList.append(det.module_url)
+    #         eachList.append(det.module_type)
+    #         # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+    #         detList.append(eachList)
+    #     session['moduleDet'] = detList
+    # else:
+    #     flash('please create student account first')
+    #     return render_template('feedbackCollectionStudDev.html',resp_session_id=str(resp_session_id),studId=None)
 
-    print('student_id in feedbackCollectionStudDev:'+str(studId))
+    # print('student_id in feedbackCollectionStudDev:'+str(studId))
     print('Response Session Id:'+str(resp_session_id))
-    studentRow = StudentProfile.query.filter_by(student_id=studId).first()
+    studentRow = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    studId = studentRow.student_id
     classData = ClassSection.query.filter_by(class_sec_id=studentRow.class_sec_id).first()
     sessionDetailRow = SessionDetail.query.filter_by(resp_session_id=str(resp_session_id)).first()
     print('Session Detail Row:'+str(sessionDetailRow))
@@ -10736,6 +10784,14 @@ def resultUploadHistory():
     indic='DashBoard'
     return render_template('resultUploadHistory.html',indic=indic,title='Result History',uploadHistoryRecords=uploadHistoryRecords,user_type_val=str(current_user.user_type))
 
+@app.route('/generateOTP',methods=['POST','GET'])
+def generateOTP():
+    print('inside generateOTP')
+    phone = request.args.get('phone')
+    print('phone',phone)
+    message = 'new testing message'
+    send_sms(phone,message)
+    return jsonify([0])
 
 @app.route('/uploadHistoryDetail',methods=['POST','GET'])
 def uploadHistoryDetail():

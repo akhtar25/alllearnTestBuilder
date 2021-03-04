@@ -773,7 +773,7 @@
 <footer class="page-footer black ">
   <div class="container">
     <div class="row">
-      <div class="col l6 s12">
+      <!-- <div class="col l6 s12">
         <p class="white-text text-lighten-4 left-align" style="font-size: 20px;">
           <strong>WhatsApp <span>for any issues/queries</span>: 99103 68828 </strong>
         </p>
@@ -781,8 +781,8 @@
             contact@alllearn.in</strong>
         </p>
 
-      </div>
-      <div class="col l2 s12">
+      </div> -->
+      <!-- <div class="col l2 s12">
         <ul>
           <li>
             <a class="white-text" class='classSpecLink' href="http://www.fb.me/alllearn.in">Facebook</a>
@@ -802,72 +802,19 @@
               Conditions</a>
           </li>
         </ul>
-      </div>
-      {%if (disconn != 1) and (current_user.username) and current_user.user_type!='161' and current_user.user_type!=134 and current_user.user_type!=253 %}
-      <div class="col l2 s12">
-        <ul>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('index')}}">Dashboard</a>
-          </li>
+      </div> -->
 
-          <li>
-            <a class="white-text" class='classSpecLink'
-              href="{{url_for('classCon', username=current_user.username, class_val=1, section=A)}}">Class</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('testBuilder')}}">Test Builder</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('testPapers')}}">Test Papers</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('resultUpload')}}">Result Upload</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('resultUploadHistory')}}">Result History</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('classPerformance')}}">Online Test Reports</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('jobPosts')}}">Job Posts</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('postJob')}}">Post New Job</a>
-          </li>
-        </ul>
-      </div>
-      <div class="col l2 s12">
-        <ul>
-
-      
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('studentProfile')}}">Student Directory</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('classRegistration')}}">Add Class</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('teacherDirectory')}}">Teacher Directory</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{url_for('help')}}">Help</a>
-          </li>
-          <li>
-            <a class="white-text" class='classSpecLink' href="{{ url_for('schoolProfile') }}">School Profile</a>
-          </li>
-        </ul>
-      </div>
-      {% endif %}
     </div>
   </div>
   <div class="footer-copyright">
     <div class="container">
       <span><a class="yellow-text text-lighten-5" class='classSpecLink' href="http://www.alllearn.in" target="_blank">
-          &copy; 2021 AllLearn Solutions Private Limited</a></span>
+          &copy; 
+          {% if session['schoolName'] %}
+           {{ session['schoolName'] }} powered by AllLearn Solutions Private Limited
+          {% endif %}
+        
+        </a></span>
       <span class="pull-right">1.3.7.0 Beta</span>
     </div>
   </div>
