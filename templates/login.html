@@ -107,21 +107,17 @@
             >
           </label>
         {% elif primaryColor %}
-        <button
-        class="btn-large waves-effect green white-text"
-        type="submit"
-        style="height: 45px; float: right; width: 100%;background-color:{{primaryColor}} !important;"
-      disabled>
-        login via OTP
-      </button>
+        <label style="float: right; font-weight: 400">
+          <a href="javascript:void(0)" onclick="checkFunc();" 
+            >Login via OTP</a
+          >
+        </label>
         {% else %}
-        <button
-        class="btn-large waves-effect green white-text"
-        type="submit"
-        style="height: 45px; float: right; width: 100%"
-      disabled>
-        login via OTP
-      </button>
+        <label style="float: right; font-weight: 400">
+          <a href="javascript:void(0)" onclick="checkFunc();" 
+            >Login via OTP</a
+          >
+        </label>
         {% endif %}
           
         </p>
