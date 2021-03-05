@@ -4534,14 +4534,19 @@ def login():
     email = ''
     print('Url:'+str(request.url)) 
     for row in schoolData:
-        if str(request.url) == str(row.sub_domain):
-            schoolName = row.school_name
-            schoolLogo = row.school_logo
-            primaryColor = row.primary_color
-            teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
-            userData = User.query.filter_by(id=teacherData.user_id).first()
-            phone = userData.phone
-            email = userData.email
+        subDom = request.url
+        originalDom = row.sub_domain
+        print(subDom)
+        print(originalDom)
+        if originalDom:
+            if subDom.find(originalDom)==0:
+                schoolName = row.school_name
+                schoolLogo = row.school_logo
+                primaryColor = row.primary_color
+                teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
+                userData = User.query.filter_by(id=teacherData.user_id).first()
+                phone = userData.phone
+                email = userData.email
     print('phone:'+str(phone))
     print('email:'+str(email))
     return render_template('login.html',phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
@@ -6929,6 +6934,7 @@ def setGoogleLogin():
     print(isgoogleLogin)
     schoolData.google_login = isgoogleLogin
     db.session.commit()
+    session['isGooglelogin'] = isgoogleLogin
     return jsonify([0])
 
 @app.route('/setSchoolName',methods=['POST','GET'])
@@ -6940,6 +6946,7 @@ def setSchoolName():
     print(isSchoolName)
     schoolData.show_school_name = isSchoolName
     db.session.commit()
+    session['show_school_name'] = isSchoolName
     return jsonify([0])
 
 @app.route('/qrSessionScanner')
@@ -7131,7 +7138,7 @@ def feedbackCollectionStudDev():
     # student_id = request.args.get('student_id')
     school_id = request.args.get('school_id')
     school_profile_data = SchoolProfile.query.filter_by(school_id=school_id).first()
-    # primaryColor = school_profile_data.primary_color
+    primaryColor = school_profile_data.primary_color
     uploadStatus=request.args.get('uploadStatus')
     resultStatus = request.args.get('resultStatus')
     advance = request.args.get('advance')

@@ -119,11 +119,12 @@
           {% endif %}
           {% endif %}
           {%if current_user.is_anonymous%}
-            
+          {% if session['show_school_name']=='Y' %}
           {% if session['schoolName'] %}
             <span style="font-size: 15px;" id="schoolNamDiv">{{session['schoolName']}}</span>
           {% elif schoolName %}
             <span style="font-size: 15px;" id="schoolNamDiv">{{schoolName}}</span>
+          {% endif %}
           {% endif %}
           {%elif current_user.user_type==253%}
           {% else %}
@@ -131,7 +132,10 @@
           
           <!-- End -->
           {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px' id="schoolNamDiv">
-            {{ session['schoolName']}} </span>{% endif %}{%endif%}{% endif %}
+            {% if session['show_school_name']=='Y' %}
+            {{ session['schoolName']}} 
+            {% endif %}
+          </span>{% endif %}{%endif%}{% endif %}
         </a>
       </div>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -484,7 +488,7 @@
           {% endif %}
           {%if current_user.is_anonymous%}
           <div class="right">
-          <li>
+          <!-- <li>
             {% if session['primary_color'] %}
             <a style="color: {{session['primary_color']}}; font-size:15px;" class='classSpecLink' href="{{url_for('index')}}">Home</a>
             {% elif primaryColor %}
@@ -494,8 +498,8 @@
               Home
             </a>
             {% endif %}
-          </li>
-          <li>
+          </li> -->
+          <!-- <li>
             {% if session['primary_color'] %}
             <a style="color: {{session['primary_color']}}; font-size:15px;" class='classSpecLink' href="https://all.alllearn.in"></a>
             {% elif primaryColor %}
@@ -507,8 +511,8 @@
               For Schools/Institutes
             </a>
             {% endif %}
-          </li>
-          <li>
+          </li> -->
+          <!-- <li>
             {% if session['primary_color'] %}
             <a style="color: {{session['primary_color']}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="solutionDropdown">
@@ -525,8 +529,8 @@
               Solutions
             </a>
             {% endif %}
-          </li>
-          <li>
+          </li> -->
+          <!-- <li>
             {% if session['primary_color'] %}
             <a style="color: {{session['primary_color']}}; font-size:15px;" class="dropdown-trigger" class='classSpecLink' href="#!"
               data-target="moreDropDown">
@@ -543,7 +547,7 @@
               More
             </a>
             {% endif %}
-          </li>
+          </li> -->
           {% elif user_type_val_for_liveClass=='134' %}
           <li id="TestLink">
             <a style="color: green; font-size:15px;" class='classSpecLink' href="{{url_for('studentDashboard')}}">Dashboard</a>

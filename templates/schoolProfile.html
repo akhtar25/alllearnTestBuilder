@@ -140,8 +140,12 @@
         <br /><br />
         <div class="switch pull-right">
           <label>
-            Show option to login via google
+            Show option to login via google {% if session['isGooglelogin']=='Y'
+            %}
+            <input type="checkbox" id="googleLogin" checked />
+            {% else %}
             <input type="checkbox" id="googleLogin" />
+            {% endif %}
             <span class="lever"></span>
             Hide
           </label>
@@ -149,8 +153,12 @@
         <br /><br />
         <div class="switch pull-right">
           <label>
-            Show school name at the right side of school logo
+            Show school name at the right side of school logo {% if
+            session['show_school_name']=='Y' %}
+            <input type="checkbox" id="schoolName" checked />
+            {% else %}
             <input type="checkbox" id="schoolName" />
+            {% endif %}
             <span class="lever"></span>
             Hide
           </label>
@@ -203,6 +211,7 @@
       data: "",
       success: function (xhr) {
         console.log("inside success");
+        location.reload();
       },
     });
   });

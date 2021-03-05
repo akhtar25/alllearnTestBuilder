@@ -1,5 +1,7 @@
 {%extends "layout.html"%} {%block content%}
 <style>
+
+
   @media only screen and (max-width: 992px) {
     
     .devicePanel{
@@ -75,64 +77,7 @@
     
   }
 </style>
-<<<<<<< HEAD
-=======
-{% if studId==None %}
-  <div class="container" height="100%">
 
-  <div class="row">
-    <div class="col s10" style="margin-left: 56px;">
-      <div class="card">
-        <div class="card-image">
-          <img src="">
-          <span class="card-title"></span>
-        </div>
-        {% if session['primary_color'] %}
-        <div class="card-content deviceEntryPage">
-          <span style="color:{{session['primary_color']}};display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
-          <input type="button" value="Submit" style="height: 33px;background-color:{{session['primary_color']}}!important;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
-  
-          </div>
-          <div class="card-content mobEntryPage" style="height: 160px;">
-            <span style="color:{{session['primary_color']}};display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:100%;" id="studentMobId"/>
-            <input type="button" value="Submit" style="height: 33px;width: 150px;background-color:{{session['primary_color']}}!important;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
-    
-            </div>
-        {% else %}
-        <div class="card-content deviceEntryPage">
-        <span style="display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
-        <input type="button" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
-
-        </div>
-        <div class="card-content mobEntryPage" style="height: 160px;">
-          <span style="display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:100%;" id="studentMobId"/>
-          <input type="button" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
-  
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  
-</div>
-<script>
-  $('.studIdSubmitBtn').click(function(){
-    var sId = $('#studentId').val();
-    var sMobId = $('#studentMobId').val();
-    console.log('Student Id:'+sId);
-    console.log('StudentMobId:'+sMobId);
-    // alert('Student Id:'+sId);
-        if ((sId != "")||(sMobId!="")) {
-          if(sId!=""){
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
-          }else{
-            window.location.href = "/feedbackCollectionStudDev?resp_session_id={{resp_session_id}}&student_id=" + sMobId+"&uploadStatus={{uploadStatus}}&resultStatus={{resultStatus}}&advance={{advance}}";
-          }
-        }
-  });
-</script>
-  {% else %}
->>>>>>> AT-539
 <div class="container" height=100%>
 
   

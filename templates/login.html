@@ -45,7 +45,15 @@
     "
       >
         {% endif %}
-        {% if session['isGooglelogin'] %}
+        {% if session['primary_color'] %}
+          <h2 style="color: {{session['primary_color']}}">Sign In</h2>
+          {% elif primaryColor %}
+          <h2 style="color: {{primaryColor}}">Sign In</h2>
+          {% else %}
+          <h2 style="color: Green">Sign In</h2>
+          {% endif %}
+        {% if session['isGooglelogin']=='Y' %}
+        <div id="googleSignInDiv" class="row">
         <div
           class="g-signin2"
           data-onsuccess="onSignIn"
@@ -53,36 +61,33 @@
           data-height="40"
           data-longtitle="true"
         ></div>
-      </div>
+        </div>
       <div class="center row">OR</div>
       {% endif %}
       <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
-          {{ form.email.label(style='font-weight:400;color:green') }}
+          {{ form.email.label(style="font-weight:400;color:green") }}
+          <a class="tooltippedBoard" style="float: right;" data-position="right" data-tooltip="eg. studId2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
           <br />
-          {{ form.email(size=64) }} {% for error in form.email.errors %}
+          {{ form.email(size=64,id='newEmail') }} {% for error in form.email.errors %}
           <span style="color: red">[{{ error }}]</span>
           {% endfor %}
+          
         </p>
-        <div class="row">
-          <p class="col-xs-6" style="margin-left: -7px">
+          <p id='passWord'>
             {{ form.password.label(style='font-weight:400;color:green') }}
             <br />
             {{ form.password(size=32) }} {% for error in form.password.errors %}
             <span style="color: red">[{{ error }}]</span>
             {% endfor %}
           </p>
-          <p class="col-xs-6" style="float: right">
-            <button
-              class="btn-large waves-effect green white-text"
-              type="submit"
-              style="height: 45px; float: right; width: 100%"
-            >
-              login via OTP
-            </button>
+          <p id="otpPar" style="display: none;">
+            <label for="otp"style='font-weight:400;color:green'>OTP</label>
+            <input type="number" id="otp"/>
+            
           </p>
-        </div>
+          
         <p>
           <label>
             <input id="remember_me" name="remember_me" type="checkbox" />
@@ -90,20 +95,65 @@
               >Remember Me</span
             >
           </label>
-          <label style="float: right; font-weight: 400">
+          <label style="margin-left: 30px; font-weight: 400">
             <a href="{{ url_for('reset_password_request') }}"
               >Forgot Your Password?</a
             >
           </label>
+          {% if session['primary_color'] %}
+          <label style="float: right; font-weight: 400">
+            <a href="javascript:void(0)" onclick="checkFunc();" 
+              >Login via OTP</a
+            >
+          </label>
+        {% elif primaryColor %}
+        <button
+        class="btn-large waves-effect green white-text"
+        type="submit"
+        style="height: 45px; float: right; width: 100%;background-color:{{primaryColor}} !important;"
+      disabled>
+        login via OTP
+      </button>
+        {% else %}
+        <button
+        class="btn-large waves-effect green white-text"
+        type="submit"
+        style="height: 45px; float: right; width: 100%"
+      disabled>
+        login via OTP
+      </button>
+        {% endif %}
+          
         </p>
+        <div id="msgDiv" style="display: none;color:red;"><span id="msg"></span></div>
+          
         <div class="center">
+          {% if session['primary_color'] %}
+          <button
+        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{session['primary_color']}} !important;"
+            class="btn-large waves-effect waves-light green white-text"
+            type="submit"
+          >
+            Sign In</button
+          >
+          {% elif primaryColor %}
+          <button
+        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{primaryColor}} !important;"
+            class="btn-large waves-effect waves-light green white-text"
+            type="submit"
+          >
+            Sign In</button
+          >
+          {% else %}
           <button
             style="width: 190px; height: 45px; margin-bottom: 20px"
             class="btn-large waves-effect waves-light green white-text"
             type="submit"
           >
             Sign In</button
-          ><br />
+          >
+          {% endif %}
+          <br />
           <span>
             New User?<br />
             <a class="btn cyan" href="{{ url_for('register') }}"
@@ -121,6 +171,7 @@
               </tr>
             </table>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -158,6 +209,30 @@
         };
         //window.alert('Token sent to server');
       }
+
+      function checkFunc(){
+        var val = $('#newEmail').val();
+        console.log('inside checkfunc');
+        console.log('val',val);
+        let isnum = /^\d+$/.test(val);
+        console.log(isnum);
+        if(!isnum){
+          console.log('not a phone number');
+          $('#msg').html('please enter phone no.');
+          $('#msgDiv').show();
+        }else{
+          $('#msgDiv').hide();
+          $('#passWord').hide();
+          $('#otpPar').show();
+        }
+      }
+
+      $(document).ready(function(){
+    $('.tooltipped').tooltip();
+  });
+  $(document).ready(function(){
+    $('.tooltippedBoard').tooltip();
+  });
     </script>
     {% endblock %}
   </div>
