@@ -637,7 +637,11 @@
           {% if indic=='selected' %}
           
           <li>
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            {% else %}
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            {% endif %}          
           </li>
           {% else %}
           {% if session['primary_color'] %}
@@ -652,7 +656,11 @@
           {% endif %}
           {% if indic=='class' %}
           <li>
+            {% if session['primary_color'] %}
+            <a style="color: {{session['primary_color']}}; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            {% else %}
             <a style="color: green; font-size:15px;" href="{{url_for('index')}}">Dashboard</a>
+            {% endif %}
           </li>
           {% else %}
           {% if session['primary_color'] %}
