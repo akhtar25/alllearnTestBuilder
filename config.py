@@ -28,11 +28,6 @@ class Config(object):
     #ANONYMOUS_USERID = 886
     MODE = os.environ.get('MODE')
     #MODE = "TEST"
-
-    # Cerely
-    CELERY_BROKER_URL = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
-    CELERY_RESULT_BACKEND = 'redis://:p59b095169c16df6c47dd600fd3f93deaa71cbe07bd7f5dcbcfdf8ffcc853958b@ec2-34-236-26-16.compute-1.amazonaws.com:23969'
-
     
     #TEST CREDS
     ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID')

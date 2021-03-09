@@ -2,7 +2,6 @@ from flask import Flask, Markup, render_template, request, flash, redirect, url_
 from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
-from celery import Celery
 #from qrReader import *
 from threading import Thread
 import concurrent.futures
@@ -160,36 +159,6 @@ def note_repr(key):
         'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
         'text': notes[key]
     }
-
-# Flask celery configuration
-print('app.name',app.name)
-celery = Celery('app.name', broker=app.config['CELERY_BROKER_URL'])
-# celery.conf.update(app.config)
-# @app.route('/process/<name>')
-# def process(name):
-#     reverse.delay(name)
-#     return 'I sent as asynchronous request!'
-
-# @celery.task(name='celery_example.reverse')
-# def reverse(string):
-#     return string[::-1]
-
-@celery.task
-def my_background_task(a,b):
-    # some long running task here
-    print('inside my_background_task')
-    result = a + b
-    print('Result:'+str(result))
-    return result+'#res'
-
-@app.route('/process',methods=['GET','POST'])
-def process():
-    print('inside process')
-    task = my_background_task.apply_async(args=[10,20])
-    print('task',task)
-    print('after execute task')
-    return 'I sent as asynchronous request!'
-
 
 
 
@@ -8199,15 +8168,8 @@ def testApp():
         print('Test Created successfully:'+str(file_name_val))
     return jsonify({'fileName':file_name_val})
 
-#End API
-# @celery.task
-# def exampleData(a,b):
-#     print('inside exampleData')
-#     z = a+b
-#     return z
 
 
-@celery.task
 def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
