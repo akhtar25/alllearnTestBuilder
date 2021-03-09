@@ -7793,7 +7793,6 @@ def getContentDetails():
         content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where td.topic_id = '"+str(topic_id)+"' and cd.archive_status = 'N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id='"+str(teacher.school_id)+"' order by content_id"
         print(content)
         contentDetail = db.session.execute(text(content)).fetchall()
-    
         # if len(contentDetail)==0:
         #     print("No data present in the content manager details")
         #     return jsonify(["NA"])
