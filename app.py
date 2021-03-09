@@ -5290,6 +5290,7 @@ def addNewChapter():
     print('inside add new chapter')
     topics=request.get_json()
     book_id = request.args.get('book_id')
+    print('book_id'+str(book_id))
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
@@ -5904,6 +5905,7 @@ def fetchTopics():
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
+    print('fetch Topic Query:'+str(queryTopics))
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
     i=1
     for topic in queryTopics:
@@ -6892,13 +6894,15 @@ def topicList():
     class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
     class_val = request.args.get('class_val')
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
-    topicListQuery = "select t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
+    topicListQuery = "select distinct t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
     topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
-    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
-    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
+    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id where "
+    topicListQuery = topicListQuery + "t2.book_id in (select bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id inner join topic_tracker tt on td.topic_id = tt.topic_id where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id)+"' and tt.school_id = '"+str(teacher.school_id)+"') and "
+    topicListQuery = topicListQuery + "t1.subject_id = '" + subject_id+"' and t1.is_archived='N' and t1.school_id='"+str(teacher.school_id)+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
     print('inside topicList')
     print(topicListQuery)
     topicList= db.session.execute(text(topicListQuery)).fetchall()
