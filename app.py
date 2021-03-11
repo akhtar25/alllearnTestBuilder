@@ -185,9 +185,6 @@ def send_sms(number,message):
     dic = response.json()
     print('dic',dic)
 
-=======
->>>>>>> master
-
 
 @app.route('/robots.txt')
 @app.route('/sitemap.xml')
