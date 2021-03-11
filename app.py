@@ -4487,6 +4487,8 @@ def login():
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
             session['schoolName'] = school_pro.school_name
+            session['font'] = school_pro.font
+            print('session[font]:'+str(session['font']))
             session['primary_color'] = school_pro.primary_color
             session['isGooglelogin'] = school_pro.google_login
             session['show_school_name'] = school_pro.show_school_name
@@ -4546,6 +4548,8 @@ def login():
             schoolName = row.school_name
             schoolLogo = row.school_logo
             primaryColor = row.primary_color
+            font = row.font
+            print('font:'+str(font))
             print('primaryColor:'+str(primaryColor))
             teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
             userData = User.query.filter_by(id=teacherData.user_id).first()
@@ -4553,7 +4557,7 @@ def login():
             email = userData.email
     print('phone:'+str(phone))
     print('email:'+str(email))
-    return render_template('login.html',phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
+    return render_template('login.html',font=font,phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
 @app.route('/success',methods=['POST'])
 def success():

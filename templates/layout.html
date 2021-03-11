@@ -142,7 +142,13 @@
       <ul class="sidenav" id="mobile-demo">
         {% if current_user.is_anonymous %}
         <li style="color: green;">
+        {% if session['primary_color'] or session['font'] %}
+          <a style="color: {{session['primary_color']}};font-family:session['font'];" href="{{ url_for('login') }}">Login</a>
+        {% elif primaryColor or font %}
+          <a style="color: {{primaryColor}};font-family:{{font}}" href="{{ url_for('login') }}">Login</a>
+        {% else %}
           <a style="color: green;" href="{{ url_for('login') }}">Login</a>
+        {% endif %}
         </li>
         <li style="color: green;">
           <a style="color: green;" href="{{ url_for('register') }}">Register</a>
@@ -357,11 +363,23 @@
         <ul id="dropdown2" class="dropdown-content green-text" style="color: green;">
           {% if current_user.is_anonymous %}
           <li style="color: green;">
+          {% if session['primary_color'] or session['font'] %}
+            <a style="color: {{session['primary_color']}};font-family:{{session['font']}};" href="{{ url_for('login') }}">Login</a>
+          {% elif primaryColor or font %}
+            <a style="color: {{primaryColor}};font-family:{{font}};" href="{{ url_for('login') }}">Login</a>
+          {% else %}
             <a style="color: green;" href="{{ url_for('login') }}">Login</a>
+          {% endif %}
           </li>
 
           <li style="color: green;">
+          {% if session['primary_color'] or session['font'] %}
+            <a style="color: {{session['primary_color']}};font-family:{{session['font']}};" href="{{ url_for('register') }}">Register</a>
+          {% elif primaryColor or font %}
+            <a style="color: {{primaryColor}};font-family:{{font}};" href="{{ url_for('register') }}">Register</a>
+          {% else %}
             <a style="color: green;" href="{{ url_for('register') }}">Register</a>
+          {% endif %}
           </li>
           {% else %}
           {%if user_type_val==72 %}
@@ -380,7 +398,13 @@
 
           {%endif%}
           <li>
+          {% if session['primary_color'] or session['font'] %}
+            <a style="color: {{session['primary_color']}};font-family:{{session['font']}}" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
+          {% elif primaryColor or font %}
+            <a style="color: {{session['primary_color']}};font-family:{{font}}" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
+          {% else %}
             <a style="color: green;" class="logoutBTN" href="{{url_for('logout')}}">Logout</a>
+          {% endif %}
           </li>
           {% endif %}
         </ul>
