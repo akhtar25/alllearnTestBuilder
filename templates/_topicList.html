@@ -23,7 +23,9 @@
             <th>Chapter</th>
             <th>Topic</th>
             <th>Covered</th>
+            {% if current_user.user_type==134 %}
             <th>Reference Content</th>
+            {% endif %}
             {% if current_user.user_type!=134 %}
             <th>&nbsp; &nbsp; &nbsp; Start Class</th>
             {% endif %}
@@ -40,9 +42,11 @@
               <td>{{row.chapter_num}}</td>
               <td>{{row.topic_name}}</td>
               <td>{{row.is_covered}}</td>
+              {% if current_user.user_type==134 %}
               <td>
                 <a href="#contentModal" name='{{row.topic_id}}' class='modal-trigger contentClass'>Reference Content</a>
               </td>
+              {% endif %}
               <!--{% if row.is_covered == 'Y'%}
             <td><a class="btn btn-default"
                 href="{{url_for('classDelivery',class_sec_id=class_sec_id, subject_id = row.subject_id,topic_id= row.topic_id, retake='Y')}}"><span

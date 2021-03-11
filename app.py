@@ -2,7 +2,6 @@ from flask import Flask, Markup, render_template, request, flash, redirect, url_
 from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
-from celery import Celery
 #from qrReader import *
 from threading import Thread
 import re
@@ -162,6 +161,7 @@ def note_repr(key):
         'text': notes[key]
     }
 
+<<<<<<< HEAD
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 def check(email):
     if re.search(regex,email):
@@ -186,6 +186,8 @@ def send_sms(number,message):
     dic = response.json()
     print('dic',dic)
 
+=======
+>>>>>>> master
 
 
 @app.route('/robots.txt')
@@ -5311,6 +5313,7 @@ def addNewChapter():
     print('inside add new chapter')
     topics=request.get_json()
     book_id = request.args.get('book_id')
+    print('book_id'+str(book_id))
     class_val = request.args.get('class_val')
     subject = request.args.get('subject')
     chapter = request.args.get('chapter')
@@ -5925,6 +5928,7 @@ def fetchTopics():
     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
+    print('fetch Topic Query:'+str(queryTopics))
     queryTopics = db.session.execute(text(queryTopics)).fetchall()
     i=1
     for topic in queryTopics:
@@ -6913,13 +6917,15 @@ def topicList():
     class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
     class_val = request.args.get('class_val')
+    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
-    topicListQuery = "select t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
+    topicListQuery = "select distinct t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
     topicListQuery = topicListQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
     topicListQuery = topicListQuery + "inner join message_detail t3 on t1.subject_id=t3.msg_id "
-    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id "
-    topicListQuery = topicListQuery + "where t1.subject_id = '" + subject_id+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
+    topicListQuery = topicListQuery + "inner join book_details t4 on t4.book_id=t2.book_id where "
+    topicListQuery = topicListQuery + "t2.book_id in (select bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id inner join topic_tracker tt on td.topic_id = tt.topic_id where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id)+"' and tt.school_id = '"+str(teacher.school_id)+"') and "
+    topicListQuery = topicListQuery + "t1.subject_id = '" + subject_id+"' and t1.is_archived='N' and t1.school_id='"+str(teacher.school_id)+"' and t1.class_sec_id='" +class_sec_id+"' order by  t2.chapter_num, is_covered desc"
     print('inside topicList')
     print(topicListQuery)
     topicList= db.session.execute(text(topicListQuery)).fetchall()
@@ -7860,7 +7866,6 @@ def getContentDetails():
         content = content + "inner join teacher_profile tp on tp.teacher_id = cd.uploaded_by where td.topic_id = '"+str(topic_id)+"' and cd.archive_status = 'N' and cd.class_val='"+str(classVal.class_val)+"' and cd.school_id='"+str(teacher.school_id)+"' order by content_id"
         print(content)
         contentDetail = db.session.execute(text(content)).fetchall()
-    
         # if len(contentDetail)==0:
         #     print("No data present in the content manager details")
         #     return jsonify(["NA"])
@@ -8235,15 +8240,9 @@ def testApp():
         print('Test Created successfully:'+str(file_name_val))
     return jsonify({'fileName':file_name_val})
 
-#End API
-# @celery.task
-# def exampleData(a,b):
-#     print('inside exampleData')
-#     z = a+b
-#     return z
 
 
-# @celery.task
+
 def insertData(class_sec_id,resp_session_id,question_ids,test_type,total_marks,class_val,teacher_id,school_id):
     with app.app_context():
         print('inside insertData')
