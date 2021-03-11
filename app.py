@@ -4375,6 +4375,7 @@ def user(username):
             value=1
         print('schoolAdminRow[0][0]:'+str(schoolAdminRow[0][0]))
         print('teacher.teacher_id:'+str(teacher.teacher_id))
+        accessSchoolRequestListRows= ''
         if schoolAdminRow[0][0]==teacher.teacher_id:
             accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(teacher.school_id) +"' and t1.access_status='143'"
             print('accessReqQuery:'+str(accessReqQuery))
@@ -4542,6 +4543,7 @@ def login():
     schoolDataQuery = "select *from school_profile where sub_domain like '"+str(newSub)+"%'"
     schoolData = db.session.execute(text(schoolDataQuery)).fetchall()   
     print(subDom)
+    font=''
     for row in schoolData:
         print(row)
         if row:
