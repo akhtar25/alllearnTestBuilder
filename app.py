@@ -4523,28 +4523,34 @@ def login():
 
         return redirect(next_page)        
         #return redirect(url_for('index'))
-    schoolDataQuery = "select *from school_profile"
-    schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
+    # schoolDataQuery = "select *from school_profile"
+    # schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
     schoolName = ''
     schoolLogo = ''
     primaryColor = '' 
     phone = ''
     email = ''
-    print('Url:'+str(request.url)) 
+    print('Url:'+str(request.url))
+    subDom = request.url
+    newDom = 'login'
+    print('login:'+str(newDom))
+    newSubDom = subDom.partition(newDom)
+    newSub = newSubDom[0] + newSubDom[1]
+    print('newSubDom:'+str(newSub))
+    schoolDataQuery = "select *from school_profile where sub_domain like '"+str(newSub)+"%'"
+    schoolData = db.session.execute(text(schoolDataQuery)).fetchall()   
+    print(subDom)
     for row in schoolData:
-        subDom = request.url
-        originalDom = row.sub_domain
-        print(subDom)
-        print(originalDom)
-        if originalDom:
-            if subDom.find(originalDom)==0:
-                schoolName = row.school_name
-                schoolLogo = row.school_logo
-                primaryColor = row.primary_color
-                teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
-                userData = User.query.filter_by(id=teacherData.user_id).first()
-                phone = userData.phone
-                email = userData.email
+        print(row)
+        if row:
+            schoolName = row.school_name
+            schoolLogo = row.school_logo
+            primaryColor = row.primary_color
+            print('primaryColor:'+str(primaryColor))
+            teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
+            userData = User.query.filter_by(id=teacherData.user_id).first()
+            phone = userData.phone
+            email = userData.email
     print('phone:'+str(phone))
     print('email:'+str(email))
     return render_template('login.html',phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)

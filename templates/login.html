@@ -89,12 +89,28 @@
           </p>
           
         <p>
+        {% if session['primary_color'] %}
+          <label>
+            <input id="remember_me" name="remember_me" type="checkbox" />
+            <span style="font-family: 'Source sans pro', sans-serif;color:{{session['primary_color']}}" 
+              >Remember Me</span
+            >
+          </label>
+          {% elif primaryColor %}
+          <label>
+            <input id="remember_me" name="remember_me" type="checkbox" />
+            <span style="font-family: 'Source sans pro', sans-serif;color:{{primaryColor}}" 
+              >Remember Me</span
+            >
+          </label>
+          {% else %}
           <label>
             <input id="remember_me" name="remember_me" type="checkbox" />
             <span style="font-family: 'Source sans pro', sans-serif"
               >Remember Me</span
             >
           </label>
+          {% endif %}
           <label style="margin-left: 30px; font-weight: 400">
             <a href="{{ url_for('reset_password_request') }}"
               >Forgot Your Password?</a
