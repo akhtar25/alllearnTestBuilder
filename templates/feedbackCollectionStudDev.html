@@ -79,12 +79,24 @@
   <div class="container" height="100%">
 
   <div class="row">
-    <div class="col s10">
+    <div class="col s10" style="margin-left: 56px;">
       <div class="card">
         <div class="card-image">
           <img src="">
           <span class="card-title"></span>
         </div>
+        {% if session['primary_color'] %}
+        <div class="card-content deviceEntryPage">
+          <span style="color:{{session['primary_color']}};display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
+          <input type="button" value="Submit" style="height: 33px;background-color:{{session['primary_color']}}!important;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
+  
+          </div>
+          <div class="card-content mobEntryPage" style="height: 160px;">
+            <span style="color:{{session['primary_color']}};display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:100%;" id="studentMobId"/>
+            <input type="button" value="Submit" style="height: 33px;width: 150px;background-color:{{session['primary_color']}}!important;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
+    
+            </div>
+        {% else %}
         <div class="card-content deviceEntryPage">
         <span style="display:block;font-weight: 400;font-size: 14px;">Enter your student id and submit</span><input type="number" style="width:500px;" id="studentId"/>
         <input type="button" value="Submit" style="height: 33px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
@@ -95,7 +107,7 @@
           <input type="button" value="Submit" style="height: 33px;width: 150px;" class="btn btn-primary pull-right green studIdSubmitBtn"/>
   
           </div>
-        
+        {% endif %}
       </div>
     </div>
   </div>
@@ -274,7 +286,19 @@
                     </div>
                     <!-- <input type="button" value="Clear" class="btn btn-primary left" id="clear"
                     style="height: 40px; width: 100px;margin-left:15px;margin-left: 30px;display:none;color: black;background-color: white;"> -->
+                    {% if session['primary_color'] %}
                     <div id="timeDivMobBtn">
+                      
+                      <input type="button" value="Start" class="btn btn-primary pull-right green start" onclick="fetchSubmitQuestion('q','Start');"
+                      style="background-color: {{session['primary_color']}} !important;height: 40px; width: 200px;margin-top: -90px;">
+                    </div>
+                    <div  id="timeDivBtn">
+                      <input type="button" value="Start" class="btn btn-primary pull-right green start" onclick="fetchSubmitQuestion('q','Start');"
+                      style="background-color: {{session['primary_color']}} !important;height: 40px; width: 200px;margin-top: -90px;margin-right: 470px;">
+                    </div>
+                    {% else %}
+                    <div id="timeDivMobBtn">
+                      
                       <input type="button" value="Start" class="btn btn-primary pull-right green start" onclick="fetchSubmitQuestion('q','Start');"
                       style="height: 40px; width: 200px;margin-top: -90px;">
                     </div>
@@ -282,7 +306,7 @@
                       <input type="button" value="Start" class="btn btn-primary pull-right green start" onclick="fetchSubmitQuestion('q','Start');"
                       style="height: 40px; width: 200px;margin-top: -90px;margin-right: 470px;">
                     </div>
-                    
+                    {% endif %}
                     <input type="button" value="Submit and next" class="btn btn-primary left green" id="startAndNextBTN" onclick="fetchSubmitQuestion('q','submitandnext');"
                     style="height: 40px; width: 147px;margin-right: 10px;display:none;">
                     <input type="button" value="Submit and End Test" class="btn btn-primary right deviceSubmitBtn" id="submit" onclick="fetchSubmitQuestion('q','submit');"

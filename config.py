@@ -2,6 +2,7 @@ import os
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    
     # staging url  
     DATABASE_URL = os.environ.get("DATABASE_URL", None)
     #staging
@@ -31,9 +32,7 @@ class Config(object):
     #TEST CREDS
     ALLLEARN_CASHFREE_APP_ID =  os.environ.get('ALLLEARN_CASHFREE_APP_ID')
     ALLLEARN_CASHFREE_SECRET_KEY = os.environ.get('ALLLEARN_CASHFREE_SECRET_KEY')
-    
-    
-    
+     
     CASHFREE_API_TEST = "https://ces-gamma.cashfree.com"
     CASHFREE_API_PROD = "https://ces-api.cashfree.com"
     #ALLLEARN_INTERNAL_KEY = "1QAZXSW2JJJJ4RFVLI8761919ASDF654ASDF5D5D222"
