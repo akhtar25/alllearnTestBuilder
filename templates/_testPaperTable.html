@@ -53,8 +53,16 @@
             </div>
           </div>
           <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
-          <td><a href="#conductTestModal" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
-              Test</a></td>
+          
+          <td>
+            {% if session['primary_color'] %}
+            <a href="#conductTestModal" style="background-color: {{session['primary_color']}}!important;" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
+              Test</a>
+            {% else %}
+            <a href="#conductTestModal" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
+              Test</a>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
 
@@ -138,8 +146,11 @@
         <input style="font-size:14px;" type="text" name='instructions' value="" placeholder="Enter instructions for students">
       </div>
       <!-- End -->
+      {% if session['primary_color'] %}
+      <button class='btn green' style="background-color: {{session['primary_color']}} !important;" type='submit' class='startTestButtonClass'>Submit</button>
+      {% else %}
       <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
-      
+      {% endif %}
       <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
       </div>
   </form>
