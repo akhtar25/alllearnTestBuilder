@@ -495,6 +495,25 @@ $(document).ready(function(){
          z=z+1;
         // d.innerHTML += '<div class="textWithBtn"><input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1"><div id="addTextBtn'+z+'" onclick="addTextBtn();"><i class="fas fa-plus-circle"></i></div></div>';
         $('.sectionDiv').append('<input type="text" class="section" placeholder="Section" style="text-align:center;width:130px;" maxlength="1">');
+        var haveFirst = false;
+$('.section').on('keypress', function (event) {
+  if( $(this).val().length === 0 ) {
+     haveFirst = false;
+  }
+var regex = new RegExp("^[a-z0-9_]+$");
+var first = new RegExp("^[a-z]+$");
+var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+if(!first.test(key) && haveFirst == false){
+   event.preventDefault();
+   return false;
+}else if(regex.test(key)){
+   haveFirst = true;
+}
+if (!regex.test(key)) {
+   event.preventDefault();
+   return false;
+}
+});
     }
 
     function insertWord(){
@@ -3165,6 +3184,30 @@ $(document).ready(function(){
 // }
 
     // End
+
+    $(function() {     
+var haveFirst = false;
+$('.class').on('keypress', function (event) {
+  if( $(this).val().length === 0 ) {
+     haveFirst = false;
+  }
+var regex = new RegExp("^[a-z0-9_]+$");
+var first = new RegExp("^[a-z]+$");
+var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+if(!first.test(key) && haveFirst == false){
+   event.preventDefault();
+   return false;
+}else if(regex.test(key)){
+   haveFirst = true;
+}
+if (!regex.test(key)) {
+   event.preventDefault();
+   return false;
+}
+}); 
+}) 
+ 
+
 
 </script>
 
