@@ -8707,6 +8707,28 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
+@app.route('/registerUser',methods=['POST','GET'])
+def registerUser():
+    if request.method == 'POST':
+        print('inside register user')
+        jsonData = request.json
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)
+        conList = []
+        for con in user['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        if userId:
+            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+            if teacher_id:
+                teacher = 'teacher'
+                return jsonify({'Teacher':teacher})
+        n = 'null'
+        return jsonify({'Null':n})
+
+
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
     if request.method == 'POST':
