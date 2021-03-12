@@ -8707,7 +8707,7 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
-@app.route('/registerUser',methods=['GET'])
+@app.route('/registerUser',methods=['GET','POST'])
 def registerUser():
     if request.method == 'POST':
         print('inside register user')
