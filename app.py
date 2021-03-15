@@ -8730,16 +8730,16 @@ def registerUser():
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
             student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
-                teacher = 'teacher'
+                teacher = 'Teacher'
                 print('User is Teacher')
-                return jsonify({'Teacher':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
                 
             elif student_id:
-                student = 'student'
+                student = 'Student'
                 print('user is student')
-                return jsonify({'Student':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
             else:
-                parent = 'parent'
+                parent = 'Parent'
                 print('user is parent outside if')
                 if userId.user_type==72:
                     print('user is parent inside if')
@@ -8749,8 +8749,8 @@ def registerUser():
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     print('studentDet:')
                     print(studentDet)
-                    return jsonify({'Parent':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
-        return jsonify({'Other':'null'})
+                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
+        return jsonify({'user':'null'})
 
 
 @app.route('/getUserDetails',methods=['POST','GET'])
