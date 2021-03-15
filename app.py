@@ -8730,15 +8730,17 @@ def registerUser():
             student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
                 teacher = 'teacher'
-                return jsonify({'Teacher':teacher,'firstName':userId.first_name})
+                return jsonify({'Teacher':teacher,'firstName':str(userId.first_name)+str(userId.last_name)})
                 
             elif student_id:
                 student = 'student'
-                return jsonify({'Student':student,'firstName':userId.first_name})
+                return jsonify({'Student':student,'firstName':str(userId.first_name)+str(userId.last_name)})
             else:
                 parent = 'parent'
                 if userId.user_type==72:
-                    return jsonify({'Parent':parent,'firstName':userId.first_name})
+                    guardianDet = GuardianProfile.query.filter_by(user_id=userId.id).first()
+                    studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
+                    return jsonify({'Parent':parent,'firstName':str(userId.first_name)+str(userId.last_name),'studentName':studentDet.full_name})
         return jsonify({'teacher':'null'})
 
 
