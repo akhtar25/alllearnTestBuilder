@@ -8727,10 +8727,19 @@ def registerUser():
         teacher = ''
         if userId:
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+            student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
                 teacher = 'teacher'
                 return jsonify({'Teacher':teacher,'firstName':userId.first_name})
-        return jsonify({'teacher':teacher})
+                
+            elif student_id:
+                student = 'student'
+                return jsonify({'Student':student,'firstName':userId.first_name})
+            else:
+                parent = 'parent'
+                if userId.user_type==72:
+                    return jsonify({'Parent':parent,'firstName':userId.first_name})
+        return jsonify({'teacher':'null'})
 
 
 @app.route('/getUserDetails',methods=['POST','GET'])
