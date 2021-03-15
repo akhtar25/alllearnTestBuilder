@@ -8711,8 +8711,8 @@ def getStudentDet():
 def registerUser():
     if request.method == 'GET':
         print('inside register user')
-        # jsonData = request.json
-        jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
         print('jsonData:')
         print(jsonData)
         
@@ -8750,7 +8750,7 @@ def registerUser():
                     print('studentDet:')
                     print(studentDet)
                     return jsonify({'Parent':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
-        return jsonify({'teacher':'null'})
+        return jsonify({'Other':'null'})
 
 
 @app.route('/getUserDetails',methods=['POST','GET'])
