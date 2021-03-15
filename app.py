@@ -8712,6 +8712,8 @@ def registerUser():
     if request.method == 'POST':
         print('inside register user')
         jsonData = request.json
+        print('jsonData:')
+        print(jsonData)
     # jsonData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         userData = json.dumps(jsonData)
         user = json.loads(userData)
