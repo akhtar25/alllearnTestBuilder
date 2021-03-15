@@ -8724,13 +8724,13 @@ def registerUser():
         contactNo = conList[2][-10:]
         print(contactNo)
         userId = User.query.filter_by(phone=contactNo).first()
+        teacher = ''
         if userId:
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
                 teacher = 'teacher'
                 return jsonify({'Teacher':teacher})
-        n = 'null'
-        return jsonify({'Null':n})
+        return jsonify({'teacher':teacher})
 
 
 @app.route('/getUserDetails',methods=['POST','GET'])
