@@ -68,7 +68,7 @@ import json
 # from moviepy.editor import *
 
 
-app=FlaskAPI(__name__)
+application=app=FlaskAPI(__name__)
 
 
 # End
