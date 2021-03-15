@@ -8730,14 +8730,18 @@ def registerUser():
             student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
                 teacher = 'teacher'
+                print('User is Teacher')
                 return jsonify({'Teacher':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
                 
             elif student_id:
                 student = 'student'
+                print('user is student')
                 return jsonify({'Student':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
             else:
                 parent = 'parent'
+                print('user is parent outside if')
                 if userId.user_type==72:
+                    print('user is parent inside if')
                     guardianDet = GuardianProfile.query.filter_by(user_id=userId.id).first()
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     return jsonify({'Parent':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
