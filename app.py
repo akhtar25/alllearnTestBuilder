@@ -8707,9 +8707,9 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
-@app.route('/registerUser',methods=['GET'])
+@app.route('/registerUser',methods=['POST','GET'])
 def registerUser():
-    if request.method == 'GET':
+    if request.method == 'POST':
         print('inside register user')
         jsonData = request.json
         # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
