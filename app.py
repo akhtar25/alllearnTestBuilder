@@ -8619,7 +8619,7 @@ def getClassList():
         j=1
         for classlist in classesListData:
             if j==1:
-                classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+                classVal = str('Which class do you want to test?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             else:
                 classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
@@ -8737,7 +8737,7 @@ def registerUser():
             elif student_id:
                 student = 'Student'
                 print('user is student')
-                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
             else:
                 parent = 'Parent'
                 print('user is parent outside if')
@@ -8749,7 +8749,7 @@ def registerUser():
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     print('studentDet:')
                     print(studentDet)
-                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
+                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
         print('not registered user')
         return jsonify({'user':'null'})
 
