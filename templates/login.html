@@ -36,129 +36,159 @@
       >
         {% else %}
         <div
-          class="input-field col s12 z-depth-1 hoverable"
-          style="
-            text-align: left;
-            border-radius: 25px;
-            border: 2px solid #73ad21;
-            padding: 10px;
-          "
-        >
-          {% endif %} {% if session['primary_color'] %}
-          <h2 style="color: {{session['primary_color']}}">Sign In</h2>
-          {% elif primaryColor %}
-          <h2 style="color: {{primaryColor}}">Sign In</h2>
+        class="input-field col s12 z-depth-1 hoverable"
+        style="
+      text-align: left;
+      border-radius: 25px;
+      border: 2px solid;
+      padding: 10px;
+    "
+      >
+        {% endif %}
+        {% if session['primary_color'] and session['font'] %}
+          <h2 style="color: {{session['primary_color']}};font-family:{{session['font']}}">Sign In</h2>
+          {% elif primaryColor and font %}
+          <h2 style="color: {{primaryColor}};font-family:{{font}}">Sign In</h2>
           {% else %}
           <h2 style="color: Green">Sign In</h2>
           {% endif %}
-          <div id="googleSignInDiv" class="row">
-            <div
-              class="g-signin2"
-              data-onsuccess="onSignIn"
-              data-width="250"
-              data-height="40"
-              data-longtitle="true"
-            ></div>
-          </div>
-          {% if session['primary_color'] %}
-          <div class="center row" style="color:{{session['primary_color']}}">
-            OR
-          </div>
-          {% elif primaryColor %}
-          <div class="center row" style="color:{{primaryColor}}">OR</div>
-          {% else %}
-          <div class="center row">OR</div>
-          {% endif %}
-          <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
-            <p>
-              {%if primaryColor %} {{
-              form.email.label(style='font-weight:400;color:primaryColor') }} {%
-              else %} {{ form.email.label(style='font-weight:400;color:green')
-              }} {% endif %}
-              <br />
-              {{ form.email(size=64) }} {% for error in form.email.errors %}
-              <span style="color: red">[{{ error }}]</span>
-              {% endfor %}
-            </p>
-            <p>
-              {% if primaryColor %} {{
-              form.password.label(style='font-weight:400;color:primaryColor') }}
-              {% else %} {{
-              form.password.label(style='font-weight:400;color:green') }} {%
-              endif %}
-              <br />
-              {{ form.password(size=32) }} {% for error in form.password.errors
-              %}
-              <span style="color: red">[{{ error }}]</span>
-              {% endfor %}
-            </p>
-            <p>
-              {% if session['primary_color'] %}
-              <label>
-                <input id="remember_me" name="remember_me" type="checkbox" />
-                <span
-                  style="font-family: 'Source sans pro', sans-serif;color:{{session['primary_color']}}"
-                  >Remember Me</span
-                >
-              </label>
-              {% elif primaryColor %}
-              <label>
-                <input id="remember_me" name="remember_me" type="checkbox" />
-                <span
-                  style="font-family: 'Source sans pro', sans-serif;color:{{primaryColor}}"
-                  >Remember Me</span
-                >
-              </label>
-              {% else %}
-              <label>
-                <input id="remember_me" name="remember_me" type="checkbox" />
-                <span style="font-family: 'Source sans pro', sans-serif"
-                  >Remember Me</span
-                >
-              </label>
-              {% endif %}
-              <label style="float: right; font-weight: 400">
-                <a href="{{ url_for('reset_password_request') }}"
-                  >Forgot Your Password?</a
-                >
-              </label>
-            </p>
-            <div class="center">
-              {% if session['primary_color'] %}
-              <button
-                style="width: 190px; height: 48px; margin-bottom: 20px;background-color:{{session['primary_color']}} !important"
-                class="btn-large waves-effect waves-light green white-text"
-                type="submit"
-              >
-                Sign In
-              </button>
-              {% elif primaryColor %}
-              <button
-                style="width: 190px; height: 48px; margin-bottom: 20px;background-color:{{primaryColor}} !important"
-                class="btn-large waves-effect waves-light green white-text"
-                type="submit"
-              >
-                Sign In
-              </button>
-              {% else %}
-              <button
-                style="width: 190px; height: 48px; margin-bottom: 20px"
-                class="btn-large waves-effect waves-light green white-text"
-                type="submit"
-              >
-                Sign In</button
-              >{% endif %}
-              <br />
-              <span>
-                New User?<br />
-                <a class="btn cyan" href="{{ url_for('register') }}"
-                  >Click to Sign Up!</a
-                >
-              </span>
-            </div>
-          </form>
+        {% if session['isGooglelogin']=='Y' %}
+        <div id="googleSignInDiv" class="row">
+        <div
+          class="g-signin2"
+          data-onsuccess="onSignIn"
+          data-width="250"
+          data-height="40"
+          data-longtitle="true"
+        ></div>
+        </div>
+      <div class="center row">OR</div>
+      {% endif %}
+      <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+          {{ form.email.label(style="font-weight:400;color:green") }}
+          <a class="tooltippedBoard" style="float: right;" data-position="right" data-tooltip="eg. studId2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
           <br />
+          {{ form.email(size=64,id='newEmail') }} {% for error in form.email.errors %}
+          <span style="color: red">[{{ error }}]</span>
+          {% endfor %}
+          
+        </p>
+          <p id='passWord'>
+            {{ form.password.label(style='font-weight:400;color:green') }}
+            <br />
+            {{ form.password(size=32) }} {% for error in form.password.errors %}
+            <span style="color: red">[{{ error }}]</span>
+            {% endfor %}
+          </p>
+          <p id="otpPar" style="display: none;">
+            <label for="otp"style='font-weight:400;color:green'>OTP</label>
+            <input type="number" id="otp"/>
+            
+          </p>
+          
+        <p>
+        {% if session['primary_color'] or session['font'] %}
+          <label>
+            <input id="remember_me" name="remember_me" type="checkbox" />
+            <span style="font-family: {{session['font']}};color:{{session['primary_color']}}" 
+              >Remember Me</span
+            >
+          </label>
+          {% elif primaryColor or font %}
+          <label>
+            <input id="remember_me" name="remember_me" type="checkbox" />
+            <span style="font-family:{{font}};color:{{primaryColor}}" 
+              >Remember Me</span
+            >
+          </label>
+          {% else %}
+          <label>
+            <input id="remember_me" name="remember_me" type="checkbox" />
+            <span style="font-family: 'Source sans pro', sans-serif"
+              >Remember Me</span
+            >
+          </label>
+          {% endif %}
+          {% if session['primary_color'] or session['font'] %}
+          <label style="margin-left: 30px; font-weight: 400;font-family:{{session['font']}}">
+            <a href="{{ url_for('reset_password_request') }}"
+              >Forgot Your Password?</a
+            >
+          </label>
+          {% elif primaryColor or font %}
+        <label style="margin-left: 30px; font-weight: 400;font-family:{{font}};">
+            <a href="{{ url_for('reset_password_request') }}"
+              >Forgot Your Password?</a
+            >
+          </label>
+          {% else %}
+          <label style="margin-left: 30px; font-weight: 400;">
+            <a href="{{ url_for('reset_password_request') }}"
+              >Forgot Your Password?</a
+            >
+          </label>
+          {% endif %}
+          {% if session['primary_color'] or session['font'] %}
+          <label style="float: right; font-weight: 400;font-family:{{font}};">
+            <a href="javascript:void(0)" onclick="checkFunc();" 
+              >Login via OTP</a
+            >
+          </label>
+        {% elif primaryColor or font %}
+        <label style="float: right; font-weight: 400;font-family:{{font}};">
+          <a href="javascript:void(0)" onclick="checkFunc();" 
+            >Login via OTP</a
+          >
+        </label>
+        {% else %}
+        <label style="float: right; font-weight: 400">
+          <a href="javascript:void(0)" onclick="checkFunc();" 
+            >Login via OTP</a
+          >
+        </label>
+        {% endif %}
+          
+        </p>
+        <div id="msgDiv" style="display: none;color:red;"><span id="msg"></span></div>
+          
+        <div class="center">
+          {% if session['primary_color'] or session['font'] %}
+          <button
+        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{session['primary_color']}} !important;font-family:{{session['font']}};"
+            class="btn-large waves-effect waves-light green white-text"
+            type="submit"
+          >
+            Sign In</button
+          >
+          {% elif primaryColor or font %}
+          <button
+        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{primaryColor}} !important;font-family:{{font}};;"
+            class="btn-large waves-effect waves-light green white-text"
+            type="submit"
+          >
+            Sign In</button
+          >
+          {% else %}
+          <button
+            style="width: 190px; height: 45px; margin-bottom: 20px"
+            class="btn-large waves-effect waves-light green white-text"
+            type="submit"
+          >
+            Sign In</button
+          >
+          {% endif %}
+          <br />
+          <span>
+            New User?<br />
+            <a class="btn cyan" href="{{ url_for('register') }}"
+              >Click to Sign Up!</a
+            >
+          </span>
+        </div>
+      </form>
+      <br />
 
           <div class="row center">
             <table class="center">
@@ -167,6 +197,7 @@
               </tr>
             </table>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -204,6 +235,30 @@
         };
         //window.alert('Token sent to server');
       }
+
+      function checkFunc(){
+        var val = $('#newEmail').val();
+        console.log('inside checkfunc');
+        console.log('val',val);
+        let isnum = /^\d+$/.test(val);
+        console.log(isnum);
+        if(!isnum){
+          console.log('not a phone number');
+          $('#msg').html('please enter phone no.');
+          $('#msgDiv').show();
+        }else{
+          $('#msgDiv').hide();
+          $('#passWord').hide();
+          $('#otpPar').show();
+        }
+      }
+
+      $(document).ready(function(){
+    $('.tooltipped').tooltip();
+  });
+  $(document).ready(function(){
+    $('.tooltippedBoard').tooltip();
+  });
     </script>
     {% endblock %}
   </div>

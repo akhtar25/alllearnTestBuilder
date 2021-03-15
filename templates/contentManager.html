@@ -194,7 +194,7 @@
                               <div style="display: flex;"><label style="font-weight: 400;color: black;">URL</label><input type="text" onChange="previewUrl(this.value);" id="contentUrl" name="contentName" placeholder="paste your content url here.." style="width: 200px;margin-left: 10px;margin-top:-8px;font-size: 14px;"></div>
                               <input type="hidden" id="reference" name="reference" value="">
                             </div>
-                            <img style="border:1px solid gray; width:251px; height: 115px;margin-left: 118px;float: right;margin-top: -15px;" id="preview" src=" ">
+                            <img class="materialboxed" style="border:1px solid gray; width:251px; height: 115px;margin-left: 118px;float: right;margin-top: -15px;" id="preview" src=" ">
                             <iframe src=" " id="iframeDiv" style="width: 251px;height: 115px;margin-left: 118px;float: right;margin-top: -15px;display:none;" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
                             <audio controls id="audioDiv" style="width: 251px;height: 115px;margin-left: 118px;float: right;margin-top: -15px;display:none;"><source src=" "></audio>
                             <embed width="251" height="115" id="docDiv" style="margin-left: 118px;float: right;margin-top: -15px;display:none;" src=" " type="application/pdf">
@@ -242,6 +242,7 @@ $(document).ready(function(){
     $('#selectSubject').formSelect();
     $('#selectChapters').formSelect();
     $('#filter').prop('disabled', true);
+    $('.materialboxed').materialbox();
   });
 
 
