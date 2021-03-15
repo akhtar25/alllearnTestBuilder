@@ -8729,7 +8729,7 @@ def registerUser():
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
             if teacher_id:
                 teacher = 'teacher'
-                return jsonify({'Teacher':teacher})
+                return jsonify({'Teacher':teacher,'firstName':userId.first_name})
         return jsonify({'teacher':teacher})
 
 
