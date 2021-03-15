@@ -8750,7 +8750,7 @@ def registerUser():
                     print('studentDet:')
                     print(studentDet)
                     return jsonify({'Parent':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name})
-        return jsonify({'other':'null'})
+        return jsonify({'Other':'null'})
 
 
 @app.route('/getUserDetails',methods=['POST','GET'])
