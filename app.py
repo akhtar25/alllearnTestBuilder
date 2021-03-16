@@ -8797,7 +8797,30 @@ def getStudentProfileById():
         studProfLink = url_for('studentProfile',student_id=paramList[0],_external=True)
         newRes = str(finalResult) + str(studProfLink)
                 
-        return jsonify({'studentData':newRes})               
+        return jsonify({'studentData':newRes})   
+
+@app.route('/registerSchool',methods=['GET','POST'])
+def registerSchool():
+    if request.method == 'POST':
+        print('inside registerSchool')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print('data:')
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        return jsonify(['0'])        
+
+
 
 @app.route('/checkStudent',methods=['GET','POST'])
 def checkStudent():
