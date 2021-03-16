@@ -8775,6 +8775,24 @@ def getUserDetails():
             msg = 'you are not a registered teacher'
             return jsonify({'userDetails':msg})
 
+@app.route('/checkStudent',methods=['GET','POST'])
+def checkStudent():
+    if request.method == 'POST':
+        print('inside checkStudent')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        for data in data['results'].values():
+            paramList.append(data)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        print(paramList)
+        return jsonify(['0'])   
+
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
     if request.method == 'POST':
