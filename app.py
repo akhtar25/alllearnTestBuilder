@@ -8775,6 +8775,30 @@ def getUserDetails():
             msg = 'you are not a registered teacher'
             return jsonify({'userDetails':msg})
 
+@app.route('/getStudentProfileById',methods=['GET','POST'])
+def getStudentProfileById():
+    if request.method == 'POST':
+        print('inside getStudentProfileById')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print('data:')
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        print(paramList[0])
+        finalResult = "Here's the link to the student profile:\n"
+        studProfLink = url_for('student_profile',student_id=paramList[0])
+        newRes = str(finalResult) + str(studProfLink)
+                
+        return jsonify({'studentData':newRes})               
+
 @app.route('/checkStudent',methods=['GET','POST'])
 def checkStudent():
     if request.method == 'POST':
@@ -8805,6 +8829,8 @@ def checkStudent():
                 finalResult = "Here's the link to the student profile:\n"
                 studProfLink = url_for('student_profile',student_id=studentData.student_id)
                 newRes = str(finalResult) + str(studProfLink)
+                
+                return jsonify({'studentData':newRes,'flag':1}) 
             else:
                 print(len(studentData))
                 newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
@@ -8814,9 +8840,10 @@ def checkStudent():
                     studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
                     i=i+1
                 newRes = newString + studData
+                return jsonify({'studentData':newRes,'flag':'More'}) 
         else:
             newRes = 'No student available'
-        return jsonify({'studentData':newRes})   
+            return jsonify({'studentData':newRes,'flag':'Other'})   
 
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
 def getEnteredTopicList():
