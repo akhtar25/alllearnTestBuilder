@@ -8794,7 +8794,7 @@ def getStudentProfileById():
         print(contactNo)
         print(paramList[0])
         finalResult = "Here's the link to the student profile:\n"
-        studProfLink = url_for('studentProfile',student_id=paramList[0])
+        studProfLink = url_for('studentProfile',student_id=paramList[0],_external=True)
         newRes = str(finalResult) + str(studProfLink)
                 
         return jsonify({'studentData':newRes})               
@@ -8827,7 +8827,7 @@ def checkStudent():
             if len(studentData) == 1:
                 print(len(studentData))
                 finalResult = "Here's the link to the student profile:\n"
-                studProfLink = url_for('student_profile',student_id=studentData.student_id)
+                studProfLink = url_for('student_profile',student_id=studentData.student_id,_external=True)
                 newRes = str(finalResult) + str(studProfLink)
                 
                 return jsonify({'studentData':newRes,'flag':'1'}) 
