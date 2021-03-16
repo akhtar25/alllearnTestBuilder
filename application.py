@@ -12734,7 +12734,6 @@ def format_currency(value):
 if __name__=="__main__":
     app.debug=True  
     #app.use_reloader=False  
-    print("[info] main APP Started")
     app.jinja_env.filters['zip'] = zip
     #app.run(host=os.getenv('IP', '127.0.0.1'), 
     #        port=int(os.getenv('PORT', 8000)))
@@ -12742,4 +12741,4 @@ if __name__=="__main__":
         #port=int(os.getenv('PORT', 8000))
         # ssl_context='adhoc'
         #)
-    #app.run()
+    app.run()
