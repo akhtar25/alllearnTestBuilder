@@ -8830,7 +8830,7 @@ def checkStudent():
                 studProfLink = url_for('student_profile',student_id=studentData.student_id)
                 newRes = str(finalResult) + str(studProfLink)
                 
-                return jsonify({'studentData':newRes,'flag':1}) 
+                return jsonify({'studentData':newRes,'flag':'1'}) 
             else:
                 print(len(studentData))
                 newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
