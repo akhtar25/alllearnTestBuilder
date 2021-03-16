@@ -8799,14 +8799,14 @@ def checkStudent():
         newRes = ''
         print(studentData)
         print(type(studentData))
-        if studentData.length != 0:
-            if studentData.length == 1:
-                print(studentData.length)
+        if len(studentData) != 0:
+            if len(studentData) == 1:
+                print(len(studentData))
                 finalResult = "Here's the link to the student profile:\n"
                 studProfLink = url_for('student_profile',student_id=studentData.student_id)
                 newRes = str(finalResult) + str(studProfLink)
             else:
-                print(studentData.length)
+                print(len(studentData))
                 newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
                 i=1
                 for student in studentData:
