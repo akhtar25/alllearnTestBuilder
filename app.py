@@ -8784,7 +8784,7 @@ def checkStudent():
         data = json.loads(newData)
         paramList = []
         conList = []
-        for values in data['studentList'].values():
+        for values in data['results'].values():
             paramList.append(values)    
         for con in data['contact'].values():
             conList.append(con)
