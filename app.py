@@ -8797,8 +8797,8 @@ def checkStudent():
         print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
         newRes = ''
-        if studentData:
-            if studentData.length == 0:
+        if studentData.length != 0:
+            if studentData.length == 1:
                 print(studentData.length)
                 finalResult = "Here's the link to the student profile:\n"
                 studProfLink = url_for('student_profile',student_id=studentData.student_id)
