@@ -8796,19 +8796,23 @@ def checkStudent():
         studentDataQuery = "select student_id,full_name from student_profile where full_name like '%"+str(paramList[0])+"%'"
         print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
-        if studentData.length == 0:
-            print(studentData.length)
-            finalResult = "Here's the link to the student profile:\n"
-            studProfLink = url_for('student_profile',student_id=studentData.student_id)
-            newRes = str(finalResult) + str(studProfLink)
+        newRes = ''
+        if studentData:
+            if studentData.length == 0:
+                print(studentData.length)
+                finalResult = "Here's the link to the student profile:\n"
+                studProfLink = url_for('student_profile',student_id=studentData.student_id)
+                newRes = str(finalResult) + str(studProfLink)
+            else:
+                print(studentData.length)
+                newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
+                i=1
+                for student in studentData:
+                    studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
+                    i=i+1
+                newRes = newString + studData
         else:
-            print(studentData.length)
-            newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
-            i=1
-            for student in studentData:
-                studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
-                i=i+1
-            newRes = newString + studData
+            newRes = 'No student available'
         return jsonify({'studentData':newRes})   
 
 @app.route('/getEnteredTopicList',methods=['POST','GET'])
