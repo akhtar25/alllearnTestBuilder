@@ -8809,6 +8809,7 @@ def checkStudent():
                 print(len(studentData))
                 newString = "Multiple students found with similar name.\n Please enter the student ID of the student from the below list:\n"
                 i=1
+                studData = ''
                 for student in studentData:
                     studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
                     i=i+1
