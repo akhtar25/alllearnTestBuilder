@@ -8793,7 +8793,8 @@ def checkStudent():
         contactNo = conList[2][-10:]
         print(contactNo)
         print(paramList[0])
-        studentDataQuery = "select student_id,full_name from student_profile where full_name like '%'"+str(paramList[0])+"'%'"
+        studentDataQuery = "select student_id,full_name from student_profile where full_name like '%"+str(paramList[0])+"%'"
+        print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
         if studentData.length == 0:
             print(studentData.length)
