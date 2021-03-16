@@ -8816,8 +8816,10 @@ def checkStudent():
             conList.append(con)
         contactNo = conList[2][-10:]
         print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         print(paramList[0])
-        studentDataQuery = "select student_id,full_name from student_profile where full_name like '%"+str(paramList[0])+"%'"
+        studentDataQuery = "select student_id,full_name from student_profile where full_name like '%"+str(paramList[0])+"%' and is_archived='N' and school_id='"+str(teacher_id.school_id)+"'"
         print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
         newRes = ''
