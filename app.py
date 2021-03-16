@@ -8797,6 +8797,8 @@ def checkStudent():
         print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
         newRes = ''
+        print(studentData)
+        print(type(studentData))
         if studentData.length != 0:
             if studentData.length == 1:
                 print(studentData.length)
