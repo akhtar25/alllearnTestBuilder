@@ -8818,7 +8818,9 @@ def registerSchool():
         print(contactNo)
         for param in paramList:
             print(param)
-        return jsonify(['0'])        
+        print(paramList[3])
+        return jsonify(['0'])
+
 
 
 
