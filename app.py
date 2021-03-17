@@ -8832,19 +8832,19 @@ def registerSchool():
         db.session.commit()
         boardId = ''
         schoolType = ''
-        if paramList[7] == 1:
+        if paramList[7] == '1':
             boardId = 1001
-        elif paramList[7] == 2:
+        elif paramList[7] == '2':
             boardId = 1002
-        elif paramList[7] == 3:
+        elif paramList[7] == '3':
             boardId = 1005
         else:
             boardId = 1003
-        if paramList[6] == 1:
+        if paramList[6] == '1':
             schoolType = 'Affordable private school'
-        elif paramList[6] == 2:
+        elif paramList[6] == '2':
             schoolType = 'NGO School'
-        elif paramList[6] == 3:
+        elif paramList[6] == '3':
             schoolType = 'Elite private school'
         else: 
             schoolType = 'Other' 
@@ -8852,7 +8852,6 @@ def registerSchool():
         db.session.add(createSchool)
         db.session.commit()
         print(createSchool.school_id)
-        # selectedSchool = SchoolProfile.query.filter_by(school_id=createSchool.school_id).first()
         createUser.school_id = createSchool.school_id
         db.session.commit()
         createTeacher.school_id = createSchool.school_id
