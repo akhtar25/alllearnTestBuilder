@@ -8825,7 +8825,7 @@ def insertUserTeacherDetails():
         createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
         db.session.add(createTeacher)
         db.session.commit()  
-        return jsonify(['success'])      
+        return jsonify({'success':'success'})      
 
 
 
