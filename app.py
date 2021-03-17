@@ -8852,10 +8852,10 @@ def registerSchool():
         db.session.add(createSchool)
         db.session.commit()
         print(createSchool.school_id)
-        selectedSchool = SchoolProfile.query.filter_by(school_id=createSchool.school_id).first()
-        createUser.school_id = selectedSchool.school_id
+        # selectedSchool = SchoolProfile.query.filter_by(school_id=createSchool.school_id).first()
+        createUser.school_id = createSchool.school_id
         db.session.commit()
-        createTeacher.school_id = selectedSchool.school_id
+        createTeacher.school_id = createSchool.school_id
         db.session.commit()
         return jsonify(['success'])
 
