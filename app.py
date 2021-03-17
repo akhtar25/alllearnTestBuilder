@@ -8797,7 +8797,37 @@ def getStudentProfileById():
         studProfLink = url_for('studentProfile',student_id=paramList[0],_external=True)
         newRes = str(finalResult) + str(studProfLink)
                 
-        return jsonify({'studentData':newRes})   
+        return jsonify({'studentData':newRes})  
+
+@app.route('/insertUserTeacherDetails',methods=['GET','POST'])
+def insertUserTeacherDetails():
+    if request.method == 'POST':
+        print('inside insertUserTeacherDetails')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        createUser = User(username=paramList[1],email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(paramList[8])
+        db.session.add(createUser)
+        db.session.commit()
+        createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
+        db.session.add(createTeacher)
+        db.session.commit()  
+        return jsonify(['success'])      
+
+
 
 @app.route('/registerSchool',methods=['GET','POST'])
 def registerSchool():
@@ -8820,13 +8850,6 @@ def registerSchool():
             print(param)
         print(paramList[3])
 
-        createUser = User(username=paramList[1],email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(paramList[8])
-        db.session.add(createUser)
-        db.session.commit()
-        createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
-        db.session.add(createTeacher)
-        db.session.commit()
         createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
         db.session.add(createAddress)
         db.session.commit()
@@ -8848,6 +8871,8 @@ def registerSchool():
             schoolType = 'Elite private school'
         else: 
             schoolType = 'Other' 
+        createTeacher = TeacherProfile.query.filter_by(teacher_name=paramList[0],email=paramList[1],phone=contactNo).first()
+        createUser = User.query.filter_by(username=paramList[1],email=paramList[1],phone=contactNo).first()
         createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
         db.session.add(createSchool)
         db.session.commit()
