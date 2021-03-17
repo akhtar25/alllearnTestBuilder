@@ -8851,11 +8851,9 @@ def registerSchool():
         createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
         db.session.add(createSchool)
         db.session.commit()
-        userDet = User.query.filter_by(id=createUser.id).first()
-        userDet.school_id = createSchool.school_id
+        createUser.school_id = createSchool.school_id
         db.session.commit()
-        teacherDet = TeacherProfile.query.filter_by(teacher_id=createTeacher.teacher_id).first()
-        teacherDet.school_id = createSchool.school_id
+        createTeacher.school_id = createSchool.school_id
         db.session.commit()
         return jsonify(['success'])
 
