@@ -8799,6 +8799,37 @@ def getStudentProfileById():
                 
         return jsonify({'studentData':newRes})  
 
+@app.route('/accessRegisteredSchool',methods=['GET','POST'])
+def accessRegisteredSchool():
+    if request.method == 'POST':
+        print('inside accessRegisteredSchool')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+        createUser = User(username=paramList[1],school_id=schoolDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(paramList[2])
+        db.session.add(createUser)
+        db.session.commit()
+        createTeacher = TeacherProfile(teacher_name=paramList[0],school_id=schoolDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
+        db.session.add(createTeacher)
+        db.session.commit() 
+        schoolDet.school_admin = createTeacher.teacher_id
+        return jsonify({'success':'success'})  
+                
+
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
 def insertUserTeacherDetails():
     if request.method == 'POST':
