@@ -8856,7 +8856,7 @@ def registerSchool():
         teacherDet = TeacherProfile.query.filter_by(teacher_id=createTeacher.teacher_id).first()
         teacherDet.school_id = createSchool.school_id
         db.session.commit()
-        return jsonify(['0'])
+        return jsonify(['success'])
 
 
 
