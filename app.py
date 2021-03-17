@@ -8819,6 +8819,34 @@ def registerSchool():
         for param in paramList:
             print(param)
         print(paramList[3])
+
+        createUser = User(username=paramList[1],email=paramList[1],password_hash=paramList[8],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        db.session.add(createUser)
+        db.session.commit()
+        createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
+        db.session.add(createTeacher)
+        db.session.commit()
+        createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+        db.session.add(createAddress)
+        db.session.commit()
+        boardId = ''
+        if paramList[7] == 1:
+            boardId = 1001
+        elif paramList[7] == 2:
+            boardId = 1002
+        elif paramList[7] == 3:
+            boardId = 1005
+        else:
+            boardId = 1003
+        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N')
+        db.session.add(createSchool)
+        db.session.commit()
+        userDet = User.query.filter_by(id=createUser.id).first()
+        userDet.school_id = createSchool.school_id
+        db.session.commit()
+        teacherDet = TeacherProfile.query.filter_by(teacher_id=createTeacher.teacher_id).first()
+        teacherDet.school_id = createSchool.school_id
+        db.session.commit()
         return jsonify(['0'])
 
 
