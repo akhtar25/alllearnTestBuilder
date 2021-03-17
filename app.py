@@ -8830,6 +8830,7 @@ def registerSchool():
         db.session.add(createAddress)
         db.session.commit()
         boardId = ''
+        schoolType = ''
         if paramList[7] == 1:
             boardId = 1001
         elif paramList[7] == 2:
@@ -8838,7 +8839,15 @@ def registerSchool():
             boardId = 1005
         else:
             boardId = 1003
-        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N')
+        if paramList[6] == 1:
+            schoolType = 'Affordable private school'
+        elif paramList[6] == 2:
+            schoolType = 'NGO School'
+        elif paramList[6] == 3:
+            schoolType = 'Elite private school'
+        else: 
+            schoolType = 'Other' 
+        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
         db.session.add(createSchool)
         db.session.commit()
         userDet = User.query.filter_by(id=createUser.id).first()
