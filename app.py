@@ -8888,7 +8888,36 @@ def schoolList():
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
         data = data + '\n If your school is not in this list, please type 00'
-        return jsonify({'schoolNameList':data})           
+        return jsonify({'schoolNameList':data}) 
+
+@app.route('/registerTeacher',methods=['GET','POST'])
+def registerTeacher():
+    if request.method == 'POST':
+        print('inside registerTeacher')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])  
+        userDet = User.query.filter_by(phone=contactNo).first()        
+        createUser = User(username=paramList[1],school_id=userDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=145,phone=paramList[2],last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(contactNo)
+        db.session.add(createUser)
+        db.session.commit()
+        createTeacher = Teacher(teacher_name=paramList[0],school_id=userDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=paramList[2],device_preference=195)
+        db.session.add(createTeacher)
+        db.session.commit()
+        return jsonify({'teacherId':createTeacher.teacher_id})                
 
 @app.route('/registerNewStudent',methods=['GET','POST'])
 def registerNewStudent():
