@@ -8911,7 +8911,7 @@ def registerTeacher():
         print(paramList[1])  
         userDet = User.query.filter_by(phone=contactNo).first()        
         createUser = User(username=paramList[1],school_id=userDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=paramList[2],last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(contactNo)
+        createUser.set_password(paramList[2])
         db.session.add(createUser)
         db.session.commit()
         createTeacher = TeacherProfile(teacher_name=paramList[0],school_id=userDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=paramList[2],device_preference=195)
