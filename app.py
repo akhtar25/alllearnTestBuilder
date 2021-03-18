@@ -8914,7 +8914,7 @@ def registerTeacher():
         createUser.set_password(contactNo)
         db.session.add(createUser)
         db.session.commit()
-        createTeacher = Teacher(teacher_name=paramList[0],school_id=userDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=paramList[2],device_preference=195)
+        createTeacher = TeacherProfile(teacher_name=paramList[0],school_id=userDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=paramList[2],device_preference=195)
         db.session.add(createTeacher)
         db.session.commit()
         return jsonify({'teacherId':createTeacher.teacher_id})                
