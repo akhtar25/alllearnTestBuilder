@@ -8857,7 +8857,54 @@ def insertUserTeacherDetails():
         createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
         db.session.add(createTeacher)
         db.session.commit()  
-        return jsonify({'success':'success'})      
+        return jsonify({'success':'success'})  
+
+@app.route('/schoolList',methods=['GET','POST'])
+def schoolList():
+    if request.method == 'POST':
+        print('print schoolList')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        return jsonify({'success':'success'})           
+
+@app.route('/registerNewStudent',methods=['GET','POST'])
+def registerNewStudent():
+    if request.method == 'POST':
+        print('inside registerNewStudent')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+        createUser = User(username=paramList[2],school_id=schoolDet.school_id,email=paramList[2],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[1])
+        createUser.set_password(paramList[3])
+        db.session.add(createUser)
+        db.session.commit()
+        studentDet = StudentProfile.query.filter_by(school_id=paramList[0],registration_date=datetime.now(),)
 
 
 
