@@ -8910,7 +8910,7 @@ def registerTeacher():
             print(param)
         print(paramList[1])  
         userDet = User.query.filter_by(phone=contactNo).first()        
-        createUser = User(username=paramList[1],school_id=userDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=145,phone=paramList[2],last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser = User(username=paramList[1],school_id=userDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=paramList[2],last_modified_date=datetime.now(),first_name=paramList[0])
         createUser.set_password(contactNo)
         db.session.add(createUser)
         db.session.commit()
