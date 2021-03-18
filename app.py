@@ -8862,7 +8862,7 @@ def insertUserTeacherDetails():
 @app.route('/schoolList',methods=['GET','POST'])
 def schoolList():
     if request.method == 'POST':
-        print('print schoolList')
+        print('inside schoolList')
         jsonStudentData = request.json
         newData = json.dumps(jsonStudentData)
         data = json.loads(newData)
@@ -8878,7 +8878,17 @@ def schoolList():
         for param in paramList:
             print(param)
         print(paramList[1])
-        return jsonify({'success':'success'})           
+        schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
+        print(schoolDetQuery)
+        schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
+        data = 'Please type the school id of your school from the list'
+        i=0
+        if len(schoolDet) != 0:
+            for school in schoolDet:
+                data = data + str(i)+ str(' ') + str(school.school_id)+str(' ')+str(school.school_name)+str('\n')
+                i = i +1
+        data = data + '\n If your school is not in this list, please type 00'
+        return jsonify({schoolNameList:data})           
 
 @app.route('/registerNewStudent',methods=['GET','POST'])
 def registerNewStudent():
