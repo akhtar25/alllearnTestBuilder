@@ -8909,7 +8909,19 @@ def registerNewStudent():
         for param in paramList:
             print(param)
         print(paramList[1])
-    return jsonify({'success':'success'})
+        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(contactNo)
+        db.session.add(createUser)
+        db.session.commit()
+        clas = paramList[2].split['-'][0]
+        section = paramList[2].split['-'][1]
+        print('Class'+str(clas))
+        print('Section'+str(section))
+        classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
+        createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
+        db.session.add(createStudent)
+        db.session.commit()
+    return jsonify({studentId:createStudent.student_id})
 
 
 @app.route('/registerSchool',methods=['GET','POST'])
