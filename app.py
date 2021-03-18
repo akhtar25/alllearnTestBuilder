@@ -8917,7 +8917,41 @@ def registerTeacher():
         createTeacher = TeacherProfile(teacher_name=paramList[0],school_id=userDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=paramList[2],device_preference=195)
         db.session.add(createTeacher)
         db.session.commit()
-        return jsonify({'teacherId':createTeacher.teacher_id})                
+        return jsonify({'teacherId':createTeacher.teacher_id})  
+
+@app.route('/registerStudent',methods=['GET','POST'])
+def registerStudent():
+    if request.method == 'POST':
+        print('inside registerNewStudent')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        userDet = User.query.filter_by(phone=contactNo).first()
+        createUser = User(username=paramList[2],school_id=userDet.school_id,email=paramList[2],last_seen=datetime.now(),user_type=134,access_status=145,phone=paramList[1],last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(paramList[1])
+        db.session.add(createUser)
+        db.session.commit()
+        clas = paramList[3].split('-')[0]
+        section = paramList[3].split('-')[1]
+        print('Class'+str(clas))
+        print('Section'+str(section))
+        classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
+        createStudent = StudentProfile(school_id=userDet.school_id,registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[2],phone=paramList[1],user_id=createUser.id,is_archived='N')
+        db.session.add(createStudent)
+        db.session.commit()        
+        return jsonify({'studentId':createStudent.student_id})
 
 @app.route('/registerNewStudent',methods=['GET','POST'])
 def registerNewStudent():
