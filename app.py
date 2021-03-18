@@ -8888,7 +8888,7 @@ def schoolList():
                 data = data + str(i)+ str(' ') + str(school.school_id)+str(' ')+str(school.school_name)+str('\n')
                 i = i +1
         data = data + '\n If your school is not in this list, please type 00'
-        return jsonify({schoolNameList:data})           
+        return jsonify({'schoolNameList':data})           
 
 @app.route('/registerNewStudent',methods=['GET','POST'])
 def registerNewStudent():
