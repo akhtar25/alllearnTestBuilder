@@ -8913,8 +8913,8 @@ def registerNewStudent():
         createUser.set_password(contactNo)
         db.session.add(createUser)
         db.session.commit()
-        clas = paramList[2].split['-'][0]
-        section = paramList[2].split['-'][1]
+        clas = paramList[2].split('-')[0]
+        section = paramList[2].split('-')[1]
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
