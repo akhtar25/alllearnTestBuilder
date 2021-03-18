@@ -8921,7 +8921,7 @@ def registerNewStudent():
         createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()
-    return jsonify({studentId:createStudent.student_id})
+    return jsonify({'studentId':createStudent.student_id})
 
 
 @app.route('/registerSchool',methods=['GET','POST'])
