@@ -8819,14 +8819,15 @@ def accessRegisteredSchool():
             print(param)
         print(paramList[1])
         schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
-        createUser = User(username=paramList[1],school_id=schoolDet.school_id,email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(paramList[2])
+        createUser = User(username=paramList[2],school_id=schoolDet.school_id,email=paramList[2],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[1])
+        createUser.set_password(paramList[3])
         db.session.add(createUser)
         db.session.commit()
-        createTeacher = TeacherProfile(teacher_name=paramList[0],school_id=schoolDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
+        createTeacher = TeacherProfile(teacher_name=paramList[1],school_id=schoolDet.school_id,designation=148,registration_date=datetime.now(),email=paramList[2],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
         db.session.add(createTeacher)
         db.session.commit() 
         schoolDet.school_admin = createTeacher.teacher_id
+        db.session.commit()
         return jsonify({'success':'success'})  
                 
 
