@@ -9356,7 +9356,7 @@ def insertTestData():
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'no questions available'
