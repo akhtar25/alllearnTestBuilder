@@ -9426,13 +9426,8 @@ def insertTestData():
         #deleting file from temporary location after upload to s3
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-
-        testDetailsUpd = TestDetails(test_type=str(paramList[11]), total_marks=str(count_marks),last_modified_date= datetime.now(),
-            board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=teacher_id.school_id, teacher_id=teacher_id)
-        db.session.add(testDetailsUpd)
-        db.session.commit()  
-        return jsonify[{'success','success'}]      
+ 
+        return jsonify({'fileName',file_name_val})      
 
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
