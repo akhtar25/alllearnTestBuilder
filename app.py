@@ -9427,7 +9427,7 @@ def insertTestData():
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         print(file_name_val)
-        return jsonify({'fileName',file_name_val})      
+        return jsonify({'fileName':file_name_val})      
 
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
