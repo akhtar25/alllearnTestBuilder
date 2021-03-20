@@ -9253,15 +9253,15 @@ def getEnteredTopicList():
 @app.route('/insertTestData',methods=['GET','POST'])
 def insertTestData():
     if request.method == 'POST':
-        print('newTestLinkGenerate')
+        print('inside insertTestData')
         jsonExamData = request.json
         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         a = json.dumps(jsonExamData)
         z = json.loads(a)
         paramList = []
         conList = []
-        # print(z['result'].class_val)
-        # print(z['result'])
+        print('data:')
+        print(z)
         for data in z['results'].values():
             
             paramList.append(data)
@@ -9271,163 +9271,157 @@ def insertTestData():
         print(paramList)
 
         print(conList[2])
-        # Test for topic
         print('Testing for topic')
         print(type(paramList[1]))
         print(int(paramList[1]))
         # 
-        print('Data Contact')
-        # print(conList[2])
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
-        classList = [] 
-        j=1
-        for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)
-            classList.append(classVal)
-            j=j+1
+        # print('Data Contact')
+        # contactNo = conList[2][-10:]
+        # print(contactNo)
+        # userId = User.query.filter_by(phone=contactNo).first()
+        # teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        # classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        # classList = [] 
+        # j=1
+        # for classlist in classesListData:
+        #     classVal = str(j)+str(' - ')+str(classlist.class_val)
+        #     classList.append(classVal)
+        #     j=j+1
         
-        selClass = ''
-        print('Selected Class option:')
-        print(paramList[4])
-        for className in classList:
-            num = className.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[4]))
-            if int(num) == int(paramList[4]):
-                print(className)
-                selClass = className.split('-')[1]
-                print('selClass:'+str(selClass))
-        print('class')
-        selClass = selClass.strip()
-        print(selClass)
-        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
-        print(subQuery)
-        subjectData = db.session.execute(text(subQuery)).fetchall()
-        print(subjectData)
-        subjectList = []
-        k=1
-        subId = ''
-        for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)
-            subjectList.append(sub)
-            k=k+1
-        for subjectName in subjectList:
-            num = subjectName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[2]))
-            if int(num) == int(paramList[2]):
-                print(subjectName)
-                selSubject = subjectName.split('-')[1]
-                print('selSubject:'+str(selSubject))
+        # selClass = ''
+        # print('Selected Class option:')
+        # print(paramList[4])
+        # for className in classList:
+        #     num = className.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(paramList[4]))
+        #     if int(num) == int(paramList[4]):
+        #         print(className)
+        #         selClass = className.split('-')[1]
+        #         print('selClass:'+str(selClass))
+        # print('class')
+        # selClass = selClass.strip()
+        # print(selClass)
+        # subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        # print(subQuery)
+        # subjectData = db.session.execute(text(subQuery)).fetchall()
+        # print(subjectData)
+        # subjectList = []
+        # k=1
+        # subId = ''
+        # for subj in subjectData:
+        #     sub = str(k)+str('-')+str(subj.subject)
+        #     subjectList.append(sub)
+        #     k=k+1
+        # for subjectName in subjectList:
+        #     num = subjectName.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(paramList[2]))
+        #     if int(num) == int(paramList[2]):
+        #         print(subjectName)
+        #         selSubject = subjectName.split('-')[1]
+        #         print('selSubject:'+str(selSubject))
                 
-        print('Subject:')
-        selSubject = selSubject.strip()
-        # Start for topic
-        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-        subId = subQuery.msg_id
-        print(selSubject)
-        print('SubId:'+str(subId))
-        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-        print('Query:'+str(extractChapterQuery))
-        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-        print(extractChapterData)
-        c=1
-        chapterDetList = []
-        for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
-            chapterDetList.append(chap)
-            c=c+1
-        selChapter = ''
-        for chapterName in chapterDetList:
-            num = chapterName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[1]))
-            if int(num) == int(paramList[1]):
-                print(chapterName)
-                selChapter = chapterName.split('-')[1]
-                print('selChapter:'+str(selChapter))
-        #End topic
-        selChapter = selChapter.strip()
-        print('Chapter'+str(selChapter))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'no questions available'
-        print('fetchQuesIds:'+str(fetchQuesIds))
-        if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'onlineTestLink':msg})
-        listLength = len(fetchQuesIds)
-        count_marks = int(paramList[0]) * int(listLength)
+        # print('Subject:')
+        # selSubject = selSubject.strip()
+        # subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        # subId = subQuery.msg_id
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        # print('Query:'+str(extractChapterQuery))
+        # extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        # print(extractChapterData)
+        # c=1
+        # chapterDetList = []
+        # for chapterDet in extractChapterData:
+        #     chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+        #     chapterDetList.append(chap)
+        #     c=c+1
+        # selChapter = ''
+        # for chapterName in chapterDetList:
+        #     num = chapterName.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(paramList[1]))
+        #     if int(num) == int(paramList[1]):
+        #         print(chapterName)
+        #         selChapter = chapterName.split('-')[1]
+        #         print('selChapter:'+str(selChapter))
+        # selChapter = selChapter.strip()
+        # print('Chapter'+str(selChapter))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'no questions available'
+        # print('fetchQuesIds:'+str(fetchQuesIds))
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'onlineTestLink':msg})
+        # listLength = len(fetchQuesIds)
+        # count_marks = int(paramList[0]) * int(listLength)
         
-        subjId = ''
-        topicID = ''
-        boardID = ''
-        for det in fetchQuesIds:
-            subjId = det.subject_id
-            topicID = det.topic_id
-            boardID = det.board_id
-            break
-        print('subjId:'+str(subjId))
-        print(fetchQuesIds)
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
-        resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        print('inside insertData')
+        # subjId = ''
+        # topicID = ''
+        # boardID = ''
+        # for det in fetchQuesIds:
+        #     subjId = det.subject_id
+        #     topicID = det.topic_id
+        #     boardID = det.board_id
+        #     break
+        # print('subjId:'+str(subjId))
+        # print(fetchQuesIds)
+        # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+        # resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+        # print('inside insertData')
         
-        format = "%Y-%m-%d %H:%M:%S"
-        schoolQuery = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        schoolName = schoolQuery.school_name
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
-        subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
-        document = Document()
-        document.add_heading(schoolName, 0)
-        document.add_heading('Class '+str(selClass)+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
-        document.add_heading("Subject : "+str(subjectQuery.description),2)
-        document.add_heading("Total Marks : "+str(count_marks),3)
-        p = document.add_paragraph()
-        for question in fetchQuesIds:
-            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-            #add question desc
-            document.add_paragraph(
-                data.question_description, style='List Number'
-            )    
-            print(data.reference_link)
-            if data.reference_link!='' or data.reference_link!=None:
-                print('inside threadUse if ')
-                print(data.reference_link)
-                try:
-                    response = requests.get(data.reference_link, stream=True)
-                    image = BytesIO(response.content)
-                    document.add_picture(image, width=Inches(1.25))
-                except:
-                    pass
-            for option in options:
-                if option.option_desc is not None:
-                    document.add_paragraph(
-                        option.option+". "+option.option_desc) 
-        cl = selClass.replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+        # format = "%Y-%m-%d %H:%M:%S"
+        # schoolQuery = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        # schoolName = schoolQuery.school_name
+        # now_utc = datetime.now(timezone('UTC'))
+        # now_local = now_utc.astimezone(get_localzone())
+        # print('Date of test creation:'+str(now_local.strftime(format)))
+        # subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
+        # document = Document()
+        # document.add_heading(schoolName, 0)
+        # document.add_heading('Class '+str(selClass)+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        # document.add_heading("Subject : "+str(subjectQuery.description),2)
+        # document.add_heading("Total Marks : "+str(count_marks),3)
+        # p = document.add_paragraph()
+        # for question in fetchQuesIds:
+        #     data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+        #     options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        #     document.add_paragraph(
+        #         data.question_description, style='List Number'
+        #     )    
+        #     print(data.reference_link)
+        #     if data.reference_link!='' or data.reference_link!=None:
+        #         print('inside threadUse if ')
+        #         print(data.reference_link)
+        #         try:
+        #             response = requests.get(data.reference_link, stream=True)
+        #             image = BytesIO(response.content)
+        #             document.add_picture(image, width=Inches(1.25))
+        #         except:
+        #             pass
+        #     for option in options:
+        #         if option.option_desc is not None:
+        #             document.add_paragraph(
+        #                 option.option+". "+option.option_desc) 
+        # cl = selClass.replace("/","-")
+        # file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
    
-        if not os.path.exists('tempdocx'):
-            os.mkdir('tempdocx')
-        document.save('tempdocx/'+file_name.replace(" ", ""))
-        #uploading to s3 bucket
-        client = boto3.client('s3', region_name='ap-south-1')
-        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
-        #deleting file from temporary location after upload to s3
-        os.remove('tempdocx/'+file_name.replace(" ", ""))
-        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-        print(file_name_val)
+        # if not os.path.exists('tempdocx'):
+        #     os.mkdir('tempdocx')
+        # document.save('tempdocx/'+file_name.replace(" ", ""))
+        # client = boto3.client('s3', region_name='ap-south-1')
+        # client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
+        # os.remove('tempdocx/'+file_name.replace(" ", ""))
+        # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+        # print(file_name_val)
+        file_name_val = 'newFile'
         return jsonify({'fileName':file_name_val})      
 
 
