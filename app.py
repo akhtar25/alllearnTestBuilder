@@ -8347,7 +8347,7 @@ def getTopicList():
             c=c+1
         msg = 'no topics available'
         if chapterDetList:
-            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject})
+            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id})
         else:
             return jsonify({'chapterDetList':msg})
 
@@ -9278,8 +9278,8 @@ def insertTestData():
         print('Data Contact')
         contactNo = conList[2][-10:]
         print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        userId = paramList[14]
+        teacher_id = paramList[15]
         # classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         # classList = [] 
         # j=1
@@ -9324,8 +9324,8 @@ def insertTestData():
                 
         # print('Subject:')
         selSubject = paramList[13]
-        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-        subId = subQuery.msg_id
+        # subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = paramList[16]
         print(selSubject)
         print('SubId:'+str(subId))
         extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
@@ -9373,21 +9373,21 @@ def insertTestData():
             break
         print('subjId:'+str(subjId))
         print(fetchQuesIds)
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+        # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         print('inside insertData')
-        
+        school_id = paramList[17]
         format = "%Y-%m-%d %H:%M:%S"
-        schoolQuery = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        schoolQuery = SchoolProfile.query.filter_by(school_id=school_id).first()
         schoolName = schoolQuery.school_name
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
+        # subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
         document = Document()
         document.add_heading(schoolName, 0)
         document.add_heading('Class '+str(selClass)+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
-        document.add_heading("Subject : "+str(subjectQuery.description),2)
+        document.add_heading("Subject : "+str(selSubject),2)
         document.add_heading("Total Marks : "+str(count_marks),3)
         p = document.add_paragraph()
         for question in fetchQuesIds:
@@ -9411,7 +9411,7 @@ def insertTestData():
                     document.add_paragraph(
                         option.option+". "+option.option_desc) 
         cl = selClass.replace("/","-")
-        file_name=str(teacher_id.school_id)+str(cl)+str(subjectQuery.description)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+        file_name=str(school_id)+str(cl)+str(selSubject)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
    
         if not os.path.exists('tempdocx'):
             os.mkdir('tempdocx')
