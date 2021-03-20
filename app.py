@@ -9298,8 +9298,9 @@ def addTestDet():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        msg = 'No questions available'
         if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'onlineTestLink':msg})
+            return jsonify({'testId':msg})
         listLength = len(fetchQuesIds)
         total_marks = int(paramList[0]) * int(listLength)
         boardID = paramList[20]
@@ -9310,6 +9311,10 @@ def addTestDet():
         school_id = paramList[17]
         teacher_id = paramList[15]
         resp_session_id = paramList[22]
+        format = "%Y-%m-%d %H:%M:%S"
+        now_utc = datetime.now(timezone('UTC'))
+        now_local = now_utc.astimezone(get_localzone())
+        print('Date of test creation:'+str(now_local.strftime(format)))
         classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
         class_sec_id = classDet.class_sec_id
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
@@ -9320,7 +9325,7 @@ def addTestDet():
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
         db.session.add(sessionDetailRowInsert)
-        for questionVal in question_ids:
+        for questionVal in fetchQuesIds:
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
         db.session.commit()
