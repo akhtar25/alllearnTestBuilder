@@ -9410,8 +9410,7 @@ def generateNewTestLink():
         for linkData in newData['url'].values():
             linkList.append(linkData)
         finalLink = linkList[3]
-        newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
-        print('newLink'+str(newLink))
+        newLink = finalLink
         return jsonify({'onlineTestLink':newLink,'testId':testId})        
 
 
