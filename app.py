@@ -9330,9 +9330,72 @@ def addTestDet():
             db.session.add(testQuestionInsert)
         db.session.commit()
         testId = testDetailsUpd.test_id
-        clasVal = class_val.replace('_','@')
+        # clasVal = class_val.replace('_','@')
+        # testType = paramList[11].replace('_','@')
+        # linkForTeacher=url_for('testLinkWhatsappBot',testType=str(test_type),totalMarks=str(total_marks),respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=classDet.section,subjectId=subjId,phone=contactNo, _external=True)
+        # key = '265e29e3968fc62f68da76a373e5af775fa60'
+        # url = urllib.parse.quote(linkForTeacher)
+        # name  = ''
+        # r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        # print('New Link')
+        # print(r.text)
+        # print(type(r.text))
+        # linkList = []
+        # jsonLink = json.dumps(r.text)
+        # newData = json.loads(r.text)
+        # print(type(newData))
+        # for linkData in newData['url'].values():
+        #     linkList.append(linkData)
+        # finalLink = linkList[3]
+        # newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+        # print('newLink'+str(newLink))
+        # return jsonify({'onlineTestLink':newLink,'testId':testId}) 
+        return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+
+@app.route('/generateNewTestLink',methods=['GET','POST'])
+def generateNewTestLink():
+    if request.method == 'POST':
+        print('inside generateNewTestLink')
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
+            
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = paramList[14]
+        teacher_id = paramList[15]
+            
+        selClass = paramList[12]
+            
+        selSubject = paramList[13]
+        subId = paramList[16]
+        total_marks = paramList[25]
+        section = paramList[24]
+        testId = paramList[23]
+        resp_session_id = paramList[22]
+        print(selSubject)
+        print('SubId:'+str(subId))
+        selChapter = paramList[19]
+        print('Chapter'+str(selChapter))
+        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        clasVal = selClass.replace('_','@')
         testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=str(test_type),totalMarks=str(total_marks),respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=classDet.section,subjectId=subjId,phone=contactNo, _external=True)
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=str(testType),totalMarks=str(total_marks),respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=section,subjectId=subId,phone=contactNo, _external=True)
         key = '265e29e3968fc62f68da76a373e5af775fa60'
         url = urllib.parse.quote(linkForTeacher)
         name  = ''
@@ -9349,7 +9412,8 @@ def addTestDet():
         finalLink = linkList[3]
         newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
         print('newLink'+str(newLink))
-        return jsonify({'onlineTestLink':newLink,'testId':testId})    
+        return jsonify({'onlineTestLink':newLink,'testId':testId})        
+
 
 @app.route('/getTestPaperLinkNew',methods=['GET','POST'])
 def getTestPaperLinkNew():
