@@ -8347,7 +8347,7 @@ def getTopicList():
             c=c+1
         msg = 'no topics available'
         if chapterDetList:
-            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId,'teacher_id':teacher_id})
+            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject})
         else:
             return jsonify({'chapterDetList':msg})
 
@@ -9269,7 +9269,7 @@ def insertTestData():
         for con in z['contact'].values():
             conList.append(con)
         print(paramList)
-        
+
         print(conList[2])
         # Test for topic
         print('Testing for topic')
