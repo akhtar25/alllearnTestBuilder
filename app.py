@@ -9437,7 +9437,7 @@ def getTestPaperLinkNew():
         testId = paramList[0]
         testPaperDet = TestDetails.query.filter_by(test_id=testId).first()
         test_paper = testPaperDet.test_paper_link
-        return jsonify({'testPaper':testPaper})                  
+        return jsonify({'testPaper':test_paper})                  
 
 
 @app.route('/insertTestData',methods=['GET','POST'])
