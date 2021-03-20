@@ -8284,6 +8284,7 @@ def getTopicList():
         print(contactNo)
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         classList = [] 
         j=1
@@ -8347,7 +8348,7 @@ def getTopicList():
             c=c+1
         msg = 'no topics available'
         if chapterDetList:
-            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id})
+            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})
         else:
             return jsonify({'chapterDetList':msg})
 
@@ -9378,8 +9379,8 @@ def insertTestData():
         print('inside insertData')
         school_id = paramList[17]
         format = "%Y-%m-%d %H:%M:%S"
-        schoolQuery = SchoolProfile.query.filter_by(school_id=school_id).first()
-        schoolName = schoolQuery.school_name
+        # schoolQuery = SchoolProfile.query.filter_by(school_id=school_id).first()
+        schoolName = paramList[18]
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
