@@ -9256,76 +9256,76 @@ def getEnteredTopicList():
 def addTestDet():
     if request.method == 'POST':
         print('insert addTestDet')
-            jsonExamData = request.json
+        jsonExamData = request.json
             # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
-            a = json.dumps(jsonExamData)
-            z = json.loads(a)
-            paramList = []
-            conList = []
-            print('data:')
-            print(z)
-            for data in z['results'].values():
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
                 
-                paramList.append(data)
-                print('data:'+str(data))
-            for con in z['contact'].values():
-                conList.append(con)
-            print(paramList)
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
 
-            print(conList[2])
-            print('Testing for topic')
-            print(type(paramList[1]))
-            print(int(paramList[1]))
+        print(conList[2])
+        print('Testing for topic')
+        print(type(paramList[1]))
+        print(int(paramList[1]))
             # 
-            print('Data Contact')
-            contactNo = conList[2][-10:]
-            print(contactNo)
-            userId = paramList[14]
-            teacher_id = paramList[15]
+        print('Data Contact')
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = paramList[14]
+        teacher_id = paramList[15]
             
-            selClass = paramList[12]
+        selClass = paramList[12]
             
-            selSubject = paramList[13]
-            subId = paramList[16]
-            print(selSubject)
-            print('SubId:'+str(subId))
-            selChapter = paramList[19]
-            print('Chapter'+str(selChapter))
-            dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-            fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
-            print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-            fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-            if len(fetchQuesIds)==0 or fetchQuesIds=='':
-                return jsonify({'onlineTestLink':msg})
-            listLength = len(fetchQuesIds)
-            total_marks = int(paramList[0]) * int(listLength)
-            boardID = paramList[20]
-            test_type = paramList[11]
-            subjId = paramList[16]
-            class_val = paramList[4]
-            file_name_val = paramList[21]
-            school_id = paramList[17]
-            teacher_id = paramList[15]
-            resp_session_id = paramList[22]
-            classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
-            class_sec_id = classDet.class_sec_id
-            testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
-                board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-                date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id, teacher_id=teacher_id)
-            db.session.add(testDetailsUpd)
-            db.session.commit()
-            sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-                test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
-            db.session.add(sessionDetailRowInsert)
-            for questionVal in question_ids:
-                testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-                db.session.add(testQuestionInsert)
-            db.session.commit()
-            testId = testDetailsUpd.test_id
-            return jsonify({'testId':testId})        
+        selSubject = paramList[13]
+        subId = paramList[16]
+        print(selSubject)
+        print('SubId:'+str(subId))
+        selChapter = paramList[19]
+        print('Chapter'+str(selChapter))
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        if len(fetchQuesIds)==0 or fetchQuesIds=='':
+            return jsonify({'onlineTestLink':msg})
+        listLength = len(fetchQuesIds)
+        total_marks = int(paramList[0]) * int(listLength)
+        boardID = paramList[20]
+        test_type = paramList[11]
+        subjId = paramList[16]
+        class_val = paramList[4]
+        file_name_val = paramList[21]
+        school_id = paramList[17]
+        teacher_id = paramList[15]
+        resp_session_id = paramList[22]
+        classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+        class_sec_id = classDet.class_sec_id
+        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+            board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id, teacher_id=teacher_id)
+        db.session.add(testDetailsUpd)
+        db.session.commit()
+        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+        db.session.add(sessionDetailRowInsert)
+        for questionVal in question_ids:
+            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+            db.session.add(testQuestionInsert)
+        db.session.commit()
+        testId = testDetailsUpd.test_id
+        return jsonify({'testId':testId})        
 
 
 @app.route('/insertTestData',methods=['GET','POST'])
