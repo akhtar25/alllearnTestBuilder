@@ -1,1 +1,1 @@
-web: gunicorn --bind :8000 --workers 3 --threads 2 --wsgi-file app.py
+web: uwsgi --https :8000 --wsgi-file app.py --master --processes 3 --threads 2
