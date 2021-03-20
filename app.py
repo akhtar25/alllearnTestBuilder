@@ -9330,7 +9330,51 @@ def addTestDet():
             db.session.add(testQuestionInsert)
         db.session.commit()
         testId = testDetailsUpd.test_id
-        return jsonify({'testId':testId})        
+        clasVal = class_val.replace('_','@')
+        testType = paramList[11].replace('_','@')
+        linkForTeacher=url_for('testLinkWhatsappBot',testType=str(test_type),totalMarks=str(total_marks),respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=classDet.section,subjectId=subjId,phone=contactNo, _external=True)
+        key = '265e29e3968fc62f68da76a373e5af775fa60'
+        url = urllib.parse.quote(linkForTeacher)
+        name  = ''
+        r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+        print('New Link')
+        print(r.text)
+        print(type(r.text))
+        linkList = []
+        jsonLink = json.dumps(r.text)
+        newData = json.loads(r.text)
+        print(type(newData))
+        for linkData in newData['url'].values():
+            linkList.append(linkData)
+        finalLink = linkList[3]
+        newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+        print('newLink'+str(newLink))
+        return jsonify({'onlineTestLink':newLink,'testId':testId})    
+
+@app.route('/getTestPaperLink',methods=['GET','POST'])
+def getTestPaperLink():
+    if request.method == 'POST':
+        print('inside getTestPaperLink')
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
+            
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        testId = paramList[0]
+        testPaperDet = TestDetails.query.filter_by(test_id=testId).first()
+        test_paper = testPaperDet.test_paper_link
+        return jsonify({'testPaper':testPaper})                  
 
 
 @app.route('/insertTestData',methods=['GET','POST'])
