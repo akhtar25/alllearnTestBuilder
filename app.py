@@ -9351,8 +9351,8 @@ def addTestDet():
         print('newLink'+str(newLink))
         return jsonify({'onlineTestLink':newLink,'testId':testId})    
 
-@app.route('/getTestPaperLink',methods=['GET','POST'])
-def getTestPaperLink():
+@app.route('/getTestPaperLinkNew',methods=['GET','POST'])
+def getTestPaperLinkNew():
     if request.method == 'POST':
         print('inside getTestPaperLink')
         jsonExamData = request.json
