@@ -1,5 +1,5 @@
 {%extends "layout.html"%} {%block content%}
-<div class="container" height=100%>
+<div class="container" height=100% style='width:1086px;'>
   <div>
     <section class="content">
       <div class="row">
@@ -20,7 +20,7 @@
               <input id="section_ip" style="display: none;" type="text" value="{{section}}">
               <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
               <div id="questionSection">
-                <div id="questionPlaceholder" style="overflow-y: auto;max-height: 400px;">
+                <div id="questionPlaceholder" style="overflow-y: auto;max-height: 400px;overflow-x: hidden;">
 
                   {% if questionListSize > 0 %}                                      
                     <br><br>
@@ -29,7 +29,7 @@
                         <tr>
                           <th scope="col" style="text-align:left;padding-left:20px;">Question</th>
                           <th scope="col" style="text-align:left;padding-left:20px;">Type</th>
-                          <th scope="col" style="text-align:left;padding-left:20px;">Weightage</th>
+                          <th scope="col" style="text-align:left;padding-left:10px;">Weightage</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -108,11 +108,11 @@
                   </div>
           </div>
           {% if questionListSize > 0 %} 
-          <div class="col-xs-3" style="margin-top:20px;">   
+          <div class="col-xs-5" style="margin-top:-10px;">   
             {%if batch_test!="1"%}
             <div id="answerCounter" >
               <h4 style="margin-left:30px;">To write this test</h4>
-              <ol style="width:372px;">
+              <ol style="">
                 <li>
                   Logon to this URL: 
                   
@@ -121,7 +121,7 @@
                       {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
                     </div>
                   </a>  -->
-                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="width:333px;text-overflow: ellipsis;" id="myInput" readonly>
+                  <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="text-overflow: ellipsis;" id="myInput" readonly>
                   <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
                 </li>
                   <br>

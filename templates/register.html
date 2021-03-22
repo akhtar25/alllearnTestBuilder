@@ -1,104 +1,209 @@
 {% extends "layout.html" %} {% block content %}
 
 <div class="container center" style="text-align: left; margin-bottom: 20px">
+  {% if session['primary_color'] %}
   <div
     class="col-xs-6 hoverable z-depth-1"
     style="
       margin-left: 20%;
       border-radius: 25px;
-      border: 2px solid #73ad21;
+      border: 2px solid {{session['primary_color']}} !important;;
       padding: 10px;
     "
   >
-    <div class="input-field">
-      <!--            <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />-->
-      <div class="row">
-        <h2 style="color: Green; margin-left: 12px">Register</h2>
-      </div>
-      <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <!--<p>
+    {% elif primaryColor %}
+    <div
+      class="col-xs-6 hoverable z-depth-1"
+      style="
+      margin-left: 20%;
+      border-radius: 25px;
+      border: 2px solid {{primaryColor}} !important;
+      padding: 10px;
+    "
+    >
+      {% else %}
+      <div
+        class="col-xs-6 hoverable z-depth-1"
+        style="
+          margin-left: 20%;
+          border-radius: 25px;
+          border: 2px solid #73ad21;
+          padding: 10px;
+        "
+      >
+        {% endif %}
+        <div class="input-field">
+          <!--            <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />-->
+          <div class="row">
+            {% if session['primary_color'] %}
+            <h2
+              style="color: {{session['primary_color']}} !important; margin-left: 12px"
+            >
+              Register
+            </h2>
+            {% elif primaryColor %}
+            <h2 style="color: {{primaryColor}} !important; margin-left: 12px">
+              Register
+            </h2>
+            {% else %}
+            <h2 style="color: Green; margin-left: 12px">Register</h2>
+            {% endif %}
+          </div>
+          <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <!--<p>
         form.username.label 
         <br>  form.username(size=32) 
         <br> for error in form.username.errors 
         <span style="color: red;">[ error ]</span>
          endfor 
     </p>-->
-        <div class="row">
-          <div class="col-xs-6">
-            {{ form.first_name.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.first_name(size=64,style='font-size:14px') }} <br />
-            {% for error in form.first_name.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
-          <div class="col-xs-6">
-            <!--above is first name below is last name-->
-            {{ form.last_name.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.last_name(size=64,style='font-size:14px') }} <br />
-            {% for error in form.last_name.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
-        </div>
+            <div class="row">
+              <div class="col-xs-6">
+                {{ form.first_name.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.first_name(size=64,style='font-size:14px') }} <br />
+                {% for error in form.first_name.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="col-xs-6">
+                <!--above is first name below is last name-->
+                {{ form.last_name.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.last_name(size=64,style='font-size:14px') }} <br />
+                {% for error in form.last_name.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+            </div>
 
-        <div class="row">
-          <div class="col-xs-6">
-            {{ form.email.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.email(size=64,style='font-size:14px') }} <br />
-            {% for error in form.email.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
-          <div class="col-xs-6">
-            {{ form.phone.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.phone(size=12,style='font-size:14px') }} <br />
-            {% for error in form.phone.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
+            <div class="row">
+              <div class="col-xs-6">
+                {{ form.email.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.email(size=64,style='font-size:14px') }} <br />
+                {% for error in form.email.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="col-xs-3" id="phoneText">
+                {{ form.phone.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.phone(size=12,style='font-size:14px',id='phone') }}
+                <br />
+                {% for error in form.phone.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="col-xs-3" id="otpText" style="display: none">
+                <label style="color: green; font-weight: 400">OTP</label><br />
+                <input type="number" id="otp" />
+              </div>
+              <div class="col-xs-3" style="margin-left: -20px">
+                <label style="float: right; font-weight: 400; margin-top: 20px">
+                  <a href="javascript:void(0)" id="generateOTPBtn"
+                    >Verify number</a
+                  >
+                </label>
+                <!-- <button
+                  class="btn waves-light green lighten-1 white-text"
+                  id="generateOTPBtn"
+                  style="margin-left: -5px"
+                  disabled
+                >
+                  
+                </button> -->
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-6">
+                {{ form.password.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.password(size=32,style='font-size:14px') }} <br />
+                {% for error in form.password.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="col-xs-6">
+                {{ form.password2.label(style='color:green;font-weight:400') }}
+                <br />
+                {{ form.password2(size=32,style='font-size:14px') }} <br />
+                {% for error in form.password2.errors %}
+                <span style="color: red">{{ error }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="row center">
+              {% if session['primary_color'] %}
+              <button
+                class="btn-large waves-effect green white-text"
+                type="submit"
+                style="background-color:{{session['primary_color']}} !important;"
+              >
+                Sign Up
+              </button>
+              {% elif primaryColor %}
+              <button
+                class="btn-large waves-effect green white-text"
+                type="submit"
+                style="background-color:{{primaryColor}} !important;"
+              >
+                Sign Up
+              </button>
+              {% else %}
+              <button
+                class="btn-large waves-effect green white-text"
+                type="submit"
+              >
+                Sign Up
+              </button>
+              {% endif %}
+            </div>
+          </form>
         </div>
-        <div class="row">
-          <div class="col-xs-6">
-            {{ form.password.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.password(size=32,style='font-size:14px') }} <br />
-            {% for error in form.password.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
-          <div class="col-xs-6">
-            {{ form.password2.label(style='color:green;font-weight:400') }}
-            <br />
-            {{ form.password2(size=32,style='font-size:14px') }} <br />
-            {% for error in form.password2.errors %}
-            <span style="color: red">{{ error }}</span>
-            {% endfor %}
-          </div>
+        <div class="center">
+          <h6>
+            By clicking Sign Up, you agree to our
+            <a href="../static/docs/termsAndConditions.pdf" target="_blank"
+              >Terms</a
+            >
+            and
+            <a href="{{url_for('privacyPolicy')}}" target="_blank"
+              >Privacy Policy</a
+            >. <br />You may receive SMS or email notifications from us and can
+            opt out at any time.
+          </h6>
         </div>
-        <div class="row center">
-          <button class="btn-large waves-effect green white-text" type="submit">
-            Sign Up
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
-    <div class="center">
-      <h6>
-        By clicking Sign Up, you agree to our
-        <a href="../static/docs/termsAndConditions.pdf" target="_blank"
-          >Terms</a
-        >
-        and
-        <a href="{{url_for('privacyPolicy')}}" target="_blank">Privacy Policy</a
-        >. <br />You may receive SMS or email notifications from us and can opt
-        out at any time.
-      </h6>
-    </div>
+    <script>
+      $(document).ready(function () {
+        console.log("inside document");
+        $("#phone").keyup(function () {
+          console.log("inside myFunction");
+          $("#generateOTPBtn").prop("disabled", false);
+        });
+      });
+
+      $("#generateOTPBtn").click(function () {
+        var phone = $("#phone").val();
+        console.log(phone);
+        $("#otpText").show();
+        $("#phoneText").hide();
+        $.ajax({
+          url: "/generateOTP?phone=" + phone,
+          type: "get",
+          data: "",
+          success: function (response) {
+            console.log("inside generateOTP");
+          },
+          error: function (xhr) {
+            window.alert("Error occured while sending otp");
+          },
+        });
+      });
+    </script>
+    {% endblock %}
   </div>
 </div>
-{% endblock %}

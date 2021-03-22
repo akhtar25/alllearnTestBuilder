@@ -633,6 +633,8 @@ class SchoolProfile(db.Model):
     font =  db.Column(db.String(500),nullable=True)
     primary_color =  db.Column(db.String(500),nullable=True)
     sub_domain =  db.Column(db.String(500),nullable=True)
+    google_login = db.Column(db.String(1), nullable=True)
+    show_school_name = db.Column(db.String(1), nullable=True)
     last_modified_date=db.Column(db.DateTime)
 
 class TeacherProfile(db.Model):
