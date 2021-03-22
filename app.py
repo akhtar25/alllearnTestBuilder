@@ -9188,7 +9188,6 @@ def getEnteredTopicList():
       
         z = json.loads(a)
         
-        
         paramList = []
         conList = []
         print('data:')
@@ -9333,6 +9332,29 @@ def getEnteredTopicList():
         newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
         print('newLink'+str(newLink))
         return jsonify({'onlineTestLink':newLink})
+
+@app.route('/enteredTopicTestDet',methods=['GET','POST'])
+def enteredTopicTestDet():
+    if request.method == 'POST':
+        print('insert enteredTopicTestDet')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
+                
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+
+        print(conList[2])
+        return jsonify({'success':'success'})        
+
 
 @app.route('/addTestDet',methods=['GET','POST'])
 def addTestDet():
