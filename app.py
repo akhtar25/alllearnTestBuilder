@@ -9333,11 +9333,12 @@ def getEnteredTopicList():
         print('newLink'+str(newLink))
         return jsonify({'onlineTestLink':newLink})
 
-@app.route('/enteredTopicTestDet',methods=['GET','POST'])
+@app.route('/enteredTopicTestDet',methods=['POST','GET'])
 def enteredTopicTestDet():
     if request.method == 'POST':
         print('insert enteredTopicTestDet')
         jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "8802362259"}}
         a = json.dumps(jsonExamData)
         z = json.loads(a)
         paramList = []
