@@ -9764,7 +9764,7 @@ def questionPaper():
         myDict[data.question_id] = newOpt
     # myDict['1'] = [1,2,3,4]
     print(myDict)
-    return render_template('questionPaper.html',school_name='Dummy Public School',class_val='1',test_type='Class Feedback',today='20032021134456',total_marks=150,subject='English',fetchQuesIds=fetchQuesIds)
+    return render_template('questionPaper.html',school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
