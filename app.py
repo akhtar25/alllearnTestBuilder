@@ -9425,6 +9425,7 @@ def enteredTopicTestDet():
         print(paramList)
 
         print(conList[2])
+
         return jsonify({'success':'success'})        
 
 
@@ -9505,27 +9506,7 @@ def addTestDet():
             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
             db.session.add(testQuestionInsert)
         db.session.commit()
-        testId = testDetailsUpd.test_id
-        # clasVal = class_val.replace('_','@')
-        # testType = paramList[11].replace('_','@')
-        # linkForTeacher=url_for('testLinkWhatsappBot',testType=str(test_type),totalMarks=str(total_marks),respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=classDet.section,subjectId=subjId,phone=contactNo, _external=True)
-        # key = '265e29e3968fc62f68da76a373e5af775fa60'
-        # url = urllib.parse.quote(linkForTeacher)
-        # name  = ''
-        # r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
-        # print('New Link')
-        # print(r.text)
-        # print(type(r.text))
-        # linkList = []
-        # jsonLink = json.dumps(r.text)
-        # newData = json.loads(r.text)
-        # print(type(newData))
-        # for linkData in newData['url'].values():
-        #     linkList.append(linkData)
-        # finalLink = linkList[3]
-        # newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
-        # print('newLink'+str(newLink))
-        # return jsonify({'onlineTestLink':newLink,'testId':testId}) 
+        testId = testDetailsUpd.test_id 
         return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
 
 @app.route('/generateNewTestLink',methods=['GET','POST'])
@@ -9744,10 +9725,21 @@ def insertTestData():
         client = boto3.client('s3', region_name='ap-south-1')
         client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         os.remove('tempdocx/'+file_name.replace(" ", ""))
-        file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+        # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
+        file_name_val = url_for('questionPaper',schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
+@app.route('/questionPaper')
+def questionPaper():
+    print('inside question paper')
+    school_name = request.args.get('schoolName')
+    class_val = request.args.get('class_val')
+    test_type = request.args.get('test_type')
+    today = request.args.get('today')
+    total_marks = request.args.get('total_marks')
+    subject = request.args.get('subject')
+    return render_template('questionPaper.html',school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject)
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():

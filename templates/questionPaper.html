@@ -1,0 +1,7 @@
+{% extends "layout.html" %} {% block content %} {% if school_name %}
+<h1>{{school_name}}</h1>
+<hr />
+<h3>Class {{class_val}} - {{test_type}} - {{today}}</h3>
+<h4>Subject: {{subject}}</h4>
+<h5>Total Marks: {{total_marks}}</h5>
+{% endif %} {% endblock %}
