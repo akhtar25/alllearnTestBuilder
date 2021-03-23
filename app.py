@@ -9472,7 +9472,7 @@ def addTestDet():
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'No questions available'
@@ -9547,7 +9547,7 @@ def generateNewTestLink():
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         clasVal = selClass.replace('_','@')
@@ -9660,7 +9660,7 @@ def insertTestData():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'no questions available'
@@ -9746,7 +9746,7 @@ def questionPaper():
     fetchQuesIdsQuery = "select qd.question_id,qd.question_description,qd.reference_link from question_details qd "
     fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
     fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
     print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
     fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
 
