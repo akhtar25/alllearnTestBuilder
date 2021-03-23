@@ -9741,6 +9741,8 @@ def questionPaper():
     total_marks = request.args.get('total_marks')
     subject = request.args.get('subject')
     fetchQuesIds = request.args.get('fetchQuesIds')
+    print('fetchQuesIds:')
+    print(fetchQuesIds)
     myDict = {}
     options = ''
     for question in fetchQuesIds:
