@@ -9743,10 +9743,9 @@ def questionPaper():
     total_marks = request.args.get('total_marks')
     subject = request.args.get('subject')
     # fetchQuesIds = request.args.get('fetchQuesIds')
-    fetchQuesIdsQuery = "select qd.question_id,qd.topic_id,qd.board_id,qd.subject_id,qd.question_description,qo.option_desc,qd.reference_link from question_details qd "
+    fetchQuesIdsQuery = "select qd.question_id,qd.question_description,qd.reference_link from question_details qd "
     fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
     fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
     fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
     print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
     fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
@@ -9761,7 +9760,7 @@ def questionPaper():
         newOpt = [] 
         for option in options:
             newOpt.append(option.option_desc)
-        myDict[data.question_id] = newOpt
+        myDict[question.question_id] = newOpt
     # myDict['1'] = [1,2,3,4]
     print(myDict)
     return render_template('questionPaper.html',school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
