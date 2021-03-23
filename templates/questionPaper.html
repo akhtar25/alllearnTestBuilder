@@ -1,7 +1,63 @@
 {% extends "layout.html" %} {% block content %} {% if school_name %}
-<h1>{{school_name}}</h1>
-<hr />
-<h3>Class {{class_val}} - {{test_type}} - {{today}}</h3>
-<h4>Subject: {{subject}}</h4>
-<h5>Total Marks: {{total_marks}}</h5>
+<div class="container">
+  <h1>{{school_name}}</h1>
+  <hr />
+  <h3 style="color: royalblue">
+    Class {{class_val}} - {{test_type}} - {{today}}
+  </h3>
+  <h4 style="color: royalblue">Subject: {{subject}}</h4>
+  <h4 style="color: royalblue">Total Marks: {{total_marks}}</h4>
+  <br />
+  {% for question in fetchQuesIds %}
+  <h3
+    style="
+      font-size: 18px;
+      font-family: 'Source Sans Pro', sans-serif;
+      color: black;
+    "
+  >
+    {{ question.question_description }}
+  </h3>
+  {%if question.reference_link !=None or question.reference_link!='' %}
+  <aside class="">
+    <img
+      src="{{ question.reference_link }}"
+      style="max-height: 300px; max-width: 700px"
+    />
+  </aside>
+  {% endif %}
+
+  <ul class="horizontal-list" style="display: flex; margin-top: 10px">
+    {% if optionVal.option_desc %} {% if optionVal.is_correct=='Y' %} {% if qnum
+    %}
+    <li style="display: flex; margin-right: 50px">
+      <h4 style="font-size: 14px">({{ optionVal.option }})</h4>
+      <h4 style="font-size: 14px">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4>
+      <i
+        id="solution"
+        class="material-icons"
+        style="color: green; font-size: 14px; margin-top: 3px; display: none"
+        >check</i
+      >
+    </li>
+    {% else %}
+    <li style="display: flex; margin-right: 50px">
+      <h4 style="font-size: 14px">({{ optionVal.option }})</h4>
+      <h4 style="font-size: 14px">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4>
+      <i
+        id="solution"
+        class="material-icons"
+        style="color: green; font-size: 20px; margin-top: -2px; display: none"
+        >check</i
+      >
+    </li>
+    {% endif %} {% else %}
+    <li style="display: flex; margin-right: 50px">
+      <h4 style="font-size: 14px">({{ optionVal.option }})</h4>
+      <h4 style="font-size: 14px">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4>
+    </li>
+    {% endif %} {% endif %}
+  </ul>
+  {% endfor %}
+</div>
 {% endif %} {% endblock %}

@@ -9656,9 +9656,10 @@ def insertTestData():
         selChapter = selChapter.strip()
         print('Chapter'+str(selChapter))
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        fetchQuesIdsQuery = "select qd.question_description,qo.option_desc,qd.reference_link from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
@@ -9726,7 +9727,7 @@ def insertTestData():
         client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-        file_name_val = url_for('questionPaper',schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        file_name_val = url_for('questionPaper',schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),fetchQuesIds=fetchQuesIds,_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
@@ -9739,7 +9740,19 @@ def questionPaper():
     today = request.args.get('today')
     total_marks = request.args.get('total_marks')
     subject = request.args.get('subject')
-    return render_template('questionPaper.html',school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject)
+    fetchQuesIds = request.args.get('fetchQuesIds')
+    myDict = {}
+    options = ''
+    for question in fetchQuesIds:
+        data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()    
+        newOpt = [] 
+        for option in options:
+            newOpt.append(option.option_desc)
+        myDict[data.question_id] = newOpt
+    # myDict['1'] = [1,2,3,4]
+    print(myDict)
+    return render_template('questionPaper.html',school_name='Dummy Public School',class_val='1',test_type='Class Feedback',today='20032021134456',total_marks=150,subject='English',fetchQuesIds=fetchQuesIds)
 
 @app.route('/newTestLinkGenerate',methods=['POST','GET'])
 def newTestLinkGenerate():
