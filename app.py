@@ -9727,7 +9727,7 @@ def insertTestData():
         client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-        file_name_val = url_for('questionPaper',schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),fetchQuesIds=fetchQuesIds,_external=True)
+        file_name_val = url_for('questionPaper',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
@@ -9738,9 +9738,19 @@ def questionPaper():
     class_val = request.args.get('class_val')
     test_type = request.args.get('test_type')
     today = request.args.get('today')
+    limit = request.args.get('limit')
+    chapter = request.args.get('chapter')
     total_marks = request.args.get('total_marks')
     subject = request.args.get('subject')
-    fetchQuesIds = request.args.get('fetchQuesIds')
+    # fetchQuesIds = request.args.get('fetchQuesIds')
+    fetchQuesIdsQuery = "select qd.question_id,qd.topic_id,qd.board_id,qd.subject_id,qd.question_description,qo.option_desc,qd.reference_link from question_details qd "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
+    print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+
     print('fetchQuesIds:')
     print(fetchQuesIds)
     myDict = {}
