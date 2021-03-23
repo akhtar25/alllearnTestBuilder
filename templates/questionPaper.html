@@ -28,12 +28,10 @@
   {% endif %}
 
   <ul class="horizontal-list" style="display: flex; margin-top: 10px">
-    {% for dic in myDict %} {% if dic==question.question_id %}
-    <li><h4 style="font-size: 14px">{{dic[0]}}</h4></li>
-    <li><h4 style="font-size: 14px">{{dic[1]}}</h4></li>
-    <li><h4 style="font-size: 14px">{{dic[2]}}</h4></li>
-    <li><h4 style="font-size: 14px">{{dic[3]}}</h4></li>
-    {% endif %} {% endfor %}
+    <li><h4 style="font-size: 14px">{{dic[question.question_id][0]}}</h4></li>
+    <li><h4 style="font-size: 14px">{{dic[question.question_id][1]}}</h4></li>
+    <li><h4 style="font-size: 14px">{{dic[question.question_id][2]}}</h4></li>
+    <li><h4 style="font-size: 14px">{{dic[question.question_id][3]}}</h4></li>
   </ul>
   {% endfor %}
 </div>
