@@ -9656,7 +9656,7 @@ def insertTestData():
         selChapter = selChapter.strip()
         print('Chapter'+str(selChapter))
         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select qd.topic_id,qd.board_id,qd.subject_id,qd.question_description,qo.option_desc,qd.reference_link from question_details qd "
+        fetchQuesIdsQuery = "select qd.question_id,qd.topic_id,qd.board_id,qd.subject_id,qd.question_description,qo.option_desc,qd.reference_link from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
