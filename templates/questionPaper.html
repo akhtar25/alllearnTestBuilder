@@ -1,9 +1,12 @@
 {% extends "layout.html" %} {% block content %} {% if school_name %}
-<div class="container">
+<div
+  class="container container-color"
+  style="padding-left: 50px; margin-top: 10px"
+>
   <h2>{{school_name}}</h2>
   <div id="editor"></div>
   <button
-    style="border-radius: 15px; float: right; margin-top: -45px"
+    style="border-radius: 15px; float: right; margin-top: -100px"
     class="btn waves-light green lighten-1 white-text"
     type="button"
     id="addClassSubject"
@@ -23,19 +26,29 @@
   <h4 style="color: royalblue">Total Marks: {{total_marks}}</h4> -->
   <br />
   {% for question in fetchQuesIds %}
-  <h3 style="font-family: 'Source Sans Pro', sans-serif; color: black">
+  <h3
+    style="
+      margin-bottom: 30px;
+      font-family: 'Source Sans Pro', sans-serif;
+      color: black;
+    "
+  >
     {{ question.question_description }}
   </h3>
   {%if question.reference_link !=None or question.reference_link!='' %}
-  <aside class="" style="float: right">
+  <aside class="">
     <img
       src="{{ question.reference_link }}"
-      style="max-height: 300px; max-width: 700px"
+      style="max-height: 300px; margin-left: 35px"
     />
   </aside>
   {% endif %}
 
-  <ol type="A" class="horizontal-list" style="margin-top: 30px; height: 300px">
+  <ol
+    type="A"
+    class="horizontal-list"
+    style="margin-top: 30px; margin-bottom: 30px; margin-left: 18px"
+  >
     <li style="font-size: 18px">
       <h4>{{myDict[question.question_id][0]}}</h4>
     </li>
