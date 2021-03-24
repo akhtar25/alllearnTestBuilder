@@ -9280,12 +9280,12 @@ def getEnteredTopicList():
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
         print('class')
-        selClass = paramList[4]
+        selClass = paramList[12]
         selClass = selClass.strip()
         print(selClass)
 
         print('Subject:')
-        selSubject = paramList[2]
+        selSubject = paramList[13]
         selSubject = selSubject.strip()
         # Start for topic
         subQuery = MessageDetails.query.filter_by(description=selSubject).first()
