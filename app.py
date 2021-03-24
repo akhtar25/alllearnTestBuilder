@@ -9357,8 +9357,49 @@ def getEnteredTopicList():
         class_sec_id = currClassSecRow.class_sec_id
         print('selected chapter')
         print(paramList[1])
-        file_name_val = url_for('questionPaper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
         return jsonify({'fileName':file_name_val,'selChapter':paramList[1],'boardID':boardID,'resp_session_id':resp_session_id})      
+
+@app.route('/question_paper')
+def question_paper():
+    if request.method == 'POST':
+        print('inside question paper')
+        school_name = request.args.get('schoolName')
+        class_val = request.args.get('class_val')
+        test_type = request.args.get('test_type')
+        today = request.args.get('today')
+        limit = request.args.get('limit')
+        chapter = request.args.get('chapter')
+        total_marks = request.args.get('total_marks')
+        subject = request.args.get('subject')
+    # fetchQuesIds = request.args.get('fetchQuesIds')
+        topics = chapter.strip()
+        topicList = topics.split(',')
+        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        p =1
+        for topic in topicList:
+            fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and td.class_val='"+str(class_val)+"' and md.description ='"+str(subject)+"' limit '"+str(limit)+"'"
+            if p<len(topicList):
+                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+            p=p+1
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+
+        myDict = {}
+        options = ''
+        for question in fetchQuesIds:
+            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()    
+            newOpt = [] 
+            for option in options:
+                newOpt.append(option.option_desc)
+            myDict[question.question_id] = newOpt
+    # myDict['1'] = [1,2,3,4]
+        print(myDict)
+        return render_template('questionPaper.html',myDict=myDict,school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
+
 
 @app.route('/enteredTopicTestDet',methods=['POST','GET'])
 def enteredTopicTestDet():
@@ -9594,7 +9635,7 @@ def addTopicTestPaperNewDet():
         for topic in topicList:
             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
