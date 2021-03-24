@@ -9353,7 +9353,7 @@ def getEnteredTopicList():
         test_type=paramList[11]
         count = paramList[3]
         weightage = paramList[0]
-        total_marks = count * weightage
+        total_marks = int(count) * int(weightage)
         class_sec_id = currClassSecRow.class_sec_id
         print('selected chapter')
         print(paramList[1])
