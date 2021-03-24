@@ -9404,8 +9404,8 @@ def addEnteredTopicTestDet():
 
         print(conList[2])
         print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
             # 
         print('Data Contact')
         contactNo = conList[2][-10:]
@@ -9492,8 +9492,8 @@ def addTestDet():
 
         print(conList[2])
         print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
             # 
         print('Data Contact')
         contactNo = conList[2][-10:]
@@ -9755,8 +9755,8 @@ def insertTestData():
 
         print(conList[2])
         print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
         # 
         print('Data Contact')
         contactNo = conList[2][-10:]
@@ -9927,8 +9927,8 @@ def newTestLinkGenerate():
         print(conList[2])
         # Test for topic
         print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
         # 
         print('Data Contact')
         # print(conList[2])
@@ -10094,8 +10094,8 @@ def getTestPaperLink():
         print(conList[2])
         # Test for topic
         print('Testing for topic')
-        print(type(paramList[1]))
-        print(int(paramList[1]))
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
         # 
         print('Data Contact')
         # print(conList[2])
