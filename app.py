@@ -9387,7 +9387,6 @@ def addEnteredTopicTestDet():
     if request.method == 'POST':
         print('insert addEnteredTopicTestDet')
         jsonExamData = request.json
-        a = json.dumps()    
         a = json.dumps(jsonExamData)
         z = json.loads(a)
         paramList = []
