@@ -9377,7 +9377,7 @@ def question_paper():
     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
     p =1
     for topic in topicList:
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id,qd.reference_link "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and qd.archive_status='N' and td.class_val='"+str(class_val)+"' and md.description ='"+str(subject)+"' limit '"+str(limit)+"'"
         if p<len(topicList):
