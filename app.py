@@ -9355,6 +9355,8 @@ def getEnteredTopicList():
         weightage = paramList[0]
         total_marks = count * weightage
         class_sec_id = currClassSecRow.class_sec_id
+        print('selected chapter')
+        print(paramList[1])
         file_name_val = url_for('questionPaper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
         return jsonify({'fileName':file_name_val,'selChapter':paramList[1],'boardID':boardID,'resp_session_id':resp_session_id})      
 
