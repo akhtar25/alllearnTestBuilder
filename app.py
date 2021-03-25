@@ -4629,9 +4629,13 @@ def sendUserNotificationEmail():
         a = json.dumps(jsonData)
         z = json.loads(a)
         conList = []
+        paramList = []
         print('data:')
         for con in z['contact'].values():
             conList.append(con)
+        for dat in z['results'].values():
+            paramList.append(dat)
+        subject = paramList[0]
         print(conList)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
@@ -4639,7 +4643,7 @@ def sendUserNotificationEmail():
         print('name:'+str(name))
         email = 'contact@alllearn.in'
         email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
-        notificationEmail(email,email2,name,contactNo)
+        notificationEmail(email,email2,name,contactNo,subject)
         return jsonify({'phone':contactNo,'name':name})
 
 @app.route('/sendNotificationEmail')
