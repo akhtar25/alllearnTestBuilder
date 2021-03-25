@@ -8368,27 +8368,27 @@ def getTopicList():
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         schoolData = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
-        classList = [] 
-        j=1
-        for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)
-            classList.append(classVal)
-            j=j+1
-        for clas in dataList['results'].values():
-            selectedOptions.append(clas)
+        # classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        # classList = [] 
+        # j=1
+        # for classlist in classesListData:
+        #     classVal = str(j)+str(' - ')+str(classlist.class_val)
+        #     classList.append(classVal)
+        #     j=j+1
+        # for clas in dataList['results'].values():
+        #     selectedOptions.append(clas)
         selClass = ''
         selSubject = ''
-        for className in classList:
-            num = className.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(selectedOptions[0]))
-            if int(num) == int(selectedOptions[0]):
-                print(className)
-                selClass = className.split('-')[1]
-                print('selClass:'+str(selClass))
+        # for className in classList:
+        #     num = className.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(selectedOptions[0]))
+        #     if int(num) == int(selectedOptions[0]):
+        #         print(className)
+        #         selClass = className.split('-')[1]
+        #         print('selClass:'+str(selClass))
         print('class')
-        selClass = selClass.strip()
+        selClass = selectedOptions[0].strip()
         print(selClass)
         subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
         print(subQuery)
@@ -8409,7 +8409,7 @@ def getTopicList():
                 print(subjectName)
                 selSubject = subjectName.split('-')[1]
                 print('selSubject:'+str(selSubject))
-                
+        
         print('Subject:')
         selSubject = selSubject.strip()
         subQuery = MessageDetails.query.filter_by(description=selSubject).first()
@@ -8567,7 +8567,7 @@ def getSubjectsList():
         if subjectList:
             return jsonify({'subject_list':subjectList}) 
         else:
-            return jsonify({'subject_list':msg})
+            return jsonify({'subject_list':msg,'class_val':selClass})
 
 @app.route('/getStudentDetails',methods=['POST','GET'])
 def getStudentDetails():
