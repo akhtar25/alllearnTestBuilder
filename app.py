@@ -9512,6 +9512,48 @@ def addEnteredTopicTestDet():
         testId = testDetailsUpd.test_id 
         return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
 
+@app.route('/checkQuestions',methods=['GET','POST'])
+def checkQuestions():
+    if request.method == 'POST':
+        print('inside checkQuestions')
+        jsonData = request.json
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
+                
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+
+        print(conList[2])
+        print('Testing for topic')
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
+            # 
+        print('Data Contact')
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        selChapter = paramList[18]
+        selSubject = paramList[12]
+        selClass = paramList[11]
+        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"'"
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        msg = 'Finally, how many questions?'
+        if len(fetchQuesIds)==0 or fetchQuesIds=='':
+            msg = 'No questions available'
+            return jsonify({'msg':msg})
+        return jsonify({'msg':msg})
+
 
 @app.route('/addTestDet',methods=['GET','POST'])
 def addTestDet():
