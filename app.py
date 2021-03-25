@@ -8375,8 +8375,8 @@ def getTopicList():
         #     classVal = str(j)+str(' - ')+str(classlist.class_val)
         #     classList.append(classVal)
         #     j=j+1
-        # for clas in dataList['results'].values():
-        #     selectedOptions.append(clas)
+        for clas in dataList['results'].values():
+            selectedOptions.append(clas)
         selClass = ''
         selSubject = ''
         # for className in classList:
