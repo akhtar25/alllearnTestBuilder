@@ -9007,7 +9007,7 @@ def insertUserTeacherDetails():
             print(param)
         print(paramList[1])
         createUser = User(username=paramList[1],email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=145,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(paramList[2])
+        createUser.set_password(contactNo)
         db.session.add(createUser)
         db.session.commit()
         createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
