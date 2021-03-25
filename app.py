@@ -8565,9 +8565,9 @@ def getSubjectsList():
             k=k+1
         msg = 'no subjects available'
         if subjectList:
-            return jsonify({'subject_list':subjectList}) 
+            return jsonify({'subject_list':subjectList,'class_val':selClass}) 
         else:
-            return jsonify({'subject_list':msg,'class_val':selClass})
+            return jsonify({'subject_list':msg})
 
 @app.route('/getStudentDetails',methods=['POST','GET'])
 def getStudentDetails():
