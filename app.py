@@ -10001,7 +10001,7 @@ def insertTestData():
             if data.reference_link!='' or data.reference_link!=None:
 
                 print('inside threadUse if ')
-                print(url_for('test/downloadPaper',test_id='123',_external=True))
+                print(url_for('test/downloadPaper/123',_external=True))
                 print(data.reference_link)
                 try:
                     response = requests.get(data.reference_link, stream=True)
@@ -10024,7 +10024,7 @@ def insertTestData():
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         # file_name_val = url_for('test',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
-        print(url_for('test/downloadPaper',test_id='123',_external=True))
+        print(url_for('test/downloadPaper/123',_external=True))
         file_name_val = url_for('test/downloadPaper',test_id='123',_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
