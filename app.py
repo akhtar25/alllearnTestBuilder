@@ -9691,8 +9691,12 @@ def addTestDet():
         class_sec_id = classDet.class_sec_id
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id, teacher_id=teacher_id)
+            date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
+        db.session.commit()
+        file_name_val = url_for('test/downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        testDet.test_paper_link = file_name_val
         db.session.commit()
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
@@ -10017,12 +10021,13 @@ def insertTestData():
         client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
-        file_name_val = url_for('questionPaper',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        # file_name_val = url_for('test',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        file_name_val = url_for('test/downloadPaper',_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
-@app.route('/questionPaper')
-def questionPaper():
+@app.route('/test/downloadPaper/<test_id>')
+def downloadPaper(test_id):
     print('inside question paper')
     school_name = request.args.get('schoolName')
     class_val = request.args.get('class_val')
