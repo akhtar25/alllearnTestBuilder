@@ -9999,7 +9999,9 @@ def insertTestData():
             )    
             print(data.reference_link)
             if data.reference_link!='' or data.reference_link!=None:
+
                 print('inside threadUse if ')
+                print(url_for('test/downloadPaper',test_id='123',_external=True))
                 print(data.reference_link)
                 try:
                     response = requests.get(data.reference_link, stream=True)
