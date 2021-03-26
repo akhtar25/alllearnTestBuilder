@@ -10022,13 +10022,14 @@ def insertTestData():
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         # file_name_val = url_for('test',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
-        file_name_val = url_for('test/downloadPaper',_external=True)
+        file_name_val = url_for('test/downloadPaper',test_id='123',_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
 @app.route('/test/downloadPaper/<test_id>')
 def downloadPaper(test_id):
     print('inside question paper')
+    print('test_id:'+str(test_id))
     school_name = request.args.get('schoolName')
     class_val = request.args.get('class_val')
     test_type = request.args.get('test_type')
