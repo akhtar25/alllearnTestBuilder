@@ -89,7 +89,6 @@ pathspec==0.5.9
 Pillow==7.1.2
 plotly==4.8.1
 pluggy==0.13.1
-pprintpp==0.4.0
 proglog==0.1.9
 prompt-toolkit==3.0.14
 protobuf==3.13.0
