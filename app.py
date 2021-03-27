@@ -9709,7 +9709,7 @@ def addTestDet():
             date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
         db.session.commit()
-        file_name_val = url_for('test/downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
         testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
         testDet.test_paper_link = file_name_val
         db.session.commit()
@@ -10047,21 +10047,32 @@ def insertTestData():
 def downloadPaper(test_id):
     print('inside question paper')
     print('test_id:'+str(test_id))
-    school_name = request.args.get('schoolName')
-    class_val = request.args.get('class_val')
-    test_type = request.args.get('test_type')
-    today = request.args.get('today')
-    limit = request.args.get('limit')
-    chapter = request.args.get('chapter')
-    total_marks = request.args.get('total_marks')
-    subject = request.args.get('subject')
+    sessionDet = SessionDetail.query.filter_by(test_id=test_id).first()
+    testDet = TestDetails.query.filter_by(test_id=test_id).first()
+    teacher = TeacherProfile.query.filter_by(teacher_id=testDet.teacher_id).first()
+    schoolDet = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
+    school_name = schoolDet.school_name
+    class_val = testDet.class_val
+    test_type = testDet.test_type
+    today = datetime.today().strftime("%d%m%Y%H%M%S")
+    subjectQuery = MessageDetails.query.filter_by(msg_id=testDet.subject_id).first()
+    subject = subjectQuery.description
+    # school_name = request.args.get('schoolName')
+    # class_val = request.args.get('class_val')
+    # test_type = request.args.get('test_type')
+    # today = request.args.get('today')
+    # limit = request.args.get('limit')
+    # chapter = request.args.get('chapter')
+    total_marks = sessionDet.total_marks
+    # subject = request.args.get('subject')
     # fetchQuesIds = request.args.get('fetchQuesIds')
-    fetchQuesIdsQuery = "select qd.question_id,qd.question_description,qd.reference_link from question_details qd "
-    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
-    print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+    # fetchQuesIdsQuery = "select qd.question_id,qd.question_description,qd.reference_link from question_details qd "
+    # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+    # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    # fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
+    # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+    # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+    fetchQuesIds = TestQuestions.query.filter_by(test_id=test_id).all()
 
     print('fetchQuesIds:')
     print(fetchQuesIds)
