@@ -66,9 +66,9 @@ import base64
 import hmac
 import hashlib
 import json
-# for reverse geocoding
-import reverse_geocoder as rg
-import pprint
+for reverse geocoding
+# import reverse_geocoder as rg
+# import pprint
 # from moviepy.editor import *
 
 
@@ -9217,7 +9217,7 @@ def reverseGeocode(coordinates):
     result = rg.search(coordinates)
       
     # result is a list containing ordered dictionary.
-    pprint.pprint(result) 
+    print(result) 
 
 
 @app.route('/checkStudent',methods=['GET','POST'])
