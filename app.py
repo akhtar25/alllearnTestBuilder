@@ -8892,11 +8892,17 @@ def registerUser():
             if teacher_id:
                 teacher = 'Teacher'
                 print('User is Teacher')
+                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if schoolDet.is_verified == 'N':
+                    return jsonify({'user':'Parent'})
                 return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
                 
             elif student_id:
                 student = 'Student'
                 print('user is student')
+                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if schoolDet.is_verified == 'N':
+                    return jsonify({'user':'Parent'})
                 return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
             else:
                 parent = 'Parent'
