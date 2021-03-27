@@ -9119,7 +9119,28 @@ def registerTeacher():
         db.session.add(createTeacher)
         db.session.commit()
         statement = "Success! Teacher has been successfully registered on the platform. The Teacher Id is "+str(createTeacher.teacher_id)+" The account password is the teacher's phone number. Would you like to go back to the main menu?"
-        return jsonify({'teacherId':statement})  
+        return jsonify({'teacherId':statement}) 
+
+@app.route('/checkClass',methods=['GET','POST'])
+def checkClass():
+    if request.method == 'POST':
+        print('inside checkClass')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []  
+        for values in data['results'].values():
+            paramList.append(values) 
+        clas = paramList[0].split('-')[0]
+        section = paramList[0].split('-')[1]
+        print('Class'+str(clas))
+        print('Section'+str(section))
+        classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
+        if classSecId == '' or classSecId == None:
+            statement = 'Class does not exist.'
+            return jsonify({'statement':statement})  
+        statement = "What's your school's name?"    
+        return jsonify({'statement':statement})
 
 @app.route('/registerStudent',methods=['GET','POST'])
 def registerStudent():
