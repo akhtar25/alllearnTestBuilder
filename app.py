@@ -9167,17 +9167,17 @@ def registerSchool():
         for param in paramList:
             print(param)
         print(paramList[3])
-        lattitude = paramList[9]
+        latitude = paramList[9]
         longitude = paramList[10]
-        print('lattitude:'+str(lattitude))
+        print('latitude:'+str(latitude))
         print('longitude:'+str(longitude))
-        geolocator = GoogleV3(api_key='AIzaSyDIUer3-m41C8aHiNlo0mld7aKndhuPqLM')
-        coordinates = str(lattitude)+','+str(longitude)
-        locations = geolocator.reverse(coordinates)
-        if locations:
-            print(locations[0].address)  # select first location
-        if paramList[3]:
-            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+        # geolocator = GoogleV3(api_key='AIzaSyDIUer3-m41C8aHiNlo0mld7aKndhuPqLM')
+        # coordinates = str(lattitude)+','+str(longitude)
+        # locations = geolocator.reverse(coordinates)
+        # if locations:
+            # print(locations[0].address)  # select first location
+        if latitude:
+            createAddress = Address(latitude=latitude,longitude=longitude)
             db.session.add(createAddress)
             db.session.commit()
         else:
