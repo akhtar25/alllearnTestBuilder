@@ -66,11 +66,7 @@ import base64
 import hmac
 import hashlib
 import json
-for reverse geocoding
-# import reverse_geocoder as rg
-# import pprint
-# from moviepy.editor import *
-
+from geopy.geocoders import GoogleV3
 
 app=FlaskAPI(__name__)
 
@@ -9174,7 +9170,11 @@ def registerSchool():
         longitude = paramList[10]
         print('lattitude:'+str(lattitude))
         print('longitude:'+str(longitude))
-        reverseGeocode(lattitude,longitude)
+        geolocator = GoogleV3(api_key='AIzaSyDIUer3-m41C8aHiNlo0mld7aKndhuPqLM')
+
+        locations = geolocator.reverse(lattitude,longitude)
+        if locations:
+            print(locations[0].address)  # select first location
         if paramList[3]:
             createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
             db.session.add(createAddress)
@@ -9213,11 +9213,7 @@ def registerSchool():
         db.session.commit()
         return jsonify({'success','success'})
 
-def reverseGeocode(coordinates):
-    result = rg.search(coordinates)
-      
-    # result is a list containing ordered dictionary.
-    print(result) 
+
 
 
 @app.route('/checkStudent',methods=['GET','POST'])
