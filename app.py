@@ -9992,7 +9992,7 @@ def checkQuestions():
             return jsonify({'msg':msg})
         return jsonify({'msg':msg})
 
-@app.route('addStudentTestDet',methods=['GET','POST'])
+@app.route('/addStudentTestDet',methods=['GET','POST'])
 def addStudentTestDet():
     if request.method == 'POST':
         print('inside addStudentTestDet')        
