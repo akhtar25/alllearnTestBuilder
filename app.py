@@ -9622,7 +9622,7 @@ def getStudentEnteredTopicList():
             break
         print('subjId:'+str(subjId))
         print(fetchQuesIds)
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+        # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
         format = "%Y-%m-%d %H:%M:%S"
         now_utc = datetime.now(timezone('UTC'))
@@ -9652,7 +9652,7 @@ def getStudentEnteredTopicList():
         count = paramList[3]
         weightage = paramList[0]
         total_marks = int(count) * int(weightage)
-        class_sec_id = currClassSecRow.class_sec_id
+        class_sec_id = classesListData.class_sec_id
         print('selected chapter')
         print(paramList[1])
         # file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
