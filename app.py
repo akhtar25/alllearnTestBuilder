@@ -8985,6 +8985,11 @@ def accessRegisteredSchool():
             print(param)
         print(paramList[1])
         schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+        checkUser = User.query.filter_by(email=paramList[2]).first()
+        statement = ''
+        if checkUser:
+            statement = 'Mail id already exist.'
+            return jsonify({'statement':statement})
         createUser = User(username=paramList[2],school_id=schoolDet.school_id,email=paramList[2],last_seen=datetime.now(),user_type=71,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[1])
         createUser.set_password(contactNo)
         db.session.add(createUser)
@@ -8994,7 +8999,8 @@ def accessRegisteredSchool():
         db.session.commit() 
         schoolDet.school_admin = createTeacher.teacher_id
         db.session.commit()
-        return jsonify({'success':'success'})  
+        statement = 'Access request sent to the school admin.'
+        return jsonify({'statement':statement})  
                 
 
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
