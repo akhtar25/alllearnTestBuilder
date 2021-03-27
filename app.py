@@ -10005,42 +10005,42 @@ def insertTestData():
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
         # subjectQuery = MessageDetails.query.filter_by(msg_id=subjId).first()
-        document = Document()
-        document.add_heading(schoolName, 0)
-        document.add_heading('Class '+str(selClass)+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
-        document.add_heading("Subject : "+str(selSubject),2)
-        document.add_heading("Total Marks : "+str(count_marks),3)
-        p = document.add_paragraph()
-        for question in fetchQuesIds:
-            data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-            options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-            document.add_paragraph(
-                data.question_description, style='List Number'
-            )    
-            print(data.reference_link)
-            if data.reference_link!='' or data.reference_link!=None:
+        # document = Document()
+        # document.add_heading(schoolName, 0)
+        # document.add_heading('Class '+str(selClass)+" - "+str(paramList[11])+" - "+str(datetime.today().strftime("%d%m%Y%H%M%S")) , 1)
+        # document.add_heading("Subject : "+str(selSubject),2)
+        # document.add_heading("Total Marks : "+str(count_marks),3)
+        # p = document.add_paragraph()
+        # for question in fetchQuesIds:
+        #     data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+        #     options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+        #     document.add_paragraph(
+        #         data.question_description, style='List Number'
+        #     )    
+        #     print(data.reference_link)
+        #     if data.reference_link!='' or data.reference_link!=None:
 
-                print('inside threadUse if ')
-                print(data.reference_link)
-                try:
-                    response = requests.get(data.reference_link, stream=True)
-                    image = BytesIO(response.content)
-                    document.add_picture(image, width=Inches(1.25))
-                except:
-                    pass
-            for option in options:
-                if option.option_desc is not None:
-                    document.add_paragraph(
-                        option.option+". "+option.option_desc) 
-        cl = selClass.replace("/","-")
-        file_name=str(school_id)+str(cl)+str(selSubject)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+        #         print('inside threadUse if ')
+        #         print(data.reference_link)
+        #         try:
+        #             response = requests.get(data.reference_link, stream=True)
+        #             image = BytesIO(response.content)
+        #             document.add_picture(image, width=Inches(1.25))
+        #         except:
+        #             pass
+        #     for option in options:
+        #         if option.option_desc is not None:
+        #             document.add_paragraph(
+        #                 option.option+". "+option.option_desc) 
+        # cl = selClass.replace("/","-")
+        # file_name=str(school_id)+str(cl)+str(selSubject)+str(paramList[11])+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
    
-        if not os.path.exists('tempdocx'):
-            os.mkdir('tempdocx')
-        document.save('tempdocx/'+file_name.replace(" ", ""))
-        client = boto3.client('s3', region_name='ap-south-1')
-        client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
-        os.remove('tempdocx/'+file_name.replace(" ", ""))
+        # if not os.path.exists('tempdocx'):
+        #     os.mkdir('tempdocx')
+        # document.save('tempdocx/'+file_name.replace(" ", ""))
+        # client = boto3.client('s3', region_name='ap-south-1')
+        # client.upload_file('tempdocx/'+file_name.replace(" ", "") , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name.replace(" ", "")),ExtraArgs={'ACL':'public-read'})
+        # os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         # file_name_val = url_for('test',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
         print(url_for('downloadPaper',test_id='123',_external=True))
