@@ -9419,49 +9419,50 @@ def getEnteredTopicList():
         class_sec_id = currClassSecRow.class_sec_id
         print('selected chapter')
         print(paramList[1])
-        file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        # file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+        file_name_val = url_for('downloadPaper',test_id='123')
         return jsonify({'fileName':file_name_val,'selChapter':paramList[1],'boardID':boardID,'resp_session_id':resp_session_id})      
 
-@app.route('/question_paper')
-def question_paper():
-    print('inside question paper')
-    school_name = request.args.get('schoolName')
-    class_val = request.args.get('class_val')
-    test_type = request.args.get('test_type')
-    today = request.args.get('today')
-    limit = request.args.get('limit')
-    chapter = request.args.get('chapter')
-    total_marks = request.args.get('total_marks')
-    subject = request.args.get('subject')
-    # fetchQuesIds = request.args.get('fetchQuesIds')
-    topics = chapter.strip()
-    topicList = topics.split(',')
-    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-    p =1
-    for topic in topicList:
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id,qd.reference_link "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and qd.archive_status='N' and td.class_val='"+str(class_val)+"' and md.description ='"+str(subject)+"' limit '"+str(limit)+"'"
-        if p<len(topicList):
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
-        p=p+1
-    print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+# @app.route('/downloadPaper/<test_id>')
+# def downloadPaper(test_id):
+#     print('inside question paper')
+#     school_name = request.args.get('schoolName')
+#     class_val = request.args.get('class_val')
+#     test_type = request.args.get('test_type')
+#     today = request.args.get('today')
+#     limit = request.args.get('limit')
+#     chapter = request.args.get('chapter')
+#     total_marks = request.args.get('total_marks')
+#     subject = request.args.get('subject')
+#     # fetchQuesIds = request.args.get('fetchQuesIds')
+#     topics = chapter.strip()
+#     topicList = topics.split(',')
+#     dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#     p =1
+#     for topic in topicList:
+#         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id,qd.reference_link "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and qd.archive_status='N' and td.class_val='"+str(class_val)+"' and md.description ='"+str(subject)+"' limit '"+str(limit)+"'"
+#         if p<len(topicList):
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+#         p=p+1
+#     print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#     fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
 
-    myDict = {}
-    options = ''
-    for question in fetchQuesIds:
-        print('QId:'+str(question.question_id))
-        data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
-        print(data)
-        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()    
-        newOpt = [] 
-        for option in options:
-            newOpt.append(option.option_desc)
-        myDict[question.question_id] = newOpt
-    # myDict['1'] = [1,2,3,4]
-    print(myDict)
-    return render_template('questionPaper.html',myDict=myDict,school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
+#     myDict = {}
+#     options = ''
+#     for question in fetchQuesIds:
+#         print('QId:'+str(question.question_id))
+#         data=QuestionDetails.query.filter_by(question_id=int(question.question_id), archive_status='N').first()
+#         print(data)
+#         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()    
+#         newOpt = [] 
+#         for option in options:
+#             newOpt.append(option.option_desc)
+#         myDict[question.question_id] = newOpt
+#     # myDict['1'] = [1,2,3,4]
+#     print(myDict)
+#     return render_template('questionPaper.html',myDict=myDict,school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
 
 
 @app.route('/enteredTopicTestDet',methods=['POST','GET'])
@@ -9561,8 +9562,12 @@ def addEnteredTopicTestDet():
         class_sec_id = classDet.class_sec_id
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(),test_paper_link=file_name_val, school_id=school_id, teacher_id=teacher_id)
+            date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
         db.session.add(testDetailsUpd)
+        db.session.commit()
+        file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        testDet.test_paper_link = file_name_val
         db.session.commit()
         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
