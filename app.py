@@ -10047,7 +10047,7 @@ def addTestDet():
         boardID = paramList[20]
         test_type = paramList[11]
         subjId = paramList[16]
-        class_val = paramList[4]
+        class_val = paramList[12]
         file_name_val = paramList[21]
         school_id = paramList[17]
         teacher_id = paramList[15]
