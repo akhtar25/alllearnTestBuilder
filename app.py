@@ -9172,7 +9172,7 @@ def registerStudent():
         db.session.add(createUser)
         db.session.commit()
         clas = paramList[3].split('-')[0]
-        section = paramList[3].split('-')[1]
+        section = paramList[3].split('-')[1].upper()
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
@@ -9209,7 +9209,7 @@ def registerNewStudent():
         db.session.add(createUser)
         db.session.commit()
         clas = paramList[2].split('-')[0]
-        section = paramList[2].split('-')[1]
+        section = paramList[2].split('-')[1].upper()
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
