@@ -10078,7 +10078,8 @@ def downloadPaper(test_id):
     # fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(chapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(subject)+"' and td.class_val = '"+str(class_val)+"' limit '"+str(limit)+"'"
     # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
     # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-    fetchQuesIds = TestQuestions.query.filter_by(test_id=test_id).all()
+    fetchQuesIdsQuery = "select qd.question_id, qd.reference_link,qd.question_description from question_details qd inner join test_questions tq on qd.question_id = tq.question_id where test_id  = '"+str(test_id)+"'"
+    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
 
     print('fetchQuesIds:')
     print(fetchQuesIds)
