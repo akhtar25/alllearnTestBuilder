@@ -9909,7 +9909,7 @@ def addEnteredTopicTestDet():
         now_utc = datetime.now(timezone('UTC'))
         now_local = now_utc.astimezone(get_localzone())
         print('Date of test creation:'+str(now_local.strftime(format)))
-        classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
         class_sec_id = classDet.class_sec_id
         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
             board_id=str(boardID), subject_id=int(subjId),class_val=str(class_val),date_of_creation=now_local.strftime(format),
