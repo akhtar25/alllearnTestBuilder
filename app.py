@@ -66,6 +66,9 @@ import base64
 import hmac
 import hashlib
 import json
+# for reverse geocoding
+import reverse_geocoder as rg
+import pprint
 # from moviepy.editor import *
 
 
@@ -9167,10 +9170,19 @@ def registerSchool():
         for param in paramList:
             print(param)
         print(paramList[3])
-
-        createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
-        db.session.add(createAddress)
-        db.session.commit()
+        lattitude = paramList[9]
+        longitude = paramList[10]
+        print('lattitude:'+str(lattitude))
+        print('longitude:'+str(longitude))
+        reverseGeocode(lattitude,longitude)
+        if paramList[3]:
+            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+            db.session.add(createAddress)
+            db.session.commit()
+        else:
+            createAddress = Address(address_1='address1',city='city',state='state',country='india')
+            db.session.add(createAddress)
+            db.session.commit()
         boardId = ''
         schoolType = ''
         if paramList[7] == '1':
@@ -9201,7 +9213,11 @@ def registerSchool():
         db.session.commit()
         return jsonify({'success','success'})
 
-
+def reverseGeocode(coordinates):
+    result = rg.search(coordinates)
+      
+    # result is a list containing ordered dictionary.
+    pprint.pprint(result) 
 
 
 @app.route('/checkStudent',methods=['GET','POST'])
@@ -10001,7 +10017,6 @@ def insertTestData():
             if data.reference_link!='' or data.reference_link!=None:
 
                 print('inside threadUse if ')
-                print(url_for('/test/downloadPaper','123',_external=True))
                 print(data.reference_link)
                 try:
                     response = requests.get(data.reference_link, stream=True)
@@ -10024,12 +10039,12 @@ def insertTestData():
         os.remove('tempdocx/'+file_name.replace(" ", ""))
         # file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name.replace(" ", "")
         # file_name_val = url_for('test',limit=paramList[3],chapter=selChapter,schoolName=schoolName,class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
-        print(url_for('/test/downloadPaper','123',_external=True))
-        file_name_val = url_for('/test/downloadPaper','123',_external=True)
+        print(url_for('/downloadPaper',test_id='123',_external=True))
+        file_name_val = url_for('/downloadPaper',test_id='123',_external=True)
         print(file_name_val)
         return jsonify({'fileName':file_name_val,'selChapter':selChapter,'boardID':boardID,'resp_session_id':resp_session_id})      
 
-@app.route('/test/downloadPaper/<test_id>')
+@app.route('/downloadPaper/<test_id>')
 def downloadPaper(test_id):
     print('inside question paper')
     print('test_id:'+str(test_id))
