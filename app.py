@@ -8526,6 +8526,7 @@ def getStudentRequiredData():
         contactNo = conList[2][-10:]
         print(contactNo)
         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=studentData.school_id).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
         selClass = classData.class_val
@@ -8557,7 +8558,7 @@ def getStudentRequiredData():
         print(selSubject)
         print('SubId:'+str(subId))
 
-        return jsonify({'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})        
+        return jsonify({'selClass':selClass,'selSubject':selSubject,'userId':studentData.user_id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})        
 
 
 @app.route('/getRequiredData',methods=['GET','POST'])
