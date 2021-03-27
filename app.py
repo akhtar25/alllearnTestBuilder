@@ -9009,7 +9009,7 @@ def registerUser():
         if userId:
             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
             student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
-            if teacher_id:
+            if userId.user_type == 71:
                 teacher = 'Teacher'
                 print('User is Teacher')
                 schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
@@ -9017,7 +9017,7 @@ def registerUser():
                     return jsonify({'user':'Parent'})
                 return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
                 
-            elif student_id:
+            elif userId.user_type == 134:
                 student = 'Student'
                 print('user is student')
                 schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
