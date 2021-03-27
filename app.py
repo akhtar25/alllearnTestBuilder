@@ -9992,6 +9992,40 @@ def checkQuestions():
             return jsonify({'msg':msg})
         return jsonify({'msg':msg})
 
+# @app.route('addStudentTestDet',methods=['GET','POST'])
+# def addStudentTestDet():
+#     if request.method == 'POST':
+#         print('inside addStudentTestDet')        
+#         jsonExamData = request.json
+#             # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
+                
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+#         teacher_id = teacherData.teacher_id
+#         classData = ClassSection
+
+
 
 @app.route('/addTestDet',methods=['GET','POST'])
 def addTestDet():
