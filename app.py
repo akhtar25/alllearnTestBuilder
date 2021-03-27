@@ -9155,6 +9155,9 @@ def registerStudent():
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
+        if classSecId == '' or classSecId == None:
+            statement = 'Class does not exist.'
+            return jsonify({'studentId':statement}) 
         createStudent = StudentProfile(school_id=userDet.school_id,registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[2],phone=paramList[1],user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()   
