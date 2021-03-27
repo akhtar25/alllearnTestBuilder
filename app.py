@@ -10022,6 +10022,7 @@ def addStudentTestDet():
         print(contactNo)
         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
         teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
         teacher_id = teacherData.teacher_id
         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
         selClass = classData.class_val
@@ -10041,7 +10042,7 @@ def addStudentTestDet():
             return jsonify({'testId':msg})
         listLength = len(fetchQuesIds)
         total_marks = int(paramList[0]) * int(listLength)
-        boardID = paramList[20]
+        boardID = schoolData.board_id
         test_type = paramList[11]
         subjId = paramList[16]                
         file_name_val = paramList[21]
