@@ -10217,12 +10217,16 @@ def addTestDet():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        
         msg = 'No questions available'
         if len(fetchQuesIds)==0 or fetchQuesIds=='':
             return jsonify({'testId':msg})
         listLength = len(fetchQuesIds)
         total_marks = int(paramList[0]) * int(listLength)
         boardID = paramList[20]
+        for ques in fetchQuesIds:
+            boardID = ques.board_id
+            break
         test_type = paramList[11]
         subjId = paramList[16]
         class_val = paramList[12]
