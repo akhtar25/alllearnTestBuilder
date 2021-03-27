@@ -9002,6 +9002,24 @@ def accessRegisteredSchool():
         statement = 'Access request sent to the school admin.'
         return jsonify({'statement':statement})  
                 
+@app.route('/checkMailId',methods=['GET','POST'])
+def checkMailId():
+    if request.method == 'POST':
+        print('inside checkMailID')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        for values in data['results'].values():
+            paramList.append(values) 
+        email = paramList[0]
+        checkUser = User.query.filter_by(email=email).first()
+        statement = ''
+        if checkUser:
+            statement = 'Mail id already exist.'
+            return jsonify({'statement':statement})
+        statement = 'Which class-section do you study in?'
+        return jsonify({'statement':statement})        
 
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
 def insertUserTeacherDetails():
