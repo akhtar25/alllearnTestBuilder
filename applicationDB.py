@@ -408,6 +408,8 @@ class Address(db.Model):
     __tablename__ = "address_detail"
     address_id = db.Column(db.Integer,primary_key=True)
     address_1 = db.Column(db.String(100), nullable=True)
+    latitude = db.Column(db.String(100), nullable=True)
+    longitude = db.Column(db.String(100),nullable=True)
     address_2 = db.Column(db.String(100), nullable=True)
     locality = db.Column(db.String(100), nullable=True)
     city = db.Column(db.String(30), nullable=True)
