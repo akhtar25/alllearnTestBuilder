@@ -8529,7 +8529,7 @@ def getStudentRequiredData():
         teacher_id = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
         selClass = classData.class_val
-        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(studentData.school_id)+"' and class_val = '"+str(selClass)+"'"
         print(subQuery)
         subjectData = db.session.execute(text(subQuery)).fetchall()
         print(subjectData)
