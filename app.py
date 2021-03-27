@@ -8536,6 +8536,7 @@ def getStudentRequiredData():
         subjectList = []
         k=1
         subId = ''
+        selSubject = ''
         for subj in subjectData:
             sub = str(k)+str('-')+str(subj.subject)
             subjectList.append(sub)
