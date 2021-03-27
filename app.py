@@ -9171,8 +9171,8 @@ def registerSchool():
         print('lattitude:'+str(lattitude))
         print('longitude:'+str(longitude))
         geolocator = GoogleV3(api_key='AIzaSyDIUer3-m41C8aHiNlo0mld7aKndhuPqLM')
-
-        locations = geolocator.reverse(lattitude,longitude)
+        coordinates = str(lattitude)+','+str(longitude)
+        locations = geolocator.reverse(coordinates)
         if locations:
             print(locations[0].address)  # select first location
         if paramList[3]:
