@@ -9111,6 +9111,11 @@ def registerStudent():
             print(param)
         print(paramList[1])
         userDet = User.query.filter_by(phone=contactNo).first()
+        checkUser = User.query.filter_by(email=paramList[2]).first()
+        statement = ''
+        if checkUser:
+            statement = 'Mail id already exist. Would you like to go back to the main menu?'
+            return jsonify({'studentId':statement})
         createUser = User(username=paramList[2],school_id=userDet.school_id,email=paramList[2],last_seen=datetime.now(),user_type=134,access_status=145,phone=paramList[1],last_modified_date=datetime.now(),first_name=paramList[0])
         createUser.set_password(paramList[1])
         db.session.add(createUser)
@@ -9122,8 +9127,9 @@ def registerStudent():
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
         createStudent = StudentProfile(school_id=userDet.school_id,registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[2],phone=paramList[1],user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
-        db.session.commit()        
-        return jsonify({'studentId':createStudent.student_id})
+        db.session.commit()   
+        statement = "Congratulations! Student registered successfully. Your student ID is "+str(createStudent.student_id)+" Your password is your phone number.Would you like to go back to the main menu?"     
+        return jsonify({'studentId':statement})
 
 @app.route('/registerNewStudent',methods=['GET','POST'])
 def registerNewStudent():
