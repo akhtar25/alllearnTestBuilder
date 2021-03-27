@@ -9212,7 +9212,7 @@ def registerSchool():
         db.session.commit()
         createTeacher.school_id = createSchool.school_id
         db.session.commit()
-        return jsonify({'success','success'})
+        return jsonify({'success':'success'})
 
 
 
