@@ -9213,10 +9213,15 @@ def registerNewStudent():
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
+        statement = ''
+        if classSecId == '' or classSecId == None:
+            statement = 'Class does not exist'
+            return jsonify({'statement':statement})
         createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()
-    return jsonify({'studentId':createStudent.student_id})
+        statement = "Congratulations! You're registered. Your student ID is "+str(createStudent.student_id)+" Your password is your phone number."
+        return jsonify({'studentId':statement})
 
 
 @app.route('/registerSchool',methods=['GET','POST'])
