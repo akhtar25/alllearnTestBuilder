@@ -9016,6 +9016,11 @@ def insertUserTeacherDetails():
         for param in paramList:
             print(param)
         print(paramList[1])
+        checkUser = User.query.filter_by(email=paramList[1]).first()
+        statement = ''
+        if checkUser:
+            statement = 'Mail id already exist.'
+            return jsonify({'statement':statement})
         createUser = User(username=paramList[1],email=paramList[1],last_seen=datetime.now(),user_type=71,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
         createUser.set_password(contactNo)
         db.session.add(createUser)
@@ -9023,7 +9028,8 @@ def insertUserTeacherDetails():
         createTeacher = TeacherProfile(teacher_name=paramList[0],designation=148,registration_date=datetime.now(),email=paramList[1],last_modified_date=datetime.now(),user_id=createUser.id,phone=contactNo,device_preference=195)
         db.session.add(createTeacher)
         db.session.commit()  
-        return jsonify({'success':'success'})  
+        statement = "What's your school's name?"
+        return jsonify({'statement':statement})  
 
 @app.route('/schoolList',methods=['GET','POST'])
 def schoolList():
