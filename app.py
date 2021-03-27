@@ -9176,14 +9176,16 @@ def registerSchool():
         # locations = geolocator.reverse(coordinates)
         # if locations:
             # print(locations[0].address)  # select first location
-        if latitude:
-            createAddress = Address(latitude=latitude,longitude=longitude)
+        substring = '.latitude'
+        if substring in latitude:
+            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
             db.session.add(createAddress)
             db.session.commit()
         else:
-            createAddress = Address(address_1='address1',city='city',state='state',country='india')
+            createAddress = Address(latitude=latitude,longitude=longitude)
             db.session.add(createAddress)
             db.session.commit()
+        
         boardId = ''
         schoolType = ''
         if paramList[7] == '1':
