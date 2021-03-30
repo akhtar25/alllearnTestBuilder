@@ -1,0 +1,101 @@
+{% extends "layout.html" %} {% block content %} {% if school_name %}
+
+<div
+  class="container"
+  style="padding-left: 50px; margin-top: 10px; background-color: #e4ebf2"
+>
+  <button
+    style="border-radius: 15px; float: right; margin-top: 18px"
+    class="btn waves-light green lighten-1 white-text"
+    type="button"
+    id="addClassSubject"
+  >
+    <a href="javascript:void(0);" style="color: white">Download as PDF</a>
+  </button>
+  <div id="mainDiv">
+    <h2>{{school_name}}</h2>
+    <div id="editor"></div>
+
+    <hr />
+    <h4 style="color: royalblue">
+      Class {{class_val}} - {{test_type}} -
+      {{today}}&nbsp;&nbsp;&nbsp;&emsp;&emsp;<span style="color: royalblue"
+        >Subject: {{subject}}</span
+      >&nbsp;&nbsp;&nbsp;&emsp;<span style="color: royalblue"
+        >Total Marks: {{total_marks}}</span
+      >
+    </h4>
+    <!-- <h4 style="color: royalblue">Subject: {{subject}}</h4>
+  <h4 style="color: royalblue">Total Marks: {{total_marks}}</h4> -->
+    <br />
+    {% for question in fetchQuesIds %}
+    <h3
+      style="
+        margin-bottom: 30px;
+        font-family: 'Source Sans Pro', sans-serif;
+        color: black;
+      "
+    >
+      Q{{loop.index}}: {{ question.question_description }}
+    </h3>
+    {%if question.reference_link !=None or question.reference_link!='' %}
+    <aside class="">
+      <img
+        src="{{ question.reference_link }}"
+        style="max-height: 300px; margin-left: 35px"
+      />
+    </aside>
+    {% endif %}
+
+    <ol
+      type="A"
+      class="horizontal-list"
+      style="margin-top: 30px; margin-bottom: 30px; margin-left: 18px"
+    >
+      <li style="font-size: 18px">
+        <h4>{{myDict[question.question_id][0]}}</h4>
+      </li>
+      <li style="font-size: 18px">
+        <h4>{{myDict[question.question_id][1]}}</h4>
+      </li>
+      <li style="font-size: 18px">
+        <h4>{{myDict[question.question_id][2]}}</h4>
+      </li>
+      <li style="font-size: 18px">
+        <h4>{{myDict[question.question_id][3]}}</h4>
+      </li>
+    </ol>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  $("#addClassSubject").click(function () {
+    console.log("inside addClassSubject");
+    var prtContent = document.getElementById("mainDiv");
+    var WinPrint = window.open(
+      "",
+      "",
+      "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+
+    WinPrint.document.write(
+      '<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">'
+    );
+
+    // To keep styling
+    /*var file = WinPrint.document.createElement("link");
+    file.setAttribute("rel", "stylesheet");
+    file.setAttribute("type", "text/css");
+    file.setAttribute("href", 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css');
+    WinPrint.document.head.appendChild(file);*/
+
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.close();
+    WinPrint.setTimeout(function () {
+      WinPrint.focus();
+      WinPrint.print();
+      WinPrint.close();
+    }, 1000);
+  });
+</script>
+{% endif %} {% endblock %}
