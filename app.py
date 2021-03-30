@@ -9495,7 +9495,7 @@ def checkStudent():
                 i=1
                 studData = ''
                 for student in studentData:
-                    studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
+                    studData = str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
                     i=i+1
                 newRes = newString + studData
                 return jsonify({'studentData':newRes,'flag':'More'}) 
