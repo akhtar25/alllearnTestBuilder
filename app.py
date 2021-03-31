@@ -3103,6 +3103,56 @@ def teacherRegForm():
     print('Review status:'+str(reviewStatus.review_status))
     return jsonify(reviewStatus.review_status)
 
+    # Start
+            jsonData = request.json
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        paramList = []
+        conList = []
+        print('data:')
+        print(z)
+        for data in z['results'].values():
+                
+            paramList.append(data)
+            print('data:'+str(data))
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+
+        print(conList[2])
+        print('Testing for topic')
+        # print(type(paramList[1]))
+        # print(int(paramList[1]))
+            # 
+        print('Data Contact')
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        selClass = paramList[11]
+        subId  = paramList[15]
+        extractChapterQuery = "select td.topic_id ,td.topic_name ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        selChapter = selChapter.strip()
+        print('Topic ID:'+str(selChapter))
+        selSubject = paramList[12]
+    # End
+
 
 @app.route('/getOnlineClassLink',methods=['GET','POST'])
 def getOnlineClassLink():
@@ -3124,6 +3174,32 @@ def getOnlineClassLink():
         print(contactNo)
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        # Start
+        selClass = paramList[11]
+        subId  = paramList[15]
+        extractChapterQuery = "select td.topic_id ,td.topic_name ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        selChapter = selChapter.strip()
+        print('Topic ID:'+str(selChapter))
+        selSubject = paramList[12]
+        # End
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
             roomResponseJson = roomResponse.json()
@@ -8428,6 +8504,93 @@ def getStudentTopicList():
             return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':studentData.user_id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})
         else:
             return jsonify({'chapterDetList':msg})
+
+@app.route('getTopicIdList',methods=['POST','GET'])
+def getTopicIdList():
+    if request.method == 'POST':
+        print('inside getTopicList')
+        jsonData = request.json
+        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","subject":"1","custom_key": "custom_value"}}
+        data = json.dumps(jsonData)
+        dataList = json.loads(data)
+        conList = []
+        selectedOptions = []
+        for con in dataList['contact'].values():
+            conList.append(con)
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        # classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        # classList = [] 
+        # j=1
+        # for classlist in classesListData:
+        #     classVal = str(j)+str(' - ')+str(classlist.class_val)
+        #     classList.append(classVal)
+        #     j=j+1
+        for clas in dataList['results'].values():
+            selectedOptions.append(clas)
+        selClass = ''
+        selSubject = ''
+        # for className in classList:
+        #     num = className.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(selectedOptions[0]))
+        #     if int(num) == int(selectedOptions[0]):
+        #         print(className)
+        #         selClass = className.split('-')[1]
+        #         print('selClass:'+str(selClass))
+        print('class')
+        selClass = selectedOptions[0].strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(selectedOptions[1]))
+            if int(num) == int(selectedOptions[1]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+        
+        print('Subject:')
+        selSubject = selSubject.strip()
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.topic_name ,td.topic_id ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            if c==1:
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            else:
+                chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        msg = 'no topics available'
+        if chapterDetList:
+            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})
+        else:
+            return jsonify({'chapterDetList':msg})
+
                       
 
 @app.route('/getTopicList',methods=['POST','GET'])
