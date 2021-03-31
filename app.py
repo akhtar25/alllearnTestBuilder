@@ -9475,7 +9475,7 @@ def checkStudent():
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         print(paramList[0])
-        studentDataQuery = "select student_id,full_name from student_profile where full_name like '%"+str(paramList[0])+"%' and is_archived='N' and school_id='"+str(teacher_id.school_id)+"'"
+        studentDataQuery = "select student_id,full_name from student_profile where initcap(full_name) like initcap('%"+str(paramList[0])+"%') and is_archived='N' and school_id='"+str(teacher_id.school_id)+"'"
         print('studentDataQuery:'+str(studentDataQuery))
         studentData = db.session.execute(text(studentDataQuery)).fetchall()
         newRes = ''
@@ -9484,10 +9484,11 @@ def checkStudent():
         if len(studentData) != 0:
             if len(studentData) == 1:
                 print(len(studentData))
-                finalResult = "Here's the link to the student profile:\n"
-                studProfLink = url_for('student_profile',student_id=studentData.student_id,_external=True)
-                newRes = str(finalResult) + str(studProfLink)
-                
+                for student in studentData:
+                    finalResult = "Here's the link to the student profile:\n"
+                    studProfLink = url_for('studentProfile',student_id=student.student_id,_external=True)
+                    newRes = str(finalResult) + str(studProfLink)
+                    
                 return jsonify({'studentData':newRes,'flag':'1'}) 
             else:
                 print(len(studentData))
@@ -9495,7 +9496,7 @@ def checkStudent():
                 i=1
                 studData = ''
                 for student in studentData:
-                    studData = str(i)+str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
+                    studData = str(student.student_id)+str(' ')+str(student.full_name)+str('\n')+ studData
                     i=i+1
                 newRes = newString + studData
                 return jsonify({'studentData':newRes,'flag':'More'}) 
