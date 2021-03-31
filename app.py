@@ -4410,6 +4410,8 @@ def login():
     ##end of new section
     
     form = LoginForm()
+    print('Validation')
+    print(form.validate_on_submit())
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
             print("###glogin val"+ str(glogin))
@@ -4427,10 +4429,14 @@ def login():
                 user=User.query.filter_by(email=form.email.data).first() 
             else:
                 Input = form.email.data
-                string = 'studId'
-                if Input.find(string) == 0:
+                print('Type:'+str(type(Input)))
+                In = Input.upper()
+                string = 'stud_'
+                strg = string.upper()
+                print('Type:'+str(type(strg))+'String:'+str(strg))
+                if In.find(strg) == 0:
                     print('this is student id')
-                    studentId = Input[6:]
+                    studentId = Input[5:]
                     print('studentId:'+str(studentId))
                     studData = StudentProfile.query.filter_by(student_id=studentId).first()
                     email = studData.email
@@ -6931,7 +6937,11 @@ def topicList():
     class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
     class_val = request.args.get('class_val')
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    teacher = ''
+    if current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
     topicListQuery = "select distinct t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
