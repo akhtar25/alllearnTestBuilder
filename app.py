@@ -3103,56 +3103,6 @@ def teacherRegForm():
     print('Review status:'+str(reviewStatus.review_status))
     return jsonify(reviewStatus.review_status)
 
-    # Start
-            jsonData = request.json
-        a = json.dumps(jsonData)
-        z = json.loads(a)
-        paramList = []
-        conList = []
-        print('data:')
-        print(z)
-        for data in z['results'].values():
-                
-            paramList.append(data)
-            print('data:'+str(data))
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
-
-        print(conList[2])
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-            # 
-        print('Data Contact')
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        selClass = paramList[11]
-        subId  = paramList[15]
-        extractChapterQuery = "select td.topic_id ,td.topic_name ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-        print('Query:'+str(extractChapterQuery))
-        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-        print(extractChapterData)
-        c=1
-        chapterDetList = []
-        for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
-            chapterDetList.append(chap)
-            c=c+1
-        selChapter = ''
-        for chapterName in chapterDetList:
-            num = chapterName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[1]))
-            if int(num) == int(paramList[1]):
-                print(chapterName)
-                selChapter = chapterName.split('-')[1]
-                print('selChapter:'+str(selChapter))
-        selChapter = selChapter.strip()
-        print('Topic ID:'+str(selChapter))
-        selSubject = paramList[12]
-    # End
-
 
 @app.route('/getOnlineClassLink',methods=['GET','POST'])
 def getOnlineClassLink():
