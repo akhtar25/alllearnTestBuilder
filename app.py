@@ -8455,7 +8455,7 @@ def getStudentTopicList():
         else:
             return jsonify({'chapterDetList':msg})
 
-@app.route('getTopicIdList',methods=['POST','GET'])
+@app.route('/getTopicIdList',methods=['POST','GET'])
 def getTopicIdList():
     if request.method == 'POST':
         print('inside getTopicList')
