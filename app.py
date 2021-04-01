@@ -9681,6 +9681,73 @@ def checkrequiredquestions():
             return jsonify({'msg':Msg})
         return jsonify({'msg':Msg})
 
+@app.route('/getEnteredTopicOnlineClassLink',methods=['POST','GET'])
+def getEnteredTopicOnlineClassLink():
+    if request.method == 'POST':
+        print('inside getStudentEnteredTopicList')
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        
+        a = json.dumps(jsonExamData)
+      
+        z = json.loads(a)
+        
+        paramList = []
+        conList = []
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
+        for data in z['results'].values():
+            
+            paramList.append(data)
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+        print(conList[2])
+        
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        topics = paramList[1].strip()
+        topicList = topics.split(',')
+        print(topicList[0])
+        topic = topicList[0].capitalize()
+        selClass = paramList[11]
+        selSubject = paramList[13]
+        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=teacher_id.school_id).first()
+        subId  = paramList[15]
+        p =1
+        for topic in topicList:
+            fetchQuesIdsQuery = "select td.topic_id,td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            if p<len(topicList):
+                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+            p=p+1
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        Msg = 'no questions available'
+        if len(fetchQuesIds)==0:
+            return jsonify({'onlineTestLink':Msg})
+        topicID = ''
+        for det in fetchQuesIds:
+            topicID = det.topic_id
+        if teacher_id.room_id==None:            
+            roomResponse = roomCreation()
+            roomResponseJson = roomResponse.json()
+            print("New room ID created: " +str(roomResponseJson["url"]))
+            teacher_id.room_id = str(roomResponseJson["url"])
+            db.session.commit()
+        link = url_for('classDelivery',class_sec_id=classDet.class_sec_id,subject_id=subId,topic_id=topicID,retake='N',_external=True)
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)+str("\n")
+        OnlineClassLink = OnlineClassLink + str("Book Link:\n")+str(link)
+        return jsonify({'onlineClassLink':OnlineClassLink})
+        
+
+
 @app.route('/getStudentEnteredTopicList',methods=['POST','GET'])
 def getStudentEnteredTopicList():
     if request.method == 'POST':
