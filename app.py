@@ -3116,6 +3116,8 @@ def getOnlineClassLink():
         print('data:')
         # print(z['result'].class_val)
         # print(z['result'])
+        for val in response['results'].values():
+            paramList.append(val)
         for data in response['contact'].values():
             conList.append(data)
         print('Data Contact')
