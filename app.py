@@ -9731,7 +9731,7 @@ def getEnteredTopicOnlineClassLink():
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         Msg = 'no questions available'
         if len(fetchQuesIds)==0:
-            return jsonify({'onlineTestLink':Msg})
+            return jsonify({'onlineClassLink':Msg})
         topicID = ''
         for det in fetchQuesIds:
             if det.topic_id:
