@@ -9734,7 +9734,9 @@ def getEnteredTopicOnlineClassLink():
             return jsonify({'onlineTestLink':Msg})
         topicID = ''
         for det in fetchQuesIds:
-            topicID = det.topic_id
+            if det.topic_id:
+                topicID = det.topic_id
+                break
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
             roomResponseJson = roomResponse.json()
@@ -9744,6 +9746,8 @@ def getEnteredTopicOnlineClassLink():
         link = url_for('classDelivery',class_sec_id=classDet.class_sec_id,subject_id=subId,topic_id=topicID,retake='N',_external=True)
         OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)+str("\n")
         OnlineClassLink = OnlineClassLink + str("Book Link:\n")+str(link)
+        print('topicID:'+str(topicID))
+        print(OnlineClassLink)
         return jsonify({'onlineClassLink':OnlineClassLink})
         
 
