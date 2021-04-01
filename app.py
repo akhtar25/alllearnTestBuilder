@@ -9004,8 +9004,11 @@ def getClassList():
         print('all data:')
         print(dataList)
         conList = []
+        paramList = []
         for con in dataList['contact'].values():
             conList.append(con)
+        for data in dataList['results'].values():
+            paramList.append(data)
         print('Data Contact')
         # print(conList[2])
         contactNo = conList[2][-10:]
@@ -9029,7 +9032,10 @@ def getClassList():
         j=1
         for classlist in classesListData:
             if j==1:
-                classVal = str('Which class do you want to test?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+                if paramList[0] == '1':
+                    classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+                else:
+                    classVal = str('Which class do you want to test?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             else:
                 classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
