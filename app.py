@@ -3128,6 +3128,7 @@ def getOnlineClassLink():
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
         # Start
         selClass = paramList[11]
+        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=teacher_id.school_id).first()
         subId  = paramList[15]
         extractChapterQuery = "select td.topic_id ,td.topic_name ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
         print('Query:'+str(extractChapterQuery))
@@ -3158,7 +3159,9 @@ def getOnlineClassLink():
             print("New room ID created: " +str(roomResponseJson["url"]))
             teacher_id.room_id = str(roomResponseJson["url"])
             db.session.commit()
-        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)
+        link = url_for('classDelivery',class_sec_id=classDet.class_sec_id,subject_id=subId,topic_id=selChapter,retake='N',_external=True)
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)+str("\n")
+        OnlineClassLink = OnlineClassLink + str("Book Link:\n")+str(link)
         return jsonify({'onlineClassLink':OnlineClassLink})
 
 ##Helper function
