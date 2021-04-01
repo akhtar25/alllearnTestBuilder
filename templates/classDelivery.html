@@ -1,6 +1,26 @@
 {%extends "layout.html"%} {%block content%}
 <style>
   @media only screen and (max-width: 992px) {
+    #newMobView{
+      float: left;
+      margin-left: -60px !important;
+    }
+    #prev{
+      margin-bottom: 4px;
+    }
+    #next{
+      margin-top: -5px;
+    }
+    #topicHead{
+      width: 200px;
+    }
+    #booknameDiv{
+      width: 210px;
+    }
+    #controls{
+      width: 271px;
+      margin-top: 10px;
+    }
     #mobDis{
       height: 622px !important;
     overflow-y: auto !important;
@@ -94,8 +114,9 @@
       </div>
         <div id="bookDiv">
           <div class="box-header">
-            <h3 class="box-title" style="font-size: 14px;">Book: {{bookDet.book_name}} </h3><span style="padding-left: 10px;"> Class:
-              {{currClassSecDet.class_val}} | Topic: {{ topicDet.topic_name }}</span>
+            <h3 id="topicHead" class="box-title" style="font-size: 14px;">Topic: <strong>{{ topicDet.topic_name }}</strong> </h3>
+            <div id="booknameDiv" style=""> Class:
+              {{currClassSecDet.class_val}} | Book: {{bookDet.book_name}}</div>
           </div>
           <!-- /.box-header -->
           {% if bookDet.book_link %}
@@ -166,7 +187,7 @@
               <a href="#"><div id="refMobData" class="box box-info"><h3 style="margin-left: 10px;">Reference Content</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
-                      <div id="mobVis" style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
+                      <div id="newMobView" style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
                                 <table>
                                     {% if contentData %}
                                     {% for content in contentData %}   
