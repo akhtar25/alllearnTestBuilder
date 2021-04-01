@@ -9711,7 +9711,7 @@ def getEnteredTopicOnlineClassLink():
         print(contactNo)
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        topics = paramList[1].strip()
+        topics = paramList[0].strip()
         topicList = topics.split(',')
         print(topicList[0])
         topic = topicList[0].capitalize()
