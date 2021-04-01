@@ -9715,15 +9715,15 @@ def getEnteredTopicOnlineClassLink():
         topicList = topics.split(',')
         print(topicList[0])
         topic = topicList[0].capitalize()
-        selClass = paramList[11]
-        selSubject = paramList[13]
+        selClass = paramList[10]
+        selSubject = paramList[11]
         classDet = ClassSection.query.filter_by(class_val=selClass,school_id=teacher_id.school_id).first()
-        subId  = paramList[15]
+        subId  = paramList[14]
         p =1
         for topic in topicList:
             fetchQuesIdsQuery = "select td.topic_id,td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"'"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
