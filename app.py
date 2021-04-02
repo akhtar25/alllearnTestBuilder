@@ -9614,9 +9614,11 @@ def unregisterSchoolRegistered():
         createUser.school_id = createSchool.school_id
         db.session.commit()
         if createTeacher:
-            print('user is teacher')
+            print('user is teacher School id: '+str(createSchool.school_id))
+            print('school id in teacher table before update:'+str(createTeacher.school_id))
             createTeacher.school_id = createSchool.school_id
             db.session.commit()
+            print('school id in teacher table after update:'+str(createTeacher.school_id))
         if createStudent:
             print('user is student')
             createStudent.school_id = createSchool.school_id
