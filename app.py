@@ -9148,7 +9148,10 @@ def registerUser():
             if userId.user_type == 71:
                 teacher = 'Teacher'
                 print('User is Teacher')
-                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if teacher_id.school_id:
+                    schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                else:
+                    return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
                 return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
@@ -9156,7 +9159,10 @@ def registerUser():
             elif userId.user_type == 134:
                 student = 'Student'
                 print('user is student')
-                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if student_id.school_id:
+                    schoolDet = SchoolProfile.query.filter_by(school_id=student_id.school_id).first()
+                else:
+                    return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
                 return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
