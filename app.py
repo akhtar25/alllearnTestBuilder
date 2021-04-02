@@ -9614,9 +9614,13 @@ def unregisterSchoolRegistered():
         createUser.school_id = createSchool.school_id
         db.session.commit()
         if createTeacher:
+            print('user is teacher')
             createTeacher.school_id = createSchool.school_id
+            db.session.commit()
         if createStudent:
+            print('user is student')
             createStudent.school_id = createSchool.school_id
+            db.session.commit()
         db.session.commit()
         return jsonify({'success':'success'})        
 
