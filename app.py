@@ -9227,6 +9227,40 @@ def getStudentProfileById():
                 
         return jsonify({'studentData':newRes})  
 
+@app.route('/accessSchool',methods=['GET','POST'])
+def accessSchool():
+    if request.method == 'POST':
+        print('inside accessSchool')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)      
+        schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+        if schoolDet:
+            userDet = User.query.filter_by(phone=contactNo).first()
+            userDet.school_id =  schoolDet.school_id
+            db.session.commit()
+            teacherDet = TeacherProfile.query.filter_by(phone=contactNo).first()
+            studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
+            if teacherDet:
+                teacherDet.school_id = schoolDet.school_id
+            if studentDet:
+                studentDet.school_id = schoolDet.school_id
+            db.session.commit()
+            statement = 'Access request sent to the school admin.'
+            return jsonify({'statement':statement})   
+        else:
+            statement = "School id does not exist."
+            return jsonify({'statement':statement})              
+
 @app.route('/accessRegisteredSchool',methods=['GET','POST'])
 def accessRegisteredSchool():
     if request.method == 'POST':
@@ -9281,7 +9315,8 @@ def checkMailId():
             statement = 'Mail id already exist.'
             return jsonify({'statement':statement})
         statement = 'Which class-section do you study in?'
-        return jsonify({'statement':statement})        
+        return jsonify({'statement':statement})  
+
 
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
 def insertUserTeacherDetails():
@@ -9521,6 +9556,69 @@ def registerNewStudent():
         db.session.commit()
         statement = "Congratulations! You're registered. Your student ID is "+str(createStudent.student_id)+" Your password is your phone number."
         return jsonify({'studentId':statement})
+
+@app.route('/unregisterSchoolRegistered',methods=['GET','POST'])
+def unregisterSchoolRegistered():
+    if request.method == 'POST':
+        print('inside unregisterSchoolRegistered')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        latitude = paramList[9]
+        longitude = paramList[10]
+        print('latitude:'+str(latitude))
+        print('longitude:'+str(longitude))
+        substring = '.latitude'
+        if substring in latitude:
+            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+            db.session.add(createAddress)
+            db.session.commit()
+        else:
+            createAddress = Address(latitude=latitude,longitude=longitude)
+            db.session.add(createAddress)
+            db.session.commit()
+        boardId = ''
+        schoolType = ''
+        if paramList[7] == '1':
+            boardId = 1001
+        elif paramList[7] == '2':
+            boardId = 1002
+        elif paramList[7] == '3':
+            boardId = 1005
+        else:
+            boardId = 1003
+        if paramList[6] == '1':
+            schoolType = 'Affordable private school'
+        elif paramList[6] == '2':
+            schoolType = 'NGO School'
+        elif paramList[6] == '3':
+            schoolType = 'Elite private school'
+        else: 
+            schoolType = 'Other'
+        createTeacher = TeacherProfile.query.filter_by(phone=contactNo).first()
+        createStudent = StudentProfile.query.filter_by(phone=contactNo).first()
+        createUser = User.query.filter_by(phone=contactNo).first()
+        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
+        db.session.add(createSchool)
+        db.session.commit()
+        print(createSchool.school_id)
+        createUser.school_id = createSchool.school_id
+        db.session.commit()
+        if createTeacher:
+            createTeacher.school_id = createSchool.school_id
+        if createStudent:
+            createStudent.school_id = createSchool.school_id
+        db.session.commit()
+        return jsonify({'success':'success'})        
 
 
 @app.route('/registerSchool',methods=['GET','POST'])
