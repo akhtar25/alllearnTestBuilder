@@ -14793,7 +14793,7 @@ def addSubjectsforSchool():
                     print(insertData)
                     db.session.add(insertData)
                     db.session.commit()
-    return jsonify({'success':'success'})
+        return jsonify({'success':'success'})
 
 @app.route('/addBooksforSchool',methods=['GET','POST'])
 def addBooksforSchool():
@@ -14813,7 +14813,7 @@ def addBooksforSchool():
                     print(insertData)
                     db.session.add(insertData)
                     db.session.commit()
-    return jsonify({'success':'success'})
+        return jsonify({'success':'success'})
 
 #     @app.route('/addTopicsforSchool',methods=['GET','POST'])
 # def addTopicsforSchool():
