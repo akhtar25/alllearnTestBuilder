@@ -14762,6 +14762,8 @@ def studTC():
 def addClassesforSchool():
     if request.method == 'POST':
         print('inside addClassesforSchool')
+        school_id = request.args.get('school_id')
+        print('School id:'+str(school_id))
         return jsonify({'success':'success'})
 
 @app.route('/archiveTCClass',methods=["GET","POST"])
