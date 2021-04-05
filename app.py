@@ -14795,6 +14795,45 @@ def addSubjectsforSchool():
                     db.session.commit()
     return jsonify({'success':'success'})
 
+@app.route('/addBooksforSchool',methods=['GET','POST'])
+def addBooksforSchool():
+    if request.method == 'POST':
+        print('inside addBooksforSchool')
+        school_id = request.args.get('school_id')
+        print('School id:'+str(school_id))
+        schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+        BCSBData = BoardClassSubjectBooks.query.filter_by(board_id = schoolData.board_id).first()
+        checkDet = BoardClassSubjectBooks.query.filter_by(school_id = schoolData.school_id).first()
+        if checkDet == None or checkDet == '':
+            for data in BCSBData:
+                print('inside for')
+                if int(data.class_val) >= 1 and int(data.class_val) <=10:
+                    insertData = BoardClassSubjectBooks(class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',book_id=data.book_id,last_modified_date=datetime.now())
+                    print(insertData)
+                    db.session.add(insertData)
+                    db.session.commit()
+    return jsonify({'success':'success'})
+
+#     @app.route('/addTopicsforSchool',methods=['GET','POST'])
+# def addTopicsforSchool():
+#     if request.method == 'POST':
+#         print('inside addTopicsforSchool')
+#         school_id = request.args.get('school_id')
+#         print('School id:'+str(school_id))
+#         schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+#         BCSBData = TopicTracker.query.filter_by(board_id = schoolData.board_id).first()
+#         checkDet = BoardClassSubjectBooks.query.filter_by(school_id = schoolData.school_id).first()
+#         if checkDet == None or checkDet == '':
+#             for data in BCSBData:
+#                 print('inside for')
+#                 if int(data.class_val) >= 1 and int(data.class_val) <=10:
+#                     insertData = BoardClassSubjectBooks(class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',book_id=data.book_id,last_modified_date=datetime.now())
+#                     print(insertData)
+#                     db.session.add(insertData)
+#                     db.session.commit()
+#     return jsonify({'success':'success'})
+
+
 
 
 @app.route('/archiveTCClass',methods=["GET","POST"])
