@@ -14758,6 +14758,12 @@ def studTC():
     indic='DashBoard'
     return render_template('studTC.html',indic=indic,tcData=tcData,title='Student TC')
 
+@app.route('/addClassesforSchool',methods=['GET','POST'])
+def addClassesforSchool():
+    if request.method == 'POST':
+        print('inside addClassesforSchool')
+        return jsonify({'success':'success'})
+
 @app.route('/archiveTCClass',methods=["GET","POST"])
 @login_required
 def archiveTCClass():
