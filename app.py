@@ -14766,26 +14766,33 @@ def addClassesforSchool():
         school_id = request.args.get('school_id')
         print('School id:'+str(school_id))
         schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
-        
-        for data in range(1,11):
-            insertData = ClassSection(school_id=schoolData.school_id,class_val=str(data),section='A',last_modified_date=datetime.now())
-            db.session.add(insertData)
-            db.session.commit()
+        checkDet = ClassSection.query.filter_by(school_id = schoolData.school_id).first()
+        if checkDet == None or checkDet == '':        
+            for data in range(1,11):
+                print('inside for')
+                insertData = ClassSection(school_id=schoolData.school_id,class_val=str(data),section='A',last_modified_date=datetime.now())
+                print(insertData)
+                db.session.add(insertData)
+                db.session.commit()
         return jsonify({'success':'success'})
 
 @app.route('/addSubjectsforSchool',methods=['GET','POST'])
 def addSubjectsforSchool():
     if request.method == 'POST':
-        print('inside addClassesforSchool')
+        print('inside addSubjectsforSchool')
         school_id = request.args.get('school_id')
         print('School id:'+str(school_id))
         schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSData = BoardClassSubject.query.filter_by(board_id = schoolData.board_id).first()
-        for data in BCSData:
-            if int(data.class_val) >= 1 and int(data.class_val) <=10:
-                insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(insertData)
-                db.session.commit()
+        checkDet = BoardClassSubject.query.filter_by(school_id = schoolData.school_id).first()
+        if checkDet == None or checkDet == '':
+            for data in BCSData:
+                print('inside for')
+                if int(data.class_val) >= 1 and int(data.class_val) <=10:
+                    insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',last_modified_date=datetime.now())
+                    print(insertData)
+                    db.session.add(insertData)
+                    db.session.commit()
     return jsonify({'success':'success'})
 
 
