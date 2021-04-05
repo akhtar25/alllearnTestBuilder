@@ -5,6 +5,9 @@
       float: left;
       margin-left: -60px !important;
     }
+    #refDataMob{
+      display: block !important;
+    }
     #prev{
       margin-bottom: 4px;
     }
@@ -28,7 +31,7 @@
     width: 250px !important;
     }
     #refMobData{
-      display:none !important;
+      ;
     }
     #topicref{
       display:none !important;
@@ -187,6 +190,7 @@
               <a href="#"><div id="refMobData" class="box box-info"><h3 style="margin-left: 10px;">Reference Content</h3></div></a>
               <ul class="treeview-menu reference_data">
                  <li>
+                  <a href="#" id="refDataMob" style="display:none;"><div class=""><h3 style="">Reference Content</h3></div></a>
                       <div id="newMobView" style="overflow-y: auto;overflow-x: unset;height:580px;width: 310px;padding: 10px;margin-left: -5px;" class="table-responsive scrollableDiv">
                                 <table>
                                     {% if contentData %}
