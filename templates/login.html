@@ -68,7 +68,7 @@
         {{ form.hidden_tag() }}
         <p>
           {{ form.email.label(style="font-weight:400;color:green") }}
-          <a class="tooltippedBoard" style="float: right;" data-position="right" data-tooltip="eg. studId2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
+          <a class="tooltippedBoard" style="margin-left: 10px;" data-position="right" data-tooltip="eg. stud_2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
           <br />
           {{ form.email(size=64,id='newEmail') }} {% for error in form.email.errors %}
           <span style="color: red">[{{ error }}]</span>

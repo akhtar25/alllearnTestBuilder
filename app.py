@@ -3116,6 +3116,8 @@ def getOnlineClassLink():
         print('data:')
         # print(z['result'].class_val)
         # print(z['result'])
+        for val in response['results'].values():
+            paramList.append(val)
         for data in response['contact'].values():
             conList.append(data)
         print('Data Contact')
@@ -3124,13 +3126,42 @@ def getOnlineClassLink():
         print(contactNo)
         userId = User.query.filter_by(phone=contactNo).first()
         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        # Start
+        selClass = paramList[11]
+        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=teacher_id.school_id).first()
+        subId  = paramList[15]
+        extractChapterQuery = "select td.topic_id ,td.topic_name ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        selChapter = ''
+        for chapterName in chapterDetList:
+            num = chapterName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(paramList[1]))
+            if int(num) == int(paramList[1]):
+                print(chapterName)
+                selChapter = chapterName.split('-')[1]
+                print('selChapter:'+str(selChapter))
+        selChapter = selChapter.strip()
+        print('Topic ID:'+str(selChapter))
+        selSubject = paramList[12]
+        # End
         if teacher_id.room_id==None:            
             roomResponse = roomCreation()
             roomResponseJson = roomResponse.json()
             print("New room ID created: " +str(roomResponseJson["url"]))
             teacher_id.room_id = str(roomResponseJson["url"])
             db.session.commit()
-        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)
+        link = url_for('classDelivery',class_sec_id=classDet.class_sec_id,subject_id=subId,topic_id=selChapter,retake='N',_external=True)
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)+str("\n")
+        OnlineClassLink = OnlineClassLink + str("Book Link:\n")+str(link)
         return jsonify({'onlineClassLink':OnlineClassLink})
 
 ##Helper function
@@ -4410,6 +4441,8 @@ def login():
     ##end of new section
     
     form = LoginForm()
+    print('Validation')
+    print(form.validate_on_submit())
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
             print("###glogin val"+ str(glogin))
@@ -4427,10 +4460,14 @@ def login():
                 user=User.query.filter_by(email=form.email.data).first() 
             else:
                 Input = form.email.data
-                string = 'studId'
-                if Input.find(string) == 0:
+                print('Type:'+str(type(Input)))
+                In = Input.upper()
+                string = 'stud_'
+                strg = string.upper()
+                print('Type:'+str(type(strg))+'String:'+str(strg))
+                if In.find(strg) == 0:
                     print('this is student id')
-                    studentId = Input[6:]
+                    studentId = Input[5:]
                     print('studentId:'+str(studentId))
                     studData = StudentProfile.query.filter_by(student_id=studentId).first()
                     email = studData.email
@@ -6931,7 +6968,11 @@ def topicList():
     class_sec_id = request.args.get('class_sec_id','1')
     subject_id = request.args.get('subject_id','15')
     class_val = request.args.get('class_val')
-    teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+    teacher = ''
+    if current_user.user_type==134:
+        teacher = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    else:
+        teacher= TeacherProfile.query.filter_by(user_id=current_user.id).first() 
     #topicList = TopicTracker.query.filter_by(subject_id=subject_id, class_sec_id=class_sec_id).all()
     topicListQuery = "select distinct t1.subject_id, t3.description as subject_name, t1.topic_id, t2.topic_name,t1.is_covered, "
     topicListQuery = topicListQuery + "t2.chapter_num, t2.unit_num, t4.book_name from topic_tracker t1 "
@@ -8418,6 +8459,93 @@ def getStudentTopicList():
             return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':studentData.user_id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})
         else:
             return jsonify({'chapterDetList':msg})
+
+@app.route('/getTopicIdList',methods=['POST','GET'])
+def getTopicIdList():
+    if request.method == 'POST':
+        print('inside getTopicList')
+        jsonData = request.json
+        # jsonData = {"contact": {"phone":"9008262739" },"results": {"class_val":"4","subject":"1","custom_key": "custom_value"}}
+        data = json.dumps(jsonData)
+        dataList = json.loads(data)
+        conList = []
+        selectedOptions = []
+        for con in dataList['contact'].values():
+            conList.append(con)
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+        # classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+        # classList = [] 
+        # j=1
+        # for classlist in classesListData:
+        #     classVal = str(j)+str(' - ')+str(classlist.class_val)
+        #     classList.append(classVal)
+        #     j=j+1
+        for clas in dataList['results'].values():
+            selectedOptions.append(clas)
+        selClass = ''
+        selSubject = ''
+        # for className in classList:
+        #     num = className.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(selectedOptions[0]))
+        #     if int(num) == int(selectedOptions[0]):
+        #         print(className)
+        #         selClass = className.split('-')[1]
+        #         print('selClass:'+str(selClass))
+        print('class')
+        selClass = selectedOptions[0].strip()
+        print(selClass)
+        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+        print(subQuery)
+        subjectData = db.session.execute(text(subQuery)).fetchall()
+        print(subjectData)
+        subjectList = []
+        k=1
+        subId = ''
+        for subj in subjectData:
+            sub = str(k)+str('-')+str(subj.subject)
+            subjectList.append(sub)
+            k=k+1
+        for subjectName in subjectList:
+            num = subjectName.split('-')[0]
+            print('num:'+str(num))
+            print('class:'+str(selectedOptions[1]))
+            if int(num) == int(selectedOptions[1]):
+                print(subjectName)
+                selSubject = subjectName.split('-')[1]
+                print('selSubject:'+str(selSubject))
+        
+        print('Subject:')
+        selSubject = selSubject.strip()
+        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        subId = subQuery.msg_id
+        print(selSubject)
+        print('SubId:'+str(subId))
+        extractChapterQuery = "select td.topic_name ,td.topic_id ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        print('Query:'+str(extractChapterQuery))
+        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        print(extractChapterData)
+        c=1
+        chapterDetList = []
+        for chapterDet in extractChapterData:
+            if c==1:
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            else:
+                chap = str(c)+str('-')+str(chapterDet.topic_id)+str('-')+str(chapterDet.topic_name)+str("\n")
+            chapterDetList.append(chap)
+            c=c+1
+        msg = 'no topics available'
+        if chapterDetList:
+            return jsonify({'chapterDetList':chapterDetList,'selClass':selClass,'selSubject':selSubject,'userId':userId.id,'teacher_id':teacher_id.teacher_id,'subId':subId,'schoolId':teacher_id.school_id,'schoolName':schoolData.school_name})
+        else:
+            return jsonify({'chapterDetList':msg})
+
                       
 
 @app.route('/getTopicList',methods=['POST','GET'])
@@ -8876,8 +9004,11 @@ def getClassList():
         print('all data:')
         print(dataList)
         conList = []
+        paramList = []
         for con in dataList['contact'].values():
             conList.append(con)
+        for data in dataList['results'].values():
+            paramList.append(data)
         print('Data Contact')
         # print(conList[2])
         contactNo = conList[2][-10:]
@@ -8901,7 +9032,10 @@ def getClassList():
         j=1
         for classlist in classesListData:
             if j==1:
-                classVal = str('Which class do you want to test?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+                if paramList[0] == '1':
+                    classVal = str('Which class?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
+                else:
+                    classVal = str('Which class do you want to test?\n')+str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             else:
                 classVal = str(j)+str(' - ')+str(classlist.class_val)+str("\n")
             classList.append(classVal)
@@ -9014,7 +9148,10 @@ def registerUser():
             if userId.user_type == 71:
                 teacher = 'Teacher'
                 print('User is Teacher')
-                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if teacher_id.school_id:
+                    schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                else:
+                    return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
                 return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
@@ -9022,7 +9159,10 @@ def registerUser():
             elif userId.user_type == 134:
                 student = 'Student'
                 print('user is student')
-                schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+                if student_id.school_id:
+                    schoolDet = SchoolProfile.query.filter_by(school_id=student_id.school_id).first()
+                else:
+                    return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
                 return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
@@ -9087,6 +9227,40 @@ def getStudentProfileById():
                 
         return jsonify({'studentData':newRes})  
 
+@app.route('/accessSchool',methods=['GET','POST'])
+def accessSchool():
+    if request.method == 'POST':
+        print('inside accessSchool')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)      
+        schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+        if schoolDet:
+            userDet = User.query.filter_by(phone=contactNo).first()
+            userDet.school_id =  schoolDet.school_id
+            db.session.commit()
+            teacherDet = TeacherProfile.query.filter_by(phone=contactNo).first()
+            studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
+            if teacherDet:
+                teacherDet.school_id = schoolDet.school_id
+            if studentDet:
+                studentDet.school_id = schoolDet.school_id
+            db.session.commit()
+            statement = 'Access request sent to the school admin.'
+            return jsonify({'statement':statement})   
+        else:
+            statement = "School id does not exist."
+            return jsonify({'statement':statement})              
+
 @app.route('/accessRegisteredSchool',methods=['GET','POST'])
 def accessRegisteredSchool():
     if request.method == 'POST':
@@ -9141,7 +9315,8 @@ def checkMailId():
             statement = 'Mail id already exist.'
             return jsonify({'statement':statement})
         statement = 'Which class-section do you study in?'
-        return jsonify({'statement':statement})        
+        return jsonify({'statement':statement})  
+
 
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
 def insertUserTeacherDetails():
@@ -9382,6 +9557,75 @@ def registerNewStudent():
         statement = "Congratulations! You're registered. Your student ID is "+str(createStudent.student_id)+" Your password is your phone number."
         return jsonify({'studentId':statement})
 
+@app.route('/unregisterSchoolRegistered',methods=['GET','POST'])
+def unregisterSchoolRegistered():
+    if request.method == 'POST':
+        print('inside unregisterSchoolRegistered')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        latitude = paramList[9]
+        longitude = paramList[10]
+        print('latitude:'+str(latitude))
+        print('longitude:'+str(longitude))
+        substring = '.latitude'
+        if substring in latitude:
+            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+            db.session.add(createAddress)
+            db.session.commit()
+        else:
+            createAddress = Address(latitude=latitude,longitude=longitude)
+            db.session.add(createAddress)
+            db.session.commit()
+        boardId = ''
+        schoolType = ''
+        if paramList[7] == '1':
+            boardId = 1001
+        elif paramList[7] == '2':
+            boardId = 1002
+        elif paramList[7] == '3':
+            boardId = 1005
+        else:
+            boardId = 1003
+        if paramList[6] == '1':
+            schoolType = 'Affordable private school'
+        elif paramList[6] == '2':
+            schoolType = 'NGO School'
+        elif paramList[6] == '3':
+            schoolType = 'Elite private school'
+        else: 
+            schoolType = 'Other'
+        createTeacher = TeacherProfile.query.filter_by(phone=contactNo).first()
+        createStudent = StudentProfile.query.filter_by(phone=contactNo).first()
+        createUser = User.query.filter_by(phone=contactNo).first()
+        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
+        db.session.add(createSchool)
+        db.session.commit()
+        print(createSchool.school_id)
+        createUser.school_id = createSchool.school_id
+        db.session.commit()
+        if createTeacher:
+            print('user is teacher School id: '+str(createSchool.school_id))
+            print('school id in teacher table before update:'+str(createTeacher.school_id))
+            createTeacher.school_id = createSchool.school_id
+            db.session.commit()
+            print('school id in teacher table after update:'+str(createTeacher.school_id))
+        if createStudent:
+            print('user is student')
+            createStudent.school_id = createSchool.school_id
+            db.session.commit()
+        db.session.commit()
+        return jsonify({'success':'success'})        
+
 
 @app.route('/registerSchool',methods=['GET','POST'])
 def registerSchool():
@@ -9546,6 +9790,77 @@ def checkrequiredquestions():
             Msg = 'No questions available'
             return jsonify({'msg':Msg})
         return jsonify({'msg':Msg})
+
+@app.route('/getEnteredTopicOnlineClassLink',methods=['POST','GET'])
+def getEnteredTopicOnlineClassLink():
+    if request.method == 'POST':
+        print('inside getStudentEnteredTopicList')
+        jsonExamData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        
+        a = json.dumps(jsonExamData)
+      
+        z = json.loads(a)
+        
+        paramList = []
+        conList = []
+        print('data:')
+        # print(z['result'].class_val)
+        # print(z['result'])
+        for data in z['results'].values():
+            
+            paramList.append(data)
+        for con in z['contact'].values():
+            conList.append(con)
+        print(paramList)
+        print(conList[2])
+        
+        print('Data Contact')
+        # print(conList[2])
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        userId = User.query.filter_by(phone=contactNo).first()
+        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+        topics = paramList[0].strip()
+        topicList = topics.split(',')
+        print(topicList[0])
+        topic = topicList[0].capitalize()
+        selClass = paramList[10]
+        selSubject = paramList[11]
+        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=teacher_id.school_id).first()
+        subId  = paramList[14]
+        p =1
+        for topic in topicList:
+            fetchQuesIdsQuery = "select td.topic_id,td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"'"
+            if p<len(topicList):
+                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+            p=p+1
+        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        Msg = 'no questions available'
+        if len(fetchQuesIds)==0:
+            return jsonify({'onlineClassLink':Msg})
+        topicID = ''
+        for det in fetchQuesIds:
+            if det.topic_id:
+                topicID = det.topic_id
+                break
+        if teacher_id.room_id==None:            
+            roomResponse = roomCreation()
+            roomResponseJson = roomResponse.json()
+            print("New room ID created: " +str(roomResponseJson["url"]))
+            teacher_id.room_id = str(roomResponseJson["url"])
+            db.session.commit()
+        link = url_for('classDelivery',class_sec_id=classDet.class_sec_id,subject_id=subId,topic_id=topicID,retake='N',_external=True)
+        OnlineClassLink = str('Online class link:\n')+ str(teacher_id.room_id)+str("\n")
+        OnlineClassLink = OnlineClassLink + str("Book Link:\n")+str(link)
+        print('topicID:'+str(topicID))
+        print(OnlineClassLink)
+        return jsonify({'onlineClassLink':OnlineClassLink})
+        
+
 
 @app.route('/getStudentEnteredTopicList',methods=['POST','GET'])
 def getStudentEnteredTopicList():
