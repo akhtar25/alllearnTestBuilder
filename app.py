@@ -14789,8 +14789,8 @@ def addSubjectsforSchool():
             for data in BCSData:
                 print('inside for')
                 if int(data.class_val) >= 1 and int(data.class_val) <=10:
-                    insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',last_modified_date=datetime.now())
-                    print(insertData)
+                    insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',last_modified_date=datetime.now())
+                    
                     db.session.add(insertData)
                     db.session.commit()
         return jsonify({'success':'success'})
@@ -14809,7 +14809,7 @@ def addBooksforSchool():
             for data in BCSBData:
                 print('inside for')
                 if int(data.class_val) >= 1 and int(data.class_val) <=10:
-                    insertData = BoardClassSubjectBooks(class_val=data.class_val,subject_id=data.subject_id,school_id=schoolData.school_id,is_archived='N',book_id=data.book_id,last_modified_date=datetime.now())
+                    insertData = BoardClassSubjectBooks(class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',book_id=data.book_id,last_modified_date=datetime.now())
                     print(insertData)
                     db.session.add(insertData)
                     db.session.commit()
