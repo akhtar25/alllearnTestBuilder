@@ -14785,18 +14785,6 @@ def addSubjectsforSchool():
         schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSData = BoardClassSubject.query.filter_by(board_id = schoolData.board_id).all()
         checkDet = BoardClassSubject.query.filter_by(school_id = schoolData.school_id).first()
-
-        return jsonify({'BCSData':BCSData,'checkDet':checkDet,'schoolData':schoolData})
-
-@app.route('/addSubjectsDataforSchool',methods=['GET','POST'])
-def addSubjectsDataforSchool():
-    if request.method == 'POST':
-        print('inside addSubjectsDataforSchool')
-        school_id = request.args.get('school_id')
-        print('School id:'+str(school_id))
-        BCSData = request.args.get('BCSData')
-        checkDet = request.args.get('checkDet')
-        schoolData = request.args.get('schoolData')
         if checkDet == None or checkDet == '':
             for data in BCSData:
                 print('inside for')
@@ -14806,6 +14794,25 @@ def addSubjectsDataforSchool():
                     db.session.add(insertData)
                     db.session.commit()
         return jsonify({'success':'success'})
+
+# @app.route('/addSubjectsDataforSchool',methods=['GET','POST'])
+# def addSubjectsDataforSchool():
+#     if request.method == 'POST':
+#         print('inside addSubjectsDataforSchool')
+#         school_id = request.args.get('school_id')
+#         print('School id:'+str(school_id))
+#         BCSData = request.args.get('BCSData')
+#         checkDet = request.args.get('checkDet')
+#         schoolData = request.args.get('schoolData')
+#         if checkDet == None or checkDet == '':
+#             for data in BCSData:
+#                 print('inside for')
+#                 if int(data.class_val) >= 1 and int(data.class_val) <=10:
+#                     insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',last_modified_date=datetime.now())
+                    
+#                     db.session.add(insertData)
+#                     db.session.commit()
+#         return jsonify({'success':'success'})
 
 
 
