@@ -9139,9 +9139,9 @@ def isSpecialCharacter():
             paramList.append(con)    
         name = paramList[0].isalpha()
         if name:
-            return jsonify({'name':'specialChar'})
+            return jsonify({'name':'Specialchar'})
         else:
-            return jsonify({'name':'notSpecialChar'})    
+            return jsonify({'name':'Notspecialchar'})    
 
 
 @app.route('/registerUser',methods=['POST','GET'])
