@@ -9142,10 +9142,10 @@ def isSpecialCharacter():
         print(name)
         if name:
             print('if special character does not exist')
-            return jsonify({'name':'Notspecialchar'})
+            return jsonify({'name':'Not'})
         else:
             print('if special character present')
-            return jsonify({'name':'Specialchar'})    
+            return jsonify({'name':'Char'})    
 
 
 @app.route('/registerUser',methods=['POST','GET'])
