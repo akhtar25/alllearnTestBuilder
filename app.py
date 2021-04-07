@@ -9138,9 +9138,13 @@ def isSpecialCharacter():
         for con in user['results'].values():
             paramList.append(con)    
         name = paramList[0].isalpha()
+        print('isSpecialChar:')
+        print(name)
         if name:
+            print('if special character exist')
             return jsonify({'name':'Specialchar'})
         else:
+            print('if special character not present')
             return jsonify({'name':'Notspecialchar'})    
 
 
