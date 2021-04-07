@@ -9123,6 +9123,27 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
+@app.route('/isSpecialCharacter',methods=['POST','GET'])
+def isSpecialCharacter():
+    if request.method == 'POST':
+        print('inside isSpecialCharacter')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)    
+        name = paramList[0].isalpha()
+        if name:
+            return jsonify({'name':'specialChar'})
+        else:
+            return jsonify({'name':'notSpecialChar'})    
+
+
 @app.route('/registerUser',methods=['POST','GET'])
 def registerUser():
     if request.method == 'POST':
