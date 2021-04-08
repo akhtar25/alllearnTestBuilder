@@ -9215,6 +9215,22 @@ def registerUser():
         print('not registered user')
         return jsonify({'user':'null'})
 
+@app.route('/checkSchoolAddress',methods=['POST','GET'])
+def checkSchoolAddress():
+    if request.method == 'POST':
+        print('inside checkSchoolAddress')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        for data in z['results'].values():
+            paramList.append(data)
+        msg = ''
+        if paramList[1]:
+            if paramList[0]!=paramList[1] and paramList[0]!=paramList[2] and paramList[1]!=paramList[2]:
+                return jsonify({'msg':'Same'})
+            else:
+                return jsonify({'msg':'Different'})
 
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
