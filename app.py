@@ -9179,7 +9179,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(lastName)})
                 
             elif userId.user_type == 134:
                 student = 'Student'
@@ -9190,7 +9193,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentId':student_id.student_id})
             else:
                 parent = 'Parent'
                 print('user is parent outside if')
@@ -9202,7 +9208,10 @@ def registerUser():
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     print('studentDet:')
                     print(studentDet)
-                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
+                    lastName = ''
+                    if userId.last_name:
+                        lastName = userId.last_name
+                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
         print('not registered user')
         return jsonify({'user':'null'})
 
