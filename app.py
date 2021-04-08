@@ -9226,13 +9226,12 @@ def checkSchoolAddress():
         for data in z['results'].values():
             paramList.append(data)
         msg = ''
-        if paramList[1]:
-            if paramList[0]==paramList[1] or paramList[0]==paramList[2] or paramList[1]==paramList[2]:
-                print('Same address')
-                return jsonify({'msg':'Same'})
-            else:
-                print('different address')
-                return jsonify({'msg':'Different'})
+        if paramList[0].upper()==paramList[1].upper() or paramList[0].upper()==paramList[2].upper() or paramList[1].upper()==paramList[2].upper():
+            print('Same address')
+            return jsonify({'msg':'Same'})
+        else:
+            print('different address')
+            return jsonify({'msg':'Different'})
 
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
