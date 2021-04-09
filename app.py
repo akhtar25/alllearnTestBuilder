@@ -11985,6 +11985,18 @@ def loadQuestionStud():
 #    return jsonify(['0'])
 #
 
+@app.route('/questionAllDetailsMob')
+def questionAllDetailsMob():
+    question_id = request.args.get('question_id')
+    totalQCount = ''
+    qnum= ''
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').order_by(QuestionDetails.question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
+    print('Question Id:'+str(question_id))
+    print('Question Op:'+str(questionOp))
+    return render_template('_questionMob.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
 @app.route('/questionAllDetails')
 def questionAllDetails():
     question_id = request.args.get('question_id')
