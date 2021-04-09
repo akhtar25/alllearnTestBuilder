@@ -12250,7 +12250,7 @@ def feedbackReport():
         else:
             return render_template('_feedbackReport.html',total_marks=totalMarks,class_val=classVal,section=section,subjectName=subjectName,testType=testType,flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
     else:
-         return jsonify(['NA'])
+         return jsonify(['Test has not been attempted by any student.'])
          
 
 @app.route('/reviewSubjective',methods=['GET','POST'])
