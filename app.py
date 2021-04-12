@@ -9139,10 +9139,10 @@ def checkContact():
         checkContact = User.query.filter_by(phone=contactNo).first()
         if contactNo:
             msg = 'Exist'
-            return jsonify('msg':msg)
+            return jsonify({'msg':msg})
         else:
             msg = 'New'
-            return jsonify('msg':msg)
+            return jsonify({'msg':msg})
 
 
 
