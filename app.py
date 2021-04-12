@@ -8615,7 +8615,7 @@ def getTopicList():
         subId = subQuery.msg_id
         print(selSubject)
         print('SubId:'+str(subId))
-        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"' limit 50"
+        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
         print('Query:'+str(extractChapterQuery))
         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
         print(extractChapterData)
