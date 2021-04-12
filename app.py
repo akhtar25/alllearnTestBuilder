@@ -9123,6 +9123,29 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
+@app.route('/checkContact',methods=['POST','GET'])
+def checkContact():
+    if request.method == 'POST':
+        print('inside checkContact')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        msg = ''
+        checkContact = User.query.filter_by(phone=contactNo).first()
+        if contactNo:
+            msg = 'Exist'
+            return jsonify('msg':msg)
+        else:
+            msg = 'New'
+            return jsonify('msg':msg)
+
+
+
 @app.route('/isSpecialCharacter',methods=['POST','GET'])
 def isSpecialCharacter():
     if request.method == 'POST':
