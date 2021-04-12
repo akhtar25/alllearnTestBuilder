@@ -8615,7 +8615,7 @@ def getTopicList():
         subId = subQuery.msg_id
         print(selSubject)
         print('SubId:'+str(subId))
-        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"' limit 50"
         print('Query:'+str(extractChapterQuery))
         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
         print(extractChapterData)
@@ -8623,9 +8623,9 @@ def getTopicList():
         chapterDetList = []
         for chapterDet in extractChapterData:
             if c==1:
-                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             else:
-                chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         msg = 'no topics available'
