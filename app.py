@@ -9568,11 +9568,7 @@ def classSectionCheck():
         for con in data['contact'].values():
             conList.append(con)
         contactNo = conList[2][-10:]
-        print(contactNo)
-        clas = paramList[0].split('-')[0]
-        section = paramList[0].split('-')[1].upper()
-        print('Class:'+str(clas))
-        print('Section:'+str(section))    
+        print(contactNo)   
         subString = '-'
         if subString in paramList[0]:
             return jsonify({'msg':'Correct'})
