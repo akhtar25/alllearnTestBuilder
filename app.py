@@ -9131,9 +9131,9 @@ def checkContact():
         a = json.dumps(jsonExamData)
         z = json.loads(a)
         conList = []
-        for con in z['contact'].values():
+        for con in z['results'].values():
             conList.append(con)
-        contactNo = conList[2][-10:]
+        contactNo = conList[0]
         print(contactNo)
         msg = ''
         checkContact = User.query.filter_by(phone=contactNo).first()
