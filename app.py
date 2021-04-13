@@ -9571,11 +9571,11 @@ def classSectionCheck():
         print(paramList[0])   
         subString = '-'
         if subString in paramList[0]:
-            print('Correct')
-            return jsonify({'msg':'Correct'})
+            print('Y')
+            return jsonify({'msg':'Y'})
         else:
-            print('Incorrect')
-            return jsonify({'msg':'Incorrect'})
+            print('N')
+            return jsonify({'msg':'N'})
 
 
 @app.route('/registerStudent',methods=['GET','POST'])
