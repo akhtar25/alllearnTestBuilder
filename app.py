@@ -9567,6 +9567,7 @@ def classSectionCheck():
         for con in data['contact'].values():
             conList.append(con)
         contactNo = conList[2][-10:]
+        print(paramList)
         print(paramList[0])   
         subString = '-'
         if subString in paramList[0]:
