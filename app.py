@@ -9551,7 +9551,34 @@ def studentSubjectList():
         if subjectList:
             return jsonify({'subject_list':subjectList,'class_val':clasDet.class_val}) 
         else:
-            return jsonify({'subject_list':msg})              
+            return jsonify({'subject_list':msg})   
+
+@app.route('/classSectionCheck',methods=['GET','POST'])
+def classSectionCheck():
+    if request.method == 'POST':
+        print('inside classSectionCheck')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        clas = paramList[0].split('-')[0]
+        section = paramList[0].split('-')[1].upper()
+        print('Class:'+str(clas))
+        print('Section:'+str(section))    
+        subString = '-'
+        if subString in paramList[0]:
+            return jsonify({'msg':'Correct'})
+        else:
+            return jsonify({'msg':'Incorrect'})
+
 
 @app.route('/registerStudent',methods=['GET','POST'])
 def registerStudent():
