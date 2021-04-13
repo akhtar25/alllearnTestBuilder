@@ -9138,7 +9138,7 @@ def checkContact():
         msg = ''
         checkContact = User.query.filter_by(phone=contactNo).first()
         print(checkContact)
-        if contactNo != 'None' or contactNo != '':
+        if checkContact:
             msg = 'Exist'
             print('Exist')
             return jsonify({'msg':msg})
