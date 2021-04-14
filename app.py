@@ -9148,6 +9148,26 @@ def checkContact():
             return jsonify({'msg':msg})
 
 
+@app.route('/checkQuesNo',methods=['GET','POST'])
+def checkQuesNo():
+    if request.method == 'POST':
+        print('inside checkQuesNo')
+        jsonData = request.json
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)     
+        quesCount = paramList[0]
+        if quesCount > 18:
+            print('question count greater then 18')
+            return jsonify({'msg':'Greater'})
+        else:
+            print('question count less then 18')
+            return jsonify({'msg':'Less'})    
 
 @app.route('/isSpecialCharacter',methods=['POST','GET'])
 def isSpecialCharacter():
