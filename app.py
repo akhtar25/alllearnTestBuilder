@@ -14846,7 +14846,7 @@ def addTopicsforSchool():
         school_id = request.args.get('school_id')
         class_val = request.args.get('class')
         subject_id = request.args.get('subject_id')
-        classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+        classDet = ClassSection.query.filter_by(class_val=class_val,school_id=1).first()
         class_sec = classDet.class_sec_id
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
