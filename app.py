@@ -14782,14 +14782,15 @@ def addSubjectsforSchool():
         print('inside addSubjectsforSchool')
         school_id = request.args.get('school_id')
         class_val = request.args.get('class')
+        board_id = request.args.get('board_id')
         print('School id:'+str(school_id))
-        schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
-        BCSData = BoardClassSubject.query.filter_by(board_id = schoolData.board_id,class_val=class_val).all()
-        checkDet = BoardClassSubject.query.filter_by(school_id = schoolData.school_id,class_val=class_val).first()
+        # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+        BCSData = BoardClassSubject.query.filter_by(board_id = board_id,class_val=class_val).all()
+        checkDet = BoardClassSubject.query.filter_by(school_id = school_id,class_val=class_val).first()
         if checkDet == None or checkDet == '':
             for data in BCSData:
                 print('inside for')
-                insertData = BoardClassSubject(board_id=schoolData.board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',last_modified_date=datetime.now())
+                insertData = BoardClassSubject(board_id=board_id,class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',last_modified_date=datetime.now())
                     
                 db.session.add(insertData)
                 db.session.commit()
