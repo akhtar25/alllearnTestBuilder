@@ -9162,7 +9162,7 @@ def checkQuesNo():
         for con in user['results'].values():
             paramList.append(con)     
         quesCount = paramList[0]
-        if int(quesCount) > 18:
+        if int(quesCount) > 15:
             print('question count greater then 18')
             return jsonify({'msg':'Greater'})
         else:
