@@ -14848,6 +14848,7 @@ def addTopicsforSchool():
         subject_id = request.args.get('subject_id')
         classDet = ClassSection.query.filter_by(class_val=class_val,school_id=1).first()
         class_sec = classDet.class_sec_id
+        
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSBDataQuery = "select *from topic_tracker tt where school_id = 1 and class_sec_id='"+str(class_sec)+"' and subject_id='"+str(subject_id)+"'"
