@@ -14851,6 +14851,7 @@ def addTopicsforSchool():
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSBDataQuery = "select *from topic_tracker tt where school_id = 1 and class_sec_id='"+str(class_sec)+"' and subject_id='"+str(subject_id)+"'"
+        print(BCSBDataQuery)
         BCSBData = db.session.execute(text(BCSBDataQuery)).fetchall()
         checkDet = TopicTracker.query.filter_by(school_id = school_id).first()
         if checkDet == None or checkDet == '':
