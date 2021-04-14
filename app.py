@@ -14844,19 +14844,23 @@ def addTopicsforSchool():
     if request.method == 'POST':
         print('inside addTopicsforSchool')
         school_id = request.args.get('school_id')
+        class_val = request.args.get('class')
+        subject_id = request.args.get('subject_id')
+        classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+        class_sec = classDet.class_sec_id
         print('School id:'+str(school_id))
-        schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
-        BCSBDataQuery = "select *from topic_tracker tt where school_id = 1"
+        # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+        BCSBDataQuery = "select *from topic_tracker tt where school_id = 1 and class_sec_id='"+str(class_sec)+"' and subject_id='"+str(subject_id)+"'"
         BCSBData = db.session.execute(text(BCSBDataQuery)).fetchall()
-        checkDet = BoardClassSubjectBooks.query.filter_by(school_id = schoolData.school_id).first()
+        checkDet = TopicTracker.query.filter_by(school_id = school_id).first()
         if checkDet == None or checkDet == '':
             for data in BCSBData:
                 print('inside for')
-                if int(data.class_val) >= 1 and int(data.class_val) <=10:
-                    insertData = BoardClassSubjectBooks(class_val=data.class_val,subject_id=data.subject_id,school_id=school_id,is_archived='N',book_id=data.book_id,last_modified_date=datetime.now())
-                    print(insertData)
-                    db.session.add(insertData)
-                    db.session.commit()
+                # if int(data.class_val) >= 1 and int(data.class_val) <=10:
+                insertData = TopicTracker(class_sec_id=class_sec,subject_id=data.subject_id,school_id=school_id,is_covered='N',topic_id=data.topic_id,reteach_count=0,is_archived='N',last_modified_date=datetime.now())
+                print(insertData)
+                db.session.add(insertData)
+                db.session.commit()
         return jsonify({'success':'success'})
 
 
