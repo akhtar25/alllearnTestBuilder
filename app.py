@@ -14849,16 +14849,18 @@ def addTopicsforSchool():
         class_val = request.args.get('class')
         subject_id = request.args.get('subject_id')
         class_sec_id = request.args.get('class_sec_id')
+        book_name = request.args.get('book_name')
+        board_id = request.args.get('board_id')
         classDet = ClassSection.query.filter_by(class_val=class_val,school_id=1).first()
         class_sec = classDet.class_sec_id
-
+        # book = BookDetails.query.filter_by(book_name=book_name,subject_id=subject_id,class_val=class_val,board_id=board_id).first()
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSBDataQuery = "select *from topic_tracker tt where school_id = 1 and class_sec_id='"+str(class_sec)+"' and subject_id='"+str(subject_id)+"'"
         print('Query:')
         print(BCSBDataQuery)
         BCSBData = db.session.execute(text(BCSBDataQuery)).fetchall()
-        checkDet = TopicTracker.query.filter_by(school_id = school_id).first()
+        checkDet = TopicTracker.query.filter_by(school_id = school_id,subject_id=subject_id,class_sec_id=class_sec_id).first()
         if checkDet == None or checkDet == '':
             for data in BCSBData:
                 print('inside for BCSBData')
