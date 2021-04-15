@@ -14786,7 +14786,8 @@ def addSubjectsforSchool():
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSData = BoardClassSubject.query.filter_by(board_id = board_id,class_val=class_val).all()
-        checkDet = BoardClassSubject.query.filter_by(school_id = school_id,class_val=class_val).first()
+        print(BCSData)
+        checkDet = BoardClassSubject.query.filter_by(school_id = school_id,class_val=class_val,board_id=board_id).first()
         if checkDet == None or checkDet == '':
             for data in BCSData:
                 print('inside for')
