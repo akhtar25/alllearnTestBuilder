@@ -14828,6 +14828,7 @@ def addBooksforSchool():
         print('School id:'+str(school_id))
         # schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
         BCSBDataQuery = "select *from board_class_subject_books where school_id = 1 and subject_id='"+str(subject_id)+"' and class_val='"+str(class_val)+"'"
+        print(BCSBDataQuery)
         BCSBData = db.session.execute(text(BCSBDataQuery)).fetchall()
         checkDet = BoardClassSubjectBooks.query.filter_by(school_id = school_id,class_val=class_val,subject_id=subject_id).first()
         if checkDet == None or checkDet == '':
