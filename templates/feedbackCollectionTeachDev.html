@@ -1,9 +1,48 @@
 {%extends "layout.html"%} {%block content%}
+<style>
+  @media only screen and (max-width: 992px) {
+    .container{
+      width: inherit !important;
+    }  
+    #backToQuestionsMob{
+      width:100px !important;
+    }
+    #refreshReportMob{
+      width:100px !important;
+    }
+    #modal4{
+      width:310px !important;
+    }
+    #mobMargin{
+      margin-left:0px !important;
+    }
+    #newDev{
+      display: none;
+    }
+    #newMob{
+      display: block;
+    }
+  }
+
+  @media only screen and (min-width: 992px) {
+    .container{
+      width: 1086px !important;
+    }  
+    #newDev{
+      display: block;
+    }
+    #newMob{
+      display: none;
+    }
+  }
+</style>
 <div class="container" height=100% style='width:1086px;'>
   <div>
     <section class="content">
       <div class="row">
         <div class="row">
+          <!-- For Device -->
+      <div id="newDev">
           <div class="col-xs-7">
             <div class="box" id="feedbackQuestionDiv">
               <div class="box-header">
@@ -39,17 +78,17 @@
                             {% if question.question_type=='MCQ1' %}
                             <ul>
                               <li> 
-                                <div><a href="#modal2" name="{{ question.question_id }}"
-                                    class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                                <div><a href="#modalDiv" name="{{ question.question_id }}"
+                                    class="waves-effect waves-light modal-trigger questionDataDevice" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
                                 </div>
                                 <!-- Modal Structure  -->
-                                <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                                <div id="modalDiv" class="modal" style="background-color:white;max-width: 500px;">
                                   <div id="questionloader1" style="display: none;margin-left: 120px;margin-top: 120px;"> 
                                     <img src="../static/images/loader.gif">
                                   </div>
-                                  <div class="modal-content" id="content" style="display:none;overflow-y: auto;max-height: 500px;">
+                                  <div class="modal-content" id="contentDev" style="display:none;overflow-y: auto;max-height: 500px;">
                                     <p>
-                                      <div id="questionDataList" style="margin-top: -30px;"></div>
+                                      <div id="questionDataListDevice" style="margin-top: -30px;"></div>
                                     </p>
 
                                   </div>
@@ -57,8 +96,8 @@
                               </li>
                             </ul>
                             {% else %}
-                            <div><a href="#modal2" name="{{ question.question_id }}"
-                              class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                            <div><a href="#modalDiv" name="{{ question.question_id }}"
+                              class="waves-effect waves-light modal-trigger questionDataDevice" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
                             </div>
                             {% endif %}
 
@@ -153,6 +192,161 @@
             {%endif%}
           </div>
 {%endif%}
+</div>
+<!-- For Device end -->
+<!-- For Mobile -->
+<div id="newMob">
+  <div class="row" id="mobMargin">
+    <div class="box" id="feedbackQuestionDivMob">
+      <div class="box-header">
+        <span class="">{{testType}}</span>
+        
+        <span style="padding-left: 10px;"> 
+          {%if batch_test!="1"%}
+          Class: {{ class_val }} |
+          Section: {{ section }} | Subject: {{subjectName}} |{%endif%} Total Marks: {{totalMarks}}</span>                  
+      </div>
+      <span id="questionList" style="display: none;">{{ questionList }}</span>
+      <input id="currrent_question_id" style="display: none;">
+      <input id="class_val_ip" style="display: none;" type="text" value="{{class_val}}">
+      <input id="section_ip" style="display: none;" type="text" value="{{section}}">
+      <input id="questionListSize" value="{{ questionListSize }}" style="display: none;" type="text">
+      <div id="questionSection">
+        <div id="questionPlaceholder" style="overflow-y: auto;max-height: 400px;overflow-x: hidden;">
+
+          {% if questionListSize > 0 %}                                      
+            <br><br>
+            <table class="table table-bordered table-responsive-md table-striped text-center" style="margin-top: -38px;">
+              <thead>
+                <tr>
+                  <th scope="col" style="text-align:left;padding-left:20px;">Question</th>
+                  <th scope="col" style="text-align:left;padding-left:20px;">Type</th>
+                  <th scope="col" style="text-align:left;padding-left:10px;">Weightage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for question in questions %}
+                <tr>
+                  <td style="text-align:left;padding-left:20px;">
+                    {% if question.question_type=='MCQ1' %}
+                    <ul>
+                      <li> 
+                        <div><a href="#modal2" name="{{ question.question_id }}"
+                            class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                        </div>
+                        <!-- Modal Structure  -->
+                        <div id="modal2" class="modal" style="background-color:white;max-width: 500px;">
+                          <div id="questionloader1" style="display: none;margin-left: 120px;margin-top: 120px;"> 
+                            <img src="../static/images/loader.gif">
+                          </div>
+                          <div class="modal-content" id="content" style="display:none;overflow-y: auto;max-height: 500px;">
+                            <p>
+                              <div id="questionDataList" style="margin-top: -30px;"></div>
+                            </p>
+
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                    {% else %}
+                    <div><a href="#modal2" name="{{ question.question_id }}"
+                      class="waves-effect waves-light modal-trigger questionData" style="overflow: hidden;text-overflow: ellipsis;width: 400px;white-space: nowrap;">{{ question.question_description }}</a>
+                    </div>
+                    {% endif %}
+
+                  </td>
+                  <td style="text-align:left;padding-left:20px;"> {{ question.question_type }} </td>
+                  <td  style="text-align:left;padding-left:20px;">
+                    {% if weightage %}
+                    {{ weightage }}<input type="hidden"
+                      value="{{ weightage }}" id="{{ question.question_id }}select">
+                    {% else %}
+                    {{ question.suggested_weightage }}<input type="hidden"
+                    value="{{ question.suggested_weightage }}" id="{{ question.question_id }}select">
+                    {% endif %}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+            <!-- <input value="See Test Report" class="btn green pull-right" id="seeTestReport" type="button" style="height: 40px; width: 200px;"> -->
+            {%else %}
+            <div class='section'>
+            <p style="font-size: 18px;margin-left: 10px;">No questions found for this test</p>
+          </div>
+            {% endif %}
+            
+        </div>
+        {% if session['primary_color'] %}
+        <input value="See Test Report" class="btn green pull-right" id="seeTestReportMob" type="button" style="height: 40px; width: 200px;background-color: {{session['primary_color']}} !important;">
+        {% else %}
+        <input value="See Test Report" class="btn green pull-right" id="seeTestReportMob" type="button" style="height: 40px; width: 200px;">
+        {% endif %}
+      </div>
+      <div id="questionButtons">
+  
+      </div>
+    </div>
+    <div class="box" id="feedbackReportDivMob" style="display: none;">
+    </div>
+    <input class="btn btn-primary left" id="backToQuestionsMob" 
+      style="height: 40px; width: 200px;display: none;" type="button" value="Back">
+      <input class="btn green pull-right" id="refreshReportMob" 
+      style="height: 40px; width: 200px;display: none;" type="button" value="Refresh">
+      <div id='loaderDivMob' style='display: none; float: right;'>
+          <img src='../static/images/spinner.gif' width='25px' height='25px'>
+          </div>
+  </div>
+  {% if questionListSize > 0 %} 
+  <div class="row" style="margin-top:-10px;">   
+    {%if batch_test!="1"%}
+    <div id="answerCounter" >
+      <h4 style="margin-left:30px;">To write this test</h4>
+      <ol style="">
+        <li>
+          Logon to this URL: 
+          
+          <!-- <a href="{{url_for('classPerformance')}}" target="_blank">
+            <div class="urlBox">
+              {{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}
+            </div>
+          </a>  -->
+          <input type="text" value="{{url_for('feedbackCollectionStudDev',resp_session_id=resp_session_id,school_id=school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance, _external=True)}}" style="text-overflow: ellipsis;" id="myInput" readonly>
+          <a style="margin-bottom:10px;" onclick="copyText()" class="btn-primary btn" href="javascript:void(0);"><span>Copy url</span> </a>
+        </li>
+          <br>
+          {% if session['primary_color'] %}
+          <a style="background-color: {{session['primary_color']}} !important;margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn green modal-trigger" href="#modal4"><span>Share url</span> </a>  
+          {% else %}
+          <a style="margin-bottom:10px;float: right;margin-top: -65px;" class="waves-effect waves-light btn green modal-trigger" href="#modal4"><span>Share url</span> </a>  
+          {% endif %}
+        <li>
+          <p>Scan the QR : <br>
+          </p>
+        </li>
+      </ol><br>
+      <div id='qrIMGDiv' class='center' style="margin-left:40px;" ><img class="materialboxed" src={{responseSessionIDQRCode}}></div>
+      <div class=""></div>                            
+    </div>
+    <div>
+    </div>
+    {%else%}
+    <div class=""
+        style="background-color: rgb(248, 248, 231);border-radius: 25px;border: 2px solid rgb(226, 223, 223);padding: 10px; ">
+        <ul style="margin-left: 20px;margin-top:10px;font-size:medium">
+          <li style="list-style-type: initial;">You may ask the students to start test by clicking on the <span class="blue-text">Take Quiz</span> button on their screens now.</li>
+    <!--Test ID: <span style="font-size: 14px;">{{resp_session_id}}</span>-->
+    <br>
+    <li style="list-style-type: initial;">Click on 'See Test Report' button to check test progress and summary.</li>
+    </ul>
+    </div>
+    {%endif%}
+  </div>
+{%endif%}
+</div>
+<!-- End -->
 
         </div>
       </div>
@@ -200,21 +394,58 @@ function copyText() {
   var text = '<span style="font-size:14px;">Url Copied</span>';
   M.toast({html: text});
 }
+$('#backToQuestionsMob').click(function(){
+  $('#feedbackQuestionDivMob').show();
+  $('#feedbackReportDivMob').hide(); 
+  $('#backToQuestionsMob').hide();
+  $('#refreshReportMob').hide();
+});
 
 $("#backToQuestions").click(function(){          
-          $("#feedbackQuestionDiv").show();
-          $("#feedbackReportDiv").hide();         
+          $("#feedbackQuestionDiv").show();          
+          $("#feedbackReportDiv").hide();                  
           $("#backToQuestions").hide(); 
           $("#refreshReport").hide();           
 });
 
+$('#refreshReportMob').click(function(){
+  document.getElementById('seeTestReportMob').click();
+});
+
 $("#refreshReport").click(function(){
   document.getElementById("seeTestReport").click();
+  
 });
   resp_sessId = "{{resp_session_id}}"; 
       console.log('Resp_session_id:'+resp_sessId);  
       var obj = JSON.parse('{ "resp_sessId":"{{resp_session_id}}"}'); 
+      // Start
+$('#seeTestReportMob').click(function(){
+    console.log('inside seeTestReportMob');
+      $.ajax({
+        url: "/feedbackReport?resp_session_id=" +obj.resp_sessId,
+        type: "get",
+        data: '',   
+        beforeSend: function() {                           
+                            $("#loaderDivMob").show();
+                        },
+        success: function (response) {
+          $("#feedbackReportDivMob").html(response);
+          $("#feedbackQuestionDivMob").hide();
+          $("#feedbackReportDivMob").show();         
+          $("#backToQuestionsMob").show();         
+          $("#refreshReportMob").show();   
+          $("#loaderDivMob").hide();      
+          
+        },
+        error: function (xhr) {
+          window.alert("error occurred while loading report");
+        }
+      });    
+});
+      // End
   $("#seeTestReport").click(function () {
+    console.log('inside seeTestReport');
       $.ajax({
         url: "/feedbackReport?resp_session_id=" +obj.resp_sessId,
         type: "get",
@@ -244,11 +475,15 @@ $("#refreshReport").click(function(){
   $(document).ready(function(){
     $('.materialboxed').materialbox();
   });
-  $('.questionData').click(function () {
+  // Start
+  $('.questionDataDevice').click(function() {
     $('#questionloader1').show();
     $('#modal2').hide();
+    $('#modalDiv').hide();
     $('#content').hide();
+    $('#contentDev').hide();
     $('#questionDataList').html('');
+    $('#questionDataListDevice').html('');
     (function () {
       var script = document.createElement("script");
       script.type = "text/javascript";
@@ -281,8 +516,61 @@ $("#refreshReport").click(function(){
       success: function (response) {
         $('#questionloader1').hide();
         $('#modal2').show();
+        $('#modalDiv').show();
         $('#content').show();
+        $('#contentDev').show();
         $('#questionDataList').html(response);
+        $('#questionDataListDevice').html(response);
+      }
+    })
+  });
+  // End
+  $('.questionData').click(function () {
+    console.log('inside questionAllDetailsMob')
+    $('#questionloader1').show();
+    $('#modal2').hide();
+    $('#modalDiv').hide();
+    $('#content').hide();
+    $('#contentDev').hide();
+    $('#questionDataList').html('');
+    $('#questionDataListDevice').html('');
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"; // use the location of your MathJax
+
+      var config = 'MathJax.Hub.Config({' +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        '});' +
+        'MathJax.Hub.Startup.onload();';
+
+
+      if (window.opera) {
+        script.innerHTML = config
+      } else {
+        script.text = config
+      }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    })();
+    var question_id = $(this).attr('name');
+    console.log('Inside questionData');
+    var data = "";
+    $.ajax({
+      url: "/questionAllDetailsMob?question_id=" + question_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $('#questionloader1').hide();
+        $('#modal2').show();
+        $('#modalDiv').show();
+        $('#content').show();
+        $('#contentDev').show();
+        $('#questionDataList').html(response);
+        $('#questionDataListDevice').html(response);
       }
     })
   });

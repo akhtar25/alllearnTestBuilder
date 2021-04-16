@@ -17,21 +17,21 @@
  <br>
  {% if questionOp %}
  {% if qnum %}
- <a id="showAns" style="cursor: pointer;font-size: 14px;float:left;">Show Answer</a>
- <a id="hideAns" style="cursor: pointer;font-size: 14px;float:left;display:none;">Hide Answer</a>
+ <a id="showAnsMob" style="cursor: pointer;font-size: 14px;float:left;">Show Answer</a>
+ <a id="hideAnsMob" style="cursor: pointer;font-size: 14px;float:left;display:none;">Hide Answer</a>
  {% else %}
- <a id="showAns" style="cursor: pointer;font-size: 14px;float:left;">Show Answer</a>
- <a id="hideAns" style="cursor: pointer;font-size: 14px;float:left;display:none;">Hide Answer</a>
+ <a id="showAnsMob" style="cursor: pointer;font-size: 14px;float:left;">Show Answer</a>
+ <a id="hideAnsMob" style="cursor: pointer;font-size: 14px;float:left;display:none;">Hide Answer</a>
  {% endif %}
  <br>
- <ul class="horizontal-list" style="display: flex;margin-top: 10px;">
+ <ul class="horizontal-list" style="margin-top: 10px;">
     {% for optionVal in questionOp %}    
     {% if  optionVal.option_desc %}
     {% if optionVal.is_correct=='Y' %}
     {% if qnum %}
-    <li style="display:flex; margin-right: 50px;"><h4 style="font-size: 14px;">({{ optionVal.option }}) </h4><h4 style="font-size: 14px;">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 14px;margin-top: 3px;display:none;">check</i></li>
+    <li style="display:flex; margin-right: 50px;"><h4 style="font-size: 14px;">({{ optionVal.option }}) </h4><h4 style="font-size: 14px;">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solutionMob" class="material-icons" style="color:green;font-size: 14px;margin-top: 3px;display:none;">check</i></li>
     {% else %}
-    <li style="display:flex;margin-right: 50px;"><h4 style="font-size: 14px;">({{ optionVal.option }}) </h4><h4 style="font-size: 14px;">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solution" class="material-icons" style="color:green;font-size: 20px;margin-top: -2px;display:none;">check</i></li>
+    <li style="display:flex;margin-right: 50px;"><h4 style="font-size: 14px;">({{ optionVal.option }}) </h4><h4 style="font-size: 14px;">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4><i id="solutionMob" class="material-icons" style="color:green;font-size: 20px;margin-top: -2px;display:none;">check</i></li>
     {% endif %}
     {% else %}
     <li style="display:flex;margin-right: 50px;"><h4 style="font-size: 14px;">({{ optionVal.option }}) </h4><h4 style="font-size: 14px;">&nbsp;&nbsp;{{ optionVal.option_desc }}</h4></li>
@@ -44,17 +44,17 @@
 </div>
 
 <script>
-$('#showAns').click(function(){
+$('#showAnsMob').click(function(){
     console.log('inside showAns');
-    $('#solution').show();
-    $('#showAns').hide();
-    $('#hideAns').show();
+    $('#solutionMob').show();
+    $('#showAnsMob').hide();
+    $('#hideAnsMob').show();
   });
 
-$('#hideAns').click(function(){
-    $('#solution').hide();
-    $('#showAns').show();
-    $('#hideAns').hide();
+$('#hideAnsMob').click(function(){
+    $('#solutionMob').hide();
+    $('#showAnsMob').show();
+    $('#hideAnsMob').hide();
 });
 
 (function () {

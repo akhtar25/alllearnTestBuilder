@@ -6,13 +6,64 @@
 .downArrow{
   transform: rotate(90deg); 
 }
+
+  @media only screen and (max-width: 992px) {
+    #mobData{
+      display:block;
+    }
+    #mobile-demo1{
+      display:block !important;
+    }
+    #Device-demo1{
+      display:none !important;
+    }
+  }
+  @media only screen and (min-width: 992px) {
+    #mobData{
+      display:none;
+    }
+    #mobile-demo1{
+      display:none !important;
+    }
+    #Device-demo1{
+      display:block !important;
+    }
+  }
 </style>
 <div class="container">
 
   <div class="skin-blue sidebar-mini">
-    <aside class="main-sidebar">
+  <a href="#" id="mobData" data-target="mobile-demo1" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <!-- Mob -->
+    <aside class="sidenav left-aligned" id="mobile-demo1">
 
       <section class="sidebar" style="margin-top:-40px;">
+     
+        <ul class="sidebar-menu" data-widget="tree">
+          <li class="treeview menu-open" style="padding: 10px;">
+            <i class="glyphicon glyphicon-education"></i>
+            <span style='font-size:15px'><a href="{{url_for('leaderBoard')}}">All</a></span>
+            </a>
+          </li>
+          {% for singleClass in distinctClasses %}
+          <li class="treeview" style="padding: 10px;">
+            <!-- <i class="fas fa-chevron-right downArrow" ></i>  -->
+            <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"
+                name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
+            <!-- <span class="pull-right-container">
+              <span class="label label-primary pull-right">{{singleClass[2]}}</span>
+            </span> -->
+          </li>
+          {% endfor %}
+          <ul>
+      </section>
+    </aside>
+    <!-- End -->
+    <!-- Device -->
+    <aside class="main-sidebar" id="Device-demo1">
+
+      <section class="sidebar" style="margin-top:-40px;">
+     
         <ul class="sidebar-menu" data-widget="tree">
           <li class="treeview menu-open" style="padding: 10px;">
             <i class="glyphicon glyphicon-education"></i>
@@ -32,6 +83,7 @@
           <ul>
       </section>
     </aside>
+    <!-- End -->
   </div>
   {%if leaderBoardData==1222 %}
   <div class="content-wrapper" style="background-color: white;">

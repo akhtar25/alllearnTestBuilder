@@ -8615,7 +8615,7 @@ def getTopicList():
         subId = subQuery.msg_id
         print(selSubject)
         print('SubId:'+str(subId))
-        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
         print('Query:'+str(extractChapterQuery))
         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
         print(extractChapterData)
@@ -8623,9 +8623,9 @@ def getTopicList():
         chapterDetList = []
         for chapterDet in extractChapterData:
             if c==1:
-                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             else:
-                chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         msg = 'no topics available'
@@ -9123,6 +9123,77 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
+@app.route('/checkContact',methods=['POST','GET'])
+def checkContact():
+    if request.method == 'POST':
+        print('inside checkContact')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['results'].values():
+            conList.append(con)
+        contactNo = conList[0]
+        print(contactNo)
+        msg = ''
+        checkContact = User.query.filter_by(phone=contactNo).first()
+        print(checkContact)
+        if checkContact:
+            msg = 'Exist'
+            print('Exist')
+            return jsonify({'msg':msg})
+        else:
+            msg = 'New'
+            print('New')
+            return jsonify({'msg':msg})
+
+
+@app.route('/checkQuesNo',methods=['GET','POST'])
+def checkQuesNo():
+    if request.method == 'POST':
+        print('inside checkQuesNo')
+        jsonData = request.json
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)     
+        quesCount = paramList[0]
+        if int(quesCount) > 15:
+            print('question count greater then 18')
+            return jsonify({'msg':'Greater'})
+        else:
+            print('question count less then 18')
+            return jsonify({'msg':'Less'})    
+
+@app.route('/isSpecialCharacter',methods=['POST','GET'])
+def isSpecialCharacter():
+    if request.method == 'POST':
+        print('inside isSpecialCharacter')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)    
+        name = paramList[0].isalpha()
+        print('isSpecialChar:')
+        print(name)
+        if name:
+            print('if special character does not exist')
+            return jsonify({'name':'Not'})
+        else:
+            print('if special character present')
+            return jsonify({'name':'Char'})    
+
+
 @app.route('/registerUser',methods=['POST','GET'])
 def registerUser():
     if request.method == 'POST':
@@ -9154,7 +9225,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(lastName)})
                 
             elif userId.user_type == 134:
                 student = 'Student'
@@ -9165,7 +9239,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentId':student_id.student_id})
             else:
                 parent = 'Parent'
                 print('user is parent outside if')
@@ -9177,10 +9254,30 @@ def registerUser():
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     print('studentDet:')
                     print(studentDet)
-                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
+                    lastName = ''
+                    if userId.last_name:
+                        lastName = userId.last_name
+                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
         print('not registered user')
         return jsonify({'user':'null'})
 
+@app.route('/checkSchoolAddress',methods=['POST','GET'])
+def checkSchoolAddress():
+    if request.method == 'POST':
+        print('inside checkSchoolAddress')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        for data in z['results'].values():
+            paramList.append(data)
+        msg = ''
+        if paramList[0].upper()==paramList[1].upper() or paramList[0].upper()==paramList[2].upper() or paramList[1].upper()==paramList[2].upper():
+            print('Same address')
+            return jsonify({'msg':'Same'})
+        else:
+            print('different address')
+            return jsonify({'msg':'Different'})
 
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
@@ -9370,6 +9467,20 @@ def schoolList():
         print(contactNo)
         for param in paramList:
             print(param)
+        # Start
+        if paramList[0] == '1':
+            print('Show school list')
+            schoolDetQuery = "select school_id,school_name from school_profile"
+            print(schoolDetQuery)
+            schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
+            data = 'Please type the school id of your school from the list\n'
+            i=1
+            if len(schoolDet) != 0:
+                for school in schoolDet:
+                    data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
+                    i = i +1
+            return jsonify({'schoolNameList':data}) 
+        # End
         print(paramList[1])
         schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
         print(schoolDetQuery)
@@ -9474,7 +9585,32 @@ def studentSubjectList():
         if subjectList:
             return jsonify({'subject_list':subjectList,'class_val':clasDet.class_val}) 
         else:
-            return jsonify({'subject_list':msg})              
+            return jsonify({'subject_list':msg})   
+
+@app.route('/classSectionCheck',methods=['GET','POST'])
+def classSectionCheck():
+    if request.method == 'POST':
+        print('inside classSectionCheck')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(paramList)
+        print(paramList[0])   
+        subString = '-'
+        if subString in paramList[0]:
+            print('Y')
+            return jsonify({'msg':'Y'})
+        else:
+            print('N')
+            return jsonify({'msg':'N'})
+
 
 @app.route('/registerStudent',methods=['GET','POST'])
 def registerStudent():
@@ -11934,6 +12070,18 @@ def loadQuestionStud():
 #    return jsonify(['0'])
 #
 
+@app.route('/questionAllDetailsMob')
+def questionAllDetailsMob():
+    question_id = request.args.get('question_id')
+    totalQCount = ''
+    qnum= ''
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').order_by(QuestionDetails.question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
+    print('Question Id:'+str(question_id))
+    print('Question Op:'+str(questionOp))
+    return render_template('_questionMob.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
 @app.route('/questionAllDetails')
 def questionAllDetails():
     question_id = request.args.get('question_id')
@@ -12199,7 +12347,7 @@ def feedbackReport():
         else:
             return render_template('_feedbackReport.html',total_marks=totalMarks,class_val=classVal,section=section,subjectName=subjectName,testType=testType,flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
     else:
-         return jsonify(['NA'])
+         return jsonify(['Test has not been attempted by any student.'])
          
 
 @app.route('/reviewSubjective',methods=['GET','POST'])
