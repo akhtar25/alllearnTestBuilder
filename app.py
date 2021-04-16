@@ -9474,6 +9474,7 @@ def schoolList():
             print(schoolDetQuery)
             schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
             data = 'Please type the school id of your school from the list\n'
+            i=1
             if len(schoolDet) != 0:
                 for school in schoolDet:
                     data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
