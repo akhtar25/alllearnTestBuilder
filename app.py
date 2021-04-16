@@ -9473,7 +9473,7 @@ def schoolList():
             schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
             print(schoolDetQuery)
             schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
-            data = 'All school list'
+            data = 'Please type the school id of your school from the list\n'
             if len(schoolDet) != 0:
                 for school in schoolDet:
                     data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
