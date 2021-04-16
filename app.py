@@ -9409,9 +9409,9 @@ def checkMailId():
         checkUser = User.query.filter_by(email=email).first()
         statement = ''
         if checkUser:
-            statement = 'Mail id already exist.'
+            statement = 'Exist'
             return jsonify({'statement':statement})
-        statement = 'Which class-section do you study in?'
+        statement = 'No'
         return jsonify({'statement':statement})  
 
 
