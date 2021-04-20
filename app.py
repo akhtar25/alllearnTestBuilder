@@ -9495,7 +9495,7 @@ def schoolList():
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
         else:
-            data = 'please enter valid school name'
+            data = 'None'
         # data = data + '\n If your school is not in this list, please type 00'
         return jsonify({'schoolNameList':data}) 
 
