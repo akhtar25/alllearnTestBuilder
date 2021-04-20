@@ -9182,8 +9182,9 @@ def isSpecialCharacter():
         user = json.loads(userData)   
         paramList = []
         for con in user['results'].values():
-            paramList.append(con)    
-        name = paramList[0].isalpha()
+            paramList.append(con)  
+        name = re.sub('[^a-zA-Z.\d\s]', '', paramList[0])  
+        # name = paramList[0].isalpha()
         print('isSpecialChar:')
         print(name)
         if name:
