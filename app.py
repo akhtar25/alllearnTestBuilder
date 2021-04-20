@@ -9480,7 +9480,7 @@ def checkSchoolList():
         else:
             data = 'None'
         # data = data + '\n If your school is not in this list, please type 00'
-        return jsonify({'schoolNameList':data})         
+        return jsonify({'isSchoolList':data})         
 
 @app.route('/schoolList',methods=['GET','POST'])
 def schoolList():
