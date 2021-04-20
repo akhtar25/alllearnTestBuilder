@@ -9187,7 +9187,7 @@ def isSpecialCharacter():
         # name = paramList[0].isalpha()
         regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
         print('isSpecialChar:')
-        print(name)
+        # print(name)
         if(regex.search(paramList[0]) == None):
             print('if special character does not exist')
             return jsonify({'name':'Not'})
