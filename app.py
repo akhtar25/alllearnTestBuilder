@@ -9483,7 +9483,8 @@ def schoolList():
             return jsonify({'schoolNameList':data}) 
         # End
         print(paramList[1])
-        schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
+        schoolNam = paramList[3].upper()
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like '%"+str(schoolNam)+"%'"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
         data = 'Please type the school id of your school from the list\n'
