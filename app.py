@@ -9470,7 +9470,7 @@ def checkSchoolList():
             print(param)
         print(paramList[1])
         schoolNam = paramList[3].upper()
-        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like '%"+str(schoolNam)+"%'"
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
         data = ''
@@ -9503,7 +9503,7 @@ def schoolList():
             print(param)
         print(paramList[1])
         schoolNam = paramList[3].upper()
-        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like '%"+str(schoolNam)+"%'"
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
         data = ''
