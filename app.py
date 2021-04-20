@@ -9411,7 +9411,8 @@ def checkMailId():
         if checkUser:
             statement = 'Exist'
             return jsonify({'statement':statement})
-        statement = 'No'
+        else:
+            statement = 'No'
         return jsonify({'statement':statement})  
 
 
