@@ -9450,7 +9450,7 @@ def insertUserTeacherDetails():
         statement = "What's your school's name?"
         return jsonify({'statement':statement})  
 
-@app.route('checkSchoolList',methods=['GET','POST'])
+@app.route('/checkSchoolList',methods=['GET','POST'])
 def checkSchoolList():
     if request.method == 'POST':
         print('inside schoolList')
