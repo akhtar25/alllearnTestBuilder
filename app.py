@@ -9487,12 +9487,15 @@ def schoolList():
         schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like '%"+str(schoolNam)+"%'"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
-        data = 'Please type the school id of your school from the list\n'
+        data = ''
         i=1
         if len(schoolDet) != 0:
+            data = 'Please type the school id of your school from the list\n'
             for school in schoolDet:
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
+        else:
+            data = 'please enter valid school name'
         # data = data + '\n If your school is not in this list, please type 00'
         return jsonify({'schoolNameList':data}) 
 
