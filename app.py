@@ -9493,7 +9493,7 @@ def schoolList():
             for school in schoolDet:
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
-        data = data + '\n If your school is not in this list, please type 00'
+        # data = data + '\n If your school is not in this list, please type 00'
         return jsonify({'schoolNameList':data}) 
 
 @app.route('/registerTeacher',methods=['GET','POST'])
