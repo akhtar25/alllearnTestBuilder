@@ -9182,11 +9182,13 @@ def isSpecialCharacter():
         user = json.loads(userData)   
         paramList = []
         for con in user['results'].values():
-            paramList.append(con)    
-        name = paramList[0].isalpha()
+            paramList.append(con)  
+        # name = re.sub('[^a-zA-Z.\d\s]', '', paramList[0])  
+        # name = paramList[0].isalpha()
+        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
         print('isSpecialChar:')
-        print(name)
-        if name:
+        # print(name)
+        if(regex.search(paramList[0]) == None):
             print('if special character does not exist')
             return jsonify({'name':'Not'})
         else:
@@ -9411,7 +9413,8 @@ def checkMailId():
         if checkUser:
             statement = 'Exist'
             return jsonify({'statement':statement})
-        statement = 'No'
+        else:
+            statement = 'No'
         return jsonify({'statement':statement})  
 
 
@@ -9449,6 +9452,39 @@ def insertUserTeacherDetails():
         statement = "What's your school's name?"
         return jsonify({'statement':statement})  
 
+@app.route('/checkSchoolList',methods=['GET','POST'])
+def checkSchoolList():
+    if request.method == 'POST':
+        print('inside schoolList')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        schoolNam = paramList[3].upper()
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
+        print(schoolDetQuery)
+        schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
+        data = ''
+        i=1
+        if len(schoolDet) != 0:
+            data = 'Exist'
+        else:
+            data = 'None'
+        # data = data + '\n If your school is not in this list, please type 00'
+        print(data)
+        return jsonify({'isSchoolList':data})         
+
 @app.route('/schoolList',methods=['GET','POST'])
 def schoolList():
     if request.method == 'POST':
@@ -9467,31 +9503,21 @@ def schoolList():
         print(contactNo)
         for param in paramList:
             print(param)
-        # Start
-        if paramList[0] == '1':
-            print('Show school list')
-            schoolDetQuery = "select school_id,school_name from school_profile"
-            print(schoolDetQuery)
-            schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
-            data = 'Please type the school id of your school from the list\n'
-            i=1
-            if len(schoolDet) != 0:
-                for school in schoolDet:
-                    data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
-                    i = i +1
-            return jsonify({'schoolNameList':data}) 
-        # End
         print(paramList[1])
-        schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
+        schoolNam = paramList[3].upper()
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
-        data = 'Please type the school id of your school from the list\n'
+        data = ''
         i=1
         if len(schoolDet) != 0:
+            data = 'Please type the school id of your school from the list\n'
             for school in schoolDet:
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
-        data = data + '\n If your school is not in this list, please type 00'
+        else:
+            data = 'None'
+        # data = data + '\n If your school is not in this list, please type 00'
         return jsonify({'schoolNameList':data}) 
 
 @app.route('/registerTeacher',methods=['GET','POST'])
