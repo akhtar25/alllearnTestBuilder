@@ -4735,6 +4735,18 @@ def sendHelplineNotification():
         medicine = ''
         if medOption == 1:
             medicine = 'Remdisivir'
+        elif medOption == 2:
+            medicine = 'Azithral'
+        elif medOption == 3:
+            medicine = 'Ivermectin'
+        elif medOption == 4:
+            medicine = 'Zincovit'
+        elif medOption == 5:
+            medicine = 'Vitamin C - Celene'
+        elif medOption == 6:
+            medicine = 'Tocilizumab'
+        else:
+            medicine = 'other'
         subject = 'Medicine:'+str(medicine)+str('\n')
         subject = subject + str('Document:')+str(fileUrl)+str('\n')
         subject = subject + str('Name and Address:')+str(nameAddress)+str('\n')
