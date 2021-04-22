@@ -619,6 +619,61 @@ def sign_s3():
       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
 
+@app.route('/s3api',methods=['GET','POST'])
+def s3api():
+    if request.method == 'POST':
+        print('inside s3 api')
+        S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)
+        conList = []
+        paramList = []
+        for con in user['contact'].values():
+            conList.append(con)
+        for data in user['results'].values():
+            paramList.append(data)
+        print(conList)
+        print(paramList)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        S3_BUCKET = "alllearndatabucketv2"
+        file_name = paramList[0]
+    # file_name = request.args.get('file-name')
+    # print(file_name)    
+    # file_type = request.args.get('file-type')
+    # print(file_type)
+    #if file_type=='image/png' or file_type=='image/jpeg':
+    #   file_type_folder='images'
+        # s3 = boto3.client('s3')
+        s3 = boto3.client('s3', region_name='ap-south-1')
+    # folder_name=request.args.get('folder')
+    # print('FolderName:'+folder_name)
+    # folder_url=signs3Folder(folder_name,file_type)
+    # folder_url = folder_name
+    # print('folder_url:'+str(folder_url))
+    # print(s3)
+
+        presigned_post = s3.generate_presigned_post(
+        Bucket = S3_BUCKET,
+        Key = str('/coronaDoc')+"/"+str(file_name),
+        Fields = {"acl": "public-read"},
+        Conditions = [
+        {"acl": "public-read"}
+        ],
+        ExpiresIn = 3600
+        )
+   
+        folder_url = '/corona/'
+        return json.dumps({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+        })
+
 
 @app.route("/submit_form/", methods = ["POST"])
 @login_required
