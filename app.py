@@ -4713,6 +4713,39 @@ def feeManagement():
 def privacyPolicy():
     return render_template('privacyPolicy.html')
 
+@app.route('/sendHelplineNotification',methods=['GET','POST'])
+def sendHelplineNotification():
+    if request.method == 'POST':
+        jsonData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        conList = []
+        paramList = []
+        print('data:')
+        for con in z['contact'].values():
+            conList.append(con)
+        for dat in z['results'].values():
+            paramList.append(dat)
+        medOption = paramList[0]
+        fileUrl = paramList[1]
+        nameAddress = paramList[2]
+        city = paramList[3]
+        print(conList)
+        medicine = ''
+        if medOption == 1:
+            medicine = 'Remdisivir'
+        subject = 'Medicine:'+str(medicine)+str('\n')
+        subject = subject + str('Document:')+str(fileUrl)+str('\n')
+        subject = subject + str('Name and Address:')+str(nameAddress)+str('\n')
+        subject = subject + str('City:')+str(city)
+        contactNo = conList[2]
+        print('phone:'+str(contactNo))
+        email = 'contact@alllearn.in'
+        email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
+        notificationEmail(email,email2,name,contactNo,subject)
+        return jsonify({'phone':contactNo,'name':name})                
+
 @app.route('/sendUserNotificationEmail',methods=['POST','GET'])
 def sendUserNotificationEmail():
     if request.method == 'POST':
