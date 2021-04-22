@@ -4743,7 +4743,7 @@ def sendHelplineNotification():
         print('phone:'+str(contactNo))
         email = 'contact@alllearn.in'
         email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
-        notificationEmail(email,email2,name,contactNo,subject)
+        notificationEmail(email,email2,nameAddress,contactNo,subject)
         return jsonify({'phone':contactNo})                
 
 @app.route('/sendUserNotificationEmail',methods=['POST','GET'])
