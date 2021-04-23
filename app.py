@@ -4744,17 +4744,17 @@ def sendHelplineNotification():
         f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
             fileValue = fileUrl
-        subject = subject + str('Document:')+str(fileValue)+str('\n')
+            subject = subject + str('Document:')+str(fileValue)+str('\n')
         address = ''
         a = '@results.nameandaddress'
         if nameAddress.find(a):
             address = nameAddress
-        subject = subject + str('Name and Address:')+str(address)+str('\n')
+            subject = subject + str('Name and Address:')+str(address)+str('\n')
         c = ''
         ci = '@results.city' 
         if city.find(ci):
             c = city
-        subject = subject + str('City:')+str(c)
+            subject = subject + str('City:')+str(c)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         email = 'contact@alllearn.in'
