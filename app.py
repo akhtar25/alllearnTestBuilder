@@ -4741,17 +4741,17 @@ def sendHelplineNotification():
         if medicine:
             subject = 'Medicine:'+str(medicine)+str('\n')
         fileValue = ''
-        f = @results.uploadedimage.url
+        f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
             fileValue = fileUrl
         subject = subject + str('Document:')+str(fileValue)+str('\n')
         address = ''
-        a = @results.nameandaddress
+        a = '@results.nameandaddress'
         if nameAddress.find(a):
             address = nameAddress
         subject = subject + str('Name and Address:')+str(address)+str('\n')
         c = ''
-        ci = @results.city 
+        ci = '@results.city' 
         if city.find(ci):
             c = city
         subject = subject + str('City:')+str(c)
