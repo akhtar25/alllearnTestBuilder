@@ -4719,11 +4719,11 @@ def sendHelplineNotification():
         nameAddress = paramList[2]
         city = paramList[3]
         symptoms = paramList[4]
-        print('Medicine option:'+str(medOption))
-        print('fileUrl:'+str(fileUrl))
-        print('nameAddress:'+str(nameAddress))
-        print('city:'+str(city))
-        print('symptoms:'+str(symptoms))
+        # print('Medicine option:'+str(medOption))
+        # print('fileUrl:'+str(fileUrl))
+        # print('nameAddress:'+str(nameAddress))
+        # print('city:'+str(city))
+        # print('symptoms:'+str(symptoms))
         medicine = ''
         if medOption == '1':
             medicine = 'Remdisivir'
@@ -4764,6 +4764,7 @@ def sendHelplineNotification():
             subject = subject + str('Symptoms:')+str(sym)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
+        print('Subject:'+str(subject))
         email = 'contact@alllearn.in'
         email2 = 'paragsinha+oipkui0jrvwcrso3giqe@boards.trello.com'
         notificationEmail(email,email2,nameAddress,contactNo,subject)
