@@ -4746,22 +4746,22 @@ def sendHelplineNotification():
         f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
             fileValue = fileUrl
-            subject = subject + str('Document:')+str(fileValue)+str('\n')
+            subject = subject + str('Document:')+str(fileValue)+str('\n\n\n\n')
         address = ''
         a = '@results.nameandaddress'
         if nameAddress.find(a) != 0:
             address = nameAddress
-            subject = subject + str('Name and Address:')+str(address)+str('\n')
+            subject = subject + str('Name and Address:')+str(address)+str('\n\n\n\n')
         c = ''
         ci = '@results.city' 
         if city.find(ci) != 0:
             c = city
-            subject = subject + str('City:')+str(c)+str('\n')
+            subject = subject + str('City:')+str(c)+str('\n\n\n\n')
         sym = ''
         s = '@results.symptoms'
         if symptoms.find(s) != 0:
             sym = symptoms
-            subject = subject + str('Symptoms:')+str(sym)+str('\n')
+            subject = subject + str('Symptoms:')+str(sym)+str('\n\n\n\n')
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         print('Subject:'+str(subject))
