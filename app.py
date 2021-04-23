@@ -4740,12 +4740,18 @@ def sendHelplineNotification():
         subject = ''
         if medicine:
             subject = 'Medicine:'+str(medicine)+str('\n')
+        fileValue = ''
         if fileUrl:
-            subject = subject + str('Document:')+str(fileUrl)+str('\n')
+            fileValue = fileUrl
+        subject = subject + str('Document:')+str(fileValue)+str('\n')
+        address = ''
         if nameAddress:
-            subject = subject + str('Name and Address:')+str(nameAddress)+str('\n')
+            address = nameAddress
+        subject = subject + str('Name and Address:')+str(address)+str('\n')
+        c = ''
         if city:
-            subject = subject + str('City:')+str(city)
+            c = city
+        subject = subject + str('City:')+str(c)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         email = 'contact@alllearn.in'
