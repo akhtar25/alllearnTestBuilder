@@ -4756,12 +4756,12 @@ def sendHelplineNotification():
         ci = '@results.city' 
         if city.find(ci) != 0:
             c = city
-            subject = subject + str('City:')+str(c)
+            subject = subject + str('City:')+str(c)+str('\n')
         sym = ''
         s = '@results.symptoms'
         if symptoms.find(s) != 0:
             sym = symptoms
-            subject = subject + str('Symptoms:')+str(sym)
+            subject = subject + str('Symptoms:')+str(sym)+str('\n')
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         print('Subject:'+str(subject))
