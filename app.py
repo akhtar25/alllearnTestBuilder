@@ -643,21 +643,7 @@ def s3api():
         print(contactNo)
         S3_BUCKET = "alllearndatabucketv2"
         file_name = paramList[0]
-    # file_name = request.args.get('file-name')
-    # print(file_name)    
-    # file_type = request.args.get('file-type')
-    # print(file_type)
-    #if file_type=='image/png' or file_type=='image/jpeg':
-    #   file_type_folder='images'
-        # s3 = boto3.client('s3')
         s3 = boto3.client('s3', region_name='ap-south-1')
-    # folder_name=request.args.get('folder')
-    # print('FolderName:'+folder_name)
-    # folder_url=signs3Folder(folder_name,file_type)
-    # folder_url = folder_name
-    # print('folder_url:'+str(folder_url))
-    # print(s3)
-
         presigned_post = s3.generate_presigned_post(
         Bucket = S3_BUCKET,
         Key = str('/coronaDoc')+"/"+str(file_name),
@@ -668,7 +654,7 @@ def s3api():
         ExpiresIn = 3600
         )
    
-        folder_url = '/corona/'
+        folder_url = 'corona'
         return json.dumps({
             'data': presigned_post,
             'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
