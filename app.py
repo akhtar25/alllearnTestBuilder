@@ -4757,7 +4757,7 @@ def sendHelplineNotification():
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         email = 'contact@alllearn.in'
-        email2 = 'paragsinha+w6uwk6zar1ell7m5oemd@boards.trello.com'
+        email2 = 'paragsinha+oipkui0jrvwcrso3giqe@boards.trello.com'
         notificationEmail(email,email2,nameAddress,contactNo,subject)
         return jsonify({'phone':contactNo})                
 
