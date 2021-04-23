@@ -4758,7 +4758,7 @@ def sendHelplineNotification():
             c = city
             subject = subject + str('City:')+str(c)
         sym = ''
-        s = @results.symptoms
+        s = '@results.symptoms'
         if symptoms.find(s) != 0:
             sym = symptoms
             subject = subject + str('Symptoms:')+str(sym)
