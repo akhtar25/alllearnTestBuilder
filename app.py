@@ -643,10 +643,11 @@ def s3api():
         print(contactNo)
         S3_BUCKET = "alllearndatabucketv2"
         file_name = paramList[0]
+        print('fileName:'+str(file_name))
         s3 = boto3.client('s3', region_name='ap-south-1')
         presigned_post = s3.generate_presigned_post(
         Bucket = S3_BUCKET,
-        Key = str('/coronaDoc')+"/"+str(file_name),
+        Key = str('coronaDoc')+"/"+str(file_name),
         Fields = {"acl": "public-read"},
         Conditions = [
         {"acl": "public-read"}
