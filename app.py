@@ -4718,10 +4718,12 @@ def sendHelplineNotification():
         fileUrl = paramList[1]
         nameAddress = paramList[2]
         city = paramList[3]
+        symptoms = paramList[4]
         print('Medicine option:'+str(medOption))
         print('fileUrl:'+str(fileUrl))
         print('nameAddress:'+str(nameAddress))
         print('city:'+str(city))
+        print('symptoms:'+str(symptoms))
         medicine = ''
         if medOption == '1':
             medicine = 'Remdisivir'
@@ -4747,14 +4749,19 @@ def sendHelplineNotification():
             subject = subject + str('Document:')+str(fileValue)+str('\n')
         address = ''
         a = '@results.nameandaddress'
-        if nameAddress.find(a):
+        if nameAddress.find(a) != 0:
             address = nameAddress
             subject = subject + str('Name and Address:')+str(address)+str('\n')
         c = ''
         ci = '@results.city' 
-        if city.find(ci):
+        if city.find(ci) != 0:
             c = city
             subject = subject + str('City:')+str(c)
+        sym = ''
+        s = @results.symptoms
+        if symptoms.find(s) != 0:
+            sym = symptoms
+            subject = subject + str('Symptoms:')+str(sym)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         email = 'contact@alllearn.in'
