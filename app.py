@@ -4731,7 +4731,10 @@ def sendHelplineNotification():
         fileUrl = paramList[1]
         nameAddress = paramList[2]
         city = paramList[3]
-        print(conList)
+        print('Medicine option:'+str(medOption))
+        print('fileUrl:'+str(fileUrl))
+        print('nameAddress:'+str(nameAddress))
+        print('city:'+str(city))
         medicine = ''
         if medOption == 1:
             medicine = 'Remdisivir'
