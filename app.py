@@ -4761,7 +4761,18 @@ def sendHelplineNotification():
         s = '@results.symptoms'
         if symptoms.find(s) != 0:
             sym = symptoms
-            subject = subject + str('Symptoms:')+str(sym)+str('\n')
+            if sym == '1':
+                s = 'Cough/ Sore throat'
+                subject = subject + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '2':
+                s = 'Fever'
+                subject = subject + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '3':
+                s = 'Difficulty breathing'
+                subject = subject + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '4':
+                s = 'Other'
+                subject = subject + str('Symptoms:')+str(s)+str('\n')
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         print('Subject:'+str(subject))
