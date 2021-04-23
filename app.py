@@ -4746,33 +4746,33 @@ def sendHelplineNotification():
         f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
             fileValue = fileUrl
-            subject = subject + str('Document:')+str(fileValue)+str('\n')
+            subject = str(subject) + str('Document:')+str(fileValue)+str('\n')
         address = ''
         a = '@results.nameandaddress'
         if nameAddress.find(a) != 0:
             address = nameAddress
-            subject = subject + str('Name and Address:')+str(address)+str('\n')
+            subject = str(subject) + str('Name and Address:')+str(address)+str('\n')
         c = ''
         ci = '@results.city' 
         if city.find(ci) != 0:
             c = city
-            subject = subject + str('City:')+str(c)+str('\n')
+            subject = str(subject) + str('City:')+str(c)+str('\n')
         sym = ''
         s = '@results.symptoms'
         if symptoms.find(s) != 0:
             sym = symptoms
             if sym == '1':
                 s = 'Cough/ Sore throat'
-                subject = subject + str('Symptoms:')+str(s)+str('\n')
+                subject = str(subject) + str('Symptoms:')+str(s)+str('\n')
             elif sym == '2':
                 s = 'Fever'
-                subject = subject + str('Symptoms:')+str(s)+str('\n')
+                subject = str(subject) + str('Symptoms:')+str(s)+str('\n')
             elif sym == '3':
                 s = 'Difficulty breathing'
-                subject = subject + str('Symptoms:')+str(s)+str('\n')
+                subject = str(subject) + str('Symptoms:')+str(s)+str('\n')
             elif sym == '4':
                 s = 'Other'
-                subject = subject + str('Symptoms:')+str(s)+str('\n')
+                subject = str(subject) + str('Symptoms:')+str(s)+str('\n')
         contactNo = conList[2]
         print('phone:'+str(contactNo))
         print('Subject:'+str(subject))
