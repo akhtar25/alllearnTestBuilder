@@ -4722,19 +4722,19 @@ def sendHelplineNotification():
         print('nameAddress:'+str(nameAddress))
         print('city:'+str(city))
         medicine = ''
-        if medOption == 1:
+        if medOption == '1':
             medicine = 'Remdisivir'
-        elif medOption == 2:
+        elif medOption == '2':
             medicine = 'Azithral'
-        elif medOption == 3:
+        elif medOption == '3':
             medicine = 'Ivermectin'
-        elif medOption == 4:
+        elif medOption == '4':
             medicine = 'Zincovit'
-        elif medOption == 5:
+        elif medOption == '5':
             medicine = 'Vitamin C - Celene'
-        elif medOption == 6:
+        elif medOption == '6':
             medicine = 'Tocilizumab'
-        else:
+        elif medOption == '7':
             medicine = 'other'
         subject = ''
         if medicine:
