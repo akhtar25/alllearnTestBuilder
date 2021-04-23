@@ -4750,9 +4750,9 @@ def sendHelplineNotification():
             medicine = 'Tocilizumab'
         else:
             medicine = 'other'
-        subject = 'Medicine:'+str(medicine)+str('\n')
-        subject = subject + str('Document:')+str(fileUrl)+str('\n')
-        subject = subject + str('Name and Address:')+str(nameAddress)+str('\n')
+        subject = 'Medicine:'+str(medicine)+str('/n')
+        subject = subject + str('Document:')+str(fileUrl)+str('/n')
+        subject = subject + str('Name and Address:')+str(nameAddress)+str('/n')
         subject = subject + str('City:')+str(city)
         contactNo = conList[2]
         print('phone:'+str(contactNo))
