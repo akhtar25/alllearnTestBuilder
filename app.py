@@ -4764,7 +4764,7 @@ def sendHelplineNotification():
         if medicine:
             subject = 'Medicine:'+str(medicine)+str('\n')
         if service:
-            subject = 'Services:'+str(service)+str('\n')
+            subject = subject + 'Services:'+str(service)+str('\n')
         fileValue = ''
         f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
