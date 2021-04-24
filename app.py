@@ -4719,11 +4719,32 @@ def sendHelplineNotification():
         nameAddress = paramList[2]
         city = paramList[3]
         symptoms = paramList[4]
+        services = paramList[5]
         # print('Medicine option:'+str(medOption))
         # print('fileUrl:'+str(fileUrl))
         # print('nameAddress:'+str(nameAddress))
         # print('city:'+str(city))
         # print('symptoms:'+str(symptoms))
+        service = ''
+        if services == '1':
+            service = 'Medicine'
+        elif services == '2':
+            service = 'Hospital bed'
+        elif services == '3':
+            service = 'Oxygen cylinder'
+        elif services == '4':
+            service = 'List of active Vaccination and Corona test ( RT-PCR ) centre'
+        elif services == '5':
+            service = 'Food'
+        elif services == '6':
+            service = 'Talk to a doctor'
+        elif services == '7':
+            service = 'Talk to a coordinator'
+        elif services == '8':
+            service = 'I want to help volunteer'
+        elif services == '9':
+            service = 'I can provide meds/food/essential Items'
+        
         medicine = ''
         if medOption == '1':
             medicine = 'Remdisivir'
@@ -4742,6 +4763,8 @@ def sendHelplineNotification():
         subject = ''
         if medicine:
             subject = 'Medicine:'+str(medicine)+str('\n')
+        if service:
+            subject = subject + 'Services:'+str(service)+str('\n')
         fileValue = ''
         f = '@results.uploadedimage.url'
         if fileUrl.find(f) != 0:
