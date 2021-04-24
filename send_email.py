@@ -90,6 +90,17 @@ def performance_report_email(email,name,school,studentData,test_count,average_sc
 def newEmail(email2,name,subject,message):
     send_email(email2,name,subject,message)
 
+def notificationHelplineEmail(email,email2,name,phone,message):
+    print('Email:'+str(email))
+    print('Email2:'+str(email2))
+    print('Name:'+str(name))
+    print('Phone:'+str(phone))
+    subject = "Covid Helpline - New query received from "+str(name)+str("-")+str(phone)
+    message = message
+    newEmail(email2,name,subject,message)
+    print('second email')
+    send_email(email,name,subject,message)
+
 def notificationEmail(email,email2,name,phone,message):
     print('Email:'+str(email))
     print('Email2:'+str(email2))

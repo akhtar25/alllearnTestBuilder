@@ -1,5 +1,5 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
+from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail,notificationHelplineEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
@@ -618,6 +618,48 @@ def sign_s3():
       'data': presigned_post,
       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
+
+@app.route('/s3api',methods=['GET','POST'])
+def s3api():
+    if request.method == 'POST':
+        print('inside s3 api')
+        S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)
+        conList = []
+        paramList = []
+        for con in user['contact'].values():
+            conList.append(con)
+        for data in user['results'].values():
+            paramList.append(data)
+        print(conList)
+        print(paramList)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        S3_BUCKET = "alllearndatabucketv2"
+        file_name = paramList[0]
+        print('fileName:'+str(file_name))
+        s3 = boto3.client('s3', region_name='ap-south-1')
+        presigned_post = s3.generate_presigned_post(
+        Bucket = S3_BUCKET,
+        Key = str('coronaDoc')+"/"+str(file_name),
+        Fields = {"acl": "public-read"},
+        Conditions = [
+        {"acl": "public-read"}
+        ],
+        ExpiresIn = 3600
+        )
+   
+        folder_url = 'corona'
+        return json.dumps({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+        })
 
 
 @app.route("/submit_form/", methods = ["POST"])
@@ -4657,6 +4699,87 @@ def feeManagement():
 @app.route('/privacyPolicy')
 def privacyPolicy():
     return render_template('privacyPolicy.html')
+
+@app.route('/sendHelplineNotification',methods=['GET','POST'])
+def sendHelplineNotification():
+    if request.method == 'POST':
+        jsonData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        conList = []
+        paramList = []
+        print('data:')
+        for con in z['contact'].values():
+            conList.append(con)
+        for dat in z['results'].values():
+            paramList.append(dat)
+        medOption = paramList[0]
+        fileUrl = paramList[1]
+        nameAddress = paramList[2]
+        city = paramList[3]
+        symptoms = paramList[4]
+        # print('Medicine option:'+str(medOption))
+        # print('fileUrl:'+str(fileUrl))
+        # print('nameAddress:'+str(nameAddress))
+        # print('city:'+str(city))
+        # print('symptoms:'+str(symptoms))
+        medicine = ''
+        if medOption == '1':
+            medicine = 'Remdisivir'
+        elif medOption == '2':
+            medicine = 'Azithral'
+        elif medOption == '3':
+            medicine = 'Ivermectin'
+        elif medOption == '4':
+            medicine = 'Zincovit'
+        elif medOption == '5':
+            medicine = 'Vitamin C - Celene'
+        elif medOption == '6':
+            medicine = 'Tocilizumab'
+        elif medOption == '7':
+            medicine = 'other'
+        subject = ''
+        if medicine:
+            subject = 'Medicine:'+str(medicine)+str('\n')
+        fileValue = ''
+        f = '@results.uploadedimage.url'
+        if fileUrl.find(f) != 0:
+            fileValue = fileUrl
+            subject = str('\n')+str(subject) + str('Document:')+str(fileValue)+str('\n')
+        address = ''
+        a = '@results.nameandaddress'
+        if nameAddress.find(a) != 0:
+            address = nameAddress
+            subject = str('\n')+str(subject) + str('Name and Address:')+str(address)+str('\n')
+        c = ''
+        ci = '@results.city' 
+        if city.find(ci) != 0:
+            c = city
+            subject = str('\n')+str(subject) + str('City:')+str(c)+str('\n')
+        sym = ''
+        s = '@results.symptoms'
+        if symptoms.find(s) != 0:
+            sym = symptoms
+            if sym == '1':
+                s = 'Cough/ Sore throat'
+                subject = str('\n')+str(subject) + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '2':
+                s = 'Fever'
+                subject = str('\n')+str(subject) + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '3':
+                s = 'Difficulty breathing'
+                subject = str('\n')+str(subject) + str('Symptoms:')+str(s)+str('\n')
+            elif sym == '4':
+                s = 'Other'
+                subject = str('\n')+str(subject) + str('Symptoms:')+str(s)+str('\n')
+        contactNo = conList[2]
+        print('phone:'+str(contactNo))
+        print('Subject:'+str(subject))
+        email = 'contact@alllearn.in'
+        email2 = 'paragsinha+oipkui0jrvwcrso3giqe@boards.trello.com'
+        notificationHelplineEmail(email,email2,nameAddress,contactNo,subject)
+        return jsonify({'phone':contactNo})                
 
 @app.route('/sendUserNotificationEmail',methods=['POST','GET'])
 def sendUserNotificationEmail():
