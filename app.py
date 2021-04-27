@@ -1,5 +1,5 @@
 from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
+from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail,notificationHelplineEmail
 from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
 #from qrReader import *
@@ -619,6 +619,48 @@ def sign_s3():
       'data': presigned_post,
       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
+
+@app.route('/s3api',methods=['GET','POST'])
+def s3api():
+    if request.method == 'POST':
+        print('inside s3 api')
+        S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)
+        conList = []
+        paramList = []
+        for con in user['contact'].values():
+            conList.append(con)
+        for data in user['results'].values():
+            paramList.append(data)
+        print(conList)
+        print(paramList)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        S3_BUCKET = "alllearndatabucketv2"
+        file_name = paramList[0]
+        print('fileName:'+str(file_name))
+        s3 = boto3.client('s3', region_name='ap-south-1')
+        presigned_post = s3.generate_presigned_post(
+        Bucket = S3_BUCKET,
+        Key = str('coronaDoc')+"/"+str(file_name),
+        Fields = {"acl": "public-read"},
+        Conditions = [
+        {"acl": "public-read"}
+        ],
+        ExpiresIn = 3600
+        )
+   
+        folder_url = 'corona'
+        return json.dumps({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+        })
 
 
 @app.route("/submit_form/", methods = ["POST"])
@@ -4659,6 +4701,110 @@ def feeManagement():
 def privacyPolicy():
     return render_template('privacyPolicy.html')
 
+@app.route('/sendHelplineNotification',methods=['GET','POST'])
+def sendHelplineNotification():
+    if request.method == 'POST':
+        jsonData = request.json
+        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+        a = json.dumps(jsonData)
+        z = json.loads(a)
+        conList = []
+        paramList = []
+        print('data:')
+        for con in z['contact'].values():
+            conList.append(con)
+        for dat in z['results'].values():
+            paramList.append(dat)
+        medOption = paramList[0]
+        fileUrl = paramList[1]
+        nameAddress = paramList[2]
+        city = paramList[3]
+        symptoms = paramList[4]
+        services = paramList[5]
+        # print('Medicine option:'+str(medOption))
+        # print('fileUrl:'+str(fileUrl))
+        # print('nameAddress:'+str(nameAddress))
+        # print('city:'+str(city))
+        # print('symptoms:'+str(symptoms))
+        service = ''
+        if services == '1':
+            service = 'Medicine'
+        elif services == '2':
+            service = 'Hospital bed'
+        elif services == '3':
+            service = 'Oxygen cylinder'
+        elif services == '4':
+            service = 'List of active Vaccination and Corona test ( RT-PCR ) centre'
+        elif services == '5':
+            service = 'Food'
+        elif services == '6':
+            service = 'Talk to a doctor'
+        elif services == '7':
+            service = 'Talk to a coordinator'
+        elif services == '8':
+            service = 'I want to help volunteer'
+        elif services == '9':
+            service = 'I can provide meds/food/essential Items'
+        
+        medicine = ''
+        if medOption == '1':
+            medicine = 'Remdisivir'
+        elif medOption == '2':
+            medicine = 'Azithral'
+        elif medOption == '3':
+            medicine = 'Ivermectin'
+        elif medOption == '4':
+            medicine = 'Zincovit'
+        elif medOption == '5':
+            medicine = 'Vitamin C - Celene'
+        elif medOption == '6':
+            medicine = 'Tocilizumab'
+        elif medOption == '7':
+            medicine = 'other'
+        subject = ''
+        if medicine:
+            subject = 'Medicine:'+str(medicine)+str('\n')
+        if service:
+            subject = subject + ';Services:'+str(service)+str('\n')
+        fileValue = ''
+        f = '@results.uploadedimage.url'
+        if fileUrl.find(f) != 0:
+            fileValue = fileUrl
+            subject = str('\n')+str(subject) + str(';Document:')+str(fileValue)+str('\n')
+        address = ''
+        a = '@results.nameandaddress'
+        if nameAddress.find(a) != 0:
+            address = nameAddress
+            subject = str('\n')+str(subject) + str(';Name and Address:')+str(address)+str('\n')
+        c = ''
+        ci = '@results.city' 
+        if city.find(ci) != 0:
+            c = city
+            subject = str('\n')+str(subject) + str(';City:')+str(c)+str('\n')
+        sym = ''
+        s = '@results.symptoms'
+        if symptoms.find(s) != 0:
+            sym = symptoms
+            if sym == '1':
+                s = 'Cough/ Sore throat'
+                subject = str('\n')+str(subject) + str(';Symptoms:')+str(s)+str('\n')
+            elif sym == '2':
+                s = 'Fever'
+                subject = str('\n')+str(subject) + str(';Symptoms:')+str(s)+str('\n')
+            elif sym == '3':
+                s = 'Difficulty breathing'
+                subject = str('\n')+str(subject) + str(';Symptoms:')+str(s)+str('\n')
+            elif sym == '4':
+                s = 'Other'
+                subject = str('\n')+str(subject) + str(';Symptoms:')+str(s)+str('\n')
+        contactNo = conList[2]
+        print('phone:'+str(contactNo))
+        print('Subject:'+str(subject))
+        email = 'contact@alllearn.in'
+        email2 = 'paragsinha+oipkui0jrvwcrso3giqe@boards.trello.com'
+        notificationHelplineEmail(email,email2,nameAddress,contactNo,subject)
+        return jsonify({'phone':contactNo})                
+
 @app.route('/sendUserNotificationEmail',methods=['POST','GET'])
 def sendUserNotificationEmail():
     if request.method == 'POST':
@@ -8616,7 +8762,7 @@ def getTopicList():
         subId = subQuery.msg_id
         print(selSubject)
         print('SubId:'+str(subId))
-        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        extractChapterQuery = "select td.topic_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
         print('Query:'+str(extractChapterQuery))
         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
         print(extractChapterData)
@@ -8624,9 +8770,9 @@ def getTopicList():
         chapterDetList = []
         for chapterDet in extractChapterData:
             if c==1:
-                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str('Here’s the full list of chapters:\n')+str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             else:
-                chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+                chap = str(c)+str('-')+str(chapterDet.topic_name)+str('-')+str(chapterDet.book_name)+str("\n")
             chapterDetList.append(chap)
             c=c+1
         msg = 'no topics available'
@@ -9124,6 +9270,79 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
+@app.route('/checkContact',methods=['POST','GET'])
+def checkContact():
+    if request.method == 'POST':
+        print('inside checkContact')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        conList = []
+        for con in z['results'].values():
+            conList.append(con)
+        contactNo = conList[0]
+        print(contactNo)
+        msg = ''
+        checkContact = User.query.filter_by(phone=contactNo).first()
+        print(checkContact)
+        if checkContact:
+            msg = 'Exist'
+            print('Exist')
+            return jsonify({'msg':msg})
+        else:
+            msg = 'New'
+            print('New')
+            return jsonify({'msg':msg})
+
+
+@app.route('/checkQuesNo',methods=['GET','POST'])
+def checkQuesNo():
+    if request.method == 'POST':
+        print('inside checkQuesNo')
+        jsonData = request.json
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)     
+        quesCount = paramList[0]
+        if int(quesCount) > 15:
+            print('question count greater then 18')
+            return jsonify({'msg':'Greater'})
+        else:
+            print('question count less then 18')
+            return jsonify({'msg':'Less'})    
+
+@app.route('/isSpecialCharacter',methods=['POST','GET'])
+def isSpecialCharacter():
+    if request.method == 'POST':
+        print('inside isSpecialCharacter')
+        jsonData = request.json
+        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+        print('jsonData:')
+        print(jsonData)
+        
+        userData = json.dumps(jsonData)
+        user = json.loads(userData)   
+        paramList = []
+        for con in user['results'].values():
+            paramList.append(con)  
+        # name = re.sub('[^a-zA-Z.\d\s]', '', paramList[0])  
+        # name = paramList[0].isalpha()
+        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        print('isSpecialChar:')
+        # print(name)
+        if(regex.search(paramList[0]) == None):
+            print('if special character does not exist')
+            return jsonify({'name':'Not'})
+        else:
+            print('if special character present')
+            return jsonify({'name':'Char'})    
+
+
 @app.route('/registerUser',methods=['POST','GET'])
 def registerUser():
     if request.method == 'POST':
@@ -9155,7 +9374,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name)})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(lastName)})
                 
             elif userId.user_type == 134:
                 student = 'Student'
@@ -9166,7 +9388,10 @@ def registerUser():
                     return jsonify({'user':'Unregistered'})
                 if schoolDet.is_verified == 'N':
                     return jsonify({'user':'Parent'})
-                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentId':student_id.student_id})
+                lastName = ''
+                if userId.last_name:
+                    lastName = userId.last_name
+                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentId':student_id.student_id})
             else:
                 parent = 'Parent'
                 print('user is parent outside if')
@@ -9178,10 +9403,30 @@ def registerUser():
                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
                     print('studentDet:')
                     print(studentDet)
-                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(userId.last_name),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
+                    lastName = ''
+                    if userId.last_name:
+                        lastName = userId.last_name
+                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
         print('not registered user')
         return jsonify({'user':'null'})
 
+@app.route('/checkSchoolAddress',methods=['POST','GET'])
+def checkSchoolAddress():
+    if request.method == 'POST':
+        print('inside checkSchoolAddress')
+        jsonExamData = request.json
+        a = json.dumps(jsonExamData)
+        z = json.loads(a)
+        paramList = []
+        for data in z['results'].values():
+            paramList.append(data)
+        msg = ''
+        if paramList[0].upper()==paramList[1].upper() or paramList[0].upper()==paramList[2].upper() or paramList[1].upper()==paramList[2].upper():
+            print('Same address')
+            return jsonify({'msg':'Same'})
+        else:
+            print('different address')
+            return jsonify({'msg':'Different'})
 
 @app.route('/getUserDetails',methods=['POST','GET'])
 def getUserDetails():
@@ -9313,9 +9558,10 @@ def checkMailId():
         checkUser = User.query.filter_by(email=email).first()
         statement = ''
         if checkUser:
-            statement = 'Mail id already exist.'
+            statement = 'Exist'
             return jsonify({'statement':statement})
-        statement = 'Which class-section do you study in?'
+        else:
+            statement = 'No'
         return jsonify({'statement':statement})  
 
 
@@ -9353,6 +9599,39 @@ def insertUserTeacherDetails():
         statement = "What's your school's name?"
         return jsonify({'statement':statement})  
 
+@app.route('/checkSchoolList',methods=['GET','POST'])
+def checkSchoolList():
+    if request.method == 'POST':
+        print('inside schoolList')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        print(data)
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(contactNo)
+        for param in paramList:
+            print(param)
+        print(paramList[1])
+        schoolNam = paramList[3].upper()
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
+        print(schoolDetQuery)
+        schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
+        data = ''
+        i=1
+        if len(schoolDet) != 0:
+            data = 'Exist'
+        else:
+            data = 'None'
+        # data = data + '\n If your school is not in this list, please type 00'
+        print(data)
+        return jsonify({'isSchoolList':data})         
+
 @app.route('/schoolList',methods=['GET','POST'])
 def schoolList():
     if request.method == 'POST':
@@ -9372,16 +9651,20 @@ def schoolList():
         for param in paramList:
             print(param)
         print(paramList[1])
-        schoolDetQuery = "select school_id,school_name from school_profile where school_name like '%"+str(paramList[3])+"%'"
+        schoolNam = paramList[3].upper()
+        schoolDetQuery = "select school_id,school_name from school_profile where INITCAP(school_name) like initcap('%"+str(schoolNam)+"%')"
         print(schoolDetQuery)
         schoolDet = db.session.execute(text(schoolDetQuery)).fetchall()
-        data = 'Please type the school id of your school from the list\n'
+        data = ''
         i=1
         if len(schoolDet) != 0:
+            data = 'Please type the school id of your school from the list\n'
             for school in schoolDet:
                 data = data + str(school.school_id)+str(' ')+str(school.school_name) + str(' ') + str(i) +str('\n')
                 i = i +1
-        data = data + '\n If your school is not in this list, please type 00'
+        else:
+            data = 'None'
+        # data = data + '\n If your school is not in this list, please type 00'
         return jsonify({'schoolNameList':data}) 
 
 @app.route('/registerTeacher',methods=['GET','POST'])
@@ -9475,7 +9758,32 @@ def studentSubjectList():
         if subjectList:
             return jsonify({'subject_list':subjectList,'class_val':clasDet.class_val}) 
         else:
-            return jsonify({'subject_list':msg})              
+            return jsonify({'subject_list':msg})   
+
+@app.route('/classSectionCheck',methods=['GET','POST'])
+def classSectionCheck():
+    if request.method == 'POST':
+        print('inside classSectionCheck')
+        jsonStudentData = request.json
+        newData = json.dumps(jsonStudentData)
+        data = json.loads(newData)
+        paramList = []
+        conList = []
+        for values in data['results'].values():
+            paramList.append(values)    
+        for con in data['contact'].values():
+            conList.append(con)
+        contactNo = conList[2][-10:]
+        print(paramList)
+        print(paramList[0])   
+        subString = '-'
+        if subString in paramList[0]:
+            print('Y')
+            return jsonify({'msg':'Y'})
+        else:
+            print('N')
+            return jsonify({'msg':'N'})
+
 
 @app.route('/registerStudent',methods=['GET','POST'])
 def registerStudent():
@@ -11935,6 +12243,18 @@ def loadQuestionStud():
 #    return jsonify(['0'])
 #
 
+@app.route('/questionAllDetailsMob')
+def questionAllDetailsMob():
+    question_id = request.args.get('question_id')
+    totalQCount = ''
+    qnum= ''
+    question = QuestionDetails.query.filter_by(question_id=question_id, archive_status='N').order_by(QuestionDetails.question_id).first()
+    questionOp = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
+    print('Question Id:'+str(question_id))
+    print('Question Op:'+str(questionOp))
+    return render_template('_questionMob.html',question=question, questionOp=questionOp,qnum = qnum,totalQCount = totalQCount,  )    
+
+
 @app.route('/questionAllDetails')
 def questionAllDetails():
     question_id = request.args.get('question_id')
@@ -12200,7 +12520,7 @@ def feedbackReport():
         else:
             return render_template('_feedbackReport.html',total_marks=totalMarks,class_val=classVal,section=section,subjectName=subjectName,testType=testType,flag=flag,totalPointsLimit=totalPointsLimit,classAverage=classAverage, classSecCheckVal=classSecCheck(),responseResultRow= responseResultRow,  responseResultRowCount = responseResultRowCount, resp_session_id = responseSessionID,exam_date=total.last_modified_date)
     else:
-         return jsonify(['NA'])
+         return jsonify(['Test has not been attempted by any student.'])
          
 
 @app.route('/reviewSubjective',methods=['GET','POST'])
