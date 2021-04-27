@@ -4485,6 +4485,7 @@ def login():
     form = LoginForm()
     print('Validation')
     print(form.validate_on_submit())
+    session['isGooglelogin'] = ''
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
             print("###glogin val"+ str(glogin))

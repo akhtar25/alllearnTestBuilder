@@ -63,6 +63,17 @@
         ></div>
         </div>
       <div class="center row">OR</div>
+      {% elif session['isGooglelogin']!='N' %}
+        <div id="googleSignInDiv" class="row">
+        <div
+          class="g-signin2"
+          data-onsuccess="onSignIn"
+          data-width="250"
+          data-height="40"
+          data-longtitle="true"
+        ></div>
+        </div>
+      <div class="center row">OR</div>
       {% endif %}
       <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
@@ -143,11 +154,11 @@
           >
         </label>
         {% else %}
-        <label style="float: right; font-weight: 400">
+        <!-- <label style="float: right; font-weight: 400">
           <a href="javascript:void(0)" onclick="checkFunc();" 
             >Login via OTP</a
           >
-        </label>
+        </label> -->
         {% endif %}
           
         </p>
