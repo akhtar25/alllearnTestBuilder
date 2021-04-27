@@ -9846,10 +9846,7 @@ def registerNewStudent():
         for param in paramList:
             print(param)
         print(paramList[1])
-        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(contactNo)
-        db.session.add(createUser)
-        db.session.commit()
+
         clas = paramList[2].split('-')[0]
         section = paramList[2].split('-')[1].upper()
         print('Class'+str(clas))
@@ -9860,6 +9857,10 @@ def registerNewStudent():
         if classSecId == '' or classSecId == None:
             statement = 'Class does not exist'
             return jsonify({'studentId':statement})
+        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(contactNo)
+        db.session.add(createUser)
+        db.session.commit()
         createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()
