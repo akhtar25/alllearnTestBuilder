@@ -9856,6 +9856,7 @@ def registerNewStudent():
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
         statement = ''
+        print('classSecId:'+str(classSecId))
         if classSecId == '' or classSecId == None:
             statement = 'Class does not exist'
             return jsonify({'statement':statement})
