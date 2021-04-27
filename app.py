@@ -4565,6 +4565,8 @@ def login():
 
         school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
         session['school_logo'] = ''
+        print('school_pro:'+str(school_pro))
+        session['isGooglelogin'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
@@ -4573,6 +4575,8 @@ def login():
             print('session[font]:'+str(session['font']))
             session['primary_color'] = school_pro.primary_color
             session['isGooglelogin'] = school_pro.google_login
+            print('session[isGooglelogin]:'+str(session['isGooglelogin']))
+            print('school_pro.google_login:'+str(school_pro.google_login))
             session['show_school_name'] = school_pro.show_school_name
             teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
             userData = User.query.filter_by(id=teacherData.user_id).first()
