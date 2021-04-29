@@ -9851,6 +9851,7 @@ def registerNewStudent():
             print(param)
         print(paramList[1])
         strg = '-'
+        print(paramList[2])
         if paramList[2].find(strg)!=0:
             statement = 'invalid class format'
             return jsonify({'studentId':statement})
