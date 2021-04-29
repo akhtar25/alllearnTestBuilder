@@ -9850,7 +9850,10 @@ def registerNewStudent():
         for param in paramList:
             print(param)
         print(paramList[1])
-
+        strg = '-'
+        if paramList[2].find(strg)!=0:
+            statement = 'invalid class format'
+            return jsonify({'studentId':statement})
         clas = paramList[2].split('-')[0]
         section = paramList[2].split('-')[1].upper()
         print('Class'+str(clas))
