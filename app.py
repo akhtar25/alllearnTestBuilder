@@ -8310,6 +8310,7 @@ def deleteContentById():
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
+    print('inside contentManagerDetails')
     contents=[]
     topicList=request.get_json()
     user_type_val = current_user.user_type
