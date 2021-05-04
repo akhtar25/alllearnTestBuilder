@@ -15,7 +15,7 @@ db=SQLAlchemy()
 #from app import app
 
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+login_manager.login_view = 'accounts.login'
 
 
 @login_manager.user_loader

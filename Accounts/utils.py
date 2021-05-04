@@ -1,10 +1,7 @@
 import re
-from flask_login import LoginManager, current_user
+
 from applicationDB import *
-
-
-
-
+from flask_login import current_user
 
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 def check(email):

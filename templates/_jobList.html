@@ -4,7 +4,8 @@
         <div class="row z-depth-2 " style="margin-top: -15px;height: 160;">
             <div class="col m6 l3 center-align">
                 {%if content.school_picture!=None %}
-                <img height="100px" style="width:155px;margin-top: 25px;margin-left: 18px;" src="{{content.school_picture}}">
+                <img height="100px" style="width:155px;margin-top: 25px;margin-left: 18px;"
+                    src="{{content.school_picture}}">
                 {%else%}
                 <img height="100px" style="width:155px;margin-top: 25px;margin-left: 18px;"
                     src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultSchoolImage.jpg">
@@ -15,7 +16,7 @@
                 <h3 class='grey-text'><span> <a href="#" target="_blank"></a>{{content.school_name}}</span></h3>
                 <h5>{{content.term}}</h5>
                 <h5>{{content.category}}</h5>
-                <h5>{{content.subject}}</h5>                
+                <h5>{{content.subject}}</h5>
             </div>
             <div class="col  m6 l3">
                 <h3 class="grey-text">₹{{content.min_pay}} - ₹{{content.max_pay}}</h3>
@@ -28,8 +29,9 @@
             <div class="col  m7 l3 valign-wrapper">
                 <div class='row'>
                     <div class='section'>
-<br><br>
-                        <h4><a href="{{url_for('jobDetail',job_id=content.job_id, school_id=content.school_id)}}">See
+                        <br><br>
+                        <h4><a
+                                href="{{url_for('job_post.jobDetail',job_id=content.job_id, school_id=content.school_id)}}">See
                                 Details</a></h4>
                     </div>
                 </div>

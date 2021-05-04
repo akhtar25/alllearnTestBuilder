@@ -1,7 +1,9 @@
 {% extends "layout.html" %} {% block content %}
-<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5dd010b515fbee0013ab6c87&product=inline-share-buttons" async="async"></script>
+<script type="text/javascript"
+    src="https://platform-api.sharethis.com/js/sharethis.js#property=5dd010b515fbee0013ab6c87&product=inline-share-buttons"
+    async="async"></script>
 <div class="container ">
-        {%if jobDetailRow%}
+    {%if jobDetailRow%}
     <div class="row">
         <div class="col s8 offset-s2">
             <div style="padding: 1px;margin-bottom: 20px;" class="white-text center green z-depth-1 lighten-1">
@@ -62,11 +64,12 @@
 
             <div row="jobDetailDiv" class="col s8 m8 l12">
                 <div class="divider"></div>
-                <span style='font-size:25px' class='grey-text'>Job Details 
+                <span style='font-size:25px' class='grey-text'>Job Details
                 </span>
                 {%if applied==1%}
-                 <span class="appliedClass badge green white-text"  id="{{applied}}" style='font-size: 10px; font-family: Arial;'>Applied</span>
-                 {%endif%}
+                <span class="appliedClass badge green white-text" id="{{applied}}"
+                    style='font-size: 10px; font-family: Arial;'>Applied</span>
+                {%endif%}
                 <br><strong>{{jobDetailRow.category}}</strong>
                 |{{jobDetailRow.term}} | {{jobDetailRow.job_type}}
                 {%if jobDetailRow.status=='Open'%}
@@ -143,7 +146,7 @@
                 </table>
                 {% if current_user.is_anonymous %}
                 {%if jobDetailRow.status=='Open'%}
-                <a href="{{url_for('login')}}" class='btn green right applyBTN' id='applyBTN'>Apply</a>
+                <a href="{{url_for('accounts.login')}}" class='btn green right applyBTN' id='applyBTN'>Apply</a>
                 {%endif%}
                 {% else %}
                 {%if jobDetailRow.status=='Open' and user_type_val=='161'%}
@@ -151,20 +154,21 @@
                 {%endif%}
                 {% endif %}
                 <div id="fillApplyDetail" class="modal" style="width: 750px;height: 370px;">
-                        <form action="/sendJobApplication" method="post">
-                            <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
-                            <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
+                    <form action="/sendJobApplication" method="post">
+                        <input type="hidden" value="{{jobDetailRow.job_id}}" id="job_id_form" name="job_id_form">
+                        <input type="hidden" value="{{schoolProfileRow.school_id}}" id="school_id" name="school_id">
 
-                    <div class="modal-content">
-                        <h4>Available From </h4>
-                        <input type="text" class="datepicker" id="availableFromID" name='availableFromID'>
-                        <h4>Available Till </h4>
-                        <input type="text" class="datepicker" id="availableTillID" name='availableTillID' placeholder="Optional">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class='btn green' id='mainApplyBTN'>Submit</button>
-                    </div>
-                </form>
+                        <div class="modal-content">
+                            <h4>Available From </h4>
+                            <input type="text" class="datepicker" id="availableFromID" name='availableFromID'>
+                            <h4>Available Till </h4>
+                            <input type="text" class="datepicker" id="availableTillID" name='availableTillID'
+                                placeholder="Optional">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class='btn green' id='mainApplyBTN'>Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -180,29 +184,30 @@
         </div>
     </div>
     {%else%}
-<h3 class="grey-text">No details found for the selected job id</h3>
-{%endif%}
+    <h3 class="grey-text">No details found for the selected job id</h3>
+    {%endif%}
 </div>
 <script>
-    $(document).ready(function () {   
+    $(document).ready(function () {
         var app = "{{applied}}";
-        console.log('applied:'+app);     
-        if ({{applied}}!=0){            
-            $('#applyBTN').attr('disabled', true);
-        }
-        
-        $('.modal').modal();
-        $('#mainApplyBTN').attr('disabled', true);
-         $('.datepicker').datepicker();
-         
+        console.log('applied:' + app);
+        if ({{ applied }
+    } != 0){
+        $('#applyBTN').attr('disabled', true);
+    }
 
-        $('#availableFromID').change(function () {
-            if ($(this).val().length != 0) {
-                $('#mainApplyBTN').attr('disabled', false);
-            } else {
-                $('#mainApplyBTN').attr('disabled', true);
-            }
-        })
+    $('.modal').modal();
+    $('#mainApplyBTN').attr('disabled', true);
+    $('.datepicker').datepicker();
+
+
+    $('#availableFromID').change(function () {
+        if ($(this).val().length != 0) {
+            $('#mainApplyBTN').attr('disabled', false);
+        } else {
+            $('#mainApplyBTN').attr('disabled', true);
+        }
+    })
 
     });
 

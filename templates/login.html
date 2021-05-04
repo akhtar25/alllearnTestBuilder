@@ -5,6 +5,7 @@
       margin-left: 25%;
     }
   }
+
   @media screen and (max-width: 650px) {
     #googleSignInDiv {
       margin-left: 5%;
@@ -15,180 +16,138 @@
 <div class="container" style="text-align: center">
   <div class="row" style="display: inline-block">
     {% if session['primary_color'] %}
-    <div
-      class="input-field col s12 z-depth-1 hoverable"
-      style="
+    <div class="input-field col s12 z-depth-1 hoverable" style="
       text-align: left;
       border-radius: 25px;
       border: 2px solid {{session['primary_color']}};
       padding: 10px;
-    "
-    >
+    ">
       {% elif primaryColor %}
-      <div
-        class="input-field col s12 z-depth-1 hoverable"
-        style="
+      <div class="input-field col s12 z-depth-1 hoverable" style="
       text-align: left;
       border-radius: 25px;
       border: 2px solid {{primaryColor}};
       padding: 10px;
-    "
-      >
+    ">
         {% else %}
-        <div
-        class="input-field col s12 z-depth-1 hoverable"
-        style="
+        <div class="input-field col s12 z-depth-1 hoverable" style="
       text-align: left;
       border-radius: 25px;
       border: 2px solid;
       padding: 10px;
-    "
-      >
-        {% endif %}
-        {% if session['primary_color'] and session['font'] %}
+    ">
+          {% endif %}
+          {% if session['primary_color'] and session['font'] %}
           <h2 style="color: {{session['primary_color']}};font-family:{{session['font']}}">Sign In</h2>
           {% elif primaryColor and font %}
           <h2 style="color: {{primaryColor}};font-family:{{font}}">Sign In</h2>
           {% else %}
           <h2 style="color: Green">Sign In</h2>
           {% endif %}
-        {% if session['isGooglelogin']=='Y' %}
-        <div id="googleSignInDiv" class="row">
-        <div
-          class="g-signin2"
-          data-onsuccess="onSignIn"
-          data-width="250"
-          data-height="40"
-          data-longtitle="true"
-        ></div>
-        </div>
-      <div class="center row">OR</div>
-      {% endif %}
-      <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-          {{ form.email.label(style="font-weight:400;color:green") }}
-          <a class="tooltippedBoard" style="margin-left: 10px;" data-position="right" data-tooltip="eg. stud_2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;" aria-hidden="true"></i></a>
+          {% if session['isGooglelogin']=='Y' %}
+          <div id="googleSignInDiv" class="row">
+            <div class="g-signin2" data-onsuccess="onSignIn" data-width="250" data-height="40" data-longtitle="true">
+            </div>
+          </div>
+          <div class="center row">OR</div>
+          {% endif %}
+          <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+              {{ form.email.label(style="font-weight:400;color:green") }}
+              <a class="tooltippedBoard" style="margin-left: 10px;" data-position="right"
+                data-tooltip="eg. stud_2158"><i class="fa fa-info-circle" style="font-size: 16px;cursor: pointer;"
+                  aria-hidden="true"></i></a>
+              <br />
+              {{ form.email(size=64,id='newEmail') }} {% for error in form.email.errors %}
+              <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+
+            </p>
+            <p id='passWord'>
+              {{ form.password.label(style='font-weight:400;color:green') }}
+              <br />
+              {{ form.password(size=32) }} {% for error in form.password.errors %}
+              <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+            </p>
+            <p id="otpPar" style="display: none;">
+              <label for="otp" style='font-weight:400;color:green'>OTP</label>
+              <input type="number" id="otp" />
+
+            </p>
+
+            <p>
+              {% if session['primary_color'] or session['font'] %}
+              <label>
+                <input id="remember_me" name="remember_me" type="checkbox" />
+                <span style="font-family: {{session['font']}};color:{{session['primary_color']}}">Remember Me</span>
+              </label>
+              {% elif primaryColor or font %}
+              <label>
+                <input id="remember_me" name="remember_me" type="checkbox" />
+                <span style="font-family:{{font}};color:{{primaryColor}}">Remember Me</span>
+              </label>
+              {% else %}
+              <label>
+                <input id="remember_me" name="remember_me" type="checkbox" />
+                <span style="font-family: 'Source sans pro', sans-serif">Remember Me</span>
+              </label>
+              {% endif %}
+              {% if session['primary_color'] or session['font'] %}
+              <label style="margin-left: 30px; font-weight: 400;font-family:{{session['font']}}">
+                <a href="{{ url_for('accounts.reset_password_request') }}">Forgot Your Password?</a>
+              </label>
+              {% elif primaryColor or font %}
+              <label style="margin-left: 30px; font-weight: 400;font-family:{{font}};">
+                <a href="{{ url_for('accounts.reset_password_request') }}">Forgot Your Password?</a>
+              </label>
+              {% else %}
+              <label style="margin-left: 30px; font-weight: 400;">
+                <a href="{{ url_for('accounts.reset_password_request') }}">Forgot Your Password?</a>
+              </label>
+              {% endif %}
+              {% if session['primary_color'] or session['font'] %}
+              <label style="float: right; font-weight: 400;font-family:{{font}};">
+                <a href="javascript:void(0)" onclick="checkFunc();">Login via OTP</a>
+              </label>
+              {% elif primaryColor or font %}
+              <label style="float: right; font-weight: 400;font-family:{{font}};">
+                <a href="javascript:void(0)" onclick="checkFunc();">Login via OTP</a>
+              </label>
+              {% else %}
+              <label style="float: right; font-weight: 400">
+                <a href="javascript:void(0)" onclick="checkFunc();">Login via OTP</a>
+              </label>
+              {% endif %}
+
+            </p>
+            <div id="msgDiv" style="display: none;color:red;"><span id="msg"></span></div>
+
+            <div class="center">
+              {% if session['primary_color'] or session['font'] %}
+              <button
+                style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{session['primary_color']}} !important;font-family:{{session['font']}};"
+                class="btn-large waves-effect waves-light green white-text" type="submit">
+                Sign In</button>
+              {% elif primaryColor or font %}
+              <button
+                style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{primaryColor}} !important;font-family:{{font}};;"
+                class="btn-large waves-effect waves-light green white-text" type="submit">
+                Sign In</button>
+              {% else %}
+              <button style="width: 190px; height: 45px; margin-bottom: 20px"
+                class="btn-large waves-effect waves-light green white-text" type="submit">
+                Sign In</button>
+              {% endif %}
+              <br />
+              <span>
+                New User?<br />
+                <a class="btn cyan" href="{{ url_for('.register') }}">Click to Sign Up!</a>
+              </span>
+            </div>
+          </form>
           <br />
-          {{ form.email(size=64,id='newEmail') }} {% for error in form.email.errors %}
-          <span style="color: red">[{{ error }}]</span>
-          {% endfor %}
-          
-        </p>
-          <p id='passWord'>
-            {{ form.password.label(style='font-weight:400;color:green') }}
-            <br />
-            {{ form.password(size=32) }} {% for error in form.password.errors %}
-            <span style="color: red">[{{ error }}]</span>
-            {% endfor %}
-          </p>
-          <p id="otpPar" style="display: none;">
-            <label for="otp"style='font-weight:400;color:green'>OTP</label>
-            <input type="number" id="otp"/>
-            
-          </p>
-          
-        <p>
-        {% if session['primary_color'] or session['font'] %}
-          <label>
-            <input id="remember_me" name="remember_me" type="checkbox" />
-            <span style="font-family: {{session['font']}};color:{{session['primary_color']}}" 
-              >Remember Me</span
-            >
-          </label>
-          {% elif primaryColor or font %}
-          <label>
-            <input id="remember_me" name="remember_me" type="checkbox" />
-            <span style="font-family:{{font}};color:{{primaryColor}}" 
-              >Remember Me</span
-            >
-          </label>
-          {% else %}
-          <label>
-            <input id="remember_me" name="remember_me" type="checkbox" />
-            <span style="font-family: 'Source sans pro', sans-serif"
-              >Remember Me</span
-            >
-          </label>
-          {% endif %}
-          {% if session['primary_color'] or session['font'] %}
-          <label style="margin-left: 30px; font-weight: 400;font-family:{{session['font']}}">
-            <a href="{{ url_for('reset_password_request') }}"
-              >Forgot Your Password?</a
-            >
-          </label>
-          {% elif primaryColor or font %}
-        <label style="margin-left: 30px; font-weight: 400;font-family:{{font}};">
-            <a href="{{ url_for('reset_password_request') }}"
-              >Forgot Your Password?</a
-            >
-          </label>
-          {% else %}
-          <label style="margin-left: 30px; font-weight: 400;">
-            <a href="{{ url_for('reset_password_request') }}"
-              >Forgot Your Password?</a
-            >
-          </label>
-          {% endif %}
-          {% if session['primary_color'] or session['font'] %}
-          <label style="float: right; font-weight: 400;font-family:{{font}};">
-            <a href="javascript:void(0)" onclick="checkFunc();" 
-              >Login via OTP</a
-            >
-          </label>
-        {% elif primaryColor or font %}
-        <label style="float: right; font-weight: 400;font-family:{{font}};">
-          <a href="javascript:void(0)" onclick="checkFunc();" 
-            >Login via OTP</a
-          >
-        </label>
-        {% else %}
-        <label style="float: right; font-weight: 400">
-          <a href="javascript:void(0)" onclick="checkFunc();" 
-            >Login via OTP</a
-          >
-        </label>
-        {% endif %}
-          
-        </p>
-        <div id="msgDiv" style="display: none;color:red;"><span id="msg"></span></div>
-          
-        <div class="center">
-          {% if session['primary_color'] or session['font'] %}
-          <button
-        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{session['primary_color']}} !important;font-family:{{session['font']}};"
-            class="btn-large waves-effect waves-light green white-text"
-            type="submit"
-          >
-            Sign In</button
-          >
-          {% elif primaryColor or font %}
-          <button
-        style="width: 190px; height: 45px; margin-bottom: 20px;background-color:{{primaryColor}} !important;font-family:{{font}};;"
-            class="btn-large waves-effect waves-light green white-text"
-            type="submit"
-          >
-            Sign In</button
-          >
-          {% else %}
-          <button
-            style="width: 190px; height: 45px; margin-bottom: 20px"
-            class="btn-large waves-effect waves-light green white-text"
-            type="submit"
-          >
-            Sign In</button
-          >
-          {% endif %}
-          <br />
-          <span>
-            New User?<br />
-            <a class="btn cyan" href="{{ url_for('.register') }}"
-              >Click to Sign Up!</a
-            >
-          </span>
-        </div>
-      </form>
-      <br />
 
           <div class="row center">
             <table class="center">
@@ -198,68 +157,68 @@
             </table>
           </div>
         </div>
-        </div>
       </div>
     </div>
-    <script>
-      function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-        console.log("Full Name: " + profile.getName());
-        console.log("Given Name: " + profile.getGivenName());
-        console.log("Family Name: " + profile.getFamilyName());
-        console.log("Image URL: " + profile.getImageUrl());
-        console.log("Email: " + profile.getEmail());
-
-        // The ID token you need to pass to your backend:
-        var id_token = googleUser.getAuthResponse().id_token;
-        console.log("ID Token: " + id_token);
-
-        //Sending token id to server for verification
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", '{{url_for("gTokenSignin")}}');
-        xhr.setRequestHeader(
-          "Content-Type",
-          "application/x-www-form-urlencoded"
-        );
-        //window.alert('about to send token. email='+ profile.getEmail());
-        xhr.send("idtoken=" + id_token);
-        xhr.onload = function () {
-          console.log("Signed in as: " + xhr.responseText);
-          var signInResponse = xhr.responseText;
-          //window.alert(xhr.responseText);
-          if (signInResponse == "0") {
-            window.location.href =
-              "/login?glogin=True&gemail=" + profile.getEmail();
-          }
-        };
-        //window.alert('Token sent to server');
-      }
-
-      function checkFunc(){
-        var val = $('#newEmail').val();
-        console.log('inside checkfunc');
-        console.log('val',val);
-        let isnum = /^\d+$/.test(val);
-        console.log(isnum);
-        if(!isnum){
-          console.log('not a phone number');
-          $('#msg').html('please enter phone no.');
-          $('#msgDiv').show();
-        }else{
-          $('#msgDiv').hide();
-          $('#passWord').hide();
-          $('#otpPar').show();
-        }
-      }
-
-      $(document).ready(function(){
-    $('.tooltipped').tooltip();
-  });
-  $(document).ready(function(){
-    $('.tooltippedBoard').tooltip();
-  });
-    </script>
-    {% endblock %}
   </div>
+  <script>
+    function onSignIn(googleUser) {
+      var profile = googleUser.getBasicProfile();
+      console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+      console.log("Full Name: " + profile.getName());
+      console.log("Given Name: " + profile.getGivenName());
+      console.log("Family Name: " + profile.getFamilyName());
+      console.log("Image URL: " + profile.getImageUrl());
+      console.log("Email: " + profile.getEmail());
+
+      // The ID token you need to pass to your backend:
+      var id_token = googleUser.getAuthResponse().id_token;
+      console.log("ID Token: " + id_token);
+
+      //Sending token id to server for verification
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", '{{url_for("gTokenSignin")}}');
+      xhr.setRequestHeader(
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+      );
+      //window.alert('about to send token. email='+ profile.getEmail());
+      xhr.send("idtoken=" + id_token);
+      xhr.onload = function () {
+        console.log("Signed in as: " + xhr.responseText);
+        var signInResponse = xhr.responseText;
+        //window.alert(xhr.responseText);
+        if (signInResponse == "0") {
+          window.location.href =
+            "/login?glogin=True&gemail=" + profile.getEmail();
+        }
+      };
+      //window.alert('Token sent to server');
+    }
+
+    function checkFunc() {
+      var val = $('#newEmail').val();
+      console.log('inside checkfunc');
+      console.log('val', val);
+      let isnum = /^\d+$/.test(val);
+      console.log(isnum);
+      if (!isnum) {
+        console.log('not a phone number');
+        $('#msg').html('please enter phone no.');
+        $('#msgDiv').show();
+      } else {
+        $('#msgDiv').hide();
+        $('#passWord').hide();
+        $('#otpPar').show();
+      }
+    }
+
+    $(document).ready(function () {
+      $('.tooltipped').tooltip();
+    });
+    $(document).ready(function () {
+      $('.tooltippedBoard').tooltip();
+    });
+  </script>
+  {% endblock %}
+</div>
 </div>

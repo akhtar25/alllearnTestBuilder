@@ -80,7 +80,8 @@ justify-content: center;" id="containerDiv">
                 <h1 id="mainText" style="text-shadow: 1px 1px 1px black;"><b>Learning should be easy.</b>
                 </h1><br>
                 <div class="col-xs-12">
-                    <h2 id="subText" style="text-shadow: 1px 1px 1px rgb(177, 174, 174);color: rgb(110, 108, 108);font-size: 18px;margin-left: -15px;"
+                    <h2 id="subText"
+                        style="text-shadow: 1px 1px 1px rgb(177, 174, 174);color: rgb(110, 108, 108);font-size: 18px;margin-left: -15px;"
                         class="  ">Learn as much or as little as you want from a range of courses - recorded and
                         live!<br></h2>
                 </div>
@@ -90,7 +91,7 @@ justify-content: center;" id="containerDiv">
                     {% for ideal in idealList %}
                     <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable"
                         style="font-size: 14px;">{{ideal}}</a>
-                        {% endfor %}
+                    {% endfor %}
                     <!-- <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable"
                         style="font-size: 14px;">Class 7</a>
                     <a href="#" class="searchCategoryClass badge cyan white-text z-depth-1 hoverable"
@@ -145,7 +146,7 @@ justify-content: center;" id="containerDiv">
 </div>
 
 <div class="container">
-   <!-- <h3>Upcoming Classes</h3> -->
+    <!-- <h3>Upcoming Classes</h3> -->
     {%if upcomingClassData!=""%}
 
     <div class="row">
@@ -162,7 +163,8 @@ justify-content: center;" id="containerDiv">
                     </span>
                     <h5 class="grey-text">{{row.course_teacher}}</h5>
                     <span class="left">{{row.batch_start_time}}</span>
-                    <a href="{{url_for('courseDetail',row.course_id)}}"><span class="right" style="font-size: small;">Go
+                    <a href="{{url_for('course.courseDetail',row.course_id)}}"><span class="right"
+                            style="font-size: small;">Go
                             to
                             Course</span></a>
                 </div>
@@ -170,19 +172,19 @@ justify-content: center;" id="containerDiv">
                     <span class="card-title grey-text text-darken-4">{{row.course_name}}<i
                             class="material-icons right">close</i></span>
                     <p style="width: 80%;">{{row.star_rating}}<span class="stars">{{row.star_rating}}</span><br>
-                        <h5>Next Batch Starts: 15/04/20</h5>{{row.description}}
+                    <h5>Next Batch Starts: 15/04/20</h5>{{row.description}}
                     </p>
 
-                    <p><a href="{{url_for('courseDetail', row.course_id)}}"><span class="right"
+                    <p><a href="{{url_for('course.courseDetail', row.course_id)}}"><span class="right"
                                 style="font-size: small;">Go to
                                 Course</span></a></p>
                 </div>
             </div>
         </div>
-        {%endfor%}    
-    {%endif%}
-    <div>
-        <!--<div class="row">
+        {%endfor%}
+        {%endif%}
+        <div>
+            <!--<div class="row">
             <h3>Most Discussed Topics</h3>
             {%for course in discussedTopics%}
             <div class="col-sm-3 ">
@@ -259,57 +261,63 @@ justify-content: center;" id="containerDiv">
     </div>-->
 
 
-    
-    <div>
-        {%if enrolledCourses%}
-        <h3>Recently Enrolled Courses</h3>
-        <div class="row">
 
-            {% for row in enrolledCourses %}
-            <div class="col-sm-3 ">
-                <div class="card small hoverable" style="border-radius: 25px;">
-                    <div class="card-image waves-effect waves-block waves-light">
-                        {% if row.image_url %}
-                        <img class="activator" style="border-radius: 25px;" src="{{row.image_url}}">
-                        {% else %}
-                        <img class="activator" style="border-radius: 25px;"
-                            src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
-                        {% endif %}
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4">
-                            <a href="{{url_for('courseDetail',course_id=row.course_id)}}"><h4>{{row.course_name}}</h4></a><i class="material-icons right">more_vert</i>
-                        </span>
-                        <h5 class="grey-text"><a href="{{url_for('tutorDashboard',tutor_id=row.teacher_id)}}">{{row.teacher_name}}</h5>
-                        <!-- <span class="left">Seats left: {{row.seats}}</span> -->
-                        <a href="{{url_for('courseDetail',course_id=row.course_id)}}"><span class="right"
-                                style="font-size: small;">Go to
-                                Course</span></a>
-                    </div>
-                    <div class="card-reveal">
-                        <span class="card-title grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=row.course_id)}}">{{row.course_name}}</a><i
-                                class="material-icons right">close</i></span>
-                        <p style="width: 80%;">
-                            <!--Use this star review system throughout the platform-->
-                            {% if row.average_rating%}
-                            <h4 class="">{{row.average_rating}}<span class="stars left" style="margin-right: 10px;">{{row.average_rating}}</span>
-                            </h4>
-                            {% else %}
-                            <h4 class="">0<span class="stars left" style="margin-right: 10px;">0</span></h4>
-                            {% endif %}
-                            <br>
-                            
-                            {{row.description}} 
-                        </p>
+            <div>
+                {%if enrolledCourses%}
+                <h3>Recently Enrolled Courses</h3>
+                <div class="row">
 
-                        <p><a href="{{url_for('courseDetail',course_id=row.course_id)}}"><span class="right"
-                                    style="font-size: small;">Go to
-                                    Course</span></a></p>
+                    {% for row in enrolledCourses %}
+                    <div class="col-sm-3 ">
+                        <div class="card small hoverable" style="border-radius: 25px;">
+                            <div class="card-image waves-effect waves-block waves-light">
+                                {% if row.image_url %}
+                                <img class="activator" style="border-radius: 25px;" src="{{row.image_url}}">
+                                {% else %}
+                                <img class="activator" style="border-radius: 25px;"
+                                    src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                                {% endif %}
+                            </div>
+                            <div class="card-content">
+                                <span class="card-title activator grey-text text-darken-4">
+                                    <a href="{{url_for('course.courseDetail',course_id=row.course_id)}}">
+                                        <h4>{{row.course_name}}</h4>
+                                    </a><i class="material-icons right">more_vert</i>
+                                </span>
+                                <h5 class="grey-text"><a
+                                        href="{{url_for('tutorDashboard',tutor_id=row.teacher_id)}}">{{row.teacher_name}}
+                                </h5>
+                                <!-- <span class="left">Seats left: {{row.seats}}</span> -->
+                                <a href="{{url_for('course.courseDetail',course_id=row.course_id)}}"><span class="right"
+                                        style="font-size: small;">Go to
+                                        Course</span></a>
+                            </div>
+                            <div class="card-reveal">
+                                <span class="card-title grey-text text-darken-4"><a
+                                        href="{{url_for('course.courseDetail',course_id=row.course_id)}}">{{row.course_name}}</a><i
+                                        class="material-icons right">close</i></span>
+                                <p style="width: 80%;">
+                                    <!--Use this star review system throughout the platform-->
+                                    {% if row.average_rating%}
+                                <h4 class="">{{row.average_rating}}<span class="stars left"
+                                        style="margin-right: 10px;">{{row.average_rating}}</span>
+                                </h4>
+                                {% else %}
+                                <h4 class="">0<span class="stars left" style="margin-right: 10px;">0</span></h4>
+                                {% endif %}
+                                <br>
+
+                                {{row.description}}
+                                </p>
+
+                                <p><a href="{{url_for('course.courseDetail',course_id=row.course_id)}}"><span
+                                            class="right" style="font-size: small;">Go to
+                                            Course</span></a></p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            {% endfor %}
-            <!-- <div class="col-sm-3 ">
+                    {% endfor %}
+                    <!-- <div class="col-sm-3 ">
             <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
                     <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
@@ -360,63 +368,69 @@ justify-content: center;" id="containerDiv">
                 </div>
             </div>
         </div> -->
-        </div>
-        {%endif%}
-        <!-- <div class="row">
+                </div>
+                {%endif%}
+                <!-- <div class="row">
         <div class="right">
             <a href="#">See More</a>
         </div>
     </div> -->
-    </div>
-    
-    <div>
-        {%if recentlyAccessed%}
-        <h3>Recently Updated Courses</h3>
-        <div class="row">
-            {% for row in recentlyAccessed %}
-            <div class="col-sm-3 ">
-                <div class="card small hoverable" style="border-radius: 25px;">
-                    <div class="card-image waves-effect waves-block waves-light">
-                        {% if row.image_url %}
-                        <img class="activator" style="border-radius: 25px;" src="{{row.image_url}}">
-                        {% else %}
-                        <img class="activator" style="border-radius: 25px;"
-                            src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
-                        {% endif %}
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4">
-                            <a href="{{url_for('courseDetail',course_id=row.course_id)}}"><h4>{{row.course_name}}</h4></a><i class="material-icons right">more_vert</i>
-                        </span>
-                        <a href="{{url_for('tutorDashboard',tutor_id=row.teacher_id)}}"><h5 class="grey-text">{{row.teacher_name}}</h5></a>
-                        <!-- <span class="left">Seats left: {{row.seats}}</span> -->
-                        <a href="{{url_for('courseDetail',course_id=row.course_id)}}"><span class="right"
-                                style="font-size: small;">Go to
-                                Course</span></a>
-                    </div>
-                    <div class="card-reveal">
-                        <span class="card-title grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=row.course_id)}}">{{row.course_name}}</a><i
-                                class="material-icons right">close</i></span>
-                        <p style="width: 80%;">
-                            {% if row.average_rating%}
-                            <h4 class="">{{row.average_rating}}<span class="stars left" style="margin-right: 10px;">{{row.average_rating}}</span>
-                            </h4>
-                            {% else %}
-                            <h4 class="">0<span class="stars left" style="margin-right: 10px;">0</span></h4>
-                            {% endif %}
-                            <br>
-                            <!-- <h5>Next Batch Starts: {{row.batch_start_date}}</h5> -->
-                            {{row.description}}
-                        </p>
-
-                        <p><a href="{{url_for('courseDetail',course_id=row.course_id)}}"><span class="right"
-                                    style="font-size: small;">Go to
-                                    Course</span></a></p>
-                    </div>
-                </div>
             </div>
-            {% endfor %}
-            <!-- <div class="col-sm-3 ">
+
+            <div>
+                {%if recentlyAccessed%}
+                <h3>Recently Updated Courses</h3>
+                <div class="row">
+                    {% for row in recentlyAccessed %}
+                    <div class="col-sm-3 ">
+                        <div class="card small hoverable" style="border-radius: 25px;">
+                            <div class="card-image waves-effect waves-block waves-light">
+                                {% if row.image_url %}
+                                <img class="activator" style="border-radius: 25px;" src="{{row.image_url}}">
+                                {% else %}
+                                <img class="activator" style="border-radius: 25px;"
+                                    src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
+                                {% endif %}
+                            </div>
+                            <div class="card-content">
+                                <span class="card-title activator grey-text text-darken-4">
+                                    <a href="{{url_for('course.courseDetail',course_id=row.course_id)}}">
+                                        <h4>{{row.course_name}}</h4>
+                                    </a><i class="material-icons right">more_vert</i>
+                                </span>
+                                <a href="{{url_for('tutorDashboard',tutor_id=row.teacher_id)}}">
+                                    <h5 class="grey-text">{{row.teacher_name}}</h5>
+                                </a>
+                                <!-- <span class="left">Seats left: {{row.seats}}</span> -->
+                                <a href="{{url_for('course.courseDetail',course_id=row.course_id)}}"><span class="right"
+                                        style="font-size: small;">Go to
+                                        Course</span></a>
+                            </div>
+                            <div class="card-reveal">
+                                <span class="card-title grey-text text-darken-4"><a
+                                        href="{{url_for('course.courseDetail',course_id=row.course_id)}}">{{row.course_name}}</a><i
+                                        class="material-icons right">close</i></span>
+                                <p style="width: 80%;">
+                                    {% if row.average_rating%}
+                                <h4 class="">{{row.average_rating}}<span class="stars left"
+                                        style="margin-right: 10px;">{{row.average_rating}}</span>
+                                </h4>
+                                {% else %}
+                                <h4 class="">0<span class="stars left" style="margin-right: 10px;">0</span></h4>
+                                {% endif %}
+                                <br>
+                                <!-- <h5>Next Batch Starts: {{row.batch_start_date}}</h5> -->
+                                {{row.description}}
+                                </p>
+
+                                <p><a href="{{url_for('course.courseDetail',course_id=row.course_id)}}"><span
+                                            class="right" style="font-size: small;">Go to
+                                            Course</span></a></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <!-- <div class="col-sm-3 ">
             <div class="card small hoverable" style="border-radius: 25px;">
                 <div class="card-image waves-effect waves-block waves-light">
                     <img class="activator" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg">
@@ -473,45 +487,45 @@ justify-content: center;" id="containerDiv">
                 <a href="#">See More</a>
             </div>
         </div> -->
-        </div>
-        {%endif%}
-        <!-- <div class="row">
+                </div>
+                {%endif%}
+                <!-- <div class="row">
     <div class="right">
         <a href="#">See More</a>
     </div>
 </div> -->
-    </div>
-</div>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('.tabs').tabs();
-        $('.modal').modal();
-        $('select').formSelect();
-    });
+            </div>
+        </div>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('.tabs').tabs();
+                $('.modal').modal();
+                $('select').formSelect();
+            });
 
-    $('.searchCategoryClass').click(function () {
-        //window.alert($(this).html());
+            $('.searchCategoryClass').click(function () {
+                //window.alert($(this).html());
 
-        window.location.href = "/search?prd_course[query]=" +
-            $(this).html();
-    });
+                window.location.href = "/search?prd_course[query]=" +
+                    $(this).html();
+            });
 
 
 
-    $('#startTestBTN').click(function () {
-        window.location.href = "/search?prd_course[query]=" +
-            $('.searchText').val();
+            $('#startTestBTN').click(function () {
+                window.location.href = "/search?prd_course[query]=" +
+                    $('.searchText').val();
 
-    });
-</script>
-<script>
-    $.fn.stars = function () {
-        return this.each(function (i, e) {
-            $(e).html($('<span/>').width($(e).text() * 16));
-        });
-    };
+            });
+        </script>
+        <script>
+            $.fn.stars = function () {
+                return this.each(function (i, e) {
+                    $(e).html($('<span/>').width($(e).text() * 16));
+                });
+            };
 
-    $('.stars').stars();
-</script>
-{% endblock %}
+            $('.stars').stars();
+        </script>
+        {% endblock %}

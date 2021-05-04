@@ -1,46 +1,48 @@
 {%extends "layout.html"%} {%block content%}
 <div class="container">
-    <h3>Applied Jobs</h3>
-    <div id="uploadHistDiv">
-        <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
-        <div class="box-body table-responsive no-padding">
-            <table class="table table-hover">
-              <tr>
-               <th>Applied Date</th>
-               <th>School</th>
-                <th>Category</th>
-                <th>Subjects</th>                
-                <th>Application Status</th>
-                <th>Job Status</th>
-                <th>Details</th>
-              </tr>
-              {%if appliedRows | length !=0%}
-              {% for eachRow in appliedRows%}
-              <tr style="margin-top:5px;">
-                <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>                
-                <td>{{eachRow.school_name}}</td>
-                <td>{{eachRow.category}}</td>
-                <td>{{eachRow.subject}}</td>
-                <td>{{eachRow.application_status}}</td>                
-                <td>{{eachRow.job_status}}</td>  
-                <td><a href="{{url_for('jobDetail',job_id=eachRow.job_id, school_id=eachRow.school_id,user_type_val='161')}}" target="_blank" class="btn green lighten-1" name="{{eachRow.job_id}}">Details</a></td>
-              </tr>
-                   {% endfor %}
-                   {%else%}
-                   <td>
-                     <h3 class="grey-text">No applied to any jobs yet.</h3>
-                     <h5>Please check the <a href="{{url_for('openJobs')}}">Jobs</a> page to apply</h5>
-                   </td>
-                   {%endif%}
-            </table>
-          </div>
-    </div>    
-                  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
-                  <div class="section">
-<div id="uploadHistDetailDiv" style="display: none; padding-bottom: 50px;"></div>
-<div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeResultDetBTN" style="margin-top: 10px;">Back</button></div>   
+  <h3>Applied Jobs</h3>
+  <div id="uploadHistDiv">
+    <!--<iframe height="1300px" width="100%" style="border:none;" src="https://view-awesome-table.com/-LcAV_ToBoVH7b_RdlNQ/view"></iframe>-->
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <tr>
+          <th>Applied Date</th>
+          <th>School</th>
+          <th>Category</th>
+          <th>Subjects</th>
+          <th>Application Status</th>
+          <th>Job Status</th>
+          <th>Details</th>
+        </tr>
+        {%if appliedRows | length !=0%}
+        {% for eachRow in appliedRows%}
+        <tr style="margin-top:5px;">
+          <td>{{eachRow.applied_on.strftime('%d %B %Y')}}</td>
+          <td>{{eachRow.school_name}}</td>
+          <td>{{eachRow.category}}</td>
+          <td>{{eachRow.subject}}</td>
+          <td>{{eachRow.application_status}}</td>
+          <td>{{eachRow.job_status}}</td>
+          <td><a href="{{url_for('jobDetail',job_id=eachRow.job_id, school_id=eachRow.school_id,user_type_val='161')}}"
+              target="_blank" class="btn green lighten-1" name="{{eachRow.job_id}}">Details</a></td>
+        </tr>
+        {% endfor %}
+        {%else%}
+        <td>
+          <h3 class="grey-text">No applied to any jobs yet.</h3>
+          <h5>Please check the <a href="{{url_for('job_post.openJobs')}}">Jobs</a> page to apply</h5>
+        </td>
+        {%endif%}
+      </table>
+    </div>
+  </div>
+  <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+  <div class="section">
+    <div id="uploadHistDetailDiv" style="display: none; padding-bottom: 50px;"></div>
+    <div id="backButton" style="display: none;"><button class="btn pull-right green lighten-1" id="closeResultDetBTN"
+        style="margin-top: 10px;">Back</button></div>
+  </div>
 </div>
-                </div>               
 
 
 <script>

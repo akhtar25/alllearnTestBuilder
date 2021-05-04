@@ -1,84 +1,18 @@
-from flask import current_app as app
 from Accounts.utils import *
-from flask import Flask, Blueprint, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail
-from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
 from applicationDB import *
-#from qrReader import *
-from threading import Thread
-import re
-import concurrent.futures
-import csv
-import itertools
-from config import Config
-from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
-from forms import createSubscriptionForm,ClassRegisterForm,postJobForm, AddLiveClassForm
-from flask_migrate import Migrate
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask_login import current_user, login_user, logout_user, login_required
+from forms import LoginForm, RegistrationForm
+from send_email import welcome_email
+from sqlalchemy import text
 from werkzeug.urls import url_parse
-from logging.handlers import RotatingFileHandler
-import os
-import logging
-import datetime as dt
-from datetime import date
-from datetime import timedelta
-from datetime import datetime
-from pytz import timezone
-from tzlocal import get_localzone
-from flask_moment import Moment
-from elasticsearch import Elasticsearch
-from flask import g, jsonify
-from forms import SearchForm
-from forms import PostForm
-from applicationDB import Post  
-#import barCode
-import json, boto3
-from flask_wtf.csrf import CSRFProtect
-from sqlalchemy import func, distinct, text, update
-from sqlalchemy.sql import label
-import re
-import pandas as pd
-#from pandas import DataFrame
-import numpy as np
-import plotly
-import pprint
-from miscFunctions import subjects,topics,subjectPerformance,signs3Folder,chapters
-from docx import Document
-from docx.shared import Inches
-from urllib.request import urlopen,Request
-from io import StringIO, BytesIO
-from collections import defaultdict
-from sqlalchemy.inspection import inspect
-import hashlib
-from random import randint
-import string
-import random
-import requests as rq
-import urllib
-#import matplotlib.pyplot as plt
-from flask_talisman import Talisman, ALLOW_FROM
-from flask_api import FlaskAPI, status, exceptions
-from calendar import monthrange
-import calendar
-from urllib.parse import quote,urlparse, parse_qs
-from google.oauth2 import id_token
-from google.auth.transport import requests
-from algoliasearch.search_client import SearchClient
-import base64
-import hmac
-import hashlib
-import json
-from geopy.geocoders import GoogleV3
 
+accounts = Blueprint('accounts',__name__)
 
-
-
-account = Blueprint('account',__name__)
-
-@account.route('/register', methods=['GET', 'POST'])
+@accounts.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard.index'))
     
     #new arg added for google login
     #gSigninData = request.args.get
@@ -112,12 +46,12 @@ def register():
         flash('Congratulations '+full_name+', you are now a registered user!')
         welcome_email(str(form.email.data), full_name)
         print("Abdullah--")
-        return redirect(url_for('account.login'))
+        return redirect(url_for('accounts.login'))
     return render_template('register.html', title='Register', form=form)
 
 
 
-@account.route('/login', methods=['GET', 'POST'])
+@accounts.route('/login', methods=['GET', 'POST'])
 def login():
     print('Inside login')    
     if current_user.is_authenticated:  
@@ -125,7 +59,7 @@ def login():
         if current_user.user_type=='161':
             return redirect(url_for('app.openJobs'))
         else:
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard.index'))
 
     #new section for google login
     glogin = request.args.get('glogin')
@@ -143,7 +77,7 @@ def login():
             if user is None:
                 flash("Email not registered")
                 print('Email not registered')
-                return redirect(url_for('account.login'))
+                return redirect(url_for('accounts.login'))
         else: 
             print('Input data:'+str(form.email.data))
             checkEmailValidation = check(form.email.data)
@@ -172,23 +106,23 @@ def login():
             try:             
                 if user is None or not user.check_password(form.password.data):        
                     flash("Invalid email or password")
-                    return redirect(url_for('account.login'))
+                    return redirect(url_for('accounts.login'))
             except:
                 flash("Invalid email or password")
-                return redirect(url_for('account.login'))
+                return redirect(url_for('accounts.login'))
 
         #logging in the user with flask login
         try:
             login_user(user,remember=form.remember_me.data)
         except:
             flash("Invalid email or password")
-            return redirect(url_for('account.login'))
+            return redirect(url_for('accounts.login'))
 
         next_page = request.args.get('next')
         print('next_page',next_page)
         if not next_page or url_parse(next_page).netloc != '':
             print('if next_page is not empty',next_page)
-            next_page = url_for('index')
+            next_page = url_for('dashboard.index')
         
         #setting global variables
         session['classSecVal'] = classSecCheck()
@@ -256,7 +190,7 @@ def login():
         #print(session['schoolName'])
 
         return redirect(next_page)        
-        #return redirect(url_for('index'))
+        #return redirect(url_for('dashboard.index'))
     # schoolDataQuery = "select *from school_profile"
     # schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
     schoolName = ''
@@ -266,7 +200,7 @@ def login():
     email = ''
     print('Url:'+str(request.url))
     subDom = request.url
-    newDom = 'account.login'
+    newDom = 'accounts.login'
     print('login:'+str(newDom))
     newSubDom = subDom.partition(newDom)
     newSub = newSubDom[0] + newSubDom[1]
@@ -292,8 +226,62 @@ def login():
     print('email:'+str(email))
     return render_template('login.html',font=font,phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
-@account.route('/logout')
+@accounts.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('dashboard.index'))
+
+@accounts.route("/account/")
+@login_required
+def account():
+    return render_template('account.html')
+
+@accounts.route("/submit_form/", methods = ["POST"])
+@login_required
+def submit_form():
+    #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #teacherProfile.teacher_name = request.form["full-name"]
+    #teacherProfile.profile_picture = request.form["avatar-url"]
+    #db.session.commit()
+    #flash('DB values updated')
+    return redirect(url_for('account'))
+
+@accounts.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html', title='Reset Password', form=form)    
+
+@accounts.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('dashboard.index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password_page.html', form=form)  
+
+@accounts.route('/setGoogleLogin',methods=['POST','GET'])
+def setGoogleLogin():
+    isgoogleLogin = request.args.get('isGoogleLogin')
+    school_id = request.args.get('school_id')
+    schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+    print(isgoogleLogin)
+    schoolData.google_login = isgoogleLogin
+    db.session.commit()
+    session['isGooglelogin'] = isgoogleLogin
+    return jsonify([0])
