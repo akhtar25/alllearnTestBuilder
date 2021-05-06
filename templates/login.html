@@ -52,7 +52,7 @@
           {% else %}
           <h2 style="color: Green">Sign In</h2>
           {% endif %}
-        {% if session['isGooglelogin']=='Y' %}
+        {% if session['isGooglelogin']=='Y' or session['isGooglelogin']=='' %}
         <div id="googleSignInDiv" class="row">
         <div
           class="g-signin2"

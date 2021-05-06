@@ -4566,6 +4566,8 @@ def login():
 
         school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
         session['school_logo'] = ''
+        print('school_pro:'+str(school_pro))
+        session['isGooglelogin'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
@@ -4574,6 +4576,8 @@ def login():
             print('session[font]:'+str(session['font']))
             session['primary_color'] = school_pro.primary_color
             session['isGooglelogin'] = school_pro.google_login
+            print('session[isGooglelogin]:'+str(session['isGooglelogin']))
+            print('school_pro.google_login:'+str(school_pro.google_login))
             session['show_school_name'] = school_pro.show_school_name
             teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
             userData = User.query.filter_by(id=teacherData.user_id).first()
@@ -9847,19 +9851,25 @@ def registerNewStudent():
         for param in paramList:
             print(param)
         print(paramList[1])
-        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(contactNo)
-        db.session.add(createUser)
-        db.session.commit()
+        strg = '-'
+        print(paramList[2])
+        if paramList[2].find(strg)==0:
+            statement = 'invalid class format'
+            return jsonify({'studentId':statement})
         clas = paramList[2].split('-')[0]
         section = paramList[2].split('-')[1].upper()
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
         statement = ''
+        print('classSecId:'+str(classSecId))
         if classSecId == '' or classSecId == None:
             statement = 'Class does not exist'
-            return jsonify({'statement':statement})
+            return jsonify({'studentId':statement})
+        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(contactNo)
+        db.session.add(createUser)
+        db.session.commit()
         createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()
