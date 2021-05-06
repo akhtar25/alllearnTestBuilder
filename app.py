@@ -13970,9 +13970,16 @@ def indivStudentProfile():
 
     perfRows = db.session.execute(text(performanceQuery)).fetchall()
     
-    testCountQuery = "select count(*) as testcountval from performance_detail where student_id='"+str(student_id)+ "'"
+    testCountQuery = "select count(distinct resp_session_id) as testcountval from response_capture where student_id='"+str(student_id)+ "'"
 
     testCount = db.session.execute(text(testCountQuery)).first() 
+
+    totalofflineTestQuery = "select  count(*) as count from result_upload ru where student_id  = '"+str(student_id)+ "'"
+
+    totalofflineTestCount = db.session.execute(text(totalofflineTestQuery)).first()
+
+    totalTestCount = int(testCount.testcountval) + int(totalofflineTestCount.count)
+    print('totalTestCount:'+str(totalTestCount))
 
     testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
@@ -14006,12 +14013,12 @@ def indivStudentProfile():
     if totalOfflineTestMarks.sum1:
         print(totalOfflineTestMarks.sum1)
         sum1 = totalOfflineTestMarks.sum1
-    totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
-    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+    totalOnlineTestMarks = "select sum(rc2.marks_scored) as sum2,rc2.resp_session_id from response_capture rc2 where student_id = '"+str(student_id)+"' group by rc2.resp_session_id "
+    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).fetchall()
     
-    if totalOnlineTestMarks.sum2:
-        print(totalOnlineTestMarks.sum2)
-        sum2 = totalOnlineTestMarks.sum2
+    for row in totalOnlineTestMarks:
+        print(row.sum2)
+        sum2 = sum2 + row.sum2
     sumMarks = int(sum1) + int(sum2)
     print('Total Marks:'+str(sumMarks))
     total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
@@ -14021,15 +14028,18 @@ def indivStudentProfile():
     if total1:
         print(total1.offlinetotal)
         tot1 = total1.offlinetotal
-    total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
-    total2 = db.session.execute(text(total2)).first()
+    total2 = "select sd.total_marks,sd.resp_session_id from session_detail sd inner join response_capture rc on sd.resp_session_id = rc.resp_session_id where rc.student_id = '"+str(student_id)+"' group by sd.total_marks,sd.resp_session_id"
+    total2 = db.session.execute(text(total2)).fetchall()
     total3 = 0
     grandTotal = 0
-    if total2.count:
-        print(total2.count)
-        total3 = total2.count*100
+    for row in total2:
+        print(row.total_marks)
+        total3 = total3 + row.total_marks
     grandTotal = int(tot1) + int(total3)
+    print(tot1)
+    print(total3)
     print('Grand Total:'+str(grandTotal))
+    print('Sum Marks:'+str(sumMarks))
     for rows in perfRows:
         overallSum = overallSum + int(rows.student_score)
         #print(overallSum)
@@ -14058,7 +14068,7 @@ def indivStudentProfile():
         qrArray.append(optionURL) 
         #print(optionURL)
     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
-        qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
+        qrArray=qrArray,totalTestCount=totalTestCount,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
         testResultRows = testResultRows,onlineTestResultRows=onlineTestResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
 
