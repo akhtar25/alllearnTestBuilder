@@ -2026,7 +2026,7 @@ def disconnectedAccount():
         return redirect(url_for('studentDashboard'))
     else:
         print('Inside else')
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard.index'))
 
 
 
@@ -2455,7 +2455,7 @@ def liveClass():
         studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
         school_id = studentDetails.school_id
     else:        
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard.index'))
 
     print('##########Data:'+str(school_id))
     allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
@@ -2620,7 +2620,7 @@ def openLiveClass():
 
     if topicData== None:
         flash('No relevant course and topic found!')
-        return redirect(url_for('courseDetail',course_id=course_id))
+        return redirect(url_for('course.courseDetail',course_id=course_id))
     
     #batchTestData = BatchTest.query.filter_by(batch_id=batch_id, is_archived='N', is_curren)
 
@@ -2915,7 +2915,7 @@ def tutorDashboard():
         TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
     
     if TeacherId==None:
-        return redirect(url_for('courseHome'))
+        return redirect(url_for('course.courseHome'))
     else:
         tutor_id=TeacherId.teacher_id
     user = User.query.filter_by(id=TeacherId.user_id).first()
@@ -3298,7 +3298,7 @@ def addCourse():
         db.session.add(courId)
         db.session.commit()
         course_id = courId.course_id
-    return redirect(url_for('editCourse',course_id=course_id))
+    return redirect(url_for('course.editCourse',course_id=course_id))
 
 # @app.route('/editCourse')
 # def editCourse():
@@ -4511,41 +4511,42 @@ def user(username):
 #     gemail = request.args.get('gemail')
 #     ##end of new section
     
-#     form = LoginForm()
-#     print('Validation')
-#     print(form.validate_on_submit())
-#     if form.validate_on_submit() or glogin=="True":
-#         if glogin=="True":
-#             print("###glogin val"+ str(glogin))
-#             print("###email received from page"+ str(gemail))
-#             user=User.query.filter_by(email=gemail).first()   
-#             if user is None:
-#                 flash("Email not registered")
-#                 print('Email not registered')
-#                 return redirect(url_for('login'))
-#         else: 
-#             print('Input data:'+str(form.email.data))
-#             checkEmailValidation = check(form.email.data)
-#             user = ''
-#             if checkEmailValidation == 'Y':
-#                 user=User.query.filter_by(email=form.email.data).first() 
-#             else:
-#                 Input = form.email.data
-#                 print('Type:'+str(type(Input)))
-#                 In = Input.upper()
-#                 string = 'stud_'
-#                 strg = string.upper()
-#                 print('Type:'+str(type(strg))+'String:'+str(strg))
-#                 if In.find(strg) == 0:
-#                     print('this is student id')
-#                     studentId = Input[5:]
-#                     print('studentId:'+str(studentId))
-#                     studData = StudentProfile.query.filter_by(student_id=studentId).first()
-#                     email = studData.email
-#                     user=User.query.filter_by(email=email).first() 
-#                 else:
-#                     print('phone no')
-#                     user=User.query.filter_by(phone=Input).first()
+    # form = LoginForm()
+    # print('Validation')
+    # print(form.validate_on_submit())
+    # session['isGooglelogin'] = ''
+    # if form.validate_on_submit() or glogin=="True":
+    #     if glogin=="True":
+    #         print("###glogin val"+ str(glogin))
+    #         print("###email received from page"+ str(gemail))
+    #         user=User.query.filter_by(email=gemail).first()   
+    #         if user is None:
+    #             flash("Email not registered")
+    #             print('Email not registered')
+    #             return redirect(url_for('login'))
+    #     else: 
+    #         print('Input data:'+str(form.email.data))
+    #         checkEmailValidation = check(form.email.data)
+    #         user = ''
+    #         if checkEmailValidation == 'Y':
+    #             user=User.query.filter_by(email=form.email.data).first() 
+    #         else:
+    #             Input = form.email.data
+    #             print('Type:'+str(type(Input)))
+    #             In = Input.upper()
+    #             string = 'stud_'
+    #             strg = string.upper()
+    #             print('Type:'+str(type(strg))+'String:'+str(strg))
+    #             if In.find(strg) == 0:
+    #                 print('this is student id')
+    #                 studentId = Input[5:]
+    #                 print('studentId:'+str(studentId))
+    #                 studData = StudentProfile.query.filter_by(student_id=studentId).first()
+    #                 email = studData.email
+    #                 user=User.query.filter_by(email=email).first() 
+    #             else:
+    #                 print('phone no')
+    #                 user=User.query.filter_by(phone=Input).first()
 
   
 #             try:             
@@ -4573,50 +4574,54 @@ def user(username):
 #         session['classSecVal'] = classSecCheck()
 #         session['schoolName'] = schoolNameVal()
         
-#         print('user name')
-#         #print(session['username'])
-#         school_id = ''
-#         print('user type')
-#         #print(session['userType'])
-#         session['studentId'] = ''
-#         if current_user.user_type==253:
-#             school_id=1
-#         elif current_user.user_type==71:
-#             userProfileData = User.query.filter_by(id=current_user.id).first()
-#             school_id = userProfileData.school_id
-#         elif current_user.user_type==134:
-#             studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-#             school_id = studentProfileData.school_id            
-#             session['studentId'] = studentProfileData.student_id
-#         else:
-#             userData = User.query.filter_by(id=current_user.id).first()
-#             school_id = userData.school_id
+        # print('user name')
+        # #print(session['username'])
+        # school_id = ''
+        # print('user type')
+        # #print(session['userType'])
+        # session['studentId'] = ''
+        # if current_user.user_type==253:
+        #     school_id=1
+        # elif current_user.user_type==71:
+        #     userProfileData = User.query.filter_by(id=current_user.id).first()
+        #     school_id = userProfileData.school_id
+        # elif current_user.user_type==134:
+        #     studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        #     school_id = studentProfileData.school_id            
+        #     session['studentId'] = studentProfileData.student_id
+        # else:
+        #     userData = User.query.filter_by(id=current_user.id).first()
+        #     school_id = userData.school_id
 
-#         school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
-#         session['school_logo'] = ''
-#         if school_pro:
-#             session['school_logo'] = school_pro.school_logo
-#             session['schoolPicture'] = school_pro.school_picture
-#             session['schoolName'] = school_pro.school_name
-#             session['font'] = school_pro.font
-#             print('session[font]:'+str(session['font']))
-#             session['primary_color'] = school_pro.primary_color
-#             session['isGooglelogin'] = school_pro.google_login
-#             session['show_school_name'] = school_pro.show_school_name
-#             teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
-#             userData = User.query.filter_by(id=teacherData.user_id).first()
-#             session['phone'] = userData.phone
-#             session['email'] = userData.email
-#         print(session['primary_color'])
-#         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
-#         print(query)
-#         print('Modules')
-#         moduleDetRow = db.session.execute(query).fetchall()
-#         print('School profile')
-#         #print(session['schoolPicture'])
-#         # det_list = [1,2,3,4,5]
-#         session['moduleDet'] = []
-#         detList = session['moduleDet']
+        # school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
+        # session['school_logo'] = ''
+        # print('school_pro:'+str(school_pro))
+        # session['isGooglelogin'] = ''
+        # if school_pro:
+        #     session['school_logo'] = school_pro.school_logo
+        #     session['schoolPicture'] = school_pro.school_picture
+        #     session['schoolName'] = school_pro.school_name
+        #     session['font'] = school_pro.font
+        #     print('session[font]:'+str(session['font']))
+        #     session['primary_color'] = school_pro.primary_color
+        #     session['isGooglelogin'] = school_pro.google_login
+        #     print('session[isGooglelogin]:'+str(session['isGooglelogin']))
+        #     print('school_pro.google_login:'+str(school_pro.google_login))
+        #     session['show_school_name'] = school_pro.show_school_name
+        #     teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
+        #     userData = User.query.filter_by(id=teacherData.user_id).first()
+        #     session['phone'] = userData.phone
+        #     session['email'] = userData.email
+        # print(session['primary_color'])
+        # query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        # print(query)
+        # print('Modules')
+        # moduleDetRow = db.session.execute(query).fetchall()
+        # print('School profile')
+        # #print(session['schoolPicture'])
+        # # det_list = [1,2,3,4,5]
+        # session['moduleDet'] = []
+        # detList = session['moduleDet']
         
 #         for det in moduleDetRow:
 #             eachList = []
@@ -9056,7 +9061,7 @@ def getStudentDetails():
                 print(stud)
                 selStudentId = stud.split('-')[2]
         print('getStudentDetails student_id:'+str(selStudentId))
-        studentDetailLink = url_for('studentProfile',student_id=selStudentId, _external=True)
+        studentDetailLink = url_for('student_profile.studentProfile',student_id=selStudentId, _external=True)
         newLink = ''
         if studentDetailLink:
             newLink = str('Student Detail Link:\n')+str(studentDetailLink)
@@ -9252,7 +9257,7 @@ def getStudentPerformance():
             user = User.query.filter_by(email=studentDetails.email).first()
         if user:
             login_user(user,remember='Y')
-        link = url_for('studentProfile',student_id=studentDetails.student_id,_external=True)
+        link = url_for('student_profile.studentProfile',student_id=studentDetails.student_id,_external=True)
         return jsonify({'studentProfile':link})
 
 # @app.route('/getStudentDashboard',methods=['POST','GET'])
@@ -9479,6 +9484,8 @@ def getUserDetails():
 
 @app.route('/getStudentProfileById',methods=['GET','POST'])
 def getStudentProfileById():
+    if request.method == 'GET':
+        return url_for('student_profile.studentProfile',student_id=743,_external=True)
     if request.method == 'POST':
         print('inside getStudentProfileById')
         jsonStudentData = request.json
@@ -9496,7 +9503,7 @@ def getStudentProfileById():
         print(contactNo)
         print(paramList[0])
         finalResult = "Here's the link to the student profile:\n"
-        studProfLink = url_for('studentProfile',student_id=paramList[0],_external=True)
+        studProfLink = url_for('student_profile.studentProfile',student_id=paramList[0],_external=True)
         newRes = str(finalResult) + str(studProfLink)
                 
         return jsonify({'studentData':newRes})  
@@ -9875,19 +9882,25 @@ def registerNewStudent():
         for param in paramList:
             print(param)
         print(paramList[1])
-        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
-        createUser.set_password(contactNo)
-        db.session.add(createUser)
-        db.session.commit()
+        strg = '-'
+        print(paramList[2])
+        if paramList[2].find(strg)==0:
+            statement = 'invalid class format'
+            return jsonify({'studentId':statement})
         clas = paramList[2].split('-')[0]
         section = paramList[2].split('-')[1].upper()
         print('Class'+str(clas))
         print('Section'+str(section))
         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=paramList[5]).first()
         statement = ''
+        print('classSecId:'+str(classSecId))
         if classSecId == '' or classSecId == None:
             statement = 'Class does not exist'
-            return jsonify({'statement':statement})
+            return jsonify({'studentId':statement})
+        createUser = User(username=paramList[1],school_id=paramList[5],email=paramList[1],last_seen=datetime.now(),user_type=134,access_status=143,phone=contactNo,last_modified_date=datetime.now(),first_name=paramList[0])
+        createUser.set_password(contactNo)
+        db.session.add(createUser)
+        db.session.commit()
         createStudent = StudentProfile(school_id=paramList[5],registration_date=datetime.now(),last_modified_date=datetime.now(),class_sec_id=classSecId.class_sec_id,first_name=paramList[0],full_name=paramList[0],email=paramList[1],phone=contactNo,user_id=createUser.id,is_archived='N')
         db.session.add(createStudent)
         db.session.commit()
@@ -10067,7 +10080,7 @@ def checkStudent():
                 print(len(studentData))
                 for student in studentData:
                     finalResult = "Here's the link to the student profile:\n"
-                    studProfLink = url_for('studentProfile',student_id=student.student_id,_external=True)
+                    studProfLink = url_for('student_profile.studentProfile',student_id=student.student_id,_external=True)
                     newRes = str(finalResult) + str(studProfLink)
                     
                 return jsonify({'studentData':newRes,'flag':'1'}) 
@@ -11719,7 +11732,7 @@ def feedbackCollection():
 
         if currClassSecRow is None and batch_test!="1":
             flash('Class and section value not valid')
-            return redirect(url_for('testPapers'))
+            return redirect(url_for('test_builder.testPapers'))
         elif batch_test=="1" and  currClassSecRow is None:
             class_sec_id = 1
             qsubject_id=54

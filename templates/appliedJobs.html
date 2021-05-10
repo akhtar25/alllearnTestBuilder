@@ -23,7 +23,8 @@
           <td>{{eachRow.subject}}</td>
           <td>{{eachRow.application_status}}</td>
           <td>{{eachRow.job_status}}</td>
-          <td><a href="{{url_for('jobDetail',job_id=eachRow.job_id, school_id=eachRow.school_id,user_type_val='161')}}"
+          <td><a
+              href="{{url_for('job_post.jobDetail',job_id=eachRow.job_id, school_id=eachRow.school_id,user_type_val='161')}}"
               target="_blank" class="btn green lighten-1" name="{{eachRow.job_id}}">Details</a></td>
         </tr>
         {% endfor %}

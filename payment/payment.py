@@ -87,8 +87,8 @@ def paymentForm():
         print("#######order id: "+str(orderId))
         currency = transactionData.currency
         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
-        returnUrl = url_for('paymentResponse',_external=True)
-        notifyUrl = url_for('notifyUrl',_external=True)
+        returnUrl = url_for('payment.paymentResponse',_external=True)
+        notifyUrl = url_for('payment.notifyUrl',_external=True)
         return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
     else:
         flash('Please login to enroll')

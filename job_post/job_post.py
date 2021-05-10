@@ -155,12 +155,12 @@ def openJobsFilteredList():
 
 
         if len(openJobsDataRows)==recordsOnPage:
-            next_url = url_for('openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-            prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+            next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+            prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
         elif len(openJobsDataRows)<recordsOnPage:
             next_url = None
             if prev_page!=None:
-                prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+                prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
             else:
                 prev_url==None
         else:
@@ -220,7 +220,7 @@ def sendJobApplication():
         new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
         #except:
         #    pass
-        return redirect(url_for('openJobs'))
+        return redirect(url_for('job_post.openJobs'))
 
 @job_post.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
 @login_required
@@ -316,10 +316,10 @@ def processApplication():
         flash('Error processing application idk')
     db.session.commit()
     
-    return redirect(url_for('jobApplications',job_id=job_id))
+    return redirect(url_for('job_post.jobApplications',job_id=job_id))
     #except:
     flash('Error processing application')
-    return redirect(url_for('jobApplications',job_id=job_id))
+    return redirect(url_for('job_post.jobApplications',job_id=job_id))
 
 @job_post.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -330,7 +330,7 @@ def submitPost():
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(url_for('submitPost'))
+        return redirect(url_for('job_post.submitPost'))
     posts = [{
         'author': {
             'username': 'John'

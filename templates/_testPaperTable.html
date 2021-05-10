@@ -1,94 +1,102 @@
-
-  <div id="testDiv" class="col-md-12">    
-    <div class="box-body table-responsive no-padding">      
-      <table class="table table-hover">
-        <tr>
-          <th>Class</th>
-          <th>Test Type</th>
-          <th>Subject</th>
-          <th>Total Marks</th>
-          <th>Creation Date</th>
-          <th>Chapters and Topics</th>
-          <th>Questions</th>
-          <th>Download Paper</th>
-          <th>Conduct Test</th>
-        </tr>
-        {%if testPaperData | length !=0%}
-        {% for eachRow in testPaperData%}
-        <tr style="margin-top:5px;">
-          <td>
-            <span>{{eachRow.class_val}}</span>
-          </td>
-          <td>{{eachRow.test_type}}</td>
-          {%for subRow in subjectNames%}
-          {% if eachRow.subject_id== subRow.msg_id %}
-          <td>{{subRow.description}}</td>
-          
-          {% endif %}
-          {%endfor%}
-          <td>{{eachRow.total_marks}}</td>
-          <td>{{eachRow.date_of_creation.strftime('%d-%B-%Y')}}</td>
-          <td><a href="#chapterModal" name='{{eachRow.test_id}}' class='modal-trigger chapterClass'>Chapters and Topics</a></td>
-
-          <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
-          <div id="chapterModal" class="modal" style="background-color:white;">
-            <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
-              <img src="../static/images/loader.gif">
-            </div>
-            <div class="modal-content" id="content" style="display:none;height: 465px;">
-              <p>
-                <div id="chapterListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
-              </p>
-            </div>
-          </div>
-          <td><a href="#questionModal" name='{{eachRow.test_id}}' class='modal-trigger questionClass'>See Questions</a></td>
-          <div id="questionModal" class="modal" style="background-color:white;">
-            <div id="questionloader2" style="display: none;text-align: center;margin-top: 120px;">
-              <img src="../static/images/loader.gif">
-            </div>
-            <div class="modal-content" id="questionContent" style="display:none;height: 465px;">
-              <p>
-                <div id="questionDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;"></div>
-              </p>
-            </div>
-          </div>
-          <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
-          
-          <td>
-            {% if session['primary_color'] %}
-            <a href="#conductTestModal" style="background-color: {{session['primary_color']}}!important;" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
-              Test</a>
-            {% else %}
-            <a href="#conductTestModal" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}' class='btn green modal-trigger conductTestBTN'>Conduct
-              Test</a>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-
-        {%else%}
+<div id="testDiv" class="col-md-12">
+  <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th>Class</th>
+        <th>Test Type</th>
+        <th>Subject</th>
+        <th>Total Marks</th>
+        <th>Creation Date</th>
+        <th>Chapters and Topics</th>
+        <th>Questions</th>
+        <th>Download Paper</th>
+        <th>Conduct Test</th>
+      </tr>
+      {%if testPaperData | length !=0%}
+      {% for eachRow in testPaperData%}
+      <tr style="margin-top:5px;">
         <td>
-          <h3 class="grey-text">No test papers created yet</h3>
-          <br>
-          <h5>You can create test papers using <a href="{{url_for('testBuilder')}}">Test Builder</a></h5>
+          <span>{{eachRow.class_val}}</span>
         </td>
-        {%endif%}
-      </table>
-    </div>
+        <td>{{eachRow.test_type}}</td>
+        {%for subRow in subjectNames%}
+        {% if eachRow.subject_id== subRow.msg_id %}
+        <td>{{subRow.description}}</td>
+
+        {% endif %}
+        {%endfor%}
+        <td>{{eachRow.total_marks}}</td>
+        <td>{{eachRow.date_of_creation.strftime('%d-%B-%Y')}}</td>
+        <td><a href="#chapterModal" name='{{eachRow.test_id}}' class='modal-trigger chapterClass'>Chapters and
+            Topics</a></td>
+
+        <!--<div><a href="#modal2" class="waves-effect waves-light modal-trigger questionData"></a></div>-->
+        <div id="chapterModal" class="modal" style="background-color:white;">
+          <div id="questionloader1" style="display: none;text-align: center;margin-top: 120px;">
+            <img src="../static/images/loader.gif">
+          </div>
+          <div class="modal-content" id="content" style="display:none;height: 465px;">
+            <p>
+            <div id="chapterListDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;">
+            </div>
+            </p>
+          </div>
+        </div>
+        <td><a href="#questionModal" name='{{eachRow.test_id}}' class='modal-trigger questionClass'>See Questions</a>
+        </td>
+        <div id="questionModal" class="modal" style="background-color:white;">
+          <div id="questionloader2" style="display: none;text-align: center;margin-top: 120px;">
+            <img src="../static/images/loader.gif">
+          </div>
+          <div class="modal-content" id="questionContent" style="display:none;height: 465px;">
+            <p>
+            <div id="questionDiv" style="max-height: 400px;position: relative;overflow-y: auto;overflow-x: hidden;">
+            </div>
+            </p>
+          </div>
+        </div>
+        <td><a href="{{eachRow.test_paper_link}}" target="_blank">Download Paper</a></td>
+
+        <td>
+          {% if session['primary_color'] %}
+          <a href="#conductTestModal" style="background-color: {{session['primary_color']}}!important;"
+            name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}'
+            class='btn green modal-trigger conductTestBTN'>Conduct
+            Test</a>
+          {% else %}
+          <a href="#conductTestModal" name='{{eachRow.test_id}}@{{eachRow.class_val}}@{{eachRow.subject_id}}'
+            class='btn green modal-trigger conductTestBTN'>Conduct
+            Test</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+
+      {%else%}
+      <td>
+        <h3 class="grey-text">No test papers created yet</h3>
+        <br>
+        <h5>You can create test papers using <a href="{{url_for('test_builder.testBuilder')}}">Test Builder</a></h5>
+      </td>
+      {%endif%}
+    </table>
   </div>
+</div>
 
 
 <!-- Modal structure-->
-<div id="conductTestModal" class="modal" style="background-color:white; max-height: 482px;width:500px;overflow-y: auto;position: fixed;">
+<div id="conductTestModal" class="modal"
+  style="background-color:white; max-height: 482px;width:500px;overflow-y: auto;position: fixed;">
   <form action="/feedbackCollection" method="POST">
     <div class="modal-content">
       <h4 style="font-size:14px;"> Starting Test</h4>
       <h4 style="font-size:14px;" id="class_name"></h4>
       <h4 style="font-size:14px;">Select <b>section</b> for which you want to run the test</h4>
       <!-- <input type="text" name='section' value="No value"> -->
-      
-      <select id="sectionList" name="section" style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
-        
+
+      <select id="sectionList" name="section"
+        style="display: block;font-size:14px;;font-family:Source Sans Pro,sans-serif;">
+
       </select>
       <!-- <p style="margin-top:5px;">
         <label>
@@ -102,64 +110,64 @@
           <span style="font-size:18px;color:black;font-weight:450">Timed</span>
         </label>
       </p> -->
-      
+
       <h4 style="font-size:14px;margin-top:10px;">Weightage</h4>
       <input style="font-size:14px;" type="text" name="weightage" value="10">
       <h4 style="font-size:14px;">Negative Marking</h4>
       <input style="font-size:14px;" type="number" name="negativeMarking" value="0">
-      <input type="hidden" id='modal_class_val'  name='class_val'    value="">
-      <input type="hidden" id='modal_subject_id' name='subject_id'   value="">
-      <input type="hidden" id='modal_test_id'    name='test_id'      value="">
-      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox"/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
+      <input type="hidden" id='modal_class_val' name='class_val' value="">
+      <input type="hidden" id='modal_subject_id' name='subject_id' value="">
+      <input type="hidden" id='modal_test_id' name='test_id' value="">
+      <p style=""><label><input name="timed" class="Toption filled-in" value="Y" type="checkbox" /><span
+            style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Timed</span></label></p>
       <!-- Start -->
       <p style="float:right;margin-top: -40px;">
-        <span style="font-size:14px;"> Due Date: <input style="width: 150px;font-size: 14px;" type="date" id="dueDate" name="dueDate" /> </span>
+        <span style="font-size:14px;"> Due Date: <input style="width: 150px;font-size: 14px;" type="date" id="dueDate"
+            name="dueDate" /> </span>
       </p>
       <!-- End -->
       <div id="durationDiv" style="display: none;margin-bottom:10px;">
         <h4 style="font-size:14px;">Duration</h4>
         <input style="font-size:14px;" type="text" name='duration' value="" placeholder="Enter time in minutes eg. 30">
       </div>
-      <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance answer options</span></label></p><br>
-      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to upload images/files as answers</span></label></p><br>
-      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" class="filled-in" checked/><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective answers immediately</span></label></p>
+      <p style="margin-top:-10px;"><label><input name="advance" value="Y" type="checkbox" class="filled-in"
+            checked /><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Advance answer
+            options</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="uploadStatus" value="Y" type="checkbox" class="filled-in"
+            checked /><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Allow students to
+            upload images/files as answers</span></label></p><br>
+      <p style="margin-top:-30px;"><label><input name="resultStatus" value="Y" type="checkbox" class="filled-in"
+            checked /><span style="font-family: 'Source Sans Pro';font-weight: 450;font-size:14px;">Release objective
+            answers immediately</span></label></p>
       <!-- Add Instructions -->
       <p style="margin-top: -10px">
-        <label
-          ><input
-            name="addInstuction"
-            value="Y"
-            class="instruction filled-in"
-            type="checkbox"
-          /><span
-            style="
+        <label><input name="addInstuction" value="Y" class="instruction filled-in" type="checkbox" /><span style="
               font-family: 'Source Sans Pro';
               font-weight: 450;
               font-size: 14px;
-            "
-            >Add instuctions for students</span
-          ></label
-        >
+            ">Add instuctions for students</span></label>
       </p>
       <div id="instructionDiv" style="display: none;margin-bottom:10px;">
         <h4 style="font-size:14px;">Instructions</h4>
-        <input style="font-size:14px;" type="text" name='instructions' value="" placeholder="Enter instructions for students">
+        <input style="font-size:14px;" type="text" name='instructions' value=""
+          placeholder="Enter instructions for students">
       </div>
       <!-- End -->
       {% if session['primary_color'] %}
-      <button class='btn green' style="background-color: {{session['primary_color']}} !important;" type='submit' class='startTestButtonClass'>Submit</button>
+      <button class='btn green' style="background-color: {{session['primary_color']}} !important;" type='submit'
+        class='startTestButtonClass'>Submit</button>
       {% else %}
       <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>
       {% endif %}
       <!-- <button class='btn green' type='submit' class='startTestButtonClass'>Submit</button>    -->
-      </div>
+    </div>
   </form>
 </div>
 
 
 
-  <script>
-    $(document).ready(function () {
+<script>
+  $(document).ready(function () {
     $('.modal').modal();
     var date = new Date();
 
@@ -170,116 +178,116 @@
     if (month < 10) month = "0" + month;
     if (day < 10) day = "0" + day;
 
-    var today = year + "-" + month + "-" + day;       
+    var today = year + "-" + month + "-" + day;
     $("#dueDate").attr("value", today);
-    });
+  });
 
-    $(function(){
+  $(function () {
     var dtToday = new Date();
-    
+
     var month = dtToday.getMonth() + 1;
     var day = dtToday.getDate();
     var year = dtToday.getFullYear();
-    if(month < 10)
-        month = '0' + month.toString();
-    if(day < 10)
-        day = '0' + day.toString();
-    
+    if (month < 10)
+      month = '0' + month.toString();
+    if (day < 10)
+      day = '0' + day.toString();
+
     var maxDate = year + '-' + month + '-' + day;
     $('#dueDate').attr('min', maxDate);
-});
+  });
 
 
-    $('.conductTestBTN').click(function(){
-      var selection = $(this).attr('name');
-      var selectionSplit = selection.split("@");
-      $('#modal_test_id').val(selectionSplit[0]);
-      $('#modal_class_val').val(selectionSplit[1]);      
-      $('#modal_subject_id').val(selectionSplit[2]);
-      $('#class_name').html("Class: "+$('#modal_class_val').val());
-           //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
-      $.ajax({
-        url:"/findSection?class_val="+$('#modal_class_val').val(),
-        type:"POST",
-        data:"",
-        success:function(response){
-          // alert(response);
-          var responseArr = response.toString().split(',');
-          // alert(responseArr);
-          var select = document.getElementById('sectionList');
-          var optionHtml = '<option value="" style="font-size:14px;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>';
-          for(var i=0;i<responseArr.length;i++){
-            console.log(responseArr[i]);
-            optionHtml += '<option value="'+responseArr[i]+'" style="font-size:14px;;font-family:Source Sans Pro,sans-serif;">'+responseArr[i]+'</option>';
-          }
-          console.log(optionHtml);
-          select.innerHTML = optionHtml;
-        },
-        error:function(xhr){
-
+  $('.conductTestBTN').click(function () {
+    var selection = $(this).attr('name');
+    var selectionSplit = selection.split("@");
+    $('#modal_test_id').val(selectionSplit[0]);
+    $('#modal_class_val').val(selectionSplit[1]);
+    $('#modal_subject_id').val(selectionSplit[2]);
+    $('#class_name').html("Class: " + $('#modal_class_val').val());
+    //window.alert("Class_val: "+ $('#modal_class_val').val() + "subject: "+ $('#modal_subject_id').val());
+    $.ajax({
+      url: "/findSection?class_val=" + $('#modal_class_val').val(),
+      type: "POST",
+      data: "",
+      success: function (response) {
+        // alert(response);
+        var responseArr = response.toString().split(',');
+        // alert(responseArr);
+        var select = document.getElementById('sectionList');
+        var optionHtml = '<option value="" style="font-size:14px;font-family:Source Sans Pro,sans-serif;" disabled selected>Select Section</option>';
+        for (var i = 0; i < responseArr.length; i++) {
+          console.log(responseArr[i]);
+          optionHtml += '<option value="' + responseArr[i] + '" style="font-size:14px;;font-family:Source Sans Pro,sans-serif;">' + responseArr[i] + '</option>';
         }
-      });
+        console.log(optionHtml);
+        select.innerHTML = optionHtml;
+      },
+      error: function (xhr) {
 
+      }
     });
 
-    $('.instruction').click(function(){
+  });
+
+  $('.instruction').click(function () {
     var timeOption = $("input[name='addInstuction']:checked").val();
-    if(timeOption=='Y'){
+    if (timeOption == 'Y') {
       $('#instructionDiv').show();
-    }else{
+    } else {
       $('#instructionDiv').hide();
     }
   });
 
-    $('.Toption').click(function(){
+  $('.Toption').click(function () {
     var timeOption = $("input[name='timed']:checked").val();
-    if(timeOption=='Y'){
+    if (timeOption == 'Y') {
       $('#durationDiv').show();
-    }else{
+    } else {
       $('#durationDiv').hide();
     }
   });
 
-  $('.questionClass').click(function(){
+  $('.questionClass').click(function () {
     $('#questionloader2').show();
     $('#questionDiv').html('');
     var test_id = $(this).attr('name');
     console.log('Inside questionData');
-    var data="";
-        $.ajax({
-            url: "/getQuestionDetails?test_id="+test_id,
-            type: "get",
-            data: data,
-            success: function(response){
-              console.log('Question fetch successfully');
-                console.log(response);
-                $('#questionloader2').hide();
-                $('#modal2').show();
-                $('#questionContent').show();
-                $('#questionDiv').html(response);
-            }
-        })
+    var data = "";
+    $.ajax({
+      url: "/getQuestionDetails?test_id=" + test_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        console.log('Question fetch successfully');
+        console.log(response);
+        $('#questionloader2').hide();
+        $('#modal2').show();
+        $('#questionContent').show();
+        $('#questionDiv').html(response);
+      }
+    })
   });
 
-  $('.chapterClass').click(function(){
+  $('.chapterClass').click(function () {
     $('#questionloader1').show();
     //$('#modal2').hide();
     //$('#content').hide();
     $('#chapterListDiv').html('');
     var test_id = $(this).attr('name');
     console.log('Inside questionData');
-    var data="";
-        $.ajax({
-            url: "/getChapterDetails?test_id="+test_id,
-            type: "get",
-            data: data,
-            success: function(response){
-                $('#questionloader1').hide();
-                $('#modal2').show();
-                $('#content').show();
-                $('#chapterListDiv').html(response);
-            }
-        })
-      });
+    var data = "";
+    $.ajax({
+      url: "/getChapterDetails?test_id=" + test_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $('#questionloader1').hide();
+        $('#modal2').show();
+        $('#content').show();
+        $('#chapterListDiv').html(response);
+      }
+    })
+  });
 
-  </script>
+</script>

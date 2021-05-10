@@ -15,10 +15,7 @@
         </div>
       </div>
       <div class="col-sm-2">
-        <div
-          id="subjectLoader"
-          style="display: none; float: right; margin-top: -25px"
-        >
+        <div id="subjectLoader" style="display: none; float: right; margin-top: -25px">
           <img src="../static/images/spinner.gif" width="25px" height="25px" />
         </div>
         <div class="input-field col s12">
@@ -28,18 +25,11 @@
         </div>
       </div>
       <div class="col-sm-3">
-        <div
-          id="chapterLoader"
-          style="display: none; float: right; margin-top: -25px"
-        >
+        <div id="chapterLoader" style="display: none; float: right; margin-top: -25px">
           <img src="../static/images/spinner.gif" width="25px" height="25px" />
         </div>
         <div class="input-field col s12">
-          <select
-            multiple
-            id="selectChapters"
-            style="font-family: Arial, Helvetica, sans-serif"
-          >
+          <select multiple id="selectChapters" style="font-family: Arial, Helvetica, sans-serif">
             <option value="" disabled selected>
               Select Chapters and topics
             </option>
@@ -61,23 +51,14 @@
         </div>
       </div>
       <div class="addQuestionButton">
-        <button
-          style="float: right"
-          data-target="modal1"
-          class="btn modal-trigger"
-          onclick="createQuestion();"
-          class="btn waves-light green lighten-1 white-text"
-          type="button"
-        >
+        <button style="float: right" data-target="modal1" class="btn modal-trigger" onclick="createQuestion();"
+          class="btn waves-light green lighten-1 white-text" type="button">
           Add Question
         </button>
       </div>
       <!-- Modal Structure -->
       <div id="modal1" class="modal">
-        <div
-          class="modal-content"
-          style="height: 500px; position: relative; overflow-y: auto"
-        >
+        <div class="modal-content" style="height: 500px; position: relative; overflow-y: auto">
           <div id="quesBuilder"></div>
         </div>
       </div>
@@ -94,27 +75,16 @@
     {% if topics %}
     <div class="col-sm-3">
       <h3>Topics</h3>
-      <div
-        id="topic_box"
-        style="overflow-y: auto; height: 300px; position: relative"
-      >
+      <div id="topic_box" style="overflow-y: auto; height: 300px; position: relative">
         {% for topic in topics %}
         <label for="{{ topic.topic_id }}" style="font-weight: 500">
-          <input
-            type="checkbox"
-            id="{{ topic.topic_id }}"
-            name="topicCheckbox"
-            value="{{ topic.topic_id }}"
-          /><span>{{ topic.topic_name }}</span> </label
-        ><br />
+          <input type="checkbox" id="{{ topic.topic_id }}" name="topicCheckbox" value="{{ topic.topic_id }}" /><span>{{
+            topic.topic_name }}</span> </label><br />
         {% endfor %}
       </div>
       <p>
-        <button
-          style="margin-top: 22px; margin-left: 5px"
-          class="btn waves-light green lighten-1 white-text"
-          onclick="questions(); "
-        >
+        <button style="margin-top: 22px; margin-left: 5px" class="btn waves-light green lighten-1 white-text"
+          onclick="questions(); ">
           Load Questions
         </button>
       </p>
@@ -122,15 +92,12 @@
     </div>
     <span id="message" style="color: Red; display: none; float: left"></span>
     <div class="col-sm-9" id="questions" style=""></div>
-    <div
-      id="questionloader"
-      style="
+    <div id="questionloader" style="
         display: none;
         padding-left: 300px;
         margin-top: 80px;
         margin-bottom: 100px;
-      "
-    >
+      ">
       <img src="../static/images/loader.gif" />
     </div>
   </div>
@@ -303,36 +270,6 @@
         window.alert("error occured while loading chapters");
       },
     });
-    // $('#testBuilderQuestions').hide();
-    // $("questions").hide();
-    // $('#questionloader').show();
-
-    // $.ajax({
-    //         url: "/fetchRequiredQues?class_val="+class_val+"&subject_id="+subject_id,
-    //         type: "POST",
-    //         contentType: "application/json",
-    //         data: "",
-
-    //         success: function (response) {
-    //             $('#testBuilderQuestions').show();
-    //             $("#questions").show();
-    //             $('#questionloader').hide();
-    //             if(response==1){
-    //                 $("#questions").html('<h3 class="grey-text">No questions found under the selected topic(s)</h3><br><h5>You may add questions from <a href="{{url_for("questionBuilder")}}">Question Builder</a> </h5>');
-
-    //             }
-    //             else{
-    //                 $("#questions").html(response);
-
-    //             }
-    //             console.log('loader hide');
-
-    //         },
-    //         error: function (xhr) {
-    //             window.alert("error occurred while loading question");
-    //         }
-    //     });
-    // For new Questions
     $("#testBuilderQuestions").hide();
     $("questions").hide();
     $("#questionloader").show();
@@ -747,7 +684,7 @@
       success: function (response) {
         $("#quesBuilder").html(response);
       },
-      error: function (xhr) {},
+      error: function (xhr) { },
     });
   }
   $(document).ready(function () {

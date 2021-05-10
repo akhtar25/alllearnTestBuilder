@@ -128,6 +128,13 @@
           <span style="font-size: 15px;" id="schoolNamDiv">{{schoolName}}</span>
           {% endif %}
           {% endif %}
+          {% if session['show_school_name']!='N' %}
+          {% if session['schoolName'] %}
+          <span style="font-size: 15px;" id="schoolNamDiv">{{session['schoolName']}}</span>
+          {% elif schoolName %}
+          <span style="font-size: 15px;" id="schoolNamDiv">{{schoolName}}</span>
+          {% endif %}
+          {% endif %}
           {%elif current_user.user_type==253%}
           {% else %}
           <!-- Start -->
@@ -135,6 +142,9 @@
           <!-- End -->
           {%if session['schoolName'] != none %}{%if user_type_val!=72 %}<span style='font-size: 15px' id="schoolNamDiv">
             {% if session['show_school_name']=='Y' %}
+            {{ session['schoolName']}}
+            {% endif %}
+            {% if session['show_school_name']!='N' %}
             {{ session['schoolName']}}
             {% endif %}
           </span>{% endif %}{%endif%}{% endif %}
@@ -246,7 +256,7 @@
         </li>
 
         <li>
-          <a style="color: green;" href="{{url_for('studentHomeWork')}}">HomeWork</a>
+          <a style="color: green;" href="{{url_for('new_task.studentHomeWork')}}">HomeWork</a>
         </li>
         <li>
           <a class="white-text" class='classSpecLink' href="{{url_for('contentManager')}}">Content Manager</a>
@@ -517,7 +527,7 @@
               href="{{url_for('tutorDashboard',user_id=current_user.id)}}">Dashboard</a>
           </li>
           <li>
-            <a style="color: green;font-size: 15px;" href="{{url_for('addCourse',course_id='')}}">Add Course</a>
+            <a style="color: green;font-size: 15px;" href="{{url_for('course.addCourse',course_id='')}}">Add Course</a>
           </li>
 
           {% endif %}
@@ -606,7 +616,7 @@
             </li>
 
             <li>
-              <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+              <a style="color: green; font-size:15px;" href="{{url_for('new_task.studentHomeWork')}}">Homework
               </a>
             </li>
             <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large" style="margin:0px;color:green;">
@@ -627,7 +637,7 @@
                 href="{{url_for('studentDashboard')}}">Dashboard</a>
             </li>
             <li>
-              <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+              <a style="color: green; font-size:15px;" href="{{url_for('new_task.studentHomeWork')}}">Homework
               </a>
             </li>
 
@@ -769,10 +779,10 @@
             <li>
               {% if session['primary_color'] %}
               <a style="color: {{session['primary_color']}}; font-size:15px;"
-                href="{{url_for('studentHomeWork')}}">Homework
+                href="{{url_for('new_task.studentHomeWork')}}">Homework
               </a>
               {% else %}
-              <a style="color: green; font-size:15px;" href="{{url_for('studentHomeWork')}}">Homework
+              <a style="color: green; font-size:15px;" href="{{url_for('new_task.studentHomeWork')}}">Homework
               </a>
               {% endif %}
             </li>

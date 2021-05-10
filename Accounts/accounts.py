@@ -2,8 +2,8 @@ from Accounts.utils import *
 from applicationDB import *
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask_login import current_user, login_user, logout_user, login_required
-from forms import LoginForm, RegistrationForm
-from send_email import welcome_email
+from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
+from send_email import welcome_email, send_password_reset_email,user_access_request_email
 from sqlalchemy import text
 from werkzeug.urls import url_parse
 
@@ -69,6 +69,7 @@ def login():
     form = LoginForm()
     print('Validation')
     print(form.validate_on_submit())
+    session['isGooglelogin'] = ''
     if form.validate_on_submit() or glogin=="True":
         if glogin=="True":
             print("###glogin val"+ str(glogin))
@@ -102,7 +103,6 @@ def login():
                     print('phone no')
                     user=User.query.filter_by(phone=Input).first()
 
-  
             try:             
                 if user is None or not user.check_password(form.password.data):        
                     flash("Invalid email or password")
@@ -149,6 +149,8 @@ def login():
 
         school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
         session['school_logo'] = ''
+        print('school_pro:'+str(school_pro))
+        session['isGooglelogin'] = ''
         if school_pro:
             session['school_logo'] = school_pro.school_logo
             session['schoolPicture'] = school_pro.school_picture
@@ -157,6 +159,8 @@ def login():
             print('session[font]:'+str(session['font']))
             session['primary_color'] = school_pro.primary_color
             session['isGooglelogin'] = school_pro.google_login
+            print('session[isGooglelogin]:'+str(session['isGooglelogin']))
+            print('school_pro.google_login:'+str(school_pro.google_login))
             session['show_school_name'] = school_pro.show_school_name
             teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
             userData = User.query.filter_by(id=teacherData.user_id).first()
@@ -245,7 +249,7 @@ def submit_form():
     #teacherProfile.profile_picture = request.form["avatar-url"]
     #db.session.commit()
     #flash('DB values updated')
-    return redirect(url_for('account'))
+    return redirect(url_for('accounts.account'))
 
 @accounts.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -257,7 +261,7 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
         flash('Check your email for the instructions to reset your password')
-        return redirect(url_for('login'))
+        return redirect(url_for('accounts.login'))
     return render_template('reset_password_request.html', title='Reset Password', form=form)    
 
 @accounts.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -272,7 +276,7 @@ def reset_password(token):
         user.set_password(form.password.data)
         db.session.commit()
         flash('Your password has been reset.')
-        return redirect(url_for('login'))
+        return redirect(url_for('accounts.login'))
     return render_template('reset_password_page.html', form=form)  
 
 @accounts.route('/setGoogleLogin',methods=['POST','GET'])

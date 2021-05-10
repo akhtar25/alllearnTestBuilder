@@ -1,15 +1,15 @@
 <div class="container">
-<p>Dear {{name}},</p>
-<p>
-    You have been granted access to <b>{{school}}'s</b> dashboard on Alllearn.
-    
-    Please click below to access pages <br>
-    <h3><a href="{{ url_for('index', _external=True) }}">
-            {{school}}'s Dashboard
-    </a></h3>
-</p>
-<p>For any issues, queries or concerns please drop us a whatsapp message on: 99103 68828</p>
+    <p>Dear {{name}},</p>
+    <p>
+        You have been granted access to <b>{{school}}'s</b> dashboard on Alllearn.
 
-<p>Sincerely,</p>
-<p>Alllearn Team</p>
+        Please click below to access pages <br>
+    <h3><a href="{{ url_for('dashboard.index', _external=True) }}">
+            {{school}}'s Dashboard
+        </a></h3>
+    </p>
+    <p>For any issues, queries or concerns please drop us a whatsapp message on: 99103 68828</p>
+
+    <p>Sincerely,</p>
+    <p>Alllearn Team</p>
 </div>

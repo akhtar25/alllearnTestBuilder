@@ -3,12 +3,12 @@
     <div class="container">
         {% if students %}
         {% for student in students %}
-        
-        <div class="container z-depth-1">                                        
+
+        <div class="container z-depth-1">
             <div class="col-sm-9">
                 <div class="row">
                     <div class="col-sm-5">
-                        
+
                         <h3><span>{{ student.full_name }}</span></h3>
                     </div>
                 </div>
@@ -28,12 +28,12 @@
                         <h4>Last Week's Average : </h4>
                         <h3 class="text-green"><span>75.00%</span></h3>
                     </div>
-                    
+
                     <div class="col-sm-6">
-                        <h4 >Strengths: </h4>
+                        <h4>Strengths: </h4>
                         <h3 class="text-green"><span>English, Social Science</span></h3>
                     </div>
-                    
+
                 </div>
                 <div class="row">
                     <div class="col-sm-4">
@@ -43,21 +43,21 @@
                         </a>
                     </div>
                     <div class="col-sm-4">
-                        <a href="{{url_for('studentProfile')}}">
+                        <a href="{{url_for('student_profile.studentProfile')}}">
                             <p><button class="btn waves-light green lighten-1 white-text">Profile Details</button></p>
                         </a>
-                    </div>                    
-                </div>                
+                    </div>
+                </div>
             </div>
             <div class="col-sm-3">
                 <img src="{{student.profile_picture}}" class="circle responsive-img" style="width:130px; height:130px;">
-            </div>                                
+            </div>
         </div>
         <br><br>
         {% endfor %}
-        
+
         {% endif %}
-        
+
     </div>
-    
+
     {% endblock %}

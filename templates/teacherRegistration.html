@@ -9,50 +9,58 @@
                     {% if teacherDetail %}
                     <p>
                         <label>
-                            <input type="checkbox" value="Y" id="schoolPart" checked/>
-                          <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
-                          
+                            <input type="checkbox" value="Y" id="schoolPart" checked />
+                            <span
+                                style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are
+                                you a part of any school/institute?</span>
+
                         </label>
-                      </p></h4>
-                      <div style="" id="chooseSchool">
-                        {% for row in NewSchool %}
-                        {% if teacherDetail.school_id==row.school_id %}
-                            <input type="text" value="{{row.school_name}}" disabled/>
-                            <input type="hidden" name="NewSchool" value="{{row.school_id}}"/>
-                        {% endif %}
-                        {% endfor %}
-                      <div class="input-field col s8">
+                    </p>
+                </h4>
+                <div style="" id="chooseSchool">
+                    {% for row in NewSchool %}
+                    {% if teacherDetail.school_id==row.school_id %}
+                    <input type="text" value="{{row.school_name}}" disabled />
+                    <input type="hidden" name="NewSchool" value="{{row.school_id}}" />
+                    {% endif %}
+                    {% endfor %}
+                    <div class="input-field col s8">
                         <select name="selectSchool">
-                          <option value="" selected disabled >Choose Your School</option>
-                          {% for row in School %}
-                          
-                          <option value="{{row.school_id}}" >{{row.school_name}}</option>  
-                          
-                          {% endfor %}
+                            <option value="" selected disabled>Choose Your School</option>
+                            {% for row in School %}
+
+                            <option value="{{row.school_id}}">{{row.school_name}}</option>
+
+                            {% endfor %}
                         </select>
-                      </div><br><br></div>
-                    {% else %}
-                    <p>
+                    </div><br><br>
+                </div>
+                {% else %}
+                <p>
                     <label>
-                        <input type="checkbox" value="Y" id="schoolPart"/>
-                      <span style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are you a part of any school/institute?</span>
-                      
+                        <input type="checkbox" value="Y" id="schoolPart" />
+                        <span
+                            style="font-size: 16px;font-family: sans-serif, Source sans-serif;font-weight: lighter;">Are
+                            you a part of any school/institute?</span>
+
                     </label>
-                  </p></h4>
-                  <div style="display: none;" id="chooseSchool">
-                  <div class="input-field col s8">
-                    <select name="selectSchool">
-                      <option value="" disabled selected>Choose Your School</option>
-                      {% for row in School %}
-                      <option value="{{row.school_id}}">{{row.school_name}}</option>
-                      {% endfor %}
-                    </select>
-                  </div><br><br></div>
-                  {% endif %}
+                </p>
+                </h4>
+                <div style="display: none;" id="chooseSchool">
+                    <div class="input-field col s8">
+                        <select name="selectSchool">
+                            <option value="" disabled selected>Choose Your School</option>
+                            {% for row in School %}
+                            <option value="{{row.school_id}}">{{row.school_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div><br><br>
+                </div>
+                {% endif %}
                 <ul>
                     <div id="bankDiv">
                         <div id="aboutDiv">
-                           
+
                             <li>
                                 <h3 class="grey-text">About</h3>
                             </li>
@@ -67,15 +75,16 @@
                             {% else %}
                             <input type="hidden" id="imageUrl" value="" name="imageUrl">
                             {% endif %}
-                            <br>                            
+                            <br>
                             <input type="file" id="teacherImg" onchange="initUpload('3');" name="teacherImg"
                                 style="height: 30px; margin-top: 10px;">
-                                <div id="teacherImgLoader" style="display: none;" class="left">
-                                    <img src="../static/images/loader.gif" style="width: 50px;">
-                                </div>
-                                <br>
+                            <div id="teacherImgLoader" style="display: none;" class="left">
+                                <img src="../static/images/loader.gif" style="width: 50px;">
+                            </div>
+                            <br>
                             <h4 style="">A little bit about yourself</h4>
-                            <textarea name="about_me" id="newValue" style="height:100px;" class="validationClass"></textarea>
+                            <textarea name="about_me" id="newValue" style="height:100px;"
+                                class="validationClass"></textarea>
                         </div>
                         <br>
                         <div class="divider"></div>
@@ -86,33 +95,42 @@
                         <div style="display: flex;">
                             <h4 style="width:210px;">Bank Name</h4>
                             {% if bankDetail %}
-                            <input type="text" value="{{bankDetail.bank_name}}" style="width: 500px;" name="bankName" id="bankName" class="validationClass"/>
+                            <input type="text" value="{{bankDetail.bank_name}}" style="width: 500px;" name="bankName"
+                                id="bankName" class="validationClass" />
                             {% else %}
-                            <input type="text" value="" style="width: 500px;" name="bankName" id="bankName" class="validationClass"/>
+                            <input type="text" value="" style="width: 500px;" name="bankName" id="bankName"
+                                class="validationClass" />
                             {% endif %}
                             <h4 style="width:210px;margin-left: 50px;">Account Holdername</h4>
                             {% if bankDetail %}
-                            <input type="text" value="{{bankDetail.account_name}}" style="width: 500px;" name="accountHoldername" id="accountHoldername" class="validationClass"/>
+                            <input type="text" value="{{bankDetail.account_name}}" style="width: 500px;"
+                                name="accountHoldername" id="accountHoldername" class="validationClass" />
                             {% else %}
-                            <input type="text" value="" style="width: 500px;" name="accountHoldername" id="accountHoldername" class="validationClass"/>
+                            <input type="text" value="" style="width: 500px;" name="accountHoldername"
+                                id="accountHoldername" class="validationClass" />
                             {% endif %}
                         </div>
                         <div style="display: flex;">
                             <h4 style="width:210px;">Account Number</h4>
                             {% if bankDetail %}
-                            <input type="number" min="0" value="{{bankDetail.account_num}}" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            <input type="number" min="0" value="{{bankDetail.account_num}}" style="width: 500px;"
+                                id="accountNumber" name="accountNumber" class="validationClass" />
                             {% else %}
-                            <input type="number" min="0" value="" style="width: 500px;" id="accountNumber" name="accountNumber" class="validationClass"/>
+                            <input type="number" min="0" value="" style="width: 500px;" id="accountNumber"
+                                name="accountNumber" class="validationClass" />
                             {% endif %}
                             <h4 style="width:210px;margin-left: 50px;">IFSC Code</h4>
                             {% if bankDetail %}
-                            <input type="text" value="{{bankDetail.ifsc}}" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
+                            <input type="text" value="{{bankDetail.ifsc}}" style="width: 500px;" name="ifscCode"
+                                id="ifscCode" class="validationClass" />
                             {% else %}
-                            <input type="text" value="" style="width: 500px;" name="ifscCode" id="ifscCode" class="validationClass"/>
+                            <input type="text" value="" style="width: 500px;" name="ifscCode" id="ifscCode"
+                                class="validationClass" />
                             {% endif %}
                         </div>
                     </div>
-                    <button class="btn waves-light green white-text right" style="margin-top: 20px;" id="submit">Submit</button>
+                    <button class="btn waves-light green white-text right" style="margin-top: 20px;"
+                        id="submit">Submit</button>
                     <br>
                     <span class="orange-text" id="errorMSGSpan"></span>
                 </ul>
@@ -120,7 +138,7 @@
         </div>
         {% if teacherDetail.about_me %}
         <script>
-           var textValue = document.getElementById("newValue");
+            var textValue = document.getElementById("newValue");
             textValue.value = "{{teacherDetail.about_me}}";
         </script>
         {% endif %}
@@ -136,11 +154,12 @@
                         You'll only be able to add course after the account setup is complete
                     </li>
                     <li style="list-style-type: initial;">
-                        You'll receive an email as soon as your tutor account setup is complete. 
+                        You'll receive an email as soon as your tutor account setup is complete.
                     </li>
                     <li style="list-style-type: initial;">
-                        At the moment, only <b>Indian account</b> holders can add paid courses, but we're working rapidly to ensure people from outside India can get onboard as well. 
-                        <br>Tentative date: 15 December 2020 
+                        At the moment, only <b>Indian account</b> holders can add paid courses, but we're working
+                        rapidly to ensure people from outside India can get onboard as well.
+                        <br>Tentative date: 15 December 2020
                     </li>
                 </ul>
             </div>
@@ -167,22 +186,22 @@
 
 <script>
 
-    
 
-    $(document).ready(function(){
-        
+
+    $(document).ready(function () {
+
         var schoolAvail = $('#schoolPart').val();
-        console.log('inside school PArt:'+schoolAvail);
-        $('input[type="checkbox"]').click(function(){
-            if($(this).prop("checked") == true){
+        console.log('inside school PArt:' + schoolAvail);
+        $('input[type="checkbox"]').click(function () {
+            if ($(this).prop("checked") == true) {
                 $('#chooseSchool').show();
             }
-            else if($(this).prop("checked") == false){
+            else if ($(this).prop("checked") == false) {
                 $('#chooseSchool').hide();
             }
         });
         console.log('Review Status:{{reviewStatus}}');
-        {% if reviewStatus==273 %}
+        {% if reviewStatus == 273 %}
         $('#teachRegPage').hide();
         $('#reviewPage').show();
         {% endif %}
@@ -191,153 +210,152 @@
     $('#submit').click(function ($e) {
         console.log('inside submit btn function');
         // $('#submit').prop('disabled',true);
-        
-        
+
+
         $e.preventDefault();
         var form = $('#teacherRegForm');
         var teacher_id = "{{teacher_id}}";
         //window.alert($('#bankName').val());
-        if($('#bankName').val()!=""&&$('#newValue').val()!='' && $('#accountHoldername').val()!=""  && $('#accountNumber').val()!="" && $('#ifscCode').val()!="")
-        {
-        $('#submit').html('please wait...');
-        $('#submit').prop('disabled',true);
-        $.ajax({
-            url: "/teacherRegForm?teacher_id="+teacher_id,
-            type: "POST",
-            data: form.serialize(),
-            success: function (response) {
-                console.log(response);
-                if (response) {
-                    console.log('data added successfully'+response);
-                    if(response==274){
-                    window.location.replace("{{url_for('editCourse')}}");
+        if ($('#bankName').val() != "" && $('#newValue').val() != '' && $('#accountHoldername').val() != "" && $('#accountNumber').val() != "" && $('#ifscCode').val() != "") {
+            $('#submit').html('please wait...');
+            $('#submit').prop('disabled', true);
+            $.ajax({
+                url: "/teacherRegForm?teacher_id=" + teacher_id,
+                type: "POST",
+                data: form.serialize(),
+                success: function (response) {
+                    console.log(response);
+                    if (response) {
+                        console.log('data added successfully' + response);
+                        if (response == 274) {
+                            window.location.replace("{{url_for('course.editCourse')}}");
+                        }
+                        M.toast({
+                            html: '<h4>Teacher Registered Successfully</h4>'
+                        });
+                        $('#submit').html('Submit');
+                        $('#teachRegPage').hide();
+                        $('#reviewPage').show();
                     }
-                    M.toast({
-                        html: '<h4>Teacher Registered Successfully</h4>'
-                    });
-                    $('#submit').html('Submit');
-                    $('#teachRegPage').hide();
-                    $('#reviewPage').show();
+                },
+                error: function (xhr) {
+                    $('#msg').html('Error to submit form data');
                 }
-            },
-            error: function (xhr) {
-                $('#msg').html('Error to submit form data');
-            }
-        });
-    }
-    else{
-        $('#errorMSGSpan').html('Please fill all the bank details.');
-    }
+            });
+        }
+        else {
+            $('#errorMSGSpan').html('Please fill all the bank details.');
+        }
     });
 
 
 
- // Upload File Start
- function uploadFile(file, s3Data, url,fileType){
+    // Upload File Start
+    function uploadFile(file, s3Data, url, fileType) {
         console.log('inside uploadFile');
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', s3Data.url);
-      xhr.setRequestHeader('x-amz-acl', 'public-read');
-      const postData = new FormData();
-      for(key in s3Data.fields){
-        postData.append(key, s3Data.fields[key]);      
-      }
-      postData.append('file', file);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200 || xhr.status === 204){
-            //console.log('fileType:'+fileType);
-            if(fileType=='1'){
-                console.log('if file for courseUrl');
-                $('#videoLoader').hide();
-                $('#preview').show();
-            document.getElementById('preview').src = url;
-            document.getElementById('videoUrl').value=url;
-            }else
-            if(fileType=='2'){
-                console.log('if file is for notesUrl');
-                $('.videoNotesUrl').val(url);
-                $('#fileLoader').hide();
-                // document.getElementById('previewNotes').src = url;
-            }else
-            if(fileType=='10'){
-                $('#classRecLoader').hide();
-                $('#videoRecordUrl').val(url);
-            }
-            else{
-                console.log('if file for imageUrl');
-                $('#teacherImgLoader').hide();
-                document.getElementById('previewImg').src = url;
-                document.getElementById('imageUrl').value=url;
-            }
-            console.log(url);
-          }
-          else{
-            //window.alert("this is where the problem is");
-            $('#errorMSGSpan').html('Could not upload file. Please try later.');
-             $('#teacherImgLoader').hide();
-            //alert('Could not upload file.');
-          }
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', s3Data.url);
+        xhr.setRequestHeader('x-amz-acl', 'public-read');
+        const postData = new FormData();
+        for (key in s3Data.fields) {
+            postData.append(key, s3Data.fields[key]);
         }
-      };
-      xhr.send(postData);
+        postData.append('file', file);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 204) {
+                    //console.log('fileType:'+fileType);
+                    if (fileType == '1') {
+                        console.log('if file for courseUrl');
+                        $('#videoLoader').hide();
+                        $('#preview').show();
+                        document.getElementById('preview').src = url;
+                        document.getElementById('videoUrl').value = url;
+                    } else
+                        if (fileType == '2') {
+                            console.log('if file is for notesUrl');
+                            $('.videoNotesUrl').val(url);
+                            $('#fileLoader').hide();
+                            // document.getElementById('previewNotes').src = url;
+                        } else
+                            if (fileType == '10') {
+                                $('#classRecLoader').hide();
+                                $('#videoRecordUrl').val(url);
+                            }
+                            else {
+                                console.log('if file for imageUrl');
+                                $('#teacherImgLoader').hide();
+                                document.getElementById('previewImg').src = url;
+                                document.getElementById('imageUrl').value = url;
+                            }
+                    console.log(url);
+                }
+                else {
+                    //window.alert("this is where the problem is");
+                    $('#errorMSGSpan').html('Could not upload file. Please try later.');
+                    $('#teacherImgLoader').hide();
+                    //alert('Could not upload file.');
+                }
+            }
+        };
+        xhr.send(postData);
     }
-    function getSignedRequest(file,fileType){
-      const xhr = new XMLHttpRequest();
-      var type = file.type;
-      var VideoName = file.name;
-      console.log('File Name:'+type);
-      console.log('file type:'+VideoName);
-      //$('#video_name').html(VideoName);
-      xhr.open('GET', `/sign-s3?file-name=${VideoName}&file-type=${type}&folder=teacherImage`);
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState === 4){
-          if(xhr.status === 200){
-            const response = JSON.parse(xhr.responseText);
-            uploadFile(file, response.data, response.url,fileType);
-          } 
-          else{
-            $('#teacherImgLoader').hide();
-            $('#errorMSGSpan').html('Error In upload. Could not get signed URL. Please try later.');     
+    function getSignedRequest(file, fileType) {
+        const xhr = new XMLHttpRequest();
+        var type = file.type;
+        var VideoName = file.name;
+        console.log('File Name:' + type);
+        console.log('file type:' + VideoName);
+        //$('#video_name').html(VideoName);
+        xhr.open('GET', `/sign-s3?file-name=${VideoName}&file-type=${type}&folder=teacherImage`);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    uploadFile(file, response.data, response.url, fileType);
+                }
+                else {
+                    $('#teacherImgLoader').hide();
+                    $('#errorMSGSpan').html('Error In upload. Could not get signed URL. Please try later.');
 
-          }
-        }
-      };
-      xhr.send();
+                }
+            }
+        };
+        xhr.send();
     }
-    function initUpload(fileType){
+    function initUpload(fileType) {
         console.log('inside initUpload');
         console.log(fileType);
         var files = '';
-    if(fileType=='1'){
-        $('#videoLoader').show();
-        $('#preview').hide();
-       files = document.getElementById('video_url').files;
-    }else
-    if(fileType=='2'){
-        $('#fileLoader').show();
-        console.log('video zone is 2');
-         files = document.getElementById('video_notes_url').files;
-         console.log('fileName:'+files);
-        //  console.log(files[0].filename);
-    }else
-    if(fileType=='10'){
-        $('#classRecLoader').show();
-        files = document.getElementById('video_record_url').files;
-    }
-    else{
-        $('#teacherImgLoader').show();
-        files = document.getElementById('teacherImg').files;
-    }
-      const file = files[0];
-      if(!file){
-        return alert('No file selected.');
-      }
-      console.log('FileName:'+file);
-      getSignedRequest(file,fileType);
+        if (fileType == '1') {
+            $('#videoLoader').show();
+            $('#preview').hide();
+            files = document.getElementById('video_url').files;
+        } else
+            if (fileType == '2') {
+                $('#fileLoader').show();
+                console.log('video zone is 2');
+                files = document.getElementById('video_notes_url').files;
+                console.log('fileName:' + files);
+                //  console.log(files[0].filename);
+            } else
+                if (fileType == '10') {
+                    $('#classRecLoader').show();
+                    files = document.getElementById('video_record_url').files;
+                }
+                else {
+                    $('#teacherImgLoader').show();
+                    files = document.getElementById('teacherImg').files;
+                }
+        const file = files[0];
+        if (!file) {
+            return alert('No file selected.');
+        }
+        console.log('FileName:' + file);
+        getSignedRequest(file, fileType);
     }
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $('select').formSelect();
     });
 </script>

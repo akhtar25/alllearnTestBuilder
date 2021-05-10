@@ -1,254 +1,262 @@
 {% if questions %}
 <div id="questionUpdateParentDiv">
-<div id="editQuestionsTableDiv">
-<h3>Select questions
-        <!-- <button style="float:right;text-transform: initial;width: 190px;"
-                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('questionBuilder')}}" style="color: white;">Add Question</a></button> -->
+  <div id="editQuestionsTableDiv">
+    <h3>Select questions
+      <!-- <button style="float:right;text-transform: initial;width: 190px;"
+                class="btn waves-light green lighten-1 white-text" type="button"><a href="{{url_for('topic_generate.questionBuilder')}}" style="color: white;">Add Question</a></button> -->
     </h3>
-<div class="card id">
-    <div class="card-body">
+    <div class="card id">
+      <div class="card-body">
         <div id="table" class="table-editable" style="overflow-y: auto; height:600px; position: relative;">
-            <table class="table table-bordered table-responsive-md table-striped text-center">
-                <thead>
-                    <tr>
-                        <th scope="col">Question</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Weightage</th>
-                        <th scope="col">Actions</th>  
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for q in questions %}
-                    {% for question in q %}
-                    <tr>
-                        <td>
-                            {% if question.question_type=='MCQ1' %}
-                            <!-- <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a> -->
-                            <!-- <ul> -->
-                                    <ul>
-                                            <li>
-                                              <div><a href="#modal2" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger questionData">{{ question.question_description }}</a></div>
-                                              <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
+          <table class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+              <tr>
+                <th scope="col">Question</th>
+                <th scope="col">Type</th>
+                <th scope="col">Weightage</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for q in questions %}
+              {% for question in q %}
+              <tr>
+                <td>
+                  {% if question.question_type=='MCQ1' %}
+                  <!-- <a href="#" name="{{ question.question_id }}" class="quesDescLink">{{ question.question_description }}</a> -->
+                  <!-- <ul> -->
+                  <ul>
+                    <li>
+                      <div><a href="#modal2" name="{{ question.question_id }}"
+                          class="waves-effect waves-light modal-trigger questionData">{{ question.question_description
+                          }}</a></div>
+                      <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
 
-                                            <!-- Modal Structure -->
-                                             
-                                            <div id="modal2" class="modal" style="background-color:white;">
-                                                    <div id="questionloader1" style="display: none;">
-                                                            <img src="../static/images/loader.gif">
-                                                        </div>
-                                                <div class="modal-content" id="content">
-                                                <p><div id="questionDataList"></div> </p> 
-                                                
-                                                </div>
-                                            </div> 
-                                              <div class="collapse" class="optDiv" style="margin-left: 180px;" id="{{ question.question_id }}" ></div>
-                                            </li>
-                                    </ul>
-                            <!-- <div class="optDiv" id="{{ question.question_id }}">
+                      <!-- Modal Structure -->
+
+                      <div id="modal2" class="modal" style="background-color:white;">
+                        <div id="questionloader1" style="display: none;">
+                          <img src="../static/images/loader.gif">
+                        </div>
+                        <div class="modal-content" id="content">
+                          <p>
+                          <div id="questionDataList"></div>
+                          </p>
+
+                        </div>
+                      </div>
+                      <div class="collapse" class="optDiv" style="margin-left: 180px;" id="{{ question.question_id }}">
+                      </div>
+                    </li>
+                  </ul>
+                  <!-- <div class="optDiv" id="{{ question.question_id }}">
                           
                             </div> -->
-                            <!-- </ul> -->
-                            {% else %}
-                                <h5>
-                                    {{ question.question_description }}
-                                </h5>
-                            {% endif %}
-                            <!-- {% for qp in quesOption %}
+                  <!-- </ul> -->
+                  {% else %}
+                  <h5>
+                    {{ question.question_description }}
+                  </h5>
+                  {% endif %}
+                  <!-- {% for qp in quesOption %}
                             {% for quesOption in qp %} -->
-                            
-                            <!-- {% endfor %}   -->
-                            <!-- {% endfor %}  -->
-                        </td>
-                        <td> {{ question.question_type }} </td>
-                        <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
-                            id="{{ question.question_id }}select"></td>
-                        <td style="width:100px;"><label for="{{ question.question_id }}">
-                                <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
-                                <a id="delBtn" name="{{ question.question_id }}" class="waves-effect waves-light modal-trigger delBTNClass" href="#modal1" style="margin-left: 15px;"><i class="fa fa-trash" style="font-size:17px;color:red;" ></i></a>
-                                 <div id="modal1" class="modal" style="width:52%;height:25%;">
-                                        <div class="modal-content">
-                                          <h1> 
-                                            Are you sure want to delete? 
-                                               <!-- {{ question.question_id }} -->
-                                          </h1>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <a href="#" id="deleteBtn" name="{{ question.question_id }}" class="modal-close waves-effect waves-green btn-flat">Yes</a>
-                                           <a href="#" id="no" class="modal-close waves-effect waves-green btn-flat">No</a>
-                                        </div>
-                                      </div> 
-                            </label></td>
-                    </tr>
-                    
-                    {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
+
+                  <!-- {% endfor %}   -->
+                  <!-- {% endfor %}  -->
+                </td>
+                <td> {{ question.question_type }} </td>
+                <td>{{ question.suggested_weightage }}<input type="hidden" value="{{ question.suggested_weightage }}"
+                    id="{{ question.question_id }}select"></td>
+                <td style="width:100px;"><label for="{{ question.question_id }}">
+                    <a id="" class="questionUpdateButton" name="{{ question.question_id }}" href="#">Edit</a>
+                    <a id="delBtn" name="{{ question.question_id }}"
+                      class="waves-effect waves-light modal-trigger delBTNClass" href="#modal1"
+                      style="margin-left: 15px;"><i class="fa fa-trash" style="font-size:17px;color:red;"></i></a>
+                    <div id="modal1" class="modal" style="width:52%;height:25%;">
+                      <div class="modal-content">
+                        <h1>
+                          Are you sure want to delete?
+                          <!-- {{ question.question_id }} -->
+                        </h1>
+                      </div>
+                      <div class="modal-footer">
+                        <a href="#" id="deleteBtn" name="{{ question.question_id }}"
+                          class="modal-close waves-effect waves-green btn-flat">Yes</a>
+                        <a href="#" id="no" class="modal-close waves-effect waves-green btn-flat">No</a>
+                      </div>
+                    </div>
+                  </label></td>
+              </tr>
+
+              {% endfor %}
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
         <!-- Modal Structure -->
-        
+
+      </div>
     </div>
-</div>
-    </div>
-    <div id="questionloader" style="display: none;padding-left: 300px;">
-            <img src="../static/images/loader.gif">
-            </div>
-        <div id="questionEditorDiV" style='display:none;'></div>
+  </div>
+  <div id="questionloader" style="display: none;padding-left: 300px;">
+    <img src="../static/images/loader.gif">
+  </div>
+  <div id="questionEditorDiV" style='display:none;'></div>
 </div>
 
 {% endif %}
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('.modal');
     var auto = document.querySelectorAll('.autocomplete');
     var instances = M.Modal.init(auto, elems, options);
   });
 
-  
 
-  
+
+
 
   // Or with jQuery
 
-  $(document).ready(function(){
+  $(document).ready(function () {
     $('.modal').modal();
   });
 
-  $('.questionData').click(function(){
+  $('.questionData').click(function () {
     $('#questionloader1').show();
     $('#modal2').hide();
     $('#content').hide();
     $('#questionDataList').html('');
     (function () {
-                    var script = document.createElement("script");
-                    script.type = "text/javascript";
-                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
 
-                    var config = 'MathJax.Hub.Config({' +
-                                    'extensions: ["tex2jax.js"],' +
-                                    'jax: ["input/TeX","output/HTML-CSS"]' +
-                                '});' +
-                                'MathJax.Hub.Startup.onload();';
-                                
+      var config = 'MathJax.Hub.Config({' +
+        'extensions: ["tex2jax.js"],' +
+        'jax: ["input/TeX","output/HTML-CSS"]' +
+        '});' +
+        'MathJax.Hub.Startup.onload();';
 
-                    if (window.opera) {script.innerHTML = config}
-                                else {script.text = config}
 
-                    document.getElementsByTagName("head")[0].appendChild(script);
-                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-                    })();
+      if (window.opera) { script.innerHTML = config }
+      else { script.text = config }
+
+      document.getElementsByTagName("head")[0].appendChild(script);
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    })();
     var question_id = $(this).attr('name');
     console.log('Inside questionData');
-    var data="";
-        $.ajax({
-            url: "/questionAllDetails?question_id="+question_id,
-            type: "get",
-            data: data,
-            success: function(response){
-                $('#questionloader1').hide();
-                $('#modal2').show();
-                $('#content').show();
-                $('#questionDataList').html(response);
-            }
-        })
+    var data = "";
+    $.ajax({
+      url: "/questionAllDetails?question_id=" + question_id,
+      type: "get",
+      data: data,
+      success: function (response) {
+        $('#questionloader1').hide();
+        $('#modal2').show();
+        $('#content').show();
+        $('#questionDataList').html(response);
+      }
+    })
   });
 
 
-  
 
-    $(document).ready(function(){
+
+  $(document).ready(function () {
     $('.collapsible').collapsible();
   });
 
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('.collapsible');
     var instances = M.Collapsible.init(elems, options);
   });
 
-        $('.questionUpdateButton').click(function(){              
-                      
-                      var question_id = $(this).attr('name');
-                      console.log("Question Id in Question Update Button:"+question_id);
-                      var data="";
-                      $.ajax({
-                        url: "/questionDetails?question_id="+question_id,
-                        type: "get",
-                        data: data,
-                        beforeSend: function() {
-                            $("#editQuestionsTableDiv").hide();  
-                            // $("#loader").show();
-                            $("#questionloader").show();
-                        },
-                         success: function(response) {       
-                            // $("#loader").hide();
-                            $("#questionloader").hide();
-                            $('#editQuestionsTableDiv').hide();
-                            $("#questionEditorDiV").html(response);
-                            $("#questionEditorDiV").show();  
-                        },
-                        error: function(xhr) {
-                          window.alert("error occurred while loading question");
-                        }
-                      });               
-                  });
+  $('.questionUpdateButton').click(function () {
+
+    var question_id = $(this).attr('name');
+    console.log("Question Id in Question Update Button:" + question_id);
+    var data = "";
+    $.ajax({
+      url: "/questionDetails?question_id=" + question_id,
+      type: "get",
+      data: data,
+      beforeSend: function () {
+        $("#editQuestionsTableDiv").hide();
+        // $("#loader").show();
+        $("#questionloader").show();
+      },
+      success: function (response) {
+        // $("#loader").hide();
+        $("#questionloader").hide();
+        $('#editQuestionsTableDiv').hide();
+        $("#questionEditorDiV").html(response);
+        $("#questionEditorDiV").show();
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading question");
+      }
+    });
+  });
 
 
-                  function Btn(){
-                    console.log('Inside qId');
-                      var question_id = $(this).attr('name');
-                      console.log('Id:'+question_id);
-                  };
-                  var question_id='';
-                  $('.delBTNClass').click(function(){
-                     question_id = $(this).attr('name');
-                    console.log('Question Id on Delete button:'+question_id);
-                  });
-            
-                  $('#deleteBtn').click(function(){
+  function Btn() {
+    console.log('Inside qId');
+    var question_id = $(this).attr('name');
+    console.log('Id:' + question_id);
+  };
+  var question_id = '';
+  $('.delBTNClass').click(function () {
+    question_id = $(this).attr('name');
+    console.log('Question Id on Delete button:' + question_id);
+  });
 
-                    
-                    console.log('Inside delete QuestionId:'+question_id);
-                    var data="";
-                    $.ajax({
-                        url: "deleteQuestion?question_id="+question_id,
-                        type: "get",
-                        data: data,
-                        beforeSend: function() {
-                            $("#editQuestionsTableDiv").hide();
-                            $("#questionloader").show();
-                        },
-                        success: function(response){
-                            questions();
-                        },
-                        error: function(xhr){
-                            window.alert("error occurred while loading question");
-                        }
-                    });
-                  });
-                  
+  $('#deleteBtn').click(function () {
 
-                  </script>
-                  <script>
 
-                    (function () {
-                    var script = document.createElement("script");
-                    script.type = "text/javascript";
-                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
+    console.log('Inside delete QuestionId:' + question_id);
+    var data = "";
+    $.ajax({
+      url: "deleteQuestion?question_id=" + question_id,
+      type: "get",
+      data: data,
+      beforeSend: function () {
+        $("#editQuestionsTableDiv").hide();
+        $("#questionloader").show();
+      },
+      success: function (response) {
+        questions();
+      },
+      error: function (xhr) {
+        window.alert("error occurred while loading question");
+      }
+    });
+  });
 
-                    var config = 'MathJax.Hub.Config({' +
-                                    'extensions: ["tex2jax.js"],' +
-                                    'jax: ["input/TeX","output/HTML-CSS"]' +
-                                '});' +
-                                'MathJax.Hub.Startup.onload();';
-                                
 
-                    if (window.opera) {script.innerHTML = config}
-                                else {script.text = config}
+</script>
+<script>
 
-                    document.getElementsByTagName("head")[0].appendChild(script);
-                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-                    })();
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
 
-                  </script>
+    var config = 'MathJax.Hub.Config({' +
+      'extensions: ["tex2jax.js"],' +
+      'jax: ["input/TeX","output/HTML-CSS"]' +
+      '});' +
+      'MathJax.Hub.Startup.onload();';
+
+
+    if (window.opera) { script.innerHTML = config }
+    else { script.text = config }
+
+    document.getElementsByTagName("head")[0].appendChild(script);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+  })();
+
+</script>

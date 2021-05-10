@@ -17,7 +17,7 @@ def addCourse():
         db.session.add(courId)
         db.session.commit()
         course_id = courId.course_id
-    return redirect(url_for('editCourse',course_id=course_id))
+    return redirect(url_for('course.editCourse',course_id=course_id))
 
 @course.route('/editCourse')
 def editCourse():
@@ -34,9 +34,9 @@ def editCourse():
         print('REview status:'+str(reviewStatus.review_status))
         if reviewStatus.review_status==273:
             print('review status Inreview')
-            return redirect(url_for('teacherRegistration'))
+            return redirect(url_for('registration.teacherRegistration'))
     if teacherIdExist==None:
-        return redirect(url_for('teacherRegistration'))
+        return redirect(url_for('registration.teacherRegistration'))
     else:
         print('Description:'+str(desc))
         print('course_id:'+str(course_id))
@@ -814,7 +814,7 @@ def myCourses():
 def courseHome():    
     if ("school.alllearn" in str(request.url)):
         print('#######this is the request url: '+ str(request.url))
-        return redirect(url_for('index')) 
+        return redirect(url_for('dashboard.index')) 
     #print(str(current_user.is_anonymous))
     upcomingClassData = ""
     

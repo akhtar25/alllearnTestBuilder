@@ -30,7 +30,7 @@ def index():
         schoolData = SchoolProfile.query.filter_by(school_admin=teacherData.teacher_id).first()
     if schoolData:
         if schoolData.is_verified == 'N':
-            return redirect(url_for('inReviewSchool'))
+            return redirect(url_for('school_details.inReviewSchool'))
     checkUser = User.query.filter_by(id=current_user.id).first()
     if checkUser:
         if checkUser.access_status == 143:
@@ -74,12 +74,12 @@ def index():
     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
         return redirect(url_for('practiceTest'))
     if user.user_type==253:
-        return redirect(url_for('courseHome'))
+        return redirect(url_for('course.courseHome'))
     if user.user_type==72:
         #print('Inside guardian')
         return redirect(url_for('disconnectedAccount'))
     if user.user_type=='161':
-        return redirect(url_for('openJobs'))
+        return redirect(url_for('job_post.openJobs'))
     if user.user_type==134 and user.access_status==145:        
         return redirect(url_for('disconnectedAccount'))
 
