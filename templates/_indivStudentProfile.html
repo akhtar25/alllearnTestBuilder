@@ -155,21 +155,21 @@
                 (<a
                   href="{{url_for('resultUploadHistory',student_id=student_id)}}"
                   target="_blank"
-                  >{{testCount.testcountval}} tests</a
+                  >{{totalTestCount}} tests</a
                 >) {%else%}
                 <h3 class="red-text">{{overallPerfValue}}%</h3>
                 (<a
                   href="{{url_for('resultUploadHistory',student_id=student_id)}}"
                   target="_blank"
-                  >{{testCount.testcountval}} tests</a
+                  >{{totalTestCount}} tests</a
                 >) {%endif%} {% else %} {%if overallPerfValue > 49 %}
                 <h3 class="green-text">{{overallPerfValue}}%</h3>
                 (<a href="#modal1" data-target="modal1" class="modal-trigger"
-                  >{{testCount.testcountval}} tests</a
+                  >{{totalTestCount}} tests</a
                 >) {%else%}
                 <h3 class="red-text">{{overallPerfValue}}%</h3>
                 (<a href="#modal1" data-target="modal1" class="modal-trigger"
-                  >{{testCount.testcountval}} tests</a
+                  >{{totalTestCount}} tests</a
                 >) {%endif%} {% endif %}
                 <div id="modal1" class="modal" style="background-color: white">
                   <div class="modal-content" style="height: 460px">

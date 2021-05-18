@@ -691,7 +691,17 @@
     console.log("weightage:" + weightage);
     if (subject_id && class_val && test_type && date && weightage) {
       console.log("if all are empty");
-      $("#questionSubmitBtn").prop("disabled", false);
+      // Start
+      // if ($(".checkBoxQues").is(":checked")) {
+      if ($(".checkBoxQues:checked").not(":disabled").length == 0) {
+        console.log("All checkboxes are checked");
+        $("#questionSubmitBtn").attr("disabled", false);
+      } else {
+        console.log("All checkboxes not checked");
+        $("#questionSubmitBtn").attr("disabled", true);
+      }
+      // End
+      // $("#questionSubmitBtn").prop("disabled", false);
     } else {
       console.log("if all are not empty");
       $("#questionSubmitBtn").prop("disabled", true);
