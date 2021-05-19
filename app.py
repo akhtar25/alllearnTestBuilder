@@ -2161,7 +2161,14 @@ def openJobsFilteredList():
 
 def jobDetail():
     job_id = request.args.get('job_id')
-    school_id=request.args.get('school_id')  
+    school_id = ''
+    userData = User.query.filter_by(id=current_user.id).first()
+    givenSchoolId=request.args.get('school_id')  
+    if givenSchoolId:
+        school_id = givenSchoolId
+    else:
+        school_id = userData.school_id
+    print(school_id)
     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
@@ -2230,7 +2237,17 @@ def appliedJobs():
 @login_required
 def jobApplications():
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    job_id=request.args.get('job_id')
+    jobidDet=request.args.get('job_id')
+
+    job_id = ''
+    if jobidDet:
+        job_id = jobidDet
+    else:
+        jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
+        if jobDet:
+            job_id = jobDet.job_id
+        else:
+            job_id = 3
     #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
     #pending descision
     jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
