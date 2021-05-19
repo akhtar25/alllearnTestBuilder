@@ -10105,7 +10105,7 @@ def checkrequiredquestions():
             p=p+1
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        Msg = 'Finally, how many questions?'
+        Msg = 'Test Link'
         if len(fetchQuesIds)==0 or fetchQuesIds == '':
             Msg = 'No questions available'
             return jsonify({'msg':Msg})
