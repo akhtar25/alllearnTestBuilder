@@ -12630,8 +12630,12 @@ def studentDashboard():
     except:
         overallPerfValue=0 
     # End
-    subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
-    subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    # subjectPerf = ''
+    # try:
+    #     subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
+    #     subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    # except:
+    #     subjectPerf = []
     topicTrackerQuery = "with cte_total_topics as "
     topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
     topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
@@ -12646,7 +12650,8 @@ def studentDashboard():
     topicTrackerQuery = topicTrackerQuery +"inner join   "
     topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
     topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
-    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
+    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"         
+    print(topicTrackerQuery)       
     topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
     classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
     qclass_val = classQuery.class_val
@@ -12668,7 +12673,7 @@ def studentDashboard():
     topicCoveredCount = db.session.execute(text(topicCoveredCountQuery)).first()
     topicunCoveredCountQuery = "select distinct count(*) from topic_tracker tt where is_covered = 'N' and school_id = '"+str(studentDet.school_id)+"' and is_archived = 'N'"
     topicUncoveredCount = db.session.execute(text(topicunCoveredCountQuery)).first()
-    return render_template('studentDashboard.html',topicUncoveredCount=topicUncoveredCount,topicCoveredCount=topicCoveredCount,pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+    return render_template('studentDashboard.html',topicUncoveredCount=topicUncoveredCount,topicCoveredCount=topicCoveredCount,pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
 
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
