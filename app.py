@@ -10718,7 +10718,7 @@ def checkQuestions():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'Finally, how many questions?'
+        msg = ''
         if len(fetchQuesIds)==0 or fetchQuesIds=='':
             msg = 'No questions available'
             return jsonify({'msg':msg})
