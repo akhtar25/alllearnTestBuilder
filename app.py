@@ -10122,7 +10122,7 @@ def checkrequiredquestions():
             p=p+1
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        Msg = 'Test Link'
+        Msg = 'Generating Link...'
         if len(fetchQuesIds)==0 or fetchQuesIds == '':
             Msg = 'No questions available'
             return jsonify({'msg':Msg})
@@ -10735,7 +10735,7 @@ def checkQuestions():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'Test Link'
+        msg = 'Generating link...'
         if len(fetchQuesIds)==0 or fetchQuesIds=='':
             msg = 'No questions available'
             return jsonify({'msg':msg})
