@@ -377,7 +377,6 @@
             <div class="testDashboard" style="overflow-y: auto;">
 
               <div class="box" id="classTrackerDiv">
-                <!-- /.box-header -->
                 <div class="box-body table-responsive no-padding">
                   <table class="table table-hover">
                     <tr>
@@ -400,37 +399,38 @@
                     {% endfor %}
                   </table>
                 </div>
-                <!-- /.box-body -->
               </div>
-
-              <div id="completeCourseDetailsDiv"></div>
-              <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
+              <!-- /.box-body -->
             </div>
-            <div id="backButton" style="display:none;"><button class="btn pull-right green lighten-1"
-                id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>
+
+            <div id="completeCourseDetailsDiv"></div>
+            <img src="../static/images/loader.gif" style="display: none;padding-left: 400px;" id="loaderDiv">
           </div>
+          <div id="backButton" style="display:none;"><button class="btn pull-right green lighten-1"
+              id="closeCourseDetailsButton" style="margin-top: 10px;">Back</button></div>
         </div>
-
-
-        <div class="row">
-
-        </div>
-        <!-- End -->
-        <!-- Modal -->
-        <div id="homeworkModal" name="homeworkModal" class="modal" style="background-color: white">
-          <div class="modal-content" style="height: 100%; overflow-y: auto">
-            <div id="homeworkLoader" style="display: none" class="center">
-              <img src="../static/images/loader.gif" />
-            </div>
-            <div id="homeworkQuestionsDiv">
-              <!--This will contain ajax data for the selected survey-->
-            </div>
-          </div>
-        </div>
-        <!-- End -->
       </div>
+
+
+      <div class="row">
+
+      </div>
+      <!-- End -->
+      <!-- Modal -->
+      <div id="homeworkModal" name="homeworkModal" class="modal" style="background-color: white">
+        <div class="modal-content" style="height: 100%; overflow-y: auto">
+          <div id="homeworkLoader" style="display: none" class="center">
+            <img src="../static/images/loader.gif" />
+          </div>
+          <div id="homeworkQuestionsDiv">
+            <!--This will contain ajax data for the selected survey-->
+          </div>
+        </div>
+      </div>
+      <!-- End -->
     </div>
-  </body>
+</div>
+</body>
 </div>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>

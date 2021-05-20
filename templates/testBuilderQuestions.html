@@ -44,7 +44,7 @@
                         </td>
                         <td style="text-align: left;"> {{ question.question_type }} </td>
                         <td style="text-align: left;"><label for="{{ question.question_id }}">
-                                <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox"
+                                <input type="checkbox" id="{{ question.question_id }}" name="questionsCheckbox" class="checkBoxQues"
                                     value="{{ question.question_id }}" onclick="calculate_marks(this);"><span></span>
                             </label>
                         </td>
@@ -247,5 +247,6 @@ $(function(){
 
                     
 
+    
                     
 </script>

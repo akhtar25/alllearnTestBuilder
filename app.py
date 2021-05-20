@@ -2215,6 +2215,43 @@ def disconnectedAccount():
 
 
 
+
+# @app.route('/jobDetail')
+
+# def jobDetail():
+#     job_id = request.args.get('job_id')
+#     school_id = ''
+#     userData = User.query.filter_by(id=current_user.id).first()
+#     givenSchoolId=request.args.get('school_id')  
+#     if givenSchoolId:
+#         school_id = givenSchoolId
+#     else:
+#         school_id = userData.school_id
+#     print(school_id)
+#     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+#     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+#     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+#     if current_user.is_anonymous:
+#         print('user Anonymous')
+#         jobApplicationRow = ''
+#     else:
+#         print('user exist')
+#         jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+#     if jobApplicationRow:
+#         applied=1
+#     else:
+#         applied=0
+#     if current_user.is_anonymous:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+#     else:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+    
+
+
+
 # @app.route('/sendJobApplication',methods=['POST','GET'])
 # @login_required
 # def sendJobApplication():
@@ -2241,7 +2278,7 @@ def disconnectedAccount():
 #         new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
 #         #except:
 #         #    pass
-#         return redirect(url_for('job_post.openJobs'))
+#         return redirect(url_for('openJobs'))
 
 # @app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
 # @login_required
@@ -2259,7 +2296,17 @@ def disconnectedAccount():
 # @login_required
 # def jobApplications():
 #     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-#     job_id=request.args.get('job_id')
+#     jobidDet=request.args.get('job_id')
+
+#     job_id = ''
+#     if jobidDet:
+#         job_id = jobidDet
+#     else:
+#         jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
+#         if jobDet:
+#             job_id = jobDet.job_id
+#         else:
+#             job_id = 3
 #     #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
 #     #pending descision
 #     jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
@@ -8344,6 +8391,7 @@ def deleteContentById():
  
 @app.route('/contentManagerDetails',methods=['GET','POST'])
 def contentManagerDetails():
+    print('inside contentManagerDetails')
     contents=[]
     topicList=request.get_json()
     user_type_val = current_user.user_type
@@ -10135,7 +10183,7 @@ def checkrequiredquestions():
             p=p+1
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        Msg = 'Finally, how many questions?'
+        Msg = 'Test Link'
         if len(fetchQuesIds)==0 or fetchQuesIds == '':
             Msg = 'No questions available'
             return jsonify({'msg':Msg})
@@ -10266,7 +10314,7 @@ def getEnteredTopicOnlineClassLink():
 #         for topic in topicList:
 #             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
 #             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
 #             if p<len(topicList):
 #                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
 #             p=p+1
@@ -10381,7 +10429,7 @@ def getEnteredTopicList():
         for topic in topicList:
             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
@@ -10554,7 +10602,7 @@ def enteredTopicTestDet():
 #         for topic in topicList:
 #             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
 #             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
 #             if p<len(topicList):
 #                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
 #             p=p+1
@@ -10632,63 +10680,63 @@ def enteredTopicTestDet():
             
 #         selClass = paramList[12]
             
-#         selSubject = paramList[13]
-#         subId = paramList[16]
-#         print(selSubject)
-#         print('SubId:'+str(subId))
-#         topics = paramList[1].strip()
-#         topicList = topics.split(',')
-#         print(topicList[0])
-#         topic = topicList[0].capitalize()
-#         print('Topic:'+str(topic))
-#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-#         p =1
-#         for topic in topicList:
-#             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
-#             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
-#             if p<len(topicList):
-#                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
-#             p=p+1
-#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-#         msg = 'No questions available'
-#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
-#             return jsonify({'testId':msg})
-#         listLength = len(fetchQuesIds)
-#         total_marks = int(paramList[0]) * int(listLength)
-#         boardID = paramList[20]
-#         test_type = paramList[11]
-#         subjId = paramList[16]
-#         class_val = paramList[4]
-#         file_name_val = paramList[21]
-#         school_id = paramList[17]
-#         teacher_id = paramList[15]
-#         resp_session_id = paramList[22]
-#         format = "%Y-%m-%d %H:%M:%S"
-#         now_utc = datetime.now(timezone('UTC'))
-#         now_local = now_utc.astimezone(get_localzone())
-#         print('Date of test creation:'+str(now_local.strftime(format)))
-#         classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
-#         class_sec_id = classDet.class_sec_id
-#         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
-#             board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
-#             date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
-#         db.session.add(testDetailsUpd)
-#         db.session.commit()
-#         file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
-#         testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
-#         testDet.test_paper_link = file_name_val
-#         db.session.commit()
-#         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-#             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
-#         db.session.add(sessionDetailRowInsert)
-#         for questionVal in fetchQuesIds:
-#             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-#             db.session.add(testQuestionInsert)
-#         db.session.commit()
-#         testId = testDetailsUpd.test_id 
-#         return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+        selSubject = paramList[13]
+        # subId = paramList[16]
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # topics = paramList[1].strip()
+        # topicList = topics.split(',')
+        # print(topicList[0])
+        # topic = topicList[0].capitalize()
+        # print('Topic:'+str(topic))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # p =1
+        # for topic in topicList:
+        #     fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+        #     if p<len(topicList):
+        #         fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+        #     p=p+1
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'No questions available'
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'testId':msg})
+        # listLength = len(fetchQuesIds)
+        # total_marks = int(paramList[0]) * int(listLength)
+        # boardID = paramList[20]
+        # test_type = paramList[11]
+        # subjId = paramList[16]
+        # class_val = paramList[4]
+        # file_name_val = paramList[21]
+        # school_id = paramList[17]
+        # teacher_id = paramList[15]
+        # resp_session_id = paramList[22]
+        # format = "%Y-%m-%d %H:%M:%S"
+        # now_utc = datetime.now(timezone('UTC'))
+        # now_local = now_utc.astimezone(get_localzone())
+        # print('Date of test creation:'+str(now_local.strftime(format)))
+        # classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
+        # class_sec_id = classDet.class_sec_id
+        # testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+        #     date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
+        # db.session.add(testDetailsUpd)
+        # db.session.commit()
+        # file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        # testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        # testDet.test_paper_link = file_name_val
+        # db.session.commit()
+        # sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+        #     test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+        # db.session.add(sessionDetailRowInsert)
+        # for questionVal in fetchQuesIds:
+        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        #     db.session.add(testQuestionInsert)
+        # db.session.commit()
+        # testId = testDetailsUpd.test_id 
+        # return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
 
 @app.route('/checkQuestions',methods=['GET','POST'])
 def checkQuestions():
@@ -10748,11 +10796,118 @@ def checkQuestions():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"'"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'Finally, how many questions?'
+        msg = 'Test Link'
         if len(fetchQuesIds)==0 or fetchQuesIds=='':
             msg = 'No questions available'
             return jsonify({'msg':msg})
         return jsonify({'msg':msg})
+
+# @app.route('/addStudentTestDet',methods=['GET','POST'])
+# def addStudentTestDet():
+#     if request.method == 'POST':
+#         print('inside addStudentTestDet')        
+#         jsonExamData = request.json
+#             # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
+                
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+#         schoolData = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#         teacher_id = teacherData.teacher_id
+#         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
+#         selClass = classData.class_val
+#         selSubject = paramList[13]
+#         subId = paramList[16]
+#         selChapter = paramList[19]
+#         print('Chapter'+str(selChapter))
+#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#         fetchQuesIds = db.session.execute(fet # subId = paramList[16]
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # topics = paramList[1].strip()
+        # topicList = topics.split(',')
+        # print(topicList[0])
+        # topic = topicList[0].capitalize()
+        # print('Topic:'+str(topic))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # p =1
+        # for topic in topicList:
+        #     fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+        #     if p<len(topicList):
+        #         fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+        #     p=p+1
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'No questions available'
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'testId':msg})
+        # listLength = len(fetchQuesIds)
+        # total_marks = int(paramList[0]) * int(listLength)
+        # boardID = paramList[20]
+        # test_type = paramList[11]
+        # subjId = paramList[16]
+        # class_val = paramList[4]
+        # file_name_val = paramList[21]
+        # school_id = paramList[17]
+        # teacher_id = paramList[15]
+        # resp_session_id = paramList[22]
+        # format = "%Y-%m-%d %H:%M:%S"
+        # now_utc = datetime.now(timezone('UTC'))
+        # now_local = now_utc.astimezone(get_localzone())
+        # print('Date of test creation:'+str(now_local.strftime(format)))
+        # classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
+        # class_sec_id = classDet.class_sec_id
+        # testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+        #     date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
+        # db.session.add(testDetailsUpd)
+        # db.session.commit()
+        # file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        # testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        # testDet.test_paper_link = file_name_val
+        # db.session.commit()
+        # sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+        #     test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+        # db.session.add(sessionDetailRowInsert)
+        # for questionVal in fetchQuesIds:
+        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        #     db.session.add(testQuestionInsert)
+        # db.session.commit()
+        # testId = testDetailsUpd.test_id 
+        # return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+# chQuesIdsQuery).fetchall()
+#         msg = 'Finally, how many questions?'
+#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
+#             msg = 'No questions available'
+#             return jsonify({'msg':msg})
+#         return jsonify({'msg':msg})
 
 # @app.route('/addStudentTestDet',methods=['GET','POST'])
 # def addStudentTestDet():
@@ -10880,7 +11035,7 @@ def addTestDet():
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         
@@ -10968,7 +11123,7 @@ def addTopicTestPaperNewDet():
         for topic in topicList:
             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and qd.archive_status='N' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit '"+str(paramList[3])+"'"
+            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.question_type='MCQ1' and qd.archive_status='N' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
             if p<len(topicList):
                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
             p=p+1
@@ -11033,7 +11188,7 @@ def generateNewTestLink():
         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         clasVal = selClass.replace('_','@')
@@ -11171,7 +11326,7 @@ def insertTestData():
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join question_options qo on qd.question_id=qo.question_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.question_type='MCQ1' and qd.archive_status='N' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
         msg = 'no questions available'
@@ -11375,48 +11530,48 @@ def downloadPaper(test_id):
 #                 selSubject = subjectName.split('-')[1]
 #                 print('selSubject:'+str(selSubject))
                 
-#         print('Subject:')
-#         selSubject = selSubject.strip()
-#         # Start for topic
-#         subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-#         subId = subQuery.msg_id
-#         print(selSubject)
-#         print('SubId:'+str(subId))
-#         extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-#         print('Query:'+str(extractChapterQuery))
-#         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-#         print(extractChapterData)
-#         c=1
-#         chapterDetList = []
-#         for chapterDet in extractChapterData:
-#             chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
-#             chapterDetList.append(chap)
-#             c=c+1
-#         selChapter = ''
-#         for chapterName in chapterDetList:
-#             num = chapterName.split('-')[0]
-#             print('num:'+str(num))
-#             print('class:'+str(paramList[1]))
-#             if int(num) == int(paramList[1]):
-#                 print(chapterName)
-#                 selChapter = chapterName.split('-')[1]
-#                 print('selChapter:'+str(selChapter))
-#         #End topic
-#         selChapter = selChapter.strip()
-#         print('Chapter'+str(selChapter))
-#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-#         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
-#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-#         msg = 'no questions available'
-#         print('fetchQuesIds:'+str(fetchQuesIds))
-#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
-#             return jsonify({'onlineTestLink':msg})
-#         listLength = len(fetchQuesIds)
-#         count_marks = int(paramList[0]) * int(listLength)
+        # print('Subject:')
+        # selSubject = selSubject.strip()
+        # # Start for topic
+        # subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        # subId = subQuery.msg_id
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        # print('Query:'+str(extractChapterQuery))
+        # extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        # print(extractChapterData)
+        # c=1
+        # chapterDetList = []
+        # for chapterDet in extractChapterData:
+        #     chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+        #     chapterDetList.append(chap)
+        #     c=c+1
+        # selChapter = ''
+        # for chapterName in chapterDetList:
+        #     num = chapterName.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(paramList[1]))
+        #     if int(num) == int(paramList[1]):
+        #         print(chapterName)
+        #         selChapter = chapterName.split('-')[1]
+        #         print('selChapter:'+str(selChapter))
+        # #End topic
+        # selChapter = selChapter.strip()
+        # print('Chapter'+str(selChapter))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'no questions available'
+        # print('fetchQuesIds:'+str(fetchQuesIds))
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'onlineTestLink':msg})
+        # listLength = len(fetchQuesIds)
+        # count_marks = int(paramList[0]) * int(listLength)
         
 #         subjId = ''
 #         topicID = ''
@@ -11542,61 +11697,61 @@ def getNewUrl():
 #                 selSubject = subjectName.split('-')[1]
 #                 print('selSubject:'+str(selSubject))
                 
-#         print('Subject:')
-#         selSubject = selSubject.strip()
-#         # Start for topic
-#         subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-#         subId = subQuery.msg_id
-#         print(selSubject)
-#         print('SubId:'+str(subId))
-#         extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-#         print('Query:'+str(extractChapterQuery))
-#         extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-#         print(extractChapterData)
-#         c=1
-#         chapterDetList = []
-#         for chapterDet in extractChapterData:
-#             chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
-#             chapterDetList.append(chap)
-#             c=c+1
-#         selChapter = ''
-#         for chapterName in chapterDetList:
-#             num = chapterName.split('-')[0]
-#             print('num:'+str(num))
-#             print('class:'+str(paramList[1]))
-#             if int(num) == int(paramList[1]):
-#                 print(chapterName)
-#                 selChapter = chapterName.split('-')[1]
-#                 print('selChapter:'+str(selChapter))
-#         #End topic
-#         selChapter = selChapter.strip()
-#         print('Chapter'+str(selChapter))
-#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-#         fetchQuesIdsQuery = "select qd.question_id from question_details qd "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
-#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
-#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-#         oldQuesIds = []
-#         for ques in fetchQuesIds:
-#             if ques:
-#                 oldQuesIds.append(ques.question_id)
-#         testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
-#         print(testPaperQuery)
-#         testPaperData = db.session.execute(text(testPaperQuery)).first()
-#         fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
-#         newQuesIds = []
-#         for ques in fetchLastPaperQuestionIds:
-#             if ques:
-#                 newQuesIds.append(ques.question_id) 
-#         testPaperLink = ''
-#         if  oldQuesIds ==  newQuesIds:   
-#             testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
-#             print('testPaperLink:'+str(testPaperLink))
-#         else:
-#             testPaperLink = 'No testpaper available'
-#         return jsonify({'TestPaperLink':testPaperLink})
+    print('Subject:')
+    selSubject = selSubject.strip()
+    # Start for topic
+    subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+    subId = subQuery.msg_id
+    print(selSubject)
+    print('SubId:'+str(subId))
+    extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+    print('Query:'+str(extractChapterQuery))
+    extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+    print(extractChapterData)
+    c=1
+    chapterDetList = []
+    for chapterDet in extractChapterData:
+        chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+        chapterDetList.append(chap)
+        c=c+1
+    selChapter = ''
+    for chapterName in chapterDetList:
+        num = chapterName.split('-')[0]
+        print('num:'+str(num))
+        print('class:'+str(paramList[1]))
+        if int(num) == int(paramList[1]):
+            print(chapterName)
+            selChapter = chapterName.split('-')[1]
+            print('selChapter:'+str(selChapter))
+    #End topic
+    selChapter = selChapter.strip()
+    print('Chapter'+str(selChapter))
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    fetchQuesIdsQuery = "select qd.question_id from question_details qd "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+    print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
+    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+    oldQuesIds = []
+    for ques in fetchQuesIds:
+        if ques:
+            oldQuesIds.append(ques.question_id)
+    testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
+    print(testPaperQuery)
+    testPaperData = db.session.execute(text(testPaperQuery)).first()
+    fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
+    newQuesIds = []
+    for ques in fetchLastPaperQuestionIds:
+        if ques:
+            newQuesIds.append(ques.question_id) 
+    testPaperLink = ''
+    if  oldQuesIds ==  newQuesIds:   
+        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
+        print('testPaperLink:'+str(testPaperLink))
+    else:
+        testPaperLink = 'No testpaper available'
+    return jsonify({'TestPaperLink':testPaperLink})
 
     
 # @app.route('/testLinkWhatsappBot', methods=['POST','GET'])
@@ -12660,8 +12815,12 @@ def studentDashboard():
     except:
         overallPerfValue=0 
     # End
-    subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
-    subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    # subjectPerf = ''
+    try:
+        subjectPerfQuery = "select subject,student_score from fn_leaderboard_responsecapture() where student_id='"+str(student_id)+"' "
+        subjectPerf = db.session.execute(subjectPerfQuery).fetchall()
+    except:
+        subjectPerf = []
     topicTrackerQuery = "with cte_total_topics as "
     topicTrackerQuery = topicTrackerQuery + "(select subject_id,  "
     topicTrackerQuery = topicTrackerQuery +"count(is_covered) as total_topics , max(last_modified_Date) as last_updated_date "
@@ -12676,7 +12835,8 @@ def studentDashboard():
     topicTrackerQuery = topicTrackerQuery +"inner join   "
     topicTrackerQuery = topicTrackerQuery +"message_detail t2 on   "
     topicTrackerQuery = topicTrackerQuery +"c1.subject_id=t2.msg_id  "
-    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"                
+    topicTrackerQuery = topicTrackerQuery +"group by c1.subject_id, t2.description, c1.total_topics,  c1.last_updated_date"         
+    print(topicTrackerQuery)       
     topicRows  = db.session.execute(text(topicTrackerQuery)).fetchall()
     classQuery = ClassSection.query.filter_by(class_sec_id = studentDet.class_sec_id).first()
     qclass_val = classQuery.class_val
@@ -12698,7 +12858,7 @@ def studentDashboard():
     topicCoveredCount = db.session.execute(text(topicCoveredCountQuery)).first()
     topicunCoveredCountQuery = "select distinct count(*) from topic_tracker tt where is_covered = 'N' and school_id = '"+str(studentDet.school_id)+"' and is_archived = 'N'"
     topicUncoveredCount = db.session.execute(text(topicunCoveredCountQuery)).first()
-    return render_template('studentDashboard.html',topicUncoveredCount=topicUncoveredCount,topicCoveredCount=topicCoveredCount,pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,subjectPerf=subjectPerf,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
+    return render_template('studentDashboard.html',subjectPerf=subjectPerf,topicUncoveredCount=topicUncoveredCount,topicCoveredCount=topicCoveredCount,pendingHomeworkCount=pendingHomeworkCount,writtenHomeworkCount=writtenHomeworkCount,pendingTestCount=pendingTestCount,writtenTestCount=writtenTestCount,qclass_val=qclass_val,topicRows=topicRows,overallPerfValue=overallPerfValue,upcomigTestDetails=upcomigTestDetails,homeworkData=homeworkData,testHistory=testHistory,studentDet=studentDet)
 
 @app.route('/addSubjMarks',methods=['GET','POST'])
 def addSubjMarks():
@@ -14011,9 +14171,16 @@ def subject_list(class_val):
 
 #     perfRows = db.session.execute(text(performanceQuery)).fetchall()
     
-#     testCountQuery = "select count(*) as testcountval from performance_detail where student_id='"+str(student_id)+ "'"
+    # testCountQuery = "select count(distinct resp_session_id) as testcountval from response_capture where student_id='"+str(student_id)+ "'"
 
 #     testCount = db.session.execute(text(testCountQuery)).first() 
+
+#     totalofflineTestQuery = "select  count(*) as count from result_upload ru where student_id  = '"+str(student_id)+ "'"
+
+#     totalofflineTestCount = db.session.execute(text(totalofflineTestQuery)).first()
+
+#     totalTestCount = int(testCount.testcountval) + int(totalofflineTestCount.count)
+#     print('totalTestCount:'+str(totalTestCount))
 
 #     testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
 #     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
@@ -14047,12 +14214,12 @@ def subject_list(class_val):
 #     if totalOfflineTestMarks.sum1:
 #         print(totalOfflineTestMarks.sum1)
 #         sum1 = totalOfflineTestMarks.sum1
-#     totalOnlineTestMarks = "select sum(student_score) as sum2 from performance_detail pd where student_id = '"+str(student_id)+"'"
-#     totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).first()
+#     totalOnlineTestMarks = "select sum(rc2.marks_scored) as sum2,rc2.resp_session_id from response_capture rc2 where student_id = '"+str(student_id)+"' group by rc2.resp_session_id "
+#     totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).fetchall()
     
-#     if totalOnlineTestMarks.sum2:
-#         print(totalOnlineTestMarks.sum2)
-#         sum2 = totalOnlineTestMarks.sum2
+#     for row in totalOnlineTestMarks:
+#         print(row.sum2)
+#         sum2 = sum2 + row.sum2
 #     sumMarks = int(sum1) + int(sum2)
 #     print('Total Marks:'+str(sumMarks))
 #     total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
@@ -14062,15 +14229,18 @@ def subject_list(class_val):
 #     if total1:
 #         print(total1.offlinetotal)
 #         tot1 = total1.offlinetotal
-#     total2 = "select count(*) as count from performance_detail pd where student_id = '"+str(student_id)+"'"
-#     total2 = db.session.execute(text(total2)).first()
+#     total2 = "select sd.total_marks,sd.resp_session_id from session_detail sd inner join response_capture rc on sd.resp_session_id = rc.resp_session_id where rc.student_id = '"+str(student_id)+"' group by sd.total_marks,sd.resp_session_id"
+#     total2 = db.session.execute(text(total2)).fetchall()
 #     total3 = 0
 #     grandTotal = 0
-#     if total2.count:
-#         print(total2.count)
-#         total3 = total2.count*100
+#     for row in total2:
+#         print(row.total_marks)
+#         total3 = total3 + row.total_marks
 #     grandTotal = int(tot1) + int(total3)
+#     print(tot1)
+#     print(total3)
 #     print('Grand Total:'+str(grandTotal))
+#     print('Sum Marks:'+str(sumMarks))
 #     for rows in perfRows:
 #         overallSum = overallSum + int(rows.student_score)
 #         #print(overallSum)
@@ -14099,7 +14269,7 @@ def subject_list(class_val):
 #         qrArray.append(optionURL) 
 #         #print(optionURL)
 #     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
-#         qrArray=qrArray,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
+#         qrArray=qrArray,totalTestCount=totalTestCount,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
 #         testResultRows = testResultRows,onlineTestResultRows=onlineTestResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
 

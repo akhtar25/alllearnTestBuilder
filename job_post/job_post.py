@@ -172,7 +172,14 @@ def openJobsFilteredList():
 
 def jobDetail():
     job_id = request.args.get('job_id')
-    school_id=request.args.get('school_id')  
+    school_id = ''
+    userData = User.query.filter_by(id=current_user.id).first()
+    givenSchoolId=request.args.get('school_id')  
+    if givenSchoolId:
+        school_id = givenSchoolId
+    else:
+        school_id = userData.school_id
+    print(school_id)
     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
@@ -193,7 +200,7 @@ def jobDetail():
     else:
         return render_template('jobDetail.html', title='Job Detail', 
             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
-
+    
 @job_post.route('/sendJobApplication',methods=['POST','GET'])
 @login_required
 def sendJobApplication():
@@ -220,7 +227,8 @@ def sendJobApplication():
         new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
         #except:
         #    pass
-        return redirect(url_for('job_post.openJobs'))
+        return redirect(url_for('openJobs'))
+
 
 @job_post.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
 @login_required
@@ -237,7 +245,17 @@ def appliedJobs():
 @login_required
 def jobApplications():
     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    job_id=request.args.get('job_id')
+    jobidDet=request.args.get('job_id')
+
+    job_id = ''
+    if jobidDet:
+        job_id = jobidDet
+    else:
+        jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
+        if jobDet:
+            job_id = jobDet.job_id
+        else:
+            job_id = 3
     #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
     #pending descision
     jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
@@ -316,10 +334,10 @@ def processApplication():
         flash('Error processing application idk')
     db.session.commit()
     
-    return redirect(url_for('job_post.jobApplications',job_id=job_id))
+    return redirect(url_for('jobApplications',job_id=job_id))
     #except:
     flash('Error processing application')
-    return redirect(url_for('job_post.jobApplications',job_id=job_id))
+    return redirect(url_for('jobApplications',job_id=job_id))
 
 @job_post.route('/submitPost', methods=['GET', 'POST'])
 @login_required
@@ -330,7 +348,7 @@ def submitPost():
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(url_for('job_post.submitPost'))
+        return redirect(url_for('submitPost'))
     posts = [{
         'author': {
             'username': 'John'
@@ -344,3 +362,4 @@ def submitPost():
     }]
     return render_template(
         "submitPost.html", title='Submit Post', form=form, posts=posts)
+        
