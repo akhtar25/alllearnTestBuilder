@@ -8317,11 +8317,7 @@ def recentContentDetails():
         flag = 'true'
         forDash = ''
         return render_template('_contentDetails.html',forDash = forDash,contents=contentDetail,flag=flag)
-    # if contentList:
-    #     return render_template('_contentManagerDetails.html',contents=contentList)
-    # else:
-    #     return jsonify(["NA"])
-
+  
 @app.route('/deleteContentById',methods=['GET','POST'])
 def deleteContentById():
     content_id=request.args.get('content_id')
